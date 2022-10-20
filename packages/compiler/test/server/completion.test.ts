@@ -206,7 +206,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: Cadl.Reflection.Type, doc: Cadl.Reflection.StringLiteral, formatArgs?: Cadl.Reflection.Model)\n```",
+            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.Reflection.Model)\n```",
         },
       },
     ]);
@@ -245,7 +245,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: Cadl.Reflection.Type, doc: Cadl.Reflection.StringLiteral, formatArgs?: Cadl.Reflection.Model)\n```",
+            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.Reflection.Model)\n```",
         },
       },
     ]);

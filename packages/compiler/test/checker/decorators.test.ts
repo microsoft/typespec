@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { setCadlNamespace, Type } from "../../core/index.js";
+import { setCadlNamespace } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -32,7 +32,7 @@ describe("compiler: checker: decorators", () => {
 
     it("bind implementation to declaration", async () => {
       await runner.compile(`
-        extern dec testDec(target: Type);
+        extern dec testDec(target: unknown);
       `);
 
       const testDecDecorator = runner.program
@@ -49,9 +49,9 @@ describe("compiler: checker: decorators", () => {
       setCadlNamespace("MyLib", $otherDec);
 
       await runner.compile(`
-        extern dec testDec(target: Type);
+        extern dec testDec(target: unknown);
         namespace MyLib {
-          extern dec otherDec(target: Type);
+          extern dec otherDec(target: unknown);
         }
       `);
 
@@ -70,7 +70,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if decorator is missing extern modifier", async () => {
       const diagnostics = await runner.diagnose(`
-        dec testDec(target: Type);
+        dec testDec(target: unknown);
       `);
       expectDiagnostics(diagnostics, {
         code: "decorator-extern",
@@ -80,7 +80,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if rest parameter type is not an array expression", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type, ...rest: StringLiteral);
+        extern dec testDec(target: unknown, ...rest: string);
       `);
       expectDiagnostics(diagnostics, {
         code: "rest-parameter-array",
@@ -90,7 +90,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if extern decorator is missing implementation", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec notImplemented(target: Type);
+        extern dec notImplemented(target: unknown);
       `);
       expectDiagnostics(diagnostics, {
         code: "missing-implementation",
@@ -111,7 +111,7 @@ describe("compiler: checker: decorators", () => {
       );
     });
 
-    function expectDecoratorCalledWith(target: Type, ...args: unknown[]) {
+    function expectDecoratorCalledWith(target: unknown, ...args: unknown[]) {
       strictEqual(calledArgs.length, 2 + args.length);
       strictEqual(calledArgs[0].program, runner.program);
       strictEqual(calledArgs[1], target);
@@ -122,7 +122,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with no argument", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: Type);
+        extern dec testDec(target: unknown);
 
         @testDec
         @test
@@ -134,7 +134,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: Type, arg1: StringLiteral, arg2: StringLiteral);
+        extern dec testDec(target: unknown, arg1: string, arg2: string);
 
         @testDec("one", "two")
         @test
@@ -146,7 +146,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with optional arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
+        extern dec testDec(target: unknown, arg1: string, arg2?: string);
 
         @testDec("one")
         @test
@@ -158,7 +158,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with rest arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
+        extern dec testDec(target: unknown, arg1: string, ...args: string[]);
 
         @testDec("one", "two", "three", "four")
         @test
@@ -170,7 +170,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if not calling with enough arguments", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type, arg1: StringLiteral, arg2: StringLiteral);
+        extern dec testDec(target: unknown, arg1: string, arg2: string);
 
         @testDec("one")
         model Foo {}
@@ -184,7 +184,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if not calling with too many arguments", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
+        extern dec testDec(target: unknown, arg1: string, arg2?: string);
 
         @testDec("one", "two", "three")
         model Foo {}
@@ -198,7 +198,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if not calling with argument and decorator expect none", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type);
+        extern dec testDec(target: unknown);
 
         @testDec("one")
         model Foo {}
@@ -212,7 +212,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if not calling with too few arguments with rest", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
+        extern dec testDec(target: unknown, arg1: string, ...args: string[]);
 
         @testDec
         model Foo {}
@@ -226,7 +226,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if target type is incorrect", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Union, arg1: StringLiteral);
+        extern dec testDec(target: Union, arg1: string);
 
         @testDec("abc")
         model Foo {}
@@ -241,7 +241,7 @@ describe("compiler: checker: decorators", () => {
 
     it("errors if argument is not assignable to parameter type", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type, arg1: StringLiteral);
+        extern dec testDec(target: unknown, arg1: string);
 
         @testDec(123)
         model Foo {}
@@ -249,14 +249,13 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
     it("errors if argument is not assignable to rest parameter type", async () => {
       const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: Type, ...args: StringLiteral[]);
+        extern dec testDec(target: unknown, ...args: string[]);
 
         @testDec(123, 456)
         model Foo {}
@@ -265,13 +264,11 @@ describe("compiler: checker: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+          message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '456' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+          message: "Argument '456' is not assignable to parameter of type 'Cadl.string'",
         },
       ]);
     });

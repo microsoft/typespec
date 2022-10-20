@@ -32,8 +32,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
   });
@@ -78,8 +77,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -108,8 +106,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -122,8 +119,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 

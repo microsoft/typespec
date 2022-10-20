@@ -216,7 +216,7 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
-type ReflectionTypeName = keyof typeof ReflectionNameToKind | "Type";
+type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
 let currentSymbolId = 0;
 
@@ -4060,6 +4060,16 @@ export function createChecker(program: Program): Checker {
       return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
+    if (source.kind === "Union") {
+      for (const variant of source.variants.values()) {
+        const [variantAssignable] = isTypeAssignableTo(variant.type, target, diagnosticTarget);
+        if (!variantAssignable) {
+          return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+        }
+      }
+      return [true, []];
+    }
+
     if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
       return isIndexerValid(source, target as Model & { indexer: ModelIndexer }, diagnosticTarget);
     } else if (target.kind === "Model" && source.kind === "Model") {
@@ -4099,9 +4109,6 @@ export function createChecker(program: Program): Checker {
     if (isVoidType(target) || isNeverType(target)) return false;
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
-      if (target.name === "Type") {
-        return true;
-      }
       return source.kind === ReflectionNameToKind[target.name];
     }
 
@@ -4118,6 +4125,8 @@ export function createChecker(program: Program): Checker {
           return IntrinsicTypeRelations.isAssignable("string", targetIntrinsicName);
         case "Boolean":
           return IntrinsicTypeRelations.isAssignable("boolean", targetIntrinsicName);
+        case "Union":
+          return undefined;
         case "Model":
           if (!sourceIntrinsicName) {
             return false;
@@ -4791,9 +4800,6 @@ const ReflectionNameToKind = {
   TemplateParameter: "TemplateParameter",
   Namespace: "Namespace",
   Operation: "Operation",
-  StringLiteral: "String",
-  NumericLiteral: "Number",
-  BooleanLiteral: "Boolean",
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",

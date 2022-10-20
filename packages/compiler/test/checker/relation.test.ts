@@ -169,6 +169,10 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
+    it("can assign string literal union", async () => {
+      await expectTypeAssignable({ source: `"foo" | "bar"`, target: "string" });
+    });
+
     it("emit diagnostic when assigning numeric literal", async () => {
       await expectTypeNotAssignable(
         { source: "123", target: "string" },
@@ -213,6 +217,10 @@ describe("compiler: checker: type relations", () => {
 
     it("can assign numeric literal between -128 and 127", async () => {
       await expectTypeAssignable({ source: "123", target: "int8" });
+    });
+
+    it("can assign numeric literal union", async () => {
+      await expectTypeAssignable({ source: `4 | 123`, target: "int8" });
     });
 
     it("emit diagnostic when numeric literal is out of range large", async () => {

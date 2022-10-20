@@ -7,13 +7,13 @@ namespace Cadl.Versioning;
 extern dec versioned(target: Namespace, versions: Enum);
 extern dec versionedDependency(target: Namespace, mapping: EnumMember | [EnumMember, EnumMember][]);
 
-extern dec added(target: Type, version: EnumMember);
-extern dec removed(target: Type, version: EnumMember);
-extern dec renamedFrom(target: Type, version: EnumMember, oldName?: StringLiteral);
-extern dec madeOptional(target: Type, version: EnumMember);
+extern dec added(target: unknown, version: EnumMember);
+extern dec removed(target: unknown, version: EnumMember);
+extern dec renamedFrom(target: unknown, version: EnumMember, oldName?: string);
+extern dec madeOptional(target: unknown, version: EnumMember);
 
-extern fn addedAfter(target: Type, version: EnumMember): BooleanLiteral;
-extern fn removedOnOrBefore(target: Type, version: EnumMember): BooleanLiteral;
-extern fn renamedAfter(target: Type, version: EnumMember): BooleanLiteral;
-extern fn madeOptionalAfter(target: Type, version: EnumMember): BooleanLiteral;
-extern fn getVersionForEnumMember(target: Type, version: EnumMember): BooleanLiteral;
+extern fn addedAfter(target: unknown, version: EnumMember): boolean;
+extern fn removedOnOrBefore(target: unknown, version: EnumMember): boolean;
+extern fn renamedAfter(target: unknown, version: EnumMember): boolean;
+extern fn madeOptionalAfter(target: unknown, version: EnumMember): boolean;
+extern fn getVersionForEnumMember(target: unknown, version: EnumMember): boolean;

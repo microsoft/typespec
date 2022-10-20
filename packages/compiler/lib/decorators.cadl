@@ -4,48 +4,48 @@ using Cadl.Reflection;
 
 namespace Cadl;
 
-extern dec summary(target: Type, summary: StringLiteral);
-extern dec doc(target: Type, doc: StringLiteral, formatArgs?: Model);
-extern dec deprecated(target: Type, message: StringLiteral);
+extern dec summary(target: unknown, summary: string);
+extern dec doc(target: unknown, doc: string, formatArgs?: Model);
+extern dec deprecated(target: unknown, message: string);
 
 model ServiceOptions {
   title?: string;
   version?: string;
 }
-extern dec service(target: Type, options?: ServiceOptions);
+extern dec service(target: unknown, options?: ServiceOptions);
 
 extern dec error(target: Model);
 
-extern dec format(target: Model | ModelProperty, format: StringLiteral);
-extern dec pattern(target: Model | ModelProperty, pattern: StringLiteral);
+extern dec format(target: Model | ModelProperty, format: string);
+extern dec pattern(target: Model | ModelProperty, pattern: string);
 
-extern dec minLength(target: Model | ModelProperty, value: NumericLiteral);
-extern dec maxLength(target: Model | ModelProperty, value: NumericLiteral);
+extern dec minLength(target: Model | ModelProperty, value: integer);
+extern dec maxLength(target: Model | ModelProperty, value: integer);
 
-extern dec minItems(target: unknown[] | ModelProperty, value: NumericLiteral);
-extern dec maxItems(target: unknown[] | ModelProperty, value: NumericLiteral);
+extern dec minItems(target: unknown[] | ModelProperty, value: integer);
+extern dec maxItems(target: unknown[] | ModelProperty, value: integer);
 
-extern dec minValue(target: Model | ModelProperty, value: NumericLiteral);
-extern dec maxValue(target: Model | ModelProperty, value: NumericLiteral);
+extern dec minValue(target: Model | ModelProperty, value: numeric);
+extern dec maxValue(target: Model | ModelProperty, value: numeric);
 
 extern dec secret(target: Model | ModelProperty);
-extern dec tag(target: Namespace | Interface | Operation, tag: StringLiteral);
-extern dec friendlyName(target: Type, name: StringLiteral, formatArgs?: Type);
+extern dec tag(target: Namespace | Interface | Operation, tag: string);
+extern dec friendlyName(target: unknown, name: string, formatArgs?: unknown);
 extern dec knownValues(target: Model | ModelProperty, values: Enum);
-extern dec key(target: ModelProperty, altName?: StringLiteral);
+extern dec key(target: ModelProperty, altName?: string);
 extern dec overload(target: Operation, overloadbase: Operation);
-extern dec projectedName(target: Type, targetName: StringLiteral, projectedName: StringLiteral);
-extern dec discriminator(target: Model | Union, propertyName: StringLiteral);
+extern dec projectedName(target: unknown, targetName: string, projectedName: string);
+extern dec discriminator(target: Model | Union, propertyName: string);
 
-extern dec visibility(target: ModelProperty, ...visibilities: StringLiteral[]);
-extern dec withVisibility(target: Model, ...visibilities: StringLiteral[]);
+extern dec visibility(target: ModelProperty, ...visibilities: string[]);
+extern dec withVisibility(target: Model, ...visibilities: string[]);
 extern dec withDefaultKeyVisibility(target: Model, visibility: unknown);
 extern dec withUpdateableProperties(target: Model);
 extern dec withoutDefaultValues(target: Model);
-extern dec withoutOmittedProperties(target: Model, omit: StringLiteral | Union);
+extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 
 //---------------------------------------------------------------------------
 // Debugging
 //---------------------------------------------------------------------------
-extern dec inspectType(target: Type, text: StringLiteral);
-extern dec inspectTypeName(target: Type, text: StringLiteral);
+extern dec inspectType(target: unknown, text: string);
+extern dec inspectTypeName(target: unknown, text: string);

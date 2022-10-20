@@ -2,7 +2,7 @@ using Cadl.Reflection;
 
 namespace OpenAPI;
 
-extern dec operationId(target: Operation, operationId: StringLiteral);
-extern dec extension(target: Type, key: StringLiteral, value: unknown);
+extern dec operationId(target: Operation, operationId: string);
+extern dec extension(target: unknown, key: string, value: unknown);
 extern dec defaultResponse(target: Model);
-extern dec externalDocs(target: Type, url: StringLiteral, description?: StringLiteral);
+extern dec externalDocs(target: unknown, url: string, description?: string);

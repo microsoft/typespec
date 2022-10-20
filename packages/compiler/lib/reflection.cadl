@@ -1,6 +1,5 @@
 namespace Cadl.Reflection;
 
-model Type {}
 model Model {}
 model ModelProperty {}
 model Interface {}
@@ -9,9 +8,6 @@ model EnumMember {}
 model TemplateParameter {}
 model Namespace {}
 model Operation {}
-model StringLiteral {}
-model NumericLiteral {}
-model BooleanLiteral {}
 model Tuple {}
 model Union {}
 model UnionVariant {}

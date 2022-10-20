@@ -3,10 +3,10 @@ namespace Cadl.Rest;
 using Cadl.Reflection;
 
 extern dec autoRoute(target: Namespace | Interface | Operation);
-extern dec segment(target: Model | ModelProperty | Operation, name: StringLiteral);
+extern dec segment(target: Model | ModelProperty | Operation, name: string);
 extern dec segmentOf(target: Operation, type: object);
-extern dec segmentSeparator(target: Model | ModelProperty | Operation, seperator: StringLiteral);
-extern dec resource(target: Model, collectionName: StringLiteral);
+extern dec segmentSeparator(target: Model | ModelProperty | Operation, seperator: string);
+extern dec resource(target: Model, collectionName: string);
 
 extern dec readsResource(target: Operation, resourceType: object);
 extern dec createsResource(target: Operation, resourceType: object);
@@ -16,8 +16,8 @@ extern dec updatesResource(target: Operation, resourceType: object);
 extern dec deletesResource(target: Operation, resourceType: object);
 extern dec listsResource(target: Operation, resourceType: object);
 
-extern dec action(target: Operation, name?: StringLiteral);
-extern dec collectionAction(target: Operation, resourceType: object, name?: StringLiteral);
+extern dec action(target: Operation, name?: string);
+extern dec collectionAction(target: Operation, resourceType: object, name?: string);
 
 namespace Private {
   extern dec resourceLocation(target: Model, resourceType: object);

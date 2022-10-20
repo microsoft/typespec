@@ -132,13 +132,13 @@ describe("compiler: built-in decorators", () => {
 
     it("emit diagnostic if doc is not a string", async () => {
       const diagnostics = await runner.diagnose(`
-        @doc("foo" | "bar")
+        @doc(123)
         model A { }
       `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument 'foo | bar' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'`,
+        message: `Argument '123' is not assignable to parameter of type 'Cadl.string'`,
       });
     });
   });
@@ -295,8 +295,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '4' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
+          message: "Argument '4' is not assignable to parameter of type 'Cadl.string'",
         },
       ]);
     });
