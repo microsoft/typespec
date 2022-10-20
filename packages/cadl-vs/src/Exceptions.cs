@@ -26,7 +26,8 @@ namespace Microsoft.Cadl.VisualStudio
         public CadlServerNotFoundException(string fileName, Exception? innerException = null)
             : base(string.Join("\n", new string[]
             {
-                $"Cadl server exectuable was not found: '{fileName}' is not found. Make sure either:",
+                $"Cadl server executable was not found: '{fileName}' is not found. Make sure either:",
+                " - cadl is installed locally at the root of this workspace.",
                 " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
                 " - cadl server path is configured with https://github.com/microsoft/cadl/blob/main/packages/cadl-vs/README.md#configure-cadl-visual-studio-extension."
             }, innerException))

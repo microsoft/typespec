@@ -13,3 +13,8 @@ namespace VersionedApi;
 using Cadl.Http;
 
 op read(): Library.PetToy;
+
+
+model Broken {
+  type: str
+}
