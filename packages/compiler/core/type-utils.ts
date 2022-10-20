@@ -91,16 +91,14 @@ export function isDeclaredInNamespace(
   namespace: Namespace,
   options: { recursive?: boolean } = { recursive: true }
 ) {
-  if (type.namespace === namespace) {
-    return true;
-  }
-
-  if (options.recursive) {
-    for (const [_, childNs] of namespace.namespaces) {
-      if (isDeclaredInNamespace(type, childNs, options)) {
-        return true;
-      }
+  let candidateNs = type.namespace;
+  while (candidateNs) {
+    if (candidateNs === namespace) {
+      return true;
     }
+
+    // If we are allowed to check recursively, walk up the namespace hierarchy
+    candidateNs = options.recursive ? candidateNs.namespace : undefined;
   }
 
   return false;
