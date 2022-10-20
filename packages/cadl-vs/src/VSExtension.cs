@@ -254,10 +254,15 @@ namespace Microsoft.Cadl.VisualStudio
 
         private string? ResolveLocalCompiler(string baseDir)
         {
-            var potentialLocation = Path.Combine(baseDir, "node_modules/@cadl-lang/compiler");
-            if (Directory.Exists(potentialLocation))
+            var current = baseDir;
+            while (current != null)
             {
-                return potentialLocation;
+                var potentialInstallDir = Path.Combine(current, "node_modules", "@cadl-lang", "compiler");
+                if (Directory.Exists(potentialInstallDir))
+                {
+                    return potentialInstallDir;
+                }
+                current = Path.GetDirectoryName(current);
             }
             return null;
         }
