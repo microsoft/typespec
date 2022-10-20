@@ -48,8 +48,17 @@ describe("compiler: type-utils", () => {
 
   describe("definition utils", () => {
     it("checks if a type is defined in a particular namespace or its child namespaces", async () => {
-      const { Alpha, SubAlpha, Beta, FooModel, FooEnum, FooOperation, FooNamespace, FooInterface } =
-        (await runner.compile(`
+      const {
+        Alpha,
+        SubAlpha,
+        Beta,
+        FooModel,
+        FooEnum,
+        FooOperation,
+        BarOperation,
+        FooNamespace,
+        FooInterface,
+      } = (await runner.compile(`
           @test
           namespace Alpha {
             @test
@@ -58,29 +67,33 @@ describe("compiler: type-utils", () => {
               @test enum FooEnum {}
               @test op FooOperation(): unknown;
               @test namespace FooNamespace {}
-              @test interface FooInterface {}
+              @test interface FooInterface {
+                @test op BarOperation(): unknown;
+              }
             }
           }
 
           @test
           namespace Beta {}
 `)) as {
-          Alpha: Namespace;
-          SubAlpha: Namespace;
-          Beta: Namespace;
-          FooModel: Model;
-          FooEnum: Enum;
-          FooOperation: Operation;
-          FooNamespace: Namespace;
-          FooInterface: Interface;
-        };
+        Alpha: Namespace;
+        SubAlpha: Namespace;
+        Beta: Namespace;
+        FooModel: Model;
+        FooEnum: Enum;
+        FooOperation: Operation;
+        BarOperation: Operation;
+        FooNamespace: Namespace;
+        FooInterface: Interface;
+      };
 
       const candidates: [string, Model | Enum | Operation | Namespace | Interface][] = [
         ["FooModel", FooModel],
         ["FooEnum", FooEnum],
-        ["FooOperation", FooInterface],
+        ["FooOperation", FooOperation],
+        ["BarOperation", BarOperation],
         ["FooNamespace", FooNamespace],
-        ["FooInterface", FooOperation],
+        ["FooInterface", FooInterface],
       ];
 
       for (const [name, type] of candidates) {

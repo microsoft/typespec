@@ -97,6 +97,12 @@ export function isDeclaredInNamespace(
       return true;
     }
 
+    // Operations can be defined inside of an interface that is defined in the
+    // desired namespace
+    if (type.kind === "Operation" && type.interface && type.interface.namespace == namespace) {
+      return true;
+    }
+
     // If we are allowed to check recursively, walk up the namespace hierarchy
     candidateNs = options.recursive ? candidateNs.namespace : undefined;
   }
