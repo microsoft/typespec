@@ -20,7 +20,7 @@ describe("openapi: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @operationId decorator to Foo it is not assignable to Cadl.Reflection.Operation",
+          "Cannot apply @operationId decorator to Foo since it is not assignable to Cadl.Reflection.Operation",
       });
     });
 

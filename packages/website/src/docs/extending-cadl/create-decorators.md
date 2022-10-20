@@ -12,12 +12,12 @@ Cadl decorator are implemented as JavaScript function. Declarating a decorator c
 
 ## Declaring a decorator signature
 
-This part is optional but provide great value:
+This part is optional but provides great value:
 
 - Type checking for the parameters
-- IDE intelisense
+- IDE IntelliSense
 
-A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS(only choice right now) we must apply the `extern` modifier as well.
+A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS (only choice right now), we must apply the `extern` modifier as well.
 
 ```cadl
 extern dec logType(target: Cadl.Reflection.Type, name: Cadl.Reflection.StringLiteral);
@@ -25,7 +25,7 @@ extern dec logType(target: Cadl.Reflection.Type, name: Cadl.Reflection.StringLit
 
 ## Decorator target
 
-The first parameter of the decorator is the cadl type(s) the decorator can be applied one.
+The first parameter of the decorator represents the cadl type(s) that the decorator can be applied on.
 
 You can specify multiple potential target type using an `union expression`
 
@@ -45,7 +45,7 @@ extern dec track(target: Model | Enum, name?: StringLiteral);
 
 ### Rest parameters
 
-A decorators last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
+A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
 ```cadl
 extern dec track(target: Model | Enum, ...names: StringLiteral[]);
@@ -90,7 +90,7 @@ model Dog {
 }
 ```
 
-### Decorator parameters marshalling
+### Decorator parameter marshalling
 
 For certain Cadl types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
 

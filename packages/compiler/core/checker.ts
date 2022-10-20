@@ -1176,10 +1176,10 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
     }
-    if (node.rest && node.value.kind !== SyntaxKind.ArrayExpression) {
-      reportDiagnostic(program, { code: "rest-parameter-array", target: node.value });
+    if (node.rest && node.type.kind !== SyntaxKind.ArrayExpression) {
+      reportDiagnostic(program, { code: "rest-parameter-array", target: node.type });
     }
-    const type = getTypeForNode(node.value);
+    const type = getTypeForNode(node.type);
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
