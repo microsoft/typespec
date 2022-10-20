@@ -1,7 +1,11 @@
 import { Program } from "./program.js";
 import {
+  Enum,
+  Interface,
+  Model,
   Namespace,
   Node,
+  Operation,
   SyntaxKind,
   TemplateDeclarationNode,
   TemplatedType,
@@ -74,4 +78,30 @@ export function isGlobalNamespace(
   namespace: Namespace
 ): namespace is Namespace & { name: ""; namespace: undefined } {
   return program.getGlobalNamespaceType() === namespace;
+}
+
+/**
+ * Check if the given type is declared in the specified namespace or, optionally, its child namespaces.
+ * @param type Type
+ * @param namespace Namespace
+ * @returns {boolean}
+ */
+export function isDeclaredInNamespace(
+  type: Model | Operation | Interface | Namespace | Enum,
+  namespace: Namespace,
+  options: { recursive?: boolean } = { recursive: true }
+) {
+  if (type.namespace === namespace) {
+    return true;
+  }
+
+  if (options.recursive) {
+    for (const [_, childNs] of namespace.namespaces) {
+      if (isDeclaredInNamespace(type, childNs, options)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
