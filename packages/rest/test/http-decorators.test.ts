@@ -450,14 +450,16 @@ describe("rest: http decorators", () => {
 
     it("emit diagnostics when config is not a model, tuple or union", async () => {
       const diagnostics = await runner.diagnose(`
-          @useAuth(123)
+          @useAuth(anOp)
           namespace Foo {}
+
+          op anOp(): void;
         `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument '123' is not assignable to parameter of type 'Cadl.object | Cadl.Reflection.Union | Cadl.Reflection.Tuple'",
+          "Argument 'anOp' is not assignable to parameter of type 'Cadl.object | Cadl.Reflection.Union | Cadl.object[]'",
       });
     });
 

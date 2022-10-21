@@ -4,9 +4,7 @@ model ModelProperty {}
 model Interface {}
 model Enum {}
 model EnumMember {}
-model TemplateParameter {}
 model Namespace {}
 model Operation {}
-model Tuple {}
 model Union {}
 model UnionVariant {}

@@ -17,4 +17,4 @@ extern dec head(target: Operation);
 
 extern dec server(target: Namespace, url: string, description: string, parameters?: object);
 
-extern dec useAuth(target: Namespace, auth: object | Union | Tuple);
+extern dec useAuth(target: Namespace, auth: object | Union | object[]);
