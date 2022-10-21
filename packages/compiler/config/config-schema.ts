@@ -25,7 +25,7 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
           items: { type: "string" },
         },
       ],
-    } as any,
+    } as any, // Issue with AJV optional property typing https://github.com/ajv-validator/ajv/issues/1664
     imports: {
       type: "array",
       nullable: true,
