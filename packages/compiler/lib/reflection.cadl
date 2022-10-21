@@ -1,6 +1,5 @@
 namespace Cadl.Reflection;
 
-model Model {}
 model ModelProperty {}
 model Interface {}
 model Enum {}
