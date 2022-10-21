@@ -111,7 +111,7 @@ async function loadConfigFile(
     data = deepClone(defaultConfig);
   }
 
-  return {
+  return cleanUndefined({
     filename,
     diagnostics,
     outputDir: data["output-dir"],
@@ -119,6 +119,10 @@ async function loadConfigFile(
     imports: data.imports,
     extends: data.extends,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
-    emitters: data.emitters ?? {},
-  };
+    emitters: data.emitters!,
+  });
+}
+
+function cleanUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }

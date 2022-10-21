@@ -18,7 +18,6 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       nullable: true,
     },
     trace: {
-      nullable: true,
       oneOf: [
         { type: "string" },
         {
@@ -26,7 +25,7 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
           items: { type: "string" },
         },
       ],
-    },
+    } as any,
     imports: {
       type: "array",
       nullable: true,
