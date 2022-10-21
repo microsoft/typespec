@@ -40,7 +40,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends Cadl.Reflection.Model>  {
+        model Template<T extends object>  {
         }
 
         @test
@@ -188,7 +188,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
       strictEqual(
         diagnostics[0].message,
-        `Cannot apply @error decorator to A since it is not assignable to Cadl.Reflection.Model`
+        `Cannot apply @error decorator to A since it is not assignable to Cadl.object`
       );
     });
   });
@@ -235,7 +235,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.Reflection.Model | Cadl.Reflection.ModelProperty",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.object | Cadl.Reflection.ModelProperty",
       });
     });
 
