@@ -1,5 +1,4 @@
 import {
-  createDecoratorDefinition,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
@@ -989,20 +988,11 @@ export interface Discriminator {
 
 const discriminatorKey = createStateSymbol("discriminator");
 
-const discriminatorDecorator = createDecoratorDefinition({
-  name: "@discriminator",
-  target: ["Model", "Union"],
-  args: [{ kind: "String" }],
-} as const);
-
 export function $discriminator(
   context: DecoratorContext,
   entity: Model | Union,
   propertyName: string
 ) {
-  if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
-    return;
-  }
   const discriminator: Discriminator = { propertyName };
 
   if (entity.kind === "Union") {
