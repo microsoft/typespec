@@ -1456,7 +1456,7 @@ export function createChecker(program: Program): Checker {
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
-      decorators = baseOperation.decorators;
+      decorators = [...baseOperation.decorators];
     } else {
       parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
       returnType = getTypeForNode(node.signature.returnType, mapper);

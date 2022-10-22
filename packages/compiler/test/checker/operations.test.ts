@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { DecoratorContext, IntrinsicType, Operation, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
@@ -123,6 +123,32 @@ describe("compiler: operations", () => {
     strictEqual(newFoo.returnType.name, "boolean");
   });
 
+  it("doesn't apply operation decorators to referenced signature", async () => {
+    testHost.addJsFile("test.js", {
+      $alpha() {},
+      $beta() {},
+    });
+
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./test.js";
+      @alpha
+      @test
+      op Foo<T>(): T;
+
+      @beta
+      op bar is Foo<string>;
+      `
+    );
+
+    const { Foo } = (await testHost.compile("./main.cadl")) as { Foo: Operation };
+    deepStrictEqual(
+      Foo.decorators.map((x) => x.decorator.name),
+      ["$test", "$alpha"]
+    );
+  });
+
   it("applies the decorators of the referenced operation and its transitive references", async () => {
     const alphaTargets = new Map<Type, Type>();
     const betaTargets = new Set<Type>();
@@ -157,10 +183,7 @@ describe("compiler: operations", () => {
       op newFoo is NewFooBase<string>;`
     );
 
-    const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
-    expectDiagnostics(diagnostics, []);
-
-    const { newFoo } = result as { newFoo: Operation };
+    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
 
     // Check that the decorators were applied correctly to `newFoo`

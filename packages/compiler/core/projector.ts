@@ -550,7 +550,7 @@ export function createProjector(
     const iface = interfaceScope();
     if (!iface) return iface;
     if (!projectedTypes.has(iface)) {
-      throw new Error("Interface should have been projected already");
+      throw new Error(`Interface "${iface.name}" should have been projected already`);
     }
     return projectType(iface) as Interface;
   }
