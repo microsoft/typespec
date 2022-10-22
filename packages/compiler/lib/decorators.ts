@@ -460,6 +460,9 @@ const secretTypesKey = createStateSymbol("secretTypes");
  * @param target Decorator target, either a string model or a property with type string.
  */
 export function $secret(context: DecoratorContext, target: Model | ModelProperty) {
+  if (!validateDecoratorTargetIntrinsic(context, target, "@secret", "string")) {
+    return;
+  }
   context.program.stateMap(secretTypesKey).set(target, true);
 }
 
