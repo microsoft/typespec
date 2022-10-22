@@ -454,11 +454,6 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 // -- @secret decorator ---------------------
 
 const secretTypesKey = createStateSymbol("secretTypes");
-const secretDecorator = createDecoratorDefinition({
-  name: "@secret",
-  target: ["Model", "ModelProperty"],
-  args: [],
-} as const);
 
 /**
  * Mark a string as a secret value that should be treated carefully to avoid exposure
@@ -466,13 +461,6 @@ const secretDecorator = createDecoratorDefinition({
  * @param target Decorator target, either a string model or a property with type string.
  */
 export function $secret(context: DecoratorContext, target: Model | ModelProperty) {
-  if (
-    !secretDecorator.validate(context, target, []) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@secret", "string")
-  ) {
-    return;
-  }
-
   context.program.stateMap(secretTypesKey).set(target, true);
 }
 
