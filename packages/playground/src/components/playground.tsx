@@ -113,7 +113,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
     async function addFiles(dir: string) {
       const items = await host.readDir("./cadl-output" + dir);
       for (const item of items) {
-        const itemPath =  `${dir}/${item}`;
+        const itemPath = `${dir}/${item}`;
         if ((await host.stat("./cadl-output" + itemPath)).isDirectory()) {
           await addFiles(itemPath);
         } else {
