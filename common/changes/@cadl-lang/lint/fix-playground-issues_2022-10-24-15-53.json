@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/lint",
+      "comment": "Library linter auto enable rules must be auto enabled in onValidate",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/lint"
+}
