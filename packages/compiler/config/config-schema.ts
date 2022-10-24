@@ -9,6 +9,28 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       type: "string",
       nullable: true,
     },
+    "output-dir": {
+      type: "string",
+      nullable: true,
+    },
+    "warn-as-error": {
+      type: "boolean",
+      nullable: true,
+    },
+    trace: {
+      oneOf: [
+        { type: "string" },
+        {
+          type: "array",
+          items: { type: "string" },
+        },
+      ],
+    } as any, // Issue with AJV optional property typing https://github.com/ajv-validator/ajv/issues/1664
+    imports: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
     emitters: {
       type: "object",
       nullable: true,
