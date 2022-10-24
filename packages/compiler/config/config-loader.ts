@@ -4,7 +4,7 @@ import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, deepFreeze, doIO, loadFile } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
-import { CadlConfig } from "./types.js";
+import { CadlConfig, CadlRawConfig } from "./types.js";
 
 export const CadlConfigFilename = "cadl-project.yaml";
 
@@ -92,13 +92,13 @@ const configValidator = createJSONSchemaValidator(CadlConfigJsonSchema);
 
 async function loadConfigFile(
   host: CompilerHost,
-  filePath: string,
+  filename: string,
   loadData: (content: string) => any
 ): Promise<CadlConfig> {
   let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
 
-  let [data, file] = await loadFile(host, filePath, loadData, reportDiagnostic);
+  let [data, file] = await loadFile<CadlRawConfig>(host, filename, loadData, reportDiagnostic);
 
   if (data) {
     diagnostics = diagnostics.concat(configValidator.validate(data, file));
@@ -111,7 +111,18 @@ async function loadConfigFile(
     data = deepClone(defaultConfig);
   }
 
-  data.filename = filePath;
-  data.diagnostics = diagnostics;
-  return data;
+  return cleanUndefined({
+    filename,
+    diagnostics,
+    outputDir: data["output-dir"],
+    warnAsError: data["warn-as-error"],
+    imports: data.imports,
+    extends: data.extends,
+    trace: typeof data.trace === "string" ? [data.trace] : data.trace,
+    emitters: data.emitters!,
+  });
+}
+
+function cleanUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
