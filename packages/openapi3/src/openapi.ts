@@ -28,6 +28,7 @@ import {
   getServiceVersion,
   getSummary,
   ignoreDiagnostics,
+  IntrinsicType,
   isErrorType,
   isGlobalNamespace,
   isIntrinsic,
@@ -555,6 +556,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return mapCadlTypeToOpenAPI(type, visibility);
     }
 
+    if (type.kind === "Intrinsic" && type.name === "unknown") {
+      return getSchemaForIntrinsicType(type);
+    }
+
     if (type.kind === "EnumMember") {
       // Enum members are just the OA representation of their values.
       if (typeof type.value === "number") {
@@ -847,24 +852,41 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const builtinType = mapCadlTypeToOpenAPI(type, visibility);
     if (builtinType !== undefined) return builtinType;
 
-    if (type.kind === "Model") {
-      return getSchemaForModel(type, visibility);
-    } else if (type.kind === "Union") {
-      return getSchemaForUnion(type, visibility);
-    } else if (type.kind === "UnionVariant") {
-      return getSchemaForUnionVariant(type, visibility);
-    } else if (type.kind === "Enum") {
-      return getSchemaForEnum(type);
-    } else if (type.kind === "Tuple") {
-      return { type: "array", items: {} };
+    switch (type.kind) {
+      case "Intrinsic":
+        return getSchemaForIntrinsicType(type);
+      case "Model":
+        return getSchemaForModel(type, visibility);
+      case "Union":
+        return getSchemaForUnion(type, visibility);
+      case "UnionVariant":
+        return getSchemaForUnionVariant(type, visibility);
+      case "Enum":
+        return getSchemaForEnum(type);
+      case "Tuple":
+        return { type: "array", items: {} };
     }
 
     reportDiagnostic(program, {
       code: "invalid-schema",
-      format: { type: type.kind === "Intrinsic" ? type.name : type.kind },
+      format: { type: type.kind },
       target: type,
     });
     return undefined;
+  }
+
+  function getSchemaForIntrinsicType(type: IntrinsicType): OpenAPI3Schema {
+    switch (type.name) {
+      case "unknown":
+        return {};
+    }
+
+    reportDiagnostic(program, {
+      code: "invalid-schema",
+      format: { type: type.name },
+      target: type,
+    });
+    return {};
   }
 
   function getSchemaForEnum(e: Enum) {
