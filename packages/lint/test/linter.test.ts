@@ -67,7 +67,7 @@ describe("lint: linter", () => {
 
   it("registering with enabling a rule should emit diagnostics iof autoEnableMyRules is called", async () => {
     linter.registerRule(noModelFoo, { autoEnable: true });
-    linter.autoEnableMyRules();
+    linter.autoEnableRules();
 
     const diagnostics = await runLinter(`
       model Foo {}

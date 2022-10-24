@@ -56,7 +56,7 @@ export interface LibraryLinter extends Linter {
   /**
    * Automatically enable the rules marked with auto enable
    */
-  autoEnableMyRules(): void;
+  autoEnableRules(): void;
 }
 
 export interface LintRule {

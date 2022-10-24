@@ -25,10 +25,10 @@ function getLinterSingleton(): Linter {
 }
 
 function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): LibraryLinter {
-  const autoEnableRules: string[] = [];
+  const rulesToAutoEnable: string[] = [];
   return {
     ...linter,
-    autoEnableMyRules,
+    autoEnableRules,
     registerRule,
     registerRules(rules: LintRule[], options?: RegisterRuleOptions) {
       for (const rule of rules) {
@@ -44,12 +44,12 @@ function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): Li
       name,
     });
     if (options?.autoEnable) {
-      autoEnableRules.push(name);
+      rulesToAutoEnable.push(name);
     }
   }
 
-  function autoEnableMyRules() {
-    linter.enableRules(autoEnableRules);
+  function autoEnableRules() {
+    linter.enableRules(rulesToAutoEnable);
   }
 }
 
