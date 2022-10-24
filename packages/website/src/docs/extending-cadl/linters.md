@@ -91,6 +91,8 @@ The lint library still depends on `$onValidate` to run. For that each library pr
 
 ```ts
 export function $onValidate(program: Program) {
+  linter.autoEnableMyRules(); // Optional if you want to automatically enable your rules
+  linter.enableRules(["<library-name>/<rule-name>"]); // Alternatively enable rules explicitly. Must be the rule fully qualified name.
   linter.lintOnValidate(program);
 }
 ```

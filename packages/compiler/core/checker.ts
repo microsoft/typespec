@@ -2909,7 +2909,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function createGlobalNamespaceType(): Namespace {
-    return createAndFinishType({
+    const type = createAndFinishType({
       kind: "Namespace",
       name: "",
       node: globalNamespaceNode,
@@ -2921,6 +2921,8 @@ export function createChecker(program: Program): Checker {
       enums: new Map(),
       decorators: [],
     });
+    getSymbolLinks(globalNamespaceNode.symbol).type = type;
+    return type;
   }
 
   /**
