@@ -1,5 +1,3 @@
-import "../dist/src/validate.js";
-
 import "./http.cadl";
 import "./rest-decorators.cadl";
 import "./resource.cadl";
