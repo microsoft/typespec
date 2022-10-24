@@ -1,4 +1,5 @@
 import {
+  DuplicateTracker,
   getKeyName,
   getServiceNamespace,
   Model,
@@ -7,44 +8,57 @@ import {
 } from "@cadl-lang/compiler";
 import { getAllHttpServices } from "./http/operations.js";
 import { reportDiagnostic } from "./lib.js";
-import { getParentResource, getResourceTypeKey } from "./resource.js";
+import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";
 
-function checkForDuplicateResourceKeyNames(program: Program, model: Model) {
-  // If the model type is defined under the service namespace, check to
-  // that the parent resource type(s) don't have the same key name as the
-  // current resource type.
-  const keyNameSet = new Set<string>();
-  let currentType: Model | undefined = model;
-  while (currentType) {
-    const resourceKey = getResourceTypeKey(program, currentType);
-    if (resourceKey) {
-      const keyName = getKeyName(program, resourceKey!.keyProperty);
-      if (keyNameSet.has(keyName)) {
-        reportDiagnostic(program, {
-          code: "duplicate-parent-key",
-          format: {
-            resourceName: model.name,
-            parentName: currentType.name,
-            keyName,
-          },
-          target: resourceKey.keyProperty,
-        });
-        return;
+function checkForDuplicateResourceKeyNames(program: Program) {
+  const seenTypes = new Set<string>();
+
+  function checkResourceModelKeys(model: Model) {
+    let currentType: Model | undefined = model;
+    const keyProperties = new DuplicateTracker<string, ResourceKey>();
+    while (currentType) {
+      const resourceKey = getResourceTypeKey(program, currentType);
+      if (resourceKey) {
+        const keyName = getKeyName(program, resourceKey.keyProperty);
+        keyProperties.track(keyName, resourceKey);
       }
 
-      keyNameSet.add(keyName);
+      currentType = getParentResource(program, currentType);
     }
 
-    currentType = getParentResource(program, currentType);
+    // Report a diagnostic for each duplicate key
+    for (const [keyName, dupes] of keyProperties.entries()) {
+      for (const key of dupes) {
+        // Make sure we don't report a duplicate for a particular
+        // resource type and key name more than once
+        const fullName = `${program.checker.getTypeName(key.resourceType)}.${keyName}`;
+        if (!seenTypes.has(fullName)) {
+          seenTypes.add(fullName);
+          reportDiagnostic(program, {
+            code: "duplicate-parent-key",
+            format: {
+              resourceName: key.resourceType.name,
+              keyName,
+            },
+            target: key.keyProperty,
+          });
+        }
+      }
+    }
   }
+
+  // If the model type is defined under the service namespace, check that the
+  // parent resource type(s) don't have the same key name as the
+  // current resource type.
+  navigateTypesInNamespace(getServiceNamespace(program), {
+    model: (model) => checkResourceModelKeys(model),
+  });
 }
 
 export function $onValidate(program: Program) {
   // Make sure any defined resource types don't have any conflicts with parent
   // resource type key names
-  navigateTypesInNamespace(getServiceNamespace(program), {
-    model: (model) => checkForDuplicateResourceKeyNames(program, model),
-  });
+  checkForDuplicateResourceKeyNames(program);
 
   // Pass along any diagnostics that might be returned from the HTTP library
   const [, diagnostics] = getAllHttpServices(program);
