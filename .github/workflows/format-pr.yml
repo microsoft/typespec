@@ -1,0 +1,40 @@
+name: Merge release branch back into main
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Create PR
+  pr_commented:
+    name: Format comment
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/cadleng format') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js node 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Install dependencies
+        run: npx @microsoft/rush update
+
+      - name: Format
+        run: npx @microsoft/rush format
+
+      - name: Commit
+        run: git commit -am "Run formatter."
+
+      - name: Push
+        run: git push
