@@ -14,6 +14,9 @@ function checkForDuplicateResourceKeyNames(program: Program) {
   const seenTypes = new Set<string>();
 
   function checkResourceModelKeys(model: Model) {
+    if (model.name === "") {
+      return;
+    }
     let currentType: Model | undefined = model;
     const keyProperties = new DuplicateTracker<string, ResourceKey>();
     while (currentType) {

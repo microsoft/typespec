@@ -185,6 +185,27 @@ describe("rest: resources", () => {
     ]);
   });
 
+  it("resources: emit diagnostic if using 2 @key on the same model", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      using Cadl.Rest.Resource;
+
+      model Thing {
+        @key("thingId")
+        id: string;
+
+        @key("anotherId")
+        secondId: string;
+      }
+      `);
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/rest/duplicate-key",
+        message: `More than one key found on model type Thing`,
+      },
+    ]);
+  });
+
   it("resources: resources with parents must not have duplicate their parents' key names", async () => {
     const [_, diagnostics] = await compileOperations(`
       using Cadl.Rest.Resource;
