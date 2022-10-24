@@ -1,7 +1,7 @@
 import { Program, SemanticNodeListener } from "@cadl-lang/compiler";
 
 export interface RegisterRuleOptions {
-  enable?: boolean;
+  autoEnable?: boolean;
 }
 
 export interface Linter {
@@ -9,12 +9,12 @@ export interface Linter {
    * Register a new rule.
    * @param rule Rule to register.
    */
-  registerRule(rule: LintRule, options?: RegisterRuleOptions): void;
+  registerRule(rule: LintRule): void;
   /**
    * Register a new set of rules.
    * @param rule Rule to register.
    */
-  registerRules(rules: LintRule[], options?: RegisterRuleOptions): void;
+  registerRules(rules: LintRule[]): void;
 
   /**
    * Enable the rule with the given name.
@@ -39,6 +39,24 @@ export interface Linter {
    * @param program Program to lint
    */
   lintProgram(program: Program): void;
+}
+
+export interface LibraryLinter extends Linter {
+  /**
+   * Register a new rule.
+   * @param rule Rule to register.
+   */
+  registerRule(rule: LintRule, options?: RegisterRuleOptions): void;
+  /**
+   * Register a new set of rules.
+   * @param rule Rule to register.
+   */
+  registerRules(rules: LintRule[], options?: RegisterRuleOptions): void;
+
+  /**
+   * Automatically enable the rules marked with auto enable
+   */
+  autoEnableRules(): void;
 }
 
 export interface LintRule {

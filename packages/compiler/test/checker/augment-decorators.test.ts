@@ -152,6 +152,8 @@ describe("compiler: checker: augment decorators", () => {
 
     it("namespace", () => expectTarget(`@test("target") namespace Foo {}`, "Foo"));
 
+    it("global namespace", () => expectTarget(`@@test(global, "target")`, "global"));
+
     it("model", () => expectTarget(`@test("target") model Foo {}`, "Foo"));
     it("model property", () =>
       expectTarget(
