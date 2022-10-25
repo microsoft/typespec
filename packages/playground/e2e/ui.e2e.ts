@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 
 const host = `http://localhost:3000`;
 const ctrlOrCmd = process.platform === "darwin" ? "Meta" : "Control";
-const onWindows = process.platform === "win32";
 
 test.describe("playground UI tests", () => {
   test.skip(process.platform === "win32", "https://github.com/microsoft/cadl/issues/1223");
