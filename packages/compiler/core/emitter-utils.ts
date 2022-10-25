@@ -17,11 +17,7 @@ export interface EmitFileOptions {
 export async function emitFile(program: Program, options: EmitFileOptions): Promise<void> {
   // ensure path exists
   const outputFolder = path.dirname(options.path);
-  try {
-    await mkdirp(outputFolder);
-  } catch {
-    // mkdirp fails during tests
-  }
+  await program.host.mkdirp(outputFolder);
   const content =
     options.newLine && options.newLine === "crlf"
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
