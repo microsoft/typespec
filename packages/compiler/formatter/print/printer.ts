@@ -8,11 +8,14 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
+  FunctionDeclarationStatementNode,
+  FunctionParameterNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -192,6 +195,26 @@ export function printNode(
       );
     case SyntaxKind.ModelSpreadProperty:
       return printModelSpread(path as AstPath<ModelSpreadPropertyNode>, options, print);
+    case SyntaxKind.DecoratorDeclarationStatement:
+      return printDecoratorDeclarationStatement(
+        path as AstPath<DecoratorDeclarationStatementNode>,
+        options,
+        print
+      );
+    case SyntaxKind.FunctionDeclarationStatement:
+      return printFunctionDeclarationStatement(
+        path as AstPath<FunctionDeclarationStatementNode>,
+        options,
+        print
+      );
+    case SyntaxKind.FunctionParameter:
+      return printFunctionParameterDeclaration(
+        path as AstPath<FunctionParameterNode>,
+        options,
+        print
+      );
+    case SyntaxKind.ExternKeyword:
+      return "extern";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -1169,6 +1192,80 @@ function printModelSpread(
   print: PrettierChildPrint
 ): prettier.Doc {
   return ["...", path.call(print, "target")];
+}
+
+function printDecoratorDeclarationStatement(
+  path: prettier.AstPath<DecoratorDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const id = path.call(print, "id");
+  const parameters = [
+    group([
+      indent(
+        join(", ", [
+          [softline, path.call(print, "target")],
+          ...path.map((arg) => [softline, print(arg)], "parameters"),
+        ])
+      ),
+      softline,
+    ]),
+  ];
+  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")", ";"];
+}
+
+function printFunctionDeclarationStatement(
+  path: prettier.AstPath<FunctionDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+  const parameters = [
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "parameters")
+        )
+      ),
+      softline,
+    ]),
+  ];
+  const returnType = node.returnType ? [": ", path.call(print, "returnType")] : "";
+  return [printModifiers(path, options, print), "fn ", id, "(", parameters, ")", returnType, ";"];
+}
+
+function printFunctionParameterDeclaration(
+  path: prettier.AstPath<FunctionParameterNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+
+  const type = node.type ? [": ", path.call(print, "type")] : "";
+
+  return [
+    node.rest ? "..." : "",
+    printDirectives(path, options, print),
+    id,
+    node.optional ? "?" : "",
+    type,
+  ];
+}
+
+export function printModifiers(
+  path: AstPath<DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  if (node.modifiers.length === 0) {
+    return "";
+  }
+
+  return path.map((x) => [print(x as any), " "], "modifiers");
 }
 
 function printStringLiteral(

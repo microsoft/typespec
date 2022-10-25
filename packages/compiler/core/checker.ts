@@ -5,10 +5,15 @@ import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-
 import {
   AugmentDecoratorStatementNode,
   DecoratedType,
+  Decorator,
   DecoratorContext,
+  DecoratorDeclarationStatementNode,
   Diagnostic,
   DiagnosticTarget,
   Expression,
+  FunctionDeclarationStatementNode,
+  FunctionParameter,
+  FunctionParameterNode,
   getIndexer,
   getIntrinsicModelName,
   getParentTemplateNode,
@@ -19,9 +24,11 @@ import {
   isUnknownType,
   isVoidType,
   JsSourceFileNode,
+  MarshalledValue,
   ModelIndexer,
   ModelKeyIndexer,
   ModelSpreadPropertyNode,
+  ModifierFlags,
   NeverIndexer,
   NeverType,
   ProjectedProgram,
@@ -209,6 +216,7 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
+type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
 let currentSymbolId = 0;
 
@@ -398,17 +406,17 @@ export function createChecker(program: Program): Checker {
       const ref = resolveTypeReference(decNode.targetType, undefined);
       if (ref) {
         if (ref.flags & SymbolFlags.Namespace) {
-          const decApp = checkDecorator(decNode, undefined);
+          const links = getSymbolLinks(getMergedSymbol(ref));
+          const type: Type & DecoratedType = links.type! as any;
+          const decApp = checkDecorator(type, decNode, undefined);
           if (decApp) {
-            const links = getSymbolLinks(getMergedSymbol(ref));
-            const type: Type & DecoratedType = links.type! as any;
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
         } else if (ref.flags & SymbolFlags.LateBound) {
-          const decApp = checkDecorator(decNode, undefined);
+          const type: Type & DecoratedType = ref.type! as any;
+          const decApp = checkDecorator(type, decNode, undefined);
           if (decApp) {
-            const type: Type & DecoratedType = ref.type! as any;
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
@@ -503,6 +511,10 @@ export function createChecker(program: Program): Checker {
         return checkUnionExpression(node, mapper);
       case SyntaxKind.IntersectionExpression:
         return checkIntersectionExpression(node, mapper);
+      case SyntaxKind.DecoratorDeclarationStatement:
+        return checkDecoratorDeclaration(node, mapper);
+      case SyntaxKind.FunctionDeclarationStatement:
+        return checkFunctionDeclaration(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeReference(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
@@ -1069,6 +1081,120 @@ export function createChecker(program: Program): Checker {
     return mergeModelTypes(node, options, mapper);
   }
 
+  function checkDecoratorDeclaration(
+    node: DecoratorDeclarationStatementNode,
+    mapper: TypeMapper | undefined
+  ): Decorator {
+    const symbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(symbol);
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as Decorator;
+    }
+
+    const namespace = getParentNamespaceType(node);
+    compilerAssert(
+      namespace,
+      `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`
+    );
+    const name = node.id.sv;
+
+    if (!(node.modifierFlags & ModifierFlags.Extern)) {
+      reportDiagnostic(program, { code: "decorator-extern", target: node });
+    }
+
+    const implementation = symbol.value;
+    if (implementation === undefined) {
+      reportDiagnostic(program, { code: "missing-implementation", target: node });
+    }
+    const decoratorType: Decorator = createType({
+      kind: "Decorator",
+      name: `@${name}`,
+      namespace,
+      node,
+      target: checkFunctionParameter(node.target, mapper),
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      implementation: implementation ?? (() => {}),
+    });
+
+    namespace.decoratorDeclarations.set(name, decoratorType);
+
+    linkType(links, decoratorType, mapper);
+
+    return decoratorType;
+  }
+
+  function checkFunctionDeclaration(
+    node: FunctionDeclarationStatementNode,
+    mapper: TypeMapper | undefined
+  ): FunctionType {
+    const symbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(symbol);
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as FunctionType;
+    }
+
+    const namespace = getParentNamespaceType(node);
+    compilerAssert(
+      namespace,
+      `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`
+    );
+    const name = node.id.sv;
+
+    if (!(node.modifierFlags & ModifierFlags.Extern)) {
+      reportDiagnostic(program, { code: "function-extern", target: node });
+    }
+
+    const implementation = symbol.value;
+    if (implementation === undefined) {
+      reportDiagnostic(program, { code: "missing-implementation", target: node });
+    }
+    const functionType: FunctionType = createType({
+      kind: "Function",
+      name,
+      namespace,
+      node,
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      returnType: node.returnType ? getTypeForNode(node.returnType, mapper) : unknownType,
+      implementation: implementation ?? (() => {}),
+    });
+
+    namespace.functionDeclarations.set(name, functionType);
+
+    linkType(links, functionType, mapper);
+
+    return functionType;
+  }
+
+  function checkFunctionParameter(
+    node: FunctionParameterNode,
+    mapper: TypeMapper | undefined
+  ): FunctionParameter {
+    const links = getSymbolLinks(node.symbol);
+
+    if (links.declaredType) {
+      return links.declaredType as FunctionParameter;
+    }
+    if (node.rest && node.type && node.type.kind !== SyntaxKind.ArrayExpression) {
+      reportDiagnostic(program, { code: "rest-parameter-array", target: node.type });
+    }
+    const type = node.type ? getTypeForNode(node.type) : unknownType;
+
+    const parameterType: FunctionParameter = createType({
+      kind: "FunctionParameter",
+      node,
+      name: node.id.sv,
+      optional: node.optional,
+      rest: node.rest,
+      type,
+      implementation: node.symbol.value!,
+    });
+    linkType(links, parameterType, mapper);
+
+    return parameterType;
+  }
+
   function mergeModelTypes(
     node:
       | ModelStatementNode
@@ -1203,6 +1329,8 @@ export function createChecker(program: Program): Checker {
         interfaces: new Map(),
         unions: new Map(),
         enums: new Map(),
+        decoratorDeclarations: new Map(),
+        functionDeclarations: new Map(),
         decorators: [],
       });
 
@@ -1210,7 +1338,7 @@ export function createChecker(program: Program): Checker {
       for (const sourceNode of mergedSymbol.declarations) {
         // namespaces created from cadl scripts don't have decorators
         if (sourceNode.kind !== SyntaxKind.NamespaceStatement) continue;
-        type.decorators = type.decorators.concat(checkDecorators(sourceNode, undefined));
+        type.decorators = type.decorators.concat(checkDecorators(type, sourceNode, undefined));
       }
       finishType(type);
 
@@ -1230,6 +1358,8 @@ export function createChecker(program: Program): Checker {
       | IntersectionExpressionNode
       | UnionStatementNode
       | ModelExpressionNode
+      | DecoratorDeclarationStatementNode
+      | FunctionDeclarationStatementNode
       | ProjectionModelExpressionNode
   ): Namespace | undefined {
     if (node === globalNamespaceType.node) return undefined;
@@ -1309,7 +1439,7 @@ export function createChecker(program: Program): Checker {
 
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
-    let decorators = checkDecorators(node, mapper);
+    let decorators: DecoratorApplication[] = [];
 
     // Is this a definition or reference?
     let parameters: Model, returnType: Type;
@@ -1326,7 +1456,7 @@ export function createChecker(program: Program): Checker {
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
-      decorators = [...baseOperation.decorators, ...decorators];
+      decorators = [...baseOperation.decorators];
     } else {
       parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
       returnType = getTypeForNode(node.signature.returnType, mapper);
@@ -1342,6 +1472,8 @@ export function createChecker(program: Program): Checker {
       decorators,
       interface: parentInterface,
     });
+
+    decorators.push(...checkDecorators(operationType, node, mapper));
 
     operationType.parameters.namespace = namespace;
 
@@ -1534,6 +1666,7 @@ export function createChecker(program: Program): Checker {
         return undefined;
 
       case IdentifierKind.Decorator:
+      case IdentifierKind.Function:
       case IdentifierKind.Using:
       case IdentifierKind.TypeReference:
         let ref: MemberExpressionNode | IdentifierNode = id;
@@ -1566,6 +1699,7 @@ export function createChecker(program: Program): Checker {
     switch (kind) {
       case IdentifierKind.Using:
       case IdentifierKind.Decorator:
+      case IdentifierKind.Function:
       case IdentifierKind.TypeReference:
         break; // supported
       case IdentifierKind.Other:
@@ -1969,7 +2103,7 @@ export function createChecker(program: Program): Checker {
         type.indexer = isBase.indexer;
       }
     }
-    decorators.push(...checkDecorators(node, mapper));
+    decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
@@ -2381,7 +2515,6 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     parentModel?: Model
   ): ModelProperty {
-    const decorators = checkDecorators(prop, mapper);
     const valueType = getTypeForNode(prop.value, mapper);
     const defaultValue = prop.default && checkDefault(prop.default, valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
@@ -2392,11 +2525,12 @@ export function createChecker(program: Program): Checker {
       node: prop,
       optional: prop.optional,
       type: valueType,
-      decorators,
+      decorators: [],
       default: defaultValue,
       model: parentModel,
     });
 
+    type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
       finishType(type, mapper);
@@ -2435,6 +2569,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDecorator(
+    targetType: Type,
     decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     mapper: TypeMapper | undefined
   ): DecoratorApplication | undefined {
@@ -2459,14 +2594,128 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
+    const symbolLinks = getSymbolLinks(sym);
+
+    const args = checkDecoratorArguments(decNode, mapper);
+    let hasError = false;
+    if (symbolLinks.declaredType === undefined) {
+      const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
+        sym.declarations.find(
+          (x): x is DecoratorDeclarationStatementNode =>
+            x.kind === SyntaxKind.DecoratorDeclarationStatement
+        );
+      if (decoratorDeclNode) {
+        checkDecoratorDeclaration(decoratorDeclNode, mapper);
+      }
+    }
+    if (symbolLinks.declaredType) {
+      compilerAssert(
+        symbolLinks.declaredType.kind === ("Decorator" as const),
+        "Expected to find a decorator type."
+      );
+      // Means we have a decorator declaration.
+      hasError = checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
+    }
+    if (hasError) {
+      return undefined;
+    }
     return {
-      decorator: sym.value!,
+      decorator: sym.value ?? ((...args: any[]) => {}),
       node: decNode,
-      args: checkDecoratorArguments(decNode, mapper),
+      args,
     };
   }
 
+  function checkDecoratorUsage(
+    targetType: Type,
+    declaration: Decorator,
+    args: DecoratorArgument[],
+    decoratorNode: Node
+  ): boolean {
+    let hasError = false;
+    const [targetValid] = isTypeAssignableTo(targetType, declaration.target.type, decoratorNode);
+    if (!targetValid) {
+      hasError = true;
+      reportDiagnostic(program, {
+        code: "decorator-wrong-target",
+        messageId: "withExpected",
+        format: {
+          decorator: declaration.name,
+          to: getTypeName(targetType),
+          expected: getTypeName(declaration.target.type),
+        },
+        target: decoratorNode,
+      });
+    }
+    const minArgs = declaration.parameters.filter((x) => !x.optional && !x.rest).length;
+    const maxArgs = declaration.parameters[declaration.parameters.length - 1]?.rest
+      ? undefined
+      : declaration.parameters.length;
+
+    if (args.length < minArgs || (maxArgs !== undefined && args.length > maxArgs)) {
+      if (maxArgs === undefined) {
+        reportDiagnostic(program, {
+          code: "invalid-argument-count",
+          messageId: "atLeast",
+          format: { actual: args.length.toString(), expected: minArgs.toString() },
+          target: decoratorNode,
+        });
+      } else {
+        const expected = minArgs === maxArgs ? minArgs.toString() : `${minArgs}-${maxArgs}`;
+        reportDiagnostic(program, {
+          code: "invalid-argument-count",
+          format: { actual: args.length.toString(), expected },
+          target: decoratorNode,
+        });
+      }
+    }
+    for (const [index, parameter] of declaration.parameters.entries()) {
+      if (parameter.rest) {
+        const restType =
+          parameter.type.kind === "Model" ? parameter.type.indexer?.value : undefined;
+        if (restType) {
+          for (let i = index; i < args.length; i++) {
+            const arg = args[i];
+            if (arg && arg.value) {
+              if (!checkArgumentAssignable(arg.value, restType, arg.node!)) {
+                hasError = true;
+              }
+            }
+          }
+        }
+        break;
+      }
+      const arg = args[index];
+      if (arg && arg.value) {
+        if (!checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
+          hasError = true;
+        }
+      }
+    }
+    return hasError;
+  }
+
+  function checkArgumentAssignable(
+    argumentType: Type,
+    parameterType: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): boolean {
+    const [valid] = isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
+    if (!valid) {
+      reportDiagnostic(program, {
+        code: "invalid-argument",
+        format: {
+          value: getTypeName(argumentType),
+          expected: getTypeName(parameterType),
+        },
+        target: diagnosticTarget,
+      });
+    }
+    return valid;
+  }
+
   function checkDecorators(
+    targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
@@ -2476,7 +2725,7 @@ export function createChecker(program: Program): Checker {
       ...(augmentDecoratorsForSym.get(node.symbol) ?? []),
     ];
     for (const decNode of decoratorNodes) {
-      const decorator = checkDecorator(decNode, mapper);
+      const decorator = checkDecorator(targetType, decNode, mapper);
       if (decorator) {
         decorators.unshift(decorator);
       }
@@ -2489,14 +2738,10 @@ export function createChecker(program: Program): Checker {
     decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     mapper: TypeMapper | undefined
   ): DecoratorArgument[] {
-    return decorator.arguments.map((argNode) => {
+    return decorator.arguments.map((argNode): DecoratorArgument => {
       const type = getTypeForNode(argNode, mapper);
-      const value =
-        type.kind === "Number" || type.kind === "String" || type.kind === "Boolean"
-          ? type.value
-          : type;
       return {
-        value,
+        value: type,
         node: argNode,
       };
     });
@@ -2560,7 +2805,7 @@ export function createChecker(program: Program): Checker {
       const namespace = getParentNamespaceType(node);
       enumType.namespace = namespace;
       enumType.namespace?.enums.set(enumType.name!, enumType);
-      enumType.decorators = checkDecorators(node, mapper);
+      enumType.decorators = checkDecorators(enumType, node, mapper);
 
       finishType(enumType, mapper);
     }
@@ -2576,16 +2821,16 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as Interface;
     }
 
-    const decorators = checkDecorators(node, mapper);
-
     const interfaceType: Interface = createType({
       kind: "Interface",
-      decorators,
+      decorators: [],
       node,
       namespace: getParentNamespaceType(node),
       operations: new Map(),
       name: node.id.sv,
     });
+
+    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
 
     linkType(links, interfaceType, mapper);
 
@@ -2663,11 +2908,10 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as Union;
     }
 
-    const decorators = checkDecorators(node, mapper);
     const variants = new Map<string, UnionVariant>();
     const unionType: Union = createType({
       kind: "Union",
-      decorators,
+      decorators: [],
       node,
       namespace: getParentNamespaceType(node),
       name: node.id.sv,
@@ -2677,6 +2921,8 @@ export function createChecker(program: Program): Checker {
       },
       expression: false,
     });
+    unionType.decorators = checkDecorators(unionType, node, mapper);
+
     checkUnionVariants(unionType, node, variants, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
@@ -2721,16 +2967,16 @@ export function createChecker(program: Program): Checker {
   ): UnionVariant {
     const name =
       variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
-    const decorators = checkDecorators(variantNode, mapper);
     const type = getTypeForNode(variantNode.value, mapper);
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
       name,
       node: variantNode,
-      decorators,
+      decorators: [],
       type,
       union: parentUnion,
     });
+    variantType.decorators = checkDecorators(variantType, variantNode, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(variantType, mapper);
@@ -2747,7 +2993,6 @@ export function createChecker(program: Program): Checker {
   ): EnumMember | undefined {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
-    const decorators = checkDecorators(node, mapper);
     if (existingMemberNames.has(name)) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -2759,14 +3004,17 @@ export function createChecker(program: Program): Checker {
       return;
     }
     existingMemberNames.add(name);
-    return createAndFinishType({
+    const member: EnumMember = createType({
       kind: "EnumMember",
       enum: parentEnum,
       name,
       node,
       value,
-      decorators,
+      decorators: [],
     });
+
+    member.decorators = checkDecorators(member, node, mapper);
+    return finishType(member);
   }
 
   function checkEnumSpreadMember(
@@ -2871,9 +3119,53 @@ export function createChecker(program: Program): Checker {
           // this will set a duplicate error
           target.set(key, sourceBinding);
         }
+      } else if (
+        sourceBinding.flags & SymbolFlags.Declaration ||
+        sourceBinding.flags & SymbolFlags.Implementation
+      ) {
+        if (sourceBinding.flags & SymbolFlags.Decorator) {
+          mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
+        } else if (sourceBinding.flags & SymbolFlags.Function) {
+          mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
+        } else {
+          target.set(key, sourceBinding);
+        }
       } else {
         target.set(key, sourceBinding);
       }
+    }
+  }
+
+  function mergeDeclarationOrImplementation(
+    key: string,
+    sourceBinding: Sym,
+    target: Mutable<SymbolTable>,
+    expectTargetFlags: SymbolFlags
+  ) {
+    const targetBinding = target.get(key);
+    if (!targetBinding || !(targetBinding.flags & expectTargetFlags)) {
+      target.set(key, sourceBinding);
+      return;
+    }
+    const isSourceDeclaration = sourceBinding.flags & SymbolFlags.Declaration;
+    const isSourceImplementation = sourceBinding.flags & SymbolFlags.Implementation;
+    const isTargetDeclaration = targetBinding.flags & SymbolFlags.Declaration;
+    const isTargetImplementation = targetBinding.flags & SymbolFlags.Implementation;
+    if (isTargetDeclaration && isTargetImplementation) {
+      // If the target already has both a declration and implementation set the symbol which will mark it as duplicate
+      target.set(key, sourceBinding);
+    } else if (isTargetDeclaration && isSourceImplementation) {
+      mergedSymbols.set(sourceBinding, targetBinding);
+      mutate(targetBinding).value = sourceBinding.value;
+      mutate(targetBinding).flags |= sourceBinding.flags;
+      mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+    } else if (isTargetImplementation && isSourceDeclaration) {
+      mergedSymbols.set(sourceBinding, targetBinding);
+      mutate(targetBinding).flags |= sourceBinding.flags;
+      mutate(targetBinding.declarations).unshift(...sourceBinding.declarations);
+    } else {
+      // this will set a duplicate error
+      target.set(key, sourceBinding);
     }
   }
 
@@ -2919,6 +3211,8 @@ export function createChecker(program: Program): Checker {
       interfaces: new Map(),
       unions: new Map(),
       enums: new Map(),
+      decoratorDeclarations: new Map(),
+      functionDeclarations: new Map(),
       decorators: [],
     });
     getSymbolLinks(globalNamespaceNode.symbol).type = type;
@@ -3459,7 +3753,7 @@ export function createChecker(program: Program): Checker {
     return evalProjectionNode(node.expr);
   }
 
-  function evalProjectionCallExpression(node: ProjectionCallExpressionNode) {
+  function evalProjectionCallExpression(node: ProjectionCallExpressionNode): any {
     const target = evalProjectionNode(node.target);
 
     if (!target) throw new ProjectionError("target undefined");
@@ -3472,7 +3766,7 @@ export function createChecker(program: Program): Checker {
       throw new ProjectionError("Can't call non-function, got type " + target.kind);
     }
 
-    return target.call(...args);
+    return target.implementation(...args);
   }
 
   function evalProjectionMemberExpression(
@@ -3544,20 +3838,14 @@ export function createChecker(program: Program): Checker {
   }
 
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
+    const parameters: FunctionParameter[] = [];
     return createType({
       kind: "Function",
-      call: fn,
+      name: "",
+      parameters,
+      returnType: unknownType,
+      implementation: fn as any,
     } as const);
-  }
-
-  function literalTypeToValue(type: StringLiteral): string;
-  function literalTypeToValue(type: NumericLiteral): number;
-  function literalTypeToValue(type: BooleanLiteral): boolean;
-  function literalTypeToValue(type: StringLiteral | NumericLiteral | BooleanLiteral): boolean;
-  function literalTypeToValue(
-    type: StringLiteral | NumericLiteral | BooleanLiteral
-  ): string | number | boolean {
-    return type.value;
   }
 
   function createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
@@ -3600,13 +3888,10 @@ export function createChecker(program: Program): Checker {
     const ref = resolveTypeReference(node.target, undefined, true);
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
-    return createType({
-      kind: "Function",
-      call(...args: Type[]): Type {
-        ref.value!({ program }, ...marshalProjectionArguments(args));
-        return voidType;
-      },
-    } as const);
+    return createFunctionType((...args: Type[]): Type => {
+      ref.value!({ program }, ...marshalArgumentsForJS(args));
+      return voidType;
+    });
   }
 
   function evalProjectionIdentifier(node: IdentifierNode): Type {
@@ -3630,13 +3915,10 @@ export function createChecker(program: Program): Checker {
       return errorType;
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
-      const t: FunctionType = createType({
-        kind: "Function",
-        call(...args: Type[]): Type {
-          const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          return marshalProjectionReturn(retval, { functionName: node.sv });
-        },
-      } as const);
+      const t: FunctionType = createFunctionType((...args: Type[]): Type => {
+        const retval = ref.value!(program, ...marshalArgumentsForJS(args));
+        return marshalProjectionReturn(retval, { functionName: node.sv });
+      });
       return t;
     } else {
       const links = getSymbolLinks(ref);
@@ -3644,15 +3926,6 @@ export function createChecker(program: Program): Checker {
 
       return links.declaredType;
     }
-  }
-
-  function marshalProjectionArguments(args: Type[]): (Type | number | boolean | string | object)[] {
-    return args.map((arg) => {
-      if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
-        return literalTypeToValue(arg);
-      }
-      return arg;
-    });
   }
 
   interface MarshalOptions {
@@ -3689,14 +3962,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
-    const type = createType({
-      kind: "Function",
-      call(...args: Type[]): Type {
-        return callLambdaExpression(node, args);
-      },
-    } as const);
-
-    return type;
+    return createFunctionType((...args: Type[]): Type => {
+      return callLambdaExpression(node, args);
+    });
   }
 
   function callLambdaExpression(node: ProjectionLambdaExpressionNode, args: Type[]): Type {
@@ -3794,6 +4062,16 @@ export function createChecker(program: Program): Checker {
       return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
+    if (source.kind === "Union") {
+      for (const variant of source.variants.values()) {
+        const [variantAssignable] = isTypeAssignableTo(variant.type, target, diagnosticTarget);
+        if (!variantAssignable) {
+          return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+        }
+      }
+      return [true, []];
+    }
+
     if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
       return isIndexerValid(source, target as Model & { indexer: ModelIndexer }, diagnosticTarget);
     } else if (target.kind === "Model" && source.kind === "Model") {
@@ -3821,9 +4099,21 @@ export function createChecker(program: Program): Checker {
     return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
+  function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
+    return (
+      type.kind === "Model" &&
+      type.namespace?.name === "Reflection" &&
+      type.namespace?.namespace?.name === "Cadl"
+    );
+  }
+
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
     if (isUnknownType(target)) return true;
+    if (isReflectionType(target)) {
+      return source.kind === ReflectionNameToKind[target.name];
+    }
+
     const sourceIntrinsicName = getIntrinsicModelName(program, source);
     const targetIntrinsicName = getIntrinsicModelName(program, target);
     if (targetIntrinsicName) {
@@ -3837,6 +4127,8 @@ export function createChecker(program: Program): Checker {
           return IntrinsicTypeRelations.isAssignable("string", targetIntrinsicName);
         case "Boolean":
           return IntrinsicTypeRelations.isAssignable("boolean", targetIntrinsicName);
+        case "Union":
+          return undefined;
         case "Model":
           if (!sourceIntrinsicName) {
             return false;
@@ -4428,19 +4720,18 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
   for (const arg of decApp.args) {
-    if (typeof arg.value === "object") {
-      if (isErrorType(arg.value)) {
-        // If one of the decorator argument is an error don't run it.
-        return;
-      }
+    if (isErrorType(arg.value)) {
+      // If one of the decorator argument is an error don't run it.
+      return;
     }
   }
 
   // peel `fn` off to avoid setting `this`.
   try {
+    const args = marshalArgumentsForJS(decApp.args.map((x) => x.value));
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
-    fn(context, target, ...decApp.args.map((x) => x.value));
+    fn(context, target, ...args);
   } catch (error: any) {
     // do not fail the language server for exceptions in decorators
     if (program.compilerOptions.designTimeBuild) {
@@ -4480,3 +4771,40 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
     },
   };
 }
+
+/**
+ * Convert cadl argument to JS argument.
+ */
+function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] {
+  return args.map((arg) => {
+    if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
+      return literalTypeToValue(arg);
+    }
+    return arg as any;
+  });
+}
+
+function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLiteral>(
+  type: T
+): MarshalledValue<T> {
+  return type.value as any;
+}
+
+/**
+ * Mapping from the reflection models to Type["kind"] value
+ */
+const ReflectionNameToKind = {
+  Model: "Model",
+  ModelProperty: "ModelProperty",
+  Interface: "Interface",
+  Enum: "Enum",
+  EnumMember: "EnumMember",
+  TemplateParameter: "TemplateParameter",
+  Namespace: "Namespace",
+  Operation: "Operation",
+  Tuple: "Tuple",
+  Union: "Union",
+  UnionVariant: "UnionVariant",
+} as const;
+
+const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionNameToKind;

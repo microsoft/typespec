@@ -111,6 +111,8 @@ For example, let's say we want to emit a text file of model names but only if it
 
 The following example will emit models with the `@emitThis` decorator and also any models referenced by that model.
 
+[See creating decorator documentation for more details]({% doc "create-decorators" %})
+
 ```typescript
 import {
   DecoratorContext,
@@ -123,17 +125,8 @@ import {
 
 const emitThisKey = createStateSymbol("emitThis");
 
-const emitThisDef = createDecoratorDefinition({
-  name: "@emitThis",
-  target: ["Model"],
-  args: [],
-} as const);
-
 // @emitThis decorator
 export function $emitThis(context: DecoratorContext, target: Model) {
-  if (!emitThisDef.validate(context, target)) {
-    return;
-  }
   context.program.stateSet(emitThisKey).add(target);
 }
 

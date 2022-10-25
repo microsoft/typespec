@@ -1,6 +1,13 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program";
 
+// prettier-ignore
+export type MarshalledValue<Type>  = 
+  Type extends StringLiteral ? string
+  : Type extends NumericLiteral ? number
+  : Type extends BooleanLiteral ? boolean
+  : Type
+
 /**
  * Type System types
  */
@@ -8,7 +15,7 @@ import { Program } from "./program";
 export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
-  value: DecoratorArgumentValue;
+  value: Type;
   node?: Node;
 }
 
@@ -65,6 +72,8 @@ export type Type =
   | UnionVariant
   | IntrinsicType
   | FunctionType
+  | Decorator
+  | FunctionParameter
   | ObjectType
   | Projection;
 
@@ -114,11 +123,6 @@ export type UnionTypeVariant = UnionVariant;
 export type ProjectionType = Projection;
 
 export type TypeOrReturnRecord = Type | ReturnRecord;
-
-export interface FunctionType extends BaseType {
-  kind: "Function";
-  call(...args: any[]): Type;
-}
 
 export interface ObjectType extends BaseType {
   kind: "Object";
@@ -320,6 +324,9 @@ export interface Namespace extends BaseType, DecoratedType {
   interfaces: Map<string, Interface>;
   enums: Map<string, Enum>;
   unions: Map<string, Union>;
+
+  decoratorDeclarations: Map<string, Decorator>;
+  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -380,6 +387,35 @@ export interface TemplateParameter extends BaseType {
   node: TemplateParameterDeclarationNode;
   constraint?: Type;
   default?: Type;
+}
+
+export interface Decorator extends BaseType {
+  kind: "Decorator";
+  node: DecoratorDeclarationStatementNode;
+  name: `@${string}`;
+  namespace: Namespace;
+  target: FunctionParameter;
+  parameters: FunctionParameter[];
+  implementation: (...args: unknown[]) => void;
+}
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  namespace?: Namespace;
+  name: string;
+  parameters: FunctionParameter[];
+  returnType: Type;
+  implementation: (...args: unknown[]) => unknown;
+}
+
+export interface FunctionParameter extends BaseType {
+  kind: "FunctionParameter";
+  node: FunctionParameterNode;
+  name: string;
+  type: Type;
+  optional: boolean;
+  rest: boolean;
 }
 
 export interface Sym {
@@ -474,12 +510,14 @@ export const enum SymbolFlags {
   Using                 = 1 << 18,
   DuplicateUsing        = 1 << 19,
   SourceFile            = 1 << 20,
-
+  Declaration           = 1 << 21,
+  Implementation        = 1 << 22,
+  
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 21,
+  LateBound = 1 << 23,
 
   ExportContainer = Namespace | SourceFile,
   /**
@@ -524,6 +562,9 @@ export enum SyntaxKind {
   EnumMember,
   EnumSpreadMember,
   AliasStatement,
+  DecoratorDeclarationStatement,
+  FunctionDeclarationStatement,
+  FunctionParameter,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -531,6 +572,7 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  ExternKeyword,
   VoidKeyword,
   NeverKeyword,
   UnknownKeyword,
@@ -637,6 +679,8 @@ export type Node =
   | DirectiveExpressionNode
   | Statement
   | Expression
+  | FunctionParameterNode
+  | Modifier
   | ProjectionStatementItem
   | ProjectionExpression
   | ProjectionModelSelectorNode
@@ -686,6 +730,8 @@ export type Statement =
   | EnumStatementNode
   | AliasStatementNode
   | OperationStatementNode
+  | DecoratorDeclarationStatementNode
+  | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
   | EmptyStatementNode
   | InvalidStatementNode
@@ -706,7 +752,9 @@ export type Declaration =
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
-  | AliasStatementNode;
+  | AliasStatementNode
+  | DecoratorDeclarationStatementNode
+  | FunctionDeclarationStatementNode;
 
 export type ScopeNode =
   | NamespaceStatementNode
@@ -939,6 +987,10 @@ export interface BooleanLiteralNode extends BaseNode {
   readonly value: boolean;
 }
 
+export interface ExternKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.ExternKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -982,6 +1034,66 @@ export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseN
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
+}
+
+export const enum ModifierFlags {
+  None,
+  Extern = 1 << 1,
+}
+
+export type Modifier = ExternKeywordNode;
+
+/**
+ * Represent a decorator declaration
+ * @example
+ * ```cadl
+ * extern dec doc(target: Type, value: StringLiteral);
+ * ```
+ */
+export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
+  readonly kind: SyntaxKind.DecoratorDeclarationStatement;
+  readonly modifiers: readonly Modifier[];
+  readonly modifierFlags: ModifierFlags;
+  /**
+   * Decorator target. First parameter.
+   */
+  readonly target: FunctionParameterNode;
+
+  /**
+   * Additional parameters
+   */
+  readonly parameters: FunctionParameterNode[];
+}
+
+export interface FunctionParameterNode extends BaseNode {
+  readonly kind: SyntaxKind.FunctionParameter;
+  readonly id: IdentifierNode;
+  readonly type?: Expression;
+
+  /**
+   * Parameter defined with `?`
+   */
+  readonly optional: boolean;
+
+  /**
+   * Parameter defined with `...` notation.
+   */
+  readonly rest: boolean;
+}
+
+/**
+ * Represent a function declaration
+ * @example
+ * ```cadl
+ * extern fn camelCase(value: StringLiteral): StringLiteral;
+ * ```
+ */
+export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
+  readonly kind: SyntaxKind.FunctionDeclarationStatement;
+  readonly modifiers: readonly Modifier[];
+  readonly modifierFlags: ModifierFlags;
+  readonly parameters: FunctionParameterNode[];
+  readonly returnType?: Expression;
 }
 
 // Projection-related Syntax
@@ -1148,6 +1260,7 @@ export interface IdentifierContext {
 export enum IdentifierKind {
   TypeReference,
   Decorator,
+  Function,
   Using,
   Declaration,
   Other,

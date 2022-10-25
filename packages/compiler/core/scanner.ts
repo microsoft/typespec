@@ -105,15 +105,26 @@ export enum Token {
   ProjectionKeyword,
   ElseKeyword,
   IfKeyword,
+  DecKeyword,
+  FnKeyword,
   // Add new statement keyword above
 
   /** @internal */ __EndStatementKeyword,
   ///////////////////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////////////////
+
+  /** @internal */ __StartModifierKeyword = __EndStatementKeyword,
+
+  ExternKeyword = __StartModifierKeyword,
+
+  /** @internal */ __EndModifierKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////
   // Other keywords
 
-  ExtendsKeyword = __EndStatementKeyword,
+  ExtendsKeyword = __EndModifierKeyword,
   TrueKeyword,
   FalseKeyword,
   ReturnKeyword,
@@ -187,6 +198,8 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ProjectionKeyword, "'projection'"],
   [Token.ElseKeyword, "'else'"],
   [Token.IfKeyword, "'if'"],
+  [Token.DecKeyword, "'dec'"],
+  [Token.FnKeyword, "'fn'"],
   [Token.ExtendsKeyword, "'extends'"],
   [Token.TrueKeyword, "'true'"],
   [Token.FalseKeyword, "'false'"],
@@ -194,6 +207,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.VoidKeyword, "'void'"],
   [Token.NeverKeyword, "'never'"],
   [Token.UnknownKeyword, "'unknown'"],
+  [Token.ExternKeyword, "'extern'"],
 ]);
 
 /** @internal */
@@ -212,12 +226,15 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["is", Token.IsKeyword],
   ["enum", Token.EnumKeyword],
   ["alias", Token.AliasKeyword],
+  ["dec", Token.DecKeyword],
+  ["fn", Token.FnKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
   ["return", Token.ReturnKeyword],
   ["void", Token.VoidKeyword],
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
+  ["extern", Token.ExternKeyword],
 ]);
 
 /** @internal */
@@ -280,6 +297,10 @@ export function isKeyword(token: Token) {
 
 export function isPunctuation(token: Token) {
   return token >= Token.__StartPunctuation && token < Token.__EndPunctuation;
+}
+
+export function isModifier(token: Token) {
+  return token >= Token.__StartModifierKeyword && token < Token.__EndModifierKeyword;
 }
 
 export function isStatementKeyword(token: Token) {

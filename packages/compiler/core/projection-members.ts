@@ -40,7 +40,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("block", block, "Function");
               const props = Array.from(base.properties.values());
-              props.forEach((p) => block.call(p));
+              props.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -135,7 +135,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("block", block, "Function");
               const variants = Array.from(base.variants.values());
-              variants.forEach((p) => block.call(p));
+              variants.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -224,7 +224,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("block", block, "Function");
               const props = Array.from(base.operations.values());
-              props.forEach((p) => block.call(p));
+              props.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -303,7 +303,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("parameter", block, "Function");
               const props = Array.from(base.members.values());
-              props.forEach((p) => block.call(p));
+              props.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },

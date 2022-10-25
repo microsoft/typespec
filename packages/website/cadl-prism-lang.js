@@ -47,7 +47,7 @@ module.exports = {
 
   boolean: /\b(?:false|true)\b/,
   keyword:
-    /\b(?:import|model|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|projection)\b/,
+    /\b(?:import|model|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|extern|dec|fn|projection)\b/,
 
   function: /\b[a-z_]\w*(?=[ \t]*\()/i,
 
