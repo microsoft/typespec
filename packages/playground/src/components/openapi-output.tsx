@@ -22,7 +22,7 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
   );
 
   return (
-    <>
+    <div css={{ width: "100%", height: "100%", overflow: "hidden" }}>
       {PlaygroundManifest.enableSwaggerUI ? (
         <select css={DropdownStyle} onChange={handleSelected} value={selected}>
           {options.map((item) => {
@@ -42,7 +42,7 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
       ) : (
         <SwaggerUI spec={props.content} />
       )}
-    </>
+    </div>
   );
 };
 
