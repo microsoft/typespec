@@ -5,7 +5,7 @@ import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
-describe("compiler: syntax", () => {
+describe("compiler: parser", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
@@ -152,7 +152,7 @@ describe("compiler: syntax", () => {
       ["interface X {", [/'}' expected/]],
       ["interface X { foo(): string; interface Y", [/'}' expected/]],
       ["interface X { foo(a: string", [/'\)' expected/]],
-      ["interface X { foo(@dec", [/Property expected/]],
+      ["interface X { foo(@myDec", [/Property expected/]],
       ["interface X { foo(#suppress x", [/Property expected/]],
     ]);
   });
@@ -180,14 +180,14 @@ describe("compiler: syntax", () => {
   describe("union declarations", () => {
     parseEach([
       "union A { x: number, y: number } ",
-      "@dec union A { @dec a: string }",
+      "@myDec union A { @myDec a: string }",
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
     ]);
 
     parseErrorEach([
       [
-        'union A { @dec "x" x: number, y: string }',
+        'union A { @myDec "x" x: number, y: string }',
         [/':' expected/],
         (n) => assert(!n.printable, "should not be printable"),
       ],
@@ -212,7 +212,7 @@ describe("compiler: syntax", () => {
       "namespace Store { op read(): int32; }",
       "namespace Store { op read(): int32; op write(v: int32): {}; }",
       "namespace Store.Read { op read(): int32; }",
-      "@foo namespace Store { @dec op read(): number; @dec op write(n: number): {}; }",
+      "@foo namespace Store { @myDec op read(): number; @myDec op write(n: number): {}; }",
       "@foo @bar namespace Store { @foo @bar op read(): number; }",
       "namespace Store { namespace Read { op read(): int32; } namespace Write { op write(v: int32): {}; } }",
       "namespace Store.Read { }",
@@ -306,7 +306,7 @@ describe("compiler: syntax", () => {
         ],
       ],
       ["model M {}; This is not a valid statement", [/Statement expected/]],
-      ["model M {}; @dec ;", [/Cannot decorate empty statement/]],
+      ["model M {}; @myDec ;", [/Cannot decorate empty statement/]],
     ]);
   });
 
@@ -557,6 +557,96 @@ describe("compiler: syntax", () => {
     ]);
   });
 
+  describe("decorator declarations", () => {
+    parseEach([
+      "dec myDec(target: Type);",
+      "extern dec myDec(target: Type);",
+      "namespace Lib { extern dec myDec(target: Type);}",
+      "extern dec myDec(target: Type, arg1: StringLiteral);",
+      "extern dec myDec(target: Type, optional?: StringLiteral);",
+      "extern dec myDec(target: Type, ...rest: StringLiteral[]);",
+      "extern dec myDec(target, arg1, ...rest);",
+    ]);
+
+    parseErrorEach([
+      ["dec myDec(target: Type)", [{ code: "token-expected", message: "';' expected." }]],
+      [
+        "dec myDec();",
+        [{ code: "decorator-decl-target", message: "dec must have at least one parameter." }],
+      ],
+      [
+        "dec myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral);",
+        [
+          {
+            code: "required-parameter-first",
+            message: "A required parameter cannot follow an optional parameter.",
+          },
+        ],
+      ],
+      [
+        "dec myDec(target: Type, ...optionalRest?: StringLiteral[]);",
+        [
+          {
+            code: "rest-parameter-required",
+            message: "A rest parameter cannot be optional.",
+          },
+        ],
+      ],
+      [
+        "dec myDec(target: Type, ...restFirst: StringLiteral[], paramAfter: StringLiteral);",
+        [
+          {
+            code: "rest-parameter-last",
+            message: "A rest parameter must be last in a parameter list.",
+          },
+        ],
+      ],
+    ]);
+  });
+
+  describe("function declarations", () => {
+    parseEach([
+      "fn myDec(): void;",
+      "extern fn myDec(): StringLiteral;",
+      "namespace Lib { extern fn myDec(): StringLiteral;}",
+      "extern fn myDec(arg1: StringLiteral): void;",
+      "extern fn myDec(optional?: StringLiteral): void;",
+      "extern fn myDec(...rest: StringLiteral[]): void;",
+      "extern fn myDec(arg1, ...rest): void;",
+    ]);
+
+    parseErrorEach([
+      ["fn myDec(target: Type): void", [{ code: "token-expected", message: "';' expected." }]],
+      [
+        "fn myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral): void;",
+        [
+          {
+            code: "required-parameter-first",
+            message: "A required parameter cannot follow an optional parameter.",
+          },
+        ],
+      ],
+      [
+        "fn myDec(target: Type, ...optionalRest?: StringLiteral[]): void;",
+        [
+          {
+            code: "rest-parameter-required",
+            message: "A rest parameter cannot be optional.",
+          },
+        ],
+      ],
+      [
+        "fn myDec(target: Type, ...restFirst: StringLiteral[], paramAfter: StringLiteral): void;",
+        [
+          {
+            code: "rest-parameter-last",
+            message: "A rest parameter must be last in a parameter list.",
+          },
+        ],
+      ],
+    ]);
+  });
+
   describe("projections", () => {
     describe("selectors", () => {
       const selectors = ["model", "op", "interface", "union", "someId"];
@@ -638,7 +728,7 @@ describe("compiler: syntax", () => {
   });
 
   describe("invalid statement", () => {
-    parseErrorEach([["@dec(N.)", [/Identifier expected/]]]);
+    parseErrorEach([["@myDecN.)", [/Identifier expected/]]]);
   });
 });
 

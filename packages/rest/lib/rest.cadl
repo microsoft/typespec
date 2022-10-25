@@ -1,8 +1,9 @@
 import "./http.cadl";
+import "./rest-decorators.cadl";
 import "./resource.cadl";
 
 namespace Cadl.Rest;
 
 @doc("The location of an instance of {name}", TResource)
 @Private.resourceLocation(TResource)
-model ResourceLocation<TResource> is uri;
+model ResourceLocation<TResource extends object> is uri;

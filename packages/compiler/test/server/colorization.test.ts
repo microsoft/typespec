@@ -34,8 +34,11 @@ const Token = {
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
     alias: createToken("alias", "keyword.other.cadl"),
+    dec: createToken("dec", "keyword.other.cadl"),
+    fn: createToken("fn", "keyword.other.cadl"),
     projection: createToken("projection", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
+    extern: createToken("extern", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
     if: createToken("if", "keyword.other.cadl"),
     else: createToken("else", "keyword.other.cadl"),
@@ -705,6 +708,42 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("decorator declarations", () => {
+      it("extern decorator", async () => {
+        const tokens = await tokenize("extern dec tag(target: Namespace);");
+        deepStrictEqual(tokens, [
+          Token.keywords.extern,
+          Token.keywords.dec,
+          Token.identifiers.functionName("tag"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("target"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("Namespace"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("function declarations", () => {
+      it("extern fn", async () => {
+        const tokens = await tokenize("extern fn camelCase(target: StringLiteral): StringLiteral;");
+        deepStrictEqual(tokens, [
+          Token.keywords.extern,
+          Token.keywords.fn,
+          Token.identifiers.functionName("camelCase"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("target"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("StringLiteral"),
+          Token.punctuation.closeParen,
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("StringLiteral"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("projections", () => {
       it("simple projection", async () => {
         const tokens = await tokenize(`
@@ -855,7 +894,7 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
     }
   }
 
-  // Make @dec one token to match tmlanguage
+  // Make @myDec one token to match tmlanguage
   for (let i = 0; i < tokens.length - 1; i++) {
     if (
       tokens[i].scope === "entity.name.tag.cadl" &&
@@ -892,8 +931,6 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
       case SemanticTokenKind.String:
         return Token.literals.string(text);
       case SemanticTokenKind.Number:
-        return Token.literals.numeric(text);
-      case SemanticTokenKind.Modifier:
         return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:
         if (text === "@") return Token.identifiers.tag("@");

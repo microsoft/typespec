@@ -97,6 +97,7 @@ import {
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 import { getSymbolStructure } from "./symbol-structure.js";
+import { getTypeSignature } from "./type-signature.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -161,7 +162,6 @@ export enum SemanticTokenKind {
   Method,
   Macro,
   Keyword,
-  Modifier,
   Comment,
   String,
   Number,
@@ -220,6 +220,8 @@ const keywords = [
   ["enum", { root: true, namespace: true }],
   ["alias", { root: true, namespace: true }],
   ["op", { root: true, namespace: true }],
+  ["dec", { root: true, namespace: true }],
+  ["fn", { root: true, namespace: true }],
 
   // On model `model Foo <keyword> ...`
   ["extends", { model: true }],
@@ -228,6 +230,9 @@ const keywords = [
   // On identifier`
   ["true", { identifier: true }],
   ["false", { identifier: true }],
+
+  // Modifiers
+  ["extern", { root: true, namespace: true }],
 ] as const;
 
 export function createServer(host: ServerHost): Server {
@@ -627,10 +632,7 @@ export function createServer(host: ServerHost): Server {
       return "";
     }
 
-    const name = program.checker.getTypeName(type);
-    const typeKind = type.kind.toLowerCase();
-
-    const lines = ["```cadl", `${typeKind} ${name}`, "```"];
+    const lines = ["```cadl", getTypeSignature(program, type), "```"];
     const doc = getDoc(program, type);
     if (doc) {
       lines.push(`_${doc}_`); // italic
@@ -1061,6 +1063,15 @@ export function createServer(host: ServerHost): Server {
           break;
         case SyntaxKind.OperationStatement:
           classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.DecoratorDeclarationStatement:
+          classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.FunctionDeclarationStatement:
+          classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.FunctionParameter:
+          classify(node.id, SemanticTokenKind.Parameter);
           break;
         case SyntaxKind.AugmentDecoratorStatement:
           classifyReference(node.targetType, SemanticTokenKind.Type);

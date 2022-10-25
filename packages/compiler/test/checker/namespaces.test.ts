@@ -581,7 +581,7 @@ describe("compiler: namespace type name", () => {
   it("gets full name in edge case with decorators", async () => {
     testHost.addJsFile("lib.js", {
       namespace: "AnotherNamespace",
-      $dec() {},
+      $myDec() {},
     });
 
     testHost.addCadlFile(
@@ -589,7 +589,7 @@ describe("compiler: namespace type name", () => {
       `
       import "./lib.js";
 
-      @AnotherNamespace.dec(AnotherNamespace.AnotherModel)
+      @AnotherNamespace.myDec(AnotherNamespace.AnotherModel)
       namespace SomeNamespace {
         @test()
         model SomeModel {}

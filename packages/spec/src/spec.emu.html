@@ -41,9 +41,13 @@ Keyword :
     `using`
     `interface`
     `union`
+    `extern`
+    `dec`
+    `fn`
     `projection`
     `void`
     `never`
+    `unknown`
 
 Identifier :
     IdentifierName but not Keyword
@@ -278,6 +282,8 @@ Statement :
     EnumStatement
     AliasStatement
     AugmentDecoratorStatement
+    DecoratorDeclarationStatement
+    FunctionDeclarationStatement
     `;`
 
 UsingStatement :
@@ -479,6 +485,29 @@ AugmentDecoratorStatement :
 
 AugmentDecoratorArguments :
   `(` ExpressionList `)`
+
+
+DecoratorDeclarationStatement :
+  DecoratorModifiers? `dec` `(` FunctionParameterList? `)`
+
+DecoratorModifiers:
+  `extern`
+
+FunctionDeclarationStatement :
+  FunctionModifiers? `fn` `(` FunctionParameterList? `)` TypeAnnotation?
+
+TypeAnnotation:
+  `:` Expression
+
+FunctionModifiers:
+  `extern`
+
+FunctionParameterList : 
+  FunctionParameter
+  FunctionParameterList `,` FunctionParameter
+
+FunctionParameter :
+  `...`? Identifier `?`? TypeAnnotation?
 
 ProjectionStatement :
     `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`

@@ -136,7 +136,6 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
       code: "invalid-argument",
       format: {
         value: prettyValue(program, value),
-        actual: getTypeKind(value)!,
         expected: typeof expectedType === "string" ? expectedType : expectedType.join(", "),
       },
       target,
@@ -221,6 +220,9 @@ export interface DecoratorValidator<
 
 export type TypeKind = Type["kind"] | "Any";
 
+/**
+ * @deprecated use extern dec definition in cadl instead.
+ */
 export function createDecoratorDefinition<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
@@ -245,7 +247,6 @@ export function createDecoratorDefinition<
             code: "invalid-argument",
             format: {
               value: "undefined",
-              actual: "undefined",
               expected: expectedTypeList(paramDefinition.kind as any),
             },
             target: context.getArgumentTarget(index)!,
@@ -257,7 +258,6 @@ export function createDecoratorDefinition<
           code: "invalid-argument",
           format: {
             value: prettyValue(context.program, arg),
-            actual: getTypeKind(arg)!,
             expected: expectedTypeList(paramDefinition.kind as any),
           },
           target: context.getArgumentTarget(index)!,
@@ -308,11 +308,9 @@ export function validateDecoratorParamCount(
     } else {
       reportDiagnostic(context.program, {
         code: "invalid-argument-count",
-        messageId: "between",
         format: {
           actual: parameterCount.toString(),
-          min: min.toString(),
-          max: max === undefined ? "infinity" : max.toString(),
+          expected: `${min}-${max === undefined ? "infinity" : max.toString()}`,
         },
         target: context.decoratorTarget,
       });

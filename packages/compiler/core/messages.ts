@@ -195,6 +195,25 @@ const diagnostics = {
         "Template parameter defaults can only reference previously declared type parameters.",
     },
   },
+  "required-parameter-first": {
+    severity: "error",
+    messages: {
+      default: "A required parameter cannot follow an optional parameter.",
+    },
+  },
+  "rest-parameter-last": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be last in a parameter list.",
+    },
+  },
+  "rest-parameter-required": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter cannot be optional.",
+    },
+  },
+
   /**
    * Checker
    */
@@ -390,6 +409,30 @@ const diagnostics = {
       default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
+  "rest-parameter-array": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be of an array type.",
+    },
+  },
+  "decorator-extern": {
+    severity: "error",
+    messages: {
+      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-extern": {
+    severity: "error",
+    messages: {
+      default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "missing-implementation": {
+    severity: "error",
+    messages: {
+      default: "Extern declaration must have an implementation in JS file.",
+    },
+  },
   "overload-same-parent": {
     severity: "error",
     messages: {
@@ -449,6 +492,13 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "decorator-decl-target": {
+    severity: "error",
+    messages: {
+      default: "dec must have at least one parameter.",
+      required: "dec first parameter must be required.",
+    },
+  },
   "projections-are-experimental": {
     severity: "warning",
     messages: {
@@ -502,19 +552,20 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
+      withExpected: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"} since it is not assignable to ${"expected"}`,
     },
   },
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' of type '${"actual"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
-      between: paramMessage`Expected between ${"min"} and ${"max"} arguments, but got ${"actual"}.`,
+      atLeast: paramMessage`Expected at least ${"expected"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {
