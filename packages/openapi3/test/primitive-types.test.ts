@@ -4,6 +4,7 @@ import { oapiForModel } from "./test-host.js";
 describe("openapi3: primitives", () => {
   describe("handle cadl intrinsic types", () => {
     const cases = [
+      ["unknown", {}],
       ["int8", { type: "integer", format: "int8" }],
       ["int16", { type: "integer", format: "int16" }],
       ["int32", { type: "integer", format: "int32" }],

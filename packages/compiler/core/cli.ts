@@ -351,10 +351,6 @@ async function getCompilerOptions(
   host: CompilerHost,
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
-  const pathArg = args["output-dir"] ?? args["output-path"] ?? "./cadl-output";
-  const outputPath = resolvePath(process.cwd(), pathArg);
-  await mkdirp(outputPath);
-
   const config = await loadCadlConfigForPath(host, process.cwd());
 
   if (config.diagnostics.length > 0) {
@@ -365,16 +361,21 @@ async function getCompilerOptions(
     }
   }
 
+  const pathArg = args["output-dir"] ?? args["output-path"] ?? config.outputDir ?? "./cadl-output";
+  const outputPath = resolvePath(process.cwd(), pathArg);
+  await mkdirp(outputPath);
+
   const cliOptions = resolveOptions(args);
+
   return {
     outputDir: outputPath,
     nostdlib: args["nostdlib"],
-    additionalImports: args["import"],
+    additionalImports: args["import"] ?? config["imports"],
     watchForChanges: args["watch"],
-    warningAsError: args["warn-as-error"],
+    warningAsError: args["warn-as-error"] ?? config.warnAsError,
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
-    trace: args.trace,
+    trace: args.trace ?? config.trace,
     emitters: resolveEmitters(config, cliOptions, args),
   };
 }
