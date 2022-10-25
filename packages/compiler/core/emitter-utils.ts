@@ -1,4 +1,6 @@
 import { Program } from "./program.js";
+import path from "path";
+import mkdirp from "mkdirp";
 
 export type NewLine = "lf" | "crlf";
 export interface EmitFileOptions {
@@ -13,6 +15,13 @@ export interface EmitFileOptions {
  * @param options File Emitter options
  */
 export async function emitFile(program: Program, options: EmitFileOptions): Promise<void> {
+  // ensure path exists
+  const outputFolder = path.dirname(options.path);
+  try {
+    await mkdirp(outputFolder);
+  } catch {
+    // mkdirp fails during tests
+  }
   const content =
     options.newLine && options.newLine === "crlf"
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
