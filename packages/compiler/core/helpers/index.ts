@@ -1,3 +1,4 @@
+export * from "./ast-utils.js";
 export { DiscriminatedUnion, getDiscriminatedUnion } from "./discriminator-utils.js";
 export * from "./operation-utils.js";
 export * from "./projected-names-utils.js";
