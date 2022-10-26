@@ -1,6 +1,5 @@
+import { getDirectoryPath } from "./path-utils.js";
 import { Program } from "./program.js";
-import path from "path";
-import mkdirp from "mkdirp";
 
 export type NewLine = "lf" | "crlf";
 export interface EmitFileOptions {
@@ -16,7 +15,7 @@ export interface EmitFileOptions {
  */
 export async function emitFile(program: Program, options: EmitFileOptions): Promise<void> {
   // ensure path exists
-  const outputFolder = path.dirname(options.path);
+  const outputFolder = getDirectoryPath(options.path);
   await program.host.mkdirp(outputFolder);
   const content =
     options.newLine && options.newLine === "crlf"
