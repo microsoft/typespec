@@ -4,6 +4,7 @@ import { oapiForModel } from "./test-host.js";
 describe("openapi3: primitives", () => {
   describe("handle cadl intrinsic types", () => {
     const cases = [
+      ["unknown", {}],
       ["int8", { type: "integer", format: "int8" }],
       ["int16", { type: "integer", format: "int16" }],
       ["int32", { type: "integer", format: "int32" }],
@@ -101,6 +102,22 @@ describe("openapi3: primitives", () => {
         type: "string",
         minLength: 1,
         maxLength: 10,
+      });
+    });
+
+    it("includes extensions passed on the model", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+      @extension("x-custom", "my-value")
+      model Pet is string;
+      `
+      );
+
+      ok(res.schemas.Pet, "expected definition named Pet");
+      deepStrictEqual(res.schemas.Pet, {
+        type: "string",
+        "x-custom": "my-value",
       });
     });
   });

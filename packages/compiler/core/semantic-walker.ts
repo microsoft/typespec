@@ -319,6 +319,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "Object":
     case "Projection":
     case "Function":
+    case "Decorator":
+    case "FunctionParameter":
     case "Boolean":
     case "EnumMember":
     case "Intrinsic":

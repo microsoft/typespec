@@ -1,4 +1,4 @@
-import { createDecoratorDefinition, validateDecoratorTarget } from "../core/decorator-utils.js";
+import { validateDecoratorTarget } from "../core/decorator-utils.js";
 import { reportDeprecated } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
@@ -40,21 +40,13 @@ export function checkIfServiceNamespace(program: Program, namespace: Namespace):
   return serviceDetails.namespace === namespace;
 }
 
-const serviceDecorator = createDecoratorDefinition({
-  name: "@service",
-  target: "Namespace",
-  args: [{ kind: "Model" }],
-});
-export function $service(context: DecoratorContext, target: Namespace, options: Model) {
-  if (!serviceDecorator.validate(context, target, [options])) {
-    return;
-  }
+export function $service(context: DecoratorContext, target: Namespace, options?: Model) {
   const serviceDetails = getServiceDetails(context.program);
 
   setServiceNamespace(context.program, target);
 
-  const title = options.properties.get("title")?.type;
-  const version = options.properties.get("version")?.type;
+  const title = options?.properties.get("title")?.type;
+  const version = options?.properties.get("version")?.type;
   if (title) {
     if (title.kind === "String") {
       serviceDetails.title = title.value;

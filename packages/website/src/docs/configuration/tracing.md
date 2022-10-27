@@ -21,6 +21,16 @@ cadl compile . --trace import-resolution  --trace projection
 
 Using `--trace *` will log everything. This might be a bit overwhelming but you can [pick and choose which trace area to include](#trace-selection)
 
+It can also be provided via the `cadl-project.yaml` file:
+
+```yaml
+trace: *
+
+trace:
+  - import-resolution
+  - projection
+```
+
 ## Trace selection
 
 The tracing system in the cadl compiler works by having each trace under an area. The area name is a dot `.` separated string of area segments.

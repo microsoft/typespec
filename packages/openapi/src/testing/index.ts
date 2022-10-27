@@ -7,6 +7,7 @@ export const OpenAPITestLibrary: CadlTestLibrary = {
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
   files: [
     { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@cadl-lang/openapi" },
+    { realDir: "lib", pattern: "*.cadl", virtualPath: "./node_modules/@cadl-lang/openapi/lib" },
     {
       realDir: "dist/src",
       pattern: "*.js",

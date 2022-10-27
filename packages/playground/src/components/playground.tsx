@@ -95,7 +95,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
 
       editor.setModelMarkers(cadlModel, "owner", markers ?? []);
 
-      const outputFiles = await host.readDir("./cadl-output");
+      const outputFiles = await findOutputFiles();
+
       setOutputFiles(outputFiles);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -104,6 +105,24 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
       setProgram(undefined);
       setInternalCompilerError(error);
     }
+  }
+
+  async function findOutputFiles(): Promise<string[]> {
+    const files: string[] = [];
+
+    async function addFiles(dir: string) {
+      const items = await host.readDir("./cadl-output" + dir);
+      for (const item of items) {
+        const itemPath = `${dir}/${item}`;
+        if ((await host.stat("./cadl-output" + itemPath)).isDirectory()) {
+          await addFiles(itemPath);
+        } else {
+          files.push(dir === "" ? item : `${dir}/${item}`);
+        }
+      }
+    }
+    await addFiles("");
+    return files;
   }
 
   function getMarkerLocation(

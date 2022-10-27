@@ -12,7 +12,8 @@ describe("rest: http decorators", () => {
   });
 
   describe("@resourceLocation", () => {
-    it("emit diagnostic when used on non-model", async () => {
+    // Depends on the separation between models and scalar https://github.com/microsoft/cadl/issues/1187
+    it.skip("emit diagnostic when used on non-model", async () => {
       const diagnostics = await runner.diagnose(`
           model Widget {};
 
@@ -25,7 +26,8 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @resourceLocation decorator to Operation",
+          message:
+            "Cannot apply @resourceLocation decorator to test since it is not assignable to Cadl.object",
         },
       ]);
     });

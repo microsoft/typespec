@@ -52,11 +52,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @header decorator to Operation",
+          message:
+            "Cannot apply @header decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @header decorator to Model",
+          message:
+            "Cannot apply @header decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -68,7 +70,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -101,11 +103,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @query decorator to Operation",
+          message:
+            "Cannot apply @query decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @query decorator to Model",
+          message:
+            "Cannot apply @query decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -117,7 +121,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -191,11 +195,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @path decorator to Operation",
+          message:
+            "Cannot apply @path decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @path decorator to Model",
+          message:
+            "Cannot apply @path decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -226,7 +232,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -259,11 +265,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @body decorator to Operation",
+          message:
+            "Cannot apply @body decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @body decorator to Model",
+          message:
+            "Cannot apply @body decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -288,11 +296,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @statusCode decorator to Operation",
+          message:
+            "Cannot apply @statusCode decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @statusCode decorator to Model",
+          message:
+            "Cannot apply @statusCode decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -319,11 +329,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @server decorator to Operation",
+          message:
+            "Cannot apply @server decorator to test since it is not assignable to Cadl.Reflection.Namespace",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @server decorator to Model",
+          message:
+            "Cannot apply @server decorator to Foo since it is not assignable to Cadl.Reflection.Namespace",
         },
       ]);
     });
@@ -336,7 +348,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -348,7 +360,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -360,7 +372,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument-count",
-        message: "Expected between 2 and 3 arguments, but got 1.",
+        message: "Expected 2-3 arguments, but got 1.",
       });
     });
 
@@ -372,7 +384,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'Model'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.object'",
       });
     });
 
@@ -422,7 +434,7 @@ describe("rest: http decorators", () => {
   });
 
   describe("@useAuth", () => {
-    it("emit diagnostics when @header is not used on namespace", async () => {
+    it("emit diagnostics when @useAuth is not used on namespace", async () => {
       const diagnostics = await runner.diagnose(`
           @useAuth(BasicAuth) op test(): string;
         `);
@@ -430,21 +442,24 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @useAuth decorator to Operation",
+          message:
+            "Cannot apply @useAuth decorator to test since it is not assignable to Cadl.Reflection.Namespace",
         },
       ]);
     });
 
     it("emit diagnostics when config is not a model, tuple or union", async () => {
       const diagnostics = await runner.diagnose(`
-          @useAuth(123)
+          @useAuth(anOp)
           namespace Foo {}
+
+          op anOp(): void;
         `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument '123' of type 'Number' is not assignable to parameter of type 'Model, Union, Tuple'",
+          "Argument 'anOp' is not assignable to parameter of type 'Cadl.object | Cadl.Reflection.Union | Cadl.object[]'",
       });
     });
 

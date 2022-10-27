@@ -48,7 +48,7 @@ const libDefinition = {
     "duplicate-parent-key": {
       severity: "error",
       messages: {
-        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which is already used by parent type '${"parentName"}'.`,
+        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which conflicts with the key name of a parent or child resource.`,
       },
     },
     "missing-path-param": {

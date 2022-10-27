@@ -1,4 +1,4 @@
-import "../dist/src/versioning.js";
+import "./decorators.cadl";
 import "../dist/src/validate.js";
 
 using Cadl.Versioning;

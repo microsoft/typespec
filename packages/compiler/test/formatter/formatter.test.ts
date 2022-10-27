@@ -1091,6 +1091,155 @@ model Foo {
     });
   });
 
+  describe("decorator declaration", () => {
+    it("format simple decorator declaration inline", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, 
+      arg1: StringLiteral);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format decorator without parameter types", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern dec foo(target, arg1);
+`,
+      });
+    });
+
+    it("format decorator with optional parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, arg1: StringLiteral, 
+      arg2?: StringLiteral);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
+`,
+      });
+    });
+
+    it("format decorator with rest parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, arg1: StringLiteral,
+      ...args: StringLiteral[]);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
+`,
+      });
+    });
+
+    it("split decorator argument into multiple lines if too long", () => {
+      assertFormat({
+        code: `
+extern dec  foo(target: Type,   arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral);
+      `,
+        expected: `
+extern dec foo(
+  target: Type,
+  arg1: StringLiteral,
+  arg2: StringLiteral,
+  arg3: StringLiteral,
+  arg4: StringLiteral
+);
+`,
+      });
+    });
+  });
+
+  describe("function declaration", () => {
+    it("format simple function declaration inline", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo( 
+      arg1: StringLiteral) :   void;
+      `,
+        expected: `
+extern fn foo(arg1: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function without parameter types and return type", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern fn foo(target, arg1);
+`,
+      });
+    });
+
+    it("format function with optional parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target: Type, arg1: StringLiteral, 
+      arg2?: StringLiteral): void;
+      `,
+        expected: `
+extern fn foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function with rest parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target: Type, arg1: Type,
+      ...args: Type[]): void;
+      `,
+        expected: `
+extern fn foo(target: Type, arg1: Type, ...args: Type[]): void;
+`,
+      });
+    });
+
+    it("split decorator argument into multiple lines if too long", () => {
+      assertFormat({
+        code: `
+extern fn  foo( arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral) : void;
+      `,
+        expected: `
+extern fn foo(
+  arg1: StringLiteral,
+  arg2: StringLiteral,
+  arg3: StringLiteral,
+  arg4: StringLiteral
+): void;
+`,
+      });
+    });
+  });
+
   describe("decorators", () => {
     it("keep simple decorators inline", () => {
       assertFormat({

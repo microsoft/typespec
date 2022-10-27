@@ -52,9 +52,10 @@ const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
-const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
-const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
+const modifierKeyword = `\\b(?:extern)\\b`;
+const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
+const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
  * Universal end with extra end char: `=`
@@ -577,6 +578,32 @@ const usingStatement: BeginEndRule = {
   patterns: [token, identifierExpression],
 };
 
+const decoratorDeclarationStatement: BeginEndRule = {
+  key: "decorator-declaration-statement",
+  scope: meta,
+  begin: `(?:(extern)\\s+)?\\b(dec)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters],
+};
+
+const functionDeclarationStatement: BeginEndRule = {
+  key: "function-declaration-statement",
+  scope: meta,
+  begin: `(?:(extern)\\s+)?\\b(fn)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters, typeAnnotation],
+};
+
 const projectionParameter: BeginEndRule = {
   key: "projection-parameter",
   scope: meta,
@@ -743,6 +770,8 @@ statement.patterns = [
   operationStatement,
   importStatement,
   usingStatement,
+  decoratorDeclarationStatement,
+  functionDeclarationStatement,
   projectionStatement,
   punctuationSemicolon,
 ];

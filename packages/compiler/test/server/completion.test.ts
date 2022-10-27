@@ -203,7 +203,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
       },
     ]);
   });
@@ -238,7 +242,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
       },
     ]);
   });
@@ -401,7 +409,7 @@ describe("compiler: server: completion", () => {
        namespace N {
         op test(): void;
        }
-       @dec(N.┆)
+       @myDec(N.┆)
       `
     );
 
@@ -428,7 +436,7 @@ describe("compiler: server: completion", () => {
         test(): void;
        }
       
-       @dec(I.┆
+       @myDec(I.┆
       `
     );
 
@@ -454,7 +462,7 @@ describe("compiler: server: completion", () => {
        model M {
         test: string;
        }
-       @dec(M.┆
+       @myDec(M.┆
       `
     );
 

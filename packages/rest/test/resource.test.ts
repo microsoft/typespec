@@ -185,6 +185,27 @@ describe("rest: resources", () => {
     ]);
   });
 
+  it("resources: emit diagnostic if using 2 @key on the same model", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      using Cadl.Rest.Resource;
+
+      model Thing {
+        @key("thingId")
+        id: string;
+
+        @key("anotherId")
+        secondId: string;
+      }
+      `);
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/rest/duplicate-key",
+        message: `More than one key found on model type Thing`,
+      },
+    ]);
+  });
+
   it("resources: resources with parents must not have duplicate their parents' key names", async () => {
     const [_, diagnostics] = await compileOperations(`
       using Cadl.Rest.Resource;
@@ -205,6 +226,13 @@ describe("rest: resources", () => {
 
         @parentResource(Subthing)
         model SubSubthing {
+          @key
+          @segment("subsubthings")
+          subSubthingId: string;
+        }
+
+        @parentResource(SubSubthing)
+        model SubSubSubthing {
           @key("thingId")
           @segment("subsubthings")
           subSubthingId: string;
@@ -215,11 +243,15 @@ describe("rest: resources", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "@cadl-lang/rest/duplicate-parent-key",
-        message: `Resource type 'Subthing' has a key property named 'thingId' which is already used by parent type 'Thing'.`,
+        message: `Resource type 'Subthing' has a key property named 'thingId' which conflicts with the key name of a parent or child resource.`,
       },
       {
         code: "@cadl-lang/rest/duplicate-parent-key",
-        message: `Resource type 'SubSubthing' has a key property named 'thingId' which is already used by parent type 'Subthing'.`,
+        message: `Resource type 'Thing' has a key property named 'thingId' which conflicts with the key name of a parent or child resource.`,
+      },
+      {
+        code: "@cadl-lang/rest/duplicate-parent-key",
+        message: `Resource type 'SubSubSubthing' has a key property named 'thingId' which conflicts with the key name of a parent or child resource.`,
       },
     ]);
   });

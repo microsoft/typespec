@@ -367,9 +367,9 @@ describe("compiler: binder", () => {
   });
 
   it("binds JS files", () => {
-    const $dec = () => {};
-    const $dec2 = () => {};
-    $dec2.namespace = "Bar";
+    const $myDec = () => {};
+    const $myDec2 = () => {};
+    $myDec2.namespace = "Bar";
 
     const fn = () => {};
     const fn2 = () => {};
@@ -377,8 +377,8 @@ describe("compiler: binder", () => {
 
     const exports = {
       namespace: "Foo",
-      $dec,
-      $dec2,
+      $myDec,
+      $myDec2,
       fn,
       fn2,
     };
@@ -393,22 +393,22 @@ describe("compiler: binder", () => {
             flags: SymbolFlags.Namespace,
             declarations: [SyntaxKind.JsSourceFile],
             exports: {
-              "@dec2": {
-                flags: SymbolFlags.Decorator,
+              "@myDec2": {
+                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
               fn2: {
-                flags: SymbolFlags.Function,
+                flags: SymbolFlags.Function | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
             },
           },
-          "@dec": {
-            flags: SymbolFlags.Decorator,
+          "@myDec": {
+            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
           fn: {
-            flags: SymbolFlags.Function,
+            flags: SymbolFlags.Function | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },

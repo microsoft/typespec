@@ -110,8 +110,8 @@ model UpdateableProperties<T> {
 }
 
 @doc("The template for omitting properties.")
-@withoutOmittedProperties(TStringOrTuple)
-model OmitProperties<T, TStringOrTuple> {
+@withoutOmittedProperties(TKeys)
+model OmitProperties<T, TKeys extends string> {
   ...T;
 }
 
@@ -122,6 +122,6 @@ model OmitDefaults<T> {
 
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<T, Visibility> {
+model DefaultKeyVisibility<T, Visibility extends string> {
   ...T;
 }

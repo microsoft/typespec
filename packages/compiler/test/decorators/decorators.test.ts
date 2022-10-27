@@ -40,7 +40,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T>  {
+        model Template<T extends object>  {
         }
 
         @test
@@ -132,13 +132,13 @@ describe("compiler: built-in decorators", () => {
 
     it("emit diagnostic if doc is not a string", async () => {
       const diagnostics = await runner.diagnose(`
-        @doc("foo" | "bar")
+        @doc(123)
         model A { }
       `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument 'foo | bar' of type 'Union' is not assignable to parameter of type 'String'`,
+        message: `Argument '123' is not assignable to parameter of type 'Cadl.string'`,
       });
     });
   });
@@ -186,7 +186,10 @@ describe("compiler: built-in decorators", () => {
 
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
-      strictEqual(diagnostics[0].message, `Cannot apply @error decorator to Enum`);
+      strictEqual(
+        diagnostics[0].message,
+        `Cannot apply @error decorator to A since it is not assignable to Cadl.object`
+      );
     });
   });
 
@@ -231,7 +234,8 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @format decorator to Enum",
+        message:
+          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
       });
     });
 
@@ -274,7 +278,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' of type 'Model' is not assignable to parameter of type 'Enum'",
+        message: "Argument 'Foo' is not assignable to parameter of type 'Cadl.Reflection.Enum'",
       });
     });
   });
@@ -291,7 +295,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' of type 'Number' is not assignable to parameter of type 'String'",
+          message: "Argument '4' is not assignable to parameter of type 'Cadl.string'",
         },
       ]);
     });
@@ -305,7 +309,8 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @key decorator to Model",
+          message:
+            "Cannot apply @key decorator to M since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -505,7 +510,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument 'foo' of type 'String' is not assignable to parameter of type 'Operation'",
+          "Argument 'foo' is not assignable to parameter of type 'Cadl.Reflection.Operation'",
         severity: "error",
       });
     });
