@@ -18,7 +18,6 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Add new `getDiscriminatedUnion` helper to resolve the variants of a discriminated model or union
 - Emitter throwing exception will emit a new `emitter-uncaught-error` diagnostic with information on how to file issue for the given emitter.
 - Expose module resolver
-- **Feature** `api` Add `findStatementsIn` helper to resolve list of statements in syntax tree.
 - Add support for augment decorators.
 - Language server provide document formatting using Cadl formatter
 - **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. 
