@@ -2265,6 +2265,7 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
+    // FIXME: Allow overriden property is overriden type is a subtype.
     if (inheritedPropertyNames?.has(newProp.name)) {
       program.reportDiagnostic(
         createDiagnostic({

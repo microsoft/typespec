@@ -137,6 +137,21 @@ describe("compiler: parser", () => {
       ["model bar<a, b> = a | b;", [/'{' expected/]],
     ]);
   });
+
+  describe("model subtype overrides", () => {
+    parseEach([
+      `
+        model Car {
+          kind: string
+        };
+
+        model Ford extends Car {
+          kind: "Ford"
+        };
+      `,
+    ]);
+  });
+
   describe("interface statements", () => {
     parseEach([
       "interface Foo { }",
