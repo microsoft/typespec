@@ -1,6 +1,24 @@
 const toc = [
-  { label: "Setup", items: ["installation", "formatter", "releases"] },
-  { label: "Configuration", items: ["configuration", "tracing"] },
+  {
+    label: "Introduction",
+    items: [
+      "introduction",
+      "installation",
+      "usage",
+      "formatter",
+      {
+        id: "configuration",
+        label: "Configuration",
+        items: ["configuration/configuration", "configuration/tracing"],
+      },
+      "releases",
+      "faq",
+    ],
+  },
+  {
+    label: "Getting Started",
+    items: ["getting-started"],
+  },
   {
     label: "Language Basics",
     items: [

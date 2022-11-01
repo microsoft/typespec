@@ -1,5 +1,5 @@
 ---
-id: configuration
+id: configuration/configuration
 title: Configuration
 ---
 
@@ -92,7 +92,7 @@ cadl compile . --output-dir "./cadl-build"
 
 ### `trace` - Configure what to trace
 
-Configure what area to trace. See [tracing docs]({% doc "tracing" %})
+Configure what area to trace. See [tracing docs]({% doc "configuration/tracing" %})
 
 ```yaml
 # Trace all.

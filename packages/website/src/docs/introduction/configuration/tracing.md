@@ -1,5 +1,5 @@
 ---
-id: tracing
+id: configuration/tracing
 title: Tracing
 ---
 

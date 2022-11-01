@@ -41,9 +41,9 @@ Built in types are related to each other according to the rules described in [ty
 
 | Type        | Description                                                                                |
 | ----------- | ------------------------------------------------------------------------------------------ |
-| `bytes`     | A date on a calendar without a time zone, e.g. "April 10th"                                |
-| `string`    | A time on a clock without a time zone, e.g. "3:00 am"                                      |
-| `boolean`   | A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"              |
+| `bytes`     | A sequence of bytes                                                                        |
+| `string`    | A sequence of textual characters                                                           |
+| `boolean`   | Boolean with `true` and `false` values                                                     |
 | `null`      | Null value                                                                                 |
 | `object`    | Represent any structured model.(With properties)                                           |
 | `Array<T>`  | Array model type, equivalent to `T[]`                                                      |
