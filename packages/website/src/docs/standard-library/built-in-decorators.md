@@ -389,7 +389,7 @@ model Dog {
   // the service will generate an ID, so you don't need to send it.
   @visibility("read") id: int32;
   // the service will store this secret name, but won't ever return it
-  @visibility("write") secretName: string;
+  @visibility("create") secretName: string;
   // no flags are like specifying all flags at once, so in this case
   // equivalent to @visibility("read", "write")
   name: string;
@@ -403,13 +403,13 @@ model ReadDog {
   ...Dog;
 }
 
-@withVisibility("write")
-model WriteDog {
+@withVisibility("create")
+model CreateDog {
   ...Dog;
 }
 ```
 
-Note that the OpenAPI v3 emitter applies visibility automatically without needing explicit `@withVisibility`. See [metadata]({%doc "http/operations"%}#metadata) for more information.
+Note that the OpenAPI v3 emitter applies visibility automatically without needing explicit `@withVisibility`. See [automatic visibility]({%doc "http/operations"%}#automatic-visibility) for more information.
 
 ## Advanced decorators
 
