@@ -37,7 +37,7 @@ title: Decorators
     - [@readsResource](#readsresource)
     - [@createsResource](#createsresource)
     - [@createsOrReplacesResource](#createsorreplacesresource)
-    - [@createsOrUpdatesResource](#createsorudatesresource)
+    - [@createsOrUpdatesResource](#createsorupdatesresource)
     - [@updatesResource](#updatesresource)
     - [@deletesResource](#deletesresource)
     - [@listsResource](#listsresource)

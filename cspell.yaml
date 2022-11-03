@@ -62,7 +62,7 @@ words:
   - xplat
   - segmentof
   - createsorreplacesresource
-  - createsorudatesresource
+  - createsorupdatesresource
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
