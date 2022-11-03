@@ -60,6 +60,9 @@ words:
   - vswhere
   - westus
   - xplat
+  - segmentof
+  - createsorreplacesresource
+  - createsorudatesresource
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

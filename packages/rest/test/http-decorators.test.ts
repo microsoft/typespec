@@ -606,7 +606,7 @@ describe("rest: http decorators", () => {
     });
   });
 
-  describe("@visiblity", () => {
+  describe("@visibility", () => {
     it("warns on unsupported write visibility", async () => {
       const diagnostics = await runner.diagnose(`
         @test model M {
