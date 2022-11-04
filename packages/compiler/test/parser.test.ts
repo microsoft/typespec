@@ -138,20 +138,6 @@ describe("compiler: parser", () => {
     ]);
   });
 
-  describe("model subtype overrides", () => {
-    parseEach([
-      `
-        model Car {
-          kind: string
-        };
-
-        model Ford extends Car {
-          kind: "Ford"
-        };
-      `,
-    ]);
-  });
-
   describe("interface statements", () => {
     parseEach([
       "interface Foo { }",

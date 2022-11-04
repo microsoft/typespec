@@ -240,17 +240,63 @@ describe("compiler: models", () => {
   });
 
   describe("with extends", () => {
-    it("doesn't allow duplicate properties", async () => {
+    it("allow subtype to override parent property if subtype is assignable to parent type", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
         model A { x: int32 }
         model B extends A { x: int32 };
+
+        model Car { kind: string };
+        model Ford extends Car { kind: "Ford" };
+        `
+      );
+      await testHost.compile("main.cadl");
+    });
+
+    it("disallow subtype overriding parent property if subtype is not assignable to parent type", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A { x: int32 }
+        model B extends A { x: string };
+
+        model Car { kind: "Car" };
+        model Ford extends Car { kind: "Ford" };
         `
       );
       const diagnostics = await testHost.diagnose("main.cadl");
-      strictEqual(diagnostics.length, 1);
-      match(diagnostics[0].message, /Model has an inherited property/);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "override-property",
+          message: "Model has an inherited property named x which cannot be overridden",
+        },
+        {
+          code: "override-property",
+          message: "Model has an inherited property named kind which cannot be overridden",
+        },
+      ]);
+    });
+
+    it("disallow subtype overriding parent property if parent property type is not intrinsic", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model Named {
+          name: string;
+        }
+
+        model A { x: Named }
+        model B extends A { x: {name: "B"} };
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "override-property",
+          message: "Model has an inherited property named x which cannot be overridden",
+        },
+      ]);
     });
 
     it("keeps reference of children", async () => {

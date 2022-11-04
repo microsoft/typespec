@@ -2136,12 +2136,13 @@ export function createChecker(program: Program): Checker {
       type.namespace?.models.set(type.name, type);
     }
 
-    const inheritedPropNames = new Set(
-      Array.from(walkPropertiesInherited(type)).map((v) => v.name)
-    );
+    const inheritedProperties = new Map<string, ModelProperty>();
+    Array.from(walkPropertiesInherited(type)).forEach((item) => {
+      inheritedProperties.set(item.name, item);
+    });
 
     // Evaluate the properties after
-    checkModelProperties(node, type.properties, type, mapper, inheritedPropNames);
+    checkModelProperties(node, type.properties, type, mapper, inheritedProperties);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(type, mapper);
@@ -2229,20 +2230,20 @@ export function createChecker(program: Program): Checker {
     properties: Map<string, ModelProperty>,
     parentModel: Model,
     mapper: TypeMapper | undefined,
-    inheritedPropertyNames?: Set<string>
+    inheritedProperties?: Map<string, ModelProperty>
   ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, mapper, parentModel);
         checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
-        defineProperty(properties, newProp, inheritedPropertyNames);
+        defineProperty(properties, newProp, inheritedProperties);
       } else {
         // spread property
         const newProperties = checkSpreadProperty(prop.target, parentModel, mapper);
 
         for (const newProp of newProperties) {
           checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
-          defineProperty(properties, newProp, inheritedPropertyNames, prop);
+          defineProperty(properties, newProp, inheritedProperties, prop);
         }
       }
     }
@@ -2251,7 +2252,7 @@ export function createChecker(program: Program): Checker {
   function defineProperty(
     properties: Map<string, ModelProperty>,
     newProp: ModelProperty,
-    inheritedPropertyNames?: Set<string>,
+    inheritedProperties?: Map<string, ModelProperty>,
     diagnosticTarget?: DiagnosticTarget
   ) {
     if (properties.has(newProp.name)) {
@@ -2265,16 +2266,19 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
-    // FIXME: Allow overriden property is overriden type is a subtype.
-    if (inheritedPropertyNames?.has(newProp.name)) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "override-property",
-          format: { propName: newProp.name },
-          target: diagnosticTarget ?? newProp,
-        })
-      );
-
+    if (inheritedProperties?.has(newProp.name)) {
+      const inheritedProp = inheritedProperties.get(newProp.name)!;
+      const [isAssignable, _] = isTypeAssignableTo(newProp.type, inheritedProp.type, newProp);
+      const parentIntrinsic = isIntrinsic(program, inheritedProp.type);
+      if (!parentIntrinsic || !isAssignable) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "override-property",
+            format: { propName: newProp.name },
+            target: diagnosticTarget ?? newProp,
+          })
+        );
+      }
       return;
     }
 
