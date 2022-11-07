@@ -310,6 +310,25 @@ describe("compiler: models", () => {
       ]);
     });
 
+    it("ensure subtype overriding is not shadowed", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A { x: int64 };
+        model B extends A { x: int16 };
+        model C extends B { x: int32 };
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "override-property-mismatch",
+          message:
+            "Model has an inherited property named x of type Cadl.int32 which cannot override type Cadl.int16",
+        },
+      ]);
+    });
+
     it("keeps reference of children", async () => {
       testHost.addCadlFile(
         "main.cadl",
