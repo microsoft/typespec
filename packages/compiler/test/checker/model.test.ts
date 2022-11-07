@@ -245,7 +245,7 @@ describe("compiler: models", () => {
         "main.cadl",
         `
         model A { x: int32 }
-        model B extends A { x: int32 };
+        model B extends A { x: int16 };
 
         model Car { kind: string };
         model Ford extends Car { kind: "Ford" };
@@ -258,22 +258,24 @@ describe("compiler: models", () => {
       testHost.addCadlFile(
         "main.cadl",
         `
-        model A { x: int32 }
-        model B extends A { x: string };
+        model A { x: int16 }
+        model B extends A { x: int32 };
 
-        model Car { kind: "Car" };
-        model Ford extends Car { kind: "Ford" };
+        model Car { kind: string };
+        model Ford extends Car { kind: int32 };
         `
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       expectDiagnostics(diagnostics, [
         {
-          code: "override-property",
-          message: "Model has an inherited property named x which cannot be overridden",
+          code: "override-property-mismatch",
+          message:
+            "Model has an inherited property named x of type Cadl.int32 which cannot override type Cadl.int16",
         },
         {
-          code: "override-property",
-          message: "Model has an inherited property named kind which cannot be overridden",
+          code: "override-property-mismatch",
+          message:
+            "Model has an inherited property named kind of type Cadl.int32 which cannot override type Cadl.string",
         },
       ]);
     });
@@ -288,13 +290,22 @@ describe("compiler: models", () => {
 
         model A { x: Named }
         model B extends A { x: {name: "B"} };
+
+        model C { kind: "C" }
+        model D extends C { kind: "D"}
         `
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       expectDiagnostics(diagnostics, [
         {
-          code: "override-property",
-          message: "Model has an inherited property named x which cannot be overridden",
+          code: "override-property-intrinsic",
+          message:
+            "Model has an inherited property named x of type (anonymous model) which can only override an intrinsic type on the parent property, not Named",
+        },
+        {
+          code: "override-property-intrinsic",
+          message:
+            "Model has an inherited property named kind of type D which can only override an intrinsic type on the parent property, not C",
         },
       ]);
     });

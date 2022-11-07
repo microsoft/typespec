@@ -2270,11 +2270,21 @@ export function createChecker(program: Program): Checker {
       const inheritedProp = inheritedProperties.get(newProp.name)!;
       const [isAssignable, _] = isTypeAssignableTo(newProp.type, inheritedProp.type, newProp);
       const parentIntrinsic = isIntrinsic(program, inheritedProp.type);
-      if (!parentIntrinsic || !isAssignable) {
+      const parentType = getTypeName(inheritedProp.type);
+      const newPropType = getTypeName(newProp.type);
+      if (!parentIntrinsic) {
         program.reportDiagnostic(
           createDiagnostic({
-            code: "override-property",
-            format: { propName: newProp.name },
+            code: "override-property-intrinsic",
+            format: { propName: newProp.name, propType: newPropType, parentType: parentType },
+            target: diagnosticTarget ?? newProp,
+          })
+        );
+      } else if (!isAssignable) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "override-property-mismatch",
+            format: { propName: newProp.name, propType: newPropType, parentType: parentType },
             target: diagnosticTarget ?? newProp,
           })
         );
