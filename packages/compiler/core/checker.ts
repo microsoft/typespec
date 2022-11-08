@@ -2136,10 +2136,7 @@ export function createChecker(program: Program): Checker {
       type.namespace?.models.set(type.name, type);
     }
 
-    const inheritedProperties = new Map<string, ModelProperty>();
-    Array.from(walkPropertiesInherited(type)).forEach((item) => {
-      inheritedProperties.set(item.name, item);
-    });
+    const inheritedProperties = collectInheritedProperties(type);
 
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper, inheritedProperties);
@@ -2194,7 +2191,8 @@ export function createChecker(program: Program): Checker {
       decorators: [],
       derivedModels: [],
     });
-    checkModelProperties(node, properties, type, mapper);
+    const inheritedProperties = collectInheritedProperties(type);
+    checkModelProperties(node, properties, type, mapper, inheritedProperties);
     return finishType(type);
   }
 
@@ -2230,7 +2228,7 @@ export function createChecker(program: Program): Checker {
     properties: Map<string, ModelProperty>,
     parentModel: Model,
     mapper: TypeMapper | undefined,
-    inheritedProperties?: Map<string, ModelProperty>
+    inheritedProperties: Map<string, Array<ModelProperty>>
   ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
@@ -2252,7 +2250,7 @@ export function createChecker(program: Program): Checker {
   function defineProperty(
     properties: Map<string, ModelProperty>,
     newProp: ModelProperty,
-    inheritedProperties?: Map<string, ModelProperty>,
+    inheritedProperties: Map<string, Array<ModelProperty>>,
     diagnosticTarget?: DiagnosticTarget
   ) {
     if (properties.has(newProp.name)) {
@@ -2267,29 +2265,31 @@ export function createChecker(program: Program): Checker {
     }
 
     if (inheritedProperties?.has(newProp.name)) {
-      const inheritedProp = inheritedProperties.get(newProp.name)!;
-      const [isAssignable, _] = isTypeAssignableTo(newProp.type, inheritedProp.type, newProp);
-      const parentIntrinsic = isIntrinsic(program, inheritedProp.type);
-      const parentType = getTypeName(inheritedProp.type);
-      const newPropType = getTypeName(newProp.type);
-      if (!parentIntrinsic) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "override-property-intrinsic",
-            format: { propName: newProp.name, propType: newPropType, parentType: parentType },
-            target: diagnosticTarget ?? newProp,
-          })
-        );
-      } else if (!isAssignable) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "override-property-mismatch",
-            format: { propName: newProp.name, propType: newPropType, parentType: parentType },
-            target: diagnosticTarget ?? newProp,
-          })
-        );
+      for (const inheritedProp of inheritedProperties.get(newProp.name)!) {
+        const [isAssignable, _] = isTypeAssignableTo(newProp.type, inheritedProp.type, newProp);
+        const parentIntrinsic = isIntrinsic(program, inheritedProp.type);
+        const parentType = getTypeName(inheritedProp.type);
+        const newPropType = getTypeName(newProp.type);
+        if (!parentIntrinsic) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "override-property-intrinsic",
+              format: { propName: newProp.name, propType: newPropType, parentType: parentType },
+              target: diagnosticTarget ?? newProp,
+            })
+          );
+          return;
+        } else if (!isAssignable) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "override-property-mismatch",
+              format: { propName: newProp.name, propType: newPropType, parentType: parentType },
+              target: diagnosticTarget ?? newProp,
+            })
+          );
+          return;
+        }
       }
-      return;
     }
 
     properties.set(newProp.name, newProp);
@@ -4680,6 +4680,26 @@ export function* walkPropertiesInherited(model: Model) {
     yield* current.properties.values();
     current = current.baseModel;
   }
+}
+
+function collectInheritedProperties(
+  model: Model,
+  vals?: Map<string, Array<ModelProperty>>
+): Map<string, Array<ModelProperty>> {
+  const results = vals ?? new Map<string, Array<ModelProperty>>();
+  const baseModel = model.baseModel;
+  if (baseModel == undefined) {
+    return results;
+  }
+  for (const prop of baseModel.properties.values()) {
+    const propName = prop.name;
+    if (results.has(propName)) {
+      results.get(propName)?.push(prop);
+    } else {
+      results.set(propName, [prop]);
+    }
+  }
+  return collectInheritedProperties(baseModel, results);
 }
 
 function countPropertiesInherited(model: Model, filter?: (property: ModelProperty) => boolean) {
