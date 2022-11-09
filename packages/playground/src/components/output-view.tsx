@@ -4,7 +4,7 @@ import { css } from "@emotion/react";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui/dist/swagger-ui.css";
 import { BrowserHost } from "../browser-host";
-import { ErrorTab } from "./error-tab";
+import { ErrorTab, InternalCompilerError } from "./error-tab";
 import { OpenAPIOutput } from "./openapi-output";
 import { OutputTabs, Tab } from "./output-tabs";
 
@@ -69,21 +69,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
       void loadOutputFile(tabId);
     }
   }, []);
-  const content =
-    viewSelection.type === "file" ? (
-      <OpenAPIOutput content={viewSelection.content} />
-    ) : viewSelection.type === "errors" ? (
-      <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />
-    ) : (
-      <div
-        css={{
-          height: "100%",
-          overflow: "scroll",
-        }}
-      >
-        {props.program && <CadlProgramViewer program={props.program} />}
-      </div>
-    );
+
   return (
     <>
       <OutputTabs
@@ -92,10 +78,48 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         onSelect={handleTabSelection}
       />
       <div className="output-content" css={{ width: "100%", height: "100%", overflow: "hidden" }}>
-        {content}
+        <OutputContent
+          viewSelection={viewSelection}
+          program={props.program}
+          internalCompilerError={InternalCompilerError}
+        />
       </div>
     </>
   );
+};
+
+interface OutputContentProps {
+  viewSelection: ViewSelection;
+  program: Program | undefined;
+  internalCompilerError?: any;
+}
+const OutputContent: FunctionComponent<OutputContentProps> = ({
+  viewSelection,
+  internalCompilerError,
+  program,
+}) => {
+  switch (viewSelection.type) {
+    case "file":
+      return <OpenAPIOutput content={viewSelection.content} />;
+    case "errors":
+      return (
+        <ErrorTab
+          internalCompilerError={internalCompilerError}
+          diagnostics={program?.diagnostics}
+        />
+      );
+    default:
+      return (
+        <div
+          css={{
+            height: "100%",
+            overflow: "scroll",
+          }}
+        >
+          {program && <CadlProgramViewer program={program} />}
+        </div>
+      );
+  }
 };
 
 type ViewSelection =

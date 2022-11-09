@@ -6,7 +6,7 @@ specifiers:
   '@babel/code-frame': ~7.16.7
   '@babel/core': ^7.0.0
   '@emotion/react': ^11.10.4
-  '@playwright/test': ~1.25.1
+  '@playwright/test': ~1.27.1
   '@rollup/plugin-commonjs': ~22.0.2
   '@rollup/plugin-json': ~4.1.0
   '@rollup/plugin-multi-entry': ~4.1.0
@@ -88,7 +88,7 @@ specifiers:
   node-watch: ~0.7.1
   onigasm: ~2.2.5
   picocolors: ~1.0.0
-  playwright: ~1.25.1
+  playwright: ~1.27.1
   plist: ~3.0.2
   prettier: ~2.7.1
   prettier-plugin-organize-imports: ~3.1.1
@@ -102,7 +102,7 @@ specifiers:
   rollup-plugin-visualizer: ~5.8.0
   source-map-support: ~0.5.19
   strip-json-comments: ~4.0.0
-  swagger-ui: ~4.14.0
+  swagger-ui: ~4.15.0
   typescript: ~4.8.2
   vite: ^2.9.9
   vsce: ~2.6.7
@@ -120,7 +120,7 @@ dependencies:
   '@babel/code-frame': 7.16.7
   '@babel/core': 7.18.10
   '@emotion/react': 11.10.4_19143dc0f0d75d2d658fd4ae9f380e75
-  '@playwright/test': 1.25.1
+  '@playwright/test': 1.27.1
   '@rollup/plugin-commonjs': 22.0.2_rollup@2.79.0
   '@rollup/plugin-json': 4.1.0_rollup@2.79.0
   '@rollup/plugin-multi-entry': 4.1.0_rollup@2.79.0
@@ -202,7 +202,7 @@ dependencies:
   node-watch: 0.7.3
   onigasm: 2.2.5
   picocolors: 1.0.0
-  playwright: 1.25.1
+  playwright: 1.27.1
   plist: 3.0.6
   prettier: 2.7.1
   prettier-plugin-organize-imports: 3.1.1_prettier@2.7.1+typescript@4.8.2
@@ -216,7 +216,7 @@ dependencies:
   rollup-plugin-visualizer: 5.8.0_rollup@2.79.0
   source-map-support: 0.5.21
   strip-json-comments: 4.0.0
-  swagger-ui: 4.14.0
+  swagger-ui: 4.15.0
   typescript: 4.8.2
   vite: 2.9.14
   vsce: 2.6.7
@@ -1141,6 +1141,15 @@ packages:
     dependencies:
       '@types/node': 16.0.3
       playwright-core: 1.25.1
+    dev: false
+
+  /@playwright/test/1.27.1:
+    resolution: {integrity: sha512-mrL2q0an/7tVqniQQF6RBL2saskjljXzqNcCOVMUjRIgE6Y38nCNaP+Dc2FBW06bcpD3tqIws/HT9qiMHbNU0A==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dependencies:
+      '@types/node': 16.0.3
+      playwright-core: 1.27.1
     dev: false
 
   /@rollup/plugin-commonjs/22.0.2_rollup@2.79.0:
@@ -5974,13 +5983,19 @@ packages:
     hasBin: true
     dev: false
 
-  /playwright/1.25.1:
-    resolution: {integrity: sha512-kOlW7mllnQ70ALTwAor73q/FhdH9EEXLUqjdzqioYLcSVC4n4NBfDqeCikGuayFZrLECLkU6Hcbziy/szqTXSA==}
+  /playwright-core/1.27.1:
+    resolution: {integrity: sha512-9EmeXDncC2Pmp/z+teoVYlvmPWUC6ejSSYZUln7YaP89Z6lpAaiaAnqroUt/BoLo8tn7WYShcfaCh+xofZa44Q==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: false
+
+  /playwright/1.27.1:
+    resolution: {integrity: sha512-xXYZ7m36yTtC+oFgqH0eTgullGztKSRMb4yuwLPl8IYSmgBM88QiB+3IWb1mRIC9/NNwcgbG0RwtFlg+EAFQHQ==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.25.1
+      playwright-core: 1.27.1
     dev: false
 
   /please-upgrade-node/3.2.0:
@@ -7221,8 +7236,8 @@ packages:
       - encoding
     dev: false
 
-  /swagger-ui/4.14.0:
-    resolution: {integrity: sha512-XQgIw9AK6ZXTXBrSAKiEb/v+xjvgmIWxCBIYr4a0Hr0G2LwV9a024eO38aFCjftug/Jbobfd0JsENVzPIYywyA==}
+  /swagger-ui/4.15.0:
+    resolution: {integrity: sha512-jnqWP4FQanZvC6QCbK2xNNYYqE7wZGMU2rRVuLEMa6csMPEJxD9ZuQE6fTvh/jY3xreD1BxOz+OVsso5lRuQIg==}
     dependencies:
       '@babel/runtime-corejs3': 7.18.9
       '@braintree/sanitize-url': 6.0.0
@@ -8055,7 +8070,7 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-7CGFAC004oh9+DgkOaX+0q4I40ZYaf+PKxaFKdZnJvmtLNQEZcbG4i/j8KIzbSpS8+y70YM6K+RtBJ6/VlOztA==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-u+bzfCoczOpH8RG4zad2c7pxYxtSZzTBBe9r++Z78fNrN69ozaMpakY7z5gUlHdYDTWsXEVOYT7DQmA3gG/u7A==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
@@ -8084,13 +8099,13 @@ packages:
     dev: false
 
   file:projects/cadl-vs.tgz:
-    resolution: {integrity: sha512-hIpMo5WHOlGJcymDtiPyRX3Ogmx4wtmV7IVnTWspLrX5nFUi7WySNheJ+/AUcVwU5auoEiPGd82lVBMa02c5LQ==, tarball: file:projects/cadl-vs.tgz}
+    resolution: {integrity: sha512-JfAXKkw3USaDPrmf8+KXFl7F0M66KPMRSTCJFjfi1oOkx6eH4nW0S0Cbkzg8/Dy2KQ8co0dXwV4ot9lIo3jmDA==, tarball: file:projects/cadl-vs.tgz}
     name: '@rush-temp/cadl-vs'
     version: 0.0.0
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-pr/me0x6tGuTMlG5MZ2L0JKDYpDa28WRRWhiyRvNyaFHBZYRj4YFjZOEarq0HSFQ1KgCxYWHrIL/jn0GYtuDkA==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-2Fgtems6BMG6FTnnq0VPlsmZH6/+uticazbI7YvYhKwauJeTEKVdChwtp5j9isbXMuSAV+uJTfF11h2mVYXteQ==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -8202,7 +8217,7 @@ packages:
     dev: false
 
   file:projects/html-program-viewer.tgz:
-    resolution: {integrity: sha512-0uJl1IKnRHN3ocBkLnFAm+o6P9m2oqOxJ1fz26hX3wxZZi1H1S8piAb3V6EzTtjwoNuvSP4nOSIl62qKbD9IAw==, tarball: file:projects/html-program-viewer.tgz}
+    resolution: {integrity: sha512-vAdeUIJxmzOkAcr/hAPDH5JSyE0OZtUf1Apq0sVd2lLbearBICnEWK+ekKo6Tw748TsFGQyWxehvCGEJlGyBog==, tarball: file:projects/html-program-viewer.tgz}
     name: '@rush-temp/html-program-viewer'
     version: 0.0.0
     dependencies:
@@ -8256,7 +8271,7 @@ packages:
     dev: false
 
   file:projects/library-linter.tgz:
-    resolution: {integrity: sha512-EZrr68+1hOAMizGWbXOvKT8TgK6cEKF3Gm80LmGzXx9OOv6m0NIvfYCrTtUcjFK6QNwwxokHrHbTP8HKawsT2Q==, tarball: file:projects/library-linter.tgz}
+    resolution: {integrity: sha512-CsJfz5sHPnzCqjj6SOF5tGnQUl59Q89vTt2okHQKbRIBVQcN3IFwllXEZ2pUr6PenMmSGWtQIqNhf3jsqLbE2g==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
     version: 0.0.0
     dependencies:
@@ -8274,7 +8289,7 @@ packages:
     dev: false
 
   file:projects/lint.tgz:
-    resolution: {integrity: sha512-JLnb09DY1RbSLQf+n9+z/+D8OxL8lkweZps3cq3T6fSW8lK16EU8iJX4WZYutUqSO2WzDDJgm+s46tzPufbmYw==, tarball: file:projects/lint.tgz}
+    resolution: {integrity: sha512-wVoldJns98I+p53ZJ6V6einQgj2wq4vifwcT80BfWvzoiDNNoB/+tCuZFg9E5icZpFp3ydyiV/JwkivrtoZ2hw==, tarball: file:projects/lint.tgz}
     name: '@rush-temp/lint'
     version: 0.0.0
     dependencies:
@@ -8292,7 +8307,7 @@ packages:
     dev: false
 
   file:projects/openapi.tgz:
-    resolution: {integrity: sha512-j4GPDoklnVPOaMhNkg/8z7se0azTxvpwAvGkgULQmXjVUm+mLtfRtm/MYMojpRCmuVsKUHYB2Bghy4j1Y0JeXA==, tarball: file:projects/openapi.tgz}
+    resolution: {integrity: sha512-JQoFfHVTJDQST9NyzWwEK8wQlj9Jl2lT8itX4VxGeHyEiX62MDQ/M55vsTD6d4jtumZPsVez1wTbgbGJj8n+IQ==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
     version: 0.0.0
     dependencies:
@@ -8310,7 +8325,7 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-v8mjzCDLrtDr8ktKGBVPnULtgrnHEweGDeM12J6icOZVk4JCovWUY6KS5I9KgyTPa2nXCou19bpKkOdY9agX/A==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-zwHor/V3zi/yXEImvo5NQHANgNqkTsgAFJe952kgeSBpfR+cda55t0+YbzZLivstMyqCl4JiUGVx0E+2WpQC0Q==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
@@ -8328,14 +8343,14 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@2.79.0:
-    resolution: {integrity: sha512-Qk9S4134vqNB/V69Do8eqc4WJQ+QDkQTXemvkootcfzGPyRhR2jHpdAvncOP2r+fCYxsgLX5XcEgWBwLH7xjEQ==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-tQDtUgiMmDZuLw1RIR4GIqU5NAWzW/AX0AtUAYn/WZszq+SECwUbtTuhc9hVHj2wR5xe5Zvz5N6hrm+biLhxtg==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
       '@babel/core': 7.18.10
       '@emotion/react': 11.10.4_19143dc0f0d75d2d658fd4ae9f380e75
-      '@playwright/test': 1.25.1
+      '@playwright/test': 1.27.1
       '@types/debounce': 1.2.1
       '@types/mocha': 9.1.1
       '@types/node': 16.0.3
@@ -8354,13 +8369,13 @@ packages:
       mocha-junit-reporter: 2.0.2_mocha@9.2.2
       mocha-multi-reporters: 1.5.1_mocha@9.2.2
       monaco-editor: 0.34.0
-      playwright: 1.25.1
+      playwright: 1.27.1
       prettier: 2.7.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       rimraf: 3.0.2
       rollup-plugin-visualizer: 5.8.0_rollup@2.79.0
-      swagger-ui: 4.14.0
+      swagger-ui: 4.15.0
       typescript: 4.8.2
       vite: 2.9.14
       vscode-languageserver: 7.0.0
@@ -8376,7 +8391,7 @@ packages:
     dev: false
 
   file:projects/prettier-plugin-cadl.tgz:
-    resolution: {integrity: sha512-aNNP1tqUcFKXTHJnLibhJ4Na8OT5cF/uz7PEV6DKBzyLZ6Gn7EvKpU+BlbBTeLL0gGddIUIItLUZNHOPG3frZQ==, tarball: file:projects/prettier-plugin-cadl.tgz}
+    resolution: {integrity: sha512-TGYj/SwYiCleRlGfW3hJcPpVvIJOVfL7FXBUQcbZuxEq2H6pU6x3AuqytBFlAUFM09MruXqRjeNsIXvv8g0M/A==, tarball: file:projects/prettier-plugin-cadl.tgz}
     name: '@rush-temp/prettier-plugin-cadl'
     version: 0.0.0
     dependencies:
@@ -8394,7 +8409,7 @@ packages:
     dev: false
 
   file:projects/rest.tgz:
-    resolution: {integrity: sha512-p/PvOyCgwMeTxmoIcx54kvLLjs31GYhnJZ+lZJ1/HOlS4hiWK62wwyhoXQ7THa6dwtW4CrQIAeYovWOa79jQGw==, tarball: file:projects/rest.tgz}
+    resolution: {integrity: sha512-qzTN3LpGJqNtMRSvUy/DZEtnluhRbebFMnCAipjMGUW29PauloZUquPwruDvu8v6zEkH04jswqlSlUSzp9lyNQ==, tarball: file:projects/rest.tgz}
     name: '@rush-temp/rest'
     version: 0.0.0
     dependencies:
@@ -8412,7 +8427,7 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-LP9dgamUGk7QQoI72/LoKqLlD8ZOBcHouedIZw06dTbatMNMnJMpxvdiJrbvX1usdk3CCGzWkw+VyVqMzoF/Gg==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-xYLvkfx3SNNGHfGIMhm31NVsNvX1Guzvlb+OWqOd27Tc3KbMU0ana11HFQMRtZ28N1xyYKHj6wG4mIoph5tiFQ==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
@@ -8453,7 +8468,7 @@ packages:
     dev: false
 
   file:projects/versioning.tgz:
-    resolution: {integrity: sha512-EexrWmH+z54oZ51djTi5BbivmSd6XJ8jMWnpiPaWJ9ZllWAMmCNdMVWaf7XuIotIhJFftHO+VGy7hIDX6/pTSw==, tarball: file:projects/versioning.tgz}
+    resolution: {integrity: sha512-SnLYUnYLC9WvFJs7ds5MNqdtn5SBTRihtQFW/Rm1r9KUzZFZLNaT5X9yHcIxlFimlY7EgmXCWMZnauFbTiSMgA==, tarball: file:projects/versioning.tgz}
     name: '@rush-temp/versioning'
     version: 0.0.0
     dependencies:
@@ -8471,7 +8486,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-PRWfSX0cv4I7mTeFD8gHMv8jTJX7keUFUxuwu+bx9VoJVzTcz/sttrIqaMdihmAuxcd4gl3f5HPSm+w6+9C3lg==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-8YhDWdXRAoZGG/APonaXslLaikPvvLToZj1AkEs8QJF3YZZSi+JtCoxd1YNelhVnHxbOTPJRMDR1N3bY3TYVcQ==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -8487,7 +8502,7 @@ packages:
       markdown-it: 13.0.1
       markdown-it-anchor: 8.6.5_203ea4fed94a963ea5da6bb0985d1ff7
       mermaid: 9.1.6
-      playwright: 1.25.1
+      playwright: 1.27.1
       prism-themes: 1.9.0
       rimraf: 3.0.2
     transitivePeerDependencies:
