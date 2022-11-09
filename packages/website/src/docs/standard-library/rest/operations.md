@@ -292,7 +292,6 @@ The `@cadl-lang/rest` library understands the following well-known [visibilities
 | Name     | Visible in           |
 | -------- | -------------------- |
 | "read"   | Any response         |
-| "write"  | Any request          |
 | "query"  | GET or HEAD request  |
 | "create" | POST or PUT request  |
 | "update" | PATCH or PUT request |
