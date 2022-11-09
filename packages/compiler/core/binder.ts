@@ -175,7 +175,7 @@ export function createBinder(program: Program): Binder {
         if (kind === "decorator") {
           tracer.trace(
             "decorator",
-            `Bind decorator "@${name}" in namespace "${nsParts.join(".")}".`
+            `Bound decorator "@${name}" in namespace "${nsParts.join(".")}".`
           );
           sym = createSymbol(
             sourceFile,
@@ -184,7 +184,7 @@ export function createBinder(program: Program): Binder {
             containerSymbol
           );
         } else {
-          tracer.trace("function", `Bind function "${name}" in namespace "${nsParts.join(".")}".`);
+          tracer.trace("function", `Bound function "${name}" in namespace "${nsParts.join(".")}".`);
           sym = createSymbol(
             sourceFile,
             name,
