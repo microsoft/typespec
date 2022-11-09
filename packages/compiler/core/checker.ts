@@ -2228,7 +2228,7 @@ export function createChecker(program: Program): Checker {
     properties: Map<string, ModelProperty>,
     parentModel: Model,
     mapper: TypeMapper | undefined,
-    inheritedProperties: Map<string, Array<ModelProperty>>
+    inheritedProperties: Map<string, ModelProperty[]>
   ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
