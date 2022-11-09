@@ -2,6 +2,23 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "cadl-vs_v0.9.0",
+      "date": "Wed, 09 Nov 2022 20:05:08 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Extension lookup for a local cadl compiler first instead of a global"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `~0.16.1` to `~0.17.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "cadl-vs_v0.8.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

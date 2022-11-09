@@ -1,6 +1,21 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Nov 2022 20:05:08 GMT and should not be manually modified.
+
+## 0.19.0
+Wed, 09 Nov 2022 20:05:08 GMT
+
+### Minor changes
+
+- Declare decorators in cadl using `extern dec`
+- Add MetadataInfo.getEffectivePayloadType helper
+- Deprecate write visibility
+- Allow `@route` and `@resetRoute` to accept a `shared` property to suppress route uniqueness validation.
+
+### Patches
+
+- Fix: Issue with duplicate key in spread models
+- Move `duplicate-parent-key` check from the `parentResource` decorator to a linting rule
 
 ## 0.18.0
 Wed, 12 Oct 2022 21:12:35 GMT

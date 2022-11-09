@@ -1,6 +1,21 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Wed, 19 Oct 2022 19:36:13 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Nov 2022 20:05:08 GMT and should not be manually modified.
+
+## 0.37.0
+Wed, 09 Nov 2022 20:05:08 GMT
+
+### Minor changes
+
+- Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments
+- **Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`.
+- Fix: crash with referencing global namespace
+- Added a new export to only import the module resolver
+
+### Patches
+
+- `emitFile` now ensures that the folder exists prior to writing to the path.
+- Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children
 
 ## 0.36.1
 Wed, 19 Oct 2022 19:36:13 GMT

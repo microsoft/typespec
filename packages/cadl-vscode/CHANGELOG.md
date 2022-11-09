@@ -1,6 +1,13 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Nov 2022 20:05:08 GMT and should not be manually modified.
+
+## 0.17.0
+Wed, 09 Nov 2022 20:05:08 GMT
+
+### Minor changes
+
+- Extension lookup for a local cadl compiler first instead of a global
 
 ## 0.16.1
 Wed, 12 Oct 2022 21:12:35 GMT

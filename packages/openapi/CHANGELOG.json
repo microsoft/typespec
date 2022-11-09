@@ -2,6 +2,35 @@
   "name": "@cadl-lang/openapi",
   "entries": [
     {
+      "version": "0.14.0",
+      "tag": "@cadl-lang/openapi_v0.14.0",
+      "date": "Wed, 09 Nov 2022 20:05:08 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Declare decorators in cadl using `extern dec`"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.18.0` to `~0.19.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.1` to `~0.2.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.18.0` to `~0.19.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.0",
       "tag": "@cadl-lang/openapi_v0.13.0",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",

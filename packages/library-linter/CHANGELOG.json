@@ -2,6 +2,21 @@
   "name": "@cadl-lang/library-linter",
   "entries": [
     {
+      "version": "0.2.2",
+      "tag": "@cadl-lang/library-linter_v0.2.2",
+      "date": "Wed, 09 Nov 2022 20:05:08 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@cadl-lang/library-linter_v0.2.1",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",
