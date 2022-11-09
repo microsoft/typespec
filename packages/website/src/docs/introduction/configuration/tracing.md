@@ -63,6 +63,7 @@ This is a list of the trace area used in the compiler
 | --------------------------- | -------------------------------------------------------------------- |
 | `import-resolution.library` | Information related to the resolution of import libraries            |
 | `projection.log`            | Debug information logged by the `log()` function used in projections |
+| `bind.js`                   | Information when binding JS files                                    |
 
 ## Tracing in Cadl library
 
