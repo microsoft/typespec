@@ -61,9 +61,6 @@
             "comment": "Expose module resolver"
           },
           {
-            "comment": "**Feature** `api` Add `findStatementsIn` helper to resolve list of statements in syntax tree."
-          },
-          {
             "comment": "Add support for augment decorators."
           },
           {

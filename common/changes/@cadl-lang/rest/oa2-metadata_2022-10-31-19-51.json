@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add MetadataInfo.getEffectivePayloadType helper",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

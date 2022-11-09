@@ -132,18 +132,22 @@ const libDefinition = {
           "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
       },
     },
-
     "invalid-type-for-auth": {
       severity: "error",
       messages: {
         default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
       },
     },
-
     "shared-boolean": {
       severity: "error",
       messages: {
         default: "shared parameter must be a boolean.",
+      },
+    },
+    "write-visibility-not-supported": {
+      severity: "warning",
+      messages: {
+        default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
       },
     },
   },

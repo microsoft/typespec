@@ -19,26 +19,28 @@ title: Decorators
     - [@query](#query)
     - [@path](#path)
     - [@body](#body)
-    - [@statusCode](#statusCode)
+    - [@statusCode](#statuscode)
   - [Service decorators](#service-decorators)
     - [@server](#server)
-    - [@useAuth](#useAuth)
+    - [@useAuth](#useauth)
+  - [Metadata decorators](#metadata-decorators)
+    - [@includeInapplicableMetadataInPayload](#includeinapplicablemetadatainpayload)
 
 - [Rest decorators](#rest-decorators) (`Cadl.Rest` namespace)
   - [Routing](#rest-routing)
     - [@autoRoute](#autoroute)
     - [@segment](#segment)
-    - [@segmentOf](#segmentOf)
-    - [@segmentSeperator](#segmentseparator)
+    - [@segmentOf](#segmentof)
+    - [@segmentSeparator](#segmentseparator)
   - [Resource](#resource-decorators)
     - [@resource](#resource)
     - [@readsResource](#readsresource)
     - [@createsResource](#createsresource)
-    - [@createsOrReplacesResource](#createsOrReplacesResource)
-    - [@createsOrUpdatesResource](#createsOrUpdatesResource)
-    - [@updatesResource](#updatesResource)
-    - [@deletesResource](#deletesResource)
-    - [@listsResource](#listsResource)
+    - [@createsOrReplacesResource](#createsorreplacesresource)
+    - [@createsOrUpdatesResource](#createsorupdatesresource)
+    - [@updatesResource](#updatesresource)
+    - [@deletesResource](#deletesresource)
+    - [@listsResource](#listsresource)
 
 ## Http decorators
 
@@ -191,7 +193,16 @@ Specify the authentication for the service.
 namespace PetStore;
 ```
 
-To see more information on how to define authentication see [authentication docs]({%doc "http/authentication"%})
+### Metadata decorators
+
+#### `@includeInapplicableMetadataInPayload`
+
+Specify if inapplicable [metadata]({%doc "http/operations"%}#metadata) should be included in the payload for the given entity.
+
+This is true by default unless changed by this decorator.
+
+Can be applied to namespaces, models, and model properties. If applied to a model or namespace, applies recursively to child models,
+namespaces, and model properties unless overridden by applying this decorator to a child.
 
 ## Rest decorators
 

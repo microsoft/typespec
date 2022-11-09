@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Deprecate write visibility",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

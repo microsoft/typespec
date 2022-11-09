@@ -1,13 +1,18 @@
 import {
+  $visibility,
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
   getOverloadedOperation,
   getOverloads,
   getServiceNamespace,
+  getVisibility,
   listOperationsIn,
+  ModelProperty,
+  navigateProgram,
   Operation,
   Program,
+  SyntaxKind,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, reportDiagnostic } from "../lib.js";
 import { getRoutePath } from "./decorators.js";
@@ -73,7 +78,9 @@ export function getAllHttpServices(
     })
   );
 
+  validateProgram(program, diagnostics);
   validateRouteUnique(program, diagnostics, httpOperations);
+
   const service: HttpService = {
     namespace: serviceNamespace,
     operations: httpOperations,
@@ -200,4 +207,26 @@ function getHttpOperationInternal(
   }
 
   return diagnostics.wrap(httpOperationRef);
+}
+
+function validateProgram(program: Program, diagnostics: DiagnosticCollector) {
+  navigateProgram(program, {
+    modelProperty(property) {
+      checkForUnsupportedVisibility(property);
+    },
+  });
+
+  // NOTE: This is intentionally not checked in the visibility decorator
+  // itself as that would be a layering violation, putting a REST
+  // interpretation of visibility into the core.
+  function checkForUnsupportedVisibility(property: ModelProperty) {
+    if (getVisibility(program, property)?.includes("write")) {
+      const decorator = property.decorators.find((d) => d.decorator === $visibility);
+      const arg = decorator?.args.find(
+        (a) => a.node?.kind === SyntaxKind.StringLiteral && a.node.value === "write"
+      );
+      const target = arg?.node ?? property;
+      diagnostics.add(createDiagnostic({ code: "write-visibility-not-supported", target }));
+    }
+  }
 }

@@ -10,7 +10,6 @@ import {
   getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
-  getEffectiveModelType,
   getFormat,
   getIntrinsicModelName,
   getKnownValues,
@@ -573,7 +572,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return resolveProperty(type, visibility);
     }
 
-    type = getEffectiveSchemaType(type, visibility);
+    type = metadataInfo.getEffectivePayloadType(type, visibility);
 
     const name = getTypeName(program, type, typeNameOptions);
     if (shouldInline(program, type)) {
@@ -617,22 +616,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const schema = getSchemaForType(type, visibility);
     inProgressInlineTypes.delete(type);
     return schema;
-  }
-
-  /**
-   * If type is an anonymous model, tries to find a named model that has the same
-   * set of properties when non-schema properties are excluded.
-   */
-  function getEffectiveSchemaType(type: Type, visibility: Visibility): Type {
-    if (type.kind === "Model" && !type.name) {
-      const effective = getEffectiveModelType(program, type, (p) =>
-        metadataInfo.isPayloadProperty(p, visibility)
-      );
-      if (effective.name) {
-        return effective;
-      }
-    }
-    return type;
   }
 
   function getParamPlaceholder(property: ModelProperty) {
