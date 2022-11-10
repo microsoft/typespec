@@ -391,7 +391,7 @@ model Dog {
   // the service will store this secret name, but won't ever return it
   @visibility("create") secretName: string;
   // no flags are like specifying all flags at once, so in this case
-  // equivalent to @visibility("read", "write")
+  // equivalent to @visibility("read", "create")
   name: string;
 }
 
