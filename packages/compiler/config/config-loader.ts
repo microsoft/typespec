@@ -17,7 +17,6 @@ export const defaultConfig = deepFreeze({
 /**
  * Look for the project root by looking up until a `cadl-project.yaml` is found.
  * @param path Path to start looking
- * @param lookIn
  */
 export async function findCadlConfigPath(
   host: CompilerHost,
@@ -112,8 +111,9 @@ async function loadConfigFile(
     data = deepClone(defaultConfig);
   }
 
-  const emitters: Record<string, Record<string, unknown>> = {};
+  let emitters: Record<string, Record<string, unknown>> | undefined = undefined;
   if (data.emitters) {
+    emitters = {};
     for (const [name, options] of Object.entries(data.emitters)) {
       if (options === true) {
         emitters[name] = {};
@@ -135,7 +135,7 @@ async function loadConfigFile(
     warnAsError: data["warn-as-error"],
     imports: data.imports,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
-    emitters,
+    emitters: emitters!,
   });
 }
 

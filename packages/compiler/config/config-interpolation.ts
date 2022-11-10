@@ -53,7 +53,6 @@ function resolveConfigValue(
   variables: Record<string, string | Record<string, string>>
 ) {
   return value.replace(/{([a-zA-Z.]+)}/g, (match, variable) => {
-    console.log("match", variable);
     const segments = variable.split(".");
     let resolved: any = variables;
     for (const segment of segments) {
