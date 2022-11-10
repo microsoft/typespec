@@ -107,6 +107,8 @@ export function createBinder(program: Program): Binder {
     if ((sourceFile.symbol as any) !== undefined) {
       return;
     }
+    const tracer = program.tracer.sub("bind.js");
+
     fileNamespace = undefined;
     mutate(sourceFile).symbol = createSymbol(
       sourceFile,
@@ -171,6 +173,10 @@ export function createBinder(program: Program): Binder {
         }
         let sym;
         if (kind === "decorator") {
+          tracer.trace(
+            "decorator",
+            `Bound decorator "@${name}" in namespace "${nsParts.join(".")}".`
+          );
           sym = createSymbol(
             sourceFile,
             "@" + name,
@@ -178,6 +184,7 @@ export function createBinder(program: Program): Binder {
             containerSymbol
           );
         } else {
+          tracer.trace("function", `Bound function "${name}" in namespace "${nsParts.join(".")}".`);
           sym = createSymbol(
             sourceFile,
             name,

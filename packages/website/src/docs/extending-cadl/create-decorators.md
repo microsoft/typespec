@@ -173,3 +173,15 @@ export function $customName(context: DecoratorContext, name: string) {}
 export function $tableName(context: DecoratorContext, name: string) {}
 setCadlNamespace("MyLib", $tableName);
 ```
+
+## Troubleshooting
+
+### Extern declation must have an implementation in JS file
+
+Potential issues:
+
+- JS function is not prefixed with `$`. For a decorator called `@decorate` the JS function must be called `$decoratate`
+- JS function is not in the same namespace as the the `extern dec`
+- Error is only showing in the IDE? Restart the Cadl server or the IDE.
+
+You can use `--trace bind.js.decorator` to log debug information about decorator loading in JS file that should help pinning down which of those is the issue.
