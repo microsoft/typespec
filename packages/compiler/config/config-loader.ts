@@ -8,7 +8,8 @@ import { CadlConfig, CadlRawConfig } from "./types.js";
 
 export const CadlConfigFilename = "cadl-project.yaml";
 
-export const defaultConfig: CadlConfig = deepFreeze({
+export const defaultConfig = deepFreeze({
+  outputDir: "{cwd}/cadl-output",
   diagnostics: [],
   emitters: {},
 });
@@ -53,7 +54,7 @@ export async function loadCadlConfigForPath(
 ): Promise<CadlConfig> {
   const cadlConfigPath = await findCadlConfigPath(host, directoryPath);
   if (cadlConfigPath === undefined) {
-    return deepClone(defaultConfig);
+    return { ...deepClone(defaultConfig), projectRoot: directoryPath };
   }
   return loadCadlConfigFile(host, cadlConfigPath);
 }
@@ -111,15 +112,30 @@ async function loadConfigFile(
     data = deepClone(defaultConfig);
   }
 
+  const emitters: Record<string, Record<string, unknown>> = {};
+  if (data.emitters) {
+    for (const [name, options] of Object.entries(data.emitters)) {
+      if (options === true) {
+        emitters[name] = {};
+      } else if (options === false) {
+      } else {
+        emitters[name] = options;
+      }
+    }
+  }
+
   return cleanUndefined({
+    projectRoot: getDirectoryPath(filename),
     filename,
     diagnostics,
-    outputDir: data["output-dir"],
+    extends: data.extends,
+    environmentVariables: data["environment-variables"],
+    parameters: data.parameters,
+    outputDir: data["output-dir"] ?? "{cwd}/cadl-output",
     warnAsError: data["warn-as-error"],
     imports: data.imports,
-    extends: data.extends,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
-    emitters: data.emitters!,
+    emitters,
   });
 }
 

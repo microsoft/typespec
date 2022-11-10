@@ -13,6 +13,7 @@ export interface CompilerOptions {
    * @deprecated use outputDir.
    */
   outputPath?: string;
+
   emitters?: Record<string, Record<string, unknown> | boolean>;
   nostdlib?: boolean;
   noEmit?: boolean;

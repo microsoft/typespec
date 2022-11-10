@@ -45,7 +45,7 @@ describe("compiler: config file loading", () => {
 
     it("deep clones defaults when not found", async () => {
       let config = await loadTestConfig("empty");
-      config.emitters["x"] = true;
+      config.emitters["x"] = {};
 
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
@@ -56,7 +56,7 @@ describe("compiler: config file loading", () => {
 
     it("deep clones defaults when found", async () => {
       let config = await loadTestConfig("simple");
-      config.emitters["x"] = true;
+      config.emitters["x"] = {};
 
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {

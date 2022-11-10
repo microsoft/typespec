@@ -24,8 +24,8 @@ For example, the following will write a text file to the output directory:
 import { Program } from "@cadl-lang/compiler";
 import Path from "path";
 
-export async function $onEmit(program: Program) {
-  const outputDir = Path.join(program.compilerOptions.outputDir!, "hello.txt");
+export async function $onEmit(context: EmitContext) {
+  const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
   await program.host.writeFile(outputDir, "hello world!");
 }
 ```
@@ -65,9 +65,9 @@ export const $lib = createCadlLibrary({
   },
 });
 
-export async function $onEmit(program: Program, options: EmitterOptions) {
-  const outputDir = Path.join(program.compilerOptions.outputDir!, "hello.txt");
-  const name = options.targetName;
+export async function $onEmit(context: EmitContext<EmitterOptions>) {
+  const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
+  const name = context.options.targetName;
   await program.host.writeFile(outputDir, `hello ${name}!`);
 }
 ```
@@ -130,7 +130,7 @@ export function $emitThis(context: DecoratorContext, target: Model) {
   context.program.stateSet(emitThisKey).add(target);
 }
 
-export async function $onEmit(program: Program) {
+export async function $onEmit(context: EmitContext) {
   for (const model of program.stateSet(emitThisKey)) {
     emitModel(model);
   }

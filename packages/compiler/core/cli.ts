@@ -9,13 +9,13 @@ try {
 /* eslint-disable no-console */
 import { spawnSync, SpawnSyncOptionsWithStringEncoding } from "child_process";
 import { mkdtemp, readdir, rm } from "fs/promises";
-import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
 import { resolve } from "path";
 import prompts from "prompts";
 import url from "url";
 import yargs from "yargs";
+import { expandConfigVariables } from "../config/config-interpolation.js";
 import { CadlConfig, loadCadlConfigForPath } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
@@ -114,6 +114,11 @@ async function main() {
             type: "boolean",
             default: false,
             describe: "Run emitters but do not emit any output.",
+          })
+          .option("arg", {
+            type: "array",
+            string: true,
+            describe: "Key/value of arguments that are used in the configuration.",
           });
       },
       async (args) => {
@@ -345,14 +350,16 @@ interface CompileCliArgs {
   debug?: boolean;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
+  args?: string[];
 }
 
 async function getCompilerOptions(
   host: CompilerHost,
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
-  const config = await loadCadlConfigForPath(host, process.cwd());
+  const pathArg = args["output-dir"] ?? args["output-path"];
 
+  const config = await loadCadlConfigForPath(host, process.cwd());
   if (config.diagnostics.length > 0) {
     logDiagnostics(config.diagnostics, host.logSink);
     logDiagnosticCount(config.diagnostics);
@@ -361,25 +368,50 @@ async function getCompilerOptions(
     }
   }
 
-  const pathArg = args["output-dir"] ?? args["output-path"] ?? config.outputDir ?? "./cadl-output";
-  const outputPath = resolvePath(process.cwd(), pathArg);
-  await mkdirp(outputPath);
-
   const cliOptions = resolveOptions(args);
 
-  return {
-    outputDir: outputPath,
-    nostdlib: args["nostdlib"],
-    additionalImports: args["import"] ?? config["imports"],
-    watchForChanges: args["watch"],
-    warningAsError: args["warn-as-error"] ?? config.warnAsError,
-    noEmit: args["no-emit"],
-    miscOptions: cliOptions.miscOptions,
+  const configWithCliArgs: CadlConfig = {
+    ...config,
+    outputDir: config.outputDir,
+    imports: args["import"] ?? config["imports"],
+    warnAsError: args["warn-as-error"] ?? config.warnAsError,
     trace: args.trace ?? config.trace,
     emitters: resolveEmitters(config, cliOptions, args),
   };
+  const cliOutputDir = pathArg ? resolvePath(process.cwd(), pathArg) : undefined;
+
+  const expandedConfig = expandConfigVariables(configWithCliArgs, {
+    outputDir: cliOutputDir,
+    env: process.env,
+    args: resolveConfigArgs(args),
+  });
+  return {
+    nostdlib: args["nostdlib"],
+    watchForChanges: args["watch"],
+    noEmit: args["no-emit"],
+    miscOptions: cliOptions.miscOptions,
+
+    outputDir: expandedConfig.outputDir,
+    additionalImports: expandedConfig["imports"],
+    warningAsError: expandedConfig.warnAsError,
+    trace: expandedConfig.trace,
+    emitters: expandedConfig.emitters,
+  };
 }
 
+function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const arg of args.options ?? []) {
+    const optionParts = arg.split("=");
+    if (optionParts.length != 2) {
+      throw new Error(`The --arg parameter value "${arg}" must be in the format: arg-name=value`);
+    }
+
+    map[optionParts[0]] = optionParts[1];
+  }
+
+  return map;
+}
 function resolveOptions(
   args: CompileCliArgs
 ): Record<string | "miscOptions", Record<string, unknown>> {
@@ -417,17 +449,17 @@ function resolveEmitters(
   config: CadlConfig,
   options: Record<string | "miscOptions", Record<string, unknown>>,
   args: CompileCliArgs
-): Record<string, Record<string, unknown> | boolean> {
+): Record<string, Record<string, unknown>> {
   const emitters = resolveSelectedEmittersFromConfig(config, args.emit);
 
-  const configuredEmitters: Record<string, Record<string, unknown> | boolean> = {};
+  const configuredEmitters: Record<string, Record<string, unknown>> = {};
 
   for (const [emitterName, emitterConfig] of Object.entries(emitters)) {
     const cliOptionOverride = options[emitterName];
 
     if (cliOptionOverride) {
       configuredEmitters[emitterName] = {
-        ...(emitterConfig === true ? {} : emitterConfig),
+        ...emitterConfig,
         ...cliOptionOverride,
       };
     } else {
@@ -441,11 +473,11 @@ function resolveEmitters(
 function resolveSelectedEmittersFromConfig(
   config: CadlConfig,
   selectedEmitters: string[] | undefined
-): Record<string, Record<string, unknown> | boolean> {
+): Record<string, Record<string, unknown>> {
   if (selectedEmitters) {
-    const emitters: Record<string, Record<string, unknown> | boolean> = {};
+    const emitters: Record<string, Record<string, unknown>> = {};
     for (const emitter of selectedEmitters) {
-      emitters[emitter] = config.emitters[emitter] ?? true;
+      emitters[emitter] = config.emitters[emitter] ?? {};
     }
     return emitters;
   }
