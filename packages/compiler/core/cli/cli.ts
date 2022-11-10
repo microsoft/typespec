@@ -15,20 +15,20 @@ import { resolve } from "path";
 import prompts from "prompts";
 import url from "url";
 import yargs from "yargs";
-import { expandConfigVariables } from "../config/config-interpolation.js";
-import { CadlConfig, loadCadlConfigForPath } from "../config/index.js";
-import { CompilerOptions } from "../core/options.js";
-import { compile, Program } from "../core/program.js";
-import { initCadlProject } from "../init/index.js";
-import { compilerAssert, logDiagnostics } from "./diagnostics.js";
-import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter-fs.js";
-import { CompilerHost } from "./index.js";
-import { installCadlDependencies } from "./install.js";
-import { createConsoleSink } from "./logger/index.js";
-import { NodeHost } from "./node-host.js";
-import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
-import { Diagnostic } from "./types.js";
-import { cadlVersion, ExternalError } from "./util.js";
+import { loadCadlConfigForPath } from "../../config/index.js";
+import { initCadlProject } from "../../init/index.js";
+import { compilerAssert, logDiagnostics } from "../diagnostics.js";
+import { findUnformattedCadlFiles, formatCadlFiles } from "../formatter-fs.js";
+import { CompilerHost } from "../index.js";
+import { installCadlDependencies } from "../install.js";
+import { createConsoleSink } from "../logger/index.js";
+import { NodeHost } from "../node-host.js";
+import { CompilerOptions } from "../options.js";
+import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../path-utils.js";
+import { compile, Program } from "../program.js";
+import { Diagnostic } from "../types.js";
+import { cadlVersion, ExternalError } from "../util.js";
+import { CompileCliArgs, getCompilerOptions } from "./args.js";
 
 async function main() {
   console.log(`Cadl compiler v${cadlVersion}\n`);
@@ -123,7 +123,7 @@ async function main() {
       },
       async (args) => {
         const host = createCLICompilerHost(args);
-        const cliOptions = await getCompilerOptions(host, args);
+        const cliOptions = await getCompilerOptionsOrExit(host, args);
 
         const program = await compileInput(host, args.path, cliOptions);
         if (program.hasError()) {
@@ -338,150 +338,18 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
   return { ...NodeHost, logSink: createConsoleSink({ pretty: args.pretty }) };
 }
 
-interface CompileCliArgs {
-  "output-dir"?: string;
-  "output-path"?: string;
-  nostdlib?: boolean;
-  options?: string[];
-  import?: string[];
-  watch?: boolean;
-  emit?: string[];
-  trace?: string[];
-  debug?: boolean;
-  "warn-as-error"?: boolean;
-  "no-emit"?: boolean;
-  args?: string[];
-}
-
-async function getCompilerOptions(
+async function getCompilerOptionsOrExit(
   host: CompilerHost,
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
-  const pathArg = args["output-dir"] ?? args["output-path"];
-
-  const config = await loadCadlConfigForPath(host, process.cwd());
-  if (config.diagnostics.length > 0) {
-    logDiagnostics(config.diagnostics, host.logSink);
-    logDiagnosticCount(config.diagnostics);
-    if (config.diagnostics.some((d) => d.severity === "error")) {
-      process.exit(1);
-    }
+  const [options, diagnostics] = await getCompilerOptions(host, process.cwd(), args, process.env);
+  if (options === undefined) {
+    logDiagnostics(diagnostics, host.logSink);
+    logDiagnosticCount(diagnostics);
+    process.exit(1);
   }
 
-  const cliOptions = resolveOptions(args);
-
-  const configWithCliArgs: CadlConfig = {
-    ...config,
-    outputDir: config.outputDir,
-    imports: args["import"] ?? config["imports"],
-    warnAsError: args["warn-as-error"] ?? config.warnAsError,
-    trace: args.trace ?? config.trace,
-    emitters: resolveEmitters(config, cliOptions, args),
-  };
-  const cliOutputDir = pathArg ? resolvePath(process.cwd(), pathArg) : undefined;
-
-  const expandedConfig = expandConfigVariables(configWithCliArgs, {
-    outputDir: cliOutputDir,
-    env: process.env,
-    args: resolveConfigArgs(args),
-  });
-  return {
-    nostdlib: args["nostdlib"],
-    watchForChanges: args["watch"],
-    noEmit: args["no-emit"],
-    miscOptions: cliOptions.miscOptions,
-
-    outputDir: expandedConfig.outputDir,
-    additionalImports: expandedConfig["imports"],
-    warningAsError: expandedConfig.warnAsError,
-    trace: expandedConfig.trace,
-    emitters: expandedConfig.emitters,
-  };
-}
-
-function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
-  const map: Record<string, string> = {};
-  for (const arg of args.options ?? []) {
-    const optionParts = arg.split("=");
-    if (optionParts.length != 2) {
-      throw new Error(`The --arg parameter value "${arg}" must be in the format: arg-name=value`);
-    }
-
-    map[optionParts[0]] = optionParts[1];
-  }
-
-  return map;
-}
-function resolveOptions(
-  args: CompileCliArgs
-): Record<string | "miscOptions", Record<string, unknown>> {
-  const options: Record<string, Record<string, string>> = {};
-  for (const option of args.options ?? []) {
-    const optionParts = option.split("=");
-    if (optionParts.length != 2) {
-      throw new Error(
-        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
-      );
-    }
-    const optionKeyParts = optionParts[0].split(".");
-    if (optionKeyParts.length === 1) {
-      const key = optionKeyParts[0];
-      if (!("miscOptions" in options)) {
-        options.miscOptions = {};
-      }
-      options.miscOptions[key] = optionParts[1];
-    } else if (optionKeyParts.length > 2) {
-      throw new Error(
-        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
-      );
-    }
-    const emitterName = optionKeyParts[0];
-    const key = optionKeyParts[1];
-    if (!(emitterName in options)) {
-      options[emitterName] = {};
-    }
-    options[emitterName][key] = optionParts[1];
-  }
   return options;
-}
-
-function resolveEmitters(
-  config: CadlConfig,
-  options: Record<string | "miscOptions", Record<string, unknown>>,
-  args: CompileCliArgs
-): Record<string, Record<string, unknown>> {
-  const emitters = resolveSelectedEmittersFromConfig(config, args.emit);
-
-  const configuredEmitters: Record<string, Record<string, unknown>> = {};
-
-  for (const [emitterName, emitterConfig] of Object.entries(emitters)) {
-    const cliOptionOverride = options[emitterName];
-
-    if (cliOptionOverride) {
-      configuredEmitters[emitterName] = {
-        ...emitterConfig,
-        ...cliOptionOverride,
-      };
-    } else {
-      configuredEmitters[emitterName] = emitterConfig;
-    }
-  }
-
-  return configuredEmitters;
-}
-
-function resolveSelectedEmittersFromConfig(
-  config: CadlConfig,
-  selectedEmitters: string[] | undefined
-): Record<string, Record<string, unknown>> {
-  if (selectedEmitters) {
-    const emitters: Record<string, Record<string, unknown>> = {};
-    for (const emitter of selectedEmitters) {
-      emitters[emitter] = config.emitters[emitter] ?? {};
-    }
-    return emitters;
-  }
-  return config.emitters;
 }
 
 async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {

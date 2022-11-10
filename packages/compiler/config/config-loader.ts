@@ -2,7 +2,7 @@ import jsyaml from "js-yaml";
 import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, loadFile } from "../core/util.js";
+import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
 import { CadlConfig, CadlRawConfig } from "./types.js";
 
@@ -124,7 +124,7 @@ async function loadConfigFile(
     }
   }
 
-  return cleanUndefined({
+  return omitUndefined({
     projectRoot: getDirectoryPath(filename),
     filename,
     diagnostics,
@@ -137,8 +137,4 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emitters: emitters!,
   });
-}
-
-function cleanUndefined<T extends Record<string, unknown>>(data: T): T {
-  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }

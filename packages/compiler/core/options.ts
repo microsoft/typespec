@@ -14,7 +14,7 @@ export interface CompilerOptions {
    */
   outputPath?: string;
 
-  emitters?: Record<string, Record<string, unknown> | boolean>;
+  emitters?: Record<string, Record<string, unknown>>;
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];

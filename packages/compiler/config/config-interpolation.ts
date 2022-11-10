@@ -1,6 +1,7 @@
 import { CadlConfig, ConfigEnvironmentVariable, ConfigParameter } from "./types.js";
 
 export interface ExpandConfigOptions {
+  readonly cwd: string;
   readonly outputDir?: string;
   readonly env?: Record<string, string | undefined>;
   readonly args?: Record<string, string>;
@@ -12,11 +13,11 @@ export function expandConfigVariables(
 ): CadlConfig {
   const commonVars = {
     "project-root": config.projectRoot,
-    cwd: process.cwd(),
+    cwd: options.cwd,
     ...resolveArgs(config.parameters, options.args),
     env: resolveArgs(config.environmentVariables, options.env),
   };
-  const outputDir = resolveConfigValue(config.outputDir ?? options.outputDir, commonVars);
+  const outputDir = resolveConfigValue(options.outputDir ?? config.outputDir, commonVars);
 
   const emitters: Record<string, Record<string, unknown>> = {};
 
@@ -32,7 +33,7 @@ export function expandConfigVariables(
     }
   }
 
-  return { ...config, outputDir };
+  return { ...config, outputDir, emitters };
 }
 
 function resolveArgs(
@@ -52,7 +53,7 @@ function resolveConfigValue(
   value: string,
   variables: Record<string, string | Record<string, string>>
 ) {
-  return value.replace(/{([a-zA-Z.]+)}/g, (match, variable) => {
+  return value.replace(/{([a-zA-Z-.]+)}/g, (match, variable) => {
     const segments = variable.split(".");
     let resolved: any = variables;
     for (const segment of segments) {
