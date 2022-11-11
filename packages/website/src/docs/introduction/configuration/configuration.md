@@ -29,6 +29,8 @@ The file is a `yaml` document with the following structure. See the [next sectio
 ```cadl
 model CadlProjectSchema {
   extends?: string;
+  parameters?: Record<{default: string}>
+  "environment-variables"?: Record<{default: string}>
   "warn-as-error"?: boolean;
   "output-dir"?: boolean;
   "trace"?: string | string[];
@@ -66,6 +68,75 @@ emitters:
   emitter3: true
 ```
 
+### Variable interpolation
+
+The cadl project file provide variable interpolation using:
+
+- built-in variables
+- environment variables
+- config file parameters
+
+Variable interpolation is done using an variable expression surrounded by `{` and `}`. (`{<expression>}`)
+
+Examples:
+
+- `{output-dir}/my-path`
+- `{env.SHARED_PATH}/my-path`
+
+#### Built-in variables
+
+| Variable name  | Scope           | Description                                                                          |
+| -------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `cwd`          | \*              | Points to the current working directory                                              |
+| `project-root` | \*              | Points to the the cadl-project.yaml file containing folder.                          |
+| `output-dir`   | emitter options | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
+| `emitter-name` | emitter options | Name of the emitter                                                                  |
+
+#### Project parameters
+
+A cadl project file can specify some parameters that can then be specified via the CLI.
+
+`{cwd}` and `{project-root}` variables can be used in the default value of those parmeters.
+
+The parameters can then be referenced by their name in a variable interpolation expression.
+
+Parameters must have a default value.
+**Example:**
+
+```yaml
+parameters:
+  base-dir:
+    default: "{cwd}"
+
+outout-dir: {base-dir}/output
+```
+
+The parameter can then be specified with `--arg` in this format `--arg "<parameter-name>=<value>"`
+
+```bash
+cadl compile . --arg "base-dir=/path/to/base"
+```
+
+#### Environment variables
+
+A cadl project file can define which environment variables it can interpolate.
+
+`{cwd}` and `{project-root}` variables can be used in the default value of the environment variables.
+
+The environment variables can then be referenced by their name in a variable interpolation expression with the `env.` prefix.
+
+Environment variables must have a default value.
+
+**Example:**
+
+```yaml
+environment-variables:
+  BASE_DIR:
+    default: "{cwd}"
+
+outout-dir: {env.BASE_DIR}/output
+```
+
 ## Cadl Configuration Options
 
 | Config          | Cli                     | Description                    |
@@ -81,7 +152,7 @@ emitters:
 Specify which emitters to use and their options if applicable.
 
 ```yaml
-output-dir: ./cadl-build
+output-dir: {cwd}/cadl-build
 ```
 
 Output dir can be provided using the `--output-dir` cli flag
@@ -89,6 +160,8 @@ Output dir can be provided using the `--output-dir` cli flag
 ```bash
 cadl compile . --output-dir "./cadl-build"
 ```
+
+Output dir must be an absolute path in the config. Use `{cwd}` or `{project-root}` to explicitly specify what it should be relative to.
 
 ### `trace` - Configure what to trace
 
@@ -169,6 +242,14 @@ Emitters selection can be overridden in the command line via `--emit` [flag](#em
 
 cadl compile . --emit emitter1 --option emitter1.option2="option2-value"
 ```
+
+#### Emitters built-in options
+
+##### `emitter-output-dir`
+
+Represent the path where the emitter should be outputing the generated files.
+
+Default: `{output-dir}/{emitter-name}`
 
 ## Emitter control cli flags
 

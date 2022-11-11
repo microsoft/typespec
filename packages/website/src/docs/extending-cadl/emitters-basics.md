@@ -79,7 +79,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
 #### Emitter options vs. decorators
 
-Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputDir` option could be passed on the command line, or we could have an `@outputPath` decorator that has the same effect. Which do you use?
+Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputFilename` option could be passed on the command line, or we could have an `@outputFilename` decorator that has the same effect. Which do you use?
 
 The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for `outputDir` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
@@ -151,4 +151,4 @@ Since an emitter is a node library, you could use standard `fs` APIs to write fi
 
 Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the node API but works in a wider range of scenarios.
 
-In order to know where to emit files, the compiler has options with an `outputPath` property. This is set to the current working directory's `cadl-output` directory by default, but can be overridden by the user.
+In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/cadl-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`
