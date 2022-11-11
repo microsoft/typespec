@@ -92,7 +92,7 @@ export function resolveValues<T extends Record<string, unknown>>(
     if (resolvingValues.has(expression)) {
       diagnostics.push(
         createDiagnostic({
-          code: "circular-config-variable",
+          code: "config-circular-variable",
           target: NoTarget,
           format: { name: expression },
         })

@@ -4,7 +4,7 @@ import {
   expandConfigVariables,
   resolveValues,
 } from "../../config/config-interpolation.js";
-import { defaultConfig } from "../../config/config-loader.js";
+import { defaultConfig, validateConfigPathsAbsolute } from "../../config/config-loader.js";
 import { CadlConfig } from "../../config/types.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
 
@@ -99,7 +99,7 @@ describe("compiler: config interpolation", () => {
       });
 
       expectDiagnostics(diagnostics, {
-        code: "circular-config-variable",
+        code: "config-circular-variable",
         message: `Variable "three" recursively references itself.`,
       });
     });
@@ -250,6 +250,67 @@ describe("compiler: config interpolation", () => {
           },
         },
       });
+    });
+  });
+
+  describe("validateConfigPathsAbsolute", () => {
+    it("emit diagnostic for using a relative path starting with ./", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "./my-output",
+      };
+      const diagnostics = validateConfigPathsAbsolute(config);
+      expectDiagnostics(diagnostics, {
+        code: "config-path-absolute",
+        message: `Path "./my-output" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+      });
+    });
+
+    it("emit diagnostic for using a relative path starting with ../", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "../my-output",
+      };
+      const diagnostics = validateConfigPathsAbsolute(config);
+      expectDiagnostics(diagnostics, {
+        code: "config-path-absolute",
+        message: `Path "../my-output" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+      });
+    });
+
+    it("emit diagnostic for using a relative path", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "my-output",
+      };
+      const diagnostics = validateConfigPathsAbsolute(config);
+      expectDiagnostics(diagnostics, {
+        code: "config-path-absolute",
+        message: `Path "my-output" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+      });
+    });
+
+    it("succeed if using unix absolute path", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "/my-output",
+      };
+      const diagnostics = validateConfigPathsAbsolute(config);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed if using windows absolute path", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "C:/my-output",
+      };
+      const diagnostics = validateConfigPathsAbsolute(config);
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 });

@@ -4,6 +4,7 @@ import { CompileCliArgs, getCompilerOptions } from "../core/cli/args.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
+  expectDiagnostics,
   resolveVirtualPath,
   TestHost,
 } from "../testing/index.js";
@@ -40,7 +41,7 @@ describe("compiler: cli", () => {
           dump({
             parameters: {
               "custom-arg": {
-                default: "default-arg-value",
+                default: "/default-arg-value",
               },
             },
             emitters: {
@@ -86,25 +87,38 @@ describe("compiler: cli", () => {
 
       describe("arg interpolation", () => {
         it("use default arg value", async () => {
-          const options = await resolveCompilerOptions({
-            args: [`custom-arg=my-updated-arg-value`],
-          });
+          const options = await resolveCompilerOptions({});
 
           strictEqual(
             options?.emitters?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
-            `default-arg-value/custom`
+            `/default-arg-value/custom`
           );
         });
 
         it("passing --arg interpolate args in the cli", async () => {
           const options = await resolveCompilerOptions({
-            args: [`custom-arg=my-updated-arg-value`],
+            args: [`custom-arg=/my-updated-arg-value`],
           });
 
           strictEqual(
             options?.emitters?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
-            `my-updated-arg-value/custom`
+            `/my-updated-arg-value/custom`
           );
+        });
+      });
+
+      it("emit diagnostic if using relative path in config paths", async () => {
+        host.addCadlFile(
+          "ws/cadl-project.yaml",
+          dump({
+            "output-dir": "./my-output",
+          })
+        );
+        const [_, diagnostics] = await getCompilerOptions(host.compilerHost, cwd, {}, {});
+
+        expectDiagnostics(diagnostics, {
+          code: "config-path-absolute",
+          message: `Path "./my-output" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
         });
       });
     });

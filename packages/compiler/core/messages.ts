@@ -443,10 +443,16 @@ const diagnostics = {
   /**
    * Configuration
    */
-  "circular-config-variable": {
+  "config-circular-variable": {
     severity: "error",
     messages: {
       default: paramMessage`Variable "${"name"}" recursively references itself.`,
+    },
+  },
+  "config-path-absolute": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
   /**

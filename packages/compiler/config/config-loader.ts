@@ -1,7 +1,8 @@
 import jsyaml from "js-yaml";
-import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
+import { createDiagnostic } from "../core/messages.js";
+import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { CompilerHost, Diagnostic } from "../core/types.js";
+import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
 import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
 import { CadlConfig, CadlRawConfig } from "./types.js";
@@ -137,4 +138,36 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emitters: emitters!,
   });
+}
+
+export function validateConfigPathsAbsolute(config: CadlConfig): readonly Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  function checkPath(value: string | undefined) {
+    if (value === undefined) {
+      return;
+    }
+    const diagnostic = validatePathAbsolute(value);
+    if (diagnostic) {
+      diagnostics.push(diagnostic);
+    }
+  }
+
+  checkPath(config.outputDir);
+  for (const emitterOptions of Object.values(config.emitters)) {
+    checkPath(emitterOptions["emitter-output-dir"]);
+  }
+  return diagnostics;
+}
+
+function validatePathAbsolute(path: string): Diagnostic | undefined {
+  if (path.startsWith(".") || !isPathAbsolute(path)) {
+    return createDiagnostic({
+      code: "config-path-absolute",
+      format: { path },
+      target: NoTarget,
+    });
+  }
+
+  return undefined;
 }

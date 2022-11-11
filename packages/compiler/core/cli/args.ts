@@ -1,5 +1,5 @@
 import { expandConfigVariables } from "../../config/config-interpolation.js";
-import { loadCadlConfigForPath } from "../../config/config-loader.js";
+import { loadCadlConfigForPath, validateConfigPathsAbsolute } from "../../config/config-loader.js";
 import { CadlConfig } from "../../config/types.js";
 import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
@@ -59,6 +59,8 @@ export async function getCompilerOptions(
       args: resolveConfigArgs(args),
     })
   );
+  validateConfigPathsAbsolute(expandedConfig).forEach((x) => diagnostics.add(x));
+
   const options: CompilerOptions = omitUndefined({
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
