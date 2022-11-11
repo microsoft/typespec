@@ -81,7 +81,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
 Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputFilename` option could be passed on the command line, or we could have an `@outputFilename` decorator that has the same effect. Which do you use?
 
-The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for `outputDir` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
+The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for `outputFilename` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
 ## Querying the program
 
