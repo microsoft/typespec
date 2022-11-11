@@ -1,5 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { isArrayModelType } from "../../core/index.js";
+import { isArrayModelType, Operation } from "../../core/index.js";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../core/types.js";
 import {
@@ -310,6 +310,18 @@ describe("compiler: models", () => {
       ]);
     });
 
+    it("allow multiple overrides", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A { x: int64 };
+        model B extends A { x: int32 };
+        model C extends B { x: int16 };
+        `
+      );
+      await testHost.compile("main.cadl");
+    });
+
     it("ensure subtype overriding is not shadowed", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -327,6 +339,45 @@ describe("compiler: models", () => {
             "Model has an inherited property named x of type Cadl.int32 which cannot override type Cadl.int16",
         },
       ]);
+    });
+
+    it("removes decorators not specified on derived type that are on the base type", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model Base { @doc("Base") h: string;}
+        @test model Widget extends Base { h: "test";}
+        `
+      );
+      const { Widget } = (await testHost.compile("main.cadl")) as { Widget: Model };
+      strictEqual(Widget.decorators.length, 1);
+      strictEqual((Widget.properties.get("h")!.type as any)!.value, "test");
+    });
+
+    it("allow intersection of model with overridden property", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model Base {prop: string;}
+        model Widget extends Base {prop: "test";}
+        @test op foo(): Widget & {};
+        `
+      );
+      const { foo } = (await testHost.compile("main.cadl")) as { foo: Operation };
+      strictEqual(((foo.returnType as Model).properties.get("prop")!.type as any)!.value, "test");
+    });
+
+    it("allow spreading of model with overridden property", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model Base {h1: string}
+        model Widget extends Base {h1: "test"}
+        @test model Spread {...Widget}
+        `
+      );
+      const { Spread } = (await testHost.compile("main.cadl")) as { Spread: Model };
+      strictEqual((Spread.properties.get("h1")!.type as any)!.value, "test");
     });
 
     it("keeps reference of children", async () => {
