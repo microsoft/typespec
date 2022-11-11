@@ -4,6 +4,7 @@
 **/bin/
 **/obj/
 **/.vs/
+**/.docusaurus/
 common/temp/
 common/scripts/
 common/changes/
