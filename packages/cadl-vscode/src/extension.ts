@@ -1,4 +1,4 @@
-import { resolveModule, ResolveModuleHost } from "@cadl-lang/compiler/module-resolver";
+import { ResolveModuleHost } from "@cadl-lang/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
 import { join } from "path";
 import vscode, { commands, ExtensionContext, workspace } from "vscode";
@@ -137,6 +137,10 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
+  // dynamic import required when unbundled as this module is CommonJS for
+  // VS Code and the module-resolver is an ES module.
+  const { resolveModule } = await import("@cadl-lang/compiler/module-resolver");
+
   const host: ResolveModuleHost = {
     realpath,
     readFile: (path: string) => readFile(path, "utf-8"),

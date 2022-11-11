@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Internal: Fix loading VS Code extension unbundled in F5 dev scenario",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
