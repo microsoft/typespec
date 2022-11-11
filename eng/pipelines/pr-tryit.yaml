@@ -36,7 +36,7 @@ jobs:
 
       - task: AzureFileCopy@4
         inputs:
-          sourcePath: "packages/website/dist/*"
+          sourcePath: "packages/website/build/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
           storage: "cadlwebsite"
