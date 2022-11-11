@@ -441,6 +441,15 @@ const diagnostics = {
   },
 
   /**
+   * Configuration
+   */
+  "circular-config-variable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Variable "${"name"}" recursively references itself.`,
+    },
+  },
+  /**
    * Program
    */
   "dynamic-import": {

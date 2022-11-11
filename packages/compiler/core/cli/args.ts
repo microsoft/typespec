@@ -1,6 +1,7 @@
 import { expandConfigVariables } from "../../config/config-interpolation.js";
 import { loadCadlConfigForPath } from "../../config/config-loader.js";
 import { CadlConfig } from "../../config/types.js";
+import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
 import { resolvePath } from "../path-utils.js";
 import { CompilerHost, Diagnostic } from "../types.js";
@@ -27,6 +28,7 @@ export async function getCompilerOptions(
   args: CompileCliArgs,
   env: Record<string, string | undefined>
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
+  const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
 
   const config = await loadCadlConfigForPath(host, cwd);
@@ -34,6 +36,7 @@ export async function getCompilerOptions(
     if (config.diagnostics.some((d) => d.severity === "error")) {
       return [undefined, config.diagnostics];
     }
+    config.diagnostics.forEach((x) => diagnostics.add(x));
   }
 
   const cliOptions = resolveOptions(args);
@@ -48,12 +51,14 @@ export async function getCompilerOptions(
   };
   const cliOutputDir = pathArg ? resolvePath(cwd, pathArg) : undefined;
 
-  const expandedConfig = expandConfigVariables(configWithCliArgs, {
-    cwd: cwd,
-    outputDir: cliOutputDir,
-    env,
-    args: resolveConfigArgs(args),
-  });
+  const expandedConfig = diagnostics.pipe(
+    expandConfigVariables(configWithCliArgs, {
+      cwd: cwd,
+      outputDir: cliOutputDir,
+      env,
+      args: resolveConfigArgs(args),
+    })
+  );
   const options: CompilerOptions = omitUndefined({
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
@@ -66,7 +71,7 @@ export async function getCompilerOptions(
     trace: expandedConfig.trace,
     emitters: expandedConfig.emitters,
   });
-  return [options, config.diagnostics];
+  return diagnostics.wrap(options);
 }
 
 function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
