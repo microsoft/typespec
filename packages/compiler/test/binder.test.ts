@@ -1,6 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { Binder, createBinder } from "../core/binder.js";
 import { createSourceFile } from "../core/diagnostics.js";
+import { createLogger } from "../core/logger/logger.js";
+import { createTracer } from "../core/logger/tracer.js";
 import { parse } from "../core/parser.js";
 import { Program } from "../core/program.js";
 import {
@@ -482,6 +484,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
 
 function createProgramShim(): Program {
   return {
+    tracer: createTracer(createLogger({ sink: { log: () => {} } })),
     reportDuplicateSymbols() {},
     onValidate() {},
   } as any;
