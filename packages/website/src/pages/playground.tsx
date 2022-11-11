@@ -2,7 +2,7 @@ import Layout from "@theme/Layout";
 
 export default function Playground() {
   return (
-    <Layout title="Playground" description="Cadl Playground Page">
+    <Layout>
       <div
         className="play-iframe"
         style={{

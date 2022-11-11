@@ -5,7 +5,7 @@ title: Creating a Cadl Library
 
 # Creating a Cadl library
 
-Cadl libraries are packages that contain Cadl types, decorators, emitters, linters, and other bits of reusable code. Cadl libraries are [npm packages](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) with some additional cadl-specific metadata and conventions. The following will show how to establish a new Cadl library, add some types to it, and distribute it on the public npm registry. Later sections will cover more details on how to write [decorators](../decorators), [emitters](../emitters) and [linters](../linters).
+Cadl libraries are packages that contain Cadl types, decorators, emitters, linters, and other bits of reusable code. Cadl libraries are [npm packages](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) with some additional cadl-specific metadata and conventions. The following will show how to establish a new Cadl library, add some types to it, and distribute it on the public npm registry. Later sections will cover more details on how to write [decorators](create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
 
 This document assumes you will be using [TypeScript](https://typescriptlang.org) to develop your library, but you should feel free to skip the TypeScript steps if you want to use plain JavaScript.
 
@@ -158,4 +158,4 @@ model Employee extends Person {
 
 ## Next steps
 
-Cadl libraries can contain more than just types. Read the subsequent topics for more details on how to write [decorators](../decorators), [emitters](../emitters) and [linters](../linters).
+Cadl libraries can contain more than just types. Read the subsequent topics for more details on how to write [decorators](./create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).

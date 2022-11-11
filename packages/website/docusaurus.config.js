@@ -3,6 +3,7 @@
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+/** @type {any} */
 const mdxMermaid = require("mdx-mermaid");
 
 /** @type {import('@docusaurus/types').Config} */
@@ -78,7 +79,11 @@ const config = {
             items: [
               {
                 label: "Introduction",
-                to: "/docs/introduction",
+                to: "/",
+              },
+              {
+                label: "Language basics",
+                to: "/language-basics/overview",
               },
             ],
           },
