@@ -10,7 +10,7 @@ const config = {
   title: "Cadl",
   tagline: "API first with Cadl for Azure services",
   url: "https://microsoft.github.io",
-  baseUrl: (process.env.CADL_WEBSITE_BASE_PATH ?? "") + "/cadl/",
+  baseUrl: (process.env.CADL_WEBSITE_BASE_PATH ?? "/") + "cadl/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
