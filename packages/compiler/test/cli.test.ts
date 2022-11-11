@@ -107,6 +107,22 @@ describe("compiler: cli", () => {
         });
       });
 
+      it("emit diagnostic if passing unknown parameter", async () => {
+        const [_, diagnostics] = await getCompilerOptions(
+          host.compilerHost,
+          cwd,
+          {
+            args: ["not-defined-arg=my-value"],
+          },
+          {}
+        );
+
+        expectDiagnostics(diagnostics, {
+          code: "config-invalid-argument",
+          message: `Argument "not-defined-arg" is not defined as a parameter in the config.`,
+        });
+      });
+
       it("emit diagnostic if using relative path in config paths", async () => {
         host.addCadlFile(
           "ws/cadl-project.yaml",

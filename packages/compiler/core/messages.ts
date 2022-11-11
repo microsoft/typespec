@@ -443,6 +443,12 @@ const diagnostics = {
   /**
    * Configuration
    */
+  "config-invalid-argument": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Argument "${"name"}" is not defined as a parameter in the config.`,
+    },
+  },
   "config-circular-variable": {
     severity: "error",
     messages: {

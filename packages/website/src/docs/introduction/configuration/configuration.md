@@ -75,6 +75,7 @@ The cadl project file provide variable interpolation using:
 - built-in variables
 - environment variables
 - config file parameters
+- emitter options can reference each other
 
 Variable interpolation is done using an variable expression surrounded by `{` and `}`. (`{<expression>}`)
 
@@ -135,6 +136,20 @@ environment-variables:
     default: "{cwd}"
 
 outout-dir: {env.BASE_DIR}/output
+```
+
+#### Emitter options
+
+Emitter options can reference each other using the other option name as the variable expresion.
+
+Can only interpolate emitter options from the same emitter.
+
+```yaml
+emitters:
+  @cadl-lang/openapi3:
+    emitter-output-dir: {output-dir}/{emitter-sub-folder}
+    emitter-sub-folder: bar
+
 ```
 
 ## Cadl Configuration Options

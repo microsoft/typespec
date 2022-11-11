@@ -22,8 +22,8 @@ export function expandConfigVariables(
 
   const commonVars = {
     ...builtInVars,
-    ...resolveArgs(config.parameters, options.args, builtInVars),
-    env: resolveArgs(config.environmentVariables, options.env, builtInVars),
+    ...diagnostics.pipe(resolveArgs(config.parameters, options.args, builtInVars)),
+    env: diagnostics.pipe(resolveArgs(config.environmentVariables, options.env, builtInVars)),
   };
   const outputDir = diagnostics.pipe(
     resolveValue(options.outputDir ?? config.outputDir, commonVars)
@@ -43,16 +43,25 @@ function resolveArgs(
   declarations: Record<string, ConfigParameter | ConfigEnvironmentVariable> | undefined,
   args: Record<string, string | undefined> | undefined,
   predefinedVariables: Record<string, string | Record<string, string>>
-): Record<string, string> {
-  if (declarations === undefined) {
-    return {};
+): [Record<string, string>, readonly Diagnostic[]] {
+  const unmatchedArgs = new Set(Object.keys(args ?? {}));
+  const result: Record<string, string> = {};
+  if (declarations !== undefined) {
+    for (const [name, definition] of Object.entries(declarations)) {
+      unmatchedArgs.delete(name);
+      result[name] =
+        args?.[name] ?? ignoreDiagnostics(resolveValue(definition.default, predefinedVariables));
+    }
   }
-  const env: Record<string, string> = {};
-  for (const [name, definition] of Object.entries(declarations)) {
-    env[name] =
-      args?.[name] ?? ignoreDiagnostics(resolveValue(definition.default, predefinedVariables));
-  }
-  return env;
+
+  const diagnostics: Diagnostic[] = [...unmatchedArgs].map((unmatchedArg) => {
+    return createDiagnostic({
+      code: "config-invalid-argument",
+      format: { name: unmatchedArg },
+      target: NoTarget,
+    });
+  });
+  return [result, diagnostics];
 }
 
 const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}/g;
