@@ -3,8 +3,6 @@
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
-/** @type {any} */
-const mdxMermaid = require("mdx-mermaid");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -30,6 +28,10 @@ const config = {
     locales: ["en"],
   },
 
+  markdown: {
+    mermaid: true,
+  },
+  themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
       "classic",
@@ -38,7 +40,6 @@ const config = {
         docs: {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
-          remarkPlugins: [mdxMermaid],
         },
         blog: {
           showReadingTime: true,
@@ -108,6 +109,7 @@ const config = {
         darkTheme: darkCodeTheme,
         additionalLanguages: [],
       },
+      mermaid: {},
       algolia: {
         appId: "WQXW45O51C",
         apiKey: "9bfd71f94d516117e3022e788f2cc83c",
