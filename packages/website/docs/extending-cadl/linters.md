@@ -46,6 +46,8 @@ export const modelDocRule = createRule({
 
 ### Register the rules
 
+<!-- cspell:disable-next-line -->
+
 `$lib` refer to the value of `createCadlLibrary` [See](./basics.md#4-create-libts)
 
 ```ts
