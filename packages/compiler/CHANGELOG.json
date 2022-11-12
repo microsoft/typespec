@@ -2,6 +2,38 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.37.0",
+      "tag": "@cadl-lang/compiler_v0.37.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments"
+          },
+          {
+            "comment": "**Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`."
+          },
+          {
+            "comment": "Fix: crash with referencing global namespace"
+          },
+          {
+            "comment": "Added a new export to only import the module resolver"
+          },
+          {
+            "comment": "Debugging: adding tracing information for JS decorators and function binding"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "`emitFile` now ensures that the folder exists prior to writing to the path."
+          },
+          {
+            "comment": "Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.36.1",
       "tag": "@cadl-lang/compiler_v0.36.1",
       "date": "Wed, 19 Oct 2022 19:36:13 GMT",
