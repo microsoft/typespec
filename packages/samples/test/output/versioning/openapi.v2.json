@@ -47,7 +47,7 @@
   "components": {
     "parameters": {
       "ApiVersionParam": {
-        "name": "apiVersion",
+        "name": "api-version",
         "in": "header",
         "required": true,
         "schema": {
