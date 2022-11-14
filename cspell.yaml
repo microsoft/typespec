@@ -67,7 +67,9 @@ ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/dist-dev/**"
+  - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
+  - "packages/website/build/**"
   - common/scripts/*
 enableFiletypes:
   - cadl

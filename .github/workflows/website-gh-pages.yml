@@ -33,8 +33,6 @@ jobs:
 
       - name: Build
         run: npx @microsoft/rush build --to @cadl-lang/website
-        env:
-          CADL_WEBSITE_BASE_PATH: "/cadl/" # microsoft.github.io/cadl/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
