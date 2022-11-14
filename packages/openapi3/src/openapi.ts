@@ -97,7 +97,6 @@ import {
   OpenAPI3Operation,
   OpenAPI3Parameter,
   OpenAPI3ParameterBase,
-  OpenAPI3ParameterType,
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
   OpenAPI3SecurityScheme,
@@ -653,7 +652,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const { type, param } of parameters) {
+    for (const parameter of parameters) {
+      const { type, param } = parameter;
       if (params.has(param)) {
         currentEndpoint.parameters.push(params.get(param));
         continue;
@@ -661,14 +661,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       switch (type) {
         case "path":
-          emitParameter(param, "path", visibility);
+          emitParameter(parameter, visibility);
           break;
         case "query":
-          emitParameter(param, "query", visibility);
+          emitParameter(parameter, visibility);
           break;
         case "header":
           if (!isContentTypeHeader(program, param)) {
-            emitParameter(param, "header", visibility);
+            emitParameter(parameter, visibility);
           }
           break;
       }
@@ -708,17 +708,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.requestBody = requestBody;
   }
 
-  function emitParameter(
-    param: ModelProperty,
-    kind: OpenAPI3ParameterType,
-    visibility: Visibility
-  ) {
-    const ph = getParamPlaceholder(param);
+  function emitParameter(parameter: HttpOperationParameter, visibility: Visibility) {
+    const ph = getParamPlaceholder(parameter.param);
     currentEndpoint.parameters.push(ph);
 
     // If the parameter already has a $ref, don't bother populating it
     if (!("$ref" in ph)) {
-      populateParameter(ph, param, kind, visibility);
+      populateParameter(ph, parameter, visibility);
     }
   }
 
@@ -746,13 +742,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function populateParameter(
     ph: OpenAPI3Parameter,
-    param: ModelProperty,
-    kind: OpenAPI3ParameterType,
+    parameter: HttpOperationParameter,
     visibility: Visibility
   ) {
-    ph.name = param.name;
-    ph.in = kind;
-    Object.assign(ph, getOpenAPIParameterBase(param, visibility));
+    ph.name = parameter.name;
+    ph.in = parameter.type;
+    Object.assign(ph, getOpenAPIParameterBase(parameter.param, visibility));
   }
 
   function emitParameters() {

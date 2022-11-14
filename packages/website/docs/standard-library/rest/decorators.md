@@ -117,6 +117,16 @@ Path parameter can be defined using `{}` with the name matching the path propert
 
 Specify a model property is to be sent or is received as an header
 
+```ts
+dec header(target: ModelProperty, headerName?: string);
+```
+
+Parameters:
+
+- `headerName` _Optional_ Specify the name of the header in the http request/response.
+
+**Example**
+
 ```cadl
 op configure(@header fileType: string): void;
 ```
@@ -124,6 +134,16 @@ op configure(@header fileType: string): void;
 #### `@query`
 
 Specify a model property is to be sent as a query parameter
+
+```ts
+dec query(target: ModelProperty, queryName?: string);
+```
+
+Parameters:
+
+- `queryName` _Optional_ Specify the name of the query in the http request.
+
+**Example**
 
 ```cadl
 op list(@query filter: string): Pet[];
