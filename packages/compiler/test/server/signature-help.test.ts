@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { SignatureHelp } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
-describe.only("compiler: server: signature help", () => {
+describe("compiler: server: signature help", () => {
   it("get signature for a decorator with a single parameter", async () => {
     const help = await getSignatureHelpAtCursor(
       `
