@@ -73,6 +73,10 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
 export interface Binder {
   bindSourceFile(script: CadlScriptNode): void;
   bindJsSourceFile(sourceFile: JsSourceFileNode): void;
+  /**
+   * @internal
+   */
+  bindNode(node: Node): void;
 }
 
 export function createSymbolTable(source?: SymbolTable): SymbolTable {
@@ -92,6 +96,7 @@ export function createBinder(program: Program): Binder {
   return {
     bindSourceFile,
     bindJsSourceFile,
+    bindNode,
   };
 
   function isFunctionName(name: string): boolean {

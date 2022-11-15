@@ -1,5 +1,5 @@
 import { getDeprecated } from "../lib/decorators.js";
-import { createSymbol, createSymbolTable } from "./binder.js";
+import { createBinder, createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
@@ -37,12 +37,13 @@ import {
   ProjectionModelSpreadPropertyNode,
   reportDeprecated,
   SymbolFlags,
+  TemplateableNode,
   TemplateParameter,
   UnknownType,
   VoidType,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
+import { createParser, getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
 import {
@@ -188,6 +189,13 @@ export interface Checker {
    */
   isStdType(type: Type, stdType?: IntrinsicModelName | "Array" | "Record"): boolean;
 
+  /**
+   * Resolve a type reference string
+   * @param reference Cadl reference.
+   * @returns the type
+   */
+  resolveTypeReferenceString(reference: string): Type | undefined;
+
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
@@ -321,6 +329,7 @@ export function createChecker(program: Program): Checker {
     finishType,
     isTypeAssignableTo,
     isStdType,
+    resolveTypeReferenceString,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -767,16 +776,24 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  /**
+   * Check and resolve a type for the given type reference node.
+   * @param node Node.
+   * @param mapper Type mapper for template instantiation context.
+   * @param instantiateTemplate If templated type should be instantiated if they haven't yet.
+   * @returns Resolved type.
+   */
   function checkTypeReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined
+    mapper: TypeMapper | undefined,
+    instantiateTemplate = true
   ): Type {
     const sym = resolveTypeReference(node, mapper);
     if (!sym) {
       return errorType;
     }
 
-    const type = checkTypeReferenceSymbol(sym, node, mapper);
+    const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
     checkDeprecated(type, node);
     return type;
   }
@@ -856,10 +873,19 @@ export function createChecker(program: Program): Checker {
     return [params, values];
   }
 
+  /**
+   * Check and resolve the type for the given symbol + node.
+   * @param sym Symbol
+   * @param node Node
+   * @param mapper Type mapper for template instantiation context.
+   * @param instantiateTemplates If a templated type should be instantiated if not yet @default true
+   * @returns resolved type.
+   */
   function checkTypeReferenceSymbol(
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined
+    mapper: TypeMapper | undefined,
+    instantiateTemplates = true
   ): Type {
     if (sym.flags & SymbolFlags.Decorator) {
       program.reportDiagnostic(
@@ -947,7 +973,7 @@ export function createChecker(program: Program): Checker {
           args,
           templateParameters
         );
-        baseType = instantiateTemplate(decl, params, instantiationArgs);
+        baseType = getOrInstantiateTemplate(decl, params, instantiationArgs, instantiateTemplates);
       }
     } else {
       // some other kind of reference
@@ -979,24 +1005,11 @@ export function createChecker(program: Program): Checker {
     return baseType;
   }
 
-  /**
-   * Builds a model type from a template and its template arguments.
-   * Adds the template node to a set we can check when we bind template
-   * parameters to access type type arguments.
-   *
-   * This will fall over if the same template is ever being instantiated
-   * twice at the same time, or if template parameters from more than one template
-   * are ever in scope at once.
-   */
-  function instantiateTemplate(
-    templateNode:
-      | ModelStatementNode
-      | AliasStatementNode
-      | InterfaceStatementNode
-      | OperationStatementNode
-      | UnionStatementNode,
+  function getOrInstantiateTemplate(
+    templateNode: TemplateableNode,
     params: TemplateParameter[],
-    args: Type[]
+    args: Type[],
+    instantiateTempalates = true
   ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol);
     if (symbolLinks.instantiations === undefined) {
@@ -1016,11 +1029,31 @@ export function createChecker(program: Program): Checker {
     if (cached) {
       return cached;
     }
-
+    if (instantiateTempalates) {
+      return instantiateTemplate(symbolLinks.instantiations, templateNode, params, args);
+    } else {
+      return errorType;
+    }
+  }
+  /**
+   * Builds a model type from a template and its template arguments.
+   * Adds the template node to a set we can check when we bind template
+   * parameters to access type type arguments.
+   *
+   * This will fall over if the same template is ever being instantiated
+   * twice at the same time, or if template parameters from more than one template
+   * are ever in scope at once.
+   */
+  function instantiateTemplate(
+    instantiations: TypeInstantiationMap,
+    templateNode: TemplateableNode,
+    params: TemplateParameter[],
+    args: Type[]
+  ): Type {
     const mapper = createTypeMapper(params, args);
     const type = getTypeForNode(templateNode, mapper);
-    if (!symbolLinks.instantiations!.get(args)) {
-      symbolLinks.instantiations!.set(args, type);
+    if (!instantiations.get(args)) {
+      instantiations.set(args, type);
     }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
@@ -1289,7 +1322,7 @@ export function createChecker(program: Program): Checker {
     const arrayType = getStdType("Array");
     const arrayNode: ModelStatementNode = arrayType.node as any;
     const param: TemplateParameter = getTypeForNode(arrayNode.templateParameters[0]) as any;
-    return instantiateTemplate(arrayNode, [param], [elementType]) as Model;
+    return getOrInstantiateTemplate(arrayNode, [param], [elementType]) as Model;
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
@@ -3217,6 +3250,21 @@ export function createChecker(program: Program): Checker {
     });
     getSymbolLinks(globalNamespaceNode.symbol).type = type;
     return type;
+  }
+
+  function resolveTypeReferenceString(reference: string): Type | undefined {
+    const parser = createParser(reference);
+    const node = parser.parseStandaloneReferenceExpression();
+    if (parser.parseDiagnostics.length > 0) {
+      program.reportDiagnostics(parser.parseDiagnostics);
+      return undefined;
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = globalNamespaceNode;
+
+    const type = checkTypeReference(node, undefined, false);
+    return type === errorType ? undefined : type;
   }
 
   /**

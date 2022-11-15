@@ -693,6 +693,16 @@ export type Node =
   | ProjectionStatementNode
   | ProjectionNode;
 
+/**
+ * Node that can be used as template
+ */
+export type TemplateableNode =
+  | ModelStatementNode
+  | AliasStatementNode
+  | InterfaceStatementNode
+  | OperationStatementNode
+  | UnionStatementNode;
+
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {

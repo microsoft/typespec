@@ -79,7 +79,9 @@ export interface Program {
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+
   getGlobalNamespaceType(): Namespace;
+  resolveTypeReference(reference: string): Type | undefined;
 }
 
 interface LibraryMetadata {
@@ -288,6 +290,7 @@ export async function compile(
       validateCbs.push(cb);
     },
     getGlobalNamespaceType,
+    resolveTypeReference,
   };
 
   function trace(area: string, message: string) {
@@ -1036,7 +1039,11 @@ export async function compile(
   }
 
   function getGlobalNamespaceType() {
-    return program.checker!.getGlobalNamespaceType();
+    return program.checker.getGlobalNamespaceType();
+  }
+
+  function resolveTypeReference(reference: string) {
+    return program.checker.resolveTypeReferenceString(reference);
   }
 }
 
