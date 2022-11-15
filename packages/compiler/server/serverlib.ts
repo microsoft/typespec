@@ -27,6 +27,7 @@ import {
   Location,
   MarkupContent,
   MarkupKind,
+  ParameterInformation,
   PrepareRenameParams,
   PublishDiagnosticsParams,
   Range,
@@ -37,6 +38,8 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
+  SignatureHelp,
+  SignatureHelpParams,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -77,6 +80,8 @@ import {
 import {
   CadlScriptNode,
   CompilerHost,
+  DecoratorDeclarationStatementNode,
+  DecoratorExpressionNode,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
@@ -126,6 +131,7 @@ export interface Server {
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getHover(params: HoverParams): Promise<Hover>;
+  getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -281,6 +287,7 @@ export function createServer(host: ServerHost): Server {
     checkChange,
     getFoldingRanges,
     getHover,
+    getSignatureHelp,
     getDocumentSymbols,
     log,
   };
@@ -314,6 +321,10 @@ export function createServer(host: ServerHost): Server {
         prepareProvider: true,
       },
       documentFormattingProvider: true,
+      signatureHelpProvider: {
+        triggerCharacters: ["(", ",", "<"],
+        retriggerCharacters: [")"],
+      },
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
@@ -659,6 +670,75 @@ export function createServer(host: ServerHost): Server {
     return {
       contents: markdown,
     };
+  }
+
+  async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
+    // if (params.context?.activeSignatureHelp) {
+    //   return params.context?.activeSignatureHelp;
+    // }
+
+    function findDecoratorOrParameter(
+      node: Node
+    ): { node: DecoratorExpressionNode; argumentIndex: number } | undefined {
+      if (node.kind === SyntaxKind.DecoratorExpression) {
+        return { node, argumentIndex: node.arguments.length };
+      }
+      let current: Node | undefined = node;
+      while (current) {
+        if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
+          return {
+            node: current.parent,
+            argumentIndex: current.parent.arguments.indexOf(current as any),
+          };
+        }
+        current = current.parent;
+      }
+      return undefined;
+    }
+    return await compile(params.textDocument, (program, document, file) => {
+      const nodeAtPosition = getNodeAtPosition(file, document.offsetAt(params.position), {
+        resolveExact: true,
+      });
+      const data = nodeAtPosition && findDecoratorOrParameter(nodeAtPosition);
+      if (data === undefined) {
+        return undefined;
+      }
+      const { node, argumentIndex } = data;
+      console.log("NOde", data.argumentIndex, node && SyntaxKind[node.kind]);
+      const sym = program.checker.resolveIdentifier(
+        node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      );
+
+      const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
+        sym?.declarations.find(
+          (x): x is DecoratorDeclarationStatementNode =>
+            x.kind === SyntaxKind.DecoratorDeclarationStatement
+        );
+
+      if (decoratorDeclNode === undefined) {
+        return undefined;
+      }
+      const type = program.checker.getTypeForNode(decoratorDeclNode);
+      compilerAssert(type.kind === "Decorator", "Expected type to be a decorator.");
+      const parameters = type.parameters.map((x) =>
+        ParameterInformation.create(
+          `${x.rest ? "..." : ""}${x.name}: ${program.checker.getTypeName(x.type)}`
+        )
+      );
+
+      return {
+        signatures: [
+          {
+            label: `${type.name}(${parameters.map((x) => x.label).join(",")})`,
+            documentation: "This is a decorator",
+            parameters,
+            activeParameter: Math.min(type.parameters.length - 1, argumentIndex),
+          },
+        ],
+        activeSignature: 0,
+        activeParameter: 0,
+      };
+    });
   }
 
   async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {

@@ -2669,13 +2669,18 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
   return;
 }
 
+export interface GetNodeAtPositionOptions {
+  filter?: (node: Node) => boolean;
+  resolveExact?: boolean;
+}
 export function getNodeAtPosition(
   script: CadlScriptNode,
   position: number,
-  filter = (node: Node) => true
+  options: GetNodeAtPositionOptions = {}
 ) {
-  const realNode = getNodeAtPositionInternal(script, position, filter);
-  if (realNode?.kind === SyntaxKind.StringLiteral) {
+  const resolvedOptions = { filter: (node: Node) => true, ...options };
+  const realNode = getNodeAtPositionInternal(script, position, resolvedOptions.filter);
+  if (options.resolveExact || realNode?.kind === SyntaxKind.StringLiteral) {
     return realNode;
   }
   // If we're not immediately after an identifier character, then advance
@@ -2686,7 +2691,7 @@ export function getNodeAtPosition(
   if (!cp || !isIdentifierContinue(cp)) {
     const newPosition = skipTrivia(script.file.text, position);
     if (newPosition !== position) {
-      return getNodeAtPositionInternal(script, newPosition, filter);
+      return getNodeAtPositionInternal(script, newPosition, resolvedOptions.filter);
     }
   }
   return realNode;
