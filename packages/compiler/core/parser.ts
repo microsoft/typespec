@@ -255,7 +255,7 @@ namespace ListKind {
 }
 
 export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
-  const parser = createParser(code);
+  const parser = createParser(code, options);
   return parser.parseCadlScript();
 }
 
