@@ -8,7 +8,14 @@ export const cspell = xplatCmd(
 
 await run(
   cspell,
-  ["**/*.md", "**/*.ts", "**/*.js", "**/changelog.json", "common/changes/**/*.json"],
+  [
+    "--no-progress",
+    "**/*.md",
+    "**/*.ts",
+    "**/*.js",
+    "**/changelog.json",
+    "common/changes/**/*.json",
+  ],
   {
     cwd: repoRoot,
   }
