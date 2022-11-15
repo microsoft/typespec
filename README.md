@@ -95,7 +95,7 @@ You can try Cadl on the web without installing anything.
 
 6. Open the folder in your editor and create a new file `main.cadl`
 
-7. Follow our [documentation](https://microsoft.github.io/cadl/docs) to get started writing Cadl!
+7. Follow our [documentation](https://microsoft.github.io/cadl) to get started writing Cadl!
 
 8. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
 
