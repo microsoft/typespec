@@ -145,6 +145,32 @@ function emitModel(model: Model) {
 }
 ```
 
+### Resolving a cadl type
+
+Sometimes you might want to get access to a known Cadl type in the type graph, for example a model that you have defined in your library.
+
+An helper is provided on the program to do that.
+
+```ts
+program.resolveTypeReference(reference: string): Type | undefined;
+```
+
+The reference must be a valid cadl reference(Like you would have it in a cadl document)
+
+**Example**
+
+```ts
+program.resolveTypeReference("Cadl.string"); // Resolve cadl string intrinsic type
+program.resolveTypeReference("MyOrg.MyLibrary.MyEnum"); // Resolve `MyEnum` defined in `MyOrg.MyLibrary` namespace.
+```
+
+Error example
+
+```ts
+program.resolveTypeReference("UnknownModel"); // Resolve `undefined` and add diagnostics to program.
+program.resolveTypeReference("model Foo {}"); // Resolve `undefined` and add diagnostics to program.
+```
+
 ## Emitting files to disk
 
 Since an emitter is a node library, you could use standard `fs` APIs to write files. However, this approach has a drawback - your emitter will not work in the browser, and will not work with the test framework that depends on storing emitted files in an in-memory file system.
