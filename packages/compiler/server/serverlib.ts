@@ -673,28 +673,6 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
-    // if (params.context?.activeSignatureHelp) {
-    //   return params.context?.activeSignatureHelp;
-    // }
-
-    function findDecoratorOrParameter(
-      node: Node
-    ): { node: DecoratorExpressionNode; argumentIndex: number } | undefined {
-      if (node.kind === SyntaxKind.DecoratorExpression) {
-        return { node, argumentIndex: node.arguments.length };
-      }
-      let current: Node | undefined = node;
-      while (current) {
-        if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
-          return {
-            node: current.parent,
-            argumentIndex: current.parent.arguments.indexOf(current as any),
-          };
-        }
-        current = current.parent;
-      }
-      return undefined;
-    }
     return await compile(params.textDocument, (program, document, file) => {
       const nodeAtPosition = getNodeAtPosition(file, document.offsetAt(params.position), {
         resolveExact: true,
@@ -704,7 +682,6 @@ export function createServer(host: ServerHost): Server {
         return undefined;
       }
       const { node, argumentIndex } = data;
-      console.log("NOde", data.argumentIndex, node && SyntaxKind[node.kind]);
       const sym = program.checker.resolveIdentifier(
         node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
       );
@@ -719,18 +696,19 @@ export function createServer(host: ServerHost): Server {
         return undefined;
       }
       const type = program.checker.getTypeForNode(decoratorDeclNode);
-      compilerAssert(type.kind === "Decorator", "Expected type to be a decorator.");
+      compilerAssert(type.kind === ("Decorator" as const), "Expected type to be a decorator.");
       const parameters = type.parameters.map((x) =>
         ParameterInformation.create(
-          `${x.rest ? "..." : ""}${x.name}: ${program.checker.getTypeName(x.type)}`
+          `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${program.checker.getTypeName(
+            x.type
+          )}`
         )
       );
 
       return {
         signatures: [
           {
-            label: `${type.name}(${parameters.map((x) => x.label).join(",")})`,
-            documentation: "This is a decorator",
+            label: `${type.name}(${parameters.map((x) => x.label).join(", ")})`,
             parameters,
             activeParameter: Math.min(type.parameters.length - 1, argumentIndex),
           },
@@ -1520,4 +1498,23 @@ export function createServer(host: ServerHost): Server {
       return getSourceFileKindFromExt(path);
     }
   }
+}
+
+function findDecoratorOrParameter(
+  node: Node
+): { node: DecoratorExpressionNode; argumentIndex: number } | undefined {
+  if (node.kind === SyntaxKind.DecoratorExpression) {
+    return { node, argumentIndex: node.arguments.length };
+  }
+  let current: Node | undefined = node;
+  while (current) {
+    if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
+      return {
+        node: current.parent,
+        argumentIndex: current.parent.arguments.indexOf(current as any),
+      };
+    }
+    current = current.parent;
+  }
+  return undefined;
 }
