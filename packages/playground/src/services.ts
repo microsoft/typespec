@@ -230,6 +230,8 @@ export async function attachServices(host: BrowserHost) {
   });
 
   monaco.languages.registerSignatureHelpProvider("cadl", {
+    signatureHelpTriggerCharacters: ["(", ",", "<"],
+    signatureHelpRetriggerCharacters: [")"],
     async provideSignatureHelp(model, position) {
       const help = await serverLib.getSignatureHelp(lspArgs(model, position));
       return { value: monacoSignatureHelp(help), dispose: () => {} };
