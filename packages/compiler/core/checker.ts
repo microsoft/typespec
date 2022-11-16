@@ -2230,7 +2230,7 @@ export function createChecker(program: Program): Checker {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, mapper, parentModel);
         checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
-        defineProperty(properties, newProp, parentModel);
+        defineProperty(properties, newProp);
       } else {
         // spread property
         const newProperties = checkSpreadProperty(prop.target, parentModel, mapper);
