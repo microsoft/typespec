@@ -1,7 +1,9 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "@tsconfig/docusaurus/tsconfig.json",
   "compilerOptions": {
-    "lib": ["DOM"]
+    "baseUrl": ".",
+    "jsx": "react-jsx"
   },
-  "include": ["**/*.js"]
+  "include": ["**/*.tsx", "**/*.ts", "**/*.js"],
+  "exclude": ["build/**/*.js"]
 }
