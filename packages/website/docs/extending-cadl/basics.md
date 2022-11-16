@@ -162,7 +162,7 @@ Cadl libraries can contain more than just types. Read the subsequent topics for 
 
 ## Testing
 
-Cadl provide a testing framework to help testing library.
+Cadl provide a testing framework to help testing library. Examples here are shown using `mocha` but any other JS test framework can be used.
 
 ### Define the testing library
 
@@ -198,7 +198,12 @@ export const MyTestLibrary = createTestLibrary({
 
 ### Define the test host and test runner for your library
 
-Define some of the test framework base pieces that will be used in the tests.
+Define some of the test framework base pieces that will be used in the tests. There is 2 functions:
+
+- `createTestHost`: This is a lower level api that provide a virtual file system.
+- `createTestRunner`: This is a wrapper on top of the test host that will automatically add a `main.cadl` file and automatically import libraries.
+
+Create a new file `test/test-host.js` (change `test` to be your test folder)
 
 ```ts
 import { createTestHost, createTestWrapper } from "@cadl-lang/compiler/testing";
@@ -214,4 +219,36 @@ export async function createMyTestRunner() {
   const host = await createOpenAPITestHost();
   return createTestWrapper(host, { autoUsings: ["My"] });
 }
+```
+
+### Write tests
+
+After setting up that infrastructure you can start writing tests.
+
+```ts
+import { createMyTestRunner } from "./test-host.js";
+
+describe("my library", () => {
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    runner = await createMyTestRunner();
+  });
+
+  // Check everything works fine
+  it("does this", () => {
+    const { Foo } = runner.compile(`
+      @test model Foo {}
+    `);
+    strictEqual(Foo.kind, "Model");
+  });
+
+  // Check diagnostics are emitted
+  it("errors", () => {
+    const diagnostics = runner.diagnose(`
+       model Bar {}
+    `);
+    expectDiagnostics(diagnostics, { code: "...", message: "..." });
+  });
+});
 ```
