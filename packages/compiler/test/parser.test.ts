@@ -137,7 +137,6 @@ describe("compiler: parser", () => {
       ["model bar<a, b> = a | b;", [/'{' expected/]],
     ]);
   });
-
   describe("interface statements", () => {
     parseEach([
       "interface Foo { }",
