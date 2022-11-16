@@ -113,10 +113,12 @@ import { createRuleTester } from "@cadl-lang/lint/testing";
 import { noFooModelRule } from "./no-foo-model.js";
 
 let ruleTester: RuleTester;
+
 beforeEach(() => {
   const runner = createTestRunner();
   ruleTester = createRuleTester(runner, noFooModelRule);
 });
+
 it("emit diagnostics when using model named foo", () => {
   ruleTester.expect(`model Foo {}`).toEmitDiagnostic({
     code: "my-library/no-foo-model",

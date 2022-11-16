@@ -159,3 +159,59 @@ model Employee extends Person {
 ## Next steps
 
 Cadl libraries can contain more than just types. Read the subsequent topics for more details on how to write [decorators](./create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
+
+## Testing
+
+Cadl provide a testing framework to help testing library.
+
+### Define the testing library
+
+First step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library test.
+
+1. Create a new file `./src/testing/index.ts` with the following content
+
+```ts
+export const MyTestLibrary = createTestLibrary({
+  name: "<name-of-npm-pkg>",
+  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+});
+```
+
+2. Add an `exports` for the `testing` endpoint to `package.json` (update with correct paths)
+
+```json
+{
+  // ...
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./dist/src/index.d.ts"],
+      "testing": ["./dist/src/testing/index.d.ts"]
+    }
+  }
+}
+```
+
+### Define the test host and test runner for your library
+
+Define some of the test framework base pieces that will be used in the tests.
+
+```ts
+import { createTestHost, createTestWrapper } from "@cadl-lang/compiler/testing";
+import { RestTestLibrary } from "@cadl-lang/rest/testing";
+import { MyTestLibrary } from "../src/testing/index.js";
+
+export async function createMyTestHost() {
+  return createTestHost({
+    libraries: [RestTestLibrary, MyTestLibrary], // Add other libraries you depend on in your tests
+  });
+}
+export async function createMyTestRunner() {
+  const host = await createOpenAPITestHost();
+  return createTestWrapper(host, { autoUsings: ["My"] });
+}
+```
