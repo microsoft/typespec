@@ -11,7 +11,7 @@ describe("compiler: checker: intrinsic", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost(), (x) => x);
+    runner = createTestWrapper(await createTestHost());
   });
 
   ["string", "int32", "int64", "float32", "float64"].forEach((x) => {

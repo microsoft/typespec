@@ -18,7 +18,7 @@ interface RelatedTypeOptions {
 describe("compiler: checker: type relations", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost(), (x) => x);
+    runner = createTestWrapper(await createTestHost());
   });
 
   async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions) {

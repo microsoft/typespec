@@ -29,8 +29,11 @@ export async function createOpenAPITestRunner({
   using OpenAPI;
   ${withVersioning ? "using Cadl.Versioning;" : ""}
 `;
-  return createTestWrapper(host, (code) => `${importAndUsings} ${code}`, {
-    emitters: { "@cadl-lang/openapi3": {} },
+  return createTestWrapper(host, {
+    wrapper: (code) => `${importAndUsings} ${code}`,
+    compilerOptions: {
+      emitters: { "@cadl-lang/openapi3": {} },
+    },
   });
 }
 

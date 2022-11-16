@@ -12,7 +12,7 @@ describe("library-linter", () => {
 
   beforeEach(async () => {
     host = await createLibraryLinterTestHost();
-    runner = await createTestWrapper(host, (code) => `import "@cadl-lang/library-linter";${code}`);
+    runner = createTestWrapper(host);
   });
 
   describe("missing namespace", () => {
