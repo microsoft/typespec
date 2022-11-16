@@ -2136,10 +2136,8 @@ export function createChecker(program: Program): Checker {
       type.namespace?.models.set(type.name, type);
     }
 
-    const inheritedProps = Array.from(walkPropertiesInherited(type));
-
     // Evaluate the properties after
-    checkModelProperties(node, type.properties, type, mapper, inheritedProps);
+    checkModelProperties(node, type.properties, type, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(type, mapper);
@@ -2226,21 +2224,20 @@ export function createChecker(program: Program): Checker {
     node: ModelExpressionNode | ModelStatementNode,
     properties: Map<string, ModelProperty>,
     parentModel: Model,
-    mapper: TypeMapper | undefined,
-    inheritedProps?: ModelProperty[]
+    mapper: TypeMapper | undefined
   ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, mapper, parentModel);
         checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
-        defineProperty(properties, newProp, inheritedProps);
+        defineProperty(properties, newProp, parentModel);
       } else {
         // spread property
         const newProperties = checkSpreadProperty(prop.target, parentModel, mapper);
 
         for (const newProp of newProperties) {
           checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
-          defineProperty(properties, newProp, inheritedProps, prop);
+          defineProperty(properties, newProp, prop);
         }
       }
     }
@@ -2249,7 +2246,6 @@ export function createChecker(program: Program): Checker {
   function defineProperty(
     properties: Map<string, ModelProperty>,
     newProp: ModelProperty,
-    inheritedProps?: ModelProperty[],
     diagnosticTarget?: DiagnosticTarget
   ) {
     if (properties.has(newProp.name)) {
@@ -2263,16 +2259,13 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
-    const inherited = inheritedProps?.filter((x) => x.name == newProp.name);
-    if (inherited != undefined && inherited.length) {
-      if (inherited.length > 1) {
-        throw new Error(`Expected only a single inherited property. Found ${inherited.length}`);
-      }
-      const inheritedProp = inherited[0];
-      const [isAssignable, _] = isTypeAssignableTo(newProp.type, inheritedProp.type, newProp);
-      const parentIntrinsic = isIntrinsic(program, inheritedProp.type);
-      const parentType = getTypeName(inheritedProp.type);
+    const overriddenProp = getOverriddenProperty(newProp);
+    if (overriddenProp) {
+      const [isAssignable, _] = isTypeAssignableTo(newProp.type, overriddenProp.type, newProp);
+      const parentIntrinsic = isIntrinsic(program, overriddenProp.type);
+      const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
+
       if (!parentIntrinsic) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -2282,7 +2275,9 @@ export function createChecker(program: Program): Checker {
           })
         );
         return;
-      } else if (!isAssignable) {
+      }
+
+      if (!isAssignable) {
         program.reportDiagnostic(
           createDiagnostic({
             code: "override-property-mismatch",
@@ -2293,6 +2288,7 @@ export function createChecker(program: Program): Checker {
         return;
       }
     }
+
     properties.set(newProp.name, newProp);
   }
 
@@ -4586,21 +4582,22 @@ export function getEffectiveModelType(
       continue;
     }
 
-    // Add any derived types we observe to both sides. A derived type can
-    // substitute for a base type in these sets because derived types have
-    // all the properties of their bases.
+    // Add derived sources as we encounter them. If a model is sourced from
+    // a base property, then it can also be sourced from a derived model.
     //
-    // NOTE: Once property overrides are allowed, this code will need to
-    // be updated to check that the current property is not overridden by
-    // the derived type before adding it here. An override would invalidate
-    // this substitution.
+    // (Unless it is overridden, but then the presence of the overridden
+    // property will still cause the the base model to be excluded from the
+    // candidates.)
+    //
+    // Note: We depend on the order of that spread and intersect source
+    // properties here, which is that we see properties sourced from derived
+    // types before properties sourced from their base types.
     addDerivedModels(sources, candidates);
-    addDerivedModels(candidates, sources);
 
-    // remove candidates that are not common to this property
-    for (const element of candidates) {
-      if (!sources.has(element)) {
-        candidates.delete(element);
+    // remove candidates that are not common to this property.
+    for (const candidate of candidates) {
+      if (!sources.has(candidate)) {
+        candidates.delete(candidate);
       }
     }
   }
@@ -4674,33 +4671,54 @@ export function filterModelProperties(
   return finishTypeForProgram(program, newModel);
 }
 
-export function* walkPropertiesInherited(model: Model) {
-  let current: Model | undefined = model;
-  const allReturnedProps = new Map<string, ModelProperty>();
-  while (current) {
-    const returnProps = Array<ModelProperty>();
-    for (const prop of current.properties.values()) {
-      if (!allReturnedProps.has(prop.name)) {
-        allReturnedProps.set(prop.name, prop);
-        returnProps.push(prop);
-      }
+/**
+ * Gets the property from the nearest base type that is overridden by the
+ * given property, if any.
+ */
+export function getOverriddenProperty(property: ModelProperty): ModelProperty | undefined {
+  compilerAssert(
+    property.model,
+    "Parent model must be set before overridden property can be found."
+  );
+
+  for (let current = property.model.baseModel; current; current = current.baseModel) {
+    const overriden = current.properties.get(property.name);
+    if (overriden) {
+      return overriden;
     }
-    yield* returnProps;
-    current = current.baseModel;
+  }
+
+  return undefined;
+}
+
+/**
+ * Enumerates the properties declared by model or inherited from its base.
+ *
+ * Properties declared by more derived types are enumerated before properties
+ * of less derived types.
+ *
+ * Properties that are overridden are not enumerated.
+ */
+export function* walkPropertiesInherited(model: Model) {
+  const returned = new Set<string>();
+
+  for (let current: Model | undefined = model; current; current = current.baseModel) {
+    for (const property of current.properties.values()) {
+      if (returned.has(property.name)) {
+        // skip properties that have been overridden
+        continue;
+      }
+      returned.add(property.name);
+      yield property;
+    }
   }
 }
 
 function countPropertiesInherited(model: Model, filter?: (property: ModelProperty) => boolean) {
   let count = 0;
-  if (filter) {
-    for (const each of walkPropertiesInherited(model)) {
-      if (filter(each)) {
-        count++;
-      }
-    }
-  } else {
-    for (let m: Model | undefined = model; m; m = m.baseModel) {
-      count += m.properties.size;
+  for (const property of walkPropertiesInherited(model)) {
+    if (!filter || filter(property)) {
+      count++;
     }
   }
   return count;
