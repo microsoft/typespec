@@ -981,11 +981,7 @@ export function createParser(code: string | SourceFile, options: ParseOptions = 
 
   function parseStandaloneReferenceExpression() {
     const expr = parseReferenceExpression();
-    if (
-      expr.kind === SyntaxKind.TypeReference &&
-      parseDiagnostics.length === 0 &&
-      token() !== Token.EndOfFile
-    ) {
+    if (parseDiagnostics.length === 0 && token() !== Token.EndOfFile) {
       error({ code: "token-expected", messageId: "unexpected", format: { token: Token[token()] } });
     }
     return expr;
