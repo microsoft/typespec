@@ -1,4 +1,3 @@
-import { codePointBefore, isIdentifierContinue } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
@@ -8,7 +7,6 @@ import {
   isPunctuation,
   isStatementKeyword,
   isTrivia,
-  skipTrivia,
   Token,
   TokenDisplay,
 } from "./scanner.js";
@@ -2669,39 +2667,17 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
   return;
 }
 
-export interface GetNodeAtPositionOptions {
-  filter?: (node: Node) => boolean;
-  resolveExact?: boolean;
-}
+/**
+ * Resolve the node in the syntax tree that that is at the given position.
+ * @param script Cadl Script node
+ * @param position Position
+ * @param filter Filter if wanting to return a parent containing node early.
+ */
 export function getNodeAtPosition(
   script: CadlScriptNode,
   position: number,
-  options: GetNodeAtPositionOptions = {}
-) {
-  const resolvedOptions = { filter: (node: Node) => true, ...options };
-  const realNode = getNodeAtPositionInternal(script, position, resolvedOptions.filter);
-  if (options.resolveExact || realNode?.kind === SyntaxKind.StringLiteral) {
-    return realNode;
-  }
-  // If we're not immediately after an identifier character, then advance
-  // the position past any trivia. This is done because a zero-width
-  // inserted missing identifier that the user is now trying to complete
-  // starts after the trivia following the cursor.
-  const cp = codePointBefore(script.file.text, position);
-  if (!cp || !isIdentifierContinue(cp)) {
-    const newPosition = skipTrivia(script.file.text, position);
-    if (newPosition !== position) {
-      return getNodeAtPositionInternal(script, newPosition, resolvedOptions.filter);
-    }
-  }
-  return realNode;
-}
-
-function getNodeAtPositionInternal(
-  script: CadlScriptNode,
-  position: number,
   filter = (node: Node) => true
-) {
+): Node | undefined {
   return visit(script);
 
   function visit(node: Node): Node | undefined {
