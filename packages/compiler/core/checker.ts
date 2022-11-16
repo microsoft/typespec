@@ -4682,9 +4682,9 @@ export function getOverriddenProperty(property: ModelProperty): ModelProperty | 
   );
 
   for (let current = property.model.baseModel; current; current = current.baseModel) {
-    const overriden = current.properties.get(property.name);
-    if (overriden) {
-      return overriden;
+    const overridden = current.properties.get(property.name);
+    if (overridden) {
+      return overridden;
     }
   }
 
