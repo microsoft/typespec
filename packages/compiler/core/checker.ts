@@ -809,11 +809,15 @@ export function createChecker(program: Program): Checker {
     node: Node,
     args: [Node, Type][],
     declarations: readonly TemplateParameterDeclarationNode[]
-  ): [TemplateParameter[], Type[]] {
+  ): [boolean, TemplateParameter[], Type[]] {
+    let shouldInstantiate = true;
     if (args.length > declarations.length) {
-      program.reportDiagnostic(
-        createDiagnostic({ code: "invalid-template-args", messageId: "tooMany", target: node })
-      );
+      reportDiagnostic(program, {
+        code: "invalid-template-args",
+        messageId: "tooMany",
+        target: node,
+      });
+      // Too many args shouldn't matter for instantiating we can still go ahead
     }
 
     const values: Type[] = [];
@@ -829,7 +833,9 @@ export function createChecker(program: Program): Checker {
         const [valueNode, value] = args[i];
         values.push(value);
         if (declaredType.constraint) {
-          checkTypeAssignable(value, declaredType.constraint, valueNode);
+          if (!checkTypeAssignable(value, declaredType.constraint, valueNode)) {
+            shouldInstantiate = false;
+          }
         }
       } else {
         const mapper = createTypeMapper(params, values);
@@ -844,16 +850,15 @@ export function createChecker(program: Program): Checker {
     }
 
     if (tooFew) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-template-args",
-          messageId: "tooFew",
-          target: node,
-        })
-      );
+      reportDiagnostic(program, {
+        code: "invalid-template-args",
+        messageId: "tooFew",
+        target: node,
+      });
+      shouldInstantiate = false;
     }
 
-    return [params, values];
+    return [shouldInstantiate, params, values];
   }
 
   function checkTypeReferenceSymbol(
@@ -941,13 +946,17 @@ export function createChecker(program: Program): Checker {
         }
 
         const templateParameters = decl.templateParameters;
-        const [params, instantiationArgs] = checkTemplateInstantiationArgs(
+        const [shouldInstantiate, params, instantiationArgs] = checkTemplateInstantiationArgs(
           decl,
           node,
           args,
           templateParameters
         );
-        baseType = instantiateTemplate(decl, params, instantiationArgs);
+        if (shouldInstantiate) {
+          baseType = instantiateTemplate(decl, params, instantiationArgs);
+        } else {
+          baseType = unknownType;
+        }
       }
     } else {
       // some other kind of reference
