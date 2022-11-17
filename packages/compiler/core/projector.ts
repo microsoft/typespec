@@ -4,11 +4,11 @@ import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
   getParentTemplateNode,
+  getTypeName,
   isNeverIndexer,
   isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,
-  getTypeName,
 } from "./index.js";
 import { Program } from "./program.js";
 import {

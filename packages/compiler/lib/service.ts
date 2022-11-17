@@ -1,5 +1,5 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
-import { getNamespaceString, reportDeprecated, getTypeName } from "../core/index.js";
+import { getNamespaceString, getTypeName, reportDeprecated } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
