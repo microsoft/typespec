@@ -27,6 +27,7 @@ import {
   Location,
   MarkupContent,
   MarkupKind,
+  ParameterInformation,
   PrepareRenameParams,
   PublishDiagnosticsParams,
   Range,
@@ -37,6 +38,8 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
+  SignatureHelp,
+  SignatureHelpParams,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -47,6 +50,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { defaultConfig, findCadlConfigPath, loadCadlConfigFile } from "../config/config-loader.js";
 import { CadlConfig } from "../config/types.js";
+import { codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
   compilerAssert,
   createSourceFile,
@@ -77,6 +81,8 @@ import {
 import {
   CadlScriptNode,
   CompilerHost,
+  DecoratorDeclarationStatementNode,
+  DecoratorExpressionNode,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
@@ -126,6 +132,7 @@ export interface Server {
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getHover(params: HoverParams): Promise<Hover>;
+  getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -281,6 +288,7 @@ export function createServer(host: ServerHost): Server {
     checkChange,
     getFoldingRanges,
     getHover,
+    getSignatureHelp,
     getDocumentSymbols,
     log,
   };
@@ -314,6 +322,10 @@ export function createServer(host: ServerHost): Server {
         prepareProvider: true,
       },
       documentFormattingProvider: true,
+      signatureHelpProvider: {
+        triggerCharacters: ["(", ",", "<"],
+        retriggerCharacters: [")"],
+      },
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
@@ -661,6 +673,51 @@ export function createServer(host: ServerHost): Server {
     };
   }
 
+  async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
+    return await compile(params.textDocument, (program, document, file) => {
+      const nodeAtPosition = getNodeAtPosition(file, document.offsetAt(params.position));
+      const data = nodeAtPosition && findDecoratorOrParameter(nodeAtPosition);
+      if (data === undefined) {
+        return undefined;
+      }
+      const { node, argumentIndex } = data;
+      const sym = program.checker.resolveIdentifier(
+        node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      );
+
+      const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
+        sym?.declarations.find(
+          (x): x is DecoratorDeclarationStatementNode =>
+            x.kind === SyntaxKind.DecoratorDeclarationStatement
+        );
+
+      if (decoratorDeclNode === undefined) {
+        return undefined;
+      }
+      const type = program.checker.getTypeForNode(decoratorDeclNode);
+      compilerAssert(type.kind === ("Decorator" as const), "Expected type to be a decorator.");
+      const parameters = type.parameters.map((x) =>
+        ParameterInformation.create(
+          `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${program.checker.getTypeName(
+            x.type
+          )}`
+        )
+      );
+
+      return {
+        signatures: [
+          {
+            label: `${type.name}(${parameters.map((x) => x.label).join(", ")})`,
+            parameters,
+            activeParameter: Math.min(type.parameters.length - 1, argumentIndex),
+          },
+        ],
+        activeSignature: 0,
+        activeParameter: 0,
+      };
+    });
+  }
+
   async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
     const document = host.getOpenDocumentByURL(params.textDocument.uri);
     if (document === undefined) {
@@ -711,7 +768,7 @@ export function createServer(host: ServerHost): Server {
       items: [],
     };
     await compile(params.textDocument, async (program, document, file) => {
-      const node = getNodeAtPosition(file, document.offsetAt(params.position));
+      const node = getCompletionNodeAtPosition(file, document.offsetAt(params.position));
       if (node === undefined) {
         addKeywordCompletion("root", completions);
       } else {
@@ -1440,4 +1497,51 @@ export function createServer(host: ServerHost): Server {
       return getSourceFileKindFromExt(path);
     }
   }
+}
+
+function findDecoratorOrParameter(
+  node: Node
+): { node: DecoratorExpressionNode; argumentIndex: number } | undefined {
+  if (node.kind === SyntaxKind.DecoratorExpression) {
+    return { node, argumentIndex: node.arguments.length };
+  }
+  let current: Node | undefined = node;
+  while (current) {
+    if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
+      return {
+        node: current.parent,
+        argumentIndex: current.parent.arguments.indexOf(current as any),
+      };
+    }
+    current = current.parent;
+  }
+  return undefined;
+}
+
+/**
+ * Resolve the node that should be auto completed at the given position.
+ * It will try to guess what node it could be as during auto complete the ast might not be complete.
+ * @internal
+ */
+export function getCompletionNodeAtPosition(
+  script: CadlScriptNode,
+  position: number,
+  filter: (node: Node) => boolean = (node: Node) => true
+): Node | undefined {
+  const realNode = getNodeAtPosition(script, position, filter);
+  if (realNode?.kind === SyntaxKind.StringLiteral) {
+    return realNode;
+  }
+  // If we're not immediately after an identifier character, then advance
+  // the position past any trivia. This is done because a zero-width
+  // inserted missing identifier that the user is now trying to complete
+  // starts after the trivia following the cursor.
+  const cp = codePointBefore(script.file.text, position);
+  if (!cp || !isIdentifierContinue(cp)) {
+    const newPosition = skipTrivia(script.file.text, position);
+    if (newPosition !== position) {
+      return getNodeAtPosition(script, newPosition, filter);
+    }
+  }
+  return realNode;
 }
