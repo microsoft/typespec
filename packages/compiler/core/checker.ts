@@ -805,12 +805,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateInstantiationArgs(
-    templateNode: Node,
     node: Node,
     args: [Node, Type][],
     declarations: readonly TemplateParameterDeclarationNode[]
-  ): [boolean, TemplateParameter[], Type[]] {
-    let shouldInstantiate = true;
+  ): [TemplateParameter[], Type[]] {
     if (args.length > declarations.length) {
       reportDiagnostic(program, {
         code: "invalid-template-args",
@@ -830,13 +828,13 @@ export function createChecker(program: Program): Checker {
       params.push(declaredType);
 
       if (i < args.length) {
-        const [valueNode, value] = args[i];
-        values.push(value);
+        let [valueNode, value] = args[i];
         if (declaredType.constraint) {
           if (!checkTypeAssignable(value, declaredType.constraint, valueNode)) {
-            shouldInstantiate = false;
+            value = declaredType.constraint;
           }
         }
+        values.push(value);
       } else {
         const mapper = createTypeMapper(params, values);
         const defaultValue = getResolvedTypeParameterDefault(declaredType, declaration, mapper);
@@ -844,7 +842,7 @@ export function createChecker(program: Program): Checker {
           values.push(defaultValue);
         } else {
           tooFew = true;
-          values.push(errorType);
+          values.push(declaredType.constraint ?? unknownType);
         }
       }
     }
@@ -855,10 +853,9 @@ export function createChecker(program: Program): Checker {
         messageId: "tooFew",
         target: node,
       });
-      shouldInstantiate = false;
     }
 
-    return [shouldInstantiate, params, values];
+    return [params, values];
   }
 
   function checkTypeReferenceSymbol(
@@ -946,17 +943,12 @@ export function createChecker(program: Program): Checker {
         }
 
         const templateParameters = decl.templateParameters;
-        const [shouldInstantiate, params, instantiationArgs] = checkTemplateInstantiationArgs(
-          decl,
+        const [params, instantiationArgs] = checkTemplateInstantiationArgs(
           node,
           args,
           templateParameters
         );
-        if (shouldInstantiate) {
-          baseType = instantiateTemplate(decl, params, instantiationArgs);
-        } else {
-          baseType = unknownType;
-        }
+        baseType = instantiateTemplate(decl, params, instantiationArgs);
       }
     } else {
       // some other kind of reference
