@@ -25,7 +25,7 @@ jobs:
           sourcePath: "docGen/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "cadlplayground"
+          storage: "cadlplaygroundcopy"
           containerName: "testdocs"
         displayName: "Update docs"
 
