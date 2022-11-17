@@ -257,13 +257,21 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   return parser.parseCadlScript();
 }
 
-export interface Parser {
+export function parseStandaloneTypeReference(
+  code: string | SourceFile
+): [TypeReferenceNode, readonly Diagnostic[]] {
+  const parser = createParser(code);
+  const node = parser.parseStandaloneReferenceExpression();
+  return [node, parser.parseDiagnostics];
+}
+
+interface Parser {
   parseDiagnostics: Diagnostic[];
   parseCadlScript(): CadlScriptNode;
   parseStandaloneReferenceExpression(): TypeReferenceNode;
 }
 
-export function createParser(code: string | SourceFile, options: ParseOptions = {}): Parser {
+function createParser(code: string | SourceFile, options: ParseOptions = {}): Parser {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;

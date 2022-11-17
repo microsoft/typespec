@@ -14,7 +14,7 @@ import {
   ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { createParser, isImportStatement, parse } from "./parser.js";
+import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
@@ -1051,10 +1051,9 @@ export async function compile(
   }
 
   function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
-    const parser = createParser(reference);
-    const node = parser.parseStandaloneReferenceExpression();
-    if (parser.parseDiagnostics.length > 0) {
-      return [undefined, parser.parseDiagnostics];
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
     }
     const binder = createBinder(program);
     binder.bindNode(node);
