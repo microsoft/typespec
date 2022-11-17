@@ -2,4 +2,4 @@ export { DiscriminatedUnion, getDiscriminatedUnion } from "./discriminator-utils
 export * from "./operation-utils.js";
 export * from "./projected-names-utils.js";
 export * from "./usage-resolver.js";
-export * from "./type-utils.js";
+export * from "./type-name-utils.js";

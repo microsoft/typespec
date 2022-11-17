@@ -1,7 +1,7 @@
 import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
-import { getNamespaceString, getTypeName, TypeNameOptions } from "./helpers/type-utils.js";
+import { getNamespaceString, getTypeName, TypeNameOptions } from "./helpers/type-name-utils.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
   AugmentDecoratorStatementNode,
