@@ -14,7 +14,7 @@ import {
   ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { isImportStatement, parse } from "./parser.js";
+import { createParser, isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
@@ -43,7 +43,15 @@ import {
   Tracer,
   Type,
 } from "./types.js";
-import { deepEquals, doIO, ExternalError, findProjectRoot, loadFile, mapEquals } from "./util.js";
+import {
+  deepEquals,
+  doIO,
+  ExternalError,
+  findProjectRoot,
+  loadFile,
+  mapEquals,
+  mutate,
+} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -81,7 +89,7 @@ export interface Program {
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
 
   getGlobalNamespaceType(): Namespace;
-  resolveTypeReference(reference: string): Type | undefined;
+  resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 }
 
 interface LibraryMetadata {
@@ -1042,8 +1050,17 @@ export async function compile(
     return program.checker.getGlobalNamespaceType();
   }
 
-  function resolveTypeReference(reference: string) {
-    return program.checker.resolveTypeReferenceString(reference);
+  function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
+    const parser = createParser(reference);
+    const node = parser.parseStandaloneReferenceExpression();
+    if (parser.parseDiagnostics.length > 0) {
+      return [undefined, parser.parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = program.checker.getGlobalNamespaceNode();
+
+    return program.checker.resolveTypeReference(node);
   }
 }
 
