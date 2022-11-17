@@ -35,7 +35,6 @@ import {
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
-  reportDeprecated,
   SymbolFlags,
   TemplateableNode,
   TemplateParameter,
@@ -824,7 +823,15 @@ export function createChecker(program: Program): Checker {
   function checkDeprecated(type: Type, target: DiagnosticTarget) {
     const deprecated = getDeprecated(program, type);
     if (deprecated) {
-      reportDeprecated(program, deprecated, target);
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          format: {
+            message: deprecated,
+          },
+          target,
+        })
+      );
     }
   }
 

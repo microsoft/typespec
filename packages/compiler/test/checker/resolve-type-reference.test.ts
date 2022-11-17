@@ -40,12 +40,15 @@ describe("compiler: resolveTypeReference", () => {
   });
 
   it("resolve a deprecated type", async () => {
-    await expectResolve(
-      "MyService",
-      `
-      @test("target") @deprecated("Test deprecated item") model MyModel {}
-    `
-    );
+    const { target } = await runner.compile(`
+    @test("target") @deprecated("Test deprecated item") model MyModel {}
+  `);
+    if (target === undefined) {
+      throw new Error(`Must have @test("target") on type that should be referenced`);
+    }
+    const [resolved, diagnostics] = runner.program.resolveTypeReference("MyModel");
+    expectDiagnostics(diagnostics, { severity: "warning", code: "deprecated" });
+    strictEqual(resolved, target);
   });
 
   it("resolve nested namespace", async () => {
