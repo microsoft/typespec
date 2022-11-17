@@ -1,5 +1,5 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
-import { reportDeprecated } from "../core/index.js";
+import { getNamespaceString, reportDeprecated, getTypeName } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
@@ -53,7 +53,7 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: context.program.checker.getTypeName(title), targetType: "String" },
+        format: { value: getTypeName(title), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }
@@ -64,7 +64,7 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: context.program.checker.getTypeName(version), targetType: "String" },
+        format: { value: getTypeName(version), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }
@@ -124,8 +124,5 @@ export function getServiceNamespace(program: Program): Namespace {
 
 export function getServiceNamespaceString(program: Program): string | undefined {
   const serviceDetails = getServiceDetails(program);
-  return (
-    (serviceDetails.namespace && program.checker.getNamespaceString(serviceDetails.namespace)) ||
-    undefined
-  );
+  return (serviceDetails.namespace && getNamespaceString(serviceDetails.namespace)) || undefined;
 }

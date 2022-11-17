@@ -2,7 +2,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
-import { getDiscriminatedUnion } from "../core/index.js";
+import { getDiscriminatedUnion, getTypeName } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
@@ -108,7 +108,7 @@ export function $inspectTypeName(program: Program, target: Type, text: string) {
   // eslint-disable-next-line no-console
   if (text) console.log(text);
   // eslint-disable-next-line no-console
-  console.log(program.checker.getTypeName(target));
+  console.log(getTypeName(target));
 }
 
 const intrinsicsKey = createStateSymbol("intrinsics");

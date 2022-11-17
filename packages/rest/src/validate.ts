@@ -2,6 +2,7 @@ import {
   DuplicateTracker,
   getKeyName,
   getServiceNamespace,
+  getTypeName,
   Model,
   navigateTypesInNamespace,
   Program,
@@ -34,7 +35,7 @@ function checkForDuplicateResourceKeyNames(program: Program) {
       for (const key of dupes) {
         // Make sure we don't report a duplicate for a particular
         // resource type and key name more than once
-        const fullName = `${program.checker.getTypeName(key.resourceType)}.${keyName}`;
+        const fullName = `${getTypeName(key.resourceType)}.${keyName}`;
         if (!seenTypes.has(fullName)) {
           seenTypes.add(fullName);
           reportDiagnostic(program, {

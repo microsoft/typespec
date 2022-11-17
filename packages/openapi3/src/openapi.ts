@@ -19,6 +19,7 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
+  getNamespaceString,
   getPattern,
   getPropertyType,
   getServiceNamespace,
@@ -60,7 +61,7 @@ import {
   getExtensions,
   getExternalDocs,
   getParameterKey,
-  getTypeName,
+  getOpenAPITypeName,
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
@@ -212,7 +213,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing Cadl and service namespace
     namespaceFilter(ns) {
-      const name = program.checker.getNamespaceString(ns);
+      const name = getNamespaceString(ns);
       return name !== "Cadl" && name !== serviceNamespace;
     },
   };
@@ -573,7 +574,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     type = metadataInfo.getEffectivePayloadType(type, visibility);
 
-    const name = getTypeName(program, type, typeNameOptions);
+    const name = getOpenAPITypeName(program, type, typeNameOptions);
     if (shouldInline(program, type)) {
       const schema = getSchemaForInlineType(type, visibility, name);
 
@@ -809,7 +810,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // CADL type.
     for (const group of processedSchemas.values()) {
       for (const [visibility, processed] of group) {
-        let name = getTypeName(program, processed.type, typeNameOptions);
+        let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
         if (group.size > 1) {
           name += getVisibilitySuffix(visibility);
         }

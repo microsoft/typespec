@@ -8,6 +8,7 @@ import {
   isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,
+  getTypeName,
 } from "./index.js";
 import { Program } from "./program.js";
 import {
@@ -615,10 +616,7 @@ export function createProjector(
   function projectViaParent(type: Type, parentType: Type): Type {
     projectType(parentType);
     const projectedProp = projectedTypes.get(type);
-    compilerAssert(
-      projectedProp,
-      `Type "${program.checker.getTypeName(type)}" should have been projected by now.`
-    );
+    compilerAssert(projectedProp, `Type "${getTypeName(type)}" should have been projected by now.`);
     return projectedProp;
   }
 }

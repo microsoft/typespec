@@ -3,6 +3,7 @@ import {
   DiagnosticTarget,
   Enum,
   EnumMember,
+  getNamespaceString,
   Namespace,
   ObjectType,
   Program,
@@ -207,8 +208,8 @@ export function $versionedDependency(
         reportDiagnostic(context.program, {
           code: "versioned-dependency-same-namespace",
           format: {
-            namespace1: program.checker.getNamespaceString(targetNamespace),
-            namespace2: program.checker.getNamespaceString(targetVersion.namespace),
+            namespace1: getNamespaceString(targetNamespace),
+            namespace2: getNamespaceString(targetVersion.namespace),
           },
           target: targetMember,
         });
@@ -281,8 +282,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
       const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (version instanceof Map) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceString(rootNs);
+          const dependencyNsName = getNamespaceString(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`
           );
@@ -301,8 +302,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
 
       for (const [dependencyNs, versionMap] of dependencies) {
         if (!(versionMap instanceof Map)) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceString(rootNs);
+          const dependencyNsName = getNamespaceString(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );
