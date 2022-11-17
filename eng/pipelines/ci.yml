@@ -17,31 +17,39 @@ jobs:
         inputs:
           versionSpec: 16.x
         displayName: Install Node.js
-
-      - task: UseDotNet@2
-        inputs:
-          version: 6.0.x
-
-      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
-        displayName: Enable official Visual Studio extension build
-
-      - script: npx @microsoft/rush install
-        displayName: Install JavaScript Dependencies
-
-      - script: dotnet restore
-        displayName: Restore .NET Dependencies
-        workingDirectory: packages/cadl-vs
-
-      - script: npx @microsoft/rush rebuild --verbose
-        displayName: Build
-
-      - script: npx @microsoft/rush test-official
-        displayName: Test
-
       - template: generate-doc.yml
         parameters:
           ServiceDirectory: packages
-      - template: ./upload-coverage.yml
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "docGen/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          containerName: "testdocs"
+        displayName: "Update docs"
+
+      # - task: UseDotNet@2
+      #   inputs:
+      #     version: 6.0.x
+
+      # - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+      #   displayName: Enable official Visual Studio extension build
+
+      # - script: npx @microsoft/rush install
+      #   displayName: Install JavaScript Dependencies
+
+      # - script: dotnet restore
+      #   displayName: Restore .NET Dependencies
+      #   workingDirectory: packages/cadl-vs
+
+      # - script: npx @microsoft/rush rebuild --verbose
+      #   displayName: Build
+
+      # - script: npx @microsoft/rush test-official
+      #   displayName: Test
+
+      # - template: ./upload-coverage.yml
 
       # - script: |
       #     set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
@@ -66,14 +74,6 @@ jobs:
       #     containerName: "$web"
       #   displayName: "Update website"
 
-      - task: AzureFileCopy@4
-        inputs:
-          sourcePath: "docGen/*"
-          azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlplayground"
-          containerName: "testdocs"
-        displayName: "Update docs"
   # - job: npm_dev
   #   dependsOn: npm_stable
   #   displayName: Npm publish dev version
