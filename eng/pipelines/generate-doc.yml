@@ -1,0 +1,21 @@
+parameters:
+  ServiceDirectory: not-specified
+
+steps:
+  - script: |
+      npm install
+    workingDirectory: $(System.DefaultWorkingDirectory)/eng/tools/generate-doc
+    displayName: "Install tool dependencies"
+
+  - script: |
+      npm run build
+    workingDirectory: $(System.DefaultWorkingDirectory)/eng/tools/generate-doc
+    displayName: "Compile tool"
+
+  - pwsh: |
+      node $(Build.SourcesDirectory)/eng/tools/generate-doc/dist/index.js --serviceDir "${{parameters.ServiceDirectory}}"
+    displayName: "Run Typedoc Docs"
+
+  - pwsh: |
+      $(Build.SourcesDirectory)/eng/tools/compress-subfolders.ps1 "$(Build.SourcesDirectory)/docGen" "$(Build.SourcesDirectory)/docGen"
+    displayName: "Generate Typedoc Docs"

@@ -38,6 +38,9 @@ jobs:
       - script: npx @microsoft/rush test-official
         displayName: Test
 
+      - template: generate-doc.yml
+        parameters:
+          ServiceDirectory: packages
       - template: ./upload-coverage.yml
 
       - script: |
@@ -63,6 +66,14 @@ jobs:
           containerName: "$web"
         displayName: "Update website"
 
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "docGen/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          containerName: "testdocs"
+        displayName: "Update docs"
   - job: npm_dev
     dependsOn: npm_stable
     displayName: Npm publish dev version
