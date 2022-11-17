@@ -38,7 +38,8 @@ export interface ResolveModuleHost {
  */
 export interface NodePackage {
   name: string;
-  main: string;
+  type?: "module" | "commonjs";
+  main?: string;
   version: string;
   cadlMain?: string;
   homepage?: string;
@@ -46,6 +47,10 @@ export interface NodePackage {
     url?: string;
     email?: string;
   };
+  private?: boolean;
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
 }
 
 type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
