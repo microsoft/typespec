@@ -39,6 +39,15 @@ describe("compiler: resolveTypeReference", () => {
     );
   });
 
+  it("resolve a deprecated type", async () => {
+    await expectResolve(
+      "MyService",
+      `
+      @test("target") @deprecated("Test deprecated item") model MyModel {}
+    `
+    );
+  });
+
   it("resolve nested namespace", async () => {
     await expectResolve(
       "MyOrg.MyService",
