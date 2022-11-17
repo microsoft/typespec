@@ -5,7 +5,7 @@ import { extractCursor } from "../../testing/test-server-host.js";
 import { dumpAST } from "../parser.test.js";
 
 describe("compiler: server: misc", () => {
-  describe("tryFindIdentifierNodeAtPosition", () => {
+  describe("getCompletionNodeAtPosition", () => {
     async function getNodeAtCursor(
       sourceWithCursor: string
     ): Promise<{ root: CadlScriptNode; node: Node | undefined }> {
