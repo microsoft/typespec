@@ -1359,7 +1359,7 @@ export interface SourceLocation extends TextRange {
   isSynthetic?: boolean;
 }
 
-export const NoTarget = Symbol("NoTarget");
+export const NoTarget = Symbol.for("NoTarget");
 
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 
