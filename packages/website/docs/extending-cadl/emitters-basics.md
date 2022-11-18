@@ -167,8 +167,8 @@ program.resolveTypeReference("MyOrg.MyLibrary.MyEnum"); // Resolve `MyEnum` defi
 Error example
 
 ```ts
-program.resolveTypeReference("UnknownModel"); // Resolve [`undefined`, diagnostics] where diagnostics is an array of diagnostic explaining why reference is invalid.
-program.resolveTypeReference("model Foo {}"); // Resolve [`undefined`, diagnostics] where diagnostics is an array of diagnostic explaining why reference is invalid.
+program.resolveTypeReference("UnknownModel"); // Resolve `[undefined, diagnostics]` where diagnostics is an array of diagnostic explaining why reference is invalid.
+program.resolveTypeReference("model Foo {}"); // Resolve `[undefined, diagnostics]` where diagnostics is an array of diagnostic explaining why reference is invalid.
 ```
 
 ## Emitting files to disk
