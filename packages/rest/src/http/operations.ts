@@ -5,10 +5,11 @@ import {
   DiagnosticCollector,
   getOverloadedOperation,
   getOverloads,
-  getServiceNamespace,
   getVisibility,
   listOperationsIn,
+  listServices,
   ModelProperty,
+  Namespace,
   navigateProgram,
   Operation,
   Program,
@@ -68,7 +69,25 @@ export function getAllHttpServices(
   options?: RouteResolutionOptions
 ): [HttpService[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const serviceNamespace = getServiceNamespace(program);
+  const serviceNamespaces = listServices(program);
+
+  const services: HttpService[] = serviceNamespaces.map((x) =>
+    diagnostics.pipe(getHttpService(program, x.namespace, options))
+  );
+  if (serviceNamespaces.length === 0) {
+    services.push(
+      diagnostics.pipe(getHttpService(program, program.getGlobalNamespaceType(), options))
+    );
+  }
+  return diagnostics.wrap(services);
+}
+
+export function getHttpService(
+  program: Program,
+  serviceNamespace: Namespace,
+  options?: RouteResolutionOptions
+): [HttpService, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const httpOperations = diagnostics.pipe(
     listHttpOperationsIn(program, serviceNamespace, {
       ...options,
@@ -85,7 +104,7 @@ export function getAllHttpServices(
     namespace: serviceNamespace,
     operations: httpOperations,
   };
-  return diagnostics.wrap([service]);
+  return diagnostics.wrap(service);
 }
 
 /**
