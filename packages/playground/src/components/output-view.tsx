@@ -81,7 +81,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         <OutputContent
           viewSelection={viewSelection}
           program={props.program}
-          internalCompilerError={InternalCompilerError}
+          internalCompilerError={props.internalCompilerError}
         />
       </div>
     </>
