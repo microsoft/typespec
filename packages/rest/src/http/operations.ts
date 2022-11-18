@@ -72,7 +72,7 @@ export function getAllHttpServices(
   const serviceNamespaces = listServices(program);
 
   const services: HttpService[] = serviceNamespaces.map((x) =>
-    diagnostics.pipe(getHttpService(program, x.namespace, options))
+    diagnostics.pipe(getHttpService(program, x.type, options))
   );
   if (serviceNamespaces.length === 0) {
     services.push(

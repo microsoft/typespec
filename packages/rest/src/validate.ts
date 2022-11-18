@@ -54,7 +54,7 @@ function checkForDuplicateResourceKeyNames(program: Program) {
     // If the model type is defined under the service namespace, check that the
     // parent resource type(s) don't have the same key name as the
     // current resource type.
-    navigateTypesInNamespace(service.namespace, {
+    navigateTypesInNamespace(service.type, {
       model: (model) => checkResourceModelKeys(model),
     });
   }

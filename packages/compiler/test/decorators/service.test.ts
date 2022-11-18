@@ -23,7 +23,7 @@ describe("compiler: service", () => {
 
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ namespace: S }]);
+    deepStrictEqual(listServices(runner.program), [{ type: S }]);
   });
 
   it("get a service", async () => {
@@ -33,8 +33,8 @@ describe("compiler: service", () => {
     @test @service namespace S2 {}
   `)) as { S1: Namespace; S2: Namespace };
 
-    deepStrictEqual(getService(runner.program, S1), { namespace: S1 });
-    deepStrictEqual(getService(runner.program, S2), { namespace: S2 });
+    deepStrictEqual(getService(runner.program, S1), { type: S1 });
+    deepStrictEqual(getService(runner.program, S2), { type: S2 });
   });
 
   it("allows multiple services", async () => {
@@ -44,7 +44,7 @@ describe("compiler: service", () => {
       @test @service namespace S2 {}
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ namespace: S1 }, { namespace: S2 }]);
+    deepStrictEqual(listServices(runner.program), [{ type: S1 }, { type: S2 }]);
   });
 
   it("customize service title", async () => {
@@ -53,7 +53,7 @@ describe("compiler: service", () => {
 
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ namespace: S, title: "My Service" }]);
+    deepStrictEqual(listServices(runner.program), [{ type: S, title: "My Service" }]);
   });
 
   it("emit diagnostic if service title is not a string", async () => {
@@ -74,7 +74,7 @@ describe("compiler: service", () => {
 
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ namespace: S, version: "1.2.3" }]);
+    deepStrictEqual(listServices(runner.program), [{ type: S, version: "1.2.3" }]);
   });
 
   it("emit diagnostic if service version is not a string", async () => {

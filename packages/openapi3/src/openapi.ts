@@ -219,16 +219,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   return { emitOpenAPI };
 
   function initializeEmitter(service: Service, version?: string) {
-    const auth = processAuth(service.namespace);
+    const auth = processAuth(service.type);
 
     root = {
       openapi: "3.0.0",
       info: {
         title: service.title ?? "(title)",
         version: version ?? service.version ?? "0000-00-00",
-        description: getDoc(program, service.namespace),
+        description: getDoc(program, service.type),
       },
-      externalDocs: getExternalDocs(program, service.namespace),
+      externalDocs: getExternalDocs(program, service.type),
       tags: [],
       paths: {},
       security: auth?.security,
@@ -241,12 +241,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         securitySchemes: auth?.securitySchemes ?? {},
       },
     };
-    const servers = http.getServers(program, service.namespace);
+    const servers = http.getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = program.checker.getNamespaceString(service.namespace);
+    serviceNamespace = program.checker.getNamespaceString(service.type);
     currentPath = root.paths;
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
@@ -332,7 +332,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   async function emitOpenAPI() {
     const services = listServices(program);
     if (services.length === 0) {
-      services.push({ namespace: program.getGlobalNamespaceType() });
+      services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
       const commonProjections: ProjectionApplication[] = [
@@ -342,7 +342,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         },
       ];
       const originalProgram = program;
-      const versions = buildVersionProjections(program, service.namespace);
+      const versions = buildVersionProjections(program, service.type);
       for (const record of versions) {
         if (record.version) {
           record.projections.push({
@@ -356,11 +356,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           ...record.projections,
         ]));
         const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-          service.namespace
+          service.type
         ) as Namespace;
 
         await emitOpenAPIFromVersion(
-          getService(program, projectedServiceNs)!,
+          projectedServiceNs === projectedProgram.getGlobalNamespaceType()
+            ? { type: projectedProgram.getGlobalNamespaceType() }
+            : getService(program, projectedServiceNs)!,
           services.length > 1,
           record.version
         );
@@ -371,7 +373,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     const suffix = [];
     if (multipleService) {
-      suffix.push(program.checker.getNamespaceString(service.namespace));
+      suffix.push(program.checker.getNamespaceString(service.type));
     }
     if (version) {
       suffix.push(version);
@@ -387,7 +389,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     initializeEmitter(service, version);
     try {
-      const httpService = ignoreDiagnostics(getHttpService(program, service.namespace));
+      const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       reportIfNoRoutes(program, httpService.operations);
 
       for (const operation of httpService.operations) {
@@ -398,7 +400,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
       emitParameters();
-      emitUnreferencedSchemas(service.namespace);
+      emitUnreferencedSchemas(service.type);
       emitSchemas();
       emitTags();
 

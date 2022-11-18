@@ -7,10 +7,10 @@ import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
 export interface ServiceDetails {
   title?: string;
   version?: string;
-  host?: string;
 }
+
 export interface Service extends ServiceDetails {
-  namespace: Namespace;
+  type: Namespace;
 }
 
 const serviceDetailsKey = Symbol.for("@cadl-lang/compiler.services");
@@ -37,7 +37,7 @@ export function setServiceNamespace(
 ): void {
   const serviceMap = getServiceMap(program);
   const existing = serviceMap.get(namespace) ?? {};
-  serviceMap.set(namespace, { ...existing, ...options, namespace });
+  serviceMap.set(namespace, { ...existing, ...options, type: namespace });
 }
 
 export function $service(context: DecoratorContext, target: Namespace, options?: Model) {
