@@ -18,26 +18,49 @@ function getServiceMap(program: Program): Map<Namespace, Service> {
   return program.stateMap(serviceDetailsKey) as Map<Namespace, Service>;
 }
 
+/**
+ * List all the services defined in the cadl program
+ * @param program Program
+ * @returns List of service.
+ */
 export function listServices(program: Program): Service[] {
   return [...getServiceMap(program).values()];
 }
 
+/**
+ * Get the service information for the given namespace.
+ * @param program Program
+ * @param namespace Service namespace
+ * @returns Service information or undefined if namespace is not a service namespace.
+ */
 export function getService(program: Program, namespace: Namespace): Service | undefined {
   return getServiceMap(program).get(namespace);
 }
 
+/**
+ * Check if the namespace is defined as a service.
+ * @param program Program
+ * @param namespace Namespace
+ * @returns Boolean
+ */
 export function isService(program: Program, namespace: Namespace): boolean {
   return getServiceMap(program).has(namespace);
 }
 
-export function setServiceNamespace(
+/**
+ * Mark the given namespace as a service.
+ * @param program Program
+ * @param namespace Namespace
+ * @param details Service details
+ */
+export function addService(
   program: Program,
   namespace: Namespace,
-  options: ServiceDetails = {}
+  details: ServiceDetails = {}
 ): void {
   const serviceMap = getServiceMap(program);
   const existing = serviceMap.get(namespace) ?? {};
-  serviceMap.set(namespace, { ...existing, ...options, type: namespace });
+  serviceMap.set(namespace, { ...existing, ...details, type: namespace });
 }
 
 export function $service(context: DecoratorContext, target: Namespace, options?: Model) {
@@ -67,7 +90,7 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
     }
   }
 
-  setServiceNamespace(context.program, target, serviceDetails);
+  addService(context.program, target, serviceDetails);
 }
 
 /**
@@ -83,7 +106,7 @@ export function $serviceTitle(context: DecoratorContext, target: Type, title: st
     return;
   }
 
-  setServiceNamespace(context.program, target, { title });
+  addService(context.program, target, { title });
 }
 
 /**
@@ -99,5 +122,31 @@ export function $serviceVersion(context: DecoratorContext, target: Type, version
     return;
   }
 
-  setServiceNamespace(context.program, target, { version });
+  addService(context.program, target, { version });
 }
+
+// #region deprecated
+/** @deprecated use @see listServices() or @see getService() */
+export function getServiceNamespace(program: Program): Namespace {
+  return listServices(program)[0].type;
+}
+
+/** @deprecated use @see listServices() or @see getService() */
+export function getServiceTitle(program: Program): string {
+  return listServices(program)[0].title ?? `(title)`;
+}
+/** @deprecated use @see listServices() or @see getService() */
+export function getServiceVersion(program: Program): string {
+  return listServices(program)[0].version ?? `0000-00-00`;
+}
+
+/** @deprecated use @see listServices() or @see getService() */
+export function getServiceNamespaceString(program: Program): string | undefined {
+  return program.checker.getNamespaceString(getServiceNamespace(program));
+}
+
+/** @deprecated use @see addService */
+export function setServiceNamespace(program: Program, namespace: Namespace): void {
+  addService(program, namespace);
+}
+// #endregion
