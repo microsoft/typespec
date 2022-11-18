@@ -253,6 +253,25 @@ namespace ListKind {
 }
 
 export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
+  const parser = createParser(code, options);
+  return parser.parseCadlScript();
+}
+
+export function parseStandaloneTypeReference(
+  code: string | SourceFile
+): [TypeReferenceNode, readonly Diagnostic[]] {
+  const parser = createParser(code);
+  const node = parser.parseStandaloneReferenceExpression();
+  return [node, parser.parseDiagnostics];
+}
+
+interface Parser {
+  parseDiagnostics: Diagnostic[];
+  parseCadlScript(): CadlScriptNode;
+  parseStandaloneReferenceExpression(): TypeReferenceNode;
+}
+
+function createParser(code: string | SourceFile, options: ParseOptions = {}): Parser {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
@@ -264,7 +283,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   const comments: Comment[] = [];
 
   nextToken();
-  return parseCadlScript();
+  return {
+    parseDiagnostics,
+    parseCadlScript,
+    parseStandaloneReferenceExpression,
+  };
 
   function parseCadlScript(): CadlScriptNode {
     const statements = parseCadlScriptItemList();
@@ -962,6 +985,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return expr;
   }
 
+  function parseStandaloneReferenceExpression() {
+    const expr = parseReferenceExpression();
+    if (parseDiagnostics.length === 0 && token() !== Token.EndOfFile) {
+      error({ code: "token-expected", messageId: "unexpected", format: { token: Token[token()] } });
+    }
+    return expr;
+  }
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
