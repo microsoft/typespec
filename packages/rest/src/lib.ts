@@ -150,6 +150,12 @@ const libDefinition = {
         default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
       },
     },
+    "invalid-action-separator": {
+      severity: "error",
+      messages: {
+        default: paramMessage`@actionSeparator ${"separator"} is invalid. Valid values are: ${"allowed"}`,
+      },
+    },
   },
 } as const;
 

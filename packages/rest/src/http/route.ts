@@ -8,7 +8,7 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol } from "../lib.js";
-import { getSegment, getSegmentSeparator, isAutoRoute } from "../rest.js";
+import { getActionSeparator, getSegment, getSegmentSeparator, isAutoRoute } from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import { getRouteOptionsForNamespace, getRoutePath } from "./decorators.js";
 import { getOperationParameters } from "./parameters.js";
@@ -51,9 +51,16 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
   // Don't add the segment prefix if it is meant to be excluded
   // (empty string means exclude the segment)
   const segment = getSegment(program, target);
-  const separator = getSegmentSeparator(program, target);
+
   if (segment && segment !== "") {
-    pathFragments.push(`${separator ?? "/"}${segment}`);
+    // replace the action sentinel !! to ensure proper replacement
+    const actionSentinel = "!!";
+    if (segment.includes(actionSentinel)) {
+      pathFragments.push(segment?.replace(actionSentinel, getActionSeparator(program, target)));
+    } else {
+      const separator = getSegmentSeparator(program, target) ?? "/";
+      pathFragments.push(`${separator}${segment}`);
+    }
   }
 }
 

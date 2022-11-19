@@ -242,6 +242,7 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
+      #suppress "deprecated"
       @get
       @autoRoute
       @segment("actionTwo")
@@ -667,7 +668,7 @@ describe("rest: routes", () => {
       @autoRoute
       namespace Things {
         @action
-        @segmentSeparator(":")
+        @actionSeparator(":")
         @put op customAction(
           @segment("things")
           @path thingId: string
@@ -678,6 +679,7 @@ describe("rest: routes", () => {
           @path subscriptionId: string;
 
           // Is it useful for ARM modelling?
+          #suppress "deprecated"
           @path
           @segment("accounts")
           @segmentSeparator("Microsoft.Accounts/")
@@ -695,6 +697,55 @@ describe("rest: routes", () => {
         params: ["subscriptionId", "accountName"],
       },
     ]);
+  });
+
+  it("allows customization of action separators", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/")
+        @put op customAction2(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    deepStrictEqual(routes, [
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/customAction2", params: ["thingId"] },
+    ]);
+  });
+
+  it("emits error if invalid action separator used", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator("x")
+        @put op customAction(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "@cadl-lang/rest/invalid-action-separator");
+    strictEqual(
+      diagnostics[0].message,
+      `@actionSeparator x is invalid. Valid values are: / or : or /:`
+    );
   });
 
   it("skips templated operations", async () => {

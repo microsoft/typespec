@@ -181,11 +181,49 @@ export function $segmentSeparator(
   entity: Model | ModelProperty | Operation,
   separator: string
 ) {
+  reportDeprecated(
+    context.program,
+    `@Cadl.Rest.segmentSeparator is deprecated use @Cadl.Rest.actionSeparator instead.`,
+    context.decoratorTarget
+  );
+
   context.program.stateMap(segmentSeparatorsKey).set(entity, separator);
 }
 
 export function getSegmentSeparator(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentSeparatorsKey).get(entity);
+}
+
+const actionSeparatorKey = createStateSymbol("actionSeparator");
+
+/**
+ * `@actionSeparator` defines the separator string that is used to precede the action name
+ *  in auto-generated actions.
+ *
+ * `@actionSeparator` can only be applied to model properties, operation parameters, or operations.
+ */
+export function $actionSeparator(
+  context: DecoratorContext,
+  entity: Model | ModelProperty | Operation,
+  separator: string
+) {
+  const allowedSeparators = ["/", ":", "/:"];
+
+  if (!allowedSeparators.includes(separator)) {
+    reportDiagnostic(context.program, {
+      code: "invalid-action-separator",
+      format: {
+        separator: separator,
+        allowed: allowedSeparators.join(" or "),
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  context.program.stateMap(actionSeparatorKey).set(entity, separator);
+}
+
+export function getActionSeparator(program: Program, entity: Type): string {
+  return program.stateMap(actionSeparatorKey).get(entity) ?? "/";
 }
 
 /**
@@ -332,7 +370,7 @@ function makeActionName(op: Operation, name: string | undefined): string {
 const actionsKey = createStateSymbol("actions");
 export function $action(context: DecoratorContext, entity: Operation, name?: string) {
   // Generate the action name and add it as an operation path segment
-  const action = makeActionName(entity, name);
+  const action = `!!${makeActionName(entity, name)}`;
   context.call($segment, entity, action);
 
   context.program.stateMap(actionsKey).set(entity, action);
@@ -357,12 +395,8 @@ export function $collectionAction(
 
   // Generate the segment for the collection combined with the action's name
   const segment = getResourceSegment(context.program, resourceType);
-  const segmentSeparator = getSegmentSeparator(context.program, entity) ?? "/";
-  const action = `${segment}${segmentSeparator}${makeActionName(entity, name)}`;
+  const action = `${segment}!!${makeActionName(entity, name)}`;
   context.call($segment, entity, action);
-
-  // Replace the previous segment separator with slash so that it doesn't get repeated
-  context.call($segmentSeparator, entity, "/");
 
   context.program.stateMap(collectionActionsKey).set(entity, action);
 }

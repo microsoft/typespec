@@ -5,6 +5,7 @@ using Cadl.Reflection;
 extern dec autoRoute(target: Namespace | Interface | Operation);
 extern dec segment(target: object | ModelProperty | Operation, name: string);
 extern dec segmentOf(target: Operation, type: object);
+extern dec actionSeparator(target: object | ModelProperty | Operation, seperator: string);
 extern dec segmentSeparator(target: object | ModelProperty | Operation, seperator: string);
 extern dec resource(target: object, collectionName: string);
 

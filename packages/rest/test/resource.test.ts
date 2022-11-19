@@ -165,7 +165,7 @@ describe("rest: resources", () => {
 
         @post
         @collectionAction(Thing, "export")
-        @segmentSeparator(":")
+        @actionSeparator(":")
         op exportThingWithColon(): {};
       }
       `
