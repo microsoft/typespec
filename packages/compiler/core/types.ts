@@ -693,6 +693,16 @@ export type Node =
   | ProjectionStatementNode
   | ProjectionNode;
 
+/**
+ * Node that can be used as template
+ */
+export type TemplateableNode =
+  | ModelStatementNode
+  | AliasStatementNode
+  | InterfaceStatementNode
+  | OperationStatementNode
+  | UnionStatementNode;
+
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {
@@ -1349,7 +1359,7 @@ export interface SourceLocation extends TextRange {
   isSynthetic?: boolean;
 }
 
-export const NoTarget = Symbol("NoTarget");
+export const NoTarget = Symbol.for("NoTarget");
 
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 
