@@ -221,6 +221,7 @@ const keywords = [
   // Root and namespace
   ["using", { root: true, namespace: true }],
   ["model", { root: true, namespace: true }],
+  ["scalar", { root: true, namespace: true }],
   ["namespace", { root: true, namespace: true }],
   ["interface", { root: true, namespace: true }],
   ["union", { root: true, namespace: true }],
