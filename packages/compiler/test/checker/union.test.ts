@@ -27,7 +27,7 @@ describe("compiler: union declarations", () => {
     const { Foo } = (await testHost.compile("./")) as { Foo: Union };
     ok(Foo);
     ok(blues.has(Foo));
-    strictEqual(Foo.options.length, 2);
+    strictEqual(Foo.variants.size, 2);
     const varX = Foo.variants.get("x")!;
     ok(blues.has(varX));
     const varY = Foo.variants.get("y")!;
@@ -37,8 +37,8 @@ describe("compiler: union declarations", () => {
     strictEqual(varX.kind, "UnionVariant");
     strictEqual(varY.kind, "UnionVariant");
 
-    strictEqual(varXType.kind, "Model");
-    strictEqual(varYType.kind, "Model");
+    strictEqual(varXType.kind, "Scalar");
+    strictEqual(varYType.kind, "Scalar");
   });
 
   it("can be templated", async () => {
@@ -56,7 +56,7 @@ describe("compiler: union declarations", () => {
     const varXType = (varX as UnionVariant).type as Model;
 
     strictEqual(varX.kind, "UnionVariant");
-    strictEqual(varXType.kind, "Model");
+    strictEqual(varXType.kind, "Scalar");
     strictEqual(varXType.name, "int32");
   });
 

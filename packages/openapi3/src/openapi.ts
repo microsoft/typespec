@@ -11,7 +11,6 @@ import {
   getDiscriminator,
   getDoc,
   getFormat,
-  getIntrinsicScalarName,
   getKnownValues,
   getMaxItems,
   getMaxLength,
@@ -27,6 +26,7 @@ import {
   getServiceVersion,
   getSummary,
   ignoreDiagnostics,
+  IntrinsicScalarName,
   IntrinsicType,
   isErrorType,
   isGlobalNamespace,
@@ -266,8 +266,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "String":
         return true;
       case "Scalar":
-        const name = getIntrinsicScalarName(program, type);
-        return name === "string";
+        return ignoreDiagnostics(
+          program.checker.isTypeAssignableTo(type, program.checker.getStdType("string"), type)
+        );
       case "Enum":
         for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
@@ -463,7 +464,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function isBinaryPayload(body: Type, contentType: string) {
     return (
-      body.kind === "Model" &&
+      body.kind === "Scalar" &&
       body.name === "bytes" &&
       contentType !== "application/json" &&
       contentType !== "text/plain"
@@ -539,7 +540,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       };
     }
 
-    if (type.kind === "Scalar") {
+    if (type.kind === "Scalar" && program.checker.isStdType(type)) {
       return getSchemaForScalar(type);
     }
 
@@ -829,6 +830,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "Scalar":
+        return getSchemaForScalar(type);
       case "Union":
         return getSchemaForUnion(type, visibility);
       case "UnionVariant":
@@ -1276,35 +1279,47 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForScalar(cadlType: Scalar): OpenAPI3Schema | undefined {
-    const name = getIntrinsicScalarName(program, cadlType);
-    switch (name) {
+  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema | undefined {
+    if (program.checker.isStdType(scalar)) {
+      const result = getSchemaForStdScalars(scalar);
+      return result ? applyIntrinsicDecorators(scalar, result) : undefined;
+    } else if (scalar.baseScalar) {
+      const result = getSchemaForScalar(scalar.baseScalar);
+      return result ? applyIntrinsicDecorators(scalar, result) : undefined;
+    }
+    return undefined;
+  }
+
+  function getSchemaForStdScalars(
+    scalar: Scalar & { name: IntrinsicScalarName }
+  ): OpenAPI3Schema | undefined {
+    switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
       case "int8":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int8" });
+        return { type: "integer", format: "int8" };
       case "int16":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int16" });
+        return { type: "integer", format: "int16" };
       case "int32":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
+        return { type: "integer", format: "int32" };
       case "int64":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+        return { type: "integer", format: "int64" };
       case "safeint":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+        return { type: "integer", format: "int64" };
       case "uint8":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
+        return { type: "integer", format: "uint8" };
       case "uint16":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint16" });
+        return { type: "integer", format: "uint16" };
       case "uint32":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint32" });
+        return { type: "integer", format: "uint32" };
       case "uint64":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint64" });
+        return { type: "integer", format: "uint64" };
       case "float64":
-        return applyIntrinsicDecorators(cadlType, { type: "number", format: "double" });
+        return { type: "number", format: "double" };
       case "float32":
-        return applyIntrinsicDecorators(cadlType, { type: "number", format: "float" });
+        return { type: "number", format: "float" };
       case "string":
-        return applyIntrinsicDecorators(cadlType, { type: "string" });
+        return { type: "string" };
       case "boolean":
         return { type: "boolean" };
       case "plainDate":

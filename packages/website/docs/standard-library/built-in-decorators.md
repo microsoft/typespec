@@ -194,7 +194,7 @@ enum OperationStateValues {
 }
 
 @knownValues(OperationStateValues)
-model OperationState is string;
+scalar OperationState extends string;
 ```
 
 ### `@secret`
@@ -209,7 +209,7 @@ model OperationState is string;
 
 ```cadl
 @secret
-model Password is string;
+scalar Password extends string;
 ```
 
 `@secret` can only be applied to string model;
@@ -219,7 +219,7 @@ model Password is string;
 ```cadl
 @minLength(<integer>)
 @maxLength(<integer>)
-model Name is string;
+scalar Name extends string;
 ```
 
 Specify the min and max length of the string.
@@ -228,7 +228,7 @@ Specify the min and max length of the string.
 // Say that the name must be between 2 and 20 charchater long
 @minLength(2)
 @maxLength(20)
-model Name is string;
+scalar Name extends string;
 ```
 
 The decorators can also be used on model properties

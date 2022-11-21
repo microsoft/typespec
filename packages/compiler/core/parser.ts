@@ -845,12 +845,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): ScalarStatementNode {
     parseExpected(Token.ScalarKeyword);
     const id = parseIdentifier();
+    const templateParameters = parseTemplateParameterList();
 
     const optionalExtends = parseOptionalScalarExtends();
 
     return {
       kind: SyntaxKind.ScalarStatement,
       id,
+      templateParameters,
       extends: optionalExtends,
       decorators,
       ...finishNode(pos),
@@ -2576,7 +2578,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.ScalarStatement:
       return (
-        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.extends)
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.extends)
       );
     case SyntaxKind.UnionStatement:
       return (

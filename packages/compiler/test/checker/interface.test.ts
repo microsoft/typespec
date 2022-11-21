@@ -76,8 +76,8 @@ describe("compiler: interfaces", () => {
     };
 
     strictEqual(Foo.operations.size, 1);
-    const returnType: Model = Foo.operations.get("bar")!.returnType as Model;
-    strictEqual(returnType.kind, "Model");
+    const returnType = Foo.operations.get("bar")!.returnType;
+    strictEqual(returnType.kind, "Scalar" as const);
     strictEqual(returnType.name, "int32");
   });
 

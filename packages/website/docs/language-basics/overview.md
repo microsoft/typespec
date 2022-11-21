@@ -57,7 +57,7 @@ _Details: [Models](./models.md)_
 | ------------------------------ | ------------------------------------- |
 | Model declaration              | `model Pet {}`                        |
 | Model inheritance              | `model Dog extends Pet {}`            |
-| Model is                       | `model uuid is string;`               |
+| scalar is                      | `model uuid extends string;`          |
 | Model spread                   | `model Dog {...Animal}`               |
 | Property                       | `model Dog { name: string }`          |
 | Optional property              | `model Dog { owner?: string }`        |

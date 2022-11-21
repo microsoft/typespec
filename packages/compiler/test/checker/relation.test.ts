@@ -59,17 +59,6 @@ describe("compiler: checker: type relations", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("cannot add property to primitive type", async () => {
-      const diagnostics = await runner.diagnose(`
-        model Foo is string {
-          prop1: string;
-        }`);
-      expectDiagnostics(diagnostics, {
-        code: "no-prop",
-        message: "Property 'prop1' cannot be defined because model cannot hold properties.",
-      });
-    });
-
     it("cannot add property incompatible with indexer", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo is Record<int32> {
@@ -93,13 +82,13 @@ describe("compiler: checker: type relations", () => {
       deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);
     });
 
-    it("cannot intersect model with properties and a primitive type", async () => {
+    it("cannot intersect model with a scalar", async () => {
       const diagnostics = await runner.diagnose(`
         alias A = string & {prop1: string};
       `);
       expectDiagnostics(diagnostics, {
-        code: "intersect-invalid-index",
-        message: "Cannot intersect a model that cannot hold properties.",
+        code: "intersect-non-model",
+        message: "Cannot intersect non-model types (including union types).",
       });
     });
 

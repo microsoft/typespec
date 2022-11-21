@@ -183,7 +183,11 @@ export interface Checker {
    * @param type Type to check
    * @param stdType If provided check is that standard type
    */
-  isStdType(type: Type, stdType?: StdTypeName): boolean;
+  isStdType(
+    type: Scalar,
+    stdType?: IntrinsicScalarName
+  ): type is Scalar & { name: IntrinsicScalarName };
+  isStdType(type: Type, stdType?: StdTypeName): type is Type & { name: StdTypeName };
 
   /**
    * Std type
@@ -263,6 +267,8 @@ export function createChecker(program: Program): Checker {
   const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
+  const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
+  const nullSym = createSymbol(undefined, "null", 0);
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -577,6 +583,8 @@ export function createChecker(program: Program): Checker {
         return getNamespaceString(type, options);
       case "TemplateParameter":
         return type.node.id.sv;
+      case "Scalar":
+        return getScalarName(type, options);
       case "Model":
         return getModelName(type, options);
       case "ModelProperty":
@@ -631,6 +639,11 @@ export function createChecker(program: Program): Checker {
   function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
     const nsName = getNamespaceString(e.namespace, options);
     return nsName ? `${nsName}.${e.name}` : e.name;
+  }
+
+  function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
+    const nsName = getNamespaceString(scalar.namespace, options);
+    return nsName ? `${nsName}.${scalar.name}` : scalar.name;
   }
 
   /**
@@ -718,12 +731,7 @@ export function createChecker(program: Program): Checker {
     node: TemplateParameterDeclarationNode,
     mapper: TypeMapper | undefined
   ): Type {
-    const parentNode = node.parent! as
-      | ModelStatementNode
-      | InterfaceStatementNode
-      | OperationStatementNode
-      | UnionStatementNode
-      | AliasStatementNode;
+    const parentNode = node.parent! as TemplateableNode;
     const links = getSymbolLinks(node.symbol);
 
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
@@ -939,6 +947,9 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     instantiateTemplates = true
   ): Type {
+    if (sym === nullSym) {
+      return nullType;
+    }
     if (sym.flags & SymbolFlags.Decorator) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: sym })
@@ -966,17 +977,13 @@ export function createChecker(program: Program): Checker {
     if (
       sym.flags &
       (SymbolFlags.Model |
+        SymbolFlags.Scalar |
         SymbolFlags.Alias |
         SymbolFlags.Interface |
         SymbolFlags.Operation |
         SymbolFlags.Union)
     ) {
-      const decl = sym.declarations[0] as
-        | ModelStatementNode
-        | AliasStatementNode
-        | InterfaceStatementNode
-        | OperationStatementNode
-        | UnionStatementNode;
+      const decl = sym.declarations[0] as TemplateableNode;
       if (decl.templateParameters.length === 0) {
         if (args.length > 0) {
           reportCheckerDiagnostic(
@@ -994,6 +1001,8 @@ export function createChecker(program: Program): Checker {
           baseType =
             sym.flags & SymbolFlags.Model
               ? checkModelStatement(decl as ModelStatementNode, mapper)
+              : sym.flags & SymbolFlags.Scalar
+              ? checkScalar(decl as ScalarStatementNode, mapper)
               : sym.flags & SymbolFlags.Alias
               ? checkAlias(decl as AliasStatementNode, mapper)
               : sym.flags & SymbolFlags.Interface
@@ -1009,6 +1018,8 @@ export function createChecker(program: Program): Checker {
           // we haven't checked the declared type yet, so do so.
           sym.flags & SymbolFlags.Model
             ? checkModelStatement(decl as ModelStatementNode, mapper)
+            : sym.flags & SymbolFlags.Scalar
+            ? checkScalar(decl as ScalarStatementNode, mapper)
             : sym.flags & SymbolFlags.Alias
             ? checkAlias(decl as AliasStatementNode, mapper)
             : sym.flags & SymbolFlags.Interface
@@ -1454,6 +1465,7 @@ export function createChecker(program: Program): Checker {
       while (parent !== undefined) {
         if (
           parent.kind === SyntaxKind.ModelStatement ||
+          parent.kind === SyntaxKind.ScalarStatement ||
           parent.kind === SyntaxKind.OperationStatement ||
           parent.kind === SyntaxKind.EnumStatement ||
           parent.kind === SyntaxKind.InterfaceStatement ||
@@ -1940,6 +1952,11 @@ export function createChecker(program: Program): Checker {
       // check using types
       binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
       if (binding) return binding.flags & SymbolFlags.DuplicateUsing ? undefined : binding;
+    }
+
+    // Until we have an `unit` type for `null`
+    if (node.sv === "null") {
+      return nullSym;
     }
 
     if (mapper === undefined) {
@@ -2835,19 +2852,20 @@ export function createChecker(program: Program): Checker {
   function checkScalar(node: ScalarStatementNode, mapper: TypeMapper | undefined): Scalar {
     const links = getSymbolLinks(node.symbol);
 
-    if (links.type) {
-      return links.type as any;
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this model and we've already checked it
+      return links.declaredType as any;
     }
     const decorators: DecoratorApplication[] = [];
 
-    const type: Scalar = (links.type = createType({
+    const type: Scalar = createType({
       kind: "Scalar",
       name: node.id.sv,
       node: node,
       namespace: getParentNamespaceType(node),
       decorators,
       derivedScalars: [],
-    }));
+    });
     linkType(links, type, mapper);
 
     if (node.extends) {
@@ -2858,9 +2876,13 @@ export function createChecker(program: Program): Checker {
       }
     }
     decorators.push(...checkDecorators(type, node, mapper));
-    type.namespace?.scalars.set(type.name, type);
 
-    finishType(type, mapper);
+    if (mapper === undefined) {
+      type.namespace?.scalars.set(type.name, type);
+    }
+    if (shouldCreateTypeForTemplate(node, mapper)) {
+      finishType(type, mapper);
+    }
     if (isInCadlNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
@@ -4271,7 +4293,7 @@ export function createChecker(program: Program): Checker {
     );
   }
 
-  function isRelatedToScalar(source: Type, target: Scalar): boolean {
+  function isRelatedToScalar(source: Type, target: Scalar): boolean | undefined {
     switch (source.kind) {
       case "Number":
         return (
@@ -4284,6 +4306,8 @@ export function createChecker(program: Program): Checker {
         return areScalarsRelated(target, getStdType("boolean"));
       case "Scalar":
         return areScalarsRelated(source, target);
+      case "Union":
+        return undefined;
       default:
         return false;
     }
@@ -4296,7 +4320,7 @@ export function createChecker(program: Program): Checker {
         return true;
       }
 
-      current = source.baseScalar;
+      current = current.baseScalar;
     }
     return false;
   }
@@ -4536,7 +4560,11 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function isStdType(type: Type, stdType?: StdTypeName): boolean {
+  function isStdType(
+    type: Scalar,
+    stdType?: IntrinsicScalarName
+  ): type is Scalar & { name: IntrinsicScalarName };
+  function isStdType(type: Type, stdType?: StdTypeName): type is Type & { name: StdTypeName } {
     if (
       (type.kind !== "Model" && type.kind !== "Scalar") ||
       type.namespace === undefined ||

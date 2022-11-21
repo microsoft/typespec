@@ -725,6 +725,7 @@ export type Node =
  */
 export type TemplateableNode =
   | ModelStatementNode
+  | ScalarStatementNode
   | AliasStatementNode
   | InterfaceStatementNode
   | OperationStatementNode
@@ -929,7 +930,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
-export interface ScalarStatementNode extends BaseNode, DeclarationNode {
+export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];

@@ -1,3 +1,4 @@
+import { getPropertyType } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -59,8 +60,9 @@ export function validateDecoratorTargetIntrinsic(
 ): boolean {
   const expectedTypeStrs = typeof expectedType === "string" ? [expectedType] : expectedType;
   const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
+  const type = getPropertyType(target);
   const isCorrect = expectedTypes.some(
-    (x) => context.program.checker.isTypeAssignableTo(target, x, target)[0]
+    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0]
   );
   if (!isCorrect) {
     context.program.reportDiagnostic(
