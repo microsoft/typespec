@@ -2,6 +2,8 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   filterModelProperties,
+  getKeyName,
+  isKey,
   ModelProperty,
   Operation,
   Program,
@@ -60,12 +62,12 @@ function getOperationParametersForVerb(
     diagnostics,
     operation.parameters,
     visibility,
-    (_, param) => isMetadata(program, param) || isImplicitPathParam(param)
+    (_, param) => isMetadata(program, param) || isImplicitPathParam(program, param)
   );
 
-  function isImplicitPathParam(param: ModelProperty) {
+  function isImplicitPathParam(program: Program, param: ModelProperty) {
     const isTopLevel = param.model === operation.parameters;
-    return isTopLevel && knownPathParamNames.includes(param.name);
+    return isKey(program, param) || (isTopLevel && knownPathParamNames.includes(param.name));
   }
 
   const result: HttpOperationParameters = {
@@ -76,7 +78,8 @@ function getOperationParametersForVerb(
   for (const param of metadata) {
     const queryParam = getQueryParamName(program, param);
     const pathParam =
-      getPathParamName(program, param) ?? (isImplicitPathParam(param) && param.name);
+      getPathParamName(program, param) ??
+      (isImplicitPathParam(program, param) && (getKeyName(program, param) ?? param.name));
     const headerParam = getHeaderFieldName(program, param);
     const bodyParam = isBody(program, param);
 

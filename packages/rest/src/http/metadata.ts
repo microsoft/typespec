@@ -2,6 +2,7 @@ import {
   compilerAssert,
   DiagnosticCollector,
   getEffectiveModelType,
+  isKey,
   isVisible as isVisibleCore,
   Model,
   ModelProperty,
@@ -154,7 +155,7 @@ export function gatherMetadata(
     visited.add(model);
 
     for (const property of walkPropertiesInherited(model)) {
-      if (!isVisible(program, property, visibility)) {
+      if (!isKey(program, property) && !isVisible(program, property, visibility)) {
         continue;
       }
 
@@ -245,6 +246,10 @@ function isApplicableMetadataCore(
   treatBodyAsMetadata: boolean,
   isMetadataCallback: (program: Program, property: ModelProperty) => boolean
 ) {
+  if (isKey(program, property)) {
+    return true;
+  }
+
   if (visibility & Visibility.Item) {
     return false; // no metadata is applicable to collection items
   }
