@@ -2,10 +2,12 @@ import { Program } from "./program.js";
 import {
   Enum,
   Interface,
+  IntrinsicScalarName,
   Model,
   Namespace,
   Node,
   Operation,
+  Scalar,
   SyntaxKind,
   TemplateDeclarationNode,
   TemplatedType,
@@ -108,4 +110,21 @@ export function isDeclaredInNamespace(
   }
 
   return false;
+}
+
+/**
+ * Find which standard scalar does the given scalar extend. Returns undefined if none.
+ */
+export function getIntrinsicScalarName(
+  program: Program,
+  scalar: Scalar
+): IntrinsicScalarName | undefined {
+  let current: Scalar | undefined = scalar;
+  while (current) {
+    if (program.checker.isStdType(current)) {
+      return current.name as any;
+    }
+    current = current.baseScalar;
+  }
+  return undefined;
 }

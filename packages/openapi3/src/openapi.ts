@@ -11,7 +11,7 @@ import {
   getDiscriminator,
   getDoc,
   getFormat,
-  getIntrinsicModelName,
+  getIntrinsicScalarName,
   getKnownValues,
   getMaxItems,
   getMaxLength,
@@ -30,8 +30,8 @@ import {
   IntrinsicType,
   isErrorType,
   isGlobalNamespace,
-  isIntrinsic,
   isNeverType,
+  isNullType,
   isNumericType,
   isSecret,
   isStringType,
@@ -47,6 +47,7 @@ import {
   ProjectionApplication,
   projectProgram,
   resolvePath,
+  Scalar,
   StringLiteral,
   TwoLevelMap,
   Type,
@@ -264,8 +265,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     switch (type.kind) {
       case "String":
         return true;
-      case "Model":
-        const name = getIntrinsicModelName(program, type);
+      case "Scalar":
+        const name = getIntrinsicScalarName(program, type);
         return name === "string";
       case "Enum":
         for (const member of type.members.values()) {
@@ -538,15 +539,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       };
     }
 
-    if (type.kind === "Model" && type.name === getIntrinsicModelName(program, type)) {
-      // if the model is one of the Cadl Intrinsic type.
-      // it's a base Cadl "primitive" that corresponds directly to an OpenAPI
-      // primitive. In such cases, we don't want to emit a ref and instead just
-      // emit the base type directly.
-      const builtIn = mapCadlIntrinsicModelToOpenAPI(type, visibility);
-      if (builtIn !== undefined) {
-        return builtIn;
-      }
+    if (type.kind === "Scalar") {
+      return getSchemaForScalar(type);
     }
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
@@ -1001,10 +995,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return schema;
   }
 
-  function isNullType(type: Type): boolean {
-    return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
-  }
-
   function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
     return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
   }
@@ -1169,7 +1159,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function applyIntrinsicDecorators(
-    cadlType: Model | ModelProperty,
+    cadlType: Scalar | ModelProperty,
     target: OpenAPI3Schema
   ): OpenAPI3Schema {
     const newTarget = { ...target };
@@ -1270,7 +1260,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (cadlType.indexer) {
       if (isNeverType(cadlType.indexer.key)) {
       } else {
-        const name = getIntrinsicModelName(program, cadlType.indexer.key);
+        const name = cadlType.indexer.key.name;
         if (name === "string") {
           return {
             type: "object",
@@ -1284,10 +1274,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
     }
-    if (!isIntrinsic(program, cadlType)) {
-      return undefined;
-    }
-    const name = getIntrinsicModelName(program, cadlType);
+  }
+
+  function getSchemaForScalar(cadlType: Scalar): OpenAPI3Schema | undefined {
+    const name = getIntrinsicScalarName(program, cadlType);
     switch (name) {
       case "bytes":
         return { type: "string", format: "byte" };
@@ -1325,6 +1315,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
+      default:
+        return {}; // Unknown scalar
     }
   }
 

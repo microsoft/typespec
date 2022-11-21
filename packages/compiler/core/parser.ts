@@ -72,6 +72,7 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
+  ScalarStatementNode,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -336,6 +337,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           break;
         case Token.ModelKeyword:
           item = parseModelStatement(pos, decorators);
+          break;
+        case Token.ScalarKeyword:
+          item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
           item = parseNamespaceStatement(pos, decorators);
@@ -833,6 +837,31 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       default: defaultValue,
       ...finishNode(pos),
     };
+  }
+
+  function parseScalarStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ScalarStatementNode {
+    parseExpected(Token.ScalarKeyword);
+    const id = parseIdentifier();
+
+    const optionalExtends = parseOptionalScalarExtends();
+
+    return {
+      kind: SyntaxKind.ScalarStatement,
+      id,
+      extends: optionalExtends,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseOptionalScalarExtends() {
+    if (parseOptional(Token.ExtendsKeyword)) {
+      return parseReferenceExpression();
+    }
+    return undefined;
   }
 
   function parseEnumStatement(
@@ -2544,6 +2573,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.extends) ||
         visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
+      );
+    case SyntaxKind.ScalarStatement:
+      return (
+        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.extends)
       );
     case SyntaxKind.UnionStatement:
       return (

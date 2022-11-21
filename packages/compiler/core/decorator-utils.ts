@@ -1,13 +1,12 @@
-import { getIntrinsicModelName, getPropertyType } from "../lib/decorators.js";
-import { DecoratorContext } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
+  DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
-  IntrinsicModelName,
-  Model,
+  IntrinsicScalarName,
   ModelProperty,
+  Scalar,
   Type,
 } from "./types.js";
 
@@ -54,25 +53,22 @@ export function validateDecoratorTarget<K extends TypeKind>(
 
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   decoratorName: string,
-  expectedType: IntrinsicModelName | IntrinsicModelName[]
+  expectedType: IntrinsicScalarName | IntrinsicScalarName[]
 ): boolean {
-  const actualType = getIntrinsicModelName(context.program, getPropertyType(target));
-  const isCorrect =
-    actualType &&
-    (typeof expectedType === "string"
-      ? actualType === expectedType
-      : expectedType.includes(actualType));
+  const expectedTypeStrs = typeof expectedType === "string" ? [expectedType] : expectedType;
+  const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
+  const isCorrect = expectedTypes.some(
+    (x) => context.program.checker.isTypeAssignableTo(target, x, target)[0]
+  );
   if (!isCorrect) {
     context.program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
         format: {
           decorator: decoratorName,
-          to: `type it is not one of: ${
-            typeof expectedType === "string" ? expectedType : expectedType.join(", ")
-          }`,
+          to: `type it is not one of: ${typeof expectedTypeStrs.join(", ")}`,
         },
         target: context.decoratorTarget,
       })

@@ -101,7 +101,7 @@ import {
   getSourceFileKindFromExt,
   loadFile,
 } from "../core/util.js";
-import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getDoc, isDeprecated } from "../lib/decorators.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { getTypeSignature } from "./type-signature.js";
 
@@ -1023,7 +1023,9 @@ export function createServer(host: ServerHost): Server {
       case SyntaxKind.AliasStatement:
         return CompletionItemKind.Variable;
       case SyntaxKind.ModelStatement:
-        return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+        return CompletionItemKind.Class;
+      case SyntaxKind.ScalarStatement:
+        return CompletionItemKind.Unit;
       case SyntaxKind.ModelProperty:
         return CompletionItemKind.Field;
       case SyntaxKind.OperationStatement:

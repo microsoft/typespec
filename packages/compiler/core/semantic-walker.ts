@@ -8,6 +8,7 @@ import {
   ModelProperty,
   Namespace,
   Operation,
+  Scalar,
   SemanticNodeListener,
   TemplateParameter,
   Tuple,
@@ -234,6 +235,18 @@ function navigateModelTypeProperty(property: ModelProperty, context: NavigationC
   navigateTypeInternal(property.type, context);
 }
 
+function navigateScalarType(scalar: Scalar, context: NavigationContext) {
+  if (checkVisited(context.visited, scalar)) {
+    return;
+  }
+  if (context.emit("scalar", scalar) === ListenerFlow.NoRecursion) return;
+  if (scalar.baseScalar) {
+    navigateScalarType(scalar.baseScalar, context);
+  }
+
+  context.emit("exitScalar", scalar);
+}
+
 function navigateInterfaceType(type: Interface, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
@@ -298,6 +311,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
       return navigateModelType(type, context);
+    case "Scalar":
+      return navigateScalarType(type, context);
     case "ModelProperty":
       return navigateModelTypeProperty(type, context);
     case "Namespace":

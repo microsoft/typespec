@@ -2,7 +2,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
-import { getDiscriminatedUnion } from "../core/index.js";
+import { getDiscriminatedUnion } from "../core/helpers/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
@@ -11,13 +11,13 @@ import {
   Enum,
   EnumMember,
   Interface,
-  IntrinsicModelName,
   Model,
   ModelIndexer,
   ModelProperty,
   Namespace,
   NeverType,
   Operation,
+  Scalar,
   Type,
   Union,
   UnknownType,
@@ -111,20 +111,8 @@ export function $inspectTypeName(program: Program, target: Type, text: string) {
   console.log(program.checker.getTypeName(target));
 }
 
-const intrinsicsKey = createStateSymbol("intrinsics");
-export function $intrinsic(context: DecoratorContext, target: Type, name: IntrinsicModelName) {
-  context.program.stateMap(intrinsicsKey).set(target, name);
-}
-
-export function isIntrinsic(program: Program, target: Type | undefined): boolean {
-  if (!target) {
-    return false;
-  }
-  return program.stateMap(intrinsicsKey).has(target);
-}
-
 const indexTypeKey = createStateSymbol("index");
-export function $indexer(context: DecoratorContext, target: Type, key: Model, value: Type) {
+export function $indexer(context: DecoratorContext, target: Type, key: Scalar, value: Type) {
   const indexer: ModelIndexer = { key, value };
   context.program.stateMap(indexTypeKey).set(target, indexer);
 }
@@ -133,19 +121,11 @@ export function getIndexer(program: Program, target: Type): ModelIndexer | undef
   return program.stateMap(indexTypeKey).get(target);
 }
 
-/**
- * The top level name of the intrinsic model.
- *
- * string => "string"
- * model CustomString is string => "string"
- */
-export function getIntrinsicModelName(program: Program, target: Type): IntrinsicModelName {
-  return program.stateMap(intrinsicsKey).get(target);
-}
-
-export function isStringType(program: Program, target: Type): boolean {
-  const intrinsicType = getIntrinsicModelName(program, target);
-  return intrinsicType !== undefined && intrinsicType === "string";
+export function isStringType(program: Program, target: Type): target is Scalar {
+  return (
+    target.kind === "Scalar" &&
+    program.checker.isTypeAssignableTo(target, program.checker.getStdType("string"), target)[0]
+  );
 }
 
 export function isErrorType(type: Type): boolean {
@@ -164,12 +144,16 @@ export function isUnknownType(type: Type): type is UnknownType {
   return type.kind === "Intrinsic" && type.name === "unknown";
 }
 
+export function isNullType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "null";
+}
+
 /**
  * Check if a model is an array type.
  * @param type Model type
  */
 export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
-  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "integer");
+  return Boolean(type.indexer && type.indexer.key.name === "integer");
 }
 
 /**
@@ -177,32 +161,13 @@ export function isArrayModelType(program: Program, type: Model): type is ArrayMo
  * @param type Model type
  */
 export function isRecordModelType(program: Program, type: Model): type is ArrayModelType {
-  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "string");
-}
-
-const numericTypesKey = createStateSymbol("numeric");
-export function $numeric(context: DecoratorContext, target: Type) {
-  const { program } = context;
-  if (!isIntrinsic(program, target)) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@numeric", to: "non-intrinsic type" },
-        target,
-      })
-    );
-    return;
-  }
-  if (!validateDecoratorTarget(context, target, "@numeric", "Model")) {
-    return;
-  }
-  program.stateSet(numericTypesKey).add(target);
+  return Boolean(type.indexer && type.indexer.key.name === "string");
 }
 
 /**
  * Return the type of the property or the model itself.
  */
-export function getPropertyType(target: Model | ModelProperty): Type {
+export function getPropertyType(target: Scalar | ModelProperty): Type {
   if (target.kind === "ModelProperty") {
     return target.type;
   } else {
@@ -210,8 +175,11 @@ export function getPropertyType(target: Model | ModelProperty): Type {
   }
 }
 
-export function isNumericType(program: Program, target: Type): boolean {
-  return isIntrinsic(program, target) && program.stateSet(numericTypesKey).has(target);
+export function isNumericType(program: Program, target: Type): target is Scalar {
+  return (
+    target.kind === "Scalar" &&
+    program.checker.isTypeAssignableTo(target, program.checker.getStdType("numeric"), target)[0]
+  );
 }
 
 // -- @error decorator ----------------------
@@ -248,7 +216,7 @@ const formatValuesKey = createStateSymbol("formatValues");
  *
  * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
  */
-export function $format(context: DecoratorContext, target: Model | ModelProperty, format: string) {
+export function $format(context: DecoratorContext, target: Scalar | ModelProperty, format: string) {
   if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
     return;
   }
@@ -266,7 +234,7 @@ const patternValuesKey = createStateSymbol("patternValues");
 
 export function $pattern(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   pattern: string
 ) {
   if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", "string")) {
@@ -286,7 +254,7 @@ const minLengthValuesKey = createStateSymbol("minLengthValues");
 
 export function $minLength(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   minLength: number
 ) {
   if (
@@ -309,7 +277,7 @@ const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 
 export function $maxLength(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   maxLength: number
 ) {
   if (
@@ -393,7 +361,7 @@ const minValuesKey = createStateSymbol("minValues");
 
 export function $minValue(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   minValue: number
 ) {
   const { program } = context;
@@ -425,7 +393,7 @@ const maxValuesKey = createStateSymbol("maxValues");
 
 export function $maxValue(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   maxValue: number
 ) {
   const { program } = context;
@@ -459,7 +427,7 @@ const secretTypesKey = createStateSymbol("secretTypes");
  * @param context Decorator context
  * @param target Decorator target, either a string model or a property with type string.
  */
-export function $secret(context: DecoratorContext, target: Model | ModelProperty) {
+export function $secret(context: DecoratorContext, target: Scalar | ModelProperty) {
   if (!validateDecoratorTargetIntrinsic(context, target, "@secret", "string")) {
     return;
   }
@@ -672,7 +640,7 @@ const knownValuesKey = createStateSymbol("knownValues");
  */
 export function $knownValues(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   knownValues: Enum
 ) {
   if (
@@ -690,13 +658,13 @@ export function $knownValues(
   }
 
   for (const member of knownValues.members.values()) {
-    const intrinsicType = getIntrinsicModelName(context.program, getPropertyType(target));
-    if (!isEnumMemberAssignableToType(intrinsicType, member)) {
+    const propertyType = getPropertyType(target);
+    if (!isEnumMemberAssignableToType(context.program, propertyType, member)) {
       reportDiagnostic(context.program, {
         code: "known-values-invalid-enum",
         format: {
           member: member.name,
-          type: intrinsicType,
+          type: context.program.checker.getTypeName(propertyType),
         },
         target,
       });
@@ -706,29 +674,19 @@ export function $knownValues(
   context.program.stateMap(knownValuesKey).set(target, knownValues);
 }
 
-function isEnumMemberAssignableToType(typeName: IntrinsicModelName, member: EnumMember) {
+function isEnumMemberAssignableToType(program: Program, typeName: Type, member: EnumMember) {
   const memberType = member.value !== undefined ? typeof member.value : "string";
   switch (memberType) {
     case "string":
-      return typeName === "string";
+      return isStringType(program, typeName);
     case "number":
-      switch (typeName) {
-        case "int8":
-        case "int16":
-        case "int32":
-        case "int64":
-        case "float32":
-        case "float64":
-          return true;
-        default:
-          return false;
-      }
+      return isNumericType(program, typeName);
     default:
       return false;
   }
 }
 
-export function getKnownValues(program: Program, target: Model | ModelProperty): Enum | undefined {
+export function getKnownValues(program: Program, target: Scalar | ModelProperty): Enum | undefined {
   return program.stateMap(knownValuesKey).get(target);
 }
 

@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { isNeverIndexer, Model } from "../../core/index.js";
+import { Model } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -88,7 +88,6 @@ describe("compiler: checker: type relations", () => {
       `)) as { Bar: Model };
       const Foo = Bar.properties.get("foo")!.type as Model;
       ok(Foo.indexer);
-      ok(!isNeverIndexer(Foo.indexer));
       const indexValue = Foo.indexer.value;
       strictEqual(indexValue.kind, "Model" as const);
       deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);

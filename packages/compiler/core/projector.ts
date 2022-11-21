@@ -4,10 +4,10 @@ import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
   getParentTemplateNode,
-  isNeverIndexer,
   isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,
+  Scalar,
 } from "./index.js";
 import { Program } from "./program.js";
 import {
@@ -275,14 +275,10 @@ export function createProjector(
     }
 
     if (model.indexer) {
-      if (isNeverIndexer(model.indexer)) {
-        projectedModel.indexer = { key: neverType, value: undefined };
-      } else {
-        projectedModel.indexer = {
-          key: projectModel(model.indexer.key) as Model,
-          value: projectType(model.indexer.value),
-        };
-      }
+      projectedModel.indexer = {
+        key: projectScalar(model.indexer.key) as Scalar,
+        value: projectType(model.indexer.value),
+      };
     }
 
     projectedTypes.set(model, projectedModel);
@@ -307,6 +303,33 @@ export function createProjector(
     ) {
       projectedResult.baseModel.derivedModels ??= [];
       projectedResult.baseModel.derivedModels.push(projectedModel);
+    }
+    return projectedResult;
+  }
+
+  function projectScalar(scalar: Scalar): Type {
+    const projectedScalar = shallowClone(scalar, {
+      derivedScalars: [],
+    });
+
+    if (scalar.baseScalar) {
+      projectedScalar.baseScalar = projectType(scalar.baseScalar) as Scalar;
+    }
+
+    projectedTypes.set(scalar, projectedScalar);
+
+    projectedScalar.decorators = projectDecorators(scalar.decorators);
+    if (shouldFinishType(scalar)) {
+      finishTypeForProgram(projectedProgram, projectedScalar);
+    }
+    const projectedResult = applyProjection(scalar, projectedScalar);
+    if (
+      !isNeverType(projectedResult) &&
+      projectedResult.kind === "Scalar" &&
+      projectedResult.baseScalar
+    ) {
+      projectedResult.baseScalar.derivedScalars ??= [];
+      projectedResult.baseScalar.derivedScalars.push(projectedScalar);
     }
     return projectedResult;
   }

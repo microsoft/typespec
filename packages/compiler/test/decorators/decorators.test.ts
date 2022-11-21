@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, Model, Operation } from "../../core/index.js";
+import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -194,13 +194,13 @@ describe("compiler: built-in decorators", () => {
   });
 
   describe("@knownValues", () => {
-    it("assign the known values to string model", async () => {
+    it("assign the known values to string scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {one: "one", two: "two"}
         @test
         @knownValues(Foo)
-        model Bar is string {}
-      `)) as { Bar: Model };
+        scalar Bar extends string;
+      `)) as { Bar: Scalar };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -208,7 +208,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(knownValues.kind, "Enum");
     });
 
-    it("assign the known values to number model", async () => {
+    it("assign the known values to number scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {
           one: 1; 
@@ -216,8 +216,8 @@ describe("compiler: built-in decorators", () => {
         }
         @test
         @knownValues(Foo)
-        model Bar is int32 {}
-      `)) as { Bar: Model };
+        scalar Bar extends int32;
+      `)) as { Bar: Scalar };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);

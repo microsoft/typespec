@@ -17,22 +17,22 @@ extern dec service(target: unknown, options?: ServiceOptions);
 extern dec error(target: object);
 
 // TODO replace unknown with `string` when @intrinsic is gone https://github.com/microsoft/cadl/issues/1192
-extern dec format(target: unknown | ModelProperty, format: string);
-extern dec pattern(target: unknown | ModelProperty, pattern: string);
+extern dec format(target: string | bytes | ModelProperty, format: string);
+extern dec pattern(target: string | bytes | ModelProperty, pattern: string);
 
-extern dec minLength(target: unknown | ModelProperty, value: integer);
-extern dec maxLength(target: unknown | ModelProperty, value: integer);
+extern dec minLength(target: string | ModelProperty, value: integer);
+extern dec maxLength(target: string | ModelProperty, value: integer);
 
 extern dec minItems(target: unknown[] | ModelProperty, value: integer);
 extern dec maxItems(target: unknown[] | ModelProperty, value: integer);
 
-extern dec minValue(target: unknown | ModelProperty, value: numeric);
-extern dec maxValue(target: unknown | ModelProperty, value: numeric);
+extern dec minValue(target: numeric | ModelProperty, value: numeric);
+extern dec maxValue(target: numeric | ModelProperty, value: numeric);
 
-extern dec secret(target: unknown | ModelProperty);
+extern dec secret(target: string | ModelProperty);
 extern dec tag(target: Namespace | Interface | Operation, tag: string);
 extern dec friendlyName(target: unknown, name: string, formatArgs?: unknown);
-extern dec knownValues(target: unknown | ModelProperty, values: Enum);
+extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
 extern dec key(target: ModelProperty, altName?: string);
 extern dec overload(target: Operation, overloadbase: Operation);
 extern dec projectedName(target: unknown, targetName: string, projectedName: string);

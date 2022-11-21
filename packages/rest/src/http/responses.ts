@@ -3,10 +3,9 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getDoc,
-  getIntrinsicModelName,
   isArrayModelType,
   isErrorModel,
-  isIntrinsic,
+  isNullType,
   isVoidType,
   Model,
   ModelProperty,
@@ -40,7 +39,7 @@ export function getResponsesForOperation(
   const responses: Record<string | symbol, HttpOperationResponse> = {};
   if (responseType.kind === "Union") {
     for (const option of responseType.variants.values()) {
-      if (isNullType(program, option.type)) {
+      if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/cadl/issues/356
         continue;
       }
@@ -51,10 +50,6 @@ export function getResponsesForOperation(
   }
 
   return diagnostics.wrap(Object.values(responses));
-}
-
-function isNullType(program: Program, type: Type): boolean {
-  return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
 }
 
 function processResponseType(
@@ -235,11 +230,7 @@ function getResponseBody(
   metadata: Set<ModelProperty>
 ): Type | undefined {
   // non-model or intrinsic/array model -> response body is response type
-  if (
-    responseType.kind !== "Model" ||
-    isIntrinsic(program, responseType) ||
-    isArrayModelType(program, responseType)
-  ) {
+  if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
     return responseType;
   }
 
