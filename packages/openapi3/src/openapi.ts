@@ -1279,20 +1279,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema | undefined {
+  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
+    let result: OpenAPI3Schema = {};
     if (program.checker.isStdType(scalar)) {
-      const result = getSchemaForStdScalars(scalar);
-      return result ? applyIntrinsicDecorators(scalar, result) : undefined;
+      result = getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
-      const result = getSchemaForScalar(scalar.baseScalar);
-      return result ? applyIntrinsicDecorators(scalar, result) : undefined;
+      result = getSchemaForScalar(scalar.baseScalar);
     }
-    return undefined;
+    return applyIntrinsicDecorators(scalar, result);
   }
 
-  function getSchemaForStdScalars(
-    scalar: Scalar & { name: IntrinsicScalarName }
-  ): OpenAPI3Schema | undefined {
+  function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
     switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
@@ -1330,8 +1327,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
+      case "uri":
+        return { type: "string", format: "uri" };
+      case "integer":
+      case "numeric":
+      case "float":
+        return {}; // Waiting on design for more precise type https://github.com/microsoft/cadl/issues/1260
       default:
-        return {}; // Unknown scalar
+        const _assertNever: never = scalar.name;
+        return {};
     }
   }
 

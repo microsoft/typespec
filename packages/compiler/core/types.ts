@@ -205,7 +205,8 @@ export type IntrinsicScalarName =
   | "plainTime"
   | "zonedDateTime"
   | "duration"
-  | "boolean";
+  | "boolean"
+  | "uri";
 
 export type NeverIndexer = { key: NeverType; value: undefined };
 export type ModelIndexer = {
