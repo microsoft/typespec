@@ -30,6 +30,7 @@ type Tokenize = (input: string) => Promise<Token[]>;
 const Token = {
   keywords: {
     model: createToken("model", "keyword.other.cadl"),
+    scalar: createToken("scalar", "keyword.other.cadl"),
     operation: createToken("op", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
@@ -534,6 +535,40 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.type("Bar"),
           Token.punctuation.semicolon,
           Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("scalar", () => {
+      it("simple scalar", async () => {
+        const tokens = await tokenize("scalar Foo;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("scalar with extends", async () => {
+        const tokens = await tokenize("scalar Foo extends Bar;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("single template argument model", async () => {
+        const tokens = await tokenize("scalar Foo<T>;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
         ]);
       });
     });

@@ -1108,6 +1108,9 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.ModelStatement:
           classify(node.id, SemanticTokenKind.Struct);
           break;
+        case SyntaxKind.ScalarStatement:
+          classify(node.id, SemanticTokenKind.Type);
+          break;
         case SyntaxKind.EnumStatement:
           classify(node.id, SemanticTokenKind.Enum);
           break;
