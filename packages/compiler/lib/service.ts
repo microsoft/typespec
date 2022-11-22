@@ -128,16 +128,16 @@ export function $serviceVersion(context: DecoratorContext, target: Type, version
 // #region deprecated
 /** @deprecated use @see listServices() or @see getService() */
 export function getServiceNamespace(program: Program): Namespace {
-  return listServices(program)[0].type;
+  return listServices(program)[0]?.type ?? program.getGlobalNamespaceType();
 }
 
 /** @deprecated use @see listServices() or @see getService() */
 export function getServiceTitle(program: Program): string {
-  return listServices(program)[0].title ?? `(title)`;
+  return listServices(program)[0]?.title ?? `(title)`;
 }
 /** @deprecated use @see listServices() or @see getService() */
 export function getServiceVersion(program: Program): string {
-  return listServices(program)[0].version ?? `0000-00-00`;
+  return listServices(program)[0]?.version ?? `0000-00-00`;
 }
 
 /** @deprecated use @see listServices() or @see getService() */
