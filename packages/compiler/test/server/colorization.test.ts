@@ -4,7 +4,7 @@ import { createRequire } from "module";
 import path, { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
-import vscode_textmate, { IOnigLib, StackElement } from "vscode-textmate";
+import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
 import { CadlScope } from "../../server/tmlanguage.js";
@@ -975,7 +975,7 @@ export async function tokenizeTMLanguage(input: string | Input): Promise<Token[]
   }
 
   const tokens: Token[] = [];
-  let previousStack: StackElement | null = null;
+  let previousStack: StateStack | null = null;
   const grammar = await registry.loadGrammar("source.cadl");
 
   if (grammar === null) {

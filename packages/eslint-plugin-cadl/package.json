@@ -45,7 +45,7 @@
     "@typescript-eslint/parser": "^5.30.7",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
-    "mocha-junit-reporter": "~2.0.2",
+    "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.12.0",
     "rimraf": "~3.0.2",
