@@ -17,14 +17,14 @@
   "devDependencies": {
     "@cadl-lang/compiler": "~0.37.0",
     "@cadl-lang/internal-build-utils": "~0.3.1",
-    "@rollup/plugin-commonjs": "~22.0.2",
-    "@rollup/plugin-json": "~4.1.0",
-    "@rollup/plugin-node-resolve": "~13.3.0",
+    "@rollup/plugin-commonjs": "~23.0.2",
+    "@rollup/plugin-json": "~5.0.1",
+    "@rollup/plugin-node-resolve": "~15.0.1",
     "@rollup/plugin-replace": "~4.0.0",
-    "mocha": "~9.2.0",
+    "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.0.2",
     "mocha-multi-reporters": "~1.5.1",
-    "rollup": "~2.79.0"
+    "rollup": "~3.4.0"
   },
   "files": [
     "dist/**/*",
