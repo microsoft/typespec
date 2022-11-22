@@ -2,7 +2,14 @@ import assert, { deepStrictEqual } from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
-import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
+import {
+  CadlScriptNode,
+  Node,
+  NodeFlags,
+  ParseOptions,
+  SourceFile,
+  SyntaxKind,
+} from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
 describe("compiler: parser", () => {
@@ -730,11 +737,80 @@ describe("compiler: parser", () => {
   describe("invalid statement", () => {
     parseErrorEach([["@myDecN.)", [/Identifier expected/]]]);
   });
+
+  describe("doc comments", () => {
+    parseEach(
+      [
+        `
+      /** One-liner */ 
+      model M {}
+      `,
+        `
+      /** 
+      * This one has a \`code span\` and a code fence and it spreads over
+      * more than one line.
+      *
+      * \`\`\`
+      * This is not a @tag because we're in a code fence.
+      * \`\`\`
+      *
+      * \`This is not a @tag either because we're in a code span\`.
+      * 
+      * @param x the param
+      * @template T some template
+      * @returns something
+      * @madeup this an unknown tag
+      */
+      op test<T>(x: string): string;
+      `,
+      ],
+      { docs: true }
+    );
+  });
+
+  describe("conflict marker", () => {
+    // NOTE: Use of ${} to obfuscate conflict markers so that their not
+    // flagged while working on these tests.
+    parseErrorEach(
+      [
+        [
+          `
+${"<<<<<<<"} ours
+model XY {}
+${"|||||||"} base
+model X {}
+${"======="}
+model XYZ {}
+${">>>>>>>"} theirs`,
+          [
+            { code: "conflict-marker", pos: 1, end: 8 },
+            { code: "conflict-marker", pos: 26, end: 33 },
+            { code: "conflict-marker", pos: 50, end: 57 },
+            { code: "conflict-marker", pos: 71, end: 78 },
+          ],
+        ],
+        [
+          `
+${"<<<<<<<"} ours
+model XY {}
+${"======="}
+model XYZ {}
+${">>>>>>>"} theirs`,
+          [
+            { code: "conflict-marker", pos: 1, end: 8 },
+            { code: "conflict-marker", pos: 26, end: 33 },
+            { code: "conflict-marker", pos: 47, end: 54 },
+          ],
+        ],
+      ],
+      { strict: true }
+    );
+  });
 });
 
 type Callback = (node: CadlScriptNode) => void;
 
-function parseEach(cases: (string | [string, Callback])[]) {
+function parseEach(cases: (string | [string, Callback])[], options?: ParseOptions) {
   for (const each of cases) {
     const code = typeof each === "string" ? each : each[0];
     const callback = typeof each === "string" ? undefined : each[1];
@@ -743,7 +819,7 @@ function parseEach(cases: (string | [string, Callback])[]) {
       logVerboseTestOutput(code);
 
       logVerboseTestOutput("\n=== Parse Result ===");
-      const astNode = parse(code);
+      const astNode = parse(code, options);
       if (callback) {
         callback(astNode);
       }
@@ -830,14 +906,14 @@ function checkPositioning(node: Node, file: SourceFile) {
  */
 function parseErrorEach(
   cases: [string, (RegExp | DiagnosticMatch)[], Callback?][],
-  options = { strict: false }
+  options: ParseOptions & { strict: boolean } = { strict: false }
 ) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse '${shorten(code)}'`, () => {
       logVerboseTestOutput("=== Source ===");
       logVerboseTestOutput(code);
 
-      const astNode = parse(code);
+      const astNode = parse(code, options);
       if (callback) {
         callback(astNode);
       }

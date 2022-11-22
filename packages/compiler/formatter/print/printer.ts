@@ -1,4 +1,5 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
+import { compilerAssert } from "../../core/diagnostics.js";
 import { createScanner, Token } from "../../core/scanner.js";
 import {
   AliasStatementNode,
@@ -310,12 +311,21 @@ export function printNode(
       return path.call(print, "target");
     case SyntaxKind.Return:
       return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
+    case SyntaxKind.Doc:
+    case SyntaxKind.DocText:
+    case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocTemplateTag:
+    case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocUnknownTag:
+      compilerAssert(
+        false,
+        "Doc comments are handled as regular comments by formatter and parsing of them should be disabled when formatting."
+      );
+      return "";
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.InvalidStatement:
       return getRawText(node, options);
-    // default:
-    //   return getRawText(node, options);
     default:
       // Dummy const to ensure we handle all node types.
       // If you get an error here, add a case for the new node type

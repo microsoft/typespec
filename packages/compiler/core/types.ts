@@ -583,6 +583,12 @@ export enum SyntaxKind {
   InvalidStatement,
   LineComment,
   BlockComment,
+  Doc,
+  DocText,
+  DocParamTag,
+  DocReturnsTag,
+  DocTemplateTag,
+  DocUnknownTag,
   Projection,
   ProjectionParameterDeclaration,
   ProjectionModelSelector,
@@ -648,6 +654,7 @@ export interface BaseNode extends TextRange {
   readonly kind: SyntaxKind;
   readonly parent?: Node;
   readonly directives?: readonly DirectiveExpressionNode[];
+  readonly docs?: readonly DocNode[];
   readonly flags: NodeFlags;
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
@@ -681,6 +688,9 @@ export type Node =
   | Expression
   | FunctionParameterNode
   | Modifier
+  | DocNode
+  | DocContent
+  | DocTag
   | ProjectionStatementItem
   | ProjectionExpression
   | ProjectionModelSelectorNode
@@ -713,7 +723,10 @@ export interface BlockComment extends TextRange {
 }
 
 export interface ParseOptions {
+  /** When true, collect comment ranges in {@link CadlScriptNode.comments}. */
   readonly comments?: boolean;
+  /** When true, parse doc comments into {@link Node.docs}. */
+  readonly docs?: boolean;
 }
 
 export interface CadlScriptNode extends DeclarationNode, BaseNode {
@@ -1275,6 +1288,46 @@ export enum IdentifierKind {
   Declaration,
   Other,
 }
+
+// Doc-comment related syntax
+
+export interface DocNode extends BaseNode {
+  readonly kind: SyntaxKind.Doc;
+  readonly content: readonly DocContent[];
+  readonly tags: readonly DocTag[];
+}
+
+export interface DocTagBaseNode extends BaseNode {
+  readonly tagName: IdentifierNode;
+  readonly content: readonly DocContent[];
+}
+
+export type DocTag = DocReturnsTagNode | DocParamTagNode | DocTemplateTagNode | DocUnknownTagNode;
+export type DocContent = DocTextNode;
+
+export interface DocTextNode extends BaseNode {
+  readonly kind: SyntaxKind.DocText;
+  readonly text: string;
+}
+
+export interface DocReturnsTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocReturnsTag;
+}
+
+export interface DocParamTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocParamTag;
+  readonly name: IdentifierNode;
+}
+
+export interface DocTemplateTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocTemplateTag;
+  readonly name: IdentifierNode;
+}
+
+export interface DocUnknownTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocUnknownTag;
+}
+////
 
 /**
  * Identifies the position within a source file by line number and offset from

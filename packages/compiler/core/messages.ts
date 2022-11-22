@@ -702,6 +702,12 @@ const diagnostics = {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
+  "conflict-marker": {
+    severity: "error",
+    messages: {
+      default: "Conflict marker encountered.",
+    },
+  },
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;
