@@ -1029,14 +1029,18 @@ export function printScalarStatement(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
+  const template = printTemplateParameters(path, options, print, "templateParameters");
+
   const heritage = node.extends
     ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
     : "";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
-    "model ",
+    "scalar ",
     id,
+    template,
     group(indent(["", heritage])),
+    ";",
   ];
 }
 
