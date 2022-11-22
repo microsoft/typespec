@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
-    "@types/node": "~16.0.3",
+    "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
     "@types/react-dom": "~18.0.1",
     "@types/react": "~18.0.5",
@@ -79,7 +79,7 @@
     "playwright": "~1.27.1",
     "rimraf": "~3.0.2",
     "cross-env": "~7.0.3",
-    "typescript": "~4.8.2",
+    "typescript": "~4.9.3",
     "@types/debounce": "~1.2.1",
     "@types/swagger-ui": "~3.52.0",
     "rollup-plugin-visualizer": "~5.8.0"

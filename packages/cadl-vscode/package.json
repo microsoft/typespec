@@ -120,7 +120,7 @@
     "@rollup/plugin-node-resolve": "~13.3.0",
     "@types/mkdirp": "~1.0.1",
     "@types/mocha": "~9.1.0",
-    "@types/node": "~16.0.3",
+    "@types/node": "~18.11.9",
     "@types/vscode": "~1.53.0",
     "@cadl-lang/compiler": "~0.37.0",
     "@cadl-lang/eslint-config-cadl": "~0.4.1",
@@ -133,7 +133,7 @@
     "mocha-multi-reporters": "~1.5.1",
     "rimraf": "~3.0.2",
     "rollup": "~2.79.0",
-    "typescript": "~4.8.2",
+    "typescript": "~4.9.3",
     "vsce": "~2.6.7",
     "vscode-languageclient": "~8.0.0"
   }
