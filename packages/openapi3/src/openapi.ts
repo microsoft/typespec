@@ -259,11 +259,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     tags = new Set();
   }
 
-  // Todo: Should be able to replace with isRelatedTo(prop.type, "string") https://github.com/microsoft/cadl/pull/571
   function isValidServerVariableType(program: Program, type: Type): boolean {
     switch (type.kind) {
       case "String":
-        return true;
+      case "Union":
       case "Scalar":
         return ignoreDiagnostics(
           program.checker.isTypeAssignableTo(type, program.checker.getStdType("string"), type)
@@ -271,13 +270,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "Enum":
         for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
-            return false;
-          }
-        }
-        return true;
-      case "Union":
-        for (const option of type.options) {
-          if (!isValidServerVariableType(program, option)) {
             return false;
           }
         }

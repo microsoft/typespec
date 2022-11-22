@@ -62,7 +62,7 @@ export function validateDecoratorTargetIntrinsic(
   const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
   const type = getPropertyType(target);
   const isCorrect = expectedTypes.some(
-    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0]
+    (x) => context.program.checker.isTypeAssignableTo(type.projectionBase ?? type, x, type)[0]
   );
   if (!isCorrect) {
     context.program.reportDiagnostic(
