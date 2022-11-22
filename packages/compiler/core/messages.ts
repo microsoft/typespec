@@ -638,12 +638,6 @@ const diagnostics = {
       default: `@service can only be set once per Cadl document.`,
     },
   },
-  "service-namespace-duplicate": {
-    severity: "error",
-    messages: {
-      default: "Cannot set service namespace more than once in a Cadl project.",
-    },
-  },
   "list-type-not-model": {
     severity: "error",
     messages: {
