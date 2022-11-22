@@ -1,9 +1,9 @@
-import { isNeverType } from "../lib/decorators.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
   getParentTemplateNode,
+  isNeverType,
   isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,

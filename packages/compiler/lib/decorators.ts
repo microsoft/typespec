@@ -4,7 +4,7 @@ import {
 } from "../core/decorator-utils.js";
 import { getDiscriminatedUnion } from "../core/helpers/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
-import { Program } from "../core/program.js";
+import { Program, ProjectedProgram } from "../core/program.js";
 import {
   ArrayModelType,
   DecoratorContext,
@@ -15,13 +15,10 @@ import {
   ModelIndexer,
   ModelProperty,
   Namespace,
-  NeverType,
   Operation,
   Scalar,
   Type,
   Union,
-  UnknownType,
-  VoidType,
 } from "../core/types.js";
 export * from "./service.js";
 
@@ -121,31 +118,20 @@ export function getIndexer(program: Program, target: Type): ModelIndexer | undef
   return program.stateMap(indexTypeKey).get(target);
 }
 
-export function isStringType(program: Program, target: Type): target is Scalar {
+export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
+  const coreType = program.checker.getStdType("string");
+  const stringType = target.projector ? target.projector.projectType(coreType) : coreType;
   return (
-    target.kind === "Scalar" &&
-    program.checker.isTypeAssignableTo(target, program.checker.getStdType("string"), target)[0]
+    target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, stringType, target)[0]
   );
 }
 
-export function isErrorType(type: Type): boolean {
-  return type.kind === "Intrinsic" && type.name === "ErrorType";
-}
-
-export function isVoidType(type: Type): type is VoidType {
-  return type.kind === "Intrinsic" && type.name === "void";
-}
-
-export function isNeverType(type: Type): type is NeverType {
-  return type.kind === "Intrinsic" && type.name === "never";
-}
-
-export function isUnknownType(type: Type): type is UnknownType {
-  return type.kind === "Intrinsic" && type.name === "unknown";
-}
-
-export function isNullType(type: Type): type is UnknownType {
-  return type.kind === "Intrinsic" && type.name === "null";
+export function isNumericType(program: Program | ProjectedProgram, target: Type): target is Scalar {
+  const coreType = program.checker.getStdType("numeric");
+  const numericType = target.projector ? target.projector.projectType(coreType) : coreType;
+  return (
+    target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, numericType, target)[0]
+  );
 }
 
 /**
@@ -173,13 +159,6 @@ export function getPropertyType(target: Scalar | ModelProperty): Type {
   } else {
     return target;
   }
-}
-
-export function isNumericType(program: Program, target: Type): target is Scalar {
-  return (
-    target.kind === "Scalar" &&
-    program.checker.isTypeAssignableTo(target, program.checker.getStdType("numeric"), target)[0]
-  );
 }
 
 // -- @error decorator ----------------------

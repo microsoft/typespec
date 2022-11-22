@@ -1,10 +1,4 @@
-import {
-  getDeprecated,
-  getIndexer,
-  isNeverType,
-  isUnknownType,
-  isVoidType,
-} from "../lib/decorators.js";
+import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -12,7 +6,7 @@ import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
-import { getParentTemplateNode } from "./type-utils.js";
+import { getParentTemplateNode, isNeverType, isUnknownType, isVoidType } from "./type-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,

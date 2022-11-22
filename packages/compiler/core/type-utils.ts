@@ -1,16 +1,40 @@
 import { Program } from "./program.js";
 import {
   Enum,
+  ErrorType,
   Interface,
   Model,
   Namespace,
+  NeverType,
   Node,
   Operation,
   SyntaxKind,
   TemplateDeclarationNode,
   TemplatedType,
   Type,
+  UnknownType,
+  VoidType,
 } from "./types.js";
+
+export function isErrorType(type: Type): type is ErrorType {
+  return type.kind === "Intrinsic" && type.name === "ErrorType";
+}
+
+export function isVoidType(type: Type): type is VoidType {
+  return type.kind === "Intrinsic" && type.name === "void";
+}
+
+export function isNeverType(type: Type): type is NeverType {
+  return type.kind === "Intrinsic" && type.name === "never";
+}
+
+export function isUnknownType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "unknown";
+}
+
+export function isNullType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "null";
+}
 
 /**
  * Lookup and find the node
