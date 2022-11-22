@@ -64,7 +64,7 @@ specifiers:
   c8: ~7.12.0
   change-case: ~4.1.2
   cross-env: ~7.0.3
-  cspell: ~6.8.1
+  cspell: ~6.14.3
   debounce: ~1.2.1
   ecmarkup: ~12.0.3
   es-module-shims: ~1.6.2
@@ -180,7 +180,7 @@ dependencies:
   c8: 7.12.0
   change-case: 4.1.2
   cross-env: 7.0.3
-  cspell: 6.8.2
+  cspell: 6.14.3
   debounce: 1.2.1
   ecmarkup: 12.0.3
   es-module-shims: 1.6.2
@@ -5986,8 +5986,8 @@ packages:
       gensequence: 4.0.2
     dev: false
 
-  /cspell/6.8.2:
-    resolution: {integrity: sha512-WHF8tQXetHgAjyG6f0rDhWXRQllSpZULOIuDZj6PeZyHubuObzsMsW0asDvL8j+EGKXr8NPo4J3vjxahYmSJ+w==}
+  /cspell/6.14.3:
+    resolution: {integrity: sha512-DimVpUiw2iOSvO1daOTtOWjmryVZdFnPmjPhyhWZUqakOEgE2MgoBuk3cFzXqb8GsGXHQh5PqiWr1rqIkQ99qA==}
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
@@ -13878,7 +13878,7 @@ packages:
     dev: false
 
   file:projects/internal-build-utils.tgz:
-    resolution: {integrity: sha512-WPqoZ67/+US45+9DgCid1XQsSWFYvQELYZSnJXZHcNg+oOXPpqxSxXhIUkqQqJvJ9GM0M3EIB+OsaiyJamUPDA==, tarball: file:projects/internal-build-utils.tgz}
+    resolution: {integrity: sha512-0wkPbr6zoPIzD7T+nehxZXFb0JJjYHK4RV2dOP+uJuAp6Uf7u68qRc0gPfYcfjgaTzUpP45ZAJEK53bUxvDTIA==, tarball: file:projects/internal-build-utils.tgz}
     name: '@rush-temp/internal-build-utils'
     version: 0.0.0
     dependencies:
@@ -13887,7 +13887,7 @@ packages:
       '@types/watch': 1.0.3
       '@types/yargs': 17.0.13
       c8: 7.12.0
-      cspell: 6.8.2
+      cspell: 6.14.3
       eslint: 8.28.0
       mocha: 10.1.0
       mocha-junit-reporter: 2.2.0_mocha@10.1.0

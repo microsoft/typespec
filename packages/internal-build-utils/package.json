@@ -41,7 +41,7 @@
   "dependencies": {
     "yargs": "~17.6.2",
     "strip-json-comments": "~4.0.0",
-    "cspell": "~6.8.1"
+    "cspell": "~6.14.3"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
