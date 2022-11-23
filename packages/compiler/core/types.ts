@@ -1,5 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import { Program } from "./program";
+import { Program } from "./program.js";
 
 // prettier-ignore
 export type MarshalledValue<Type>  = 

@@ -38,7 +38,9 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.37.0"
+    "globby": "~13.1.1",
+    "@cadl-lang/compiler": "~0.37.0",
+    "@cadl-lang/compiler-v0.36": "npm:@cadl-lang/compiler@0.36.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
