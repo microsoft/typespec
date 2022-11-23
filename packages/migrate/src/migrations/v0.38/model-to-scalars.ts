@@ -1,4 +1,4 @@
-import type { CadlScriptNode, TemplateParameterDeclarationNode } from "@cadl-lang/compiler-v0.36";
+import type { CadlScriptNode, TemplateParameterDeclarationNode } from "@cadl-lang/compiler-v0.37";
 import {
   CadlCompilerV0_37,
   createMigration,
@@ -6,7 +6,7 @@ import {
   MigrationContext,
 } from "../migration.js";
 
-export const migrateModelToScalar = createMigration<CadlCompilerV0_37>({
+export const migrateModelToScalar = createMigration({
   name: "Migrate Model To scalar",
   kind: "Syntax",
   from: "0.37",
@@ -28,13 +28,17 @@ export const migrateModelToScalar = createMigration<CadlCompilerV0_37>({
       if (
         node.kind === compilerV37.SyntaxKind.ModelStatement &&
         node.is &&
+        node.is.kind === compilerV37.SyntaxKind.TypeReference &&
+        node.is.target.kind === compilerV37.SyntaxKind.Identifier &&
+        builtInTypes.has(node.is.target.sv) &&
         node.properties.length === 0
       ) {
+        const decorators = printNodes(node.decorators);
         actions.push({
           target: node,
-          content: `${printNodes(node.decorators)}scalar ${node.id.sv}${printTemplateParameters(
-            node.templateParameters
-          )} extends ${printNode(node.is)};`,
+          content: `${decorators ? decorators + " " : ""}scalar ${
+            node.id.sv
+          }${printTemplateParameters(node.templateParameters)} extends ${printNode(node.is)};`,
         });
       }
     });
@@ -42,3 +46,27 @@ export const migrateModelToScalar = createMigration<CadlCompilerV0_37>({
     return actions;
   },
 });
+
+const builtInTypes = new Set([
+  "bytes",
+  "numeric",
+  "integer",
+  "float",
+  "int64",
+  "safeint",
+  "int32",
+  "int16",
+  "int8",
+  "uint64",
+  "uint32",
+  "uint16",
+  "uint8",
+  "float64",
+  "float32",
+  "string",
+  "plainDate",
+  "plainTime",
+  "zonedDateTime",
+  "duration",
+  "boolean",
+]);

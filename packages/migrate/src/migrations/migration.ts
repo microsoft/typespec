@@ -2,25 +2,38 @@ import { TextRange } from "@cadl-lang/compiler";
 
 export type MigrationKind = "Syntax";
 
-export type CadlCompilerVersion = "0.38" | "0.37";
+// Update here before release.
+export type CadlCompilerCurrent = typeof import("@cadl-lang/compiler");
+export type CadlCompilerV0_38 = CadlCompilerCurrent;
+export type CadlCompilerV0_37 = typeof import("@cadl-lang/compiler-v0.37");
 
-export type CadlCompilerV0_38 = typeof import("@cadl-lang/compiler");
-export type CadlCompilerV0_37 = typeof import("@cadl-lang/compiler-v0.36");
+export type CadlCompilers = {
+  "0.37": CadlCompilerV0_37;
+  "0.38": CadlCompilerV0_38;
+};
 
-export type CadlCompiler = CadlCompilerV0_38 | CadlCompilerV0_37;
+export type CadlCompiler = CadlCompilers[keyof CadlCompilers];
+export type CadlCompilerVersion = keyof CadlCompilers;
 
 export interface MigrationContext {
+  /**
+   * Print the text range as it is.
+   */
   printNode(node: TextRange): string;
+
+  /**
+   * Print the entire text range from teh first node to the last.(Including anything in between the nodes.)
+   */
   printNodes(node: readonly TextRange[]): string;
 }
 
-export interface Migration<TCompiler extends CadlCompiler> {
+export interface Migration<TFrom extends CadlCompilerVersion> {
   name: string;
   kind: "Syntax";
   /**
    * Compiler version.
    */
-  from: CadlCompilerVersion;
+  from: TFrom;
 
   /**
    * Target version
@@ -32,7 +45,11 @@ export interface Migration<TCompiler extends CadlCompiler> {
    * @param compilerInstance Instance of the compiler at the `from` version.
    * @param script Cadl Script source node.
    */
-  migrate(context: MigrationContext, compilerInstance: TCompiler, script: unknown): MigrateAction[];
+  migrate(
+    context: MigrationContext,
+    compilerInstance: CadlCompilers[TFrom],
+    script: unknown
+  ): MigrateAction[];
 }
 
 export interface MigrateAction {
@@ -43,8 +60,8 @@ export interface MigrateAction {
   content: string;
 }
 
-export function createMigration<TCompiler extends CadlCompiler>(
-  migration: Migration<TCompiler>
-): Migration<any> {
+export function createMigration<TFrom extends CadlCompilerVersion>(
+  migration: Migration<TFrom>
+): Migration<TFrom> {
   return migration;
 }

@@ -19,7 +19,7 @@
   "type": "module",
   "main": "dist/src/index.js",
   "bin": {
-    "cadl-migrate": "./dist/cli.js"
+    "cadl-migrate": "./dist/src/cli.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -40,14 +40,14 @@
   "dependencies": {
     "globby": "~13.1.1",
     "@cadl-lang/compiler": "~0.37.0",
-    "@cadl-lang/compiler-v0.36": "npm:@cadl-lang/compiler@0.36.0"
+    "@cadl-lang/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
     "@cadl-lang/compiler": "~0.37.0",
     "@cadl-lang/eslint-config-cadl": "~0.4.1",
-    "@cadl-lang/eslint-plugin": "~0.1.1",
+    "@cadl-lang/eslint-plugin": " ~0.1.1",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "mocha-junit-reporter": "~2.0.2",

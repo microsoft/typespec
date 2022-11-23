@@ -3,7 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@babel/code-frame': ~7.16.7
   '@babel/core': ^7.0.0
-  '@cadl-lang/compiler-v0.36': npm:@cadl-lang/compiler@0.36.0
+  '@cadl-lang/compiler-v0.37': npm:@cadl-lang/compiler@0.37.0
   '@docusaurus/core': ^2.2.0
   '@docusaurus/module-type-aliases': ^2.2.0
   '@docusaurus/preset-classic': ^2.2.0
@@ -121,7 +121,7 @@ specifiers:
 dependencies:
   '@babel/code-frame': 7.16.7
   '@babel/core': 7.18.10
-  '@cadl-lang/compiler-v0.36': /@cadl-lang/compiler/0.36.0
+  '@cadl-lang/compiler-v0.37': /@cadl-lang/compiler/0.37.0
   '@docusaurus/core': 2.2.0_207f53c47672d8b1e76040302c34ee27
   '@docusaurus/module-type-aliases': 2.2.0_react-dom@18.2.0+react@18.2.0
   '@docusaurus/preset-classic': 2.2.0_bfa1606fe8e2b3b46742496e1af68953
@@ -2874,6 +2874,28 @@ packages:
 
   /@cadl-lang/compiler/0.36.0:
     resolution: {integrity: sha512-FzB9fap8EnILTXKRJbXKNJzhV3yyxLWvDSsFjDvPqbb8ilcNGRGF74fo4GWU5/s4eRYsJ70BWao7VyC/BniSjQ==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+    dependencies:
+      '@babel/code-frame': 7.16.7
+      ajv: 8.9.0
+      change-case: 4.1.2
+      globby: 13.1.2
+      js-yaml: 4.1.0
+      mkdirp: 1.0.4
+      mustache: 4.2.0
+      node-fetch: 3.2.8
+      node-watch: 0.7.3
+      picocolors: 1.0.0
+      prettier: 2.7.1
+      prompts: 2.4.2
+      vscode-languageserver: 7.0.0
+      vscode-languageserver-textdocument: 1.0.7
+      yargs: 17.3.1
+    dev: false
+
+  /@cadl-lang/compiler/0.37.0:
+    resolution: {integrity: sha512-jHMqPZmM4evQlu7oY9vj6PEM+f+OhnfPqAdwxALrU2gwsLcwYG1h8rkjX/iK2KfeewCbXuRT/hztOTo3pcbYWA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:
@@ -15591,11 +15613,12 @@ packages:
     dev: false
 
   file:projects/migrate.tgz:
-    resolution: {integrity: sha512-liMkusM1HOLh7dwWhAo3fzoEsfdwfEjYxC//GDYeKA7G/ZZZdzIL7sjEwFPFcofQen0S0Y5U6LeNqClWQJ7CKQ==, tarball: file:projects/migrate.tgz}
+    resolution: {integrity: sha512-E8UnnlU1vkCkQkdm2M1fNe+QCqxI/5faJ0aIqeTWNshilOFx+MZJJe4/yfwSqcCYRj+3atydT5gZSDVGF8eVDg==, tarball: file:projects/migrate.tgz}
     name: '@rush-temp/migrate'
     version: 0.0.0
     dependencies:
       '@cadl-lang/compiler-v0.36': /@cadl-lang/compiler/0.36.0
+      '@cadl-lang/compiler-v0.37': /@cadl-lang/compiler/0.37.0
       '@types/mocha': 9.1.1
       '@types/node': 16.0.3
       '@yarnpkg/pnp': 4.0.0-rc.31

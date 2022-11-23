@@ -5,6 +5,7 @@ export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./diagnostics.js";
 export * from "./emitter-utils.js";
+export * from "./formatter.js";
 export * from "./helpers/index.js";
 export { createCadlLibrary, paramMessage, setCadlNamespace } from "./library.js";
 export * from "./manifest.js";

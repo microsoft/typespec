@@ -1,7 +1,0 @@
-model foo is string;
-
-model bar {}
-
-model foo is bar;
-
-model Resource<T> is int32;
