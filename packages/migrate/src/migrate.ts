@@ -5,6 +5,7 @@ import { CadlCompiler, Migration } from "./migrations/migration.js";
 export interface MigrationResult {
   fileChanged: string[];
 }
+
 export async function migrateCadlFiles(
   compiler: CadlCompiler,
   files: string[],
