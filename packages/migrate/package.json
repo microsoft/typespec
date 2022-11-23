@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "Migration tool for cadl.",
-  "homepage": "https://github.com/Azure/cadl",
-  "readme": "https://github.com/Azure/cadl/blob/main/README.md",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/cadl.git"
+    "url": "git+https://github.com/Microsoft/cadl.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/cadl/issues"
+    "url": "https://github.com/Microsoft/cadl/issues"
   },
   "keywords": [
     "cadl"
