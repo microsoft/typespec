@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/migrate",
-  "version": "0.3.0",
+  "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "Migration tool for cadl.",
   "homepage": "https://github.com/Azure/cadl",
