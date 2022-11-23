@@ -643,6 +643,11 @@
           "book"
         ]
       },
+      "book_name": {
+        "type": "string",
+        "description": "The name of a book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`",
+        "pattern": "shelves/\\w+/books/\\w+"
+      },
       "GetBookRequest": {
         "type": "object",
         "properties": {},
@@ -714,11 +719,6 @@
         "type": "object",
         "properties": {},
         "description": "No body returned"
-      },
-      "book_name": {
-        "type": "string",
-        "description": "The name of a book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`",
-        "pattern": "shelves/\\w+/books/\\w+"
       }
     }
   }

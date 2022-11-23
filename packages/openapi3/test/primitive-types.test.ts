@@ -57,7 +57,7 @@ describe("openapi3: primitives", () => {
     });
   });
 
-  describe("specify attributes on model is", () => {
+  describe("specify attributes on scalar is", () => {
     it("includes data passed on the model", async () => {
       const res = await oapiForModel(
         "Pet",

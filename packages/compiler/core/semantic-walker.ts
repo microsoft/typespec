@@ -164,6 +164,9 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   for (const model of namespace.models.values()) {
     navigateModelType(model, context);
   }
+  for (const scalar of namespace.scalars.values()) {
+    navigateScalarType(scalar, context);
+  }
   for (const operation of namespace.operations.values()) {
     navigateOperationType(operation, context);
   }
@@ -387,6 +390,8 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "root",
   "templateParameter",
   "exitTemplateParameter",
+  "scalar",
+  "exitScalar",
   "model",
   "exitModel",
   "modelProperty",

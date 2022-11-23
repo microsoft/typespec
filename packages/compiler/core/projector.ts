@@ -114,6 +114,9 @@ export function createProjector(
         );
         projected = projectNamespace(type, false);
         break;
+      case "Scalar":
+        projected = projectScalar(type);
+        break;
       case "Model":
         projected = projectModel(type);
         break;
@@ -171,19 +174,15 @@ export function createProjector(
       }
       return alreadyProjected;
     }
-    const childNamespaces = new Map<string, Namespace>();
-    const childModels = new Map<string, Model>();
-    const childOperations = new Map<string, Operation>();
-    const childInterfaces = new Map<string, Interface>();
-    const childUnions = new Map<string, Union>();
-    const childEnums = new Map<string, Enum>();
+
     const projectedNs = shallowClone(ns, {
-      namespaces: childNamespaces,
-      models: childModels,
-      operations: childOperations,
-      interfaces: childInterfaces,
-      unions: childUnions,
-      enums: childEnums,
+      namespaces: new Map<string, Namespace>(),
+      scalars: new Map<string, Scalar>(),
+      models: new Map<string, Model>(),
+      operations: new Map<string, Operation>(),
+      interfaces: new Map<string, Interface>(),
+      unions: new Map<string, Union>(),
+      enums: new Map<string, Enum>(),
       decorators: [],
     });
 
@@ -222,6 +221,13 @@ export function createProjector(
       const projected = projectType(childModel);
       if (projected.kind === "Model") {
         projectedNs.models.set(projected.name, projected);
+      }
+    }
+
+    for (const scalar of ns.scalars.values()) {
+      const projected = projectType(scalar);
+      if (projected.kind === "Scalar") {
+        projectedNs.scalars.set(projected.name, projected);
       }
     }
 
@@ -276,7 +282,7 @@ export function createProjector(
 
     if (model.indexer) {
       projectedModel.indexer = {
-        key: projectScalar(model.indexer.key) as Scalar,
+        key: projectType(model.indexer.key) as Scalar,
         value: projectType(model.indexer.value),
       };
     }
@@ -311,6 +317,12 @@ export function createProjector(
     const projectedScalar = shallowClone(scalar, {
       derivedScalars: [],
     });
+
+    let templateArguments: Type[] | undefined;
+    if (scalar.templateArguments !== undefined) {
+      templateArguments = scalar.templateArguments.map(projectType);
+    }
+    projectedScalar.templateArguments = templateArguments;
 
     if (scalar.baseScalar) {
       projectedScalar.baseScalar = projectType(scalar.baseScalar) as Scalar;

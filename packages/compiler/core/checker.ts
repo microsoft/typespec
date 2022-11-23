@@ -4559,6 +4559,7 @@ export function createChecker(program: Program): Checker {
     stdType?: IntrinsicScalarName
   ): type is Scalar & { name: IntrinsicScalarName };
   function isStdType(type: Type, stdType?: StdTypeName): type is Type & { name: StdTypeName } {
+    type = type.projectionBase ?? type;
     if (
       (type.kind !== "Model" && type.kind !== "Scalar") ||
       type.namespace === undefined ||

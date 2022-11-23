@@ -44,6 +44,7 @@ export function isNullType(type: Type): type is UnknownType {
 export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNode) | undefined {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.InterfaceStatement:
       return node.templateParameters.length > 0 ? node : undefined;

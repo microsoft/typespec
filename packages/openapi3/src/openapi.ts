@@ -265,7 +265,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "Union":
       case "Scalar":
         return ignoreDiagnostics(
-          program.checker.isTypeAssignableTo(type, program.checker.getStdType("string"), type)
+          program.checker.isTypeAssignableTo(
+            type.projectionBase ?? type,
+            program.checker.getStdType("string"),
+            type
+          )
         );
       case "Enum":
         for (const member of type.members.values()) {
@@ -791,6 +795,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       namespace,
       {
         model: (x) => x.name !== "" && computeSchema(x),
+        scalar: computeSchema,
         enum: computeSchema,
         union: (x) => x.name !== undefined && computeSchema(x),
       },
