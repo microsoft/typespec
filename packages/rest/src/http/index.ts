@@ -1,5 +1,6 @@
 export const namespace = "Cadl.Http";
 
+export * from "./content-types.js";
 export * from "./decorators.js";
 export * from "./metadata.js";
 export * from "./operations.js";

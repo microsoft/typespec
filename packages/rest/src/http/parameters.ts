@@ -5,9 +5,11 @@ import {
   ModelProperty,
   Operation,
   Program,
+  Type,
 } from "@cadl-lang/compiler";
 import { createDiagnostic } from "../lib.js";
 import { getAction, getCollectionAction, getResourceOperation } from "../rest.js";
+import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getOperationVerb,
@@ -16,7 +18,13 @@ import {
   isBody,
 } from "./decorators.js";
 import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
-import { HttpOperation, HttpOperationParameters, HttpVerb } from "./types.js";
+import {
+  HttpOperation,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  HttpOperationRequestBody,
+  HttpVerb,
+} from "./types.js";
 
 export function getOperationParameters(
   program: Program,
@@ -68,10 +76,10 @@ function getOperationParametersForVerb(
     return isTopLevel && knownPathParamNames.includes(param.name);
   }
 
-  const result: HttpOperationParameters = {
-    parameters: [],
-    verb,
-  };
+  const parameters: HttpOperationParameter[] = [];
+  let bodyType: Type | undefined;
+  let bodyParameter: ModelProperty | undefined;
+  let contentTypes: string[] | undefined;
 
   for (const param of metadata) {
     const queryParam = getQueryParamName(program, param);
@@ -79,7 +87,6 @@ function getOperationParametersForVerb(
       getPathParamName(program, param) ?? (isImplicitPathParam(param) && param.name);
     const headerParam = getHeaderFieldName(program, param);
     const bodyParam = isBody(program, param);
-
     const defined = [
       ["query", queryParam],
       ["path", pathParam],
@@ -97,7 +104,7 @@ function getOperationParametersForVerb(
     }
 
     if (queryParam) {
-      result.parameters.push({ type: "query", name: queryParam, param });
+      parameters.push({ type: "query", name: queryParam, param });
     } else if (pathParam) {
       if (param.optional) {
         diagnostics.add(
@@ -108,13 +115,16 @@ function getOperationParametersForVerb(
           })
         );
       }
-      result.parameters.push({ type: "path", name: pathParam, param });
+      parameters.push({ type: "path", name: pathParam, param });
     } else if (headerParam) {
-      result.parameters.push({ type: "header", name: headerParam, param });
+      if (isContentTypeHeader(program, param)) {
+        contentTypes = diagnostics.pipe(getContentTypes(param));
+      }
+      parameters.push({ type: "header", name: headerParam, param });
     } else if (bodyParam) {
-      if (result.bodyType === undefined) {
-        result.bodyParameter = param;
-        result.bodyType = param.type;
+      if (bodyType === undefined) {
+        bodyParameter = param;
+        bodyType = param.type;
       } else {
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
@@ -128,8 +138,8 @@ function getOperationParametersForVerb(
   );
 
   if (unannotatedProperties.properties.size > 0) {
-    if (result.bodyType === undefined) {
-      result.bodyType = unannotatedProperties;
+    if (bodyType === undefined) {
+      bodyType = unannotatedProperties;
     } else {
       diagnostics.add(
         createDiagnostic({
@@ -140,18 +150,59 @@ function getOperationParametersForVerb(
       );
     }
   }
-  return diagnostics.wrap(result);
+  const body = diagnostics.pipe(
+    computeHttpOperationBody(operation, bodyType, bodyParameter, contentTypes)
+  );
+
+  return diagnostics.wrap({
+    parameters,
+    verb,
+    body,
+    get bodyType() {
+      return body?.type;
+    },
+    get bodyParameter() {
+      return body?.parameter;
+    },
+  });
 }
 
-/**
- * Check if the given model property is the content type header.
- * @param program Program
- * @param property Model property.
- * @returns True if the model property is marked as a header and has the name `content-type`(case insensitive.)
- */
-export function isContentTypeHeader(program: Program, property: ModelProperty): boolean {
-  const headerName = getHeaderFieldName(program, property);
-  return Boolean(headerName && headerName.toLowerCase() === "content-type");
+function computeHttpOperationBody(
+  operation: Operation,
+  bodyType: Type | undefined,
+  bodyProperty: ModelProperty | undefined,
+  contentTypes: string[] | undefined
+): [HttpOperationRequestBody | undefined, readonly Diagnostic[]] {
+  contentTypes ??= [];
+  const diagnostics: Diagnostic[] = [];
+  if (bodyType === undefined) {
+    if (contentTypes.length > 0) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "content-type-ignored",
+          target: operation.parameters,
+        })
+      );
+    }
+    return [undefined, diagnostics];
+  }
+
+  if (contentTypes.includes("multipart/form-data") && bodyType.kind !== "Model") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "multipart-model",
+        target: operation.parameters,
+      })
+    );
+    return [undefined, diagnostics];
+  }
+
+  const body: HttpOperationRequestBody = {
+    type: bodyType,
+    parameter: bodyProperty,
+    contentTypes,
+  };
+  return [body, diagnostics];
 }
 
 function getExplicitVerbForOperation(program: Program, operation: Operation): HttpVerb | undefined {
