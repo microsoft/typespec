@@ -191,7 +191,7 @@ function computeHttpOperationBody(
     diagnostics.push(
       createDiagnostic({
         code: "multipart-model",
-        target: operation.parameters,
+        target: bodyProperty ?? operation.parameters,
       })
     );
     return [undefined, diagnostics];
