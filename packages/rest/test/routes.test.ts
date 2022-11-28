@@ -458,6 +458,30 @@ describe("rest: routes", () => {
       });
     });
 
+    it("emit error if using multipart/form-data contentType parameter with a body not being a model", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@header contentType: "multipart/form-data", @body body: string | int32): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/multipart-model",
+        message: "Multipart request body must be a model.",
+      });
+    });
+
+    it("emit warning if using contentType parameter without a body", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@header contentType: "image/png"): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/content-type-ignored",
+        message: "`Content-Type` header ignored because there is no body.",
+      });
+    });
+
     it("resolve body when defined with @body", async () => {
       const [routes, diagnostics] = await compileOperations(`
         @route("/test")
