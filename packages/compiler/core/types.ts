@@ -1316,12 +1316,12 @@ export interface DocReturnsTagNode extends DocTagBaseNode {
 
 export interface DocParamTagNode extends DocTagBaseNode {
   readonly kind: SyntaxKind.DocParamTag;
-  readonly name: IdentifierNode;
+  readonly paramName: IdentifierNode;
 }
 
 export interface DocTemplateTagNode extends DocTagBaseNode {
   readonly kind: SyntaxKind.DocTemplateTag;
-  readonly name: IdentifierNode;
+  readonly paramName: IdentifierNode;
 }
 
 export interface DocUnknownTagNode extends DocTagBaseNode {

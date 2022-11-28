@@ -2231,7 +2231,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind,
       tagName,
-      name,
+      paramName: name,
       content,
       ...finishNode(pos),
     };
@@ -2866,7 +2866,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.content) || visitEach(cb, node.tags);
     case SyntaxKind.DocParamTag:
     case SyntaxKind.DocTemplateTag:
-      return visitNode(cb, node.tagName) || visitNode(cb, node.name) || visitEach(cb, node.content);
+      return (
+        visitNode(cb, node.tagName) || visitNode(cb, node.paramName) || visitEach(cb, node.content)
+      );
     case SyntaxKind.DocReturnsTag:
     case SyntaxKind.DocUnknownTag:
       return visitNode(cb, node.tagName) || visitEach(cb, node.content);

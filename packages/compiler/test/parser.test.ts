@@ -784,11 +784,11 @@ describe("compiler: parser", () => {
             strictEqual(docs[0].tags.length, 4);
             strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
             strictEqual(docs[0].tags[0].tagName.sv, "param");
-            strictEqual(docs[0].tags[0].name.sv, "x");
+            strictEqual(docs[0].tags[0].paramName.sv, "x");
             strictEqual(docs[0].tags[0].content[0].text, "the param");
             strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
             strictEqual(docs[0].tags[1].tagName.sv, "template");
-            strictEqual(docs[0].tags[1].name.sv, "T");
+            strictEqual(docs[0].tags[1].paramName.sv, "T");
             strictEqual(docs[0].tags[2].kind, SyntaxKind.DocReturnsTag as const);
             strictEqual(docs[0].tags[2].tagName.sv, "returns");
             strictEqual(docs[0].tags[2].content[0].text, "something");
