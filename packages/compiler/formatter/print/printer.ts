@@ -317,9 +317,10 @@ export function printNode(
     case SyntaxKind.DocTemplateTag:
     case SyntaxKind.DocReturnsTag:
     case SyntaxKind.DocUnknownTag:
+      // https://github.com/microsoft/cadl/issues/1319 Tracks pretty-printing doc comments.
       compilerAssert(
         false,
-        "Doc comments are handled as regular comments by formatter and parsing of them should be disabled when formatting."
+        "Currently, doc comments are only handled as regular comments and we do not opt in to parsing them so we shouldn't reach here."
       );
       return "";
     case SyntaxKind.JsSourceFile:
