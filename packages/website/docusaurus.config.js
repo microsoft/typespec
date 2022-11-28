@@ -42,6 +42,7 @@ const config = {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
         },
+
         blog: {
           showReadingTime: true,
         },
@@ -51,6 +52,7 @@ const config = {
       }),
     ],
   ],
+  staticDirectories: ["../../docs"],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -63,6 +65,11 @@ const config = {
             docId: "introduction/introduction",
             position: "left",
             label: "Docs",
+          },
+          {
+            to: "/specification",
+            position: "left",
+            label: "Specification",
           },
           { to: "/playground", label: "Playground", position: "left" },
           {
