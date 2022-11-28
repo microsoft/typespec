@@ -262,7 +262,7 @@ export function createChecker(program: Program): Checker {
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
-  const nullSym = createSymbol(undefined, "null", 0);
+  const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -364,6 +364,11 @@ export function createChecker(program: Program): Checker {
       },
       declarations: [],
     });
+
+    // Until we have an `unit` type for `null`
+    mutate(cadlNamespaceBinding!.exports).set("null", nullSym);
+    mutate(nullSym).type = nullType;
+    getSymbolLinks(nullSym).type = nullType;
   }
 
   function getStdType<T extends keyof StdTypes>(name: T): StdTypes[T] {
@@ -941,9 +946,6 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     instantiateTemplates = true
   ): Type {
-    if (sym === nullSym) {
-      return nullType;
-    }
     if (sym.flags & SymbolFlags.Decorator) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: sym })
@@ -1945,11 +1947,6 @@ export function createChecker(program: Program): Checker {
       // check using types
       binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
       if (binding) return binding.flags & SymbolFlags.DuplicateUsing ? undefined : binding;
-    }
-
-    // Until we have an `unit` type for `null`
-    if (node.sv === "null") {
-      return nullSym;
     }
 
     if (mapper === undefined) {

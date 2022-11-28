@@ -7,6 +7,7 @@ import {
   Namespace,
   NeverType,
   Node,
+  NullType,
   Operation,
   SyntaxKind,
   TemplateDeclarationNode,
@@ -32,7 +33,7 @@ export function isUnknownType(type: Type): type is UnknownType {
   return type.kind === "Intrinsic" && type.name === "unknown";
 }
 
-export function isNullType(type: Type): type is UnknownType {
+export function isNullType(type: Type): type is NullType {
   return type.kind === "Intrinsic" && type.name === "null";
 }
 
