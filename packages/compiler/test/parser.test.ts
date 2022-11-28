@@ -803,7 +803,7 @@ describe("compiler: parser", () => {
   });
 
   describe("conflict marker", () => {
-    // NOTE: Use of ${} to obfuscate conflict markers so that their not
+    // NOTE: Use of ${} to obfuscate conflict markers so that they're not
     // flagged while working on these tests.
     parseErrorEach(
       [
