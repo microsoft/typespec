@@ -1,4 +1,4 @@
-import assert, { deepStrictEqual } from "assert";
+import assert, { deepStrictEqual, strictEqual } from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
@@ -741,28 +741,62 @@ describe("compiler: parser", () => {
   describe("doc comments", () => {
     parseEach(
       [
-        `
-      /** One-liner */ 
-      model M {}
-      `,
-        `
-      /** 
-      * This one has a \`code span\` and a code fence and it spreads over
-      * more than one line.
-      *
-      * \`\`\`
-      * This is not a @tag because we're in a code fence.
-      * \`\`\`
-      *
-      * \`This is not a @tag either because we're in a code span\`.
-      * 
-      * @param x the param
-      * @template T some template
-      * @returns something
-      * @madeup this an unknown tag
-      */
-      op test<T>(x: string): string;
-      `,
+        [
+          `
+          /** One-liner */
+          model M {}
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(docs[0].content[0].text, "One-liner");
+            strictEqual(docs[0].tags.length, 0);
+          },
+        ],
+        [
+          `
+          /**
+           * This one has a \`code span\` and a code fence and it spreads over
+           * more than one line.
+           *
+           * \`\`\`
+           * This is not a @tag because we're in a code fence.
+           * \`\`\`
+           *
+           * \`This is not a @tag either because we're in a code span\`.
+           *
+           * @param x the param
+           * @template T some template
+           * @returns something
+           * @madeup this an unknown tag
+           */
+          op test<T>(x: string): string;
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(
+              docs[0].content[0].text,
+              "This one has a `code span` and a code fence and it spreads over\nmore than one line.\n\n```\nThis is not a @tag because we're in a code fence.\n```\n\n`This is not a @tag either because we're in a code span`."
+            );
+            strictEqual(docs[0].tags.length, 4);
+            strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
+            strictEqual(docs[0].tags[0].tagName.sv, "param");
+            strictEqual(docs[0].tags[0].name.sv, "x");
+            strictEqual(docs[0].tags[0].content[0].text, "the param");
+            strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
+            strictEqual(docs[0].tags[1].tagName.sv, "template");
+            strictEqual(docs[0].tags[1].name.sv, "T");
+            strictEqual(docs[0].tags[2].kind, SyntaxKind.DocReturnsTag as const);
+            strictEqual(docs[0].tags[2].tagName.sv, "returns");
+            strictEqual(docs[0].tags[2].content[0].text, "something");
+            strictEqual(docs[0].tags[3].kind, SyntaxKind.DocUnknownTag as const);
+            strictEqual(docs[0].tags[3].tagName.sv, "madeup");
+            strictEqual(docs[0].tags[3].content[0].text, "this an unknown tag");
+          },
+        ],
       ],
       { docs: true }
     );
