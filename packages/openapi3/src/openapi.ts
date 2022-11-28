@@ -68,7 +68,6 @@ import { http } from "@cadl-lang/rest";
 import {
   createMetadataInfo,
   getAuthentication,
-  getContentTypes,
   getHttpService,
   getRequestVisibility,
   getStatusCodeDescription,
@@ -700,29 +699,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitRequestBody(parameters: HttpOperationParameters, visibility: Visibility) {
-    const bodyType = parameters.bodyType;
-    const bodyParam = parameters.bodyParameter;
-
-    if (bodyType === undefined) {
+    const body = parameters.body;
+    if (body === undefined) {
       return;
     }
 
     const requestBody: any = {
-      description: bodyParam ? getDoc(program, bodyParam) : undefined,
+      description: body.parameter ? getDoc(program, body.parameter) : undefined,
       content: {},
     };
 
-    const contentTypeParam = parameters.parameters.find((p) =>
-      isContentTypeHeader(program, p.param)
-    );
-    const contentTypes = contentTypeParam
-      ? ignoreDiagnostics(getContentTypes(contentTypeParam.param))
-      : ["application/json"];
+    const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
     for (const contentType of contentTypes) {
-      const isBinary = isBinaryPayload(bodyType, contentType);
+      const isBinary = isBinaryPayload(body.type, contentType);
       const bodySchema = isBinary
         ? { type: "string", format: "binary" }
-        : getSchemaOrRef(bodyType, visibility);
+        : getSchemaOrRef(body.type, visibility);
       const contentEntry: any = {
         schema: bodySchema,
       };

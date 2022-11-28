@@ -1524,7 +1524,6 @@ export function createChecker(program: Program): Checker {
 
       // Reference the same return type and create the parameters type
       parameters = cloneType(baseOperation.parameters);
-      parameters.node = parameters.node ? { ...parameters.node, parent: node } : undefined;
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
