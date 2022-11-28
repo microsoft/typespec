@@ -769,7 +769,7 @@ describe("compiler: parser", () => {
            * @param x the param
            * @template T some template
            * @returns something
-           * @madeup this an unknown tag
+           * @pretend this an unknown tag
            */
           op test<T>(x: string): string;
           `,
@@ -793,7 +793,7 @@ describe("compiler: parser", () => {
             strictEqual(docs[0].tags[2].tagName.sv, "returns");
             strictEqual(docs[0].tags[2].content[0].text, "something");
             strictEqual(docs[0].tags[3].kind, SyntaxKind.DocUnknownTag as const);
-            strictEqual(docs[0].tags[3].tagName.sv, "madeup");
+            strictEqual(docs[0].tags[3].tagName.sv, "pretend");
             strictEqual(docs[0].tags[3].content[0].text, "this an unknown tag");
           },
         ],
