@@ -122,7 +122,7 @@ const libDefinition = {
     "content-type-ignored": {
       severity: "warning",
       messages: {
-        default: "content-type header ignored because return type has no body",
+        default: "`Content-Type` header ignored because there is no body.",
       },
     },
     "no-routes": {
@@ -148,6 +148,12 @@ const libDefinition = {
       severity: "warning",
       messages: {
         default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
+      },
+    },
+    "multipart-model": {
+      severity: "error",
+      messages: {
+        default: "Multipart request body must be a model.",
       },
     },
   },
