@@ -16,7 +16,6 @@ extern dec service(target: unknown, options?: ServiceOptions);
 
 extern dec error(target: object);
 
-// TODO replace unknown with `string` when @intrinsic is gone https://github.com/microsoft/cadl/issues/1192
 extern dec format(target: string | bytes | ModelProperty, format: string);
 extern dec pattern(target: string | bytes | ModelProperty, pattern: string);
 
