@@ -173,6 +173,7 @@ First step is to define how your library can be loaded from the test framework. 
 ```ts
 export const MyTestLibrary = createTestLibrary({
   name: "<name-of-npm-pkg>",
+  // Set this to the absolute path to the root of the package. (e.g. in this case this file would be compiled to ./dist/src/testing/index.js)
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
 });
 ```
@@ -251,4 +252,22 @@ describe("my library", () => {
     expectDiagnostics(diagnostics, { code: "...", message: "..." });
   });
 });
+```
+
+#### `@test` decorator
+
+The `@test` decorator is a decorator loaded in the test environment. It can be used to collect any decorable type.
+When using the `compile` method it will return a `Record<string, Type>` which is a map of all the types annoted with the `@test` decorator.
+
+```ts
+const { Foo, CustomName } = runner.compile(`
+  @test model Foo {}
+
+  model Bar {
+    @test("CustomName") name: string
+  }
+`);
+
+Foo; // type of: model Foo {}
+CustomName; // type of : Bar.name
 ```
