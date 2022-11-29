@@ -162,7 +162,7 @@ Cadl libraries can contain more than just types. Read the subsequent topics for 
 
 ## Testing
 
-Cadl provide a testing framework to help testing library. Examples here are shown using `mocha` but any other JS test framework can be used.
+Cadl provides a testing framework to help testing libraries. Examples here are shown using `mocha` but any other JS test framework can be used.
 
 ### Define the testing library
 
