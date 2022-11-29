@@ -355,7 +355,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       case State.Transformed:
         return true;
       case State.Emptied:
-        return visibility == Visibility.All || !isEmptied(type, Visibility.All);
+        return visibility === Visibility.All || !isEmptied(type, Visibility.All);
       default:
         return false;
     }

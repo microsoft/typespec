@@ -481,7 +481,7 @@ export function getAuthentication(
 
 function extractSharedValue(context: DecoratorContext, parameters?: Model): boolean {
   const sharedType = parameters?.properties.get("shared")?.type;
-  if (sharedType == undefined) {
+  if (sharedType === undefined) {
     return false;
   }
   switch (sharedType.kind) {
