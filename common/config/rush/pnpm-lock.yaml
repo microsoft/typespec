@@ -10,7 +10,7 @@ specifiers:
   '@docusaurus/types': ^2.2.0
   '@emotion/react': ^11.10.4
   '@mdx-js/react': ^1.6.22
-  '@playwright/test': ~1.28.0
+  '@playwright/test': ~1.28.1
   '@rollup/plugin-commonjs': ~23.0.2
   '@rollup/plugin-json': ~5.0.1
   '@rollup/plugin-multi-entry': ~6.0.0
@@ -89,7 +89,7 @@ specifiers:
   node-watch: ~0.7.1
   onigasm: ~2.2.5
   picocolors: ~1.0.0
-  playwright: ~1.28.0
+  playwright: ~1.28.1
   plist: ~3.0.2
   prettier: ~2.7.1
   prettier-plugin-organize-imports: ~3.2.0
