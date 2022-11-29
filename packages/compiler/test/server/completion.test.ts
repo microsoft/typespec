@@ -206,7 +206,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
         },
       },
     ]);
@@ -245,7 +245,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
         },
       },
     ]);
@@ -346,7 +346,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nenummember Fruit.Orange\n```",
+            value: "(enum member)\n```cadl\nFruit.Orange\n```",
           },
         },
         {
@@ -355,7 +355,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nenummember Fruit.Banana\n```",
+            value: "(enum member)\n```cadl\nFruit.Banana\n```",
           },
         },
       ],
@@ -388,13 +388,19 @@ describe("compiler: server: completion", () => {
           label: "orange",
           insertText: "orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Orange\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.orange: Orange\n```",
+          },
         },
         {
           label: "banana",
           insertText: "banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Banana\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.banana: Banana\n```",
+          },
         },
       ],
       {
@@ -420,7 +426,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation N.test\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop N.test(): void\n```" },
         },
       ],
       {
@@ -447,7 +453,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation test\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop I.test(): void\n```" },
         },
       ],
       {
@@ -473,7 +479,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Field,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodelproperty M.test\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```cadl\ntest: Cadl.string\n```",
+          },
         },
       ],
       {
@@ -498,7 +507,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Struct,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```cadl\ntemplateparameter Param\n```",
+          value: "(template parameter)\n```cadl\nParam\n```",
         },
       },
     ]);
@@ -637,6 +646,35 @@ describe("compiler: server: completion", () => {
         allowAdditionalCompletions: false,
       }
     );
+  });
+
+  it("shows doc comment documentation", async () => {
+    const completions = await complete(
+      `
+      namespace N {
+        /**
+         * Just an example
+         * 
+         * @param value The value.
+         */
+        extern dec example(value: string);
+      }
+      @N.┆
+      `
+    );
+
+    check(completions, [
+      {
+        label: "example",
+        insertText: "example",
+        kind: CompletionItemKind.Function,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec N.example(value: Cadl.string)\n```\nJust an example\n_@param_ `value` — The value.",
+        },
+      },
+    ]);
   });
 
   it("completes deprecated type", async () => {
