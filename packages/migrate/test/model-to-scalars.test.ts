@@ -30,7 +30,8 @@ model foo is bar;
 
 @test
 @other
-@get scalar Resource<T> extends int32;
+@get
+scalar Resource<T> extends int32;
     `.trim()
     );
   });
