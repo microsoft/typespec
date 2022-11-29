@@ -1,5 +1,5 @@
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import Layout from "@theme/Layout";
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 export default function Playground() {
   return (
