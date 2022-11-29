@@ -140,7 +140,7 @@ export function isLowSurrogate(ch: number) {
 }
 
 export function isLineBreak(ch: number) {
-  return ch === CharCode.LineFeed || ch == CharCode.CarriageReturn;
+  return ch === CharCode.LineFeed || ch === CharCode.CarriageReturn;
 }
 
 export function isAsciiWhiteSpaceSingleLine(ch: number) {
@@ -171,6 +171,25 @@ export function isWhiteSpaceSingleLine(ch: number) {
     isAsciiWhiteSpaceSingleLine(ch) ||
     (ch > CharCode.MaxAscii && isNonAsciiWhiteSpaceSingleLine(ch))
   );
+}
+
+export function trim(str: string): string {
+  let start = 0;
+  let end = str.length - 1;
+
+  if (!isWhiteSpace(str.charCodeAt(start)) && !isWhiteSpace(str.charCodeAt(end))) {
+    return str;
+  }
+
+  while (isWhiteSpace(str.charCodeAt(start))) {
+    start++;
+  }
+
+  while (isWhiteSpace(str.charCodeAt(end))) {
+    end--;
+  }
+
+  return str.substring(start, end + 1);
 }
 
 export function isDigit(ch: number) {

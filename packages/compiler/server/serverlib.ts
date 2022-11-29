@@ -657,7 +657,7 @@ export function createServer(host: ServerHost): Server {
     const docString = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       const sym =
-        id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+        id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
       if (sym) {
         const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
         return getTypeDetails(program, type);
@@ -757,7 +757,7 @@ export function createServer(host: ServerHost): Server {
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
     const sym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      return id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
 
     return getLocations(sym?.declarations);
@@ -878,7 +878,7 @@ export function createServer(host: ServerHost): Server {
   ) {
     const documentPath = await getPath(document);
     const projectRoot = await findProjectRoot(compilerHost, documentPath);
-    if (projectRoot != undefined) {
+    if (projectRoot !== undefined) {
       const [packagejson] = await loadFile(
         compilerHost,
         resolvePath(projectRoot, "package.json"),
@@ -886,10 +886,10 @@ export function createServer(host: ServerHost): Server {
         program.reportDiagnostic
       );
       let dependencies: string[] = [];
-      if (packagejson.dependencies != undefined) {
+      if (packagejson.dependencies !== undefined) {
         dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
       }
-      if (packagejson.peerDependencies != undefined) {
+      if (packagejson.peerDependencies !== undefined) {
         dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
       }
       for (const dependency of dependencies) {
@@ -900,7 +900,7 @@ export function createServer(host: ServerHost): Server {
           JSON.parse,
           program.reportDiagnostic
         );
-        if (libPackageJson.cadlMain != undefined) {
+        if (libPackageJson.cadlMain !== undefined) {
           completions.items.push({
             label: dependency,
             commitCharacters: [],

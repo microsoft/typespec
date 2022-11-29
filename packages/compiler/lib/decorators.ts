@@ -510,7 +510,7 @@ export function $withoutDefaultValues(context: DecoratorContext, target: Model) 
 const listPropertiesKey = createStateSymbol("listProperties");
 
 export function $list(context: DecoratorContext, target: Operation, listedType?: Type) {
-  if (listedType && listedType.kind == "TemplateParameter") {
+  if (listedType && listedType.kind === "TemplateParameter") {
     // Silently return because this is probably being used in a templated interface
     return;
   }

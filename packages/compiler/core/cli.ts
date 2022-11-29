@@ -385,7 +385,7 @@ function resolveOptions(
   const options: Record<string, Record<string, string>> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
-    if (optionParts.length != 2) {
+    if (optionParts.length !== 2) {
       throw new Error(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
@@ -604,13 +604,13 @@ async function installVSExtension(debug: boolean) {
     }
   }
 
-  if (versionsFound == 0) {
+  if (versionsFound === 0) {
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
-  } else if (versionsFound == 1) {
+  } else if (versionsFound === 1) {
     compilerAssert(
       latestVersionFound,
-      "expected latestFoundVersion to be defined if versionsFound == 1"
+      "expected latestFoundVersion to be defined if versionsFound === 1"
     );
     versionsToInstall = [latestVersionFound];
   } else {

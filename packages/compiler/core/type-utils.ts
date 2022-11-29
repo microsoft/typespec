@@ -125,7 +125,7 @@ export function isDeclaredInNamespace(
 
     // Operations can be defined inside of an interface that is defined in the
     // desired namespace
-    if (type.kind === "Operation" && type.interface && type.interface.namespace == namespace) {
+    if (type.kind === "Operation" && type.interface && type.interface.namespace === namespace) {
       return true;
     }
 
