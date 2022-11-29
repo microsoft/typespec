@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const host = `http://localhost:3000`;
+const host = `http://localhost:5173`;
 const ctrlOrCmd = process.platform === "darwin" ? "Meta" : "Control";
 
 test.describe("playground UI tests", () => {

@@ -8,7 +8,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
-// cspell:ignore 𐌰𐌲
+// cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
