@@ -1,3 +1,7 @@
+---
+title: Cadl For OpenAPI Developer
+---
+
 # Cadl for the OpenAPI developer
 
 This guide is an introduction to Cadl using concepts that will be familiar to developers
