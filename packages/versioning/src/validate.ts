@@ -1,5 +1,5 @@
 import {
-  getNamespaceString,
+  getNamespaceFullName,
   getTypeName,
   isTemplateInstance,
   Namespace,
@@ -85,7 +85,7 @@ export function $onValidate(program: Program) {
             if (!(value instanceof Map)) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-record-not-mapping",
-                format: { dependency: getNamespaceString(dependencyNs) },
+                format: { dependency: getNamespaceFullName(dependencyNs) },
                 target: namespace,
               });
             }
@@ -93,7 +93,7 @@ export function $onValidate(program: Program) {
             if (value instanceof Map) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-not-picked",
-                format: { dependency: getNamespaceString(dependencyNs) },
+                format: { dependency: getNamespaceFullName(dependencyNs) },
                 target: namespace,
               });
             }
@@ -119,8 +119,8 @@ function validateVersionedNamespaceUsage(
         reportDiagnostic(program, {
           code: "using-versioned-library",
           format: {
-            sourceNs: source ? getNamespaceString(source) : "global",
-            targetNs: getNamespaceString(target),
+            sourceNs: source ? getNamespaceFullName(source) : "global",
+            targetNs: getNamespaceFullName(target),
           },
           target: source ?? NoTarget,
         });

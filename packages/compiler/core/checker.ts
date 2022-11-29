@@ -2,7 +2,7 @@ import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { getNamespaceString, getTypeName, TypeNameOptions } from "./helpers/type-name-utils.js";
+import { getNamespaceFullName, getTypeName, TypeNameOptions } from "./helpers/type-name-utils.js";
 import {
   AugmentDecoratorStatementNode,
   DecoratedType,
@@ -136,7 +136,15 @@ export interface Checker {
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
+
+  /**
+   * @deprecated use `import { getTypeName } from "@cadl-lang/compiler";`
+   */
   getTypeName(type: Type, options?: TypeNameOptions): string;
+
+  /**
+   * @deprecated use `import { getNamespaceFullName } from "@cadl-lang/compiler";`
+   */
   getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
@@ -305,7 +313,7 @@ export function createChecker(program: Program): Checker {
     checkSourceFile,
     getLiteralType,
     getTypeName,
-    getNamespaceString,
+    getNamespaceString: getNamespaceFullName,
     getGlobalNamespaceType,
     getGlobalNamespaceNode,
     setUsingsForFile,
@@ -1587,7 +1595,7 @@ export function createChecker(program: Program): Checker {
         const namespace =
           x.symbolSource!.flags & (SymbolFlags.Decorator | SymbolFlags.Function)
             ? (x.symbolSource!.value as any).namespace
-            : getNamespaceString(
+            : getNamespaceFullName(
                 (getTypeForNode(x.symbolSource!.declarations[0], undefined) as any).namespace
               );
         return `${namespace}.${node.sv}`;

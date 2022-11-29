@@ -19,7 +19,7 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
-  getNamespaceString,
+  getNamespaceFullName,
   getPattern,
   getPropertyType,
   getService,
@@ -211,7 +211,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing Cadl and service namespace
     namespaceFilter(ns) {
-      const name = getNamespaceString(ns);
+      const name = getNamespaceFullName(ns);
       return name !== "Cadl" && name !== serviceNamespace;
     },
   };
@@ -246,7 +246,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = program.checker.getNamespaceString(service.type);
+    serviceNamespace = getNamespaceFullName(service.type);
     currentPath = root.paths;
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
@@ -373,7 +373,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     const suffix = [];
     if (multipleService) {
-      suffix.push(program.checker.getNamespaceString(service.type));
+      suffix.push(getNamespaceFullName(service.type));
     }
     if (version) {
       suffix.push(version);

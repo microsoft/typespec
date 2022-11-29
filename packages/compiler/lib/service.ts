@@ -1,5 +1,5 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
-import { getNamespaceString, getTypeName, reportDeprecated } from "../core/index.js";
+import { getNamespaceFullName, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
@@ -142,7 +142,7 @@ export function getServiceVersion(program: Program): string {
 
 /** @deprecated use @see listServices() or @see getService() */
 export function getServiceNamespaceString(program: Program): string | undefined {
-  return getNamespaceString(getServiceNamespace(program));
+  return getNamespaceFullName(getServiceNamespace(program));
 }
 
 /** @deprecated use @see addService */

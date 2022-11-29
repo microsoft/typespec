@@ -16,7 +16,7 @@ export interface TypeNameOptions {
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
-      return getNamespaceString(type, options);
+      return getNamespaceFullName(type, options);
     case "TemplateParameter":
       return type.node.id.sv;
     case "Model":
@@ -54,7 +54,7 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
  * @param options
  * @returns
  */
-export function getNamespaceString(type: Namespace, options?: TypeNameOptions): string {
+export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions): string {
   const filter = options?.namespaceFilter;
   if (filter && !filter(type)) {
     return "";
@@ -64,7 +64,7 @@ export function getNamespaceString(type: Namespace, options?: TypeNameOptions): 
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
-  const namespaceFullName = type ? getNamespaceString(type, options) : "";
+  const namespaceFullName = type ? getNamespaceFullName(type, options) : "";
   return namespaceFullName !== "" ? namespaceFullName + "." : "";
 }
 

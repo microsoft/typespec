@@ -1,6 +1,7 @@
 import {
   Enum,
   EnumMember,
+  getNamespaceFullName,
   Interface,
   Model,
   ModelProperty,
@@ -54,7 +55,7 @@ export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ p
       <div css={ProgramViewerStyles}>
         <ul>
           {namespaces.map((namespace) => (
-            <li key={program.checker!.getNamespaceString(namespace)}>
+            <li key={getNamespaceFullName(namespace)}>
               <Namespace type={namespace} />
             </li>
           ))}
@@ -140,7 +141,7 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
 
 const Namespace: FunctionComponent<{ type: Namespace }> = ({ type }) => {
   const program = useContext(ProgramContext);
-  const name = program.checker!.getNamespaceString(type) || "<root>";
+  const name = getNamespaceFullName(type) || "<root>";
 
   const properties = [
     {
@@ -269,14 +270,14 @@ const Union: FunctionComponent<{ type: Union }> = ({ type }) => {
 };
 
 const UnionOptions: FunctionComponent<{ type: Union }> = ({ type }) => {
-  if (type.options.length === 0) {
+  if (type.variants.size === 0) {
     return <div></div>;
   }
   return (
     <ul>
-      {[...type.options.entries()].map(([k, v]) => (
-        <li key={k}>
-          <TypeReference type={v} />
+      {[...type.variants.entries()].map(([k, variant]) => (
+        <li key={variant.name?.toString() ?? k.toString()}>
+          <TypeReference type={variant.type} />
         </li>
       ))}
     </ul>
@@ -286,13 +287,13 @@ const UnionOptions: FunctionComponent<{ type: Union }> = ({ type }) => {
 function getIdForType(program: Program, type: Type) {
   switch (type.kind) {
     case "Namespace":
-      return program.checker!.getNamespaceString(type);
+      return getNamespaceFullName(type);
     case "Model":
     case "Enum":
     case "Union":
     case "Operation":
     case "Interface":
-      return `${program.checker!.getNamespaceString(type.namespace)}.${type.name}`;
+      return type.namespace ? `${getNamespaceFullName(type.namespace)}.${type.name}` : type.name;
     default:
       return undefined;
   }

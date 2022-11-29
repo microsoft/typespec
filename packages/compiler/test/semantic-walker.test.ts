@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
-  getNamespaceString,
+  getNamespaceFullName,
   Interface,
   ListenerFlow,
   Model,
@@ -121,7 +121,7 @@ describe("compiler: semantic walker", () => {
     `);
 
     deepStrictEqual(
-      result.namespaces.map((x) => getNamespaceString(x)),
+      result.namespaces.map((x) => getNamespaceFullName(x)),
       ["", "Global", "Global.My", "Global.My.Simple", "Global.My.Parent", "Global.My.Parent.Child"]
     );
   });
