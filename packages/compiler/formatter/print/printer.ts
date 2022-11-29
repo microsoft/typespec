@@ -52,6 +52,7 @@ import {
   ProjectionTupleExpressionNode,
   ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
+  ScalarStatementNode,
   Statement,
   StringLiteralNode,
   SyntaxKind,
@@ -143,6 +144,8 @@ export function printNode(
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
       return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
+    case SyntaxKind.ScalarStatement:
+      return printScalarStatement(path as AstPath<ScalarStatementNode>, options, print);
     case SyntaxKind.AliasStatement:
       return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
@@ -1028,6 +1031,28 @@ function isModelExpressionInBlock(
     default:
       return true;
   }
+}
+
+export function printScalarStatement(
+  path: AstPath<ScalarStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+  const template = printTemplateParameters(path, options, print, "templateParameters");
+
+  const heritage = node.extends
+    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
+    : "";
+  return [
+    printDecorators(path, options, print, { tryInline: false }).decorators,
+    "scalar ",
+    id,
+    template,
+    group(indent(["", heritage])),
+    ";",
+  ];
 }
 
 export function printNamespaceStatement(

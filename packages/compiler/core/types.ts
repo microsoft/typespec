@@ -1,5 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import { Program } from "./program";
+import { Program } from "./program.js";
 
 // prettier-ignore
 export type MarshalledValue<Type>  = 
@@ -58,6 +58,7 @@ export interface TemplatedTypeBase {
 export type Type =
   | Model
   | ModelProperty
+  | Scalar
   | Interface
   | Enum
   | EnumMember
@@ -154,7 +155,7 @@ export interface Projector {
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
-  name: "ErrorType" | "void" | "never" | "unknown";
+  name: "ErrorType" | "void" | "never" | "unknown" | "null";
 }
 
 export interface ErrorType extends IntrinsicType {
@@ -172,6 +173,9 @@ export interface NeverType extends IntrinsicType {
 export interface UnknownType extends IntrinsicType {
   name: "unknown";
 }
+export interface NullType extends IntrinsicType {
+  name: "null";
+}
 
 // represents a type that is being returned from the
 // currently executing lambda or projection
@@ -180,7 +184,7 @@ export interface ReturnRecord {
   value: Type;
 }
 
-export type IntrinsicModelName =
+export type IntrinsicScalarName =
   | "bytes"
   | "numeric"
   | "integer"
@@ -202,30 +206,25 @@ export type IntrinsicModelName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
-  | "null";
-
-export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = Model & {
-  name: T;
-};
+  | "uri";
 
 export type NeverIndexer = { key: NeverType; value: undefined };
-export type ModelKeyIndexer = {
-  key: Model;
+export type ModelIndexer = {
+  key: Scalar;
   value: Type;
 };
-export type ModelIndexer = ModelKeyIndexer | NeverIndexer;
 
 export interface ArrayModelType extends Model {
-  indexer: { key: Model; value: Type };
+  indexer: { key: Scalar; value: Type };
 }
 
 export interface RecordModelType extends Model {
-  indexer: { key: Model; value: Type };
+  indexer: { key: Scalar; value: Type };
 }
 
 export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Model";
-  name: IntrinsicModelName | string;
+  name: string;
   node?:
     | ModelStatementNode
     | ModelExpressionNode
@@ -267,6 +266,32 @@ export interface ModelProperty extends BaseType, DecoratedType {
   optional: boolean;
   default?: Type;
   model?: Model;
+}
+
+export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
+  kind: "Scalar";
+  name: string;
+  node: ScalarStatementNode;
+  /**
+   * Namespace the scalar was defined in.
+   */
+  namespace?: Namespace;
+
+  /**
+   * Scalar this scalar extends.
+   */
+  baseScalar?: Scalar;
+
+  /**
+   * Direct children. This is the reverse relation of @see baseScalar
+   */
+  derivedScalars: Scalar[];
+
+  /**
+   * Late-bound symbol of this model type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -319,6 +344,7 @@ export interface Namespace extends BaseType, DecoratedType {
   namespace?: Namespace;
   node: NamespaceStatementNode;
   models: Map<string, Model>;
+  scalars: Map<string, Scalar>;
   operations: Map<string, Operation>;
   namespaces: Map<string, Namespace>;
   interfaces: Map<string, Interface>;
@@ -492,32 +518,33 @@ export const enum SymbolFlags {
   None                  = 0,
   Model                 = 1 << 1,
   ModelProperty         = 1 << 2,
-  Operation             = 1 << 3,
-  Enum                  = 1 << 4,
-  EnumMember            = 1 << 5,
-  Interface             = 1 << 6,
-  InterfaceMember       = 1 << 7,
-  Union                 = 1 << 8,
-  UnionVariant          = 1 << 9,
-  Alias                 = 1 << 10,
-  Namespace             = 1 << 11,
-  Projection            = 1 << 12,
-  Decorator             = 1 << 13,
-  TemplateParameter     = 1 << 14,
-  ProjectionParameter   = 1 << 15,
-  Function              = 1 << 16,
-  FunctionParameter     = 1 << 17,
-  Using                 = 1 << 18,
-  DuplicateUsing        = 1 << 19,
-  SourceFile            = 1 << 20,
-  Declaration           = 1 << 21,
-  Implementation        = 1 << 22,
+  Scalar                = 1 << 3,
+  Operation             = 1 << 4,
+  Enum                  = 1 << 5,
+  EnumMember            = 1 << 6,
+  Interface             = 1 << 7,
+  InterfaceMember       = 1 << 8,
+  Union                 = 1 << 9,
+  UnionVariant          = 1 << 10,
+  Alias                 = 1 << 11,
+  Namespace             = 1 << 12,
+  Projection            = 1 << 13,
+  Decorator             = 1 << 14,
+  TemplateParameter     = 1 << 15,
+  ProjectionParameter   = 1 << 16,
+  Function              = 1 << 17,
+  FunctionParameter     = 1 << 18,
+  Using                 = 1 << 19,
+  DuplicateUsing        = 1 << 20,
+  SourceFile            = 1 << 21,
+  Declaration           = 1 << 22,
+  Implementation        = 1 << 23,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 23,
+  LateBound = 1 << 24,
 
   ExportContainer = Namespace | SourceFile,
   /**
@@ -555,6 +582,7 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   ModelSpreadProperty,
+  ScalarStatement,
   InterfaceStatement,
   UnionStatement,
   UnionVariant,
@@ -708,6 +736,7 @@ export type Node =
  */
 export type TemplateableNode =
   | ModelStatementNode
+  | ScalarStatementNode
   | AliasStatementNode
   | InterfaceStatementNode
   | OperationStatementNode
@@ -746,6 +775,7 @@ export interface CadlScriptNode extends DeclarationNode, BaseNode {
 export type Statement =
   | ImportStatementNode
   | ModelStatementNode
+  | ScalarStatementNode
   | NamespaceStatementNode
   | InterfaceStatementNode
   | UnionStatementNode
@@ -766,6 +796,7 @@ export interface DeclarationNode {
 
 export type Declaration =
   | ModelStatementNode
+  | ScalarStatementNode
   | InterfaceStatementNode
   | UnionStatementNode
   | NamespaceStatementNode
@@ -910,6 +941,12 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly extends?: Expression;
   readonly is?: Expression;
+  readonly decorators: readonly DecoratorExpressionNode[];
+}
+
+export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.ScalarStatement;
+  readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 

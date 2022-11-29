@@ -19,6 +19,7 @@ import {
   ProjectionNode,
   ProjectionParameterDeclarationNode,
   ProjectionStatementNode,
+  ScalarStatementNode,
   ScopeNode,
   Sym,
   SymbolFlags,
@@ -226,6 +227,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
         break;
+      case SyntaxKind.ScalarStatement:
+        bindScalarStatement(node);
+        break;
       case SyntaxKind.InterfaceStatement:
         bindInterfaceStatement(node);
         break;
@@ -383,6 +387,12 @@ export function createBinder(program: Program): Binder {
 
   function bindModelStatement(node: ModelStatementNode) {
     declareSymbol(node, SymbolFlags.Model);
+    // Initialize locals for type parameters
+    mutate(node).locals = new SymbolTable();
+  }
+
+  function bindScalarStatement(node: ScalarStatementNode) {
+    declareSymbol(node, SymbolFlags.Scalar);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
