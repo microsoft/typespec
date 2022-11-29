@@ -140,7 +140,7 @@ export function isLowSurrogate(ch: number) {
 }
 
 export function isLineBreak(ch: number) {
-  return ch === CharCode.LineFeed || ch == CharCode.CarriageReturn;
+  return ch === CharCode.LineFeed || ch === CharCode.CarriageReturn;
 }
 
 export function isAsciiWhiteSpaceSingleLine(ch: number) {
