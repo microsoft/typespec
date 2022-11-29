@@ -38,17 +38,6 @@ describe("compiler: parser utils", () => {
       strictEqual(node.sv, "string");
     });
 
-    it("return missing identifier node when at the position for model property type", async () => {
-      const { node } = await getNodeAtCursor(`
-        model Foo {
-          prop: ┆
-        }
-      `);
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.Identifier as const);
-      strictEqual(node.sv, "<missing identifier>1");
-    });
-
     it("return string literal when in non completed string", async () => {
       const { node } = await getNodeAtCursor(`
         import "┆

@@ -1164,9 +1164,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Pet>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Pet items",
@@ -1219,9 +1219,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Checkup>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Checkup items",
@@ -1301,9 +1301,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Toy>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Toy items",
@@ -1375,9 +1375,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Owner>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Owner items",

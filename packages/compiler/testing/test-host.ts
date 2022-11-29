@@ -257,6 +257,7 @@ async function createTestHostInternal(): Promise<TestHost> {
       if (!name) {
         if (
           target.kind === "Model" ||
+          target.kind === "Scalar" ||
           target.kind === "Namespace" ||
           target.kind === "Enum" ||
           target.kind === "Operation" ||

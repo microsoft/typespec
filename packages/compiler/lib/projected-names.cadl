@@ -1,5 +1,4 @@
 // Set of projections consuming the @projectedName decorator
-
 #suppress "projections-are-experimental"
 projection op#target {
   to(targetName) {

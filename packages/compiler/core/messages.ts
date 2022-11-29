@@ -297,10 +297,22 @@ const diagnostics = {
       default: paramMessage`Model already has a property named ${"propName"}`,
     },
   },
-  "override-property": {
+  "override-property-mismatch": {
     severity: "error",
     messages: {
-      default: paramMessage`Model has an inherited property named ${"propName"} which cannot be overridden`,
+      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
+    },
+  },
+  "override-property-intrinsic": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which can only override an intrinsic type on the parent property, not ${"parentType"}`,
+    },
+  },
+  "extend-scalar": {
+    severity: "error",
+    messages: {
+      default: "Scalar must extend other scalars.",
     },
   },
   "extend-model": {
@@ -308,12 +320,6 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
-    },
-  },
-  "extend-primitive": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Cannot extend primitive types. Use 'model ${"modelName"} is ${"baseModelName"}' instead.`,
     },
   },
   "is-model": {
@@ -632,12 +638,6 @@ const diagnostics = {
       default: `@service can only be set once per Cadl document.`,
     },
   },
-  "service-namespace-duplicate": {
-    severity: "error",
-    messages: {
-      default: "Cannot set service namespace more than once in a Cadl project.",
-    },
-  },
   "list-type-not-model": {
     severity: "error",
     messages: {
@@ -687,7 +687,7 @@ const diagnostics = {
   "circular-base-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
   "circular-op-signature": {
@@ -700,6 +700,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "conflict-marker": {
+    severity: "error",
+    messages: {
+      default: "Conflict marker encountered.",
     },
   },
 } as const;

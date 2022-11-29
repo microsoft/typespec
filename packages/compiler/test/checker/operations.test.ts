@@ -39,9 +39,9 @@ describe("compiler: operations", () => {
     const props = Array.from(newFoo.parameters.properties.values());
 
     strictEqual(props[0].name, "name");
-    strictEqual(props[0].type.kind, "Model");
+    strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
-    strictEqual(props[1].type.kind, "Model");
+    strictEqual(props[1].type.kind, "Scalar");
   });
 
   it("can be defined based on other operation references", async () => {
@@ -62,9 +62,9 @@ describe("compiler: operations", () => {
     const props = Array.from(newFoo.parameters.properties.values());
 
     strictEqual(props[0].name, "name");
-    strictEqual(props[0].type.kind, "Model");
+    strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
-    strictEqual(props[1].type.kind, "Model");
+    strictEqual(props[1].type.kind, "Scalar");
   });
 
   it("can reference an operation when being defined in an interface", async () => {
@@ -83,9 +83,9 @@ describe("compiler: operations", () => {
     const props = Array.from(newFoo.parameters.properties.values());
 
     strictEqual(props[0].name, "name");
-    strictEqual(props[0].type.kind, "Model");
+    strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
-    strictEqual(props[1].type.kind, "Model");
+    strictEqual(props[1].type.kind, "Scalar");
   });
 
   it("can reference an operation defined inside an interface", async () => {
@@ -102,7 +102,7 @@ describe("compiler: operations", () => {
 
     const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
 
-    strictEqual(newFoo.returnType.kind, "Model" as const);
+    strictEqual(newFoo.returnType.kind, "Scalar" as const);
     strictEqual(newFoo.returnType.name, "boolean");
   });
 
@@ -119,7 +119,7 @@ describe("compiler: operations", () => {
 
     const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
 
-    strictEqual(newFoo.returnType.kind, "Model" as const);
+    strictEqual(newFoo.returnType.kind, "Scalar" as const);
     strictEqual(newFoo.returnType.name, "boolean");
   });
 
@@ -187,7 +187,7 @@ describe("compiler: operations", () => {
     strictEqual(newFoo.parameters.properties.size, 2);
 
     // Check that the decorators were applied correctly to `newFoo`
-    strictEqual(alphaTargets.get(newFoo)?.kind, "Model");
+    strictEqual(alphaTargets.get(newFoo)?.kind, "Scalar");
     ok(betaTargets.has(newFoo));
     ok(gammaTargets.has(newFoo));
   });

@@ -89,6 +89,7 @@ function main() {
   connection.onDocumentSymbol(profile(s.getDocumentSymbols));
   connection.onDocumentHighlight(profile(s.findDocumentHighlight));
   connection.onHover(profile(s.getHover));
+  connection.onSignatureHelp(profile(s.getSignatureHelp));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
 
   documents.onDidChangeContent(profile(s.checkChange));

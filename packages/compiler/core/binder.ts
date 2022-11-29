@@ -19,6 +19,7 @@ import {
   ProjectionNode,
   ProjectionParameterDeclarationNode,
   ProjectionStatementNode,
+  ScalarStatementNode,
   ScopeNode,
   Sym,
   SymbolFlags,
@@ -73,6 +74,10 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
 export interface Binder {
   bindSourceFile(script: CadlScriptNode): void;
   bindJsSourceFile(sourceFile: JsSourceFileNode): void;
+  /**
+   * @internal
+   */
+  bindNode(node: Node): void;
 }
 
 export function createSymbolTable(source?: SymbolTable): SymbolTable {
@@ -92,6 +97,7 @@ export function createBinder(program: Program): Binder {
   return {
     bindSourceFile,
     bindJsSourceFile,
+    bindNode,
   };
 
   function isFunctionName(name: string): boolean {
@@ -220,6 +226,9 @@ export function createBinder(program: Program): Binder {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
+        break;
+      case SyntaxKind.ScalarStatement:
+        bindScalarStatement(node);
         break;
       case SyntaxKind.InterfaceStatement:
         bindInterfaceStatement(node);
@@ -378,6 +387,12 @@ export function createBinder(program: Program): Binder {
 
   function bindModelStatement(node: ModelStatementNode) {
     declareSymbol(node, SymbolFlags.Model);
+    // Initialize locals for type parameters
+    mutate(node).locals = new SymbolTable();
+  }
+
+  function bindScalarStatement(node: ScalarStatementNode) {
+    declareSymbol(node, SymbolFlags.Scalar);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }

@@ -65,7 +65,7 @@ describe("compiler: spread", () => {
     });
   });
 
-  it("emit diagnostic if spreading type not allowing properties", async () => {
+  it("emit diagnostic if spreading scalar type", async () => {
     const diagnostics = await runner.diagnose(`
       model Foo {
         ...string
@@ -74,7 +74,7 @@ describe("compiler: spread", () => {
 
     expectDiagnostics(diagnostics, {
       code: "spread-model",
-      message: "Cannot spread type because it cannot hold properties.",
+      message: "Cannot spread properties of non-model type.",
     });
   });
 
