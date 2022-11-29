@@ -306,6 +306,59 @@ model Foo {
     });
   });
 
+  describe("scalar", () => {
+    it("format on single line", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo
+`,
+        expected: `
+scalar Foo;
+`,
+      });
+    });
+
+    it("format with extends", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo extends 
+        string
+`,
+        expected: `
+scalar Foo extends string;
+`,
+      });
+    });
+
+    it("format with template parameters", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo<K,
+    V> 
+`,
+        expected: `
+scalar Foo<K, V>;
+`,
+      });
+    });
+
+    it("format with decorator", () => {
+      assertFormat({
+        code: `
+      @some @decorator
+scalar   Foo 
+`,
+        expected: `
+@some
+@decorator
+scalar Foo;
+`,
+      });
+    });
+  });
   describe("comments", () => {
     it("format comment at position 0", () => {
       assertFormat({

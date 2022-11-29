@@ -101,7 +101,7 @@ import {
   getSourceFileKindFromExt,
   loadFile,
 } from "../core/util.js";
-import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getDoc, isDeprecated } from "../lib/decorators.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { getTypeSignature } from "./type-signature.js";
 
@@ -221,6 +221,7 @@ const keywords = [
   // Root and namespace
   ["using", { root: true, namespace: true }],
   ["model", { root: true, namespace: true }],
+  ["scalar", { root: true, namespace: true }],
   ["namespace", { root: true, namespace: true }],
   ["interface", { root: true, namespace: true }],
   ["union", { root: true, namespace: true }],
@@ -1023,7 +1024,9 @@ export function createServer(host: ServerHost): Server {
       case SyntaxKind.AliasStatement:
         return CompletionItemKind.Variable;
       case SyntaxKind.ModelStatement:
-        return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+        return CompletionItemKind.Class;
+      case SyntaxKind.ScalarStatement:
+        return CompletionItemKind.Unit;
       case SyntaxKind.ModelProperty:
         return CompletionItemKind.Field;
       case SyntaxKind.OperationStatement:
@@ -1105,6 +1108,9 @@ export function createServer(host: ServerHost): Server {
           break;
         case SyntaxKind.ModelStatement:
           classify(node.id, SemanticTokenKind.Struct);
+          break;
+        case SyntaxKind.ScalarStatement:
+          classify(node.id, SemanticTokenKind.Type);
           break;
         case SyntaxKind.EnumStatement:
           classify(node.id, SemanticTokenKind.Enum);

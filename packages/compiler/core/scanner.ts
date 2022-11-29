@@ -104,6 +104,7 @@ export enum Token {
 
   ImportKeyword = __StartStatementKeyword,
   ModelKeyword,
+  ScalarKeyword,
   NamespaceKeyword,
   UsingKeyword,
   OpKeyword,
@@ -213,6 +214,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.Identifier, "identifier"],
   [Token.ImportKeyword, "'import'"],
   [Token.ModelKeyword, "'model'"],
+  [Token.ScalarKeyword, "'scalar'"],
   [Token.NamespaceKeyword, "'namespace'"],
   [Token.UsingKeyword, "'using'"],
   [Token.OpKeyword, "'op'"],
@@ -240,6 +242,7 @@ export const TokenDisplay = getTokenDisplayTable([
 export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["import", Token.ImportKeyword],
   ["model", Token.ModelKeyword],
+  ["scalar", Token.ScalarKeyword],
   ["namespace", Token.NamespaceKeyword],
   ["interface", Token.InterfaceKeyword],
   ["union", Token.UnionKeyword],

@@ -29,8 +29,8 @@ describe("compiler: aliases", () => {
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 4);
-    strictEqual(propType.options[0].kind, "Model");
-    strictEqual(propType.options[1].kind, "Model");
+    strictEqual(propType.options[0].kind, "Scalar");
+    strictEqual(propType.options[1].kind, "Scalar");
     strictEqual(propType.options[2].kind, "String");
     strictEqual(propType.options[3].kind, "Number");
   });
@@ -56,8 +56,8 @@ describe("compiler: aliases", () => {
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 5);
-    strictEqual(propType.options[0].kind, "Model");
-    strictEqual(propType.options[1].kind, "Model");
+    strictEqual(propType.options[0].kind, "Scalar");
+    strictEqual(propType.options[1].kind, "Scalar");
     strictEqual(propType.options[2].kind, "String");
     strictEqual(propType.options[3].kind, "Number");
     strictEqual(propType.options[4].kind, "String");
@@ -82,7 +82,7 @@ describe("compiler: aliases", () => {
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 2);
-    strictEqual(propType.options[0].kind, "Model");
+    strictEqual(propType.options[0].kind, "Scalar");
     strictEqual(propType.options[1].kind, "String");
   });
 
@@ -106,9 +106,9 @@ describe("compiler: aliases", () => {
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 4);
-    strictEqual(propType.options[0].kind, "Model");
+    strictEqual(propType.options[0].kind, "Scalar");
     strictEqual(propType.options[1].kind, "String");
-    strictEqual(propType.options[2].kind, "Model");
+    strictEqual(propType.options[2].kind, "Scalar");
     strictEqual(propType.options[3].kind, "Number");
   });
 

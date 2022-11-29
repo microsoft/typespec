@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, Model, Operation } from "../../core/index.js";
+import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -194,13 +194,13 @@ describe("compiler: built-in decorators", () => {
   });
 
   describe("@knownValues", () => {
-    it("assign the known values to string model", async () => {
+    it("assign the known values to string scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {one: "one", two: "two"}
         @test
         @knownValues(Foo)
-        model Bar is string {}
-      `)) as { Bar: Model };
+        scalar Bar extends string;
+      `)) as { Bar: Scalar };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -208,7 +208,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(knownValues.kind, "Enum");
     });
 
-    it("assign the known values to number model", async () => {
+    it("assign the known values to number scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {
           one: 1; 
@@ -216,8 +216,8 @@ describe("compiler: built-in decorators", () => {
         }
         @test
         @knownValues(Foo)
-        model Bar is int32 {}
-      `)) as { Bar: Model };
+        scalar Bar extends int32;
+      `)) as { Bar: Scalar };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -235,7 +235,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty",
       });
     });
 
@@ -246,12 +246,12 @@ describe("compiler: built-in decorators", () => {
           two: 2;
         }
         @knownValues(Foo)
-        model Bar is string {}
+        scalar Bar extends string;
       `);
 
       expectDiagnostics(diagnostics, {
         code: "known-values-invalid-enum",
-        message: "Enum cannot be used on this type. Member one is not assignable to type string.",
+        message: "Enum cannot be used on this type. Member one is not assignable to type Bar.",
       });
     });
 
@@ -265,7 +265,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty",
       });
     });
 
@@ -273,7 +273,7 @@ describe("compiler: built-in decorators", () => {
       const diagnostics = await runner.diagnose(`
         model Foo {}
         @knownValues(Foo)
-        model Bar is string {}
+        scalar Bar extends string;
       `);
 
       expectDiagnostics(diagnostics, {
@@ -728,7 +728,7 @@ describe("compiler: built-in decorators", () => {
         `
         @test
         @secret
-        model A is string;
+        scalar A extends string;
         `
       );
 
@@ -752,7 +752,7 @@ describe("compiler: built-in decorators", () => {
     it("can be applied on a model property with stringlike model as type", async () => {
       const { A } = (await runner.compile(
         `
-        model CustomStr is string;
+        scalar CustomStr extends string;
 
         @test
         model A {
@@ -776,7 +776,8 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @secret decorator to type it is not one of: string",
+        message:
+          "Cannot apply @secret decorator to A since it is not assignable to Cadl.string | Cadl.Reflection.ModelProperty",
       });
     });
 
@@ -785,13 +786,14 @@ describe("compiler: built-in decorators", () => {
         `
         @test
         @secret
-        model A is int32 {}
+        scalar A extends int32;
         `
       );
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @secret decorator to type it is not one of: string",
+        message:
+          "Cannot apply @secret decorator to A since it is not assignable to Cadl.string | Cadl.Reflection.ModelProperty",
       });
     });
 

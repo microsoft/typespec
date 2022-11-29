@@ -11,7 +11,6 @@ import {
   getDiscriminator,
   getDoc,
   getFormat,
-  getIntrinsicModelName,
   getKnownValues,
   getMaxItems,
   getMaxLength,
@@ -25,11 +24,12 @@ import {
   getService,
   getSummary,
   ignoreDiagnostics,
+  IntrinsicScalarName,
   IntrinsicType,
   isErrorType,
   isGlobalNamespace,
-  isIntrinsic,
   isNeverType,
+  isNullType,
   isNumericType,
   isSecret,
   isStringType,
@@ -46,6 +46,7 @@ import {
   ProjectionApplication,
   projectProgram,
   resolvePath,
+  Scalar,
   Service,
   StringLiteral,
   TwoLevelMap,
@@ -258,24 +259,21 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     tags = new Set();
   }
 
-  // Todo: Should be able to replace with isRelatedTo(prop.type, "string") https://github.com/microsoft/cadl/pull/571
   function isValidServerVariableType(program: Program, type: Type): boolean {
     switch (type.kind) {
       case "String":
-        return true;
-      case "Model":
-        const name = getIntrinsicModelName(program, type);
-        return name === "string";
+      case "Union":
+      case "Scalar":
+        return ignoreDiagnostics(
+          program.checker.isTypeAssignableTo(
+            type.projectionBase ?? type,
+            program.checker.getStdType("string"),
+            type
+          )
+        );
       case "Enum":
         for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
-            return false;
-          }
-        }
-        return true;
-      case "Union":
-        for (const option of type.options) {
-          if (!isValidServerVariableType(program, option)) {
             return false;
           }
         }
@@ -486,7 +484,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function isBinaryPayload(body: Type, contentType: string) {
     return (
-      body.kind === "Model" &&
+      body.kind === "Scalar" &&
       body.name === "bytes" &&
       contentType !== "application/json" &&
       contentType !== "text/plain"
@@ -562,15 +560,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       };
     }
 
-    if (type.kind === "Model" && type.name === getIntrinsicModelName(program, type)) {
-      // if the model is one of the Cadl Intrinsic type.
-      // it's a base Cadl "primitive" that corresponds directly to an OpenAPI
-      // primitive. In such cases, we don't want to emit a ref and instead just
-      // emit the base type directly.
-      const builtIn = mapCadlIntrinsicModelToOpenAPI(type, visibility);
-      if (builtIn !== undefined) {
-        return builtIn;
-      }
+    if (type.kind === "Scalar" && program.checker.isStdType(type)) {
+      return getSchemaForScalar(type);
     }
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
@@ -797,6 +788,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       namespace,
       {
         model: (x) => x.name !== "" && computeSchema(x),
+        scalar: computeSchema,
         enum: computeSchema,
         union: (x) => x.name !== undefined && computeSchema(x),
       },
@@ -852,6 +844,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "Scalar":
+        return getSchemaForScalar(type);
       case "Union":
         return getSchemaForUnion(type, visibility);
       case "UnionVariant":
@@ -1018,10 +1012,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return schema;
   }
 
-  function isNullType(type: Type): boolean {
-    return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
-  }
-
   function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
     return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
   }
@@ -1186,7 +1176,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function applyIntrinsicDecorators(
-    cadlType: Model | ModelProperty,
+    cadlType: Scalar | ModelProperty,
     target: OpenAPI3Schema
   ): OpenAPI3Schema {
     const newTarget = { ...target };
@@ -1287,7 +1277,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (cadlType.indexer) {
       if (isNeverType(cadlType.indexer.key)) {
       } else {
-        const name = getIntrinsicModelName(program, cadlType.indexer.key);
+        const name = cadlType.indexer.key.name;
         if (name === "string") {
           return {
             type: "object",
@@ -1301,37 +1291,46 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
     }
-    if (!isIntrinsic(program, cadlType)) {
-      return undefined;
+  }
+
+  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
+    let result: OpenAPI3Schema = {};
+    if (program.checker.isStdType(scalar)) {
+      result = getSchemaForStdScalars(scalar);
+    } else if (scalar.baseScalar) {
+      result = getSchemaForScalar(scalar.baseScalar);
     }
-    const name = getIntrinsicModelName(program, cadlType);
-    switch (name) {
+    return applyIntrinsicDecorators(scalar, result);
+  }
+
+  function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
+    switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
       case "int8":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int8" });
+        return { type: "integer", format: "int8" };
       case "int16":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int16" });
+        return { type: "integer", format: "int16" };
       case "int32":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
+        return { type: "integer", format: "int32" };
       case "int64":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+        return { type: "integer", format: "int64" };
       case "safeint":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+        return { type: "integer", format: "int64" };
       case "uint8":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
+        return { type: "integer", format: "uint8" };
       case "uint16":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint16" });
+        return { type: "integer", format: "uint16" };
       case "uint32":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint32" });
+        return { type: "integer", format: "uint32" };
       case "uint64":
-        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint64" });
+        return { type: "integer", format: "uint64" };
       case "float64":
-        return applyIntrinsicDecorators(cadlType, { type: "number", format: "double" });
+        return { type: "number", format: "double" };
       case "float32":
-        return applyIntrinsicDecorators(cadlType, { type: "number", format: "float" });
+        return { type: "number", format: "float" };
       case "string":
-        return applyIntrinsicDecorators(cadlType, { type: "string" });
+        return { type: "string" };
       case "boolean":
         return { type: "boolean" };
       case "plainDate":
@@ -1342,6 +1341,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
+      case "uri":
+        return { type: "string", format: "uri" };
+      case "integer":
+      case "numeric":
+      case "float":
+        return {}; // Waiting on design for more precise type https://github.com/microsoft/cadl/issues/1260
+      default:
+        const _assertNever: never = scalar.name;
+        return {};
     }
   }
 

@@ -6,6 +6,7 @@ import {
   ModelStatementNode,
   Namespace,
   Operation,
+  Scalar,
   Type,
 } from "../types.js";
 
@@ -19,6 +20,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
       return type.node.id.sv;
+    case "Scalar":
+      return getScalarName(type, options);
     case "Model":
       return getModelName(type, options);
     case "ModelProperty":
@@ -72,12 +75,16 @@ function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
   return `${getNamespacePrefix(e.namespace, options)}${e.name}`;
 }
 
+function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
+  return `${getNamespacePrefix(scalar.namespace, options)}${scalar.name}`;
+}
+
 function getModelName(model: Model, options: TypeNameOptions | undefined) {
   const nsPrefix = getNamespacePrefix(model.namespace, options);
   if (model.name === "" && model.properties.size === 0) {
     return "{}";
   }
-  if (model.indexer && model.indexer.key.kind === "Model") {
+  if (model.indexer && model.indexer.key.kind === "Scalar") {
     if (model.name === "Array" && isInCadlNamespace(model)) {
       return `${getTypeName(model.indexer.value!, options)}[]`;
     }
