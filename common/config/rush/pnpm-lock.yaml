@@ -11,7 +11,7 @@ specifiers:
   '@docusaurus/types': ^2.2.0
   '@emotion/react': ^11.10.4
   '@mdx-js/react': ^1.6.22
-  '@playwright/test': ~1.28.0
+  '@playwright/test': ~1.28.1
   '@rollup/plugin-commonjs': ~23.0.2
   '@rollup/plugin-json': ~5.0.1
   '@rollup/plugin-multi-entry': ~6.0.0
@@ -91,7 +91,7 @@ specifiers:
   node-watch: ~0.7.1
   onigasm: ~2.2.5
   picocolors: ~1.0.0
-  playwright: ~1.28.0
+  playwright: ~1.28.1
   plist: ~3.0.2
   prettier: ~2.7.1
   prettier-plugin-organize-imports: ~3.2.0
@@ -129,7 +129,7 @@ dependencies:
   '@docusaurus/types': 2.2.0_react-dom@18.2.0+react@18.2.0
   '@emotion/react': 11.10.5_1532840922ad816597a8a1f20150f016
   '@mdx-js/react': 1.6.22_react@18.2.0
-  '@playwright/test': 1.28.0
+  '@playwright/test': 1.28.1
   '@rollup/plugin-commonjs': 23.0.2_rollup@3.4.0
   '@rollup/plugin-json': 5.0.1_rollup@3.4.0
   '@rollup/plugin-multi-entry': 6.0.0_rollup@3.4.0
@@ -209,7 +209,7 @@ dependencies:
   node-watch: 0.7.3
   onigasm: 2.2.5
   picocolors: 1.0.0
-  playwright: 1.28.0
+  playwright: 1.28.1
   plist: 3.0.6
   prettier: 2.7.1
   prettier-plugin-organize-imports: 3.2.0_prettier@2.7.1+typescript@4.9.3
@@ -3812,13 +3812,13 @@ packages:
       fastq: 1.13.0
     dev: false
 
-  /@playwright/test/1.28.0:
-    resolution: {integrity: sha512-vrHs5DFTPwYox5SGKq/7TDn/S4q6RA1zArd7uhO6EyP9hj3XgZBBM12ktMbnDQNxh/fL1IUKsTNLxihmsU38lQ==}
+  /@playwright/test/1.28.1:
+    resolution: {integrity: sha512-xN6spdqrNlwSn9KabIhqfZR7IWjPpFK1835tFNgjrlysaSezuX8PYUwaz38V/yI8TJLG9PkAMEXoHRXYXlpTPQ==}
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
       '@types/node': 18.11.9
-      playwright-core: 1.28.0
+      playwright-core: 1.28.1
     dev: false
 
   /@polka/url/1.0.0-next.21:
@@ -10286,19 +10286,19 @@ packages:
       find-up: 3.0.0
     dev: false
 
-  /playwright-core/1.28.0:
-    resolution: {integrity: sha512-nJLknd28kPBiCNTbqpu6Wmkrh63OEqJSFw9xOfL9qxfNwody7h6/L3O2dZoWQ6Oxcm0VOHjWmGiCUGkc0X3VZA==}
+  /playwright-core/1.28.1:
+    resolution: {integrity: sha512-3PixLnGPno0E8rSBJjtwqTwJe3Yw72QwBBBxNoukIj3lEeBNXwbNiKrNuB1oyQgTBw5QHUhNO3SteEtHaMK6ag==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false
 
-  /playwright/1.28.0:
-    resolution: {integrity: sha512-kyOXGc5y1mgi+hgEcCIyE1P1+JumLrxS09nFHo5sdJNzrucxPRAGwM4A2X3u3SDOfdgJqx61yIoR6Av+5plJPg==}
+  /playwright/1.28.1:
+    resolution: {integrity: sha512-92Sz6XBlfHlb9tK5UCDzIFAuIkHHpemA9zwUaqvo+w7sFMSmVMGmvKcbptof/eJObq63PGnMhM75x7qxhTR78Q==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.28.0
+      playwright-core: 1.28.1
     dev: false
 
   /plist/3.0.6:
@@ -14073,14 +14073,14 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-pQz2SrQIKZYW9GT6WOOckkZ0hgNeY2vOHrCiGFcfdiQ4VRoDvmls2KSvjoOczfzVLO9jQJiLQmpKw8YVZMN9GA==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-dL49iIYMJUu7O0Fa+90RIpJ1ulyVoy/HHKStVB1s8FxcRIaU9x+ApFkcIhInPDCT/bDhATsP0FHyldBX/bPYpQ==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
       '@babel/core': 7.20.2
       '@emotion/react': 11.10.5_1532840922ad816597a8a1f20150f016
-      '@playwright/test': 1.28.0
+      '@playwright/test': 1.28.1
       '@types/debounce': 1.2.1
       '@types/mocha': 10.0.0
       '@types/node': 18.11.9
@@ -14099,7 +14099,7 @@ packages:
       mocha-junit-reporter: 2.2.0_mocha@10.1.0
       mocha-multi-reporters: 1.5.1_mocha@10.1.0
       monaco-editor: 0.34.1
-      playwright: 1.28.0
+      playwright: 1.28.1
       prettier: 2.7.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -14218,7 +14218,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.0.25:
-    resolution: {integrity: sha512-kQ1cEtaAm5S3Rc/dBSnmAcLXc/WPBQ539mbs8/z1piT6wfLy/3WSCzCQ+CgmyDXKhdXp3LHem1hM7IuiGButmw==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-NeBMw7IYi+n4kOBMuAZsbPvaGlYqva9g+JiJFQ6uusRaxFR6Hw6IvxvNvkbvLP4CGPsXCrxyeORksijGoFSYTg==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0
@@ -14234,7 +14234,7 @@ packages:
       eslint: 8.28.0
       mdx-mermaid: 1.3.2_mermaid@9.1.7+react@17.0.2
       mermaid: 9.1.7
-      playwright: 1.28.0
+      playwright: 1.28.1
       prism-react-renderer: 1.3.5_react@17.0.2
       prism-themes: 1.9.0
       react: 17.0.2
