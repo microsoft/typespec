@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Update dependencies",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/library-linter",
+      "comment": "Update dependencies",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/library-linter"
+}
