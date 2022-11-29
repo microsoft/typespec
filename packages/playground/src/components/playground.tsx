@@ -130,7 +130,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
     target: DiagnosticTarget | typeof NoTarget
   ): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
     const loc = cadlCompiler.getSourceLocation(target);
-    if (loc === undefined || loc.file.path != "/test/main.cadl") {
+    if (loc === undefined || loc.file.path !== "/test/main.cadl") {
       return {
         startLineNumber: 1,
         startColumn: 1,

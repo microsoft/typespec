@@ -885,7 +885,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getSchemaForEnum(e: Enum) {
     const values = [];
-    if (e.members.size == 0) {
+    if (e.members.size === 0) {
       reportUnsupportedUnion("empty");
       return undefined;
     }

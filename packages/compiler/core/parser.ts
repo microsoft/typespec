@@ -1131,10 +1131,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           nextToken();
         } while (
           !isStatementKeyword(token()) &&
-          token() != Token.NewLine &&
-          token() != Token.At &&
-          token() != Token.Semicolon &&
-          token() != Token.EndOfFile
+          token() !== Token.NewLine &&
+          token() !== Token.At &&
+          token() !== Token.Semicolon &&
+          token() !== Token.EndOfFile
         );
         return undefined;
     }
@@ -1761,7 +1761,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
       expr = parseProjectionMemberExpressionRest(expr, pos);
-      if (token() == Token.OpenParen) {
+      if (token() === Token.OpenParen) {
         expr = {
           kind: SyntaxKind.ProjectionCallExpression,
           callKind: "method",
@@ -2298,7 +2298,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function atEndOfListWithError(kind: ListKind) {
     return (
       kind.close !== Token.None &&
-      (isStatementKeyword(token()) || token() == Token.EndOfFile) &&
+      (isStatementKeyword(token()) || token() === Token.EndOfFile) &&
       token() !== kind.allowedStatementKeyword
     );
   }
@@ -2321,9 +2321,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       nextToken();
     } while (
       !isStatementKeyword(token()) &&
-      token() != Token.At &&
-      token() != Token.Semicolon &&
-      token() != Token.EndOfFile
+      token() !== Token.At &&
+      token() !== Token.Semicolon &&
+      token() !== Token.EndOfFile
     );
 
     error({
