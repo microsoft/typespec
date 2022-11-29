@@ -1,4 +1,5 @@
 import Layout from "@theme/Layout";
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 export default function Playground() {
   return (
@@ -15,8 +16,7 @@ export default function Playground() {
         {
           <iframe
             title="Cadl Specification"
-            src="/spec.html
-            "
+            src={useBaseUrl("/spec.html")}
             style={{
               height: "100%",
               width: "100%",

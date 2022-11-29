@@ -4,6 +4,7 @@
 // const lightCodeTheme = require("prism-react-renderer/themes/github");
 const lightCodeTheme = require("./themes/prism/atom-one-light.js");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const { resolve } = require("path");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -52,7 +53,7 @@ const config = {
       }),
     ],
   ],
-  staticDirectories: ["../../docs"],
+  staticDirectories: [resolve(__dirname, "../spec/dist")],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
