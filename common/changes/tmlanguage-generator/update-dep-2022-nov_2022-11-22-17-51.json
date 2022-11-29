@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "Update dependencies",
+      "type": "patch"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}

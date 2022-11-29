@@ -23,7 +23,7 @@ const sidebars = {
     {
       type: "category",
       label: "Getting Started",
-      items: ["getting-started/getting-started"],
+      items: ["getting-started/getting-started", "getting-started/cadl-for-openapi-dev"],
     },
     {
       type: "category",
@@ -75,6 +75,7 @@ const sidebars = {
         "extending-cadl/create-decorators",
         "extending-cadl/linters",
         "extending-cadl/emitters",
+        "extending-cadl/writing-scaffolding-template",
       ],
     },
     {

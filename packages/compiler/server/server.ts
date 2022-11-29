@@ -41,7 +41,7 @@ function main() {
   const host: ServerHost = {
     compilerHost: NodeHost,
     sendDiagnostics(params: PublishDiagnosticsParams) {
-      connection.sendDiagnostics(params);
+      void connection.sendDiagnostics(params);
     },
     log(message: string) {
       connection.console.log(message);
