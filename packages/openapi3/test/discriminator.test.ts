@@ -279,7 +279,7 @@ describe("openapi3: discriminated unions", () => {
       },
       {
         code: "invalid-discriminator-value",
-        message: `Discriminator value should be a string, union of string or string enum but was Model.`,
+        message: `Discriminator value should be a string, union of string or string enum but was Scalar.`,
       },
       {
         code: "invalid-discriminator-value",
@@ -287,7 +287,7 @@ describe("openapi3: discriminated unions", () => {
       },
       {
         code: "invalid-discriminator-value",
-        message: `Discriminator value should be a string, union of string or string enum but was Model.`,
+        message: `Discriminator value should be a string, union of string or string enum but was Scalar.`,
       },
     ]);
   });

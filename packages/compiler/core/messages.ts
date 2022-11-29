@@ -309,17 +309,17 @@ const diagnostics = {
       default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which can only override an intrinsic type on the parent property, not ${"parentType"}`,
     },
   },
+  "extend-scalar": {
+    severity: "error",
+    messages: {
+      default: "Scalar must extend other scalars.",
+    },
+  },
   "extend-model": {
     severity: "error",
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
-    },
-  },
-  "extend-primitive": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Cannot extend primitive types. Use 'model ${"modelName"} is ${"baseModelName"}' instead.`,
     },
   },
   "is-model": {
@@ -687,7 +687,7 @@ const diagnostics = {
   "circular-base-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
   "circular-op-signature": {

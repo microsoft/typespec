@@ -1,6 +1,6 @@
-import { Discriminator } from "../../lib/decorators.js";
-import { getDiscriminatedTypes, Program } from "../index.js";
+import { Discriminator, getDiscriminatedTypes } from "../../lib/decorators.js";
 import { createDiagnostic } from "../messages.js";
+import { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import { Diagnostic, Model, Type, Union } from "../types.js";
 import { DuplicateTracker, isDefined } from "../util.js";

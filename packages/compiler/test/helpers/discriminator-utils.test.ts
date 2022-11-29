@@ -222,7 +222,7 @@ describe("compiler: discriminator", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-discriminator-value",
         message:
-          "Discriminator value should be a string, union of string or string enum but was Model.",
+          "Discriminator value should be a string, union of string or string enum but was Scalar.",
       });
     });
 

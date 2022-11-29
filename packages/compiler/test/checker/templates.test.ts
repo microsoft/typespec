@@ -123,7 +123,7 @@ describe("compiler: templates", () => {
 
     const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
-    strictEqual(a.type.kind, "Model");
+    strictEqual(a.type.kind, "Scalar");
     strictEqual((a.type as Model).name, "string");
   });
 
