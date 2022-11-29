@@ -53,7 +53,7 @@ const config = {
       }),
     ],
   ],
-  staticDirectories: [resolve(__dirname, "../spec/dist")],
+  staticDirectories: [resolve(__dirname, "./node_modules/@cadl-lang/spec/dist")],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
