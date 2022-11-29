@@ -269,11 +269,6 @@ export const enum KeywordLimit {
   MaxLength = 10,
 }
 
-export enum ScanMode {
-  Syntax,
-  Doc,
-}
-
 export interface Scanner {
   /** The source code being scanned. */
   readonly file: SourceFile;
@@ -354,7 +349,6 @@ export function createScanner(
 ): Scanner {
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
   const input = file.text;
-  let mode = ScanMode.Syntax;
   let position = 0;
   let endPosition = input.length;
   let token = Token.None;
@@ -640,24 +634,20 @@ export function createScanner(
     const savedToken = token;
     const savedTokenPosition = tokenPosition;
     const savedTokenFlags = tokenFlags;
-    const savedMode = mode;
 
-    let result: T;
-    try {
-      position = range.pos;
-      endPosition = range.end;
-      token = Token.None;
-      tokenPosition = -1;
-      tokenFlags = TokenFlags.None;
-      result = callback();
-    } finally {
-      mode = savedMode;
-      position = savedPosition;
-      endPosition = savedEndPosition;
-      token = savedToken;
-      tokenPosition = savedTokenPosition;
-      tokenFlags = savedTokenFlags;
-    }
+    position = range.pos;
+    endPosition = range.end;
+    token = Token.None;
+    tokenPosition = -1;
+    tokenFlags = TokenFlags.None;
+
+    const result = callback();
+
+    position = savedPosition;
+    endPosition = savedEndPosition;
+    token = savedToken;
+    tokenPosition = savedTokenPosition;
+    tokenFlags = savedTokenFlags;
 
     return result;
   }
