@@ -22,10 +22,7 @@ import {
   getNamespaceString,
   getPattern,
   getPropertyType,
-  getServiceNamespace,
-  getServiceNamespaceString,
-  getServiceTitle,
-  getServiceVersion,
+  getService,
   getSummary,
   ignoreDiagnostics,
   IntrinsicType,
@@ -38,6 +35,7 @@ import {
   isStringType,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
+  listServices,
   Model,
   ModelProperty,
   Namespace,
@@ -48,6 +46,7 @@ import {
   ProjectionApplication,
   projectProgram,
   resolvePath,
+  Service,
   StringLiteral,
   TwoLevelMap,
   Type,
@@ -69,9 +68,8 @@ import {
 import { http } from "@cadl-lang/rest";
 import {
   createMetadataInfo,
-  getAllHttpServices,
   getAuthentication,
-  getContentTypes,
+  getHttpService,
   getRequestVisibility,
   getStatusCodeDescription,
   getVisibilitySuffix,
@@ -220,17 +218,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   return { emitOpenAPI };
 
-  function initializeEmitter(serviceNamespaceType: Namespace, version?: string) {
-    const auth = processAuth(serviceNamespaceType);
+  function initializeEmitter(service: Service, version?: string) {
+    const auth = processAuth(service.type);
 
     root = {
       openapi: "3.0.0",
       info: {
-        title: getServiceTitle(program),
-        version: version ?? getServiceVersion(program),
-        description: getDoc(program, serviceNamespaceType),
+        title: service.title ?? "(title)",
+        version: version ?? service.version ?? "0000-00-00",
+        description: getDoc(program, service.type),
       },
-      externalDocs: getExternalDocs(program, serviceNamespaceType),
+      externalDocs: getExternalDocs(program, service.type),
       tags: [],
       paths: {},
       security: auth?.security,
@@ -243,12 +241,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         securitySchemes: auth?.securitySchemes ?? {},
       },
     };
-    const servers = http.getServers(program, serviceNamespaceType);
+    const servers = http.getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = getServiceNamespaceString(program);
+    serviceNamespace = program.checker.getNamespaceString(service.type);
     currentPath = root.paths;
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
@@ -332,41 +330,69 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   async function emitOpenAPI() {
-    const serviceNs = getServiceNamespace(program);
-    if (!serviceNs) {
-      return;
+    const services = listServices(program);
+    if (services.length === 0) {
+      services.push({ type: program.getGlobalNamespaceType() });
     }
-    const commonProjections: ProjectionApplication[] = [
-      {
-        projectionName: "target",
-        arguments: ["json"],
-      },
-    ];
-    const originalProgram = program;
-    const versions = buildVersionProjections(program, serviceNs);
-    for (const record of versions) {
-      if (record.version) {
-        record.projections.push({
-          projectionName: "atVersion",
-          arguments: [record.version],
-        });
+    for (const service of services) {
+      const commonProjections: ProjectionApplication[] = [
+        {
+          projectionName: "target",
+          arguments: ["json"],
+        },
+      ];
+      const originalProgram = program;
+      const versions = buildVersionProjections(program, service.type);
+      for (const record of versions) {
+        if (record.version) {
+          record.projections.push({
+            projectionName: "atVersion",
+            arguments: [record.version],
+          });
+        }
+
+        const projectedProgram = (program = projectProgram(originalProgram, [
+          ...commonProjections,
+          ...record.projections,
+        ]));
+        const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
+          service.type
+        ) as Namespace;
+
+        await emitOpenAPIFromVersion(
+          projectedServiceNs === projectedProgram.getGlobalNamespaceType()
+            ? { type: projectedProgram.getGlobalNamespaceType() }
+            : getService(program, projectedServiceNs)!,
+          services.length > 1,
+          record.version
+        );
       }
-
-      program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
-      const projectedServiceNs = getServiceNamespace(program);
-
-      await emitOpenAPIFromVersion(projectedServiceNs, record.version);
     }
   }
 
-  async function emitOpenAPIFromVersion(serviceNamespace: Namespace, version?: string) {
-    initializeEmitter(serviceNamespace, version);
+  function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
+    const suffix = [];
+    if (multipleService) {
+      suffix.push(program.checker.getNamespaceString(service.type));
+    }
+    if (version) {
+      suffix.push(version);
+    }
+    return suffix.length > 0
+      ? options.outputFile.replace(".json", `.${suffix.join(".")}.json`)
+      : options.outputFile;
+  }
+  async function emitOpenAPIFromVersion(
+    service: Service,
+    multipleService: boolean,
+    version?: string
+  ) {
+    initializeEmitter(service, version);
     try {
-      const [services] = getAllHttpServices(program);
-      const service = services[0];
-      reportIfNoRoutes(program, service.operations);
+      const httpService = ignoreDiagnostics(getHttpService(program, service.type));
+      reportIfNoRoutes(program, httpService.operations);
 
-      for (const operation of service.operations) {
+      for (const operation of httpService.operations) {
         if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
           continue;
         } else {
@@ -374,7 +400,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
       emitParameters();
-      emitUnreferencedSchemas(serviceNamespace);
+      emitUnreferencedSchemas(service.type);
       emitSchemas();
       emitTags();
 
@@ -389,12 +415,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
-        const outPath = version
-          ? resolvePath(options.outputFile.replace(".json", `.${version}.json`))
-          : resolvePath(options.outputFile);
 
         await emitFile(program, {
-          path: outPath,
+          path: resolveOutputFile(service, multipleService, version),
           content: prettierOutput(JSON.stringify(root, null, 2)),
           newLine: options.newLine,
         });
@@ -677,29 +700,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitRequestBody(parameters: HttpOperationParameters, visibility: Visibility) {
-    const bodyType = parameters.bodyType;
-    const bodyParam = parameters.bodyParameter;
-
-    if (bodyType === undefined) {
+    const body = parameters.body;
+    if (body === undefined) {
       return;
     }
 
     const requestBody: any = {
-      description: bodyParam ? getDoc(program, bodyParam) : undefined,
+      description: body.parameter ? getDoc(program, body.parameter) : undefined,
       content: {},
     };
 
-    const contentTypeParam = parameters.parameters.find((p) =>
-      isContentTypeHeader(program, p.param)
-    );
-    const contentTypes = contentTypeParam
-      ? ignoreDiagnostics(getContentTypes(contentTypeParam.param))
-      : ["application/json"];
+    const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
     for (const contentType of contentTypes) {
-      const isBinary = isBinaryPayload(bodyType, contentType);
+      const isBinary = isBinaryPayload(body.type, contentType);
       const bodySchema = isBinary
         ? { type: "string", format: "binary" }
-        : getSchemaOrRef(bodyType, visibility);
+        : getSchemaOrRef(body.type, visibility);
       const contentEntry: any = {
         schema: bodySchema,
       };
@@ -870,7 +886,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getSchemaForEnum(e: Enum) {
     const values = [];
-    if (e.members.size == 0) {
+    if (e.members.size === 0) {
       reportUnsupportedUnion("empty");
       return undefined;
     }

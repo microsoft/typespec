@@ -638,12 +638,6 @@ const diagnostics = {
       default: `@service can only be set once per Cadl document.`,
     },
   },
-  "service-namespace-duplicate": {
-    severity: "error",
-    messages: {
-      default: "Cannot set service namespace more than once in a Cadl project.",
-    },
-  },
   "list-type-not-model": {
     severity: "error",
     messages: {
@@ -706,6 +700,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "conflict-marker": {
+    severity: "error",
+    messages: {
+      default: "Conflict marker encountered.",
     },
   },
 } as const;

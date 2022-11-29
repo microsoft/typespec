@@ -573,7 +573,7 @@ describe("compiler: built-in decorators", () => {
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       ok(!getOverloadedOperation(runner.program, compiled.someUnrelatedThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
-      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.length === 2);
       ok(overloadedBy?.includes("someStringThing"));
       ok(overloadedBy?.includes("someNumberThing"));
       ok(getOverloads(runner.program, compiled.someUnrelatedThing) === undefined);
@@ -605,7 +605,7 @@ describe("compiler: built-in decorators", () => {
       ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
-      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.length === 2);
       ok(overloadedBy?.includes("someStringThing"));
       ok(overloadedBy?.includes("someNumberThing"));
     });
@@ -635,7 +635,7 @@ describe("compiler: built-in decorators", () => {
       ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
-      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.length === 2);
       ok(overloadedBy?.includes("someStringThing"));
       ok(overloadedBy?.includes("someNumberThing"));
     });

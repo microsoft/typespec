@@ -1,9 +1,9 @@
 import {
   getFriendlyName,
-  getServiceNamespace,
   getTypeName,
   getVisibility,
   isGlobalNamespace,
+  isService,
   isTemplateInstance,
   ModelProperty,
   Operation,
@@ -133,7 +133,7 @@ export function resolveOperationId(program: Program, operation: Operation) {
   if (
     namespace === undefined ||
     isGlobalNamespace(program, namespace) ||
-    namespace === getServiceNamespace(program)
+    isService(program, namespace)
   ) {
     return operation.name;
   }
