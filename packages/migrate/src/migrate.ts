@@ -92,6 +92,7 @@ function migrateCadlContentInternal(
   try {
     return [(toCompiler as any).formatCadl(newContent), true];
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error("Failed to format new code", e);
     return [newContent, true];
   }
