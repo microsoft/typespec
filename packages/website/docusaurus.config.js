@@ -4,6 +4,7 @@
 // const lightCodeTheme = require("prism-react-renderer/themes/github");
 const lightCodeTheme = require("./themes/prism/atom-one-light.js");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const { resolve } = require("path");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -42,6 +43,7 @@ const config = {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
         },
+
         blog: {
           showReadingTime: true,
         },
@@ -51,6 +53,7 @@ const config = {
       }),
     ],
   ],
+  staticDirectories: [resolve(__dirname, "./node_modules/@cadl-lang/spec/dist")],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -63,6 +66,11 @@ const config = {
             docId: "introduction/introduction",
             position: "left",
             label: "Docs",
+          },
+          {
+            to: "/specification",
+            position: "left",
+            label: "Specification",
           },
           { to: "/playground", label: "Playground", position: "left" },
           {
