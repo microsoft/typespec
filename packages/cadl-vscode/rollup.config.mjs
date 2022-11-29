@@ -17,7 +17,7 @@ export default defineConfig({
     if (warning.code === "CIRCULAR_DEPENDENCY") {
       // filter out warnings about circular dependencies out of our control
       for (const each of ["node_modules/semver"]) {
-        if (warning.importer?.includes(each)) {
+        if (warning.message.includes(each)) {
           return;
         }
       }
