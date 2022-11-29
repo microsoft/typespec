@@ -88,14 +88,13 @@ function migrateCadlContentInternal(
     last = action.target.end;
   }
   const newContent = segments.join("");
-  return [newContent, true];
 
-  // Format code after?
-  // try {
-  //   return [(toCompiler as any).formatCadl(newContent), true];
-  // } catch (e) {
-  //   console.error("Failed to format new code", e);
-  // }
+  try {
+    return [(toCompiler as any).formatCadl(newContent), true];
+  } catch (e) {
+    console.error("Failed to format new code", e);
+    return [newContent, true];
+  }
 }
 
 function createMigrationContext(root: any) {
