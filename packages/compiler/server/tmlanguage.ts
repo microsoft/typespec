@@ -390,6 +390,33 @@ const modelStatement: BeginEndRule = {
   ],
 };
 
+const scalarExtends: BeginEndRule = {
+  key: "scalar-extends",
+  scope: meta,
+  begin: "\\b(extends)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEndExceptComma,
+  patterns: [expression, punctuationComma],
+};
+
+const scalarStatement: BeginEndRule = {
+  key: "scalar-statement",
+  scope: meta,
+  begin: "\\b(scalar)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEnd,
+  patterns: [
+    token,
+    typeParameters,
+    scalarExtends, // before expression or `extends` will look like type name
+    expression, // enough to match name, type parameters, and body.
+  ],
+};
+
 const enumStatement: BeginEndRule = {
   key: "enum-statement",
   scope: meta,
@@ -762,6 +789,7 @@ statement.patterns = [
   augmentDecoratorStatement,
   decorator,
   modelStatement,
+  scalarStatement,
   unionStatement,
   interfaceStatement,
   enumStatement,

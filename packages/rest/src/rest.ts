@@ -9,6 +9,7 @@ import {
   Operation,
   Program,
   reportDeprecated,
+  Scalar,
   setCadlNamespace,
   Type,
 } from "@cadl-lang/compiler";
@@ -389,7 +390,7 @@ export function $resourceLocation(
   context.program.stateMap(resourceLocationsKey).set(entity, resourceType);
 }
 
-export function getResourceLocationType(program: Program, entity: Model): Model | undefined {
+export function getResourceLocationType(program: Program, entity: Scalar): Model | undefined {
   return program.stateMap(resourceLocationsKey).get(entity);
 }
 

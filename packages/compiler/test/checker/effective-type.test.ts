@@ -197,7 +197,7 @@ describe("compiler: effective type", () => {
     strictEqual(Derived.kind, "Model" as const);
 
     const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+    strictEqual(propType?.kind, "Scalar" as const);
 
     const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
     expectIdenticalTypes(effective, Base);
@@ -227,7 +227,7 @@ describe("compiler: effective type", () => {
     strictEqual(Derived.kind, "Model" as const);
 
     const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+    strictEqual(propType?.kind, "Scalar" as const);
 
     const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
     expectIdenticalTypes(effective, Base);
@@ -260,7 +260,7 @@ describe("compiler: effective type", () => {
     strictEqual(Derived.kind, "Model" as const);
 
     const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+    strictEqual(propType?.kind, "Scalar" as const);
 
     const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
     expectIdenticalTypes(effective, Middle);

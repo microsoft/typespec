@@ -173,6 +173,25 @@ export function isWhiteSpaceSingleLine(ch: number) {
   );
 }
 
+export function trim(str: string): string {
+  let start = 0;
+  let end = str.length - 1;
+
+  if (!isWhiteSpace(str.charCodeAt(start)) && !isWhiteSpace(str.charCodeAt(end))) {
+    return str;
+  }
+
+  while (isWhiteSpace(str.charCodeAt(start))) {
+    start++;
+  }
+
+  while (isWhiteSpace(str.charCodeAt(end))) {
+    end--;
+  }
+
+  return str.substring(start, end + 1);
+}
+
 export function isDigit(ch: number) {
   return ch >= CharCode._0 && ch <= CharCode._9;
 }

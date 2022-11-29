@@ -475,7 +475,7 @@ describe("openapi3: models", () => {
       }
 
       @knownValues(KnownPetType)
-      model PetType is string {}
+      scalar PetType extends string;
       model Pet { type: PetType };
       `
     );
