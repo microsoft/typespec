@@ -8,7 +8,7 @@ title: Usage
 See full usage documentation by typing `cadl --help`:
 
 ```bash
->cadl --help
+>npx cadl --help
 Cadl compiler v0.36.1
 
 cadl <command>
