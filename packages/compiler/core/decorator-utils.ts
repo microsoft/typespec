@@ -1,4 +1,5 @@
-import { getPropertyType } from "./index.js";
+import { getPropertyType } from "../lib/decorators.js";
+import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -320,7 +321,7 @@ export function validateDecoratorParamCount(
 
 function prettyValue(program: Program, value: any) {
   if (typeof value === "object" && value !== null && "kind" in value) {
-    return program.checker.getTypeName(value);
+    return getTypeName(value);
   }
   return value;
 }

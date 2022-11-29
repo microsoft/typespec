@@ -18,6 +18,7 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
+  getNamespaceFullName,
   getPattern,
   getPropertyType,
   getService,
@@ -59,8 +60,8 @@ import {
   checkDuplicateTypeName,
   getExtensions,
   getExternalDocs,
+  getOpenAPITypeName,
   getParameterKey,
-  getTypeName,
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
@@ -211,7 +212,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing Cadl and service namespace
     namespaceFilter(ns) {
-      const name = program.checker.getNamespaceString(ns);
+      const name = getNamespaceFullName(ns);
       return name !== "Cadl" && name !== serviceNamespace;
     },
   };
@@ -246,7 +247,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = program.checker.getNamespaceString(service.type);
+    serviceNamespace = getNamespaceFullName(service.type);
     currentPath = root.paths;
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
@@ -370,7 +371,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     const suffix = [];
     if (multipleService) {
-      suffix.push(program.checker.getNamespaceString(service.type));
+      suffix.push(getNamespaceFullName(service.type));
     }
     if (version) {
       suffix.push(version);
@@ -587,7 +588,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     type = metadataInfo.getEffectivePayloadType(type, visibility);
 
-    const name = getTypeName(program, type, typeNameOptions);
+    const name = getOpenAPITypeName(program, type, typeNameOptions);
     if (shouldInline(program, type)) {
       const schema = getSchemaForInlineType(type, visibility, name);
 
@@ -817,7 +818,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // CADL type.
     for (const group of processedSchemas.values()) {
       for (const [visibility, processed] of group) {
-        let name = getTypeName(program, processed.type, typeNameOptions);
+        let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
         if (group.size > 1) {
           name += getVisibilitySuffix(visibility);
         }
