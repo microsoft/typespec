@@ -3,6 +3,7 @@ import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
   getParentTemplateNode,
+  getTypeName,
   isNeverType,
   isProjectedProgram,
   isTemplateInstance,
@@ -650,10 +651,7 @@ export function createProjector(
   function projectViaParent(type: Type, parentType: Type): Type {
     projectType(parentType);
     const projectedProp = projectedTypes.get(type);
-    compilerAssert(
-      projectedProp,
-      `Type "${program.checker.getTypeName(type)}" should have been projected by now.`
-    );
+    compilerAssert(projectedProp, `Type "${getTypeName(type)}" should have been projected by now.`);
     return projectedProp;
   }
 }

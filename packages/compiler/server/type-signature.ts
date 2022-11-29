@@ -1,9 +1,10 @@
+import { getTypeName } from "../core/index.js";
 import { Program } from "../core/program.js";
 import { Decorator, FunctionParameter, FunctionType, Type } from "../core/types.js";
 
 export function getTypeSignature(program: Program, type: Type) {
   const typeKind = type.kind.toLowerCase();
-  const name = program.checker.getTypeName(type);
+  const name = getTypeName(type);
   switch (type.kind) {
     case "Decorator":
       return getDecoratorSignature(program, type);
@@ -30,5 +31,5 @@ function getFunctionSignature(program: Program, type: FunctionType) {
 function getFunctionParameterSignature(program: Program, parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${parameter.name}${optional}: ${program.checker.getTypeName(parameter.type)}`;
+  return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
 }

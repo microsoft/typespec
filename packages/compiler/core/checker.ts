@@ -2,6 +2,7 @@ import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
+import { getNamespaceFullName, getTypeName, TypeNameOptions } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -111,10 +112,6 @@ import {
 } from "./types.js";
 import { isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
-export interface TypeNameOptions {
-  namespaceFilter: (ns: Namespace) => boolean;
-}
-
 export interface Checker {
   typePrototype: TypePrototype;
 
@@ -130,7 +127,15 @@ export interface Checker {
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
+
+  /**
+   * @deprecated use `import { getTypeName } from "@cadl-lang/compiler";`
+   */
   getTypeName(type: Type, options?: TypeNameOptions): string;
+
+  /**
+   * @deprecated use `import { getNamespaceFullName } from "@cadl-lang/compiler";`
+   */
   getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
@@ -316,7 +321,7 @@ export function createChecker(program: Program): Checker {
     checkSourceFile,
     getLiteralType,
     getTypeName,
-    getNamespaceString,
+    getNamespaceString: getNamespaceFullName,
     getGlobalNamespaceType,
     getGlobalNamespaceNode,
     setUsingsForFile,
@@ -576,73 +581,12 @@ export function createChecker(program: Program): Checker {
     return errorType;
   }
 
-  function getTypeName(type: Type, options?: TypeNameOptions): string {
-    switch (type.kind) {
-      case "Namespace":
-        return getNamespaceString(type, options);
-      case "TemplateParameter":
-        return type.node.id.sv;
-      case "Scalar":
-        return getScalarName(type, options);
-      case "Model":
-        return getModelName(type, options);
-      case "ModelProperty":
-        return getModelPropertyName(type, options);
-      case "Interface":
-        return getInterfaceName(type, options);
-      case "Operation":
-        return getOperationName(type, options);
-      case "Enum":
-        return getEnumName(type, options);
-      case "EnumMember":
-        return `${getEnumName(type.enum, options)}.${type.name}`;
-      case "Union":
-        return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
-      case "UnionVariant":
-        return getTypeName(type.type, options);
-      case "Tuple":
-        return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
-      case "String":
-      case "Number":
-      case "Boolean":
-        return type.value.toString();
-      case "Intrinsic":
-        return type.name;
-    }
-
-    return "(unnamed type)";
-  }
-
-  function getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string {
-    if (!type || !type.name) {
-      return "";
-    }
-
-    const filter = options?.namespaceFilter;
-    if (filter && !filter(type)) {
-      return "";
-    }
-
-    const parent = getNamespaceString(type.namespace, options);
-    return parent ? `${parent}.${type.name}` : type.name;
-  }
-
   function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
     if (!sym) return "";
     const parent = sym.parent;
     return parent && parent.name !== ""
       ? `${getFullyQualifiedSymbolName(parent)}.${sym.name}`
       : sym.name;
-  }
-
-  function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
-    const nsName = getNamespaceString(e.namespace, options);
-    return nsName ? `${nsName}.${e.name}` : e.name;
-  }
-
-  function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
-    const nsName = getNamespaceString(scalar.namespace, options);
-    return nsName ? `${nsName}.${scalar.name}` : scalar.name;
   }
 
   /**
@@ -679,51 +623,6 @@ export function createChecker(program: Program): Checker {
    */
   function isInCadlNamespace(type: Type & { namespace?: Namespace }): boolean {
     return Boolean(type.namespace && isCadlNamespace(type.namespace));
-  }
-
-  function getModelName(model: Model, options: TypeNameOptions | undefined) {
-    const nsName = getNamespaceString(model.namespace, options);
-    if (model.name === "" && model.properties.size === 0) {
-      return "{}";
-    }
-    if (model.indexer && model.indexer.key.kind === "Scalar") {
-      if (model.name === "Array" && isInCadlNamespace(model)) {
-        return `${getTypeName(model.indexer.value!, options)}[]`;
-      }
-    }
-
-    if (model.name === "") {
-      return (nsName ? nsName + "." : "") + "(anonymous model)";
-    }
-    const modelName = (nsName ? nsName + "." : "") + model.name;
-    if (model.templateArguments && model.templateArguments.length > 0) {
-      // template instantiation
-      const args = model.templateArguments.map((x) => getTypeName(x, options));
-      return `${modelName}<${args.join(", ")}>`;
-    } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
-      // template
-      const params = (model.node as ModelStatementNode).templateParameters.map((t) => t.id.sv);
-      return `${model.name}<${params.join(", ")}>`;
-    } else {
-      // regular old model.
-      return modelName;
-    }
-  }
-
-  function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {
-    const modelName = prop.model ? getModelName(prop.model, options) : undefined;
-
-    return `${modelName ?? "(anonymous model)"}.${prop.name}`;
-  }
-
-  function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {
-    const nsName = getNamespaceString(iface.namespace, options);
-    return (nsName ? nsName + "." : "") + iface.name;
-  }
-
-  function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
-    const nsName = getNamespaceString(op.namespace, options);
-    return (nsName ? nsName + "." : "") + op.name;
   }
 
   function checkTemplateParameterDeclaration(
@@ -1707,7 +1606,7 @@ export function createChecker(program: Program): Checker {
         const namespace =
           x.symbolSource!.flags & (SymbolFlags.Decorator | SymbolFlags.Function)
             ? (x.symbolSource!.value as any).namespace
-            : getNamespaceString(
+            : getNamespaceFullName(
                 (getTypeForNode(x.symbolSource!.declarations[0], undefined) as any).namespace
               );
         return `${namespace}.${node.sv}`;

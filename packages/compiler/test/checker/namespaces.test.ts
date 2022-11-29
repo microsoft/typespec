@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { getTypeName } from "../../core/index.js";
 import { Program } from "../../core/program.js";
 import { Model, Namespace, Type } from "../../core/types.js";
 import {
@@ -574,8 +575,8 @@ describe("compiler: namespace type name", () => {
     );
 
     const { Model1, Model2 } = await testHost.compile("./a.cadl");
-    strictEqual(testHost.program.checker.getTypeName(Model1), "Foo.Model1");
-    strictEqual(testHost.program.checker.getTypeName(Model2), "Foo.Other.Bar.Model2");
+    strictEqual(getTypeName(Model1), "Foo.Model1");
+    strictEqual(getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
 
   it("gets full name in edge case with decorators", async () => {
