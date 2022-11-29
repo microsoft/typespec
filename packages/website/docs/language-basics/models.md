@@ -9,15 +9,10 @@ Cadl models are used to describe data shapes or schemas.
 
 ## Model kinds
 
-Models can be used to represent 3 types:
+Models can be used to represent 2 types:
 
-- [Primitives](#primitives)
 - [Record](#record)
 - [Array](#array)
-
-### Primitives
-
-These are types without any fields(For example `string`, `int32`, `boolean`, etc.)
 
 ### Record
 

@@ -275,6 +275,7 @@ StatementList :
 
 Statement :
     ModelStatement
+    ScalarStatement
     InterfaceStatement
     NamespaceStatement
     OperationStatement
@@ -295,6 +296,12 @@ ModelStatement :
 
 IsModelHeritage :
     `is` Expression
+
+ScalarStatement :
+    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends `;`
+
+ScalarExtends :
+    `extends` Expression
 
 ExtendsModelHeritage :
     `extends` Expression

@@ -23,8 +23,8 @@ describe("compiler: server: completion", () => {
       {
         label: "int32",
         insertText: "int32",
-        kind: CompletionItemKind.Keyword,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Cadl.int32\n```" },
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.int32\n```" },
       },
       {
         label: "Record",
@@ -263,8 +263,8 @@ describe("compiler: server: completion", () => {
       {
         label: "string",
         insertText: "string",
-        kind: CompletionItemKind.Keyword,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Cadl.string\n```" },
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.string\n```" },
       },
     ]);
   });

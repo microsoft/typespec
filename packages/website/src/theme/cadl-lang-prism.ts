@@ -47,7 +47,7 @@ export default {
 
   boolean: /\b(?:false|true)\b/,
   keyword:
-    /\b(?:import|model|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|projection)\b/,
+    /\b(?:import|model|scalar|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|projection)\b/,
 
   function: /\b[a-z_]\w*(?=[ \t]*\()/i,
 
