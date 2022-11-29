@@ -1,3 +1,7 @@
+---
+title: Scaffolding templates
+---
+
 # Writting a scaffolding template
 
 cadl provides scaffolding functionality via the `cadl init` command.
