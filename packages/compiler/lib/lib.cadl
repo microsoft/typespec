@@ -1,5 +1,27 @@
 namespace Cadl;
 
+scalar bytes;
+scalar numeric;
+scalar integer extends numeric;
+scalar float extends numeric;
+scalar int64 extends integer;
+scalar int32 extends int64;
+scalar int16 extends int32;
+scalar int8 extends int16;
+scalar uint64 extends integer;
+scalar uint32 extends uint64;
+scalar uint16 extends uint32;
+scalar uint8 extends uint16;
+scalar safeint extends int64;
+scalar float64 extends float;
+scalar float32 extends float64;
+scalar string;
+scalar plainDate;
+scalar plainTime;
+scalar zonedDateTime;
+scalar duration;
+scalar boolean;
+
 model object {}
 
 @indexer(integer, T)
@@ -8,91 +30,11 @@ model Array<T> {}
 @indexer(string, T)
 model Record<T> {}
 
-@intrinsic("bytes")
-model bytes {}
-
-@numeric
-@intrinsic("numeric")
-model numeric {}
-
-@numeric
-@intrinsic("integer")
-model integer {}
-
-@numeric
-@intrinsic("float")
-model float {}
-
-@numeric
-@intrinsic("int64")
-model int64 {}
-
-@numeric
-@intrinsic("int32")
-model int32 {}
-
-@numeric
-@intrinsic("int16")
-model int16 {}
-
-@numeric
-@intrinsic("int8")
-model int8 {}
-
-@numeric
-@intrinsic("uint64")
-model uint64 {}
-
-@numeric
-@intrinsic("uint32")
-model uint32 {}
-
-@numeric
-@intrinsic("uint16")
-model uint16 {}
-
-@numeric
-@intrinsic("uint8")
-model uint8 {}
-
-@numeric
-@intrinsic("safeint")
-model safeint {}
-
-@numeric
-@intrinsic("float32")
-model float32 {}
-
-@numeric
-@intrinsic("float64")
-model float64 {}
-
-@intrinsic("string")
-model string {}
-
-@intrinsic("plainDate")
-model plainDate {}
-
-@intrinsic("plainTime")
-model plainTime {}
-
-@intrinsic("zonedDateTime")
-model zonedDateTime {}
-
-@intrinsic("duration")
-model duration {}
-
-@intrinsic("boolean")
-model boolean {}
-
-@intrinsic("null")
-model null {}
-
 /**
  * Represent a URI string.
  */
 @format("uri")
-model uri is string;
+scalar uri extends string;
 
 @deprecated("Map is deprecated, use Record<T> instead")
 model Map<K, V> is Record<V>;
@@ -110,8 +52,8 @@ model UpdateableProperties<T> {
 }
 
 @doc("The template for omitting properties.")
-@withoutOmittedProperties(TStringOrTuple)
-model OmitProperties<T, TStringOrTuple> {
+@withoutOmittedProperties(TKeys)
+model OmitProperties<T, TKeys extends string> {
   ...T;
 }
 
@@ -122,6 +64,6 @@ model OmitDefaults<T> {
 
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<T, Visibility> {
+model DefaultKeyVisibility<T, Visibility extends string> {
   ...T;
 }

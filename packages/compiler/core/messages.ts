@@ -149,6 +149,12 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
+  "augment-decorator-target": {
+    severity: "error",
+    messages: {
+      default: `Augment decorator first argument must be a type reference.`,
+    },
+  },
   "reserved-identifier": {
     severity: "error",
     messages: {
@@ -189,6 +195,25 @@ const diagnostics = {
         "Template parameter defaults can only reference previously declared type parameters.",
     },
   },
+  "required-parameter-first": {
+    severity: "error",
+    messages: {
+      default: "A required parameter cannot follow an optional parameter.",
+    },
+  },
+  "rest-parameter-last": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be last in a parameter list.",
+    },
+  },
+  "rest-parameter-required": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter cannot be optional.",
+    },
+  },
+
   /**
    * Checker
    */
@@ -272,10 +297,22 @@ const diagnostics = {
       default: paramMessage`Model already has a property named ${"propName"}`,
     },
   },
-  "override-property": {
+  "override-property-mismatch": {
     severity: "error",
     messages: {
-      default: paramMessage`Model has an inherited property named ${"propName"} which cannot be overridden`,
+      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
+    },
+  },
+  "override-property-intrinsic": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which can only override an intrinsic type on the parent property, not ${"parentType"}`,
+    },
+  },
+  "extend-scalar": {
+    severity: "error",
+    messages: {
+      default: "Scalar must extend other scalars.",
     },
   },
   "extend-model": {
@@ -283,12 +320,6 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
-    },
-  },
-  "extend-primitive": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Cannot extend primitive types. Use 'model ${"modelName"} is ${"baseModelName"}' instead.`,
     },
   },
   "is-model": {
@@ -384,6 +415,36 @@ const diagnostics = {
       default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
+  "rest-parameter-array": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be of an array type.",
+    },
+  },
+  "decorator-extern": {
+    severity: "error",
+    messages: {
+      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-extern": {
+    severity: "error",
+    messages: {
+      default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "missing-implementation": {
+    severity: "error",
+    messages: {
+      default: "Extern declaration must have an implementation in JS file.",
+    },
+  },
+  "overload-same-parent": {
+    severity: "error",
+    messages: {
+      default: `Overload must be in the same interface or namespace.`,
+    },
+  },
 
   /**
    * Program
@@ -435,6 +496,13 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Duplicate name: "${"name"}"`,
+    },
+  },
+  "decorator-decl-target": {
+    severity: "error",
+    messages: {
+      default: "dec must have at least one parameter.",
+      required: "dec first parameter must be required.",
     },
   },
   "projections-are-experimental": {
@@ -490,19 +558,20 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
+      withExpected: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"} since it is not assignable to ${"expected"}`,
     },
   },
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' of type '${"actual"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
-      between: paramMessage`Expected between ${"min"} and ${"max"} arguments, but got ${"actual"}.`,
+      atLeast: paramMessage`Expected at least ${"expected"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {
@@ -540,9 +609,23 @@ const diagnostics = {
   "invalid-discriminated-union-variant": {
     severity: "error",
     messages: {
-      default: paramMessage`Union variant ${"name"} must be a model type`,
-      noDiscriminant: paramMessage`Variant ${"name"}'s type is missing the discriminant property ${"discriminant"}`,
-      wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
+      default: paramMessage`Union variant "${"name"}" must be a model type.`,
+      noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
+      wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
+    },
+  },
+  "missing-discriminator-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Each derived model of a discriminated model type should have set the discriminator property("${"discriminator"}") or have a derived model which has. Add \`${"discriminator"}: "<discriminator-value>"\``,
+    },
+  },
+  "invalid-discriminator-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Discriminator value should be a string, union of string or string enum but was ${"kind"}.`,
+      required: "The discriminator property must be a required property.",
+      duplicate: paramMessage`Discriminator value "${"discriminator"}" is already used in another variant.`,
     },
   },
 
@@ -553,12 +636,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: `@service can only be set once per Cadl document.`,
-    },
-  },
-  "service-namespace-duplicate": {
-    severity: "error",
-    messages: {
-      default: "Cannot set service namespace more than once in a Cadl project.",
     },
   },
   "list-type-not-model": {
@@ -610,7 +687,7 @@ const diagnostics = {
   "circular-base-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
   "circular-op-signature": {
@@ -623,6 +700,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "conflict-marker": {
+    severity: "error",
+    messages: {
+      default: "Conflict marker encountered.",
     },
   },
 } as const;

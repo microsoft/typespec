@@ -4,3 +4,6 @@ export interface PlaygroundConfig {
   samples: Record<string, string>;
   enableSwaggerUI: boolean;
 }
+
+export { createBrowserHost } from "./browser-host.js";
+export { Playground, PlaygroundProps } from "./components/playground.js";

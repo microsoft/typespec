@@ -2,6 +2,46 @@
   "name": "@cadl-lang/versioning",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@cadl-lang/versioning_v0.10.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Declare decorators in cadl using `extern dec`"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.1` to `~0.2.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.9.0",
+      "tag": "@cadl-lang/versioning_v0.9.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake changes to navigateProgram"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.0` to `~0.2.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@cadl-lang/versioning_v0.8.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

@@ -8,7 +8,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
-// cspell:ignore 𐌰𐌲
+// cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
@@ -23,8 +23,8 @@ describe("compiler: server: completion", () => {
       {
         label: "int32",
         insertText: "int32",
-        kind: CompletionItemKind.Keyword,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Cadl.int32\n```" },
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.int32\n```" },
       },
       {
         label: "Record",
@@ -203,7 +203,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
       },
     ]);
   });
@@ -238,7 +242,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
       },
     ]);
   });
@@ -255,8 +263,8 @@ describe("compiler: server: completion", () => {
       {
         label: "string",
         insertText: "string",
-        kind: CompletionItemKind.Keyword,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Cadl.string\n```" },
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.string\n```" },
       },
     ]);
   });
@@ -401,7 +409,7 @@ describe("compiler: server: completion", () => {
        namespace N {
         op test(): void;
        }
-       @dec(N.┆)
+       @myDec(N.┆)
       `
     );
 
@@ -428,7 +436,7 @@ describe("compiler: server: completion", () => {
         test(): void;
        }
       
-       @dec(I.┆
+       @myDec(I.┆
       `
     );
 
@@ -454,7 +462,7 @@ describe("compiler: server: completion", () => {
        model M {
         test: string;
        }
-       @dec(M.┆
+       @myDec(M.┆
       `
     );
 

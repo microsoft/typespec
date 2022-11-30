@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { DecoratorContext, IntrinsicType, Operation, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
@@ -39,9 +39,9 @@ describe("compiler: operations", () => {
     const props = Array.from(newFoo.parameters.properties.values());
 
     strictEqual(props[0].name, "name");
-    strictEqual(props[0].type.kind, "Model");
+    strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
-    strictEqual(props[1].type.kind, "Model");
+    strictEqual(props[1].type.kind, "Scalar");
   });
 
   it("can be defined based on other operation references", async () => {
@@ -62,9 +62,9 @@ describe("compiler: operations", () => {
     const props = Array.from(newFoo.parameters.properties.values());
 
     strictEqual(props[0].name, "name");
-    strictEqual(props[0].type.kind, "Model");
+    strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
-    strictEqual(props[1].type.kind, "Model");
+    strictEqual(props[1].type.kind, "Scalar");
   });
 
   it("can reference an operation when being defined in an interface", async () => {
@@ -83,9 +83,9 @@ describe("compiler: operations", () => {
     const props = Array.from(newFoo.parameters.properties.values());
 
     strictEqual(props[0].name, "name");
-    strictEqual(props[0].type.kind, "Model");
+    strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
-    strictEqual(props[1].type.kind, "Model");
+    strictEqual(props[1].type.kind, "Scalar");
   });
 
   it("can reference an operation defined inside an interface", async () => {
@@ -102,7 +102,7 @@ describe("compiler: operations", () => {
 
     const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
 
-    strictEqual(newFoo.returnType.kind, "Model" as const);
+    strictEqual(newFoo.returnType.kind, "Scalar" as const);
     strictEqual(newFoo.returnType.name, "boolean");
   });
 
@@ -119,8 +119,34 @@ describe("compiler: operations", () => {
 
     const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
 
-    strictEqual(newFoo.returnType.kind, "Model" as const);
+    strictEqual(newFoo.returnType.kind, "Scalar" as const);
     strictEqual(newFoo.returnType.name, "boolean");
+  });
+
+  it("doesn't apply operation decorators to referenced signature", async () => {
+    testHost.addJsFile("test.js", {
+      $alpha() {},
+      $beta() {},
+    });
+
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./test.js";
+      @alpha
+      @test
+      op Foo<T>(): T;
+
+      @beta
+      op bar is Foo<string>;
+      `
+    );
+
+    const { Foo } = (await testHost.compile("./main.cadl")) as { Foo: Operation };
+    deepStrictEqual(
+      Foo.decorators.map((x) => x.decorator.name),
+      ["$test", "$alpha"]
+    );
   });
 
   it("applies the decorators of the referenced operation and its transitive references", async () => {
@@ -157,14 +183,11 @@ describe("compiler: operations", () => {
       op newFoo is NewFooBase<string>;`
     );
 
-    const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
-    expectDiagnostics(diagnostics, []);
-
-    const { newFoo } = result as { newFoo: Operation };
+    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
 
     // Check that the decorators were applied correctly to `newFoo`
-    strictEqual(alphaTargets.get(newFoo)?.kind, "Model");
+    strictEqual(alphaTargets.get(newFoo)?.kind, "Scalar");
     ok(betaTargets.has(newFoo));
     ok(gammaTargets.has(newFoo));
   });

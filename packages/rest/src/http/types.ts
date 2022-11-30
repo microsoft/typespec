@@ -191,9 +191,26 @@ export interface HttpOperationParameter {
   param: ModelProperty;
 }
 
+/**
+ * Represent the body information for an http request.
+ *
+ * @note the `type` must be a `Model` if the content type is multipart.
+ */
+export interface HttpOperationRequestBody extends HttpOperationBody {
+  /**
+   * If the body was explicitly set as a property. Correspond to the property with `@body`
+   */
+  parameter?: ModelProperty;
+}
+
 export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
+
+  body?: HttpOperationRequestBody;
+
+  /** @deprecated use @see body.type */
   bodyType?: Type;
+  /** @deprecated use @see body.property */
   bodyParameter?: ModelProperty;
 
   /**
@@ -216,6 +233,11 @@ export interface HttpOperation {
    * Route path
    */
   path: string;
+
+  /**
+   * Path segments
+   */
+  pathSegments: string[];
 
   /**
    * Route verb.
@@ -241,11 +263,22 @@ export interface HttpOperation {
    * Operation type reference.
    */
   operation: Operation;
+
+  /**
+   * Overload this operation
+   */
+  overloading?: HttpOperation;
+
+  /**
+   * List of operations that overloads this one.
+   */
+  overloads?: HttpOperation[];
 }
 
 export interface RoutePath {
   path: string;
   isReset: boolean;
+  shared: boolean;
 }
 
 export type StatusCode = `${number}` | "*";
@@ -262,6 +295,13 @@ export interface HttpOperationResponseContent {
 }
 
 export interface HttpOperationBody {
+  /**
+   * Content types.
+   */
   contentTypes: string[];
+
+  /**
+   * Type of the operation body.
+   */
   type: Type;
 }

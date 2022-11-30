@@ -1,6 +1,24 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+
+## 0.17.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Extension lookup for a local cadl compiler first instead of a global
+
+### Patches
+
+- Internal: Fix loading VS Code extension unbundled in F5 dev scenario
+
+## 0.16.1
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Patches
+
+- Fix preference documentation for cadl-server path configuration
 
 ## 0.16.0
 Thu, 08 Sep 2022 01:04:53 GMT

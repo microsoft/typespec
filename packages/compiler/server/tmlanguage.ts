@@ -52,9 +52,10 @@ const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
-const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
-const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
+const modifierKeyword = `\\b(?:extern)\\b`;
+const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
+const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
  * Universal end with extra end char: `=`
@@ -193,6 +194,17 @@ const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
   begin: `(@${qualifiedIdentifier})`,
+  beginCaptures: {
+    "1": { scope: "entity.name.tag.cadl" },
+  },
+  end: `${beforeIdentifier}|${universalEnd}`,
+  patterns: [token, parenthesizedExpression],
+};
+
+const augmentDecoratorStatement: BeginEndRule = {
+  key: "augment-decorator-statement",
+  scope: meta,
+  begin: `(@@${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.cadl" },
   },
@@ -374,6 +386,33 @@ const modelStatement: BeginEndRule = {
     token,
     typeParameters,
     modelHeritage, // before expression or `extends` or `is` will look like type name
+    expression, // enough to match name, type parameters, and body.
+  ],
+};
+
+const scalarExtends: BeginEndRule = {
+  key: "scalar-extends",
+  scope: meta,
+  begin: "\\b(extends)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEndExceptComma,
+  patterns: [expression, punctuationComma],
+};
+
+const scalarStatement: BeginEndRule = {
+  key: "scalar-statement",
+  scope: meta,
+  begin: "\\b(scalar)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEnd,
+  patterns: [
+    token,
+    typeParameters,
+    scalarExtends, // before expression or `extends` will look like type name
     expression, // enough to match name, type parameters, and body.
   ],
 };
@@ -566,6 +605,32 @@ const usingStatement: BeginEndRule = {
   patterns: [token, identifierExpression],
 };
 
+const decoratorDeclarationStatement: BeginEndRule = {
+  key: "decorator-declaration-statement",
+  scope: meta,
+  begin: `(?:(extern)\\s+)?\\b(dec)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters],
+};
+
+const functionDeclarationStatement: BeginEndRule = {
+  key: "function-declaration-statement",
+  scope: meta,
+  begin: `(?:(extern)\\s+)?\\b(fn)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters, typeAnnotation],
+};
+
 const projectionParameter: BeginEndRule = {
   key: "projection-parameter",
   scope: meta,
@@ -721,8 +786,10 @@ expression.patterns = [
 statement.patterns = [
   token,
   directive,
+  augmentDecoratorStatement,
   decorator,
   modelStatement,
+  scalarStatement,
   unionStatement,
   interfaceStatement,
   enumStatement,
@@ -731,6 +798,8 @@ statement.patterns = [
   operationStatement,
   importStatement,
   usingStatement,
+  decoratorDeclarationStatement,
+  functionDeclarationStatement,
   projectionStatement,
   punctuationSemicolon,
 ];

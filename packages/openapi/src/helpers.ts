@@ -1,8 +1,9 @@
 import {
   getFriendlyName,
-  getServiceNamespace,
+  getTypeName,
   getVisibility,
   isGlobalNamespace,
+  isService,
   isTemplateInstance,
   ModelProperty,
   Operation,
@@ -31,6 +32,8 @@ export function shouldInline(program: Program, type: Type): boolean {
   switch (type.kind) {
     case "Model":
       return !type.name || isTemplateInstance(type);
+    case "Scalar":
+      return program.checker.isStdType(type) || isTemplateInstance(type);
     case "Enum":
     case "Union":
       return !type.name;
@@ -49,13 +52,13 @@ export function shouldInline(program: Program, type: Type): boolean {
  * Cadl-native names are shortened to exclude root `Cadl` namespace and service
  * namespace using the provided `TypeNameOptions`.
  */
-export function getTypeName(
+export function getOpenAPITypeName(
   program: Program,
   type: Type,
   options: TypeNameOptions,
   existing?: Record<string, any>
 ): string {
-  const name = getFriendlyName(program, type) ?? program.checker.getTypeName(type, options);
+  const name = getFriendlyName(program, type) ?? getTypeName(type, options);
 
   checkDuplicateTypeName(program, type, name, existing);
   return name;
@@ -89,14 +92,13 @@ export function getParameterKey(
   options: TypeNameOptions
 ): string {
   const parent = property.model!;
-  let key = getTypeName(program, parent, options);
+  let key = getOpenAPITypeName(program, parent, options);
 
   if (parent.properties.size > 1) {
     key += `.${property.name}`;
   }
 
-  // JSON check is workaround for https://github.com/microsoft/cadl/issues/462
-  if (existingParams[key] && JSON.stringify(newParam) !== JSON.stringify(existingParams[key])) {
+  if (existingParams[key]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
       messageId: "parameter",
@@ -133,7 +135,7 @@ export function resolveOperationId(program: Program, operation: Operation) {
   if (
     namespace === undefined ||
     isGlobalNamespace(program, namespace) ||
-    namespace === getServiceNamespace(program)
+    isService(program, namespace)
   ) {
     return operation.name;
   }

@@ -2,6 +2,9 @@
 
 trigger:
   - main
+  # For patch releases
+  - release/*
+
 pr: none
 
 jobs:
@@ -53,7 +56,7 @@ jobs:
 
       - task: AzureFileCopy@4
         inputs:
-          sourcePath: "packages/website/dist/*"
+          sourcePath: "packages/website/build/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
           storage: "cadlwebsite"
@@ -97,7 +100,7 @@ jobs:
     variables:
       imageName: "azsdkengsys.azurecr.io/cadl"
     pool:
-      vmImage: ubuntu-latest
+      name: azsdk-pool-mms-ubuntu-2004-general
     steps:
       - task: Docker@1
         displayName: login

@@ -2,13 +2,14 @@ import {
   CadlLibrary,
   compilerAssert,
   EventEmitter,
+  mapEventEmitterToNodeListener,
   navigateProgram,
   Program,
   SemanticNodeListener,
 } from "@cadl-lang/compiler";
-import { Linter, LintRule, RegisterRuleOptions } from "./types.js";
+import { LibraryLinter, Linter, LintRule, RegisterRuleOptions } from "./types.js";
 
-export function getLinter(library: CadlLibrary<any, any>): Linter {
+export function getLinter(library: CadlLibrary<any, any>): LibraryLinter {
   const linter = getLinterSingleton();
   return getLinterForLibrary(linter, library);
 }
@@ -23,9 +24,11 @@ function getLinterSingleton(): Linter {
   return linter;
 }
 
-function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): Linter {
+function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): LibraryLinter {
+  const rulesToAutoEnable: string[] = [];
   return {
     ...linter,
+    autoEnableRules,
     registerRule,
     registerRules(rules: LintRule[], options?: RegisterRuleOptions) {
       for (const rule of rules) {
@@ -35,13 +38,18 @@ function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): Li
   };
 
   function registerRule(rule: LintRule, options?: RegisterRuleOptions) {
-    linter.registerRule(
-      {
-        ...rule,
-        name: `${library.name}/${rule.name}`,
-      },
-      options
-    );
+    const name = `${library.name}/${rule.name}`;
+    linter.registerRule({
+      ...rule,
+      name,
+    });
+    if (options?.autoEnable) {
+      rulesToAutoEnable.push(name);
+    }
+  }
+
+  function autoEnableRules() {
+    linter.enableRules(rulesToAutoEnable);
   }
 }
 
@@ -86,24 +94,21 @@ function createLinter(): Linter {
         eventEmitter.on(name as any, cb as any);
       }
     }
-    navigateProgram(program, eventEmitter);
+    navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
   }
 
-  function registerRule(rule: LintRule, options?: RegisterRuleOptions) {
+  function registerRule(rule: LintRule) {
     compilerAssert(
       !ruleMap.has(rule.name),
       `Rule "${rule.name}" is already registered. Make sure to give unique names.`
     );
 
     ruleMap.set(rule.name, rule);
-    if (options?.enable) {
-      enabledRules.add(rule.name);
-    }
   }
 
-  function registerRules(rules: LintRule[], options?: RegisterRuleOptions) {
+  function registerRules(rules: LintRule[]) {
     for (const rule of rules) {
-      registerRule(rule, options);
+      registerRule(rule);
     }
   }
 

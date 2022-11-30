@@ -1,6 +1,16 @@
 # Change Log - @cadl-lang/library-linter
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+
+## 0.2.2
+Sat, 12 Nov 2022 00:14:04 GMT
+
+_Version update only_
+
+## 0.2.1
+Wed, 12 Oct 2022 21:12:35 GMT
+
+_Version update only_
 
 ## 0.2.0
 Thu, 08 Sep 2022 01:04:53 GMT

@@ -1,13 +1,14 @@
-import { getIntrinsicModelName, getPropertyType } from "../lib/decorators.js";
-import { DecoratorContext } from "./index.js";
+import { getPropertyType } from "../lib/decorators.js";
+import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
+  DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
-  IntrinsicModelName,
-  Model,
+  IntrinsicScalarName,
   ModelProperty,
+  Scalar,
   Type,
 } from "./types.js";
 
@@ -54,25 +55,23 @@ export function validateDecoratorTarget<K extends TypeKind>(
 
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Scalar | ModelProperty,
   decoratorName: string,
-  expectedType: IntrinsicModelName | IntrinsicModelName[]
+  expectedType: IntrinsicScalarName | IntrinsicScalarName[]
 ): boolean {
-  const actualType = getIntrinsicModelName(context.program, getPropertyType(target));
-  const isCorrect =
-    actualType &&
-    (typeof expectedType === "string"
-      ? actualType === expectedType
-      : expectedType.includes(actualType));
+  const expectedTypeStrs = typeof expectedType === "string" ? [expectedType] : expectedType;
+  const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
+  const type = getPropertyType(target);
+  const isCorrect = expectedTypes.some(
+    (x) => context.program.checker.isTypeAssignableTo(type.projectionBase ?? type, x, type)[0]
+  );
   if (!isCorrect) {
     context.program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
         format: {
           decorator: decoratorName,
-          to: `type it is not one of: ${
-            typeof expectedType === "string" ? expectedType : expectedType.join(", ")
-          }`,
+          to: `type it is not one of: ${typeof expectedTypeStrs.join(", ")}`,
         },
         target: context.decoratorTarget,
       })
@@ -136,7 +135,6 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
       code: "invalid-argument",
       format: {
         value: prettyValue(program, value),
-        actual: getTypeKind(value)!,
         expected: typeof expectedType === "string" ? expectedType : expectedType.join(", "),
       },
       target,
@@ -221,6 +219,9 @@ export interface DecoratorValidator<
 
 export type TypeKind = Type["kind"] | "Any";
 
+/**
+ * @deprecated use extern dec definition in cadl instead.
+ */
 export function createDecoratorDefinition<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
@@ -245,7 +246,6 @@ export function createDecoratorDefinition<
             code: "invalid-argument",
             format: {
               value: "undefined",
-              actual: "undefined",
               expected: expectedTypeList(paramDefinition.kind as any),
             },
             target: context.getArgumentTarget(index)!,
@@ -257,7 +257,6 @@ export function createDecoratorDefinition<
           code: "invalid-argument",
           format: {
             value: prettyValue(context.program, arg),
-            actual: getTypeKind(arg)!,
             expected: expectedTypeList(paramDefinition.kind as any),
           },
           target: context.getArgumentTarget(index)!,
@@ -308,11 +307,9 @@ export function validateDecoratorParamCount(
     } else {
       reportDiagnostic(context.program, {
         code: "invalid-argument-count",
-        messageId: "between",
         format: {
           actual: parameterCount.toString(),
-          min: min.toString(),
-          max: max === undefined ? "infinity" : max.toString(),
+          expected: `${min}-${max === undefined ? "infinity" : max.toString()}`,
         },
         target: context.decoratorTarget,
       });
@@ -324,7 +321,7 @@ export function validateDecoratorParamCount(
 
 function prettyValue(program: Program, value: any) {
   if (typeof value === "object" && value !== null && "kind" in value) {
-    return program.checker.getTypeName(value);
+    return getTypeName(value);
   }
   return value;
 }

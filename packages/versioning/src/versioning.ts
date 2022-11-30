@@ -3,13 +3,13 @@ import {
   DiagnosticTarget,
   Enum,
   EnumMember,
+  getNamespaceFullName,
   Namespace,
   ObjectType,
   Program,
   ProjectionApplication,
+  Tuple,
   Type,
-  validateDecoratorParamType,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
@@ -41,9 +41,6 @@ function checkIsVersion(
 export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
   const { program } = context;
 
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
@@ -55,9 +52,6 @@ export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
 export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
   const { program } = context;
 
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
@@ -66,9 +60,6 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
 }
 export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, oldName: string) {
   const { program } = context;
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
@@ -80,9 +71,6 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
 
 export function $madeOptional(context: DecoratorContext, t: Type, v: EnumMember) {
   const { program } = context;
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
@@ -155,14 +143,7 @@ export class VersionMap {
   }
 }
 
-export function $versioned(context: DecoratorContext, t: Type, versions: Type) {
-  if (!validateDecoratorTarget(context, t, "@versioned", "Namespace")) {
-    return;
-  }
-  if (!validateDecoratorParamType(context.program, t, versions, "Enum")) {
-    return;
-  }
-
+export function $versioned(context: DecoratorContext, t: Namespace, versions: Enum) {
   context.program.stateMap(versionsKey).set(t, new VersionMap(t, versions));
 }
 
@@ -172,17 +153,10 @@ export function getVersion(p: Program, t: Namespace): VersionMap | undefined {
 
 export function $versionedDependency(
   context: DecoratorContext,
-  referenceNamespace: Type,
-  versionRecord: string | Type
+  referenceNamespace: Namespace,
+  versionRecord: Tuple | EnumMember
 ) {
   const { program } = context;
-  if (
-    !validateDecoratorTarget(context, referenceNamespace, "@versionedDependency", "Namespace") ||
-    !validateDecoratorParamType(program, referenceNamespace, versionRecord, ["Tuple", "EnumMember"])
-  ) {
-    return;
-  }
-
   let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
     Namespace,
     Version | Map<EnumMember, Version>
@@ -234,8 +208,8 @@ export function $versionedDependency(
         reportDiagnostic(context.program, {
           code: "versioned-dependency-same-namespace",
           format: {
-            namespace1: program.checker.getNamespaceString(targetNamespace),
-            namespace2: program.checker.getNamespaceString(targetVersion.namespace),
+            namespace1: getNamespaceFullName(targetNamespace),
+            namespace2: getNamespaceFullName(targetVersion.namespace),
           },
           target: targetMember,
         });
@@ -308,8 +282,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
       const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (version instanceof Map) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceFullName(rootNs);
+          const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`
           );
@@ -328,8 +302,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
 
       for (const [dependencyNs, versionMap] of dependencies) {
         if (!(versionMap instanceof Map)) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceFullName(rootNs);
+          const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );

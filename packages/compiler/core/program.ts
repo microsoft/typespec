@@ -14,7 +14,7 @@ import {
   ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { isImportStatement, parse } from "./parser.js";
+import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
@@ -25,7 +25,7 @@ import {
   DiagnosticTarget,
   Directive,
   DirectiveExpressionNode,
-  Emitter,
+  EmitterFunc,
   EmitterOptions,
   JsSourceFileNode,
   LiteralType,
@@ -43,7 +43,15 @@ import {
   Tracer,
   Type,
 } from "./types.js";
-import { deepEquals, doIO, findProjectRoot, loadFile, mapEquals } from "./util.js";
+import {
+  deepEquals,
+  doIO,
+  ExternalError,
+  findProjectRoot,
+  loadFile,
+  mapEquals,
+  mutate,
+} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -79,11 +87,34 @@ export interface Program {
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+
   getGlobalNamespaceType(): Namespace;
+  resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+}
+
+interface LibraryMetadata {
+  /**
+   * Library name as specified in the package.json or in exported $lib.
+   */
+  name?: string;
+
+  /**
+   * Library homepage.
+   */
+  homepage?: string;
+
+  bugs?: {
+    /**
+     * Url where to file bugs for this library.
+     */
+    url?: string;
+  };
 }
 
 interface EmitterRef {
-  emitter: Emitter;
+  emitFunction: EmitterFunc;
+  main: string;
+  metadata: LibraryMetadata;
   options: EmitterOptions;
 }
 
@@ -243,7 +274,7 @@ export async function compile(
 
   const program: Program = {
     checker: undefined!,
-    compilerOptions: options,
+    compilerOptions: resolveOptions(options),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
     literalTypes: new Map(),
@@ -267,6 +298,7 @@ export async function compile(
       validateCbs.push(cb);
     },
     getGlobalNamespaceType,
+    resolveTypeReference,
   };
 
   function trace(area: string, message: string) {
@@ -351,7 +383,7 @@ export async function compile(
   }
 
   for (const instance of emitters) {
-    await instance.emitter(program, instance.options);
+    await runEmitter(instance);
   }
 
   return program;
@@ -404,6 +436,7 @@ export async function compile(
       );
     }
   }
+
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir, NoTarget);
@@ -581,7 +614,8 @@ export async function compile(
       return;
     }
 
-    const file = await loadJsFile(module, NoTarget);
+    const entrypoint = module.type === "file" ? module.path : module.mainFile;
+    const file = await loadJsFile(entrypoint, NoTarget);
 
     if (file === undefined) {
       program.reportDiagnostic(
@@ -594,14 +628,14 @@ export async function compile(
       return;
     }
 
-    const emitterFunction = file.esmExports.$onEmit;
+    const emitFunction = file.esmExports.$onEmit;
     const libDefinition: CadlLibrary<any> | undefined = file.esmExports.$lib;
     if (libDefinition?.requireImports) {
       for (const lib of libDefinition.requireImports) {
         requireImports.set(lib, libDefinition.name);
       }
     }
-    if (emitterFunction !== undefined) {
+    if (emitFunction !== undefined) {
       if (libDefinition?.emitter?.options) {
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(options, NoTarget);
         if (diagnostics && diagnostics.length > 0) {
@@ -609,7 +643,12 @@ export async function compile(
           return;
         }
       }
-      emitters.push({ emitter: emitterFunction, options });
+      emitters.push({
+        main: entrypoint,
+        emitFunction,
+        metadata: computeLibraryMetadata(module),
+        options,
+      });
     } else {
       program.reportDiagnostic(
         createDiagnostic({
@@ -618,6 +657,49 @@ export async function compile(
           target: NoTarget,
         })
       );
+    }
+  }
+
+  function computeLibraryMetadata(module: ModuleResolutionResult): LibraryMetadata {
+    if (module.type === "file") {
+      return {};
+    }
+
+    const metadata: LibraryMetadata = {
+      name: module.manifest.name,
+    };
+
+    if (module.manifest.homepage) {
+      metadata.homepage = module.manifest.homepage;
+    }
+    if (module.manifest.bugs?.url) {
+      metadata.bugs = { url: module.manifest.bugs?.url };
+    }
+
+    return metadata;
+  }
+
+  /**
+   * @param emitter Emitter ref to run
+   */
+  async function runEmitter(emitter: EmitterRef) {
+    try {
+      await emitter.emitFunction(program, emitter.options);
+    } catch (error: any) {
+      const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
+      if (emitter.metadata.bugs?.url) {
+        msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
+      } else {
+        msg.push(`Please contact emitter author to report this issue.`);
+      }
+      msg.push("");
+      if ("stack" in error) {
+        msg.push(error.stack);
+      } else {
+        msg.push(String(error));
+      }
+
+      throw new ExternalError(msg.join("\n"));
     }
   }
 
@@ -666,14 +748,12 @@ export async function compile(
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/dist/lib.js".
    */
-  async function resolveJSLibrary(specifier: string, baseDir: string): Promise<string | undefined> {
+  async function resolveJSLibrary(
+    specifier: string,
+    baseDir: string
+  ): Promise<ModuleResolutionResult | undefined> {
     try {
-      const resolved = await resolveModule(getResolveModuleHost(), specifier, { baseDir });
-      if (resolved.type === "file") {
-        return resolved.path;
-      } else {
-        return resolved.mainFile;
-      }
+      return await resolveModule(getResolveModuleHost(), specifier, { baseDir });
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
@@ -967,7 +1047,19 @@ export async function compile(
   }
 
   function getGlobalNamespaceType() {
-    return program.checker!.getGlobalNamespaceType();
+    return program.checker.getGlobalNamespaceType();
+  }
+
+  function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = program.checker.getGlobalNamespaceNode();
+
+    return program.checker.resolveTypeReference(node);
   }
 }
 
@@ -1014,4 +1106,16 @@ function computeEmitters(
   }
 
   return processedEmitters;
+}
+
+/**
+ * Resolve compiler options from input options.
+ */
+function resolveOptions(options: CompilerOptions): CompilerOptions {
+  const outputDir = options.outputDir ?? options.outputPath;
+  return {
+    ...options,
+    outputDir,
+    outputPath: outputDir,
+  };
 }

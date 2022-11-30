@@ -22,13 +22,12 @@ import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter-fs.js";
-import { CompilerHost } from "./index.js";
 import { installCadlDependencies } from "./install.js";
 import { createConsoleSink } from "./logger/index.js";
 import { NodeHost } from "./node-host.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
-import { Diagnostic } from "./types.js";
-import { cadlVersion } from "./util.js";
+import { CompilerHost, Diagnostic } from "./types.js";
+import { cadlVersion, ExternalError } from "./util.js";
 
 async function main() {
   console.log(`Cadl compiler v${cadlVersion}\n`);
@@ -64,7 +63,11 @@ async function main() {
           })
           .option("output-path", {
             type: "string",
-            default: "./cadl-output",
+            deprecated: "Use `output-dir` instead.",
+            hidden: true,
+          })
+          .option("output-dir", {
+            type: "string",
             describe:
               "The output path for generated artifacts.  If it does not exist, it will be created.",
           })
@@ -272,7 +275,7 @@ function compileInput(
     } else {
       if (printSuccess) {
         log(
-          `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
+          `Compilation completed successfully, output files are in ${compilerOptions.outputDir}.`
         );
       }
     }
@@ -330,7 +333,8 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
 }
 
 interface CompileCliArgs {
-  "output-path": string;
+  "output-dir"?: string;
+  "output-path"?: string;
   nostdlib?: boolean;
   options?: string[];
   import?: string[];
@@ -346,11 +350,6 @@ async function getCompilerOptions(
   host: CompilerHost,
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
-  // Workaround for https://github.com/npm/cli/issues/3680
-  const pathArg = args["output-path"].replace(/\\\\/g, "\\");
-  const outputPath = resolvePath(process.cwd(), pathArg);
-  await mkdirp(outputPath);
-
   const config = await loadCadlConfigForPath(host, process.cwd());
 
   if (config.diagnostics.length > 0) {
@@ -361,16 +360,21 @@ async function getCompilerOptions(
     }
   }
 
+  const pathArg = args["output-dir"] ?? args["output-path"] ?? config.outputDir ?? "./cadl-output";
+  const outputPath = resolvePath(process.cwd(), pathArg);
+  await mkdirp(outputPath);
+
   const cliOptions = resolveOptions(args);
+
   return {
-    outputPath,
+    outputDir: outputPath,
     nostdlib: args["nostdlib"],
-    additionalImports: args["import"],
+    additionalImports: args["import"] ?? config["imports"],
     watchForChanges: args["watch"],
-    warningAsError: args["warn-as-error"],
+    warningAsError: args["warn-as-error"] ?? config.warnAsError,
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
-    trace: args.trace,
+    trace: args.trace ?? config.trace,
     emitters: resolveEmitters(config, cliOptions, args),
   };
 }
@@ -381,7 +385,7 @@ function resolveOptions(
   const options: Record<string, Record<string, string>> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
-    if (optionParts.length != 2) {
+    if (optionParts.length !== 2) {
       throw new Error(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
@@ -600,13 +604,13 @@ async function installVSExtension(debug: boolean) {
     }
   }
 
-  if (versionsFound == 0) {
+  if (versionsFound === 0) {
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
-  } else if (versionsFound == 1) {
+  } else if (versionsFound === 1) {
     compilerAssert(
       latestVersionFound,
-      "expected latestFoundVersion to be defined if versionsFound == 1"
+      "expected latestFoundVersion to be defined if versionsFound === 1"
     );
     versionsToInstall = [latestVersionFound];
   } else {
@@ -749,10 +753,16 @@ function internalCompilerError(error: unknown): never {
   // here, but be handled somewhere else. If we reach here, it should be
   // considered a bug and therefore we should not suppress the stack trace as
   // that risks losing it in the case of a bug that does not repro easily.
-  console.error("Internal compiler error!");
-  console.error("File issue at https://github.com/microsoft/cadl");
-  console.error();
-  console.error(error);
+  if (error instanceof ExternalError) {
+    // ExternalError should already have all the relevant information needed when thrown.
+    console.error(error);
+  } else {
+    console.error("Internal compiler error!");
+    console.error("File issue at https://github.com/microsoft/cadl");
+    console.error();
+    console.error(error);
+  }
+
   process.exit(1);
 }
 

@@ -4,10 +4,10 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@cadl-lang/compiler/testing";
-import { createRule, getLinter, Linter } from "../src/index.js";
+import { createRule, getLinter, LibraryLinter } from "../src/index.js";
 
 describe("lint: linter", () => {
-  let linter: Linter;
+  let linter: LibraryLinter;
 
   beforeEach(() => {
     linter = getLinter(createCadlLibrary({ name: "test-lib", diagnostics: {} }));
@@ -56,8 +56,18 @@ describe("lint: linter", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("registering with enabling a rule should emit diagnostics", async () => {
-    linter.registerRule(noModelFoo, { enable: true });
+  it("registering with enabling a rule shouldn't emit diagnostic unless autoEnableMyRules is called", async () => {
+    linter.registerRule(noModelFoo, { autoEnable: true });
+
+    const diagnostics = await runLinter(`
+      model Foo {}
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("registering with enabling a rule should emit diagnostics iof autoEnableMyRules is called", async () => {
+    linter.registerRule(noModelFoo, { autoEnable: true });
+    linter.autoEnableRules();
 
     const diagnostics = await runLinter(`
       model Foo {}

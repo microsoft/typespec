@@ -306,6 +306,59 @@ model Foo {
     });
   });
 
+  describe("scalar", () => {
+    it("format on single line", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo
+`,
+        expected: `
+scalar Foo;
+`,
+      });
+    });
+
+    it("format with extends", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo extends 
+        string
+`,
+        expected: `
+scalar Foo extends string;
+`,
+      });
+    });
+
+    it("format with template parameters", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo<K,
+    V> 
+`,
+        expected: `
+scalar Foo<K, V>;
+`,
+      });
+    });
+
+    it("format with decorator", () => {
+      assertFormat({
+        code: `
+      @some @decorator
+scalar   Foo 
+`,
+        expected: `
+@some
+@decorator
+scalar Foo;
+`,
+      });
+    });
+  });
   describe("comments", () => {
     it("format comment at position 0", () => {
       assertFormat({
@@ -1091,6 +1144,155 @@ model Foo {
     });
   });
 
+  describe("decorator declaration", () => {
+    it("format simple decorator declaration inline", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, 
+      arg1: StringLiteral);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format decorator without parameter types", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern dec foo(target, arg1);
+`,
+      });
+    });
+
+    it("format decorator with optional parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, arg1: StringLiteral, 
+      arg2?: StringLiteral);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
+`,
+      });
+    });
+
+    it("format decorator with rest parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, arg1: StringLiteral,
+      ...args: StringLiteral[]);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
+`,
+      });
+    });
+
+    it("split decorator argument into multiple lines if too long", () => {
+      assertFormat({
+        code: `
+extern dec  foo(target: Type,   arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral);
+      `,
+        expected: `
+extern dec foo(
+  target: Type,
+  arg1: StringLiteral,
+  arg2: StringLiteral,
+  arg3: StringLiteral,
+  arg4: StringLiteral
+);
+`,
+      });
+    });
+  });
+
+  describe("function declaration", () => {
+    it("format simple function declaration inline", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo( 
+      arg1: StringLiteral) :   void;
+      `,
+        expected: `
+extern fn foo(arg1: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function without parameter types and return type", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern fn foo(target, arg1);
+`,
+      });
+    });
+
+    it("format function with optional parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target: Type, arg1: StringLiteral, 
+      arg2?: StringLiteral): void;
+      `,
+        expected: `
+extern fn foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function with rest parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target: Type, arg1: Type,
+      ...args: Type[]): void;
+      `,
+        expected: `
+extern fn foo(target: Type, arg1: Type, ...args: Type[]): void;
+`,
+      });
+    });
+
+    it("split decorator argument into multiple lines if too long", () => {
+      assertFormat({
+        code: `
+extern fn  foo( arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral) : void;
+      `,
+        expected: `
+extern fn foo(
+  arg1: StringLiteral,
+  arg2: StringLiteral,
+  arg3: StringLiteral,
+  arg4: StringLiteral
+): void;
+`,
+      });
+    });
+  });
+
   describe("decorators", () => {
     it("keep simple decorators inline", () => {
       assertFormat({
@@ -1154,6 +1356,38 @@ namespace Foo {
   @doc("this is a very long documentation that will for sure overflow the max line length")
   op my(parm: string): string;
 }
+      `,
+      });
+    });
+  });
+
+  describe("augment decorators", () => {
+    it("format into a single line if possible", () => {
+      assertFormat({
+        code: `
+@@doc(Foo, 
+  
+        "This is some post doc"
+        
+        )
+      `,
+        expected: `
+@@doc(Foo, "This is some post doc");
+      `,
+      });
+    });
+
+    it("break arguments per lines if the decorator is too long", () => {
+      assertFormat({
+        code: `
+@@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
+      `,
+        expected: `
+@@doc(Foo,
+  "This is getting very very very long 1",
+  "This is getting very very very long 2",
+  "This is getting very very very long 3"
+);
       `,
       });
     });

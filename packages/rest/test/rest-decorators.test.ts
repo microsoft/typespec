@@ -1,10 +1,10 @@
-import { Model } from "@cadl-lang/compiler";
+import { Scalar } from "@cadl-lang/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { getResourceLocationType } from "../src/rest.js";
 import { createRestTestRunner } from "./test-host.js";
 
-describe("rest: http decorators", () => {
+describe("rest: rest decorators", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -19,13 +19,14 @@ describe("rest: http decorators", () => {
           @Cadl.Rest.Private.resourceLocation(Widget)
           op test(): string;
 
-          model WidgetLocation is ResourceLocation<Widget>;
+          scalar WidgetLocation extends ResourceLocation<Widget>;
         `);
 
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @resourceLocation decorator to Operation",
+          message:
+            "Cannot apply @resourceLocation decorator to test since it is not assignable to Cadl.string",
         },
       ]);
     });
@@ -35,10 +36,10 @@ describe("rest: http decorators", () => {
           model Widget {};
 
           @test
-          model WidgetLocation is ResourceLocation<Widget>;
-`)) as { WidgetLocation: Model };
+          scalar WidgetLocation extends ResourceLocation<Widget>;
+`)) as { WidgetLocation: Scalar };
 
-      const resourceType = getResourceLocationType(runner.program, WidgetLocation);
+      const resourceType = getResourceLocationType(runner.program, WidgetLocation.baseScalar!);
       ok(resourceType);
       strictEqual(resourceType!.name, "Widget");
     });

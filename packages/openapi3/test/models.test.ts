@@ -475,7 +475,7 @@ describe("openapi3: models", () => {
       }
 
       @knownValues(KnownPetType)
-      model PetType is string {}
+      scalar PetType extends string;
       model Pet { type: PetType };
       `
     );
@@ -774,9 +774,122 @@ describe("openapi3: models", () => {
       `
       model Thing<T> { inner?: Thing<T>; }
       op get(): Thing<string>;
-      `
+      `,
+      { "omit-unreachable-types": true }
     );
 
     expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/inline-cycle" }]);
+  });
+
+  it("excludes properties with type 'never'", async () => {
+    const res = await oapiForModel(
+      "Bar",
+      `
+      model Foo {
+        y: int32;
+        nope: never;
+      };
+      model Bar extends Foo {
+        x: int32;
+      }`
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Foo, "expected definition named Foo");
+    ok(res.schemas.Bar, "expected definition named Bar");
+    deepStrictEqual(res.schemas.Bar, {
+      type: "object",
+      properties: { x: { type: "integer", format: "int32" } },
+      allOf: [{ $ref: "#/components/schemas/Foo" }],
+      required: ["x"],
+    });
+
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: { y: { type: "integer", format: "int32" } },
+      required: ["y"],
+    });
+  });
+
+  describe("referencing another property as type", () => {
+    it("use the type of the other property", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Foo {
+          name: string;
+        }
+        model Bar {
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        type: "string",
+      });
+    });
+
+    it("use the type of the other property with ref", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Name {first: string}
+        model Foo {
+          name: Name;
+        }
+        model Bar {
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        $ref: "#/components/schemas/Name",
+      });
+    });
+
+    it("should include decorators on both referenced property and source property itself", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Foo {
+          @format("uri")
+          name: string;
+        }
+        model Bar {
+          @doc("My doc")
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        type: "string",
+        format: "uri",
+        description: "My doc",
+      });
+    });
+
+    it("decorators on the property should override the value of referenced property", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Foo {
+          @doc("Default doc")
+          name: string;
+        }
+        model Bar {
+          @doc("My doc override")
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        type: "string",
+        description: "My doc override",
+      });
+    });
   });
 });

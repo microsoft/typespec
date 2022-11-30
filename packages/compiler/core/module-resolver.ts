@@ -34,13 +34,23 @@ export interface ResolveModuleHost {
 }
 
 /**
- * Type for package.json
+ * Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
  */
 export interface NodePackage {
   name: string;
-  main: string;
+  type?: "module" | "commonjs";
+  main?: string;
   version: string;
   cadlMain?: string;
+  homepage?: string;
+  bugs?: {
+    url?: string;
+    email?: string;
+  };
+  private?: boolean;
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
 }
 
 type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";

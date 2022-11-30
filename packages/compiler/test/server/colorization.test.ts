@@ -4,7 +4,7 @@ import { createRequire } from "module";
 import path, { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
-import vscode_textmate, { IOnigLib, StackElement } from "vscode-textmate";
+import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
 import { CadlScope } from "../../server/tmlanguage.js";
@@ -30,12 +30,16 @@ type Tokenize = (input: string) => Promise<Token[]>;
 const Token = {
   keywords: {
     model: createToken("model", "keyword.other.cadl"),
+    scalar: createToken("scalar", "keyword.other.cadl"),
     operation: createToken("op", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
     alias: createToken("alias", "keyword.other.cadl"),
+    dec: createToken("dec", "keyword.other.cadl"),
+    fn: createToken("fn", "keyword.other.cadl"),
     projection: createToken("projection", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
+    extern: createToken("extern", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
     if: createToken("if", "keyword.other.cadl"),
     else: createToken("else", "keyword.other.cadl"),
@@ -174,6 +178,47 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.literals.numeric("123"),
           Token.punctuation.closeParen,
         ]);
+      });
+    });
+
+    describe("augment decorators", () => {
+      const params = [
+        Token.punctuation.openParen,
+        Token.identifiers.type("MyModel"),
+        Token.punctuation.comma,
+        Token.literals.string("param1"),
+        Token.punctuation.comma,
+        Token.literals.numeric("123"),
+        Token.punctuation.closeParen,
+      ];
+
+      it("decorator", async () => {
+        const tokens = await tokenize(`@@foo(MyModel, "param1", 123)`);
+        if (tokenize === tokenizeTMLanguage) {
+          deepStrictEqual(tokens, [Token.identifiers.tag("@@foo"), ...params]);
+        } else {
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.tag("foo"),
+            ...params,
+          ]);
+        }
+      });
+
+      it("fully qualified decorator name", async () => {
+        const tokens = await tokenize(`@@Foo.bar(MyModel, "param1", 123)`);
+
+        if (tokenize === tokenizeTMLanguage) {
+          deepStrictEqual(tokens, [Token.identifiers.tag("@@Foo.bar"), ...params]);
+        } else {
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.type("Foo"),
+            Token.punctuation.accessor,
+            Token.identifiers.tag("bar"),
+            ...params,
+          ]);
+        }
       });
     });
 
@@ -494,6 +539,40 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("scalar", () => {
+      it("simple scalar", async () => {
+        const tokens = await tokenize("scalar Foo;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("scalar with extends", async () => {
+        const tokens = await tokenize("scalar Foo extends Bar;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("single template argument model", async () => {
+        const tokens = await tokenize("scalar Foo<T>;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");
@@ -664,6 +743,42 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("decorator declarations", () => {
+      it("extern decorator", async () => {
+        const tokens = await tokenize("extern dec tag(target: Namespace);");
+        deepStrictEqual(tokens, [
+          Token.keywords.extern,
+          Token.keywords.dec,
+          Token.identifiers.functionName("tag"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("target"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("Namespace"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("function declarations", () => {
+      it("extern fn", async () => {
+        const tokens = await tokenize("extern fn camelCase(target: StringLiteral): StringLiteral;");
+        deepStrictEqual(tokens, [
+          Token.keywords.extern,
+          Token.keywords.fn,
+          Token.identifiers.functionName("camelCase"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("target"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("StringLiteral"),
+          Token.punctuation.closeParen,
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("StringLiteral"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("projections", () => {
       it("simple projection", async () => {
         const tokens = await tokenize(`
@@ -814,7 +929,7 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
     }
   }
 
-  // Make @dec one token to match tmlanguage
+  // Make @myDec one token to match tmlanguage
   for (let i = 0; i < tokens.length - 1; i++) {
     if (
       tokens[i].scope === "entity.name.tag.cadl" &&
@@ -852,10 +967,9 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         return Token.literals.string(text);
       case SemanticTokenKind.Number:
         return Token.literals.numeric(text);
-      case SemanticTokenKind.Modifier:
-        return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:
         if (text === "@") return Token.identifiers.tag("@");
+        if (text === "@@") return Token.identifiers.tag("@@");
         const punctuation = punctuationMap.get(text);
         ok(punctuation, `No tmlanguage equivalent for punctuation: "${text}".`);
         return punctuation;
@@ -896,7 +1010,7 @@ export async function tokenizeTMLanguage(input: string | Input): Promise<Token[]
   }
 
   const tokens: Token[] = [];
-  let previousStack: StackElement | null = null;
+  let previousStack: StateStack | null = null;
   const grammar = await registry.loadGrammar("source.cadl");
 
   if (grammar === null) {

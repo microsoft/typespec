@@ -1,6 +1,68 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+
+## 0.37.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments
+- **Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`.
+- Fix: crash with referencing global namespace
+- Added a new export to only import the module resolver
+- Debugging: adding tracing information for JS decorators and function binding
+
+### Patches
+
+- `emitFile` now ensures that the folder exists prior to writing to the path.
+- Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children
+
+## 0.36.1
+Wed, 19 Oct 2022 19:36:13 GMT
+
+### Patches
+
+- **Fix** augment decorators can be applied on namespace
+
+## 0.36.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Remove `createProgram` and change `compile` parameter order to match old `createProgram`.
+- Add new `getDiscriminatedUnion` helper to resolve the variants of a discriminated model or union
+- Emitter throwing exception will emit a new `emitter-uncaught-error` diagnostic with information on how to file issue for the given emitter.
+- Expose module resolver
+- Add support for augment decorators.
+- Language server provide document formatting using Cadl formatter
+- **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. 
+- `API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`.
+- Add `uri` built-in type
+- Allow referencing global namespace as `global` for disambiguation
+- **Feature** `Api`: `resolveUsages` can now be used on a list of operation, interface or namespaces
+- **Fix** `Api`: `resolveUsages` collect reference to array element type and record value correctly.
+- Expose helper to walk inherited properties and some helper data structures
+- Feature: `decorators` Add `@minItems` and `@maxItems` decorators
+- Add `navigateNamespace` helper letting user to navigate types under a namespace.(Similar to `navigateProgram`)
+- Include `@discriminator` decorator from "@cadl-lang/rest" library
+- Language Server: Improvement to outline, symbols correctly structured.
+- Rename `output-path` to `output-dir` and deprecate old name.
+- Add additional validation for `@overload` decorator: Make sure overloads are in the same container and that return types are compatible
+- Added `listOperations` helper method
+- **Breaking** Model `extends` or `is` cannot reference a model expression.
+
+### Patches
+
+- Fix bug where cloned type members had wrong parent
+- Internal: Update type of `CompilerOptions.miscOptions` to be more accurate.
+- Fix: Intersection types belong to namespace they are declared in.
+- Fix: namespace and non namespace types should have unique names
+- Fix: Deprecated `output-path` not being respected
+- Fix: Property included via `model is` were not referencing the right model parent.
+- Fix: Projected types point to projected parent type for Model properties, Union variants.
+- Fix: Projected model property sourceProperty point to projected property
+- Minor improvemens to decorator definitions
 
 ## 0.35.0
 Thu, 08 Sep 2022 01:04:53 GMT
@@ -25,11 +87,11 @@ Thu, 08 Sep 2022 01:04:53 GMT
 
 - Api: `isGlobalNamespace` takes projection into account
 - Internal: Facilitate adding new tokens to scanner."
-- Formatter: Cadl doesn't include blank line at the end of embeded markdown codeblock
+- Formatter: Cadl doesn't include blank line at the end of embedded markdown codeblock
 - Fix issue with ever-increasing duplicate symbol errors in IDE
 - Formatter: Directive on model property with decorators will hug decorator.
 - Fix additional issues for decorators not running in projections in templated type instance
-- Internal: Fix some functionatliy not compatible in the browser
+- Internal: Fix some functionally not compatible in the browser
 - Fix issue where decorators would get called on uninstantiated template declarations
 - Internal: Don't clear template arguments on clone
 - Internal: Make scanner capable of scanning future keywords that are longer than 10 characters.

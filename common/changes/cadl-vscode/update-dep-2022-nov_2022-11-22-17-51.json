@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Update dependencies",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

@@ -47,7 +47,7 @@
   "components": {
     "parameters": {
       "ApiVersionParam": {
-        "name": "apiVersion",
+        "name": "api-version",
         "in": "header",
         "required": true,
         "schema": {
@@ -87,6 +87,17 @@
         "required": [
           "name",
           "favoriteToys"
+        ]
+      },
+      "ApiVersionParam": {
+        "type": "object",
+        "properties": {}
+      },
+      "Versions": {
+        "type": "string",
+        "enum": [
+          "v1",
+          "v2"
         ]
       },
       "Dog": {

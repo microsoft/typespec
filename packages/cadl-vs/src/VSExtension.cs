@@ -208,6 +208,11 @@ namespace Microsoft.Cadl.VisualStudio
             }
 
             var serverPath = _configuredCadlServerPath;
+            if ((serverPath == null || serverPath.Length == 0) && _workspaceFolder != null && _workspaceFolder.Length > 0)
+            {
+                serverPath = ResolveLocalCompiler(_workspaceFolder);
+            }
+
             if (serverPath == null || serverPath.Length == 0)
             {
                 return ("cadl-server.cmd", args, env);
@@ -245,6 +250,21 @@ namespace Microsoft.Cadl.VisualStudio
 
             env.Add("CADL_SKIP_COMPILER_RESOLVE", "1");
             return ("node.exe", $"{serverPath} {args}", env);
+        }
+
+        private string? ResolveLocalCompiler(string baseDir)
+        {
+            var current = baseDir;
+            while (current != null)
+            {
+                var potentialInstallDir = Path.Combine(current, "node_modules", "@cadl-lang", "compiler");
+                if (Directory.Exists(potentialInstallDir))
+                {
+                    return potentialInstallDir;
+                }
+                current = Path.GetDirectoryName(current);
+            }
+            return null;
         }
 
         private async Task LoadSettingsAsync()

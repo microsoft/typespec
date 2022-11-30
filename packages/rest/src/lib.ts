@@ -48,7 +48,7 @@ const libDefinition = {
     "duplicate-parent-key": {
       severity: "error",
       messages: {
-        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which is already used by parent type '${"parentName"}'.`,
+        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which conflicts with the key name of a parent or child resource.`,
       },
     },
     "missing-path-param": {
@@ -122,7 +122,7 @@ const libDefinition = {
     "content-type-ignored": {
       severity: "warning",
       messages: {
-        default: "content-type header ignored because return type has no body",
+        default: "`Content-Type` header ignored because there is no body.",
       },
     },
     "no-routes": {
@@ -132,11 +132,28 @@ const libDefinition = {
           "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
       },
     },
-
     "invalid-type-for-auth": {
       severity: "error",
       messages: {
         default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
+      },
+    },
+    "shared-boolean": {
+      severity: "error",
+      messages: {
+        default: "shared parameter must be a boolean.",
+      },
+    },
+    "write-visibility-not-supported": {
+      severity: "warning",
+      messages: {
+        default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
+      },
+    },
+    "multipart-model": {
+      severity: "error",
+      messages: {
+        default: "Multipart request body must be a model.",
       },
     },
   },

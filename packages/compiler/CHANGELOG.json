@@ -2,6 +2,151 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.37.0",
+      "tag": "@cadl-lang/compiler_v0.37.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments"
+          },
+          {
+            "comment": "**Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`."
+          },
+          {
+            "comment": "Fix: crash with referencing global namespace"
+          },
+          {
+            "comment": "Added a new export to only import the module resolver"
+          },
+          {
+            "comment": "Debugging: adding tracing information for JS decorators and function binding"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "`emitFile` now ensures that the folder exists prior to writing to the path."
+          },
+          {
+            "comment": "Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.36.1",
+      "tag": "@cadl-lang/compiler_v0.36.1",
+      "date": "Wed, 19 Oct 2022 19:36:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix** augment decorators can be applied on namespace"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.36.0",
+      "tag": "@cadl-lang/compiler_v0.36.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix bug where cloned type members had wrong parent"
+          },
+          {
+            "comment": "Internal: Update type of `CompilerOptions.miscOptions` to be more accurate."
+          },
+          {
+            "comment": "Fix: Intersection types belong to namespace they are declared in."
+          },
+          {
+            "comment": "Fix: namespace and non namespace types should have unique names"
+          },
+          {
+            "comment": "Fix: Deprecated `output-path` not being respected"
+          },
+          {
+            "comment": "Fix: Property included via `model is` were not referencing the right model parent."
+          },
+          {
+            "comment": "Fix: Projected types point to projected parent type for Model properties, Union variants."
+          },
+          {
+            "comment": "Fix: Projected model property sourceProperty point to projected property"
+          },
+          {
+            "comment": "Minor improvemens to decorator definitions"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Remove `createProgram` and change `compile` parameter order to match old `createProgram`."
+          },
+          {
+            "comment": "Add new `getDiscriminatedUnion` helper to resolve the variants of a discriminated model or union"
+          },
+          {
+            "comment": "Emitter throwing exception will emit a new `emitter-uncaught-error` diagnostic with information on how to file issue for the given emitter."
+          },
+          {
+            "comment": "Expose module resolver"
+          },
+          {
+            "comment": "Add support for augment decorators."
+          },
+          {
+            "comment": "Language server provide document formatting using Cadl formatter"
+          },
+          {
+            "comment": "**Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. "
+          },
+          {
+            "comment": "`API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`."
+          },
+          {
+            "comment": "Add `uri` built-in type"
+          },
+          {
+            "comment": "Allow referencing global namespace as `global` for disambiguation"
+          },
+          {
+            "comment": "**Feature** `Api`: `resolveUsages` can now be used on a list of operation, interface or namespaces"
+          },
+          {
+            "comment": "**Fix** `Api`: `resolveUsages` collect reference to array element type and record value correctly."
+          },
+          {
+            "comment": "Expose helper to walk inherited properties and some helper data structures"
+          },
+          {
+            "comment": "Feature: `decorators` Add `@minItems` and `@maxItems` decorators"
+          },
+          {
+            "comment": "Add `navigateNamespace` helper letting user to navigate types under a namespace.(Similar to `navigateProgram`)"
+          },
+          {
+            "comment": "Include `@discriminator` decorator from \"@cadl-lang/rest\" library"
+          },
+          {
+            "comment": "Language Server: Improvement to outline, symbols correctly structured."
+          },
+          {
+            "comment": "Rename `output-path` to `output-dir` and deprecate old name."
+          },
+          {
+            "comment": "Add additional validation for `@overload` decorator: Make sure overloads are in the same container and that return types are compatible"
+          },
+          {
+            "comment": "Added `listOperations` helper method"
+          },
+          {
+            "comment": "**Breaking** Model `extends` or `is` cannot reference a model expression."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.35.0",
       "tag": "@cadl-lang/compiler_v0.35.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

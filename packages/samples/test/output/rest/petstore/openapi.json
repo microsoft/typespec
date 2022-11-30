@@ -12,7 +12,13 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -43,7 +49,13 @@
         "description": "Updates an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -83,7 +95,13 @@
         "description": "Deletes an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -184,10 +202,22 @@
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           {
-            "$ref": "#/components/parameters/Checkup.checkupId"
+            "name": "checkupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -239,7 +269,13 @@
         "description": "Lists all instances of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -272,7 +308,13 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -303,7 +345,13 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -345,10 +393,22 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           {
-            "$ref": "#/components/parameters/Toy.toyId"
+            "name": "toyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -380,7 +440,13 @@
         "operationId": "Toys_list",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           {
             "name": "nameFilter",
@@ -421,10 +487,22 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           {
-            "$ref": "#/components/parameters/Toy.toyId"
+            "name": "toyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -455,10 +533,22 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           {
-            "$ref": "#/components/parameters/Toy.toyId"
+            "name": "toyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -500,7 +590,13 @@
         "description": "Creates or update a instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Checkup.checkupId"
+            "name": "checkupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -581,7 +677,13 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -612,7 +714,13 @@
         "description": "Updates an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -652,7 +760,13 @@
         "description": "Deletes an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -753,10 +867,22 @@
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           },
           {
-            "$ref": "#/components/parameters/Checkup.checkupId"
+            "name": "checkupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -808,7 +934,13 @@
         "description": "Lists all instances of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -841,7 +973,13 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -872,7 +1010,13 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -910,44 +1054,6 @@
     }
   },
   "components": {
-    "parameters": {
-      "Pet.petId": {
-        "name": "petId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "Checkup.checkupId": {
-        "name": "checkupId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "Toy.toyId": {
-        "name": "toyId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "Owner.ownerId": {
-        "name": "ownerId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
     "schemas": {
       "Pet": {
         "type": "object",
@@ -1058,9 +1164,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Pet>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Pet items",
@@ -1113,9 +1219,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Checkup>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Checkup items",
@@ -1195,9 +1301,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Toy>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Toy items",
@@ -1269,9 +1375,9 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items",
             "format": "uri",
-            "x-cadl-name": "Rest.ResourceLocation<Owner>"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation"
           }
         },
         "description": "Paged response of Owner items",

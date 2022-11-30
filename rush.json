@@ -4,14 +4,14 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.66.2",
+  "rushVersion": "5.83.4",
   "pnpmVersion": "6.32.9",
   "ensureConsistentVersions": true,
   /**
    * Options that are only used when the PNPM package manager is selected
    */
   "pnpmOptions": {
-    "strictPeerDependencies": true
+    "strictPeerDependencies": false
   },
   "nodeSupportedVersionRange": ">=16.0.0",
   "suppressNodeLtsWarning": true,
@@ -124,7 +124,13 @@
       "packageName": "@cadl-lang/lint",
       "projectFolder": "packages/lint",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@cadl-lang/migrate",
+      "projectFolder": "packages/migrate",
+      "reviewCategory": "production",
+      "shouldPublish": true
     },
     {
       "packageName": "@cadl-lang/library-linter",

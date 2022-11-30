@@ -11,6 +11,8 @@ words:
   - blockful
   - blockless
   - cadl
+  - cadleditor
+  - cadleng
   - Contoso
   - CRUDL
   - dogfood
@@ -22,6 +24,7 @@ words:
   - instanceid
   - intrinsics
   - jsyaml
+  - lzutf
   - msbuild
   - MSRC
   - munge
@@ -57,12 +60,17 @@ words:
   - vswhere
   - westus
   - xplat
+  - segmentof
+  - createsorreplacesresource
+  - createsorupdatesresource
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/dist-dev/**"
+  - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
-  - "common/scripts/*"
+  - "packages/website/build/**"
+  - common/scripts/*
 enableFiletypes:
   - cadl
 patterns:
@@ -70,8 +78,7 @@ patterns:
     pattern: /(.*)┆(.*)/g
   - name: Authorization_Basic
     description: Ignore Base64 authorization tokens
-    pattern: >-
-      /Authorization: Basic\s+\S+/g
+    pattern: "/Authorization: Basic\\s+\\S+/g"
 ignoreRegExpList:
   - cursortest
   - Authorization_Basic

@@ -1,4 +1,5 @@
-import { stat } from "fs/promises";
+import { ResolveModuleHost } from "@cadl-lang/compiler/module-resolver";
+import { readFile, realpath, stat } from "fs/promises";
 import { join } from "path";
 import vscode, { commands, ExtensionContext, workspace } from "vscode";
 import {
@@ -54,9 +55,12 @@ async function launchLanguageClient(context: ExtensionContext) {
     await client.start();
   } catch (e) {
     if (typeof e === "string" && e.startsWith("Launching server using command")) {
+      const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
+
       client?.error(
         [
           `Cadl server executable was not found: '${exe.command}' is not found. Make sure either:`,
+          ` - cadl is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
           " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
           " - cadl server path is configured with https://github.com/microsoft/cadl#installing-vs-code-extension.",
         ].join("\n"),
@@ -92,18 +96,21 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
 
   // In production, first try VS Code configuration, which allows a global machine
   // location that is not on PATH, or a workspace-specific installation.
-  let serverPath = workspace.getConfiguration().get("cadl.cadl-server.path") as string;
+  let serverPath: string | undefined = workspace.getConfiguration().get("cadl.cadl-server.path");
   if (serverPath && typeof serverPath !== "string") {
     throw new Error("VS Code configuration option 'cadl.cadl-server.path' must be a string");
   }
+  const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 
   // Default to cadl-server on PATH, which would come from `npm install -g
   // @cadl-lang/compiler` in a vanilla setup.
   if (!serverPath) {
+    serverPath = await resolveLocalCompiler(workspaceFolder);
+  }
+  if (!serverPath) {
     const executable = process.platform === "win32" ? "cadl-server.cmd" : "cadl-server";
     return { command: executable, args, options };
   }
-  const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
@@ -127,6 +134,30 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
 
   options.env["CADL_SKIP_COMPILER_RESOLVE"] = "1";
   return { command: "node", args: [serverPath, ...args], options };
+}
+
+async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
+  // dynamic import required when unbundled as this module is CommonJS for
+  // VS Code and the module-resolver is an ES module.
+  const { resolveModule } = await import("@cadl-lang/compiler/module-resolver");
+
+  const host: ResolveModuleHost = {
+    realpath,
+    readFile: (path: string) => readFile(path, "utf-8"),
+    stat,
+  };
+  try {
+    const executable = await resolveModule(host, "@cadl-lang/compiler", {
+      baseDir,
+    });
+    if (executable.type === "module") {
+      return executable.path;
+    }
+  } catch (e) {
+    // Couldn't find the module
+  }
+
+  return undefined;
 }
 
 async function isFile(path: string) {

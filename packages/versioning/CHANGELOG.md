@@ -1,6 +1,20 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+
+## 0.10.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Declare decorators in cadl using `extern dec`
+
+## 0.9.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Uptake changes to navigateProgram
 
 ## 0.8.0
 Thu, 08 Sep 2022 01:04:53 GMT

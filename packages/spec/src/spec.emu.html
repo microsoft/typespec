@@ -41,9 +41,13 @@ Keyword :
     `using`
     `interface`
     `union`
+    `extern`
+    `dec`
+    `fn`
     `projection`
     `void`
     `never`
+    `unknown`
 
 Identifier :
     IdentifierName but not Keyword
@@ -271,12 +275,16 @@ StatementList :
 
 Statement :
     ModelStatement
+    ScalarStatement
     InterfaceStatement
     NamespaceStatement
     OperationStatement
     UsingStatement
     EnumStatement
     AliasStatement
+    AugmentDecoratorStatement
+    DecoratorDeclarationStatement
+    FunctionDeclarationStatement
     `;`
 
 UsingStatement :
@@ -288,6 +296,12 @@ ModelStatement :
 
 IsModelHeritage :
     `is` Expression
+
+ScalarStatement :
+    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends `;`
+
+ScalarExtends :
+    `extends` Expression
 
 ExtendsModelHeritage :
     `extends` Expression
@@ -473,6 +487,34 @@ Decorator :
 DecoratorArguments :
     `(` ExpressionList? `)`
 
+AugmentDecoratorStatement :
+    `@@` IdentifierOrMemberExpression DecoratorArguments?
+
+AugmentDecoratorArguments :
+  `(` ExpressionList `)`
+
+
+DecoratorDeclarationStatement :
+  DecoratorModifiers? `dec` `(` FunctionParameterList? `)`
+
+DecoratorModifiers:
+  `extern`
+
+FunctionDeclarationStatement :
+  FunctionModifiers? `fn` `(` FunctionParameterList? `)` TypeAnnotation?
+
+TypeAnnotation:
+  `:` Expression
+
+FunctionModifiers:
+  `extern`
+
+FunctionParameterList : 
+  FunctionParameter
+  FunctionParameterList `,` FunctionParameter
+
+FunctionParameter :
+  `...`? Identifier `?`? TypeAnnotation?
 
 ProjectionStatement :
     `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`

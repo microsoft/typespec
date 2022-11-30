@@ -197,7 +197,7 @@ describe("compiler: effective type", () => {
     strictEqual(Derived.kind, "Model" as const);
 
     const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+    strictEqual(propType?.kind, "Scalar" as const);
 
     const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
     expectIdenticalTypes(effective, Base);
@@ -227,10 +227,43 @@ describe("compiler: effective type", () => {
     strictEqual(Derived.kind, "Model" as const);
 
     const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+    strictEqual(propType?.kind, "Scalar" as const);
 
     const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
     expectIdenticalTypes(effective, Base);
+  });
+
+  it("extend and filter two levels with override", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./remove.js";
+
+      @test model Base {
+        prop: string;
+        prop2: string;
+      }
+
+      @test model Middle extends Base {
+        @remove prop3: string;
+        @remove prop4: string;
+        prop2: "hello";
+      }
+
+      @test model Derived extends Middle {
+        @remove test: string;
+      }
+      `
+    );
+    const { Middle, Derived } = await testHost.compile("./");
+    strictEqual(Middle.kind, "Model" as const);
+    strictEqual(Derived.kind, "Model" as const);
+
+    const propType = Derived.properties.get("test")?.type;
+    strictEqual(propType?.kind, "Scalar" as const);
+
+    const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
+    expectIdenticalTypes(effective, Middle);
   });
 
   it("extend, intersect, and filter", async () => {

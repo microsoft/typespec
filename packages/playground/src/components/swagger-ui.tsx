@@ -29,5 +29,14 @@ export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
     uiInstance.current.specActions.updateSpec(props.spec);
   }, [uiRef.current, swaggerUI, props.spec]);
 
-  return <div className="swagger-ui-container" ref={uiRef}></div>;
+  return (
+    <div
+      css={{
+        width: "100%",
+        height: "100%",
+        overflow: "auto",
+      }}
+      ref={uiRef}
+    ></div>
+  );
 };

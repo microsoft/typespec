@@ -27,6 +27,7 @@ import {
   Location,
   MarkupContent,
   MarkupKind,
+  ParameterInformation,
   PrepareRenameParams,
   PublishDiagnosticsParams,
   Range,
@@ -37,6 +38,8 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
+  SignatureHelp,
+  SignatureHelpParams,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -47,6 +50,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { defaultConfig, findCadlConfigPath, loadCadlConfigFile } from "../config/config-loader.js";
 import { CadlConfig } from "../config/types.js";
+import { codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
   compilerAssert,
   createSourceFile,
@@ -77,6 +81,8 @@ import {
 import {
   CadlScriptNode,
   CompilerHost,
+  DecoratorDeclarationStatementNode,
+  DecoratorExpressionNode,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
@@ -95,8 +101,9 @@ import {
   getSourceFileKindFromExt,
   loadFile,
 } from "../core/util.js";
-import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getDoc, isDeprecated } from "../lib/decorators.js";
 import { getSymbolStructure } from "./symbol-structure.js";
+import { getTypeSignature } from "./type-signature.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -125,6 +132,7 @@ export interface Server {
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getHover(params: HoverParams): Promise<Hover>;
+  getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -161,7 +169,6 @@ export enum SemanticTokenKind {
   Method,
   Macro,
   Keyword,
-  Modifier,
   Comment,
   String,
   Number,
@@ -214,12 +221,15 @@ const keywords = [
   // Root and namespace
   ["using", { root: true, namespace: true }],
   ["model", { root: true, namespace: true }],
+  ["scalar", { root: true, namespace: true }],
   ["namespace", { root: true, namespace: true }],
   ["interface", { root: true, namespace: true }],
   ["union", { root: true, namespace: true }],
   ["enum", { root: true, namespace: true }],
   ["alias", { root: true, namespace: true }],
   ["op", { root: true, namespace: true }],
+  ["dec", { root: true, namespace: true }],
+  ["fn", { root: true, namespace: true }],
 
   // On model `model Foo <keyword> ...`
   ["extends", { model: true }],
@@ -228,6 +238,9 @@ const keywords = [
   // On identifier`
   ["true", { identifier: true }],
   ["false", { identifier: true }],
+
+  // Modifiers
+  ["extern", { root: true, namespace: true }],
 ] as const;
 
 export function createServer(host: ServerHost): Server {
@@ -276,6 +289,7 @@ export function createServer(host: ServerHost): Server {
     checkChange,
     getFoldingRanges,
     getHover,
+    getSignatureHelp,
     getDocumentSymbols,
     log,
   };
@@ -309,6 +323,10 @@ export function createServer(host: ServerHost): Server {
         prepareProvider: true,
       },
       documentFormattingProvider: true,
+      signatureHelpProvider: {
+        triggerCharacters: ["(", ",", "<"],
+        retriggerCharacters: [")"],
+      },
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
@@ -627,10 +645,7 @@ export function createServer(host: ServerHost): Server {
       return "";
     }
 
-    const name = program.checker.getTypeName(type);
-    const typeKind = type.kind.toLowerCase();
-
-    const lines = ["```cadl", `${typeKind} ${name}`, "```"];
+    const lines = ["```cadl", getTypeSignature(program, type), "```"];
     const doc = getDoc(program, type);
     if (doc) {
       lines.push(`_${doc}_`); // italic
@@ -642,7 +657,7 @@ export function createServer(host: ServerHost): Server {
     const docString = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       const sym =
-        id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+        id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
       if (sym) {
         const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
         return getTypeDetails(program, type);
@@ -657,6 +672,51 @@ export function createServer(host: ServerHost): Server {
     return {
       contents: markdown,
     };
+  }
+
+  async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
+    return await compile(params.textDocument, (program, document, file) => {
+      const nodeAtPosition = getNodeAtPosition(file, document.offsetAt(params.position));
+      const data = nodeAtPosition && findDecoratorOrParameter(nodeAtPosition);
+      if (data === undefined) {
+        return undefined;
+      }
+      const { node, argumentIndex } = data;
+      const sym = program.checker.resolveIdentifier(
+        node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      );
+
+      const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
+        sym?.declarations.find(
+          (x): x is DecoratorDeclarationStatementNode =>
+            x.kind === SyntaxKind.DecoratorDeclarationStatement
+        );
+
+      if (decoratorDeclNode === undefined) {
+        return undefined;
+      }
+      const type = program.checker.getTypeForNode(decoratorDeclNode);
+      compilerAssert(type.kind === ("Decorator" as const), "Expected type to be a decorator.");
+      const parameters = type.parameters.map((x) =>
+        ParameterInformation.create(
+          `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${program.checker.getTypeName(
+            x.type
+          )}`
+        )
+      );
+
+      return {
+        signatures: [
+          {
+            label: `${type.name}(${parameters.map((x) => x.label).join(", ")})`,
+            parameters,
+            activeParameter: Math.min(type.parameters.length - 1, argumentIndex),
+          },
+        ],
+        activeSignature: 0,
+        activeParameter: 0,
+      };
+    });
   }
 
   async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
@@ -697,7 +757,7 @@ export function createServer(host: ServerHost): Server {
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
     const sym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      return id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
 
     return getLocations(sym?.declarations);
@@ -709,7 +769,7 @@ export function createServer(host: ServerHost): Server {
       items: [],
     };
     await compile(params.textDocument, async (program, document, file) => {
-      const node = getNodeAtPosition(file, document.offsetAt(params.position));
+      const node = getCompletionNodeAtPosition(file, document.offsetAt(params.position));
       if (node === undefined) {
         addKeywordCompletion("root", completions);
       } else {
@@ -818,7 +878,7 @@ export function createServer(host: ServerHost): Server {
   ) {
     const documentPath = await getPath(document);
     const projectRoot = await findProjectRoot(compilerHost, documentPath);
-    if (projectRoot != undefined) {
+    if (projectRoot !== undefined) {
       const [packagejson] = await loadFile(
         compilerHost,
         resolvePath(projectRoot, "package.json"),
@@ -826,10 +886,10 @@ export function createServer(host: ServerHost): Server {
         program.reportDiagnostic
       );
       let dependencies: string[] = [];
-      if (packagejson.dependencies != undefined) {
+      if (packagejson.dependencies !== undefined) {
         dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
       }
-      if (packagejson.peerDependencies != undefined) {
+      if (packagejson.peerDependencies !== undefined) {
         dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
       }
       for (const dependency of dependencies) {
@@ -840,7 +900,7 @@ export function createServer(host: ServerHost): Server {
           JSON.parse,
           program.reportDiagnostic
         );
-        if (libPackageJson.cadlMain != undefined) {
+        if (libPackageJson.cadlMain !== undefined) {
           completions.items.push({
             label: dependency,
             commitCharacters: [],
@@ -964,7 +1024,9 @@ export function createServer(host: ServerHost): Server {
       case SyntaxKind.AliasStatement:
         return CompletionItemKind.Variable;
       case SyntaxKind.ModelStatement:
-        return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+        return CompletionItemKind.Class;
+      case SyntaxKind.ScalarStatement:
+        return CompletionItemKind.Unit;
       case SyntaxKind.ModelProperty:
         return CompletionItemKind.Field;
       case SyntaxKind.OperationStatement:
@@ -1047,6 +1109,9 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.ModelStatement:
           classify(node.id, SemanticTokenKind.Struct);
           break;
+        case SyntaxKind.ScalarStatement:
+          classify(node.id, SemanticTokenKind.Type);
+          break;
         case SyntaxKind.EnumStatement:
           classify(node.id, SemanticTokenKind.Enum);
           break;
@@ -1062,9 +1127,23 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.OperationStatement:
           classify(node.id, SemanticTokenKind.Function);
           break;
+        case SyntaxKind.DecoratorDeclarationStatement:
+          classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.FunctionDeclarationStatement:
+          classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.FunctionParameter:
+          classify(node.id, SemanticTokenKind.Parameter);
+          break;
+        case SyntaxKind.AugmentDecoratorStatement:
+          classifyReference(node.targetType, SemanticTokenKind.Type);
+          classifyReference(node.target, SemanticTokenKind.Macro);
+          break;
         case SyntaxKind.DecoratorExpression:
           classifyReference(node.target, SemanticTokenKind.Macro);
           break;
+
         case SyntaxKind.TypeReference:
           classifyReference(node.target);
           break;
@@ -1424,4 +1503,51 @@ export function createServer(host: ServerHost): Server {
       return getSourceFileKindFromExt(path);
     }
   }
+}
+
+function findDecoratorOrParameter(
+  node: Node
+): { node: DecoratorExpressionNode; argumentIndex: number } | undefined {
+  if (node.kind === SyntaxKind.DecoratorExpression) {
+    return { node, argumentIndex: node.arguments.length };
+  }
+  let current: Node | undefined = node;
+  while (current) {
+    if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
+      return {
+        node: current.parent,
+        argumentIndex: current.parent.arguments.indexOf(current as any),
+      };
+    }
+    current = current.parent;
+  }
+  return undefined;
+}
+
+/**
+ * Resolve the node that should be auto completed at the given position.
+ * It will try to guess what node it could be as during auto complete the ast might not be complete.
+ * @internal
+ */
+export function getCompletionNodeAtPosition(
+  script: CadlScriptNode,
+  position: number,
+  filter: (node: Node) => boolean = (node: Node) => true
+): Node | undefined {
+  const realNode = getNodeAtPosition(script, position, filter);
+  if (realNode?.kind === SyntaxKind.StringLiteral) {
+    return realNode;
+  }
+  // If we're not immediately after an identifier character, then advance
+  // the position past any trivia. This is done because a zero-width
+  // inserted missing identifier that the user is now trying to complete
+  // starts after the trivia following the cursor.
+  const cp = codePointBefore(script.file.text, position);
+  if (!cp || !isIdentifierContinue(cp)) {
+    const newPosition = skipTrivia(script.file.text, position);
+    if (newPosition !== position) {
+      return getNodeAtPosition(script, newPosition, filter);
+    }
+  }
+  return realNode;
 }

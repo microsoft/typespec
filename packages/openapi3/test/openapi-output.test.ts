@@ -2,6 +2,7 @@ import { resolvePath } from "@cadl-lang/compiler";
 import { expectDiagnosticEmpty } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
+import { OpenAPI3Document } from "../src/types.js";
 import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: output file", () => {
@@ -43,6 +44,55 @@ describe("openapi3: output file", () => {
   it("emit CRLF when configured", async () => {
     const output = await rawOpenApiFor("", { "new-line": "crlf" });
     strictEqual(output, expectedEmptySpec.join("\r\n"));
+  });
+});
+
+describe("openapi3: types included", () => {
+  async function openapiWithOptions(
+    code: string,
+    options: OpenAPI3EmitterOptions
+  ): Promise<OpenAPI3Document> {
+    const runner = await createOpenAPITestRunner();
+
+    const outPath = resolvePath("/openapi.json");
+
+    const diagnostics = await runner.diagnose(code, {
+      noEmit: false,
+      emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+    });
+
+    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
+
+    const content = runner.fs.get(outPath)!;
+    return JSON.parse(content);
+  }
+
+  it("emit unreferenced types by default", async () => {
+    const output = await openapiWithOptions(
+      `
+      model NotReferenced {name: string}
+      model Referenced {name: string}
+
+      op test(): Referenced;
+    `,
+      {}
+    );
+    deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced", "NotReferenced"]);
+  });
+
+  it("emit only referenced types when using omit-unreachable-types", async () => {
+    const output = await openapiWithOptions(
+      `
+      model NotReferenced {name: string}
+      model Referenced {name: string}
+
+      op test(): Referenced;
+    `,
+      {
+        "omit-unreachable-types": true,
+      }
+    );
+    deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced"]);
   });
 });
 
