@@ -67,7 +67,7 @@ model UKAddress is Address<never>;
 ```
 
 :::note
-That is still up to the emitter to be removing `never` properties. Cadl compiler will not automatically omit those.
+It is up to the emitter to remove `never` properties. The Cadl compiler will not automatically omit them.
 :::
 
 ### Array
