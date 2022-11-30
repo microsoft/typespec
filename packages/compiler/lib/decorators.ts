@@ -2,7 +2,11 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
-import { getDiscriminatedUnion, getTypeName } from "../core/index.js";
+import {
+  getDiscriminatedUnion,
+  getTypeName,
+  validateDecoratorUniqueOnNode,
+} from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {
@@ -87,6 +91,7 @@ const docsKey = createStateSymbol("docs");
  * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
  */
 export function $doc(context: DecoratorContext, target: Type, text: string, sourceObject?: Type) {
+  validateDecoratorUniqueOnNode(context, target, $doc);
   setTemplatedStringProperty(docsKey, context.program, target, text, sourceObject);
 }
 

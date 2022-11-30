@@ -16,6 +16,7 @@ import {
   Type,
   Union,
   validateDecoratorTarget,
+  validateDecoratorUniqueOnNode,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import { extractParamsFromPath } from "../utils.js";
@@ -506,6 +507,8 @@ function extractSharedValue(context: DecoratorContext, parameters?: Model): bool
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
 export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
+  validateDecoratorUniqueOnNode(context, entity, $route);
+
   setRoute(context, entity, {
     path,
     isReset: false,
