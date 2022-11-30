@@ -66,6 +66,11 @@ export interface BasicTestRunner {
   readonly fs: Map<string, string>;
 
   /**
+   * Position to offset the automatically added code.
+   */
+  readonly autoCodeOffset: number;
+
+  /**
    * Compile the given code and assert no diagnostics are present.
    */
   compile(code: string, options?: CompilerOptions): Promise<Record<string, Type>>;

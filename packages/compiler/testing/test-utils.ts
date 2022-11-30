@@ -72,6 +72,7 @@ export function createTestWrapper(
     },
 
     fs: host.fs,
+    autoCodeOffset: autoCode.length,
 
     compile: (code: string, options?: CompilerOptions) => {
       host.addCadlFile("./main.cadl", wrap(code));
