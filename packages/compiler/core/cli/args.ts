@@ -80,7 +80,7 @@ function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
   const map: Record<string, string> = {};
   for (const arg of args.args ?? []) {
     const optionParts = arg.split("=");
-    if (optionParts.length != 2) {
+    if (optionParts.length !== 2) {
       throw new Error(`The --arg parameter value "${arg}" must be in the format: arg-name=value`);
     }
 
@@ -95,7 +95,7 @@ function resolveOptions(
   const options: Record<string, Record<string, string>> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
-    if (optionParts.length != 2) {
+    if (optionParts.length !== 2) {
       throw new Error(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
