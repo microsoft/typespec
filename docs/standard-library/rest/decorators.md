@@ -31,6 +31,7 @@ title: Decorators
     - [@segment](#segment)
     - [@segmentOf](#segmentof)
     - [@segmentSeparator](#segmentseparator)
+    - [@actionSeparator](#actionseparator)
   - [Resource](#resource-decorators)
     - [@resource](#resource)
     - [@readsResource](#readsresource)
@@ -278,6 +279,16 @@ Syntax:
 
 `@segmentSeparator` defines the separator string that is inserted between the target's `@segment` and the preceding route path in auto-generated routes.
 The first argument should be a string that will be inserted into the operation route before the target's `@segment` value. Can be a string of any length. Defaults to `/`.
+
+#### `@actionSeparator`
+
+Syntax:
+
+```cadl
+@actionSeparator(<StringLiteral>)
+```
+
+`@actionSeparator` defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ### Resource decorators
 

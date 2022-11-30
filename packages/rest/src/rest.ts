@@ -182,11 +182,42 @@ export function $segmentSeparator(
   entity: Model | ModelProperty | Operation,
   separator: string
 ) {
+  reportDeprecated(
+    context.program,
+    `@Cadl.Rest.segmentSeparator is deprecated use @Cadl.Rest.actionSeparator instead.`,
+    context.decoratorTarget
+  );
+
   context.program.stateMap(segmentSeparatorsKey).set(entity, separator);
 }
 
 export function getSegmentSeparator(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentSeparatorsKey).get(entity);
+}
+
+const actionSeparatorKey = createStateSymbol("actionSeparator");
+
+/**
+ * `@actionSeparator` defines the separator string that is used to precede the action name
+ *  in auto-generated actions.
+ *
+ * `@actionSeparator` can only be applied to model properties, operation parameters, or operations.
+ */
+export function $actionSeparator(
+  context: DecoratorContext,
+  entity: Model | ModelProperty | Operation,
+  separator: "/" | ":" | "/:"
+) {
+  context.program.stateMap(actionSeparatorKey).set(entity, separator);
+}
+
+/**
+ * @param program the Cadl program
+ * @param entity the target entity
+ * @returns the action separator string
+ */
+export function getActionSeparator(program: Program, entity: Type): string | undefined {
+  return program.stateMap(actionSeparatorKey).get(entity);
 }
 
 /**
@@ -330,12 +361,20 @@ function makeActionName(op: Operation, name: string | undefined): string {
   return lowerCaseFirstChar(name || op.name);
 }
 
+const actionsSegmentKey = createStateSymbol("actionSegment");
+
+export function $actionSegment(context: DecoratorContext, entity: Operation, name: string) {
+  context.program.stateMap(actionsSegmentKey).set(entity, name);
+}
+
+export function getActionSegment(program: Program, entity: Type): string | undefined {
+  return program.stateMap(actionsSegmentKey).get(entity);
+}
+
 const actionsKey = createStateSymbol("actions");
 export function $action(context: DecoratorContext, entity: Operation, name?: string) {
-  // Generate the action name and add it as an operation path segment
   const action = makeActionName(entity, name);
-  context.call($segment, entity, action);
-
+  context.call($actionSegment, entity, action);
   context.program.stateMap(actionsKey).set(entity, action);
 }
 
@@ -356,16 +395,19 @@ export function $collectionAction(
     return;
   }
 
-  // Generate the segment for the collection combined with the action's name
+  // only add the resource portion of the segment
   const segment = getResourceSegment(context.program, resourceType);
-  const segmentSeparator = getSegmentSeparator(context.program, entity) ?? "/";
-  const action = `${segment}${segmentSeparator}${makeActionName(entity, name)}`;
-  context.call($segment, entity, action);
+  if (segment) {
+    context.call($segment, entity, segment);
+  }
 
-  // Replace the previous segment separator with slash so that it doesn't get repeated
-  context.call($segmentSeparator, entity, "/");
+  const action = makeActionName(entity, name);
+  context.call($actionSegment, entity, action);
 
-  context.program.stateMap(collectionActionsKey).set(entity, action);
+  const segmentSeparator = getSegmentSeparator(context.program, entity);
+  context.program
+    .stateMap(collectionActionsKey)
+    .set(entity, `${segment}${segmentSeparator}${action}`);
 }
 
 export function getCollectionAction(
@@ -394,4 +436,4 @@ export function getResourceLocationType(program: Program, entity: Scalar): Model
   return program.stateMap(resourceLocationsKey).get(entity);
 }
 
-setCadlNamespace("Private", $resourceLocation);
+setCadlNamespace("Private", $resourceLocation, $actionSegment, getActionSegment);

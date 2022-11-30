@@ -160,13 +160,19 @@ describe("rest: resources", () => {
         }
 
         @post
-        @collectionAction(Thing, "export")
+        @collectionAction(Thing, "export1")
         op exportThing(): {};
 
+        #suppress "deprecated"
         @post
-        @collectionAction(Thing, "export")
+        @collectionAction(Thing, "export2")
         @segmentSeparator(":")
-        op exportThingWithColon(): {};
+        op exportThingWithColon1(): {};
+
+        @post
+        @collectionAction(Thing, "export3")
+        @actionSeparator(":")
+        op exportThingWithColon2(): {};
       }
       `
     );
@@ -174,12 +180,17 @@ describe("rest: resources", () => {
     deepStrictEqual(routes, [
       {
         verb: "post",
-        path: "/things/export",
+        path: "/things/export1",
         params: [],
       },
       {
         verb: "post",
-        path: "/things:export",
+        path: "/:things:export2",
+        params: [],
+      },
+      {
+        verb: "post",
+        path: "/things:export3",
         params: [],
       },
     ]);
