@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Update `ResourceLocation` to `extends url` instead of deprecated `uri` ",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
