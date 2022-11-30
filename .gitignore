@@ -170,7 +170,6 @@ temp
 
 # Rush files
 common/temp/**
-common/config/rush/repo-state.json
 package-deps.json
 
 # Default Cadl output
