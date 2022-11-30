@@ -52,7 +52,7 @@ model Dog {
 
 #### `never`
 
-A record property can be declared as having the type never. This should mean that the record shouldn't be having that property.
+A model property can be declared as having the type never. This can be interpreted as the model not having that property.
 
 This can be useful in model template to omit a property.
 
