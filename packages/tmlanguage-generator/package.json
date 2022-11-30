@@ -39,7 +39,7 @@
   "devDependencies": {
     "@types/node": "~18.11.9",
     "@types/plist": "~3.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "@cadl-lang/eslint-config-cadl": "workspace:~0.4.1",
     "eslint": "^8.12.0",
     "rimraf": "~3.0.2",
     "typescript": "~4.9.3"

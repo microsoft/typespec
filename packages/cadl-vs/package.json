@@ -27,9 +27,8 @@
   "scripts": {
     "build": "node scripts/build.js"
   },
-  "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.17.0",
-    "@cadl-lang/internal-build-utils": "~0.3.1"
+    "cadl-vscode": "workspace:~0.17.0",
+    "@cadl-lang/internal-build-utils": "workspace:~0.3.1"
   }
 }

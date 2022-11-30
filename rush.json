@@ -4,14 +4,15 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.83.4",
-  "pnpmVersion": "6.32.9",
+  "rushVersion": "5.86.0",
+  "pnpmVersion": "7.17.1",
   "ensureConsistentVersions": true,
   /**
    * Options that are only used when the PNPM package manager is selected
    */
   "pnpmOptions": {
-    "strictPeerDependencies": false
+    "strictPeerDependencies": false,
+    "useWorkspaces": true
   },
   "nodeSupportedVersionRange": ">=16.0.0",
   "suppressNodeLtsWarning": true,
