@@ -598,11 +598,11 @@ describe("rest: routes", () => {
     `);
       expectDiagnostics(diagnostics, [
         {
-          code: "@cadl-lang/rest/duplicate-decorator",
+          code: "duplicate-decorator",
           message: "Decorator @route cannot be used twice on the same node.",
         },
         {
-          code: "@cadl-lang/rest/duplicate-decorator",
+          code: "duplicate-decorator",
           message: "Decorator @route cannot be used twice on the same node.",
         },
       ]);
@@ -618,11 +618,11 @@ describe("rest: routes", () => {
     `);
       expectDiagnostics(diagnostics, [
         {
-          code: "@cadl-lang/rest/duplicate-decorator",
+          code: "duplicate-decorator",
           message: "Decorator @route cannot be used twice on the same node.",
         },
         {
-          code: "@cadl-lang/rest/duplicate-decorator",
+          code: "duplicate-decorator",
           message: "Decorator @route cannot be used twice on the same node.",
         },
       ]);
