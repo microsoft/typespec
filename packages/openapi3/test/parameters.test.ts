@@ -14,6 +14,37 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
   });
 
+  it("create a query param with a different name", async () => {
+    const res = await openApiFor(
+      `
+      op test(@query("$select") select: string): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "query");
+    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
+  });
+
+  it("create an header param", async () => {
+    const res = await openApiFor(
+      `
+      op test(@header arg1: string): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "header");
+    strictEqual(res.paths["/"].get.parameters[0].name, "arg1");
+    deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
+  });
+
+  it("create an header param with a different name", async () => {
+    const res = await openApiFor(
+      `
+      op test(@header("foo-bar") foo: string): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "header");
+    strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
+  });
+
   // Regression test for https://github.com/microsoft/cadl/issues/414
   it("@doc set the description on the parameter not its schema", async () => {
     const res = await openApiFor(

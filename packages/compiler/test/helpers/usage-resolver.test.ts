@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { resolveUsages, UsageFlags } from "../../core/helpers/usage-resolver.js";
+import { getTypeName } from "../../core/index.js";
 import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
 
 describe("compiler: helpers: usage resolver", () => {
@@ -21,10 +22,10 @@ describe("compiler: helpers: usage resolver", () => {
     const result: { inputs: string[]; outputs: string[] } = { inputs: [], outputs: [] };
     for (const type of usages.types) {
       if (usages.isUsedAs(type, UsageFlags.Input) && "name" in type && type.name !== "") {
-        result.inputs.push(runner.program.checker.getTypeName(type));
+        result.inputs.push(getTypeName(type));
       }
       if (usages.isUsedAs(type, UsageFlags.Output) && "name" in type && type.name !== "") {
-        result.outputs.push(runner.program.checker.getTypeName(type));
+        result.outputs.push(getTypeName(type));
       }
     }
     return result;

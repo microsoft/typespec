@@ -15,7 +15,7 @@ import {
   ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { isImportStatement, parse } from "./parser.js";
+import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
@@ -52,6 +52,7 @@ import {
   isDefined,
   loadFile,
   mapEquals,
+  mutate,
 } from "./util.js";
 
 export interface ProjectedProgram extends Program {
@@ -88,7 +89,9 @@ export interface Program {
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+
   getGlobalNamespaceType(): Namespace;
+  resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 }
 
 interface LibraryMetadata {
@@ -298,6 +301,7 @@ export async function compile(
       validateCbs.push(cb);
     },
     getGlobalNamespaceType,
+    resolveTypeReference,
   };
 
   function trace(area: string, message: string) {
@@ -1061,7 +1065,19 @@ export async function compile(
   }
 
   function getGlobalNamespaceType() {
-    return program.checker!.getGlobalNamespaceType();
+    return program.checker.getGlobalNamespaceType();
+  }
+
+  function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = program.checker.getGlobalNamespaceNode();
+
+    return program.checker.resolveTypeReference(node);
   }
 }
 

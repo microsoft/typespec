@@ -19,14 +19,13 @@ import { loadCadlConfigForPath } from "../../config/index.js";
 import { initCadlProject } from "../../init/index.js";
 import { compilerAssert, logDiagnostics } from "../diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "../formatter-fs.js";
-import { CompilerHost } from "../index.js";
 import { installCadlDependencies } from "../install.js";
 import { createConsoleSink } from "../logger/index.js";
 import { NodeHost } from "../node-host.js";
 import { CompilerOptions } from "../options.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../path-utils.js";
 import { compile, Program } from "../program.js";
-import { Diagnostic } from "../types.js";
+import { CompilerHost, Diagnostic } from "../types.js";
 import { cadlVersion, ExternalError } from "../util.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 
@@ -505,13 +504,13 @@ async function installVSExtension(debug: boolean) {
     }
   }
 
-  if (versionsFound == 0) {
+  if (versionsFound === 0) {
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
-  } else if (versionsFound == 1) {
+  } else if (versionsFound === 1) {
     compilerAssert(
       latestVersionFound,
-      "expected latestFoundVersion to be defined if versionsFound == 1"
+      "expected latestFoundVersion to be defined if versionsFound === 1"
     );
     versionsToInstall = [latestVersionFound];
   } else {

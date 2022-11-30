@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+
+## 0.17.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Declare decorators in cadl using `extern dec`
+- Feature: Add support for `unknown`
+
+### Patches
+
+- Fix: @extension on a model is intrinsic types are being applied
 
 ## 0.16.0
 Wed, 12 Oct 2022 21:12:35 GMT

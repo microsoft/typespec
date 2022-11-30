@@ -3,10 +3,9 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getDoc,
-  getIntrinsicModelName,
   isArrayModelType,
   isErrorModel,
-  isIntrinsic,
+  isNullType,
   isVoidType,
   Model,
   ModelProperty,
@@ -16,6 +15,7 @@ import {
   walkPropertiesInherited,
 } from "@cadl-lang/compiler";
 import { createDiagnostic } from "../lib.js";
+import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
@@ -25,7 +25,6 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { isContentTypeHeader } from "./parameters.js";
 import { HttpOperationResponse } from "./types.js";
 
 /**
@@ -40,7 +39,7 @@ export function getResponsesForOperation(
   const responses: Record<string | symbol, HttpOperationResponse> = {};
   if (responseType.kind === "Union") {
     for (const option of responseType.variants.values()) {
-      if (isNullType(program, option.type)) {
+      if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/cadl/issues/356
         continue;
       }
@@ -51,10 +50,6 @@ export function getResponsesForOperation(
   }
 
   return diagnostics.wrap(Object.values(responses));
-}
-
-function isNullType(program: Program, type: Type): boolean {
-  return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
 }
 
 function processResponseType(
@@ -181,37 +176,6 @@ function getResponseContentTypes(
 }
 
 /**
- * Resolve the content types from a model property by looking at the value.
- * @property property Model property
- * @returns List of contnet types and any diagnostics if there was an issue.
- */
-export function getContentTypes(property: ModelProperty): [string[], readonly Diagnostic[]] {
-  const diagnostics = createDiagnosticCollector();
-  if (property.type.kind === "String") {
-    return [[property.type.value], []];
-  } else if (property.type.kind === "Union") {
-    const contentTypes = [];
-    for (const option of property.type.variants.values()) {
-      if (option.type.kind === "String") {
-        contentTypes.push(option.type.value);
-      } else {
-        diagnostics.add(
-          createDiagnostic({
-            code: "content-type-string",
-            target: property,
-          })
-        );
-        continue;
-      }
-    }
-
-    return diagnostics.wrap(contentTypes);
-  }
-
-  return [[], [createDiagnostic({ code: "content-type-string", target: property })]];
-}
-
-/**
  * Get response headers from response metadata
  */
 function getResponseHeaders(
@@ -235,11 +199,7 @@ function getResponseBody(
   metadata: Set<ModelProperty>
 ): Type | undefined {
   // non-model or intrinsic/array model -> response body is response type
-  if (
-    responseType.kind !== "Model" ||
-    isIntrinsic(program, responseType) ||
-    isArrayModelType(program, responseType)
-  ) {
+  if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
     return responseType;
   }
 

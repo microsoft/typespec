@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

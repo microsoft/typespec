@@ -1,7 +1,8 @@
 import {
   DuplicateTracker,
   getKeyName,
-  getServiceNamespace,
+  getTypeName,
+  listServices,
   Model,
   navigateTypesInNamespace,
   Program,
@@ -34,7 +35,7 @@ function checkForDuplicateResourceKeyNames(program: Program) {
       for (const key of dupes) {
         // Make sure we don't report a duplicate for a particular
         // resource type and key name more than once
-        const fullName = `${program.checker.getTypeName(key.resourceType)}.${keyName}`;
+        const fullName = `${getTypeName(key.resourceType)}.${keyName}`;
         if (!seenTypes.has(fullName)) {
           seenTypes.add(fullName);
           reportDiagnostic(program, {
@@ -50,12 +51,14 @@ function checkForDuplicateResourceKeyNames(program: Program) {
     }
   }
 
-  // If the model type is defined under the service namespace, check that the
-  // parent resource type(s) don't have the same key name as the
-  // current resource type.
-  navigateTypesInNamespace(getServiceNamespace(program), {
-    model: (model) => checkResourceModelKeys(model),
-  });
+  for (const service of listServices(program)) {
+    // If the model type is defined under the service namespace, check that the
+    // parent resource type(s) don't have the same key name as the
+    // current resource type.
+    navigateTypesInNamespace(service.type, {
+      model: (model) => checkResourceModelKeys(model),
+    });
+  }
 }
 
 export function $onValidate(program: Program) {

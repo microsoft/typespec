@@ -1,16 +1,41 @@
 import { Program } from "./program.js";
 import {
   Enum,
+  ErrorType,
   Interface,
   Model,
   Namespace,
+  NeverType,
   Node,
+  NullType,
   Operation,
   SyntaxKind,
   TemplateDeclarationNode,
   TemplatedType,
   Type,
+  UnknownType,
+  VoidType,
 } from "./types.js";
+
+export function isErrorType(type: Type): type is ErrorType {
+  return type.kind === "Intrinsic" && type.name === "ErrorType";
+}
+
+export function isVoidType(type: Type): type is VoidType {
+  return type.kind === "Intrinsic" && type.name === "void";
+}
+
+export function isNeverType(type: Type): type is NeverType {
+  return type.kind === "Intrinsic" && type.name === "never";
+}
+
+export function isUnknownType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "unknown";
+}
+
+export function isNullType(type: Type): type is NullType {
+  return type.kind === "Intrinsic" && type.name === "null";
+}
 
 /**
  * Lookup and find the node
@@ -20,6 +45,7 @@ import {
 export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNode) | undefined {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.InterfaceStatement:
       return node.templateParameters.length > 0 ? node : undefined;
@@ -99,7 +125,7 @@ export function isDeclaredInNamespace(
 
     // Operations can be defined inside of an interface that is defined in the
     // desired namespace
-    if (type.kind === "Operation" && type.interface && type.interface.namespace == namespace) {
+    if (type.kind === "Operation" && type.interface && type.interface.namespace === namespace) {
       return true;
     }
 

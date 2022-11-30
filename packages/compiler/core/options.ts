@@ -1,4 +1,4 @@
-import { ParseOptions } from "./types";
+import { ParseOptions } from "./types.js";
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;

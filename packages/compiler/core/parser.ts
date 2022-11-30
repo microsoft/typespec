@@ -1,4 +1,4 @@
-import { codePointBefore, isIdentifierContinue } from "./charcode.js";
+import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
@@ -8,9 +8,9 @@ import {
   isPunctuation,
   isStatementKeyword,
   isTrivia,
-  skipTrivia,
   Token,
   TokenDisplay,
+  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
@@ -26,6 +26,13 @@ import {
   DiagnosticReport,
   DirectiveArgument,
   DirectiveExpressionNode,
+  DocContent,
+  DocNode,
+  DocParamTagNode,
+  DocReturnsTagNode,
+  DocTag,
+  DocTemplateTagNode,
+  DocUnknownTagNode,
   EmptyStatementNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
@@ -74,6 +81,7 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
+  ScalarStatementNode,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -99,7 +107,7 @@ import { isArray, mutate } from "./util.js";
  * @param decorators The decorators that were applied to the list element and
  *                   parsed before entering the callback.
  */
-type ParseListItem<K, T> = K extends UndecoratedListKind
+type ParseListItem<K, T> = K extends UnannotatedListKind
   ? () => T
   : (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
@@ -119,7 +127,7 @@ interface ListKind {
   readonly toleratedDelimiter: DelimiterToken;
   readonly toleratedDelimiterIsValid: boolean;
   readonly trailingDelimiterIsValid: boolean;
-  readonly invalidDecoratorTarget?: string;
+  readonly invalidAnnotationTarget?: string;
   readonly allowedStatementKeyword: Token;
 }
 
@@ -128,8 +136,8 @@ interface SurroundedListKind extends ListKind {
   readonly close: CloseToken;
 }
 
-interface UndecoratedListKind extends ListKind {
-  invalidDecoratorTarget: string;
+interface UnannotatedListKind extends ListKind {
+  invalidAnnotationTarget: string;
 }
 
 /**
@@ -154,7 +162,7 @@ namespace ListKind {
 
   export const DecoratorArguments = {
     ...OperationParameters,
-    invalidDecoratorTarget: "expression",
+    invalidAnnotationTarget: "expression",
   } as const;
 
   export const ModelProperties = {
@@ -194,7 +202,7 @@ namespace ListKind {
     toleratedDelimiter: Token.Semicolon,
     toleratedDelimiterIsValid: false,
     trailingDelimiterIsValid: false,
-    invalidDecoratorTarget: "expression",
+    invalidAnnotationTarget: "expression",
     allowedStatementKeyword: Token.None,
   } as const;
 
@@ -203,7 +211,7 @@ namespace ListKind {
     allowEmpty: false,
     open: Token.LessThan,
     close: Token.GreaterThan,
-    invalidDecoratorTarget: "template parameter",
+    invalidAnnotationTarget: "template parameter",
   } as const;
 
   export const TemplateArguments = {
@@ -236,7 +244,7 @@ namespace ListKind {
     allowEmpty: true,
     open: Token.OpenParen,
     close: Token.CloseParen,
-    invalidDecoratorTarget: "expression",
+    invalidAnnotationTarget: "expression",
   } as const;
 
   export const ProjectionExpression = {
@@ -254,19 +262,49 @@ namespace ListKind {
   } as const;
 }
 
+const enum ParseMode {
+  Syntax,
+  Doc,
+}
+
 export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
+  const parser = createParser(code, options);
+  return parser.parseCadlScript();
+}
+
+export function parseStandaloneTypeReference(
+  code: string | SourceFile
+): [TypeReferenceNode, readonly Diagnostic[]] {
+  const parser = createParser(code);
+  const node = parser.parseStandaloneReferenceExpression();
+  return [node, parser.parseDiagnostics];
+}
+
+interface Parser {
+  parseDiagnostics: Diagnostic[];
+  parseCadlScript(): CadlScriptNode;
+  parseStandaloneReferenceExpression(): TypeReferenceNode;
+}
+
+function createParser(code: string | SourceFile, options: ParseOptions = {}): Parser {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
   let treePrintable = true;
   let newLineIsTrivia = true;
+  let currentMode = ParseMode.Syntax;
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
   const comments: Comment[] = [];
+  let docRanges: TextRange[] = [];
 
   nextToken();
-  return parseCadlScript();
+  return {
+    parseDiagnostics,
+    parseCadlScript,
+    parseStandaloneReferenceExpression,
+  };
 
   function parseCadlScript(): CadlScriptNode {
     const statements = parseCadlScriptItemList();
@@ -299,7 +337,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let seenDecl = false;
     let seenUsing = false;
     while (token() !== Token.EndOfFile) {
-      const pos = tokenPos();
+      const [pos, docs] = parseDocList();
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
@@ -315,6 +353,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
         case Token.ModelKeyword:
           item = parseModelStatement(pos, decorators);
+          break;
+        case Token.ScalarKeyword:
+          item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
           item = parseNamespaceStatement(pos, decorators);
@@ -333,25 +374,25 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement();
+          item = parseAliasStatement(pos);
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
-          item = parseUsingStatement();
+          item = parseUsingStatement(pos);
           break;
         case Token.ProjectionKeyword:
           reportInvalidDecorators(decorators, "projection statement");
-          item = parseProjectionStatement();
+          item = parseProjectionStatement(pos);
           break;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
-          item = parseEmptyStatement();
+          item = parseEmptyStatement(pos);
           break;
         // Start of declaration with modifiers
         case Token.ExternKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration();
+          item = parseDeclaration(pos);
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
@@ -359,6 +400,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
 
       mutate(item).directives = directives;
+      mutate(item).docs = docs;
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
@@ -388,7 +430,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const stmts: Statement[] = [];
 
     while (token() !== Token.CloseBrace) {
-      const pos = tokenPos();
+      const [pos, docs] = parseDocList();
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
@@ -429,33 +471,34 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement();
+          item = parseAliasStatement(pos);
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
-          item = parseUsingStatement();
+          item = parseUsingStatement(pos);
           break;
         case Token.ExternKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration();
+          item = parseDeclaration(pos);
           break;
         case Token.ProjectionKeyword:
           reportInvalidDecorators(decorators, "project statement");
-          item = parseProjectionStatement();
+          item = parseProjectionStatement(pos);
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
           return stmts;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
-          item = parseEmptyStatement();
+          item = parseEmptyStatement(pos);
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
           break;
       }
       mutate(item).directives = directives;
+      mutate(item).docs = docs;
       stmts.push(item);
     }
 
@@ -612,8 +655,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseUsingStatement(): UsingStatementNode {
-    const pos = tokenPos();
+  function parseUsingStatement(pos: number): UsingStatementNode {
     parseExpected(Token.UsingKeyword);
     const name = parseIdentifierOrMemberExpression(undefined, true);
     parseExpected(Token.Semicolon);
@@ -814,6 +856,33 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
+  function parseScalarStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ScalarStatementNode {
+    parseExpected(Token.ScalarKeyword);
+    const id = parseIdentifier();
+    const templateParameters = parseTemplateParameterList();
+
+    const optionalExtends = parseOptionalScalarExtends();
+
+    return {
+      kind: SyntaxKind.ScalarStatement,
+      id,
+      templateParameters,
+      extends: optionalExtends,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseOptionalScalarExtends() {
+    if (parseOptional(Token.ExtendsKeyword)) {
+      return parseReferenceExpression();
+    }
+    return undefined;
+  }
+
   function parseEnumStatement(
     pos: number,
     decorators: DecoratorExpressionNode[]
@@ -882,8 +951,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseAliasStatement(): AliasStatementNode {
-    const pos = tokenPos();
+  function parseAliasStatement(pos: number): AliasStatementNode {
     parseExpected(Token.AliasKeyword);
     const id = parseIdentifier();
     const templateParameters = parseTemplateParameterList();
@@ -964,6 +1032,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return expr;
   }
 
+  function parseStandaloneReferenceExpression() {
+    const expr = parseReferenceExpression();
+    if (parseDiagnostics.length === 0 && token() !== Token.EndOfFile) {
+      error({ code: "token-expected", messageId: "unexpected", format: { token: Token[token()] } });
+    }
+    return expr;
+  }
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
@@ -1103,10 +1178,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           nextToken();
         } while (
           !isStatementKeyword(token()) &&
-          token() != Token.NewLine &&
-          token() != Token.At &&
-          token() != Token.Semicolon &&
-          token() != Token.EndOfFile
+          token() !== Token.NewLine &&
+          token() !== Token.At &&
+          token() !== Token.Semicolon &&
+          token() !== Token.EndOfFile
         );
         return undefined;
     }
@@ -1296,11 +1371,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseDeclaration():
-    | DecoratorDeclarationStatementNode
-    | FunctionDeclarationStatementNode
-    | InvalidStatementNode {
-    const pos = tokenPos();
+  function parseDeclaration(
+    pos: number
+  ): DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode | InvalidStatementNode {
     const modifiers = parseModifiers();
     switch (token()) {
       case Token.DecKeyword:
@@ -1446,8 +1519,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return flags;
   }
 
-  function parseProjectionStatement(): ProjectionStatementNode {
-    const pos = tokenPos();
+  function parseProjectionStatement(pos: number): ProjectionStatementNode {
     parseExpected(Token.ProjectionKeyword);
     const selector = parseProjectionSelector();
     parseExpected(Token.Hash);
@@ -1733,7 +1805,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
       expr = parseProjectionMemberExpressionRest(expr, pos);
-      if (token() == Token.OpenParen) {
+      if (token() === Token.OpenParen) {
         expr = {
           kind: SyntaxKind.ProjectionCallExpression,
           callKind: "method",
@@ -2050,9 +2122,178 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
   }
 
+  function parseRange<T>(mode: ParseMode, range: TextRange, callback: () => T): T {
+    const savedMode = currentMode;
+    const result = scanner.scanRange(range, () => {
+      currentMode = mode;
+      nextToken();
+      return callback();
+    });
+    currentMode = savedMode;
+    return result;
+  }
+
+  /** Remove leading slash-star-star and trailing  star-slash (if terminated) from doc comment range. */
+  function innerDocRange(range: TextRange): TextRange {
+    return {
+      pos: range.pos + 3,
+      end: tokenFlags() & TokenFlags.Unterminated ? range.end : range.end - 2,
+    };
+  }
+
+  function parseDocList(): [pos: number, nodes: DocNode[]] {
+    if (docRanges.length === 0 || !options.docs) {
+      return [tokenPos(), []];
+    }
+    const docs: DocNode[] = [];
+    for (const range of docRanges) {
+      const doc = parseRange(ParseMode.Doc, innerDocRange(range), parseDoc);
+      docs.push(doc);
+    }
+
+    return [docRanges[0].pos, docs];
+  }
+
+  function parseDoc(): DocNode {
+    const pos = tokenPos();
+    const content: DocContent[] = [];
+    const tags: DocTag[] = [];
+
+    loop: while (true) {
+      switch (token()) {
+        case Token.EndOfFile:
+          break loop;
+        case Token.At:
+          tags.push(parseDocTag());
+          break;
+        default:
+          content.push(...parseDocContent());
+          break;
+      }
+    }
+
+    return {
+      kind: SyntaxKind.Doc,
+      content,
+      tags,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseDocContent(): DocContent[] {
+    const parts: string[] = [];
+    const source = scanner.file.text;
+    const pos = tokenPos();
+
+    let start = pos;
+    let inCodeFence = false;
+
+    loop: while (true) {
+      switch (token()) {
+        case Token.DocCodeFenceDelimiter:
+          inCodeFence = !inCodeFence;
+          nextDocToken();
+          break;
+        case Token.NewLine:
+          parts.push(source.substring(start, tokenPos()));
+          parts.push("\n"); // normalize line endings
+          nextDocToken();
+          start = tokenPos();
+          while (parseOptional(Token.Whitespace));
+          if (parseOptional(Token.Star)) {
+            parseOptional(Token.Whitespace);
+            start = tokenPos();
+            break;
+          }
+          break;
+        case Token.EndOfFile:
+          break loop;
+        case Token.At:
+          if (!inCodeFence) {
+            break loop;
+          }
+          nextDocToken();
+          break;
+        default:
+          nextDocToken();
+          break;
+      }
+    }
+
+    parts.push(source.substring(start, tokenPos()));
+    const text = trim(parts.join(""));
+
+    return [
+      {
+        kind: SyntaxKind.DocText,
+        text,
+        ...finishNode(pos),
+      },
+    ];
+  }
+
+  type ParamLikeTag = DocTemplateTagNode | DocParamTagNode;
+  type SimpleTag = DocReturnsTagNode | DocUnknownTagNode;
+
+  function parseDocTag(): DocTag {
+    const pos = tokenPos();
+    parseExpected(Token.At);
+    const tagName = parseIdentifier();
+    switch (tagName.sv) {
+      case "param":
+        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocParamTag);
+      case "template":
+        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocTemplateTag);
+      case "return":
+      case "returns":
+        return parseDocSimpleTag(pos, tagName, SyntaxKind.DocReturnsTag);
+      default:
+        return parseDocSimpleTag(pos, tagName, SyntaxKind.DocUnknownTag);
+    }
+  }
+
+  function parseDocParamLikeTag(
+    pos: number,
+    tagName: IdentifierNode,
+    kind: ParamLikeTag["kind"]
+  ): ParamLikeTag {
+    const name = parseDocIdentifier();
+    const content = parseDocContent();
+    return {
+      kind,
+      tagName,
+      paramName: name,
+      content,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseDocIdentifier() {
+    while (parseOptional(Token.Whitespace));
+    return parseIdentifier();
+  }
+
+  function parseDocSimpleTag(
+    pos: number,
+    tagName: IdentifierNode,
+    kind: SimpleTag["kind"]
+  ): SimpleTag {
+    const content = parseDocContent();
+    return {
+      kind,
+      tagName,
+      content,
+      ...finishNode(pos),
+    };
+  }
+
   // utility functions
   function token() {
     return scanner.token;
+  }
+
+  function tokenFlags() {
+    return scanner.tokenFlags;
   }
 
   function tokenValue() {
@@ -2072,12 +2313,23 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     // position as these will differ when the previous token had trailing
     // trivia, and we don't want to squiggle the trivia.
     previousTokenEnd = scanner.position;
+    return currentMode === ParseMode.Syntax ? nextSyntaxToken() : nextDocToken();
+  }
+
+  function nextSyntaxToken() {
+    docRanges = [];
 
     for (;;) {
       scanner.scan();
       if (isTrivia(token())) {
         if (!newLineIsTrivia && token() === Token.NewLine) {
           break;
+        }
+        if (tokenFlags() & TokenFlags.DocComment) {
+          docRanges.push({
+            pos: tokenPos(),
+            end: tokenEnd(),
+          });
         }
         if (options.comments && isComment(token())) {
           comments.push({
@@ -2093,6 +2345,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         break;
       }
     }
+  }
+
+  function nextDocToken() {
+    // NOTE: trivia tokens are always significant in doc comments.
+    scanner.scanDoc();
   }
 
   function createMissingIdentifier(): IdentifierNode {
@@ -2147,12 +2404,17 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const items: T[] = [];
     while (true) {
-      const pos = tokenPos();
+      let pos = tokenPos();
+      let docs: DocNode[] | undefined;
+
+      if (!kind.invalidAnnotationTarget) {
+        [pos, docs] = parseDocList();
+      }
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
-
-      if (kind.invalidDecoratorTarget) {
-        reportInvalidDecorators(decorators, kind.invalidDecoratorTarget);
+      if (kind.invalidAnnotationTarget) {
+        reportInvalidDecorators(decorators, kind.invalidAnnotationTarget);
+        reportInvalidDirective(directives, kind.invalidAnnotationTarget);
       }
 
       if (directives.length === 0 && decorators.length === 0 && atEndOfListWithError(kind)) {
@@ -2165,14 +2427,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
 
       let item: T;
-      if (kind.invalidDecoratorTarget) {
-        item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
+      if (kind.invalidAnnotationTarget) {
+        item = (parseItem as ParseListItem<UnannotatedListKind, T>)();
       } else {
         item = parseItem(pos, decorators);
+        mutate(item).docs = docs;
+        mutate(item).directives = directives;
       }
 
       items.push(item);
-      mutate(item).directives = directives;
       const delimiter = token();
       const delimiterPos = tokenPos();
 
@@ -2270,13 +2533,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function atEndOfListWithError(kind: ListKind) {
     return (
       kind.close !== Token.None &&
-      (isStatementKeyword(token()) || token() == Token.EndOfFile) &&
+      (isStatementKeyword(token()) || token() === Token.EndOfFile) &&
       token() !== kind.allowedStatementKeyword
     );
   }
 
-  function parseEmptyStatement(): EmptyStatementNode {
-    const pos = tokenPos();
+  function parseEmptyStatement(pos: number): EmptyStatementNode {
     parseExpected(Token.Semicolon);
     return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
@@ -2293,9 +2555,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       nextToken();
     } while (
       !isStatementKeyword(token()) &&
-      token() != Token.At &&
-      token() != Token.Semicolon &&
-      token() != Token.EndOfFile
+      token() !== Token.At &&
+      token() !== Token.Semicolon &&
+      token() !== Token.EndOfFile
     );
 
     error({
@@ -2447,8 +2709,14 @@ export type NodeCallback<T> = (c: Node) => T;
 
 export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined {
   if (node.directives) {
-    visitEach(cb, node.directives);
+    const result = visitEach(cb, node.directives);
+    if (result) return result;
   }
+  if (node.docs) {
+    const result = visitEach(cb, node.docs);
+    if (result) return result;
+  }
+
   switch (node.kind) {
     case SyntaxKind.CadlScript:
       return visitNode(cb, node.id) || visitEach(cb, node.statements);
@@ -2516,6 +2784,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.extends) ||
         visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
+      );
+    case SyntaxKind.ScalarStatement:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.extends)
       );
     case SyntaxKind.UnionStatement:
       return (
@@ -2615,7 +2890,6 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.target);
     case SyntaxKind.Return:
       return visitNode(cb, node.value);
-    // no children for the rest of these.
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
@@ -2626,6 +2900,18 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id);
     case SyntaxKind.ProjectionParameterDeclaration:
       return visitNode(cb, node.id);
+    case SyntaxKind.Doc:
+      return visitEach(cb, node.content) || visitEach(cb, node.tags);
+    case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocTemplateTag:
+      return (
+        visitNode(cb, node.tagName) || visitNode(cb, node.paramName) || visitEach(cb, node.content)
+      );
+    case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocUnknownTag:
+      return visitNode(cb, node.tagName) || visitEach(cb, node.content);
+
+    // no children for the rest of these.
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
@@ -2641,7 +2927,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ExternKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
+    case SyntaxKind.DocText:
       return;
+
     default:
       // Dummy const to ensure we handle all node types.
       // If you get an error here, add a case for the new node type
@@ -2669,34 +2957,17 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
   return;
 }
 
+/**
+ * Resolve the node in the syntax tree that that is at the given position.
+ * @param script Cadl Script node
+ * @param position Position
+ * @param filter Filter if wanting to return a parent containing node early.
+ */
 export function getNodeAtPosition(
   script: CadlScriptNode,
   position: number,
   filter = (node: Node) => true
-) {
-  const realNode = getNodeAtPositionInternal(script, position, filter);
-  if (realNode?.kind === SyntaxKind.StringLiteral) {
-    return realNode;
-  }
-  // If we're not immediately after an identifier character, then advance
-  // the position past any trivia. This is done because a zero-width
-  // inserted missing identifier that the user is now trying to complete
-  // starts after the trivia following the cursor.
-  const cp = codePointBefore(script.file.text, position);
-  if (!cp || !isIdentifierContinue(cp)) {
-    const newPosition = skipTrivia(script.file.text, position);
-    if (newPosition !== position) {
-      return getNodeAtPositionInternal(script, newPosition, filter);
-    }
-  }
-  return realNode;
-}
-
-function getNodeAtPositionInternal(
-  script: CadlScriptNode,
-  position: number,
-  filter = (node: Node) => true
-) {
+): Node | undefined {
   return visit(script);
 
   function visit(node: Node): Node | undefined {

@@ -4,7 +4,7 @@ import { css } from "@emotion/react";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui/dist/swagger-ui.css";
 import { BrowserHost } from "../browser-host";
-import { ErrorTab, InternalCompilerError } from "./error-tab";
+import { ErrorTab } from "./error-tab";
 import { OpenAPIOutput } from "./openapi-output";
 import { OutputTabs, Tab } from "./output-tabs";
 
@@ -81,7 +81,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         <OutputContent
           viewSelection={viewSelection}
           program={props.program}
-          internalCompilerError={InternalCompilerError}
+          internalCompilerError={props.internalCompilerError}
         />
       </div>
     </>

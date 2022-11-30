@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/eslint-config-cadl",
+      "comment": "Enable `eqeqeq` rule in eslint to ban usage of `==` or `!=`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/eslint-config-cadl"
+}

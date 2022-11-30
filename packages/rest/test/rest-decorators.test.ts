@@ -1,4 +1,4 @@
-import { Model } from "@cadl-lang/compiler";
+import { Scalar } from "@cadl-lang/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { getResourceLocationType } from "../src/rest.js";
@@ -12,22 +12,21 @@ describe("rest: rest decorators", () => {
   });
 
   describe("@resourceLocation", () => {
-    // Depends on the separation between models and scalar https://github.com/microsoft/cadl/issues/1187
-    it.skip("emit diagnostic when used on non-model", async () => {
+    it("emit diagnostic when used on non-model", async () => {
       const diagnostics = await runner.diagnose(`
           model Widget {};
 
           @Cadl.Rest.Private.resourceLocation(Widget)
           op test(): string;
 
-          model WidgetLocation is ResourceLocation<Widget>;
+          scalar WidgetLocation extends ResourceLocation<Widget>;
         `);
 
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @resourceLocation decorator to test since it is not assignable to Cadl.object",
+            "Cannot apply @resourceLocation decorator to test since it is not assignable to Cadl.string",
         },
       ]);
     });
@@ -37,10 +36,10 @@ describe("rest: rest decorators", () => {
           model Widget {};
 
           @test
-          model WidgetLocation is ResourceLocation<Widget>;
-`)) as { WidgetLocation: Model };
+          scalar WidgetLocation extends ResourceLocation<Widget>;
+`)) as { WidgetLocation: Scalar };
 
-      const resourceType = getResourceLocationType(runner.program, WidgetLocation);
+      const resourceType = getResourceLocationType(runner.program, WidgetLocation.baseScalar!);
       ok(resourceType);
       strictEqual(resourceType!.name, "Widget");
     });
