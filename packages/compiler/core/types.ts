@@ -206,6 +206,8 @@ export type IntrinsicScalarName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
+  | "url"
+  /** @deprecated */
   | "uri";
 
 export type NeverIndexer = { key: NeverType; value: undefined };
