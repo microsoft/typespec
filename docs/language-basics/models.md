@@ -48,6 +48,28 @@ model Dog {
 }
 ```
 
+### Special property types
+
+#### `never`
+
+A record property can be declared as having the type never. This should mean that the record shouldn't be having that property.
+
+This can be useful in model template to omit a property.
+
+```cadl
+model Address<TState> {
+  state: TState;
+  city: string;
+  street: string;
+}
+
+model UKAddress is Address<never>;
+```
+
+:::note
+That is still up to the emitter to be removing `never` properties. Cadl compiler will not automatically omit those.
+:::
+
 ### Array
 
 Array are models created using the `[]` syntax which is just a syntactic sugar for using the `Array<T>` model type.
