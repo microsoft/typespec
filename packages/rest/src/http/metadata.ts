@@ -302,6 +302,12 @@ export interface MetadataInfo {
   isPayloadProperty(property: ModelProperty, visibility: Visibility): boolean;
 
   /**
+   * Determines if the given property is  optional in the request or
+   * response payload for the given visibility. T
+   */
+  isOptional(property: ModelProperty, visibility: Visibility): boolean;
+
+  /**
    * If type is an anonymous model, tries to find a named model that has the
    * same set of properties when non-payload properties are excluded.
    */
@@ -335,6 +341,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     isEmptied,
     isTransformed,
     isPayloadProperty,
+    isOptional,
     getEffectivePayloadType,
   };
 
@@ -392,7 +399,10 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       return State.Transformed;
     }
     for (const property of model.properties.values()) {
-      if (isAddedOrRemoved(property, visibility) || isTransformed(property.type, visibility)) {
+      if (
+        isAddedRemovedOrMadeOptional(property, visibility) ||
+        isTransformed(property.type, visibility)
+      ) {
         return State.Transformed;
       }
     }
@@ -408,9 +418,12 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     return State.NotTransformed;
   }
 
-  function isAddedOrRemoved(property: ModelProperty, visibility: Visibility) {
+  function isAddedRemovedOrMadeOptional(property: ModelProperty, visibility: Visibility) {
     if (visibility === Visibility.All) {
       return false;
+    }
+    if (isOptional(property, Visibility.All) !== isOptional(property, visibility)) {
+      return true;
     }
     return (
       isPayloadProperty(property, visibility, /* keep shared */ true) !==
@@ -428,6 +441,11 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       }
     }
     return true;
+  }
+
+  function isOptional(property: ModelProperty, visibility: Visibility): boolean {
+    // TODO: === Visibility.Update isn't quite right here. It should be that Visibility.Update is present, but Visibility.Update is present in Visiblity.All which breaks things.
+    return property.optional || visibility === Visibility.Update;
   }
 
   function isPayloadProperty(

@@ -2,6 +2,23 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("can make properties optional", async () => {
+    const res = await openApiFor(`
+      model Widget { 
+        name: string; 
+        specs: WidgetSpecs;
+      }
+      model WidgetSpecs {
+        color: string;
+        weight: float64;
+      }
+      @post op create(...Widget): void;
+      @patch op update(...Widget): void;
+  `);
+
+    console.log(JSON.stringify(res, undefined, 2));
+  });
+
   it("can share readonly properties", async () => {
     const res = await openApiFor(`
       model M {
