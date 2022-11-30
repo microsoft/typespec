@@ -54,7 +54,7 @@ model Dog {
 
 A model property can be declared as having the type never. This can be interpreted as the model not having that property.
 
-This can be useful in model template to omit a property.
+This can be useful in a model template to omit a property.
 
 ```cadl
 model Address<TState> {
