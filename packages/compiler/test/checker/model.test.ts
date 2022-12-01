@@ -440,7 +440,7 @@ describe("compiler: models", () => {
 
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateArguments);
-      strictEqual(Pet.derivedModels[1].templateArguments[0].kind, "Model");
+      strictEqual(Pet.derivedModels[1].templateArguments[0].kind, "Scalar");
       strictEqual((Pet.derivedModels[1].templateArguments[0] as Model).name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
@@ -499,10 +499,7 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(
-        diagnostics[0].message,
-        "Model type 'A' recursively references itself as a base type."
-      );
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit error when extends circular reference", async () => {
@@ -515,10 +512,7 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(
-        diagnostics[0].message,
-        "Model type 'A' recursively references itself as a base type."
-      );
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit no error when extends has property to base model", async () => {
@@ -685,10 +679,7 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(
-        diagnostics[0].message,
-        "Model type 'A' recursively references itself as a base type."
-      );
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit single error when is itself as a templated with multiple instantiations", async () => {
@@ -707,7 +698,7 @@ describe("compiler: models", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "circular-base-type",
-          message: "Model type 'A' recursively references itself as a base type.",
+          message: "Type 'A' recursively references itself as a base type.",
         },
       ]);
     });
@@ -722,10 +713,7 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(
-        diagnostics[0].message,
-        "Model type 'A' recursively references itself as a base type."
-      );
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit error when 'is' circular reference via extends", async () => {
@@ -738,10 +726,7 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(
-        diagnostics[0].message,
-        "Model type 'A' recursively references itself as a base type."
-      );
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit no error when extends has property to base model", async () => {

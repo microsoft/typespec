@@ -1,5 +1,5 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
-import { reportDeprecated } from "../core/index.js";
+import { getNamespaceFullName, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
@@ -73,7 +73,7 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: context.program.checker.getTypeName(title), targetType: "String" },
+        format: { value: getTypeName(title), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }
@@ -84,7 +84,7 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: context.program.checker.getTypeName(version), targetType: "String" },
+        format: { value: getTypeName(version), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }
@@ -142,7 +142,7 @@ export function getServiceVersion(program: Program): string {
 
 /** @deprecated use @see listServices() or @see getService() */
 export function getServiceNamespaceString(program: Program): string | undefined {
-  return program.checker.getNamespaceString(getServiceNamespace(program));
+  return getNamespaceFullName(getServiceNamespace(program));
 }
 
 /** @deprecated use @see addService */

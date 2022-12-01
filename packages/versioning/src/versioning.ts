@@ -3,6 +3,7 @@ import {
   DiagnosticTarget,
   Enum,
   EnumMember,
+  getNamespaceFullName,
   Namespace,
   ObjectType,
   Program,
@@ -207,8 +208,8 @@ export function $versionedDependency(
         reportDiagnostic(context.program, {
           code: "versioned-dependency-same-namespace",
           format: {
-            namespace1: program.checker.getNamespaceString(targetNamespace),
-            namespace2: program.checker.getNamespaceString(targetVersion.namespace),
+            namespace1: getNamespaceFullName(targetNamespace),
+            namespace2: getNamespaceFullName(targetVersion.namespace),
           },
           target: targetMember,
         });
@@ -281,8 +282,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
       const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (version instanceof Map) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceFullName(rootNs);
+          const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`
           );
@@ -301,8 +302,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
 
       for (const [dependencyNs, versionMap] of dependencies) {
         if (!(versionMap instanceof Map)) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceFullName(rootNs);
+          const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );
@@ -323,8 +324,6 @@ interface VersionProjections {
   projections: ProjectionApplication[];
 }
 
-const versionIndex = new Map<ObjectType, Map<Namespace, Version>>();
-
 /**
  * @internal
  */
@@ -333,17 +332,21 @@ export function indexVersions(program: Program, versions: Map<Namespace, Version
     kind: "Object",
     properties: {},
   } as any);
-  versionIndex.set(versionKey, versions);
+  program.stateMap(key).set(versionKey, versions);
   return versionKey;
 }
 
-function getVersionForNamespace(versionKey: ObjectType, namespaceType: Namespace) {
-  return versionIndex.get(versionKey)?.get(namespaceType);
+function getVersionForNamespace(
+  program: Program,
+  versionKey: ObjectType,
+  namespaceType: Namespace
+) {
+  return program.stateMap(key).get(versionKey)?.get(namespaceType);
 }
 
+const key = createStateSymbol("version-index");
 export function buildVersionProjections(program: Program, rootNs: Namespace): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
-  versionIndex.clear();
   return resolutions.map((resolution) => {
     if (resolution.versions.size === 0) {
       return { version: undefined, projections: [] };
@@ -473,6 +476,7 @@ function appliesAtVersion(
     return null;
   }
   const version = getVersionForNamespace(
+    p,
     versionKey,
     (namespace.projectionBase as Namespace) ?? namespace
   );

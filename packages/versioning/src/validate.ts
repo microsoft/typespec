@@ -1,4 +1,6 @@
 import {
+  getNamespaceFullName,
+  getTypeName,
   isTemplateInstance,
   Namespace,
   navigateProgram,
@@ -83,7 +85,7 @@ export function $onValidate(program: Program) {
             if (!(value instanceof Map)) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-record-not-mapping",
-                format: { dependency: program.checker.getNamespaceString(dependencyNs) },
+                format: { dependency: getNamespaceFullName(dependencyNs) },
                 target: namespace,
               });
             }
@@ -91,7 +93,7 @@ export function $onValidate(program: Program) {
             if (value instanceof Map) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-not-picked",
-                format: { dependency: program.checker.getNamespaceString(dependencyNs) },
+                format: { dependency: getNamespaceFullName(dependencyNs) },
                 target: namespace,
               });
             }
@@ -117,8 +119,8 @@ function validateVersionedNamespaceUsage(
         reportDiagnostic(program, {
           code: "using-versioned-library",
           format: {
-            sourceNs: program.checker.getNamespaceString(source),
-            targetNs: program.checker.getNamespaceString(target),
+            sourceNs: source ? getNamespaceFullName(source) : "global",
+            targetNs: getNamespaceFullName(target),
           },
           target: source ?? NoTarget,
         });
@@ -240,8 +242,8 @@ function translateVersionRange(
         code: "incompatible-versioned-reference",
         messageId: "versionedDependencyAddedAfter",
         format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
           dependencyVersion: prettyVersion(versionMap),
           targetAddedOn: prettyVersion(range.added),
         },
@@ -253,8 +255,8 @@ function translateVersionRange(
         code: "incompatible-versioned-reference",
         messageId: "versionedDependencyRemovedBefore",
         format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
           dependencyVersion: prettyVersion(versionMap),
           targetAddedOn: prettyVersion(range.added),
         },
@@ -355,8 +357,8 @@ function validateRangeCompatibleForRef(
         code: "incompatible-versioned-reference",
         messageId: "default",
         format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
         },
         target: source,
       });
@@ -373,8 +375,8 @@ function validateRangeCompatibleForRef(
       code: "incompatible-versioned-reference",
       messageId: "addedAfter",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceAddedOn: prettyVersion(sourceRange.added),
         targetAddedOn: prettyVersion(targetRange.added),
       },
@@ -389,8 +391,8 @@ function validateRangeCompatibleForRef(
       code: "incompatible-versioned-reference",
       messageId: "removedBefore",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceRemovedOn: prettyVersion(sourceRange.removed),
         targetRemovedOn: prettyVersion(targetRange.removed),
       },
@@ -421,8 +423,8 @@ function validateRangeCompatibleForContains(
       code: "incompatible-versioned-reference",
       messageId: "dependentAddedAfter",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceAddedOn: prettyVersion(sourceRange.added),
         targetAddedOn: prettyVersion(targetRange.added),
       },
@@ -437,8 +439,8 @@ function validateRangeCompatibleForContains(
       code: "incompatible-versioned-reference",
       messageId: "dependentRemovedBefore",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceRemovedOn: prettyVersion(sourceRange.removed),
         targetRemovedOn: prettyVersion(targetRange.removed),
       },

@@ -22,12 +22,11 @@ import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter-fs.js";
-import { CompilerHost } from "./index.js";
 import { installCadlDependencies } from "./install.js";
 import { createConsoleSink } from "./logger/index.js";
 import { NodeHost } from "./node-host.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
-import { Diagnostic } from "./types.js";
+import { CompilerHost, Diagnostic } from "./types.js";
 import { cadlVersion, ExternalError } from "./util.js";
 
 async function main() {
@@ -386,7 +385,7 @@ function resolveOptions(
   const options: Record<string, Record<string, string>> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
-    if (optionParts.length != 2) {
+    if (optionParts.length !== 2) {
       throw new Error(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
@@ -605,13 +604,13 @@ async function installVSExtension(debug: boolean) {
     }
   }
 
-  if (versionsFound == 0) {
+  if (versionsFound === 0) {
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
-  } else if (versionsFound == 1) {
+  } else if (versionsFound === 1) {
     compilerAssert(
       latestVersionFound,
-      "expected latestFoundVersion to be defined if versionsFound == 1"
+      "expected latestFoundVersion to be defined if versionsFound === 1"
     );
     versionsToInstall = [latestVersionFound];
   } else {

@@ -1,4 +1,5 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
+import { compilerAssert } from "../../core/diagnostics.js";
 import { createScanner, Token } from "../../core/scanner.js";
 import {
   AliasStatementNode,
@@ -51,6 +52,7 @@ import {
   ProjectionTupleExpressionNode,
   ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
+  ScalarStatementNode,
   Statement,
   StringLiteralNode,
   SyntaxKind,
@@ -142,6 +144,8 @@ export function printNode(
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
       return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
+    case SyntaxKind.ScalarStatement:
+      return printScalarStatement(path as AstPath<ScalarStatementNode>, options, print);
     case SyntaxKind.AliasStatement:
       return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
@@ -310,12 +314,22 @@ export function printNode(
       return path.call(print, "target");
     case SyntaxKind.Return:
       return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
+    case SyntaxKind.Doc:
+    case SyntaxKind.DocText:
+    case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocTemplateTag:
+    case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocUnknownTag:
+      // https://github.com/microsoft/cadl/issues/1319 Tracks pretty-printing doc comments.
+      compilerAssert(
+        false,
+        "Currently, doc comments are only handled as regular comments and we do not opt in to parsing them so we shouldn't reach here."
+      );
+      return "";
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.InvalidStatement:
       return getRawText(node, options);
-    // default:
-    //   return getRawText(node, options);
     default:
       // Dummy const to ensure we handle all node types.
       // If you get an error here, add a case for the new node type
@@ -1017,6 +1031,28 @@ function isModelExpressionInBlock(
     default:
       return true;
   }
+}
+
+export function printScalarStatement(
+  path: AstPath<ScalarStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+  const template = printTemplateParameters(path, options, print, "templateParameters");
+
+  const heritage = node.extends
+    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
+    : "";
+  return [
+    printDecorators(path, options, print, { tryInline: false }).decorators,
+    "scalar ",
+    id,
+    template,
+    group(indent(["", heritage])),
+    ";",
+  ];
 }
 
 export function printNamespaceStatement(

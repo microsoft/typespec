@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/eslint-config-cadl",
+      "comment": "Update dependencies",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/eslint-config-cadl"
+}

@@ -4,7 +4,7 @@ import { createRequire } from "module";
 import path, { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
-import vscode_textmate, { IOnigLib, StackElement } from "vscode-textmate";
+import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
 import { CadlScope } from "../../server/tmlanguage.js";
@@ -30,6 +30,7 @@ type Tokenize = (input: string) => Promise<Token[]>;
 const Token = {
   keywords: {
     model: createToken("model", "keyword.other.cadl"),
+    scalar: createToken("scalar", "keyword.other.cadl"),
     operation: createToken("op", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
@@ -538,6 +539,40 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("scalar", () => {
+      it("simple scalar", async () => {
+        const tokens = await tokenize("scalar Foo;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("scalar with extends", async () => {
+        const tokens = await tokenize("scalar Foo extends Bar;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("single template argument model", async () => {
+        const tokens = await tokenize("scalar Foo<T>;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");
@@ -975,7 +1010,7 @@ export async function tokenizeTMLanguage(input: string | Input): Promise<Token[]
   }
 
   const tokens: Token[] = [];
-  let previousStack: StackElement | null = null;
+  let previousStack: StateStack | null = null;
   const grammar = await registry.loadGrammar("source.cadl");
 
   if (grammar === null) {
