@@ -458,7 +458,7 @@ const diagnostics = {
   "config-circular-variable": {
     severity: "error",
     messages: {
-      default: paramMessage`Variable "${"name"}" recursively references itself.`,
+      default: paramMessage`There is a circular reference to variable "${"name"}" in the cli configuration or arguments.`,
     },
   },
   "config-path-absolute": {
