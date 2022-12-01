@@ -253,6 +253,13 @@ export function isDefined<T>(arg: T | undefined): arg is T {
 }
 
 /**
+ * Remove undefined properties from object.
+ */
+export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+/**
  * Look for the project root by looking up until a `package.json` is found.
  * @param path Path to start looking
  * @param lookIn
