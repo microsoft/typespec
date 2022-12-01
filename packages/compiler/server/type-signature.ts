@@ -60,14 +60,14 @@ export function getTypeSignature(type: Type): string {
 }
 
 function getDecoratorSignature(type: Decorator) {
-  const ns = type.namespace ? getTypeName(type.namespace) + "." : "";
+  const ns = getQualifier(type.namespace);
   const name = type.name.slice(1);
   const parameters = [type.target, ...type.parameters].map((x) => getFunctionParameterSignature(x));
   return `dec ${ns}${name}(${parameters.join(", ")})`;
 }
 
 function getFunctionSignature(type: FunctionType) {
-  const ns = type.namespace ? getTypeName(type.namespace) + "." : "";
+  const ns = getQualifier(type.namespace);
   const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
   return `fn ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
 }
