@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Fix: Issue with loading different version of versioning library in emitter",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}

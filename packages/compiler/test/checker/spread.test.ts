@@ -19,7 +19,7 @@ describe("compiler: spread", () => {
   beforeEach(async () => {
     const host = await createTestHost();
     host.addJsFile("blue.js", { $blue });
-    runner = createTestWrapper(host, (code) => code);
+    runner = createTestWrapper(host);
   });
 
   it("clones decorated properties", async () => {
