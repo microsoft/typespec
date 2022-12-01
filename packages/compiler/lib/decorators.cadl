@@ -30,7 +30,7 @@ extern dec summary(target: unknown, summary: string);
 extern dec doc(target: unknown, doc: string, formatArgs?: object);
 
 /**
- * Mark a type as deprecated
+ * Mark this type as deprecated
  * @param message Deprecation message.
  *
  * ```cadl
@@ -55,7 +55,7 @@ model ServiceOptions {
 }
 
 /**
- * Mark a namespace as describing a service and configure service properties.
+ * Mark this namespace as describing a service and configure service properties.
  * @param options Optional configuration for the service.
  *
  * @example
@@ -93,7 +93,7 @@ extern dec service(target: unknown, options?: ServiceOptions);
 extern dec error(target: object);
 
 /**
- * Specify a known data format hint for a string type. For example `uuid`, `uri`, etc.
+ * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
  * This differ from the @pattern decorator that is meant to specify a regular expression while @format takes in a known format name.
  * The format names are open ended and are left to emitter to interpret.
  *
@@ -108,7 +108,7 @@ extern dec error(target: object);
 extern dec format(target: string | bytes | ModelProperty, format: string);
 
 /**
- * Specify the the pattern for a string using simple regular expression syntax.
+ * Specify the the pattern this string should respect using simple regular expression syntax.
  * The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
  * Advanced features like look-around, capture groups, and references are not supported.
  *
@@ -147,7 +147,7 @@ extern dec minLength(target: string | ModelProperty, value: integer);
 extern dec maxLength(target: string | ModelProperty, value: integer);
 
 /**
- * Specify the minimum number of items in targetted array.
+ * Specify the minimum number of items this array should have.
  * @param value Minimum number
  *
  * @example
@@ -159,7 +159,7 @@ extern dec maxLength(target: string | ModelProperty, value: integer);
 extern dec minItems(target: unknown[] | ModelProperty, value: integer);
 
 /**
- * Specify the maximum number of items in targetted array.
+ * Specify the maximum number of items this array should have.
  * @param value Maximum number
  *
  * @example
@@ -195,7 +195,7 @@ extern dec minValue(target: numeric | ModelProperty, value: numeric);
 extern dec maxValue(target: numeric | ModelProperty, value: numeric);
 
 /**
- * Mark a string as a secret value that should be treated carefully to avoid exposure
+ * Mark this string as a secret value that should be treated carefully to avoid exposure
  *
  * @example
  * ```cadl
@@ -272,7 +272,7 @@ extern dec key(target: ModelProperty, altName?: string);
 extern dec overload(target: Operation, overloadbase: Operation);
 
 /**
- * Provide an alternative name for the type in the given target.
+ * Provide an alternative name for this type.
  * @param targetName Projection target
  * @param projectedName Alternative name
  *
