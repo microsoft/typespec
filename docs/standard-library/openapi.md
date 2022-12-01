@@ -25,7 +25,7 @@ needs to be installed and imported somewhere in your Cadl source.
 npm install @cadl-lang/rest
 ```
 
-## Emit OpenAPI 3.0 definition
+## Usage
 
 There are several ways to emit an OpenAPI 3.0 definition for your Cadl source file.
 
@@ -42,6 +42,12 @@ Add the following to the `cadl-project.yaml` file.
 ```yaml
 emitters:
   @cadl-lang/openapi3: true
+```
+
+This will generate the OpenAPI 3.0 definition every time you compile:
+
+```bash
+cadl compile .
 ```
 
 ### Emitter options
@@ -79,13 +85,20 @@ Set the newline character for emitting files. Can be either:
 - `lf`(Default)
 - `crlf`
 
-### `omit-unreachable-types`
+#### `omit-unreachable-types`
 
 Only include types references via an operation.
 
 ## How the OpenAPI emitter interprets Cadl
 
 The OpenAPI emitter converts Cadl language elements into their natural OpenAPI expression as described below.
+
+### Servers
+
+If the Cadl file contains an [(Http) `@server` decorator](https://github.com/microsoft/cadl/blob/main/docs/standard-library/rest/decorators.md#server)
+the OpenAPI emitter will generate a `servers` object with the server URL, description, and variables specified in the decorator.
+
+You can specify multiple `@server` decorators to obtain multiple entries in the `servers` object.
 
 ### Operations
 
@@ -129,12 +142,12 @@ The `in` field of a parameter is specified with an [(Http) `@query`, `@header`, 
 A parameter without one of these decorators is assumed to be passed in the request body.
 
 The request body parameter can also be explicitly decorated with an [(Http) `@body` decorator][http-body-decorator].
-In the absence of explicit `@body`, the set of parameters that are not marked @header, @query, or @path form the request body.
+In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body.
 
 [http-parameter-decorators]: https://github.com/microsoft/cadl/blob/main/packages/rest/README.md#decorators
 [http-body-decorator]: https://github.com/microsoft/cadl/blob/main/packages/rest/README.md#decorators
 
-A (built-in) `@doc` decorator on a parameter will be use in the description.
+The content of a (built-in) `@doc` decorator on a parameter will be set in the description.
 
 The Cadl parameter type will be translated into an appropriate OpenAPI schema for the parameter.
 
@@ -148,7 +161,7 @@ See also [metadata](./rest/operations.md#metadata) for more advanced details.
 
 The return type(s) of the Cadl operation are translated into responses for the OpenAPI operation.
 The status code for a response can be specified as a property in the return type model with the [(Http) `@statusCode` decorator][http-statuscode-decorator] (the property name is ignored).
-If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type because the default response for the operation.
+If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "default" response for the operation.
 The media type for a response will be "application/json" unless the return type model includes an explicit `content-type`
 header.
 Models with different status codes and/or media types can be unioned together to describe complex response designs.
@@ -195,6 +208,14 @@ are included in the emitted OpenAPI operation.
 Models and enums are converted into schemas in the generated OpenAPI definition. Intrinsic types in Cadl are represented
 with a JSON Schema type that most closely matches the semantics of the Cadl type.
 
+Models defined inline will result in an inline schema. Explicitly delcared models will defined in the `components/schemas`
+section with the Cadl name qualified by any enclosing namespaces.
+
+A special case is an instantiation of a model template, is treated as an inline model unless the model template has
+a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
+
+[friendlyname]: https://github.com/microsoft/cadl/blob/main/docs/standard-library/built-in-decorators.md#friendlyname
+
 The following table shows how Cadl types are translated to JSON Schema types:
 
 | Cadl type       | OpenAPI `type`/`format`           | Notes                                                                     |
@@ -214,27 +235,39 @@ There are a variety of decorators that can modify or add metadata to the definit
 
 For a numeric element (integer or float):
 
-| Cadl decorator     | OpenAPI/JSON Schema keyword | Notes |
-| ------------------ | --------------------------- | ----- |
-| `@minValue(value)` | `minimum: value`            |       |
-| `@maxValue(value)` | `maximum: value`            |       |
+| Decorator          | Library  | OpenAPI/JSON Schema keyword | Notes |
+| ------------------ | -------- | --------------------------- | ----- |
+| `@minValue(value)` | built-in | `minimum: value`            |       |
+| `@maxValue(value)` | built-in | `maximum: value`            |       |
 
 For any element defined as a `string` or a type that extends from `string`:
 
-| Cadl decorator      | OpenAPI/JSON Schema keyword | Notes                                                      |
-| ------------------- | --------------------------- | ---------------------------------------------------------- |
-| `@format(name)`     | `format: name`              | When format is not determined by type or another decorator |
-| `@minLength(value)` | `minLength: value`          |                                                            |
-| `@maxLength(value)` | `maxLength: value`          |                                                            |
-| `@pattern(regex)`   | `pattern: regex`            |                                                            |
-| `@secret`           | `format: password`          |                                                            |
+| Decorator           | Library  | OpenAPI/JSON Schema keyword | Notes                                                      |
+| ------------------- | -------- | --------------------------- | ---------------------------------------------------------- |
+| `@format(name)`     | built-in | `format: name`              | When format is not determined by type or another decorator |
+| `@minLength(value)` | built-in | `minLength: value`          |                                                            |
+| `@maxLength(value)` | built-in | `maxLength: value`          |                                                            |
+| `@pattern(regex)`   | built-in | `pattern: regex`            |                                                            |
+| `@secret`           | built-in | `format: password`          |                                                            |
 
 For an array type:
 
-| Cadl decorator     | OpenAPI/JSON Schema keyword | Notes |
-| ------------------ | --------------------------- | ----- |
-| `@minItems(value)` | `minItems: value`           |       |
-| `@minItems(value)` | `maxItems: value`           |       |
+| Decorator          | Library  | OpenAPI/JSON Schema keyword | Notes |
+| ------------------ | -------- | --------------------------- | ----- |
+| `@minItems(value)` | built-in | `minItems: value`           |       |
+| `@maxItems(value)` | built-in | `maxItems: value`           |       |
+
+The openapi emitter provides an `@useRef` decorator which will replace the Cadl model type in emitter output
+with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
+
+Example:
+
+```cadl
+@useRef("common.json#/components/schemas/Sku")
+model Sku {
+...
+}
+```
 
 Enums can be defined in Cadl with the [`enum` statement](../language-basics/enums.md), e.g.:
 
@@ -246,7 +279,7 @@ enum Color {
 }
 ```
 
-Another is to use the union operation to define the enum values inline, e.g.:
+The union operator can also be used to define the enum values inline, e.g.:
 
 ```cadl
 status: "Running" | "Stopped" | "Failed"
@@ -313,6 +346,94 @@ The openapi3 emitter ignores the "names" for variants in named unions.
 
 The openapi3 emitter also defines the `@oneOf` decorator which can be specified on a `union` statement to indicate
 that a union should be emitted as a `oneOf` rather than `anyOf`.
+
+## Security Definitions
+
+The OpenAPI emitter uses the takes the [(http) `@useAuth` decorator](https://github.com/microsoft/cadl/blob/main/docs/standard-library/rest/decorators.md#useauth)
+
+#### Examples
+
+The following example shows how to define a security scheme for Azure Active Directory authentication:
+
+```cadl
+@useAuth(AADToken)
+namespace Contoso.WidgetManager;
+@doc("The Azure Active Directory OAuth2 Flow")
+model AADToken
+  is OAuth2Auth<[
+    {
+      type: OAuth2FlowType.authorizationCode;
+      authorizationUrl: "https://api.example.com/oauth2/authorize";
+      tokenUrl: "https://api.example.com/oauth2/token";
+      scopes: ["https://management.azure.com/read", "https://management.azure.com/write"];
+    }
+  ]>;
+```
+
+## Diagnostics
+
+The openapi emitter may produce any of the following diagnostic messages.
+
+<!-- Topics within this section should be ordered alphabetically for easy lookup -->
+
+### duplicate-header
+
+This diagnostic is issued when a response header is defined more than once for a response of a specific status code.
+
+How to fix ???
+
+### duplicate-type-name
+
+This diagnostic is issued when a schema or parameter name is a duplicate of another schema or parameter.
+This generally happens when a model or parameter is renamed with the `@friendlyName` decorator.
+
+To fix this issue, change the name or friendly-name of one of the models or parameters.
+
+### inline-cycle
+
+???
+
+### invalid-default
+
+???
+
+### invalid-extension-key
+
+This diagnostic is issued by the `@extension` decorator when the extension key does not start with "x-" as
+required by the OpenAPI v3 specification.
+
+To fix this issue, change the extension name to start with "x-".
+
+### invalid-schema
+
+???
+
+### invalid-server-variable
+
+This diagnostic is issued when the a variable in the `@server` decorator is not defined as a string type.
+Since server variables are substituted into the server URL which is a string, all variables must have string values.
+
+To fix this issue, make sure all server variables are string type.
+
+### path-query
+
+This diagnostic is issued when the OpenAPI emitter finds an `@route` decorator that specifies a path that contains a query parameter.
+This is not permitted by the OpenAPI v3 specification.
+
+To fix this issue, redesign the API to only use paths without query parameters.
+
+### union-null
+
+This diagnostic is issued when the result of model composition is effectively a `null` schema which cannot be
+represented in OpenAPI.
+
+To fix this issue, correct the composition to produce a valid schema or remove it altogether.
+
+### union-unsupported
+
+This diagnostic is issued when the OpenAPI emitter finds a union of two incompatible types.
+
+To fix this issue, correct the composition to produce a valid schema or remove it altogether.
 
 ## See also
 
