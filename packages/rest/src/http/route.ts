@@ -8,7 +8,13 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol } from "../lib.js";
-import { getSegment, getSegmentSeparator, isAutoRoute } from "../rest.js";
+import {
+  getActionSegment,
+  getActionSeparator,
+  getSegment,
+  getSegmentSeparator,
+  isAutoRoute,
+} from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import { getRouteOptionsForNamespace, getRoutePath } from "./decorators.js";
 import { getOperationParameters } from "./parameters.js";
@@ -47,13 +53,30 @@ function buildPath(pathFragments: string[]) {
   return path.length > 0 && path[0] === "/" ? path : `/${path}`;
 }
 
+function addActionFragment(program: Program, target: Type, pathFragments: string[]) {
+  // add the action segment, if present
+  const defaultSeparator = "/";
+  const actionSegment = getActionSegment(program, target);
+  if (actionSegment && actionSegment !== "") {
+    // Have to use segmentSeparator as a fallback to avoid breaking changes
+    // However, segmentSeparator does not work in certain cases and should not be used
+    const actionSeparator =
+      getActionSeparator(program, target) ??
+      getSegmentSeparator(program, target) ??
+      defaultSeparator;
+    pathFragments.push(`${actionSeparator}${actionSegment}`);
+  }
+}
+
 function addSegmentFragment(program: Program, target: Type, pathFragments: string[]) {
   // Don't add the segment prefix if it is meant to be excluded
   // (empty string means exclude the segment)
   const segment = getSegment(program, target);
-  const separator = getSegmentSeparator(program, target);
+
   if (segment && segment !== "") {
-    pathFragments.push(`${separator ?? "/"}${segment}`);
+    const defaultSeparator = "/";
+    const separator = getSegmentSeparator(program, target) ?? defaultSeparator;
+    pathFragments.push(`${separator}${segment}`);
   }
 }
 
@@ -98,6 +121,9 @@ function generatePathFromParameters(
 
   // Add the operation's own segment if present
   addSegmentFragment(program, operation, pathFragments);
+
+  // Add the operation's action segment if present
+  addActionFragment(program, operation, pathFragments);
 }
 
 export function resolvePathAndParameters(

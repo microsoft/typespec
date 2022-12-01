@@ -242,6 +242,7 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
+      #suppress "deprecated"
       @get
       @autoRoute
       @segment("actionTwo")
@@ -691,8 +692,16 @@ describe("rest: routes", () => {
       @autoRoute
       namespace Things {
         @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        #suppress "deprecated"
+        @action
         @segmentSeparator(":")
-        @put op customAction(
+        @put op customAction2(
           @segment("things")
           @path thingId: string
         ): string;
@@ -702,6 +711,7 @@ describe("rest: routes", () => {
           @path subscriptionId: string;
 
           // Is it useful for ARM modelling?
+          #suppress "deprecated"
           @path
           @segment("accounts")
           @segmentSeparator("Microsoft.Accounts/")
@@ -712,13 +722,71 @@ describe("rest: routes", () => {
     );
 
     deepStrictEqual(routes, [
-      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}:customAction2", params: ["thingId"] },
       {
         verb: "get",
         path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
         params: ["subscriptionId", "accountName"],
       },
     ]);
+  });
+
+  it("allows customization of action separators", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/")
+        @put op customAction2(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/:")
+        @put op customAction3(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    deepStrictEqual(routes, [
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/customAction2", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/:customAction3", params: ["thingId"] },
+    ]);
+  });
+
+  it("emits error if invalid action separator used", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator("x")
+        @put op customAction(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "invalid-argument");
+    strictEqual(
+      diagnostics[0].message,
+      `Argument 'x' is not assignable to parameter of type '/ | : | /:'`
+    );
   });
 
   it("skips templated operations", async () => {
