@@ -9,9 +9,8 @@ describe("versioning: library loading", () => {
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
       import "@cadl-lang/versioning";
 
       using Cadl.Versioning;
@@ -20,8 +19,8 @@ describe("versioning: library loading", () => {
       @test namespace TestService {
         enum Versions {v1, v2, v3, v4}
         ${code}
-      }`
-    );
+      }`,
+    });
   });
 
   it("is not affected when multiple instance of library are loaded", async () => {

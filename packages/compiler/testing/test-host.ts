@@ -12,8 +12,9 @@ import { compile as compileProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { BasicTestRunner, createTestWrapper } from "./test-utils.js";
+import { createTestWrapper } from "./test-utils.js";
 import {
+  BasicTestRunner,
   CadlTestLibrary,
   TestFileSystem,
   TestHost,
@@ -239,11 +240,12 @@ export async function createTestHost(config: TestHostConfig = {}): Promise<TestH
 
 export async function createTestRunner(): Promise<BasicTestRunner> {
   const testHost = await createTestHost();
-  return createTestWrapper(testHost, (code) => code);
+  return createTestWrapper(testHost);
 }
 
 async function createTestHostInternal(): Promise<TestHost> {
   let program: Program | undefined;
+  const libraries: CadlTestLibrary[] = [];
   const testTypes: Record<string, Type> = {};
   const fileSystem = await createTestFileSystem();
 
@@ -276,10 +278,17 @@ async function createTestHostInternal(): Promise<TestHost> {
 
   return {
     ...fileSystem,
+    addCadlLibrary: async (lib) => {
+      if (lib !== StandardTestLibrary) {
+        libraries.push(lib);
+      }
+      await fileSystem.addCadlLibrary(lib);
+    },
     compile,
     diagnose,
     compileAndDiagnose,
     testTypes,
+    libraries,
     get program() {
       assert(
         program,
