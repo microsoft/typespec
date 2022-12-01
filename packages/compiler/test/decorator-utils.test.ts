@@ -140,7 +140,7 @@ describe("compiler: decorator utils", () => {
     let runner: BasicTestRunner;
     beforeEach(async () => {
       const host = await createTestHost();
-      runner = createTestWrapper(host, (x) => `import "./lib.js";\n${x}`);
+      runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
 
       function $tag(context: DecoratorContext, target: Type) {
         validateDecoratorUniqueOnNode(context, target, $tag);
