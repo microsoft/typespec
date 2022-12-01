@@ -170,7 +170,7 @@ describe("compiler: decorator utils", () => {
       ]);
     });
 
-    it("shouldn't emit diagnostic if decorator is used once noly", async () => {
+    it("shouldn't emit diagnostic if decorator is used once only", async () => {
       const diagnostics = await runner.diagnose(`
         @tag
         model Foo {}

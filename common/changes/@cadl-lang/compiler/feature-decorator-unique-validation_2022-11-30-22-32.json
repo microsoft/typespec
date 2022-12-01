@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twiced on the same node",
+      "comment": "Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node",
       "type": "minor"
     }
   ],
