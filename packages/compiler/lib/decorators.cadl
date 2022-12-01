@@ -105,7 +105,7 @@ extern dec error(target: object);
 extern dec format(target: string | bytes | ModelProperty, format: string);
 
 /**
- * Specify the the pattern for a string using regular expression syntax.
+ * Specify the the pattern for a string using simple regular expression syntax. The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses. Advanced features like look-arounds, capture groups, and references are not supported.
  * @param pattern Regular expression.
  *
  * @example
