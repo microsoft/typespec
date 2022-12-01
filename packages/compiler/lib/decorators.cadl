@@ -79,7 +79,7 @@ model ServiceOptions {
 extern dec service(target: unknown, options?: ServiceOptions);
 
 /**
- * Specify that this model is an error type.
+ * Specify that this model is an error type. Operations return error types when the operation has failed.
  *
  * @example
  * ```cadl
