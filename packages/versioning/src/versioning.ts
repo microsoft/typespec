@@ -47,7 +47,13 @@ export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
     return;
   }
 
-  program.stateMap(addedOnKey).set(t, version);
+  // retrieve statemap to update or create a new one
+  const record = program.stateMap(addedOnKey).get(t) ?? new Array<Version>();
+  record.push(version);
+  // ensure that records are stored in ascending order
+  (record as Version[]).sort((a, b) => a.index - b.index);
+
+  program.stateMap(addedOnKey).set(t, record);
 }
 
 export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
@@ -57,7 +63,14 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
   if (!version) {
     return;
   }
-  program.stateMap(removedOnKey).set(t, version);
+
+  // retrieve statemap to update or create a new one
+  const record = program.stateMap(removedOnKey).get(t) ?? new Array<Version>();
+  record.push(version);
+  // ensure that records are stored in ascending order
+  (record as Version[]).sort((a, b) => a.index - b.index);
+
+  program.stateMap(removedOnKey).set(t, record);
 }
 
 interface RenamedFrom {
@@ -160,14 +173,16 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
  * @returns version when the given type was added if applicable.
  */
 export function getAddedOn(p: Program, t: Type): Version | undefined {
-  return p.stateMap(addedOnKey).get(t);
+  reportDeprecated(p, "Deprecated: getAddedOn is deprecated.", t);
+  return p.stateMap(addedOnKey).get(t)?.[0];
 }
 
 /**
  * @returns version when the given type was removed if applicable.
  */
 export function getRemovedOn(p: Program, t: Type): Version | undefined {
-  return p.stateMap(removedOnKey).get(t);
+  reportDeprecated(p, "Deprecated: getRemovedOn is deprecated.", t);
+  return p.stateMap(removedOnKey).get(t)?.[0];
 }
 
 /**
@@ -534,13 +549,100 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
 export function addedAfter(p: Program, type: Type, version: ObjectType) {
+  reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsOnVersion instead.", type);
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
 
 export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
+  reportDeprecated(
+    p,
+    "Deprecated: removedOnOrBefore is deprecated. Use existsOnVersion instead.",
+    type
+  );
   const appliesAt = appliesAtVersion(getRemovedOn, p, type, version);
   return appliesAt === null ? false : appliesAt;
+}
+
+function getSortedVersions(p: Program, t: Type): Version[] | undefined {
+  const [namespace, _] = getVersions(p, t);
+  if (namespace === undefined) return undefined;
+
+  const allVersions = getVersion(p, namespace)?.getVersions();
+  return allVersions?.sort((a, b) => a.index - b.index);
+}
+
+function getFirst(arr: Version[]): Version | undefined {
+  if (!arr.length) return undefined;
+  if (arr.length > 1) {
+    // TODO: Error?
+  }
+  return arr[0];
+}
+
+export enum Availability {
+  Unavailable = "Unavailable",
+  Added = "Added",
+  Available = "Available",
+  Removed = "Removed",
+}
+
+/**
+ * Returns a map of version names and whether a given type is available in that version
+ * @param program Cadl program
+ * @param type Type to get the availability map for
+ * @returns the availability map for the type, if applicable
+ */
+export function getAvailabilityMap(
+  program: Program,
+  type: Type
+): Map<string, Availability> | undefined {
+  const avail = new Map<string, Availability>();
+
+  const allVersions = getSortedVersions(program, type);
+  // if unversioned then everything exists
+  if (allVersions === undefined) return undefined;
+
+  let added = program.stateMap(addedOnKey).get(type) as Version[];
+  const removed = (program.stateMap(removedOnKey).get(type) as Version[]) ?? [];
+  if (added === undefined && removed.length === 0) return undefined;
+  if (added === undefined) {
+    added = [allVersions[0]];
+  }
+
+  // something isn't available by default
+  let isAvail = false;
+  for (const ver of allVersions) {
+    const add = getFirst(added.filter((x) => x.index === ver.index));
+    const rem = getFirst(removed.filter((x) => x.index === ver.index));
+    if (add && rem) {
+      throw Error(`type cannot be added and removed on the same version ${ver.name}`);
+    }
+    if (add) {
+      isAvail = true;
+      avail.set(ver.name, Availability.Added);
+    } else if (rem) {
+      isAvail = false;
+      avail.set(ver.name, Availability.Removed);
+    } else if (isAvail) {
+      avail.set(ver.name, Availability.Available);
+    } else {
+      avail.set(ver.name, Availability.Unavailable);
+    }
+  }
+  return avail;
+}
+
+export function existsOnVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
+  const version = toVersion(p, type, versionKey);
+  // if unversioned then everything exists
+  if (version === undefined) return true;
+
+  const availability = getAvailabilityMap(p, type);
+  if (!availability) return true;
+
+  const isAvail = availability.get(version.name)!;
+  return [Availability.Added, Availability.Available].includes(isAvail);
 }
 
 export function renamedAfter(p: Program, type: Type, version: ObjectType) {
@@ -586,6 +688,7 @@ function appliesAtVersion(
   if (appliedOnVersion === undefined) {
     return null;
   }
+
   const appliedOnVersionIndex = appliedOnVersion.index;
   if (appliedOnVersionIndex === -1) return null;
 
