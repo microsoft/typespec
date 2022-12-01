@@ -100,7 +100,7 @@ describe("compiler: config interpolation", () => {
 
       expectDiagnostics(diagnostics, {
         code: "config-circular-variable",
-        message: `Variable "three" recursively references itself.`,
+        message: `There is a circular reference to variable "three" in the cli configuration or arguments.`,
       });
     });
   });
