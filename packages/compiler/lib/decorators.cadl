@@ -93,19 +93,25 @@ extern dec service(target: unknown, options?: ServiceOptions);
 extern dec error(target: object);
 
 /**
- * Specify the data format hint for a string type.
+ * Specify a known data format hint for a string type. For example `uuid`, `uri`, etc.
+ * This differ from the @pattern decorator that is meant to specify a regular expression while @format takes in a known format name.
+ * The format names are open ended and are left to emitter to interpret.
+ *
  * @param format format name.
  *
  * @example
  * ```cadl
  * @format("uuid")
- * scalar Uuid extends string;
+ * scalar uuid extends string;
  * ```
  */
 extern dec format(target: string | bytes | ModelProperty, format: string);
 
 /**
- * Specify the the pattern for a string using simple regular expression syntax. The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses. Advanced features like look-arounds, capture groups, and references are not supported.
+ * Specify the the pattern for a string using simple regular expression syntax.
+ * The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
+ * Advanced features like look-around, capture groups, and references are not supported.
+ *
  * @param pattern Regular expression.
  *
  * @example
