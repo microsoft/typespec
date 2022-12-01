@@ -6,7 +6,7 @@ describe("compiler: models", () => {
 
   beforeEach(async () => {
     const host = await createTestHost();
-    runner = createTestWrapper(host, (code) => code);
+    runner = createTestWrapper(host);
   });
 
   it("declare simple scalar", async () => {

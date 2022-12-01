@@ -713,6 +713,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitParameter(parameter: HttpOperationParameter, visibility: Visibility) {
+    if (isNeverType(parameter.param.type)) {
+      return;
+    }
     const ph = getParamPlaceholder(parameter.param);
     currentEndpoint.parameters.push(ph);
 

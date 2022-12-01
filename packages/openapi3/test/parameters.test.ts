@@ -130,6 +130,17 @@ describe("openapi3: parameters", () => {
     ]);
   });
 
+  it("omit parameters with type never", async () => {
+    const res = await openApiFor(
+      `
+      op test(@query select: never, @query top: int32): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters.length, 1);
+    strictEqual(res.paths["/"].get.parameters[0].in, "query");
+    strictEqual(res.paths["/"].get.parameters[0].name, "top");
+  });
+
   describe("content type parameter", () => {
     it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
       const res = await openApiFor(

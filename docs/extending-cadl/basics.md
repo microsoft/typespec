@@ -159,3 +159,115 @@ model Employee extends Person {
 ## Next steps
 
 Cadl libraries can contain more than just types. Read the subsequent topics for more details on how to write [decorators](./create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
+
+## Testing
+
+Cadl provides a testing framework to help testing libraries. Examples here are shown using `mocha` but any other JS test framework can be used.
+
+### Define the testing library
+
+First step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library test.
+
+1. Create a new file `./src/testing/index.ts` with the following content
+
+```ts
+export const MyTestLibrary = createTestLibrary({
+  name: "<name-of-npm-pkg>",
+  // Set this to the absolute path to the root of the package. (e.g. in this case this file would be compiled to ./dist/src/testing/index.js)
+  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+});
+```
+
+2. Add an `exports` for the `testing` endpoint to `package.json` (update with correct paths)
+
+```json
+{
+  // ...
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./dist/src/index.d.ts"],
+      "testing": ["./dist/src/testing/index.d.ts"]
+    }
+  }
+}
+```
+
+### Define the test host and test runner for your library
+
+Define some of the test framework base pieces that will be used in the tests. There is 2 functions:
+
+- `createTestHost`: This is a lower level api that provide a virtual file system.
+- `createTestRunner`: This is a wrapper on top of the test host that will automatically add a `main.cadl` file and automatically import libraries.
+
+Create a new file `test/test-host.js` (change `test` to be your test folder)
+
+```ts
+import { createTestHost, createTestWrapper } from "@cadl-lang/compiler/testing";
+import { RestTestLibrary } from "@cadl-lang/rest/testing";
+import { MyTestLibrary } from "../src/testing/index.js";
+
+export async function createMyTestHost() {
+  return createTestHost({
+    libraries: [RestTestLibrary, MyTestLibrary], // Add other libraries you depend on in your tests
+  });
+}
+export async function createMyTestRunner() {
+  const host = await createOpenAPITestHost();
+  return createTestWrapper(host, { autoUsings: ["My"] });
+}
+```
+
+### Write tests
+
+After setting up that infrastructure you can start writing tests.
+
+```ts
+import { createMyTestRunner } from "./test-host.js";
+
+describe("my library", () => {
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    runner = await createMyTestRunner();
+  });
+
+  // Check everything works fine
+  it("does this", () => {
+    const { Foo } = runner.compile(`
+      @test model Foo {}
+    `);
+    strictEqual(Foo.kind, "Model");
+  });
+
+  // Check diagnostics are emitted
+  it("errors", () => {
+    const diagnostics = runner.diagnose(`
+       model Bar {}
+    `);
+    expectDiagnostics(diagnostics, { code: "...", message: "..." });
+  });
+});
+```
+
+#### `@test` decorator
+
+The `@test` decorator is a decorator loaded in the test environment. It can be used to collect any decorable type.
+When using the `compile` method it will return a `Record<string, Type>` which is a map of all the types annoted with the `@test` decorator.
+
+```ts
+const { Foo, CustomName } = runner.compile(`
+  @test model Foo {}
+
+  model Bar {
+    @test("CustomName") name: string
+  }
+`);
+
+Foo; // type of: model Foo {}
+CustomName; // type of : Bar.name
+```
