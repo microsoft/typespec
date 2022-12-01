@@ -55,7 +55,7 @@ model ServiceOptions {
 }
 
 /**
- * Mark a namespace as service namespace and configure service properties.
+ * Mark a namespace as describing a service and configure service properties.
  * @param options Optional configuration for the service.
  *
  * @example
