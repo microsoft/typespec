@@ -25,8 +25,8 @@ Built in types are related to each other according to the rules described in [ty
 | `uint32`  | `0` to `4,294,967,295`                                             | Unsigned 32-bit integer                   |
 | `uint16`  | `0` to `65,535`                                                    | Unsigned 16-bit integer                   |
 | `uint8`   | `0` to `255 `                                                      | Unsigned 8-bit integer                    |
-| `float32` | `±1.5 x 10−45` to `±3.4 x 1038`                                    | A 32 bit floating point number            |
-| `float64` | `±5.0 × 10−324` to `±1.7 × 10308`                                  | A 64 bit floating point number            |
+| `float32` | `±1.5 x 10^−45` to `±3.4 x 10^38`                                  | A 32 bit floating point number            |
+| `float64` | `±5.0 × 10^−324` to `±1.7 × 10^308`                                | A 64 bit floating point number            |
 
 ## Date and time types
 
