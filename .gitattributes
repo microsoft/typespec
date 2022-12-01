@@ -1,10 +1,11 @@
 # Don't allow people to merge changes to these generated files, because the result
 # may be invalid. You need to run "rush update" again. Also make GitHub collapse
 # the diff by default for generated files.
-pnpm-lock.yaml               merge=binary linguist-generated=true
-shrinkwrap.yaml              merge=binary linguist-generated=true
-npm-shrinkwrap.json          merge=binary linguist-generated=true
-yarn.lock                    merge=binary linguist-generated=true
+pnpm-lock.yaml                     merge=binary linguist-generated=true
+shrinkwrap.yaml                    merge=binary linguist-generated=true
+npm-shrinkwrap.json                merge=binary linguist-generated=true
+yarn.lock                          merge=binary linguist-generated=true
+common/config/rush/repo-state.json merge=binary linguist-generated=true
 
 # docs/spec.html is also generated and not worth resolving line by line or
 # reviewing or having its diff uncollpased on GitHub. On conflict, pick either
