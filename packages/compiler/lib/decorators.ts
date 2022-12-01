@@ -176,6 +176,7 @@ const errorKey = createStateSymbol("error");
  * `@error` can only be specified on a model.
  */
 export function $error(context: DecoratorContext, entity: Model) {
+  validateDecoratorUniqueOnNode(context, entity, $error);
   context.program.stateSet(errorKey).add(entity);
 }
 
@@ -201,6 +202,8 @@ const formatValuesKey = createStateSymbol("formatValues");
  * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
  */
 export function $format(context: DecoratorContext, target: Scalar | ModelProperty, format: string) {
+  validateDecoratorUniqueOnNode(context, target, $format);
+
   if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
     return;
   }
@@ -221,6 +224,8 @@ export function $pattern(
   target: Scalar | ModelProperty,
   pattern: string
 ) {
+  validateDecoratorUniqueOnNode(context, target, $pattern);
+
   if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", "string")) {
     return;
   }
@@ -241,6 +246,8 @@ export function $minLength(
   target: Scalar | ModelProperty,
   minLength: number
 ) {
+  validateDecoratorUniqueOnNode(context, target, $minLength);
+
   if (
     !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string") ||
     !validateRange(context, minLength, getMaxLength(context.program, target))
@@ -264,6 +271,8 @@ export function $maxLength(
   target: Scalar | ModelProperty,
   maxLength: number
 ) {
+  validateDecoratorUniqueOnNode(context, target, $maxLength);
+
   if (
     !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string") ||
     !validateRange(context, getMinLength(context.program, target), maxLength)
@@ -287,6 +296,8 @@ export function $minItems(
   target: Model | ModelProperty,
   minItems: number
 ) {
+  validateDecoratorUniqueOnNode(context, target, $minItems);
+
   if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
@@ -318,6 +329,8 @@ export function $maxItems(
   target: Model | ModelProperty,
   maxItems: number
 ) {
+  validateDecoratorUniqueOnNode(context, target, $maxItems);
+
   if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
@@ -348,6 +361,8 @@ export function $minValue(
   target: Scalar | ModelProperty,
   minValue: number
 ) {
+  validateDecoratorUniqueOnNode(context, target, $minValue);
+
   const { program } = context;
 
   if (!isNumericType(program, getPropertyType(target))) {
@@ -380,6 +395,8 @@ export function $maxValue(
   target: Scalar | ModelProperty,
   maxValue: number
 ) {
+  validateDecoratorUniqueOnNode(context, target, $maxValue);
+
   const { program } = context;
   if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
@@ -412,6 +429,8 @@ const secretTypesKey = createStateSymbol("secretTypes");
  * @param target Decorator target, either a string model or a property with type string.
  */
 export function $secret(context: DecoratorContext, target: Scalar | ModelProperty) {
+  validateDecoratorUniqueOnNode(context, target, $secret);
+
   if (!validateDecoratorTargetIntrinsic(context, target, "@secret", "string")) {
     return;
   }
@@ -431,6 +450,8 @@ export function $visibility(
   target: ModelProperty,
   ...visibilities: string[]
 ) {
+  validateDecoratorUniqueOnNode(context, target, $visibility);
+
   context.program.stateMap(visibilitySettingsKey).set(target, visibilities);
 }
 
