@@ -5,7 +5,9 @@
 Cadl is a language for describing cloud service APIs and generating other API
 description languages, client and service code, documentation, and other assets.
 Cadl provides highly extensible core language primitives that can describe API
-shapes common among REST, GraphQL, gRPC, and other protocols.
+shapes common among REST, OpenAPI, GraphQL, gRPC, and other protocols.
+
+Using Cadl, you can create reusable patterns for all aspects of an API, along with the ability to check for and flag known anti-patterns. These patterns establish "guardrails" for API designers and make it easier to follow best practices than deviate from them. Cadl promotes highly regular API designs that adhere to best practices by construction.
 
 You can try a work-in-progress build of the compiler by following the steps in
 the Getting Started section below. Please feel free to [file
@@ -60,36 +62,24 @@ If you do not wish to install the compiler globally with `-g` flag, you will nee
 
 ### Creating Cadl project
 
-1. Create a folder for your new Cadl project and install libraries in local folder:
+1. Create a folder for your new Cadl project
 
-```bash
-   npm install @cadl-lang/rest @cadl-lang/openapi3
-```
+2. Initialize a Cadl project.
 
-2. Initialize a Cadl project. Run `cadl init` > Select openapi3 library template. This will create a `package.json` file for your Cadl project and add the necessary Cadl dependencies to it.
+   - Run `cadl init` > Select `Generic Rest API` template with `@cadl-lang/rest` and `@cadl-lang/openapi3` libraries checked.
+   - Run `cadl install` to install node package dependencies.
 
-3. Open the folder in your editor and create a new file `main.cadl`
+3. Open the folder in your editor and edit `main.cadl`
 
 4. Follow our [documentation](https://microsoft.github.io/cadl) to get started writing Cadl!
 
 5. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
 
    ```bash
-   cadl compile . --emit @cadl-lang/openapi3
+   cadl compile .
    ```
 
    This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
-
-6. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter.
-
-Create a `cadl-project.yaml` file next to the `package.json` with this content:
-
-```yaml
-emitters:
-  "@cadl-lang/openapi3": true
-```
-
-After you should be able to just run `cadl compile .`
 
 ## Troubleshooting
 
