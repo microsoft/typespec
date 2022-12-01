@@ -240,7 +240,7 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   baseModel?: Model;
 
   /**
-   * Direct children. This is the reverse relation of @see baseModel
+   * Direct children. This is the reverse relation of {@link baseModel}
    */
   derivedModels: Model[];
 
