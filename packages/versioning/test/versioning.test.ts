@@ -26,10 +26,7 @@ describe("compiler: versioning", () => {
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `import "@cadl-lang/versioning";using Cadl.Versioning;\n${code}`
-    );
+    runner = createTestWrapper(host, { autoUsings: ["Cadl.Versioning"] });
   });
 
   describe("version compare", () => {
