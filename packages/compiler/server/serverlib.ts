@@ -650,7 +650,9 @@ export function createServer(host: ServerHost): Server {
    * @param program The program
    */
   function getTypeDetails(program: Program, type: Type): string {
-    // TODO: Should not use only resolved type here so we can show alias docs and definitions.
+    // BUG: https://github.com/microsoft/cadl/issues/1348
+    // We've already resolved to a Type and lost the alias node so we don't show doc comments on aliases or alias signatures, currently.
+
     if (type.kind === "Intrinsic") {
       return "";
     }
