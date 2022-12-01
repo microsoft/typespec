@@ -25,9 +25,10 @@ describe("compiler: checker: decorators", () => {
         $testDec,
       };
       testHost.addJsFile("test.js", testJs);
-      runner = createTestWrapper(testHost, (code) =>
-        [`import "./test.js";`, "using Cadl.Reflection;", code].join("\n")
-      );
+      runner = createTestWrapper(testHost, {
+        autoImports: ["./test.js"],
+        autoUsings: ["Cadl.Reflection"],
+      });
     });
 
     it("bind implementation to declaration", async () => {
@@ -106,9 +107,10 @@ describe("compiler: checker: decorators", () => {
       testHost.addJsFile("test.js", {
         $testDec: (...args: any[]) => (calledArgs = args),
       });
-      runner = createTestWrapper(testHost, (code) =>
-        [`import "./test.js";`, "using Cadl.Reflection;", code].join("\n")
-      );
+      runner = createTestWrapper(testHost, {
+        autoImports: ["./test.js"],
+        autoUsings: ["Cadl.Reflection"],
+      });
     });
 
     function expectDecoratorCalledWith(target: unknown, ...args: unknown[]) {

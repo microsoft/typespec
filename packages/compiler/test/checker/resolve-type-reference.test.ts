@@ -10,7 +10,7 @@ import {
 describe("compiler: resolveTypeReference", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost(), (x) => x);
+    runner = createTestWrapper(await createTestHost());
   });
 
   async function expectResolve(reference: string, code: string) {
