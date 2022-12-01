@@ -324,8 +324,6 @@ interface VersionProjections {
   projections: ProjectionApplication[];
 }
 
-const versionIndex = new Map<ObjectType, Map<Namespace, Version>>();
-
 /**
  * @internal
  */
@@ -334,17 +332,21 @@ export function indexVersions(program: Program, versions: Map<Namespace, Version
     kind: "Object",
     properties: {},
   } as any);
-  versionIndex.set(versionKey, versions);
+  program.stateMap(key).set(versionKey, versions);
   return versionKey;
 }
 
-function getVersionForNamespace(versionKey: ObjectType, namespaceType: Namespace) {
-  return versionIndex.get(versionKey)?.get(namespaceType);
+function getVersionForNamespace(
+  program: Program,
+  versionKey: ObjectType,
+  namespaceType: Namespace
+) {
+  return program.stateMap(key).get(versionKey)?.get(namespaceType);
 }
 
+const key = createStateSymbol("version-index");
 export function buildVersionProjections(program: Program, rootNs: Namespace): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
-  versionIndex.clear();
   return resolutions.map((resolution) => {
     if (resolution.versions.size === 0) {
       return { version: undefined, projections: [] };
@@ -474,6 +476,7 @@ function appliesAtVersion(
     return null;
   }
   const version = getVersionForNamespace(
+    p,
     versionKey,
     (namespace.projectionBase as Namespace) ?? namespace
   );
