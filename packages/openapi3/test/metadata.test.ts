@@ -16,7 +16,13 @@ describe("openapi3: metadata", () => {
       @patch op update(...Widget): void;
   `);
 
-    console.log(JSON.stringify(res, undefined, 2));
+    const requestSchema = res.paths["/"].patch.requestBody.content["application/json"].schema;
+    deepStrictEqual(requestSchema, { $ref: "#/components/schemas/WidgetUpdate" });
+
+    deepStrictEqual(res.components.schemas.Widget.required, ["name", "specs"]);
+    deepStrictEqual(res.components.schemas.WidgetUpdate.required, undefined);
+    deepStrictEqual(res.components.schemas.WidgetSpecs.required, ["color", "weight"]);
+    deepStrictEqual(res.components.schemas.WidgetSpecsUpdate.required, undefined);
   });
 
   it("can share readonly properties", async () => {

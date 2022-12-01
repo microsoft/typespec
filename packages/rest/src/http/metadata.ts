@@ -302,8 +302,8 @@ export interface MetadataInfo {
   isPayloadProperty(property: ModelProperty, visibility: Visibility): boolean;
 
   /**
-   * Determines if the given property is  optional in the request or
-   * response payload for the given visibility. T
+   * Determines if the given property is optional in the request or
+   * response payload for the given visibility.
    */
   isOptional(property: ModelProperty, visibility: Visibility): boolean;
 
@@ -444,7 +444,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   }
 
   function isOptional(property: ModelProperty, visibility: Visibility): boolean {
-    // TODO: === Visibility.Update isn't quite right here. It should be that Visibility.Update is present, but Visibility.Update is present in Visiblity.All which breaks things.
+    // TODO: === Visibility.Update isn't quite right here. It should be that Visibility.Update is present, but Visibility.Update is present in Visibility.All which breaks things.
     return property.optional || visibility === Visibility.Update;
   }
 

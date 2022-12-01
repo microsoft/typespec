@@ -94,6 +94,31 @@
             }
           }
         }
+      },
+      "patch": {
+        "operationId": "Hello_updateRest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadablePerson"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonUpdate"
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -152,6 +177,17 @@
             "type": "string"
           },
           "test": {
+            "type": "string"
+          }
+        }
+      },
+      "PersonUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "other": {
             "type": "string"
           }
         }

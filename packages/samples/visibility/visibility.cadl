@@ -15,7 +15,7 @@ model Person {
   @visibility("read", "create")
   test: string;
 
-  @visibility("other", "read")
+  @visibility("other", "read", "update")
   other: string;
 }
 
@@ -50,4 +50,8 @@ namespace Hello {
   @get op read(@path id: string, @query fieldMask: string[]): ReadablePerson;
   @post op create(@body person: WritablePerson): ReadablePerson;
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
+
+  @Cadl.Rest.updatesResource(Person)
+  @put
+  op updateRest(@body person: Person): ReadablePerson;
 }
