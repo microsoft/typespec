@@ -11,7 +11,7 @@ projection op#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else if renamedAfter(self, version) {
-      self::rename(getRenamedFromOldName(self));
+      self::rename(getRenamedFromOldName(self, version));
     };
   }
   from(version) {
@@ -34,7 +34,7 @@ projection interface#v {
       return never;
     } else {
       if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+        self::rename(getRenamedFromOldName(self, version));
       };
 
       self::operations::forEach((operation) => {
@@ -76,7 +76,7 @@ projection union#v {
       return never;
     } else {
       if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+        self::rename(getRenamedFromOldName(self, version));
       };
 
       self::variants::forEach((variant) => {
@@ -85,7 +85,7 @@ projection union#v {
         } else if removedOnOrBefore(variant, version) {
           self::deleteVariant(variant::name);
         } else if renamedAfter(variant, version) {
-          self::renameVariant(variant::name, getRenamedFromOldName(variant));
+          self::renameVariant(variant::name, getRenamedFromOldName(variant, version));
         };
       });
     };
@@ -106,7 +106,7 @@ projection union#v {
         } else if removedOnOrBefore(variant, version) {
           self::addVariant(variant::name, variant::type);
         } else if renamedAfter(variant, version) {
-          self::renameVariant(getRenamedFromOldName(variant), variant::name);
+          self::renameVariant(getRenamedFromOldName(variant, version), variant::name);
         };
       });
     };
@@ -122,7 +122,7 @@ projection model#v {
       return never;
     } else {
       if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+        self::rename(getRenamedFromOldName(self, version));
       };
 
       self::properties::forEach((p) => {
@@ -135,7 +135,7 @@ projection model#v {
         };
 
         if renamedAfter(p, version) {
-          self::renameProperty(p::name, getRenamedFromOldName(p));
+          self::renameProperty(p::name, getRenamedFromOldName(p, version));
         };
 
         if madeOptionalAfter(p, version) {
@@ -164,7 +164,7 @@ projection model#v {
         };
 
         if renamedAfter(p, version) {
-          self::renameProperty(getRenamedFromOldName(p), p::name);
+          self::renameProperty(getRenamedFromOldName(p, version), p::name);
         };
 
         if madeOptionalAfter(p, version) {
@@ -184,7 +184,7 @@ projection enum#v {
       return never;
     } else {
       if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+        self::rename(getRenamedFromOldName(self, version));
       };
 
       self::members::forEach((m) => {
@@ -197,7 +197,7 @@ projection enum#v {
         };
 
         if renamedAfter(m, version) {
-          self::renameMember(m::name, getRenamedFromOldName(m));
+          self::renameMember(m::name, getRenamedFromOldName(m, version));
         };
       });
     };
@@ -222,7 +222,7 @@ projection enum#v {
         };
 
         if renamedAfter(m, version, self::projectionBase) {
-          self::renameMember(getRenamedFromOldName(m), m::name);
+          self::renameMember(getRenamedFromOldName(m, version), m::name);
         };
       });
     };
