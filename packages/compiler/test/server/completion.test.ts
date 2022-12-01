@@ -671,7 +671,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec N.example(value: Cadl.string)\n```\nJust an example\n_@param_ `value` — The value.",
+            "```cadl\ndec N.example(value: Cadl.string)\n```\n\nJust an example\n\n_@param_ `value` —\nThe value.",
         },
       },
     ]);

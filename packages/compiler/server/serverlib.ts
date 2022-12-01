@@ -702,15 +702,15 @@ export function createServer(host: ServerHost): Server {
   }
 
   function getDocContent(content: readonly DocContent[]) {
-    let str = "";
+    const docs = [];
     for (const node of content) {
       compilerAssert(
         node.kind === SyntaxKind.DocText,
         "No other doc content node kinds exist yet. Update this code appropriately when more are added."
       );
-      str += node.text + "\n";
+      docs.push(node.text);
     }
-    return str.trim();
+    return docs.join("");
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
