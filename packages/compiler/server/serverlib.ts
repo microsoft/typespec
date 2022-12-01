@@ -649,27 +649,40 @@ export function createServer(host: ServerHost): Server {
    * Get the detailed documentation of a type.
    * @param program The program
    */
-  function getTypeDetails(program: Program, type: Type): string {
+  function getTypeDetails(
+    program: Program,
+    type: Type,
+    options = {
+      includeSignature: true,
+      includeParameterTags: true,
+    }
+  ): string {
     // BUG: https://github.com/microsoft/cadl/issues/1348
     // We've already resolved to a Type and lost the alias node so we don't show doc comments on aliases or alias signatures, currently.
 
     if (type.kind === "Intrinsic") {
       return "";
     }
-    const lines = [getTypeSignature(type)];
+    const lines = [];
+    if (options.includeSignature) {
+      lines.push(getTypeSignature(type));
+    }
     const doc = getTypeDocumentation(program, type);
     if (doc) {
       lines.push(doc);
     }
     for (const doc of type?.node?.docs ?? []) {
       for (const tag of doc.tags) {
+        if (tag.tagName.sv === "param" && !options.includeParameterTags) {
+          continue;
+        }
         lines.push(
           //prettier-ignore
-          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} — ${getDocContent(tag.content)}`
+          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`
         );
       }
     }
-    return lines.join("\n");
+    return lines.join("\n\n");
   }
 
   function getTypeDocumentation(program: Program, type: Type) {
@@ -785,7 +798,10 @@ export function createServer(host: ServerHost): Server {
         activeParameter: 0,
       };
 
-      const doc = getTypeDocumentation(program, type);
+      const doc = getTypeDetails(program, type, {
+        includeSignature: false,
+        includeParameterTags: false,
+      });
       if (doc) {
         help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
       }
