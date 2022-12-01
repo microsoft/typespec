@@ -55,7 +55,7 @@ model ServiceOptions {
 }
 
 /**
- * Mark a namespace as service namespace and configure service properties.
+ * Mark a namespace as describing a service and configure service properties.
  * @param options Optional configuration for the service.
  *
  * @example
@@ -79,7 +79,7 @@ model ServiceOptions {
 extern dec service(target: unknown, options?: ServiceOptions);
 
 /**
- * Specify that this model is an error type.
+ * Specify that this model is an error type. Operations return error types when the operation has failed.
  *
  * @example
  * ```cadl
@@ -105,7 +105,7 @@ extern dec error(target: object);
 extern dec format(target: string | bytes | ModelProperty, format: string);
 
 /**
- * Specify the the pattern for a string using regular expression syntax.
+ * Specify the the pattern for a string using simple regular expression syntax. The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses. Advanced features like look-arounds, capture groups, and references are not supported.
  * @param pattern Regular expression.
  *
  * @example
