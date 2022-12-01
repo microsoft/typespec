@@ -653,28 +653,38 @@ describe("compiler: server: completion", () => {
       `
       namespace N {
         /**
-         * Just an example
-         * 
+         * Just an example.
+         *
          * @param value The value.
+         *
+         * @example
+         * \`\`\`cadl
+         * @hello
+         * model M {}
+         * \`\`\`
          */
-        extern dec example(value: string);
+        extern dec hello(value: string);
       }
       @N.┆
       `
     );
 
-    check(completions, [
-      {
-        label: "example",
-        insertText: "example",
-        kind: CompletionItemKind.Function,
-        documentation: {
-          kind: MarkupKind.Markdown,
-          value:
-            "```cadl\ndec N.example(value: Cadl.string)\n```\n\nJust an example\n\n_@param_ `value` —\nThe value.",
+    check(
+      completions,
+      [
+        {
+          label: "hello",
+          insertText: "hello",
+          kind: CompletionItemKind.Function,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value:
+              "```cadl\ndec N.hello(value: Cadl.string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```cadl\n@hello\nmodel M {}\n```",
+          },
         },
-      },
-    ]);
+      ],
+      { fullDocs: true }
+    );
   });
 
   it("completes deprecated type", async () => {
@@ -703,8 +713,17 @@ describe("compiler: server: completion", () => {
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],
-    options = { allowAdditionalCompletions: true }
+    options?: {
+      allowAdditionalCompletions?: boolean;
+      fullDocs?: boolean;
+    }
   ) {
+    options = {
+      allowAdditionalCompletions: true,
+      fullDocs: false,
+      ...options,
+    };
+
     ok(!list.isIncomplete, "list should not be incomplete.");
 
     const expectedMap = new Map(expectedItems.map((i) => [i.label, i]));
@@ -719,6 +738,15 @@ describe("compiler: server: completion", () => {
 
     for (const expected of expectedItems) {
       const actual = actualMap.get(expected.label);
+      if (!options.fullDocs && typeof actual?.documentation === "object") {
+        actual.documentation = {
+          kind: MarkupKind.Markdown,
+          value: actual.documentation.value.substring(
+            0,
+            actual.documentation.value.indexOf("\n\n")
+          ),
+        };
+      }
       ok(actual, `Expected completion item not found: '${expected.label}'.`);
       deepStrictEqual(actual, expected);
       actualMap.delete(actual.label);
