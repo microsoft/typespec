@@ -109,6 +109,7 @@ function resolveCliOptions(
         options.miscOptions = {};
       }
       options.miscOptions[key] = optionParts[1];
+      continue;
     } else if (optionKeyParts.length > 2) {
       throw new Error(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
