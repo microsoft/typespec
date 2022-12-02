@@ -738,7 +738,14 @@ describe("compiler: server: completion", () => {
 
     for (const expected of expectedItems) {
       const actual = actualMap.get(expected.label);
-      if (!options.fullDocs && typeof actual?.documentation === "object") {
+
+      // Unless given the fullDocs option, tests only give their expectation for the first
+      // markdown paragraph.
+      if (
+        !options.fullDocs &&
+        typeof actual?.documentation === "object" &&
+        actual.documentation.value.indexOf("\n\n") > 0
+      ) {
         actual.documentation = {
           kind: MarkupKind.Markdown,
           value: actual.documentation.value.substring(
@@ -747,6 +754,7 @@ describe("compiler: server: completion", () => {
           ),
         };
       }
+
       ok(actual, `Expected completion item not found: '${expected.label}'.`);
       deepStrictEqual(actual, expected);
       actualMap.delete(actual.label);
