@@ -34,7 +34,7 @@ extern dec extension(target: unknown, key: string, value: unknown);
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
- * This differ from the compiler built-in `@error` decorator as this is not necessarily representing an error.
+ * This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
  *
  * @example
  *
