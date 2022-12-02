@@ -82,8 +82,6 @@ const libDefinition = {
     "duplicate-route-decorator": {
       severity: "error",
       messages: {
-        operation: "@route was defined twice on this operation.",
-        interface: "@route was defined twice on this interface.",
         namespace: "@route was defined twice on this namespace and has different values.",
       },
     },
