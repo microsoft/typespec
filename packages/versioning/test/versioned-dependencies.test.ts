@@ -7,17 +7,16 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { buildVersionProjections } from "../src/versioning.js";
-import { createVersioningTestHost } from "./test-host.js";
+import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 import { assertHasProperties } from "./utils.js";
 
-describe("compiler: versioning: reference versioned library", () => {
+describe("versioning: reference versioned library", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
       import "@cadl-lang/versioning";
 
       using Cadl.Versioning;
@@ -30,8 +29,8 @@ describe("compiler: versioning: reference versioned library", () => {
           @added(Versions.l2) age: int32;
         }
       }
-      ${code}`
-    );
+      ${code}`,
+    });
   });
 
   function assertFooV1(foo: Model) {
@@ -258,18 +257,11 @@ describe("compiler: versioning: reference versioned library", () => {
   });
 });
 
-describe("compiler: versioning: dependencies", () => {
+describe("versioning: dependencies", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `
-      import "@cadl-lang/versioning";
-      using Cadl.Versioning;
-      ${code}`
-    );
+    runner = await createVersioningTestRunner();
   });
 
   it("use model defined in non versioned library spreading properties", async () => {

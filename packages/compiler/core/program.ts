@@ -1,3 +1,4 @@
+import { EmitterOptions } from "../config/types.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
@@ -25,8 +26,8 @@ import {
   DiagnosticTarget,
   Directive,
   DirectiveExpressionNode,
+  EmitContext,
   EmitterFunc,
-  EmitterOptions,
   JsSourceFileNode,
   LiteralType,
   Namespace,
@@ -48,6 +49,7 @@ import {
   doIO,
   ExternalError,
   findProjectRoot,
+  isDefined,
   loadFile,
   mapEquals,
   mutate,
@@ -115,7 +117,8 @@ interface EmitterRef {
   emitFunction: EmitterFunc;
   main: string;
   metadata: LibraryMetadata;
-  options: EmitterOptions;
+  emitterOutputDir: string;
+  options: Record<string, unknown>;
 }
 
 class StateMap extends Map<undefined | Projector, Map<Type, unknown>> {}
@@ -596,7 +599,7 @@ export async function compile(
     }
   }
 
-  async function loadEmitters(mainFile: string, emitters: Record<string, Record<string, unknown>>) {
+  async function loadEmitters(mainFile: string, emitters: Record<string, EmitterOptions>) {
     for (const [emitterPackage, options] of Object.entries(emitters)) {
       await loadEmitter(mainFile, emitterPackage, options);
     }
@@ -605,7 +608,7 @@ export async function compile(
   async function loadEmitter(
     mainFile: string,
     emitterPackage: string,
-    options: Record<string, unknown>
+    emitterOptionsInput: EmitterOptions
   ) {
     const basedir = getDirectoryPath(mainFile);
     // attempt to resolve a node module with this name
@@ -630,6 +633,12 @@ export async function compile(
 
     const emitFunction = file.esmExports.$onEmit;
     const libDefinition: CadlLibrary<any> | undefined = file.esmExports.$lib;
+    const metadata = computeLibraryMetadata(module);
+
+    let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } = emitterOptionsInput;
+    if (emitterOutputDir === undefined) {
+      emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
+    }
     if (libDefinition?.requireImports) {
       for (const lib of libDefinition.requireImports) {
         requireImports.set(lib, libDefinition.name);
@@ -637,7 +646,10 @@ export async function compile(
     }
     if (emitFunction !== undefined) {
       if (libDefinition?.emitter?.options) {
-        const diagnostics = libDefinition?.emitterOptionValidator?.validate(options, NoTarget);
+        const diagnostics = libDefinition?.emitterOptionValidator?.validate(
+          emitterOptions,
+          NoTarget
+        );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
           return;
@@ -646,8 +658,9 @@ export async function compile(
       emitters.push({
         main: entrypoint,
         emitFunction,
-        metadata: computeLibraryMetadata(module),
-        options,
+        metadata,
+        emitterOutputDir,
+        options: emitterOptions,
       });
     } else {
       program.reportDiagnostic(
@@ -683,8 +696,13 @@ export async function compile(
    * @param emitter Emitter ref to run
    */
   async function runEmitter(emitter: EmitterRef) {
+    const context: EmitContext<any> = {
+      program,
+      emitterOutputDir: emitter.emitterOutputDir,
+      options: emitter.options,
+    };
     try {
-      await emitter.emitFunction(program, emitter.options);
+      await emitter.emitFunction(context);
     } catch (error: any) {
       const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
       if (emitter.metadata.bugs?.url) {
