@@ -114,7 +114,7 @@ describe("openapi3: versioning", () => {
     const runner = createTestWrapper(host, {
       autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
       autoUsings: ["Cadl.Rest", "Cadl.Http", "OpenAPI", "Cadl.Versioning"],
-      compilerOptions: { emitters: { "@cadl-lang/openapi3": {} } },
+      compilerOptions: { emit: ["@cadl-lang/openapi3"] },
     });
 
     await runner.compile(`

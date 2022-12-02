@@ -33,7 +33,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Checkout Pull Request
-        run: hub pr checkout ${{ github.event.issue.number }}
+        run: |
+          git config --global hub.protocol https
+          hub pr checkout ${{ github.event.issue.number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

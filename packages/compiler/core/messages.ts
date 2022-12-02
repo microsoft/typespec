@@ -447,6 +447,27 @@ const diagnostics = {
   },
 
   /**
+   * Configuration
+   */
+  "config-invalid-argument": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Argument "${"name"}" is not defined as a parameter in the config.`,
+    },
+  },
+  "config-circular-variable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`There is a circular reference to variable "${"name"}" in the cli configuration or arguments.`,
+    },
+  },
+  "config-path-absolute": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+    },
+  },
+  /**
    * Program
    */
   "dynamic-import": {
@@ -538,10 +559,16 @@ const diagnostics = {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
-  "emitter-not-found": {
+  "invalid-emitter": {
     severity: "error",
     messages: {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
     },
   },
   "missing-import": {
