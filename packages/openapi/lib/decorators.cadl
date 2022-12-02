@@ -51,7 +51,7 @@ extern dec defaultResponse(target: object);
  * Specify the OpenAPI `externalDocs` property for this type.
  *
  * @param url Url to the docs
- * @param description Description of the external doc
+ * @param description Description of the docs
  *
  * @example
  * ```cadl
