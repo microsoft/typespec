@@ -65,6 +65,17 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       nullable: true,
       items: { type: "string" },
     },
+    emit: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
+    options: {
+      type: "object",
+      nullable: true,
+      required: [],
+      additionalProperties: emitterOptionsSchema,
+    },
     emitters: {
       type: "object",
       nullable: true,

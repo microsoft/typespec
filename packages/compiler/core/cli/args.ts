@@ -1,6 +1,6 @@
 import { expandConfigVariables } from "../../config/config-interpolation.js";
 import { loadCadlConfigForPath, validateConfigPathsAbsolute } from "../../config/config-loader.js";
-import { CadlConfig } from "../../config/types.js";
+import { CadlConfig, EmitterOptions } from "../../config/types.js";
 import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
 import { resolvePath } from "../path-utils.js";
@@ -39,7 +39,7 @@ export async function getCompilerOptions(
     config.diagnostics.forEach((x) => diagnostics.add(x));
   }
 
-  const cliOptions = resolveOptions(args);
+  const cliOptions = resolveCliOptions(args);
 
   const configWithCliArgs: CadlConfig = {
     ...config,
@@ -47,7 +47,8 @@ export async function getCompilerOptions(
     imports: args["import"] ?? config["imports"],
     warnAsError: args["warn-as-error"] ?? config.warnAsError,
     trace: args.trace ?? config.trace,
-    emitters: resolveEmitters(config, cliOptions, args),
+    emit: args.emit ?? config.emit,
+    options: resolveEmitteroptions(config, cliOptions),
   };
   const cliOutputDir = pathArg ? resolvePath(cwd, pathArg) : undefined;
 
@@ -71,7 +72,8 @@ export async function getCompilerOptions(
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,
-    emitters: expandedConfig.emitters,
+    emit: expandedConfig.emit,
+    options: expandedConfig.options,
   });
   return diagnostics.wrap(options);
 }
@@ -89,7 +91,7 @@ function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
 
   return map;
 }
-function resolveOptions(
+function resolveCliOptions(
   args: CompileCliArgs
 ): Record<string | "miscOptions", Record<string, unknown>> {
   const options: Record<string, Record<string, string>> = {};
@@ -122,41 +124,20 @@ function resolveOptions(
   return options;
 }
 
-function resolveEmitters(
+function resolveEmitteroptions(
   config: CadlConfig,
-  options: Record<string | "miscOptions", Record<string, unknown>>,
-  args: CompileCliArgs
-): Record<string, Record<string, unknown>> {
-  const emitters = resolveSelectedEmittersFromConfig(config, args.emit);
-
+  cliOptions: Record<string | "miscOptions", Record<string, unknown>>
+): Record<string, EmitterOptions> {
   const configuredEmitters: Record<string, Record<string, unknown>> = {};
 
-  for (const [emitterName, emitterConfig] of Object.entries(emitters)) {
-    const cliOptionOverride = options[emitterName];
+  for (const [emitterName, emitterConfig] of Object.entries(config.options ?? {})) {
+    const cliOptionOverride = cliOptions[emitterName];
 
-    if (cliOptionOverride) {
-      configuredEmitters[emitterName] = {
-        ...emitterConfig,
-        ...cliOptionOverride,
-      };
-    } else {
-      configuredEmitters[emitterName] = emitterConfig;
-    }
+    configuredEmitters[emitterName] = {
+      ...emitterConfig,
+      ...(cliOptionOverride ?? {}),
+    };
   }
 
   return configuredEmitters;
-}
-
-function resolveSelectedEmittersFromConfig(
-  config: CadlConfig,
-  selectedEmitters: string[] | undefined
-): Record<string, Record<string, unknown>> {
-  if (selectedEmitters) {
-    const emitters: Record<string, Record<string, unknown>> = {};
-    for (const emitter of selectedEmitters) {
-      emitters[emitter] = config.emitters[emitter] ?? {};
-    }
-    return emitters;
-  }
-  return config.emitters;
 }

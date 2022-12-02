@@ -26,7 +26,7 @@ describe("compiler: config file loading", () => {
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/cadl-output",
-        emitters: { openapi: {} },
+        emit: ["openapi"],
       });
     });
 
@@ -36,7 +36,7 @@ describe("compiler: config file loading", () => {
         diagnostics: [],
         extends: "./cadl-base.yaml",
         outputDir: "{cwd}/cadl-output",
-        emitters: { openapi: {} },
+        emit: ["openapi"],
       });
     });
 
@@ -45,33 +45,26 @@ describe("compiler: config file loading", () => {
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/cadl-output",
-        emitters: {},
       });
     });
 
     it("deep clones defaults when not found", async () => {
       let config = await loadTestConfig("empty");
-      config.emitters["x"] = {};
-
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/cadl-output",
-        emitters: {},
       });
     });
 
     it("deep clones defaults when found", async () => {
       let config = await loadTestConfig("simple");
-      config.emitters["x"] = {};
 
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/cadl-output",
-        emitters: {
-          openapi: {},
-        },
+        emit: ["openapi"],
       });
     });
   });

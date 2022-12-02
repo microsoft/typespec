@@ -328,9 +328,15 @@ export async function compile(
     await loadMain(resolvedMain, options);
   }
 
-  if (resolvedMain && options.emitters) {
-    const emitters = computeEmitters(options.emitters);
-    await loadEmitters(resolvedMain, emitters);
+  if (resolvedMain) {
+    let emit = options.emit;
+    let emitterOptions = options.options;
+    if (options.emitters) {
+      emit ??= Object.keys(options.emitters);
+      emitterOptions ??= options.emitters;
+    }
+
+    await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
   }
 
   if (
@@ -599,43 +605,83 @@ export async function compile(
     }
   }
 
-  async function loadEmitters(mainFile: string, emitters: Record<string, EmitterOptions>) {
-    for (const [emitterPackage, options] of Object.entries(emitters)) {
-      await loadEmitter(mainFile, emitterPackage, options);
+  async function loadEmitters(
+    mainFile: string,
+    emitterNameOrPaths: string[],
+    emitterOptions: Record<string, EmitterOptions>
+  ) {
+    const emitterThatShouldExists = new Set(Object.keys(emitterOptions));
+    for (const emitterNameOrPath of emitterNameOrPaths) {
+      const emitter = await loadEmitter(mainFile, emitterNameOrPath, emitterOptions);
+      if (emitter) {
+        emitters.push(emitter);
+        emitterThatShouldExists.delete(emitter.metadata.name ?? emitterNameOrPath);
+      }
+    }
+
+    // This is the emitter names under options that haven't been used. We need to check if it points to an emitter that wasn't loaded
+    for (const emitterName of emitterThatShouldExists) {
+      // attempt to resolve a node module with this name
+      const module = await resolveEmitterModuleAndEntrypoint(emitterName, mainFile);
+      if (module?.entrypoint === undefined) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "emitter-not-found",
+            format: { emitterName },
+            target: NoTarget,
+          })
+        );
+      }
     }
   }
 
-  async function loadEmitter(
+  async function resolveEmitterModuleAndEntrypoint(
     mainFile: string,
-    emitterPackage: string,
-    emitterOptionsInput: EmitterOptions
-  ) {
+    emitterNameOrPath: string
+  ): Promise<
+    { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined
+  > {
     const basedir = getDirectoryPath(mainFile);
     // attempt to resolve a node module with this name
-    const module = await resolveJSLibrary(emitterPackage, basedir);
+    const module = await resolveJSLibrary(emitterNameOrPath, basedir);
     if (!module) {
-      return;
+      return undefined;
     }
 
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
     const file = await loadJsFile(entrypoint, NoTarget);
 
-    if (file === undefined) {
+    return { module, entrypoint: file };
+  }
+  async function loadEmitter(
+    mainFile: string,
+    emitterNameOrPath: string,
+    emittersOptions: Record<string, EmitterOptions>
+  ): Promise<EmitterRef | undefined> {
+    const resolution = await resolveEmitterModuleAndEntrypoint(mainFile, emitterNameOrPath);
+
+    if (resolution === undefined) {
+      return undefined;
+    }
+    const { module, entrypoint } = resolution;
+
+    if (entrypoint === undefined) {
       program.reportDiagnostic(
         createDiagnostic({
-          code: "emitter-not-found",
-          format: { emitterPackage },
+          code: "invalid-emitter",
+          format: { emitterPackage: emitterNameOrPath },
           target: NoTarget,
         })
       );
-      return;
+      return undefined;
     }
 
-    const emitFunction = file.esmExports.$onEmit;
-    const libDefinition: CadlLibrary<any> | undefined = file.esmExports.$lib;
+    const emitFunction = entrypoint.esmExports.$onEmit;
+    const libDefinition: CadlLibrary<any> | undefined = entrypoint.esmExports.$lib;
     const metadata = computeLibraryMetadata(module);
 
-    let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } = emitterOptionsInput;
+    let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
+      emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
     if (emitterOutputDir === undefined) {
       emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
     }
@@ -655,21 +701,22 @@ export async function compile(
           return;
         }
       }
-      emitters.push({
-        main: entrypoint,
+      return {
+        main: entrypoint.file.path,
         emitFunction,
         metadata,
         emitterOutputDir,
         options: emitterOptions,
-      });
+      };
     } else {
       program.reportDiagnostic(
         createDiagnostic({
-          code: "emitter-not-found",
-          format: { emitterPackage },
+          code: "invalid-emitter",
+          format: { emitterPackage: emitterNameOrPath },
           target: NoTarget,
         })
       );
+      return undefined;
     }
   }
 
@@ -1109,21 +1156,6 @@ export function createStateAccessors(
   }
 
   return { stateMap, stateSet };
-}
-
-function computeEmitters(
-  emitters: Record<string, Record<string, unknown> | boolean>
-): Record<string, Record<string, unknown>> {
-  const processedEmitters: Record<string, Record<string, unknown>> = {};
-
-  for (const [emitter, options] of Object.entries(emitters)) {
-    if (options === false) {
-      continue;
-    }
-    processedEmitters[emitter] = options === true ? {} : options;
-  }
-
-  return processedEmitters;
 }
 
 /**

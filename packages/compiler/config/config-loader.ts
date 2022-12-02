@@ -11,8 +11,7 @@ export const CadlConfigFilename = "cadl-project.yaml";
 
 export const defaultConfig = deepFreeze({
   outputDir: "{cwd}/cadl-output",
-  diagnostics: [],
-  emitters: {},
+  diagnostics: [] as Diagnostic[],
 });
 
 /**
@@ -109,18 +108,24 @@ async function loadConfigFile(
     // NOTE: Don't trust the data if there are errors and use default
     // config. Otherwise, we may return an object that does not conform to
     // CadlConfig's typing.
-    data = deepClone(defaultConfig);
+    data = deepClone(defaultConfig) as CadlRawConfig;
   }
 
-  let emitters: Record<string, Record<string, unknown>> | undefined = undefined;
+  let emit = data.emit;
+  let options = data.options;
+
+  // @deprecated Legacy backward compatibility of emitters option. To remove March Sprint.
   if (data.emitters) {
-    emitters = {};
-    for (const [name, options] of Object.entries(data.emitters)) {
-      if (options === true) {
-        emitters[name] = {};
-      } else if (options === false) {
+    emit = [];
+    options = {};
+    for (const [name, emitterOptions] of Object.entries(data.emitters)) {
+      if (emitterOptions === true) {
+        emit.push(name);
+        options[name] = {};
+      } else if (emitterOptions === false) {
       } else {
-        emitters[name] = options;
+        emit.push(name);
+        options[name] = emitterOptions;
       }
     }
   }
@@ -136,7 +141,8 @@ async function loadConfigFile(
     warnAsError: data["warn-as-error"],
     imports: data.imports,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
-    emitters: emitters!,
+    emit,
+    options,
   });
 }
 
@@ -154,7 +160,7 @@ export function validateConfigPathsAbsolute(config: CadlConfig): readonly Diagno
   }
 
   checkPath(config.outputDir);
-  for (const emitterOptions of Object.values(config.emitters)) {
+  for (const emitterOptions of Object.values(config.options ?? {})) {
     checkPath(emitterOptions["emitter-output-dir"]);
   }
   return diagnostics;

@@ -13,7 +13,8 @@ describe("openapi3: output file", () => {
 
     const diagnostics = await runner.diagnose(code, {
       noEmit: false,
-      emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+      emit: ["@cadl-lang/openapi3"],
+      options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
     });
 
     expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
@@ -58,7 +59,8 @@ describe("openapi3: types included", () => {
 
     const diagnostics = await runner.diagnose(code, {
       noEmit: false,
-      emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+      emit: ["@cadl-lang/openapi3"],
+      options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
     });
 
     expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));

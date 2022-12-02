@@ -416,7 +416,8 @@ export function createServer(host: ServerHost): Server {
 
     const options = {
       ...serverOptions,
-      emitters: config.emitters,
+      emit: config.emit,
+      options: config.options,
     };
 
     if (!upToDate(document)) {
