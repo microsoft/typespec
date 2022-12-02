@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "assert";
-import { SignatureHelp } from "vscode-languageserver/node.js";
+import { MarkupKind, SignatureHelp } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
 describe("compiler: server: signature help", () => {
@@ -15,10 +15,18 @@ describe("compiler: server: signature help", () => {
       signatures: [
         {
           activeParameter: 0,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "Decorator with a single param",
+          },
           label: "@single(arg: Cadl.string)",
           parameters: [
             {
               label: "arg: Cadl.string",
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value: "The arg",
+              },
             },
           ],
         },
@@ -34,13 +42,25 @@ describe("compiler: server: signature help", () => {
         signatures: [
           {
             activeParameter,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "Decorator with multiple params",
+            },
             label: "@multiple(foo: Cadl.string, bar?: Cadl.string)",
             parameters: [
               {
                 label: "foo: Cadl.string",
+                documentation: {
+                  kind: MarkupKind.Markdown,
+                  value: "The first arg",
+                },
               },
               {
                 label: "bar?: Cadl.string",
+                documentation: {
+                  kind: MarkupKind.Markdown,
+                  value: "The second arg",
+                },
               },
             ],
           },
@@ -82,14 +102,26 @@ describe("compiler: server: signature help", () => {
         activeSignature: 0,
         signatures: [
           {
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "Decorator with rest param",
+            },
             activeParameter,
             label: "@rest(foo: Cadl.string, ...others: Cadl.string[])",
             parameters: [
               {
                 label: "foo: Cadl.string",
+                documentation: {
+                  kind: MarkupKind.Markdown,
+                  value: "The first arg",
+                },
               },
               {
                 label: "...others: Cadl.string[]",
+                documentation: {
+                  kind: MarkupKind.Markdown,
+                  value: "The rest of the args",
+                },
               },
             ],
           },
@@ -130,8 +162,24 @@ describe("compiler: server: signature help", () => {
     const wholeFile = `
       import "./dec-types.js";
       
+      /** 
+       * Decorator with a single param
+       * @param arg The arg
+       */
       extern dec single(target: unknown, arg: string);
+      
+      /**
+       * Decorator with multiple params
+       * @param foo The first arg
+       * @param bar The second arg
+       */
       extern dec multiple(target: unknown, foo: string, bar?: string);
+      
+      /**
+       * Decorator with rest param
+       * @param foo The first arg
+       * @param others The rest of the args
+       */
       extern dec rest(target: unknown, foo: string, ...others: string[]);
 
     ${sourceWithCursor}`;

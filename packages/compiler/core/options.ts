@@ -1,3 +1,4 @@
+import { EmitterOptions } from "../config/types.js";
 import { ParseOptions } from "./types.js";
 
 export interface CompilerOptions {
@@ -13,7 +14,25 @@ export interface CompilerOptions {
    * @deprecated use outputDir.
    */
   outputPath?: string;
-  emitters?: Record<string, Record<string, unknown> | boolean>;
+
+  /**
+   * List or path to emitters to use.
+   */
+  emit?: string[];
+
+  /**
+   * Emitter options.
+   * Key value pair where the key must be the emitter name.
+   */
+  options?: Record<string, EmitterOptions>;
+
+  /**
+   * @deprecated use {@link emit} and {@link options} instead.
+   *
+   * Will be removed in March 2022 sprint.
+   */
+  emitters?: Record<string, EmitterOptions>;
+
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];

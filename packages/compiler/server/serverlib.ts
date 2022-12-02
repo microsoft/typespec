@@ -85,6 +85,7 @@ import {
   DecoratorExpressionNode,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
+  DocContent,
   IdentifierNode,
   Node,
   SourceFile,
@@ -211,6 +212,7 @@ const serverOptions: CompilerOptions = {
   designTimeBuild: true,
   parseOptions: {
     comments: true,
+    docs: true,
   },
 };
 
@@ -238,6 +240,9 @@ const keywords = [
   // On identifier`
   ["true", { identifier: true }],
   ["false", { identifier: true }],
+  ["unknown", { identifier: true }],
+  ["void", { identifier: true }],
+  ["never", { identifier: true }],
 
   // Modifiers
   ["extern", { root: true, namespace: true }],
@@ -416,7 +421,8 @@ export function createServer(host: ServerHost): Server {
 
     const options = {
       ...serverOptions,
-      emitters: config.emitters,
+      emit: config.emit,
+      options: config.options,
     };
 
     if (!upToDate(document)) {
@@ -476,7 +482,7 @@ export function createServer(host: ServerHost): Server {
   async function getConfig(mainFile: string, path: string): Promise<CadlConfig> {
     const configPath = await findCadlConfigPath(compilerHost, mainFile);
     if (!configPath) {
-      return defaultConfig;
+      return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
 
     const cached = await fileSystemCache.get(configPath);
@@ -523,6 +529,9 @@ export function createServer(host: ServerHost): Server {
     }
     visitChildren(ast, addRangesForNode);
     function addRangesForNode(node: Node) {
+      if (node.kind === SyntaxKind.Doc) {
+        return; // fold doc comments as regular comments
+      }
       let nodeStart = node.pos;
       if ("decorators" in node && node.decorators.length > 0) {
         const decoratorEnd = node.decorators[node.decorators.length - 1].end;
@@ -639,18 +648,83 @@ export function createServer(host: ServerHost): Server {
 
   /**
    * Get the detailed documentation of a type.
+   * @param program The program
    */
-  function getTypeDetails(program: Program, type: Type): string {
+  function getTypeDetails(
+    program: Program,
+    type: Type,
+    options = {
+      includeSignature: true,
+      includeParameterTags: true,
+    }
+  ): string {
+    // BUG: https://github.com/microsoft/cadl/issues/1348
+    // We've already resolved to a Type and lost the alias node so we don't show doc comments on aliases or alias signatures, currently.
+
     if (type.kind === "Intrinsic") {
       return "";
     }
-
-    const lines = ["```cadl", getTypeSignature(program, type), "```"];
-    const doc = getDoc(program, type);
-    if (doc) {
-      lines.push(`_${doc}_`); // italic
+    const lines = [];
+    if (options.includeSignature) {
+      lines.push(getTypeSignature(type));
     }
-    return lines.join("\n");
+    const doc = getTypeDocumentation(program, type);
+    if (doc) {
+      lines.push(doc);
+    }
+    for (const doc of type?.node?.docs ?? []) {
+      for (const tag of doc.tags) {
+        if (tag.tagName.sv === "param" && !options.includeParameterTags) {
+          continue;
+        }
+        lines.push(
+          //prettier-ignore
+          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`
+        );
+      }
+    }
+    return lines.join("\n\n");
+  }
+
+  function getTypeDocumentation(program: Program, type: Type) {
+    const docs: string[] = [];
+
+    // Add /** ... */ developer docs
+    for (const d of type?.node?.docs ?? []) {
+      docs.push(getDocContent(d.content));
+    }
+
+    // Add @doc(...) API docs
+    const apiDocs = getDoc(program, type);
+    if (apiDocs) {
+      docs.push(apiDocs);
+    }
+
+    return docs.join("\n\n");
+  }
+
+  function getParameterDocumentation(program: Program, type: Type): Map<string, string> {
+    const map = new Map<string, string>();
+    for (const d of type?.node?.docs ?? []) {
+      for (const tag of d.tags) {
+        if (tag.kind === SyntaxKind.DocParamTag) {
+          map.set(tag.paramName.sv, getDocContent(tag.content));
+        }
+      }
+    }
+    return map;
+  }
+
+  function getDocContent(content: readonly DocContent[]) {
+    const docs = [];
+    for (const node of content) {
+      compilerAssert(
+        node.kind === SyntaxKind.DocText,
+        "No other doc content node kinds exist yet. Update this code appropriately when more are added."
+      );
+      docs.push(node.text);
+    }
+    return docs.join("");
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
@@ -697,15 +771,23 @@ export function createServer(host: ServerHost): Server {
       }
       const type = program.checker.getTypeForNode(decoratorDeclNode);
       compilerAssert(type.kind === ("Decorator" as const), "Expected type to be a decorator.");
-      const parameters = type.parameters.map((x) =>
-        ParameterInformation.create(
-          `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${program.checker.getTypeName(
-            x.type
-          )}`
-        )
-      );
 
-      return {
+      const parameterDocs = getParameterDocumentation(program, type);
+      const parameters = type.parameters.map((x) => {
+        const info: ParameterInformation = {
+          // prettier-ignore
+          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${program.checker.getTypeName(x.type)}`,
+        };
+
+        const doc = parameterDocs.get(x.name);
+        if (doc) {
+          info.documentation = { kind: MarkupKind.Markdown, value: doc };
+        }
+
+        return info;
+      });
+
+      const help: SignatureHelp = {
         signatures: [
           {
             label: `${type.name}(${parameters.map((x) => x.label).join(", ")})`,
@@ -716,6 +798,16 @@ export function createServer(host: ServerHost): Server {
         activeSignature: 0,
         activeParameter: 0,
       };
+
+      const doc = getTypeDetails(program, type, {
+        includeSignature: false,
+        includeParameterTags: false,
+      });
+      if (doc) {
+        help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
+      }
+
+      return help;
     });
   }
 
