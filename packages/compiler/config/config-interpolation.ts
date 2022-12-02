@@ -1,7 +1,7 @@
 import { createDiagnosticCollector, ignoreDiagnostics } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Diagnostic, NoTarget } from "../core/types.js";
-import { CadlConfig, ConfigEnvironmentVariable, ConfigParameter } from "./types.js";
+import { CadlConfig, ConfigEnvironmentVariable, ConfigParameter, EmitterOptions } from "./types.js";
 
 export interface ExpandConfigOptions {
   readonly cwd: string;
@@ -12,37 +12,43 @@ export interface ExpandConfigOptions {
 
 export function expandConfigVariables(
   config: CadlConfig,
-  options: ExpandConfigOptions
+  expandOptions: ExpandConfigOptions
 ): [CadlConfig, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const builtInVars = {
     "project-root": config.projectRoot,
-    cwd: options.cwd,
+    cwd: expandOptions.cwd,
   };
 
   const commonVars = {
     ...builtInVars,
-    ...diagnostics.pipe(resolveArgs(config.parameters, options.args, builtInVars)),
-    env: diagnostics.pipe(resolveArgs(config.environmentVariables, options.env, builtInVars)),
+    ...diagnostics.pipe(resolveArgs(config.parameters, expandOptions.args, builtInVars)),
+    env: diagnostics.pipe(
+      resolveArgs(config.environmentVariables, expandOptions.env, builtInVars, true)
+    ),
   };
   const outputDir = diagnostics.pipe(
-    resolveValue(options.outputDir ?? config.outputDir, commonVars)
+    resolveValue(expandOptions.outputDir ?? config.outputDir, commonVars)
   );
 
-  const emitters: Record<string, Record<string, unknown>> = {};
-
-  for (const [name, emitterOptions] of Object.entries(config.emitters)) {
-    const emitterVars = { ...commonVars, "output-dir": outputDir, "emitter-name": name };
-    emitters[name] = diagnostics.pipe(resolveValues(emitterOptions, emitterVars));
+  const result = { ...config, outputDir };
+  if (config.options) {
+    const options: Record<string, EmitterOptions> = {};
+    for (const [name, emitterOptions] of Object.entries(config.options)) {
+      const emitterVars = { ...commonVars, "output-dir": outputDir, "emitter-name": name };
+      options[name] = diagnostics.pipe(resolveValues(emitterOptions, emitterVars));
+    }
+    result.options = options;
   }
 
-  return diagnostics.wrap({ ...config, outputDir, emitters });
+  return diagnostics.wrap(result);
 }
 
 function resolveArgs(
   declarations: Record<string, ConfigParameter | ConfigEnvironmentVariable> | undefined,
   args: Record<string, string | undefined> | undefined,
-  predefinedVariables: Record<string, string | Record<string, string>>
+  predefinedVariables: Record<string, string | Record<string, string>>,
+  allowUnspecified = false
 ): [Record<string, string>, readonly Diagnostic[]] {
   const unmatchedArgs = new Set(Object.keys(args ?? {}));
   const result: Record<string, string> = {};
@@ -54,14 +60,17 @@ function resolveArgs(
     }
   }
 
-  const diagnostics: Diagnostic[] = [...unmatchedArgs].map((unmatchedArg) => {
-    return createDiagnostic({
-      code: "config-invalid-argument",
-      format: { name: unmatchedArg },
-      target: NoTarget,
+  if (!allowUnspecified) {
+    const diagnostics: Diagnostic[] = [...unmatchedArgs].map((unmatchedArg) => {
+      return createDiagnostic({
+        code: "config-invalid-argument",
+        format: { name: unmatchedArg },
+        target: NoTarget,
+      });
     });
-  });
-  return [result, diagnostics];
+    return [result, diagnostics];
+  }
+  return [result, []];
 }
 
 const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}/g;

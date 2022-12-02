@@ -29,8 +29,8 @@ describe("compiler: cli", () => {
     it("no args and config: return empty options with output-dir at {cwd}/cadl-output", async () => {
       const options = await resolveCompilerOptions({});
       deepStrictEqual(options, {
-        emitters: {},
         outputDir: `${cwd}/cadl-output`,
+        options: {},
       });
     });
 
@@ -44,7 +44,8 @@ describe("compiler: cli", () => {
                 default: "/default-arg-value",
               },
             },
-            emitters: {
+            emit: ["@cadl-lang/openapi3", "@cadl-lang/with-args"],
+            options: {
               "@cadl-lang/openapi3": {
                 "emitter-output-dir": "{output-dir}/custom",
               },
@@ -60,7 +61,7 @@ describe("compiler: cli", () => {
         const options = await resolveCompilerOptions({});
 
         strictEqual(
-          options?.emitters?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
+          options?.options?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
           `${cwd}/cadl-output/custom`
         );
       });
@@ -69,7 +70,7 @@ describe("compiler: cli", () => {
         const options = await resolveCompilerOptions({ "output-dir": `${cwd}/my-output-dir` });
 
         strictEqual(
-          options?.emitters?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
+          options?.options?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
           `${cwd}/my-output-dir/custom`
         );
       });
@@ -80,7 +81,7 @@ describe("compiler: cli", () => {
         });
 
         strictEqual(
-          options?.emitters?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
+          options?.options?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
           `${cwd}/relative-to-cwd`
         );
       });
@@ -90,7 +91,7 @@ describe("compiler: cli", () => {
           const options = await resolveCompilerOptions({});
 
           strictEqual(
-            options?.emitters?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
+            options?.options?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
             `/default-arg-value/custom`
           );
         });
@@ -101,7 +102,7 @@ describe("compiler: cli", () => {
           });
 
           strictEqual(
-            options?.emitters?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
+            options?.options?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
             `/my-updated-arg-value/custom`
           );
         });

@@ -211,7 +211,7 @@ describe("compiler: config interpolation", () => {
         ...defaultConfig,
         projectRoot: "/dev/ws",
         outputDir: "/my-custom-output-dir",
-        emitters: {
+        options: {
           emitter1: {
             "emitter-output-dir": "{output-dir}/emitter1",
           },
@@ -220,7 +220,7 @@ describe("compiler: config interpolation", () => {
       const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
       deepStrictEqual(resolved, {
         ...config,
-        emitters: {
+        options: {
           emitter1: {
             "emitter-output-dir": "/my-custom-output-dir/emitter1",
           },
@@ -233,7 +233,7 @@ describe("compiler: config interpolation", () => {
         ...defaultConfig,
         projectRoot: "/dev/ws",
         outputDir: "/my-custom-output-dir",
-        emitters: {
+        options: {
           emitter1: {
             "emitter-output-dir": "{output-dir}/{emitter-folder}",
             "emitter-folder": "custom-1",
@@ -243,7 +243,7 @@ describe("compiler: config interpolation", () => {
       const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
       deepStrictEqual(resolved, {
         ...config,
-        emitters: {
+        options: {
           emitter1: {
             "emitter-output-dir": "/my-custom-output-dir/custom-1",
             "emitter-folder": "custom-1",
