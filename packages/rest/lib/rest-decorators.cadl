@@ -3,7 +3,7 @@ namespace Cadl.Rest;
 using Cadl.Reflection;
 
 /**
- * This namespace, interface or operation should resolve their route automatically. To be used with resource types where the route segments area defined on the models.
+ * This namespace, interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
  *
  * @example
  *
