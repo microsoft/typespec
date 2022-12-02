@@ -474,7 +474,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     emitRequestBody(parameters, visibility);
     emitResponses(operation.responses);
 
-    isDeprecated(program, op) && (currentEndpoint.deprecated = true);
+    if (isDeprecated(program, op)) {
+      currentEndpoint.deprecated = true;
+    }
 
     attachExtensions(program, op, currentEndpoint);
   }

@@ -165,8 +165,6 @@ describe("openapi3: operations", () => {
     const res = await openApiFor(
       `
       @deprecated("use something else")
-      @route("/")
-      @get()
       op read(@query query: string): string;
       `
     );
