@@ -1,4 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
+
 export interface SwaggerUIProps {
   spec: string;
 }
@@ -16,5 +17,15 @@ export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   if (swaggerUI === undefined) {
     return null;
   }
-  return <swaggerUI.swaggerUIComp spec={props.spec} />;
+  return (
+    <div
+      css={{
+        width: "100%",
+        height: "100%",
+        overflow: "auto",
+      }}
+    >
+      <swaggerUI.swaggerUIComp spec={props.spec} />
+    </div>
+  );
 };
