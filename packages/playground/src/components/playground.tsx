@@ -85,9 +85,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
         emit: [PlaygroundManifest.defaultEmitter],
         options: {
           [PlaygroundManifest.defaultEmitter]: {
-            "emitter-output-dir": "cadl-output"
+            "emitter-output-dir": "cadl-output",
           },
-        }
+        },
       });
       setInternalCompilerError(undefined);
       setProgram(program);
