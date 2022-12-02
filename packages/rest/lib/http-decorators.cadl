@@ -29,7 +29,7 @@ extern dec header(target: ModelProperty, headerName?: string);
 extern dec query(target: ModelProperty, queryKey?: string);
 
 /**
- * Specify explicitly this property is to be interpolated as a path parameter.
+ * Explicitly specify that this property is to be interpolated as a path parameter.
  *
  * @param paramName Optional name of the parmaeter in the url template.
  *
