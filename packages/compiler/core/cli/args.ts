@@ -48,7 +48,7 @@ export async function getCompilerOptions(
     warnAsError: args["warn-as-error"] ?? config.warnAsError,
     trace: args.trace ?? config.trace,
     emit: args.emit ?? config.emit,
-    options: resolveEmitteroptions(config, cliOptions),
+    options: resolveEmitterOptions(config, cliOptions),
   };
   const cliOutputDir = pathArg ? resolvePath(cwd, pathArg) : undefined;
 
@@ -124,7 +124,7 @@ function resolveCliOptions(
   return options;
 }
 
-function resolveEmitteroptions(
+function resolveEmitterOptions(
   config: CadlConfig,
   cliOptions: Record<string | "miscOptions", Record<string, unknown>>
 ): Record<string, EmitterOptions> {
@@ -133,6 +133,9 @@ function resolveEmitteroptions(
   );
 
   for (const [emitterName, cliOptionOverride] of Object.entries(cliOptions)) {
+    if (emitterName === "miscOptions") {
+      continue;
+    }
     configuredEmitters[emitterName] = {
       ...(configuredEmitters[emitterName] ?? {}),
       ...cliOptionOverride,
