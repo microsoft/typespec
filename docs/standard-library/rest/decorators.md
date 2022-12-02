@@ -13,6 +13,8 @@ title: Decorators
     - [@patch](#patch)
     - [@delete](#delete)
     - [@head](#head)
+  - [Routing](#routing)
+    - [@route](#route)
   - [Data types](#data-types)
     - [@header](#header)
     - [@query](#query)
