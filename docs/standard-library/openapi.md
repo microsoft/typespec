@@ -208,10 +208,10 @@ are included in the emitted OpenAPI operation.
 Models and enums are converted into schemas in the generated OpenAPI definition. Intrinsic types in Cadl are represented
 with a JSON Schema type that most closely matches the semantics of the Cadl type.
 
-Models defined inline will result in an inline schema. Explicitly delcared models will defined in the `components/schemas`
+Models defined inline will result in an inline schema. Explicitly declared models will be defined in the `components/schemas`
 section with the Cadl name qualified by any enclosing namespaces.
 
-A special case is an instantiation of a model template, is treated as an inline model unless the model template has
+A special case is an instantiation of a model template, it is treated as an inline model unless the model template has
 a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
 
 [friendlyname]: https://github.com/microsoft/cadl/blob/main/docs/standard-library/built-in-decorators.md#friendlyname
@@ -349,7 +349,7 @@ that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Security Definitions
 
-The OpenAPI emitter uses the takes the [(http) `@useAuth` decorator](https://github.com/microsoft/cadl/blob/main/docs/standard-library/rest/decorators.md#useauth)
+The OpenAPI emitter takes the [(http) `@useAuth` decorator](https://github.com/microsoft/cadl/blob/main/docs/standard-library/rest/decorators.md#useauth)
 
 #### Examples
 
