@@ -83,6 +83,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
       const program = await cadlCompiler.compile(host, "main.cadl", {
         outputDir: "cadl-output",
         emit: [PlaygroundManifest.defaultEmitter],
+        options: {
+          [PlaygroundManifest.defaultEmitter]: {
+            "emitter-output-dir": "cadl-output"
+          },
+        }
       });
       setInternalCompilerError(undefined);
       setProgram(program);
