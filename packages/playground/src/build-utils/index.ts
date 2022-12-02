@@ -22,7 +22,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
     },
     assetsInclude: [/\.cadl$/],
     optimizeDeps: {
-      exclude: ["node-fetch"],
+      exclude: ["node-fetch", "swagger-ui"],
     },
     plugins: [
       react({
@@ -36,6 +36,18 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
         folderName: "libs",
         libraries: config.libraries,
       }),
+      {
+        name: "static-js",
+        apply: "serve",
+        enforce: "pre",
+        resolveId(source, importer) {
+          console.log("RESOLVE", source);
+          if (source.endsWith("swagger-ui-es-bundle-core.js")) {
+            return "\ufeff" + source;
+          }
+          return undefined;
+        },
+      },
     ],
     server: {
       fs: {

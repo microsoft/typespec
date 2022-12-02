@@ -54,6 +54,7 @@ specifiers:
   '@types/react': ~18.0.5
   '@types/react-dom': ~18.0.1
   '@types/swagger-ui': ~3.52.0
+  '@types/swagger-ui-react': ^4.11.0
   '@types/vscode': ~1.53.0
   '@types/watch': ~1.0.3
   '@types/yargs': ~17.0.2
@@ -106,7 +107,8 @@ specifiers:
   rollup-plugin-visualizer: ~5.8.0
   source-map-support: ~0.5.19
   strip-json-comments: ~4.0.0
-  swagger-ui: ~4.15.0
+  swagger-ui: ~4.15.5
+  swagger-ui-react: ~4.15.5
   typescript: ~4.9.3
   vite: ^3.2.4
   vsce: ~2.6.7
@@ -172,6 +174,7 @@ dependencies:
   '@types/react': 18.0.25
   '@types/react-dom': 18.0.9
   '@types/swagger-ui': 3.52.0
+  '@types/swagger-ui-react': 4.11.0
   '@types/vscode': 1.53.0
   '@types/watch': 1.0.3
   '@types/yargs': 17.0.13
@@ -225,6 +228,7 @@ dependencies:
   source-map-support: 0.5.21
   strip-json-comments: 4.0.0
   swagger-ui: 4.15.5
+  swagger-ui-react: 4.15.5_react-dom@18.2.0+react@18.2.0
   typescript: 4.9.3
   vite: 3.2.4_@types+node@18.11.9
   vsce: 2.6.7
@@ -4433,6 +4437,12 @@ packages:
     resolution: {integrity: sha512-f0KEEe05NvUnat+boPTZ0dgaLZ4SfSouXUgv5noUiefG2ajgKjmETo9ZJyuqsl7dfl2aHlLJUiki6B4ZYldiiw==}
     dependencies:
       '@types/node': 18.11.9
+    dev: false
+
+  /@types/swagger-ui-react/4.11.0:
+    resolution: {integrity: sha512-WPMR+GWbLd7zvY/uOTGzGzP44zK2rIZSnU00+pDR2YANnEV6/qj0kqYfdSY1Vk6qdvI7dR0Tx8JEMgUUrUQDjw==}
+    dependencies:
+      '@types/react': 18.0.25
     dev: false
 
   /@types/swagger-ui/3.52.0:
@@ -11009,6 +11019,16 @@ packages:
       react: 17.0.2
     dev: false
 
+  /react-copy-to-clipboard/5.1.0_react@18.2.0:
+    resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17 || 18
+    dependencies:
+      copy-to-clipboard: 3.3.3
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /react-debounce-input/3.3.0_react@17.0.2:
     resolution: {integrity: sha512-VEqkvs8JvY/IIZvh71Z0TC+mdbxERvYF33RcebnodlsUZ8RSgyKe2VWaHXv4+/8aoOgXLxWrdsYs2hDhcwbUgA==}
     peerDependencies:
@@ -11017,6 +11037,16 @@ packages:
       lodash.debounce: 4.0.8
       prop-types: 15.8.1
       react: 17.0.2
+    dev: false
+
+  /react-debounce-input/3.3.0_react@18.2.0:
+    resolution: {integrity: sha512-VEqkvs8JvY/IIZvh71Z0TC+mdbxERvYF33RcebnodlsUZ8RSgyKe2VWaHXv4+/8aoOgXLxWrdsYs2hDhcwbUgA==}
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17 || 18
+    dependencies:
+      lodash.debounce: 4.0.8
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /react-dev-utils/12.0.1_2d87c08eb358acaf8daa0e02a1326f77:
@@ -11122,6 +11152,18 @@ packages:
       invariant: 2.2.4
     dev: false
 
+  /react-immutable-pure-component/2.2.2_5c1cb5e2be99c49f2057397b54c29a62:
+    resolution: {integrity: sha512-vkgoMJUDqHZfXXnjVlG3keCxSO/U6WeDQ5/Sl0GK2cH8TOxEzQ5jXqDXHEL/jqk6fsNxV05oH5kD7VNMUE2k+A==}
+    peerDependencies:
+      immutable: '>= 2 || >= 4.0.0-rc'
+      react: '>= 16.6'
+      react-dom: '>= 16.6'
+    dependencies:
+      immutable: 3.8.2
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /react-immutable-pure-component/2.2.2_bd1a0e68a5e0e4857c26400f3b5f7e9d:
     resolution: {integrity: sha512-vkgoMJUDqHZfXXnjVlG3keCxSO/U6WeDQ5/Sl0GK2cH8TOxEzQ5jXqDXHEL/jqk6fsNxV05oH5kD7VNMUE2k+A==}
     peerDependencies:
@@ -11140,6 +11182,14 @@ packages:
       react: ^16.8.4 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 17.0.2
+    dev: false
+
+  /react-inspector/6.0.1_react@18.2.0:
+    resolution: {integrity: sha512-cxKSeFTf7jpSSVddm66sKdolG90qURAX3g1roTeaN6x0YEbtWc8JpmFN9+yIqLNH2uEkYerWLtJZIXRIFuBKrg==}
+    peerDependencies:
+      react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-is/16.13.1:
@@ -11223,6 +11273,28 @@ packages:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-is: 17.0.2
+    dev: false
+
+  /react-redux/7.2.9_react-dom@18.2.0+react@18.2.0:
+    resolution: {integrity: sha512-Gx4L3uM182jEEayZfRbI/G11ZpYdNAnBs70lFVMNdHJI76XYtR+7m0MN+eAs7UHBPhWXcnFPaS+9owSCJQHNpQ==}
+    peerDependencies:
+      react: ^16.8.3 || ^17 || ^18
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.20.1
+      '@types/react-redux': 7.1.24
+      hoist-non-react-statics: 3.3.2
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
       react-is: 17.0.2
     dev: false
 
@@ -11327,6 +11399,19 @@ packages:
       lowlight: 1.20.0
       prismjs: 1.29.0
       react: 17.0.2
+      refractor: 3.6.0
+    dev: false
+
+  /react-syntax-highlighter/15.5.0_react@18.2.0:
+    resolution: {integrity: sha512-+zq2myprEnQmH5yw6Gqc8lD55QHnpKaU8TOcFeC/Lg/MQSs8UknEA0JC4nTZGFAXC2J2Hyj/ijJ7NlabyPi2gg==}
+    peerDependencies:
+      react: '>= 0.14.0'
+    dependencies:
+      '@babel/runtime': 7.20.1
+      highlight.js: 10.7.3
+      lowlight: 1.20.0
+      prismjs: 1.29.0
+      react: 18.2.0
       refractor: 3.6.0
     dev: false
 
@@ -12405,6 +12490,53 @@ packages:
       url: 0.11.0
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /swagger-ui-react/4.15.5_react-dom@18.2.0+react@18.2.0:
+    resolution: {integrity: sha512-jt2g6cDt3wOsc+1YQv4D86V4K659Xs1/pbhjYWlgNfjZB0TSN601MASWxbP+65U0iPpsJTpF7EmRzAunTOVs8Q==}
+    peerDependencies:
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
+    dependencies:
+      '@babel/runtime-corejs3': 7.20.1
+      '@braintree/sanitize-url': 6.0.0
+      base64-js: 1.5.1
+      classnames: 2.3.2
+      css.escape: 1.5.1
+      deep-extend: 0.6.0
+      dompurify: 2.3.10
+      ieee754: 1.2.1
+      immutable: 3.8.2
+      js-file-download: 0.4.12
+      js-yaml: 4.1.0
+      lodash: 4.17.21
+      patch-package: 6.5.0
+      prop-types: 15.8.1
+      randexp: 0.5.3
+      randombytes: 2.1.0
+      react: 18.2.0
+      react-copy-to-clipboard: 5.1.0_react@18.2.0
+      react-debounce-input: 3.3.0_react@18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-immutable-proptypes: 2.2.0_immutable@3.8.2
+      react-immutable-pure-component: 2.2.2_5c1cb5e2be99c49f2057397b54c29a62
+      react-inspector: 6.0.1_react@18.2.0
+      react-redux: 7.2.9_react-dom@18.2.0+react@18.2.0
+      react-syntax-highlighter: 15.5.0_react@18.2.0
+      redux: 4.2.0
+      redux-immutable: 4.0.0_immutable@3.8.2
+      remarkable: 2.0.1
+      reselect: 4.1.7
+      serialize-error: 8.1.0
+      sha.js: 2.4.11
+      swagger-client: 3.18.5
+      url-parse: 1.5.10
+      xml: 1.0.1
+      xml-but-prettier: 1.0.1
+      zenscroll: 4.0.2
+    transitivePeerDependencies:
+      - encoding
+      - react-native
     dev: false
 
   /swagger-ui/4.15.5:
@@ -14073,7 +14205,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-dL49iIYMJUu7O0Fa+90RIpJ1ulyVoy/HHKStVB1s8FxcRIaU9x+ApFkcIhInPDCT/bDhATsP0FHyldBX/bPYpQ==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-8N8Gdll+hadyzMGh1q1NEa+Pub14PaWFOBHqUvSyhFxQAr+sXtftOQHDFtWIAzVg6UH6NPlTOFzlNmKyB1EI5A==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -14088,6 +14220,7 @@ packages:
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.9
       '@types/swagger-ui': 3.52.0
+      '@types/swagger-ui-react': 4.11.0
       '@vitejs/plugin-react': 2.2.0_vite@3.2.4
       c8: 7.12.0
       cross-env: 7.0.3
@@ -14106,6 +14239,7 @@ packages:
       rimraf: 3.0.2
       rollup-plugin-visualizer: 5.8.3_rollup@3.4.0
       swagger-ui: 4.15.5
+      swagger-ui-react: 4.15.5_react-dom@18.2.0+react@18.2.0
       typescript: 4.9.3
       vite: 3.2.4_@types+node@18.11.9
       vscode-languageserver: 8.0.2
