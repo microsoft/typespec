@@ -1,0 +1,45 @@
+import "../dist/src/proto.js";
+
+namespace Cadl.Protobuf;
+
+@externRef(Path, Name)
+model Extern<Path extends string, Name extends string> {
+    _extern: never;
+}
+
+namespace WellKnown {
+    model Empty
+        is Extern<"google/protobuf/empty.proto", "google.protobuf.Empty">;
+}
+
+// Scalars supported by gRPC.
+scalar sint32 extends int32;
+scalar sint64 extends int64;
+scalar sfixed32 extends int32;
+scalar sfixed64 extends int64;
+scalar fixed32 extends uint32;
+scalar fixed64 extends uint64;
+
+alias integral = int32 | int64 | boolean;
+
+@_map
+model Map<K extends integral | string, V> {}
+
+extern dec externRef(target: object, path: string, name: string);
+
+extern dec field(target: Cadl.Reflection.ModelProperty, index: uint32);
+extern dec serviceInterface(target: Cadl.Reflection.Interface);
+extern dec packageName(target: Cadl.Reflection.Namespace, name: string);
+extern dec reserve(
+    target: object,
+    ...ranges: (string | [uint32, uint32] | uint32)[]
+);
+
+enum StreamMode {
+    Duplex,
+    In,
+    Out,
+    None,
+}
+
+extern dec stream(target: Cadl.Reflection.Operation, mode: StreamMode);

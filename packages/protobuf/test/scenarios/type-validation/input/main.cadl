@@ -1,0 +1,11 @@
+import "@cadl-lang/grpc";
+
+using Cadl.Grpc;
+
+@service
+namespace Test;
+
+@serviceInterface
+interface Service {
+  invalidReturn(): int32;
+}

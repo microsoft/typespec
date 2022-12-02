@@ -1,0 +1,25 @@
+import "@cadl-lang/grpc";
+
+using Cadl.Grpc;
+
+@packageName("A")
+@service
+namespace A {
+  model Output {
+    @field(1) testOutputField: int32;
+    @field(2) secondField: string;
+  }
+}
+
+@packageName("B")
+@service
+namespace B {
+  @serviceInterface
+  interface Service {
+    foo(...Input): A.Output;
+  }
+
+  model Input {
+    @field(1) testInputField: string;
+  }
+}

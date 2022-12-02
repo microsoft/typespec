@@ -1,2 +1,0 @@
-/test/main.cadl:18:1 - error cadl-grpc/unconvertible-enum: enums must explicitly assign exactly one integer to each member to be used in a gRPC message
-/test/main.cadl:23:1 - error cadl-grpc/unconvertible-enum: enums must explicitly assign exactly one integer to each member to be used in a gRPC message

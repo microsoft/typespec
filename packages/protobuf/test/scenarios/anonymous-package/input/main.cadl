@@ -1,0 +1,21 @@
+import "@cadl-lang/grpc";
+
+using Cadl.Grpc;
+
+@service({
+  title: "gRPC Test Service",
+})
+namespace Test;
+
+@serviceInterface
+interface Service {
+  foo(...Input): Output;
+}
+
+model Input {
+  @field(1) testInputField: string;
+}
+
+model Output {
+  @field(1) testOutputField: int32;
+}

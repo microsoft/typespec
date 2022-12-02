@@ -1,0 +1,1 @@
+/test/.cadl/lib/lib.cadl:8:1 - error @cadl-lang/grpc/unsupported-return-type: gRPC operations must return a named Model

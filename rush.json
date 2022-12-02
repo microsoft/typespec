@@ -181,8 +181,8 @@
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/grpc",
-      "projectFolder": "packages/grpc",
+      "packageName": "@cadl-lang/protobuf",
+      "projectFolder": "packages/protobuf",
       "reviewCategory": "production",
       "shouldPublish": false
     }

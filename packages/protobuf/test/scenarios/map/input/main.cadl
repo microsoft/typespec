@@ -1,0 +1,15 @@
+import "@cadl-lang/grpc";
+
+using Cadl.Grpc;
+
+@service
+namespace Test;
+
+@serviceInterface
+interface Service {
+  foo(...Input): WellKnown.Empty;
+}
+
+model Input {
+  @field(1) testInputField: Cadl.Grpc.Map<sfixed32, string>;
+}
