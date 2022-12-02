@@ -111,15 +111,11 @@ describe("openapi3: versioning", () => {
       },
     });
 
-    const runner = createTestWrapper(
-      host,
-      (code) =>
-        `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
-          import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
-          import "./test.js";
-          using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
-      { emitters: { "@cadl-lang/openapi3": {} } }
-    );
+    const runner = createTestWrapper(host, {
+      autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
+      autoUsings: ["Cadl.Rest", "Cadl.Http", "OpenAPI", "Cadl.Versioning"],
+      compilerOptions: { emit: ["@cadl-lang/openapi3"] },
+    });
 
     await runner.compile(`
     @versioned(Contoso.Library.Versions)

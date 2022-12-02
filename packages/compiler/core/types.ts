@@ -240,7 +240,7 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   baseModel?: Model;
 
   /**
-   * Direct children. This is the reverse relation of @see baseModel
+   * Direct children. This is the reverse relation of {@link baseModel}
    */
   derivedModels: Model[];
 
@@ -1400,8 +1400,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly namespaceSymbols: Sym[];
 }
 
-export type EmitterOptions = { name?: string } & Record<string, any>;
-export type EmitterFunc = (program: Program, options: EmitterOptions) => Promise<void> | void;
+export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
 
 export interface SourceFile {
   /** The source code text. */
@@ -1751,6 +1750,23 @@ export interface DecoratorContext {
     target: T,
     ...args: A
   ): R;
+}
+
+export interface EmitContext<TOptions extends object = Record<string, never>> {
+  /**
+   * Cadl Program.
+   */
+  program: Program;
+
+  /**
+   * Configured output dir for the emitter. Emitter should emit all output under that directory.
+   */
+  emitterOutputDir: string;
+
+  /**
+   * Emitter custom options defined in createCadlLibrary
+   */
+  options: TOptions;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

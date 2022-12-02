@@ -29,8 +29,11 @@ export async function createOpenAPITestRunner({
   using OpenAPI;
   ${withVersioning ? "using Cadl.Versioning;" : ""}
 `;
-  return createTestWrapper(host, (code) => `${importAndUsings} ${code}`, {
-    emitters: { "@cadl-lang/openapi3": {} },
+  return createTestWrapper(host, {
+    wrapper: (code) => `${importAndUsings} ${code}`,
+    compilerOptions: {
+      emit: ["@cadl-lang/openapi3"],
+    },
   });
 }
 
@@ -41,7 +44,8 @@ function versionedOutput(path: string, version: string) {
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const runner = await createOpenAPITestRunner();
   const diagnostics = await runner.diagnose(code, {
-    emitters: { "@cadl-lang/openapi3": options as any },
+    emit: ["@cadl-lang/openapi3"],
+    options: { "@cadl-lang/openapi3": options as any },
   });
   return diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes");
 }
@@ -61,7 +65,8 @@ export async function openApiFor(
   );
   const diagnostics = await host.diagnose("./main.cadl", {
     noEmit: false,
-    emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+    emit: ["@cadl-lang/openapi3"],
+    options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
   });
   expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
 

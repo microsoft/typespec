@@ -194,7 +194,7 @@ Here's an example that uses these to define a Pet Store service:
 namespace PetStore;
 ```
 
-The `server` keyword can take a third parameter with parameters as necessary:
+The `@server` decorator can take a third parameter with parameters as necessary:
 
 ```cadl
 @server("https://{region}.foo.com", "Regional endpoint", {
@@ -205,13 +205,22 @@ The `server` keyword can take a third parameter with parameters as necessary:
 
 #### `@useAuth`
 
-Specify the authentication for the service.
+Specify the authentication for the service with the `@useAuth` decorator on the service namespace.
+
+The decorator accepts a single security scheme, a tuple of security schemes (both are used),
+a union of security schemes (either can be used), or a union of tuples of security schemes.
+
+A simple example:
 
 ```cadl
 @service
 @useAuth(BasicAuth)
 namespace PetStore;
 ```
+
+See the [documentation in the Http library][authentication] for full details.
+
+[authentication]: https://github.com/microsoft/cadl/blob/main/docs/standard-library/rest/authentication.md
 
 ### Metadata decorators
 
