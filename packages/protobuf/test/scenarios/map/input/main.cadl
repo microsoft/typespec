@@ -1,6 +1,6 @@
-import "@cadl-lang/grpc";
+import "@cadl-lang/protobuf";
 
-using Cadl.Grpc;
+using Cadl.Protobuf;
 
 @service
 namespace Test;
@@ -11,5 +11,5 @@ interface Service {
 }
 
 model Input {
-  @field(1) testInputField: Cadl.Grpc.Map<sfixed32, string>;
+  @field(1) testInputField: Cadl.Protobuf.Map<sfixed32, string>;
 }

@@ -10,9 +10,14 @@ model Extern<Path extends string, Name extends string> {
 namespace WellKnown {
     model Empty
         is Extern<"google/protobuf/empty.proto", "google.protobuf.Empty">;
+    model Timestamp
+        is Extern<
+            "google/protobuf/timestamp.proto",
+            "google.protobuf.Timestamp"
+        >;
 }
 
-// Scalars supported by gRPC.
+// Protobuf scalars that carry information about encoding.
 scalar sint32 extends int32;
 scalar sint64 extends int64;
 scalar sfixed32 extends int32;
@@ -20,7 +25,7 @@ scalar sfixed64 extends int64;
 scalar fixed32 extends uint32;
 scalar fixed64 extends uint64;
 
-alias integral = int32 | int64 | boolean;
+alias integral = int32 | int64 | uint32 | uint64 | boolean;
 
 @_map
 model Map<K extends integral | string, V> {}

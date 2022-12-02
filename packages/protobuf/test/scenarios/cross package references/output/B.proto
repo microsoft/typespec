@@ -4,6 +4,8 @@ syntax = "proto3";
 
 package B;
 
+import "A.proto";
+
 message Input {
   string testInputField = 1;
 }

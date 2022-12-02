@@ -170,6 +170,7 @@ export async function $onEmit(program: Program, options?: EmitOptionsFor<CadlPro
   const emitter = createProtobufEmitter(program);
 
   await emitter({
+    /* c8 ignore next */
     outputDirectory: options?.outputDirectory,
   });
 }

@@ -1,1 +1,1 @@
-/test/.cadl/lib/lib.cadl:8:1 - error @cadl-lang/grpc/unsupported-return-type: gRPC operations must return a named Model
+/test/.cadl/lib/lib.cadl:8:1 - error @cadl-lang/protobuf/unsupported-return-type: Protobuf methods must return a named Model

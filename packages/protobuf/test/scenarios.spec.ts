@@ -13,7 +13,7 @@ const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios"
 const shouldRecord = process.env.RECORD === "true";
 const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
 
-const CadlGrpcTestLibrary: CadlTestLibrary = {
+const CadlProtobufTestLibrary: CadlTestLibrary = {
   name: "@cadl-lang/protobuf",
   packageRoot: path.resolve(url.fileURLToPath(import.meta.url), "../../../"),
   files: [
@@ -112,7 +112,7 @@ async function doEmit(files: Record<string, string>): Promise<EmitResult> {
   const baseOutputPath = resolveVirtualPath("test-output/");
 
   const host = await createTestHost({
-    libraries: [CadlGrpcTestLibrary],
+    libraries: [CadlProtobufTestLibrary],
   });
 
   for (const [fileName, content] of Object.entries(files)) {
@@ -123,7 +123,7 @@ async function doEmit(files: Record<string, string>): Promise<EmitResult> {
     outputPath: baseOutputPath,
     noEmit: false,
     emitters: {
-      "@cadl-lang/grpc": {
+      "@cadl-lang/protobuf": {
         outputDirectory: baseOutputPath,
       },
     },
