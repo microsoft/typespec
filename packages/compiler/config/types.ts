@@ -5,6 +5,11 @@ import { Diagnostic } from "../core";
  */
 export interface CadlConfig {
   /**
+   * Project root.
+   */
+  projectRoot: string;
+
+  /**
    * Path to the config file used to create this configuration.
    */
   filename?: string;
@@ -20,13 +25,24 @@ export interface CadlConfig {
   extends?: string;
 
   /**
+   * Environment variables configuration
+   */
+  environmentVariables?: Record<string, ConfigEnvironmentVariable>;
+
+  /**
+   * Parameters that can be used
+   */
+  parameters?: Record<string, ConfigParameter>;
+
+  /**
    * Treat warning as error.
    */
   warnAsError?: boolean;
+
   /**
    * Output directory
    */
-  outputDir?: string;
+  outputDir: string;
 
   /**
    * Trace options.
@@ -41,19 +57,32 @@ export interface CadlConfig {
   /**
    * Emitter configuration
    */
-  emitters: Record<string, boolean | Record<string, unknown>>;
+  emitters: Record<string, EmitterOptions>;
 }
-
-export type RuleValue = "on" | "off" | Record<string, unknown>;
 
 /**
  * Represent the configuration that can be provided in a config file.
  */
 export interface CadlRawConfig {
   extends?: string;
+  "environment-variables"?: Record<string, ConfigEnvironmentVariable>;
+  parameters?: Record<string, ConfigParameter>;
+
   "warn-as-error"?: boolean;
   "output-dir"?: string;
   trace?: string | string[];
   imports?: string[];
-  emitters?: Record<string, boolean | Record<string, unknown>>;
+  emitters?: Record<string, boolean | EmitterOptions>;
 }
+
+export interface ConfigEnvironmentVariable {
+  default: string;
+}
+
+export interface ConfigParameter {
+  default: string;
+}
+
+export type EmitterOptions = Record<string, unknown> & {
+  "emitter-output-dir"?: string;
+};

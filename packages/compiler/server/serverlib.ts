@@ -476,7 +476,7 @@ export function createServer(host: ServerHost): Server {
   async function getConfig(mainFile: string, path: string): Promise<CadlConfig> {
     const configPath = await findCadlConfigPath(compilerHost, mainFile);
     if (!configPath) {
-      return defaultConfig;
+      return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
 
     const cached = await fileSystemCache.get(configPath);
