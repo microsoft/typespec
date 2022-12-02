@@ -26,6 +26,7 @@ import {
   ignoreDiagnostics,
   IntrinsicScalarName,
   IntrinsicType,
+  isDeprecated,
   isErrorType,
   isGlobalNamespace,
   isNeverType,
@@ -468,6 +469,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters, visibility);
     emitResponses(operation.responses);
+
+    if (isDeprecated(program, op)) {
+      currentEndpoint.deprecated = true;
+    }
 
     attachExtensions(program, op, currentEndpoint);
   }
