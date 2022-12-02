@@ -2,8 +2,8 @@ import {
   BooleanLiteral,
   compilerAssert,
   DiscriminatedUnion,
+  EmitContext,
   emitFile,
-  EmitOptionsFor,
   Enum,
   EnumMember,
   getAllTags,
@@ -89,7 +89,7 @@ import {
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
-import { OpenAPI3EmitterOptions, OpenAPILibrary, reportDiagnostic } from "./lib.js";
+import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
@@ -111,25 +111,21 @@ const defaultOptions = {
   "omit-unreachable-types": false,
 } as const;
 
-export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
-  const options = resolveOptions(p, emitterOptions ?? {});
-  const emitter = createOAPIEmitter(p, options);
+export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
+  const options = resolveOptions(context);
+  const emitter = createOAPIEmitter(context.program, options);
   await emitter.emitOpenAPI();
 }
 
 export function resolveOptions(
-  program: Program,
-  options: OpenAPI3EmitterOptions
+  context: EmitContext<OpenAPI3EmitterOptions>
 ): ResolvedOpenAPI3EmitterOptions {
-  const resolvedOptions = { ...defaultOptions, ...options };
+  const resolvedOptions = { ...defaultOptions, ...context.options };
 
   return {
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
-    outputFile: resolvePath(
-      resolvedOptions["output-dir"] ?? program.compilerOptions.outputDir ?? "./cadl-output",
-      resolvedOptions["output-file"]
-    ),
+    outputFile: resolvePath(context.emitterOutputDir, resolvedOptions["output-file"]),
   };
 }
 
@@ -722,6 +718,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitParameter(parameter: HttpOperationParameter, visibility: Visibility) {
+    if (isNeverType(parameter.param.type)) {
+      return;
+    }
     const ph = getParamPlaceholder(parameter.param);
     currentEndpoint.parameters.push(ph);
 

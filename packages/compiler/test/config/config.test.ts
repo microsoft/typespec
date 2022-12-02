@@ -14,7 +14,10 @@ describe("compiler: config file loading", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (folderName: string) => {
       const folderPath = join(scenarioRoot, folderName);
-      const { filename, ...config } = await loadCadlConfigForPath(NodeHost, folderPath);
+      const { filename, projectRoot, ...config } = await loadCadlConfigForPath(
+        NodeHost,
+        folderPath
+      );
       return config;
     };
 
@@ -22,7 +25,8 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        emitters: { openapi: true },
+        outputDir: "{cwd}/cadl-output",
+        emitters: { openapi: {} },
       });
     });
 
@@ -31,7 +35,8 @@ describe("compiler: config file loading", () => {
       deepStrictEqual(config, {
         diagnostics: [],
         extends: "./cadl-base.yaml",
-        emitters: { openapi: true },
+        outputDir: "{cwd}/cadl-output",
+        emitters: { openapi: {} },
       });
     });
 
@@ -39,30 +44,33 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
+        outputDir: "{cwd}/cadl-output",
         emitters: {},
       });
     });
 
     it("deep clones defaults when not found", async () => {
       let config = await loadTestConfig("empty");
-      config.emitters["x"] = true;
+      config.emitters["x"] = {};
 
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
+        outputDir: "{cwd}/cadl-output",
         emitters: {},
       });
     });
 
     it("deep clones defaults when found", async () => {
       let config = await loadTestConfig("simple");
-      config.emitters["x"] = true;
+      config.emitters["x"] = {};
 
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
+        outputDir: "{cwd}/cadl-output",
         emitters: {
-          openapi: true,
+          openapi: {},
         },
       });
     });
@@ -100,7 +108,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("succeeds if config is valid", () => {
-      deepStrictEqual(validate({ emitters: { openapi: true } }), []);
+      deepStrictEqual(validate({ emitters: { openapi: {} } }), []);
     });
   });
 });

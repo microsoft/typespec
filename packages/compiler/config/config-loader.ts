@@ -1,14 +1,16 @@
 import jsyaml from "js-yaml";
-import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
+import { createDiagnostic } from "../core/messages.js";
+import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, loadFile } from "../core/util.js";
+import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
+import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
 import { CadlConfig, CadlRawConfig } from "./types.js";
 
 export const CadlConfigFilename = "cadl-project.yaml";
 
-export const defaultConfig: CadlConfig = deepFreeze({
+export const defaultConfig = deepFreeze({
+  outputDir: "{cwd}/cadl-output",
   diagnostics: [],
   emitters: {},
 });
@@ -16,7 +18,6 @@ export const defaultConfig: CadlConfig = deepFreeze({
 /**
  * Look for the project root by looking up until a `cadl-project.yaml` is found.
  * @param path Path to start looking
- * @param lookIn
  */
 export async function findCadlConfigPath(
   host: CompilerHost,
@@ -53,7 +54,7 @@ export async function loadCadlConfigForPath(
 ): Promise<CadlConfig> {
   const cadlConfigPath = await findCadlConfigPath(host, directoryPath);
   if (cadlConfigPath === undefined) {
-    return deepClone(defaultConfig);
+    return { ...deepClone(defaultConfig), projectRoot: directoryPath };
   }
   return loadCadlConfigFile(host, cadlConfigPath);
 }
@@ -111,18 +112,62 @@ async function loadConfigFile(
     data = deepClone(defaultConfig);
   }
 
-  return cleanUndefined({
+  let emitters: Record<string, Record<string, unknown>> | undefined = undefined;
+  if (data.emitters) {
+    emitters = {};
+    for (const [name, options] of Object.entries(data.emitters)) {
+      if (options === true) {
+        emitters[name] = {};
+      } else if (options === false) {
+      } else {
+        emitters[name] = options;
+      }
+    }
+  }
+
+  return omitUndefined({
+    projectRoot: getDirectoryPath(filename),
     filename,
     diagnostics,
-    outputDir: data["output-dir"],
+    extends: data.extends,
+    environmentVariables: data["environment-variables"],
+    parameters: data.parameters,
+    outputDir: data["output-dir"] ?? "{cwd}/cadl-output",
     warnAsError: data["warn-as-error"],
     imports: data.imports,
-    extends: data.extends,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
-    emitters: data.emitters!,
+    emitters: emitters!,
   });
 }
 
-function cleanUndefined<T extends Record<string, unknown>>(data: T): T {
-  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+export function validateConfigPathsAbsolute(config: CadlConfig): readonly Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  function checkPath(value: string | undefined) {
+    if (value === undefined) {
+      return;
+    }
+    const diagnostic = validatePathAbsolute(value);
+    if (diagnostic) {
+      diagnostics.push(diagnostic);
+    }
+  }
+
+  checkPath(config.outputDir);
+  for (const emitterOptions of Object.values(config.emitters)) {
+    checkPath(emitterOptions["emitter-output-dir"]);
+  }
+  return diagnostics;
+}
+
+function validatePathAbsolute(path: string): Diagnostic | undefined {
+  if (path.startsWith(".") || !isPathAbsolute(path)) {
+    return createDiagnostic({
+      code: "config-path-absolute",
+      format: { path },
+      target: NoTarget,
+    });
+  }
+
+  return undefined;
 }
