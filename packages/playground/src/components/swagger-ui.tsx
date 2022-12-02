@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 export interface SwaggerUIProps {
   spec: string;
 }
@@ -13,10 +13,8 @@ export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
     });
   }, [setSwaggerUILib]);
 
-
   if (swaggerUI === undefined) {
     return null;
   }
   return <swaggerUI.swaggerUIComp spec={props.spec} />;
-  // return <SwaggerUILib spec={props.spec} />;
 };
