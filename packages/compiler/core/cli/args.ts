@@ -5,7 +5,7 @@ import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
 import { resolvePath } from "../path-utils.js";
 import { CompilerHost, Diagnostic } from "../types.js";
-import { omitUndefined } from "../util.js";
+import { deepClone, omitUndefined } from "../util.js";
 
 export interface CompileCliArgs {
   "output-dir"?: string;
@@ -128,14 +128,14 @@ function resolveEmitteroptions(
   config: CadlConfig,
   cliOptions: Record<string | "miscOptions", Record<string, unknown>>
 ): Record<string, EmitterOptions> {
-  const configuredEmitters: Record<string, Record<string, unknown>> = {};
+  const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(
+    config.options ?? {}
+  );
 
-  for (const [emitterName, emitterConfig] of Object.entries(config.options ?? {})) {
-    const cliOptionOverride = cliOptions[emitterName];
-
+  for (const [emitterName, cliOptionOverride] of Object.entries(cliOptions)) {
     configuredEmitters[emitterName] = {
-      ...emitterConfig,
-      ...(cliOptionOverride ?? {}),
+      ...(configuredEmitters[emitterName] ?? {}),
+      ...cliOptionOverride,
     };
   }
 
