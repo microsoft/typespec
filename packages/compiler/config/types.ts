@@ -55,9 +55,14 @@ export interface CadlConfig {
   imports?: string[];
 
   /**
-   * Emitter configuration
+   * Name of emitters or path to emitters that should be used.
    */
-  emitters: Record<string, EmitterOptions>;
+  emit?: string[];
+
+  /**
+   * Name of emitters or path to emitters that should be used.
+   */
+  options?: Record<string, EmitterOptions>;
 }
 
 /**
@@ -72,6 +77,9 @@ export interface CadlRawConfig {
   "output-dir"?: string;
   trace?: string | string[];
   imports?: string[];
+
+  emit?: string[];
+  options?: Record<string, EmitterOptions>;
   emitters?: Record<string, boolean | EmitterOptions>;
 }
 

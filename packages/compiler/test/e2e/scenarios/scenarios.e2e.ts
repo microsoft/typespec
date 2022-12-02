@@ -34,7 +34,7 @@ describe("compiler: entrypoints", () => {
 
     it("compile library with Cadl entrypoint and emitter", async () => {
       const program = await compileScenario("emitter-with-cadl", {
-        emitters: { "@cadl-lang/test-emitter-with-cadl": {} },
+        emit: ["@cadl-lang/test-emitter-with-cadl"],
       });
       expectDiagnosticEmpty(program.diagnostics);
     });
@@ -53,7 +53,7 @@ describe("compiler: entrypoints", () => {
 
     it("emit diagnostics if emitter has invalid main", async () => {
       const program = await compileScenario("import-library-invalid", {
-        emitters: { "my-lib": {} },
+        emit: ["my-lib"],
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
@@ -63,7 +63,7 @@ describe("compiler: entrypoints", () => {
 
     it("emit diagnostics if emitter require import that is not imported", async () => {
       const program = await compileScenario("emitter-require-import", {
-        emitters: { "@cadl-lang/my-emitter": {} },
+        emit: ["@cadl-lang/my-emitter"],
       });
       expectDiagnostics(program.diagnostics, {
         code: "missing-import",
@@ -75,7 +75,7 @@ describe("compiler: entrypoints", () => {
       await rejects(
         () =>
           compileScenario("emitter-throw-error", {
-            emitters: { "@cadl-lang/my-emitter": {} },
+            emit: ["@cadl-lang/my-emitter"],
           }),
         new RegExp(
           [
@@ -90,7 +90,7 @@ describe("compiler: entrypoints", () => {
 
     it("succeed if required import from an emitter is imported", async () => {
       const program = await compileScenario("emitter-require-import", {
-        emitters: { "@cadl-lang/my-emitter": {} },
+        emit: ["@cadl-lang/my-emitter"],
         additionalImports: ["@cadl-lang/my-lib"],
       });
       expectDiagnosticEmpty(program.diagnostics);
@@ -98,14 +98,14 @@ describe("compiler: entrypoints", () => {
 
     it("succeed if loading different install of the same library at the same version", async () => {
       const program = await compileScenario("same-library-same-version", {
-        emitters: { "@cadl-lang/lib2": {} },
+        emit: ["@cadl-lang/lib2"],
       });
       expectDiagnosticEmpty(program.diagnostics);
     });
 
     it("emit error if loading different install of the same library at different version", async () => {
       const program = await compileScenario("same-library-diff-version", {
-        emitters: { "@cadl-lang/lib2": {} },
+        emit: ["@cadl-lang/lib2"],
       });
       expectDiagnostics(program.diagnostics, {
         code: "incompatible-library",

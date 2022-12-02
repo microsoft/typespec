@@ -559,10 +559,16 @@ const diagnostics = {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
-  "emitter-not-found": {
+  "invalid-emitter": {
     severity: "error",
     messages: {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
     },
   },
   "missing-import": {
