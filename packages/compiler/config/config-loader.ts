@@ -116,6 +116,16 @@ async function loadConfigFile(
 
   // @deprecated Legacy backward compatibility of emitters option. To remove March Sprint.
   if (data.emitters) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message:
+            "`emitters` options in cadl-project.yaml is deprecated use `emit` and `options` instead.",
+        },
+        target: NoTarget,
+      })
+    );
     emit = [];
     options = {};
     for (const [name, emitterOptions] of Object.entries(data.emitters)) {

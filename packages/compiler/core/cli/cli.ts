@@ -342,8 +342,10 @@ async function getCompilerOptionsOrExit(
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
   const [options, diagnostics] = await getCompilerOptions(host, process.cwd(), args, process.env);
-  if (options === undefined) {
+  if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);
+  }
+  if (options === undefined) {
     logDiagnosticCount(diagnostics);
     process.exit(1);
   }
