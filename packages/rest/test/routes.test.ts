@@ -596,10 +596,16 @@ describe("rest: routes", () => {
         @route("/test")
         op get(): string;
     `);
-      expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
-        message: "@route was defined twice on this operation.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+      ]);
     });
 
     it("emit diagnostic if specifying route twice on interface", async () => {
@@ -610,10 +616,16 @@ describe("rest: routes", () => {
           get(): string
         }
     `);
-      expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
-        message: "@route was defined twice on this interface.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+      ]);
     });
 
     it("emit diagnostic if namespace have route but different values", async () => {

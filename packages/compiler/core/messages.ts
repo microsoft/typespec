@@ -155,6 +155,12 @@ const diagnostics = {
       default: `Augment decorator first argument must be a type reference.`,
     },
   },
+  "duplicate-decorator": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same node.`,
+    },
+  },
   "reserved-identifier": {
     severity: "error",
     messages: {

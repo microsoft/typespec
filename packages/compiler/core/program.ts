@@ -304,6 +304,8 @@ export async function compile(
     resolveTypeReference,
   };
 
+  trace("compiler.options", JSON.stringify(options, null, 2));
+
   function trace(area: string, message: string) {
     tracer.trace(area, message);
   }
@@ -335,7 +337,6 @@ export async function compile(
       emit ??= Object.keys(options.emitters);
       emitterOptions ??= options.emitters;
     }
-
     await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
   }
 
@@ -622,7 +623,7 @@ export async function compile(
     // This is the emitter names under options that haven't been used. We need to check if it points to an emitter that wasn't loaded
     for (const emitterName of emitterThatShouldExists) {
       // attempt to resolve a node module with this name
-      const module = await resolveEmitterModuleAndEntrypoint(emitterName, mainFile);
+      const module = await resolveEmitterModuleAndEntrypoint(mainFile, emitterName);
       if (module?.entrypoint === undefined) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -642,6 +643,7 @@ export async function compile(
     { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined
   > {
     const basedir = getDirectoryPath(mainFile);
+
     // attempt to resolve a node module with this name
     const module = await resolveJSLibrary(emitterNameOrPath, basedir);
     if (!module) {
