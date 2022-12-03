@@ -59,7 +59,8 @@
     "vscode-languageserver": "~8.0.2",
     "lzutf8": "0.6.2",
     "debounce": "~1.2.1",
-    "swagger-ui": "~4.15.0"
+    "swagger-ui": "~4.15.5",
+    "swagger-ui-react": "~4.15.5"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
@@ -82,6 +83,7 @@
     "typescript": "~4.9.3",
     "@types/debounce": "~1.2.1",
     "@types/swagger-ui": "~3.52.0",
+    "@types/swagger-ui-react": "^4.11.0",
     "rollup-plugin-visualizer": "~5.8.0"
   }
 }
