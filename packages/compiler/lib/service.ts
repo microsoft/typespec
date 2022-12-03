@@ -1,4 +1,4 @@
-import { validateDecoratorTarget } from "../core/decorator-utils.js";
+import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
 import { getNamespaceFullName, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
@@ -64,6 +64,8 @@ export function addService(
 }
 
 export function $service(context: DecoratorContext, target: Namespace, options?: Model) {
+  validateDecoratorUniqueOnNode(context, target, $service);
+
   const serviceDetails: ServiceDetails = {};
   const title = options?.properties.get("title")?.type;
   const version = options?.properties.get("version")?.type;
