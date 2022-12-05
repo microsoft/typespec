@@ -8,6 +8,7 @@ import {
   ObjectType,
   Program,
   ProjectionApplication,
+  reportDeprecated,
   Tuple,
   Type,
 } from "@cadl-lang/compiler";
@@ -75,7 +76,7 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
   const record = getRenamedFrom(program, t) ?? [];
   record.push({ version: version, oldName: oldName });
   // ensure that records are stored in ascending order
-  (record as Array<RenamedFrom>).sort((a, b) => a.version.index - b.version.index);
+  record.sort((a, b) => a.version.index - b.version.index);
 
   program.stateMap(renamedFromKey).set(t, record);
 }
@@ -109,12 +110,11 @@ function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
  * @returns version when the given type was added if applicable.
  */
 export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
-  p.reportDiagnostic({
-    code: "deprecated",
-    message: "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
-    severity: "error",
-    target: t,
-  });
+  reportDeprecated(
+    p,
+    "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
+    t
+  );
   return p.stateMap(renamedFromKey).get(t)?.[0].version;
 }
 
@@ -129,12 +129,11 @@ export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefin
  * @returns get old renamed name if applicable.
  */
 export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
-  p.reportDiagnostic({
-    code: "deprecated",
-    message: "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
-    severity: "error",
-    target: t,
-  });
+  reportDeprecated(
+    p,
+    "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
+    t
+  );
   return p.stateMap(renamedFromKey).get(t)?.[0].oldName ?? "";
 }
 
@@ -146,17 +145,15 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
   const allValues = getRenamedFrom(p, t);
   if (!allValues || !version) return "";
 
-  let oldName = "";
   const targetIndex = version.index;
 
   for (const val of allValues) {
     const index = val.version.index;
     if (targetIndex < index) {
-      oldName = val.oldName;
-      break;
+      return val.oldName;
     }
   }
-  return oldName;
+  return "";
 }
 
 /**
@@ -514,12 +511,11 @@ export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
 }
 
 export function renamedAfter(p: Program, type: Type, version: ObjectType) {
-  p.reportDiagnostic({
-    code: "deprecate",
-    message: "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
-    severity: "warning",
-    target: type,
-  });
+  reportDeprecated(
+    p,
+    "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
+    type
+  );
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
