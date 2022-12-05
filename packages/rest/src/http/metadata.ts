@@ -444,7 +444,8 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   }
 
   function isOptional(property: ModelProperty, visibility: Visibility): boolean {
-    // TODO: === Visibility.Update isn't quite right here. It should be that Visibility.Update is present, but Visibility.Update is present in Visibility.All which breaks things.
+    // Item flag is not a real visibility.
+    visibility &= ~Visibility.Item;
     return property.optional || visibility === Visibility.Update;
   }
 

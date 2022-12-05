@@ -45,13 +45,20 @@ model WriteableOptionalPerson {
   ...OptionalProperties<WritablePerson>;
 }
 
+model ListResult<T> {
+  items: T[];
+}
+
 @route("/hello")
 namespace Hello {
   @get op read(@path id: string, @query fieldMask: string[]): ReadablePerson;
   @post op create(@body person: WritablePerson): ReadablePerson;
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
 
-  @Cadl.Rest.updatesResource(Person)
+  @Cadl.Rest.listsResource(Person)
+  @get op list(): ListResult<Person>;
+
   @put
+  @Cadl.Rest.updatesResource(Person)
   op updateRest(@body person: Person): ReadablePerson;
 }
