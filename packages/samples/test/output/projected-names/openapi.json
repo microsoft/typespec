@@ -11,7 +11,7 @@
         "operationId": "test",
         "parameters": [
           {
-            "name": "select",
+            "name": "$select",
             "in": "query",
             "required": true,
             "schema": {
