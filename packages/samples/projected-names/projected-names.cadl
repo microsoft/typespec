@@ -18,4 +18,4 @@ model WithProjectedNames {
   updated: int32;
 }
 
-op test(@projectedName("json", "$select") @query select: string): WithProjectedNames;
+op test(@query("$select") select: string): WithProjectedNames;
