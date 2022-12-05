@@ -26,7 +26,7 @@ async function loadCompiler<V extends CadlCompilerVersion>(version: V): Promise<
   try {
     return await import(`@cadl-lang/compiler-v${version}`);
   } catch {
-    return await import("@cadl-lang/compiler");
+    return (await import("@cadl-lang/compiler")) as any;
   }
 }
 
