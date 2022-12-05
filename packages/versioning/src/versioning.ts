@@ -106,9 +106,22 @@ function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
 }
 
 /**
+ * @returns version when the given type was added if applicable.
+ */
+export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
+  p.reportDiagnostic({
+    code: "deprecated",
+    message: "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
+    severity: "error",
+    target: t,
+  });
+  return p.stateMap(renamedFromKey).get(t)?.[0].version;
+}
+
+/**
  * @returns the list of versions for which this decorator has been applied
  */
-export function getRenamedFromVersion(p: Program, t: Type): Version[] | undefined {
+export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefined {
   return getRenamedFrom(p, t)?.map((x) => x.version);
 }
 
@@ -116,6 +129,19 @@ export function getRenamedFromVersion(p: Program, t: Type): Version[] | undefine
  * @returns get old renamed name if applicable.
  */
 export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
+  p.reportDiagnostic({
+    code: "deprecated",
+    message: "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
+    severity: "error",
+    target: t,
+  });
+  return p.stateMap(renamedFromKey).get(t)?.[0].oldName ?? "";
+}
+
+/**
+ * @returns get old name if applicable.
+ */
+export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
   const version = toVersion(p, t, v);
   const allValues = getRenamedFrom(p, t);
   if (!allValues || !version) return "";
@@ -488,7 +514,18 @@ export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
 }
 
 export function renamedAfter(p: Program, type: Type, version: ObjectType) {
-  return getRenamedFromOldName(p, type, version) !== "";
+  p.reportDiagnostic({
+    code: "deprecate",
+    message: "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
+    severity: "warning",
+    target: type,
+  });
+  const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
+  return appliesAt === null ? false : !appliesAt;
+}
+
+export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType) {
+  return getNameAtVersion(p, type, version) !== "";
 }
 
 export function madeOptionalAfter(p: Program, type: Type, version: ObjectType) {
