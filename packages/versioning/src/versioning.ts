@@ -60,7 +60,7 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
 }
 
 interface RenamedFrom {
-  v: Version;
+  version: Version;
   oldName: string;
 }
 
@@ -72,10 +72,10 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
   }
 
   // retrieve statemap to update or create a new one
-  const record = program.stateMap(renamedFromKey).get(t) ?? new Array<RenamedFrom>();
-  record.push({ v: version, oldName: oldName });
+  const record = getRenamedFrom(program, t) ?? [];
+  record.push({ version: version, oldName: oldName });
   // ensure that records are stored in ascending order
-  (record as Array<RenamedFrom>).sort((a, b) => a.v.index - b.v.index);
+  (record as Array<RenamedFrom>).sort((a, b) => a.version.index - b.version.index);
 
   program.stateMap(renamedFromKey).set(t, record);
 }
@@ -108,8 +108,8 @@ function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
 /**
  * @returns the list of versions for which this decorator has been applied
  */
-export function getRenamedFromVersion(p: Program, t: Type): Array<Version> | undefined {
-  return getRenamedFrom(p, t)?.map((x) => x.v);
+export function getRenamedFromVersion(p: Program, t: Type): Version[] | undefined {
+  return getRenamedFrom(p, t)?.map((x) => x.version);
 }
 
 /**
@@ -124,7 +124,7 @@ export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): strin
   const targetIndex = version.index;
 
   for (const val of allValues) {
-    const index = val.v.index;
+    const index = val.version.index;
     if (targetIndex < index) {
       oldName = val.oldName;
       break;
