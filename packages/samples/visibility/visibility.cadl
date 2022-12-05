@@ -17,6 +17,14 @@ model Person {
 
   @visibility("other", "read", "update")
   other: string;
+
+  @visibility("read", "create", "update")
+  relatives: PersonRelative[];
+}
+
+model PersonRelative {
+  person: Person;
+  relationship: string;
 }
 
 @withVisibility("read")
@@ -56,10 +64,8 @@ namespace Hello {
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
 
   @Cadl.Rest.listsResource(Person)
-  @get
   op list(): ListResult<Person>;
 
-  @put
   @Cadl.Rest.updatesResource(Person)
   op updateRest(@body person: Person): ReadablePerson;
 }

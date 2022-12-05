@@ -36,7 +36,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReadablePerson"
+                  "$ref": "#/components/schemas/ReadablePersonRead"
                 }
               }
             }
@@ -54,7 +54,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReadablePerson"
+                  "$ref": "#/components/schemas/ReadablePersonRead"
                 }
               }
             }
@@ -64,7 +64,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WritablePerson"
+                "$ref": "#/components/schemas/WritablePersonCreate"
               }
             }
           }
@@ -79,7 +79,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReadablePerson"
+                  "$ref": "#/components/schemas/ReadablePersonRead"
                 }
               }
             }
@@ -133,7 +133,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReadablePerson"
+                  "$ref": "#/components/schemas/ReadablePersonRead"
                 }
               }
             }
@@ -153,6 +153,38 @@
   },
   "components": {
     "schemas": {
+      "ReadablePersonRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          },
+          "other": {
+            "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelativeReadItem"
+            },
+            "x-cadl-name": "PersonRelative[]"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "test",
+          "other",
+          "relatives"
+        ]
+      },
       "ReadablePerson": {
         "type": "object",
         "properties": {
@@ -168,13 +200,48 @@
           },
           "other": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelative"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         },
         "required": [
           "id",
           "name",
           "test",
-          "other"
+          "other",
+          "relatives"
+        ]
+      },
+      "WritablePersonCreate": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelativeCreateItem"
+            },
+            "x-cadl-name": "PersonRelative[]"
+          }
+        },
+        "required": [
+          "secret",
+          "name",
+          "test",
+          "relatives"
         ]
       },
       "WritablePerson": {
@@ -188,12 +255,20 @@
           },
           "test": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelative"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         },
         "required": [
           "secret",
           "name",
-          "test"
+          "test",
+          "relatives"
         ]
       },
       "WriteableOptionalPerson": {
@@ -207,6 +282,13 @@
           },
           "test": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelative"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         }
       },
@@ -225,13 +307,21 @@
           },
           "other": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelativeReadItem"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         },
         "required": [
           "id",
           "name",
           "test",
-          "other"
+          "other",
+          "relatives"
         ]
       },
       "PersonUpdate": {
@@ -242,6 +332,13 @@
           },
           "other": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelativeUpdateItem"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         }
       },
@@ -263,6 +360,13 @@
           },
           "other": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelative"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         },
         "required": [
@@ -270,8 +374,110 @@
           "secret",
           "name",
           "test",
-          "other"
+          "other",
+          "relatives"
         ]
+      },
+      "PersonCreateItem": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelativeCreateItem"
+            },
+            "x-cadl-name": "PersonRelative[]"
+          }
+        },
+        "required": [
+          "secret",
+          "name",
+          "test",
+          "relatives"
+        ]
+      },
+      "PersonUpdateItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "other": {
+            "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelativeUpdateItem"
+            },
+            "x-cadl-name": "PersonRelative[]"
+          }
+        }
+      },
+      "PersonRelative": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "relationship": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "person",
+          "relationship"
+        ]
+      },
+      "PersonRelativeReadItem": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/PersonReadItem"
+          },
+          "relationship": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "person",
+          "relationship"
+        ]
+      },
+      "PersonRelativeCreateItem": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/PersonCreateItem"
+          },
+          "relationship": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "person",
+          "relationship"
+        ]
+      },
+      "PersonRelativeUpdateItem": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/PersonUpdateItem"
+          },
+          "relationship": {
+            "type": "string"
+          }
+        }
       },
       "OptionalPerson": {
         "type": "object",
@@ -291,6 +497,13 @@
           },
           "other": {
             "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRelative"
+            },
+            "x-cadl-name": "PersonRelative[]"
           }
         }
       }
