@@ -56,7 +56,8 @@ namespace Hello {
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
 
   @Cadl.Rest.listsResource(Person)
-  @get op list(): ListResult<Person>;
+  @get
+  op list(): ListResult<Person>;
 
   @put
   @Cadl.Rest.updatesResource(Person)

@@ -1,4 +1,4 @@
-import { Program, resolvePath } from "@cadl-lang/compiler";
+import { EmitContext, emitFile, resolvePath } from "@cadl-lang/compiler";
 import { renderProgram } from "./ui.js";
 
 import { createCadlLibrary, JSONSchemaType } from "@cadl-lang/compiler";
@@ -29,12 +29,12 @@ export const libDef = {
 
 export const $lib = createCadlLibrary(libDef);
 
-export async function $onEmit(program: Program, options: HtmlProgramViewerOptions) {
-  const html = renderProgram(program);
-  const outputDir = options["output-dir"] ?? program.compilerOptions.outputDir!;
+export async function $onEmit(context: EmitContext<HtmlProgramViewerOptions>) {
+  const html = renderProgram(context.program);
+  const outputDir = context.emitterOutputDir;
   const htmlPath = resolvePath(outputDir, "cadl-program.html");
-  await program.host.writeFile(
-    htmlPath,
-    `<!DOCTYPE html><html lang="en"><link rel="stylesheet" href="style.css"><body>${html}</body></html>`
-  );
+  await emitFile(context.program, {
+    path: htmlPath,
+    content: `<!DOCTYPE html><html lang="en"><link rel="stylesheet" href="style.css"><body>${html}</body></html>`,
+  });
 }

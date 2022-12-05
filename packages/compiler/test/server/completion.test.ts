@@ -206,7 +206,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
         },
       },
     ]);
@@ -245,7 +245,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
         },
       },
     ]);
@@ -346,7 +346,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nenummember Fruit.Orange\n```",
+            value: "(enum member)\n```cadl\nFruit.Orange\n```",
           },
         },
         {
@@ -355,7 +355,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nenummember Fruit.Banana\n```",
+            value: "(enum member)\n```cadl\nFruit.Banana\n```",
           },
         },
       ],
@@ -388,13 +388,19 @@ describe("compiler: server: completion", () => {
           label: "orange",
           insertText: "orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Orange\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.orange: Orange\n```",
+          },
         },
         {
           label: "banana",
           insertText: "banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Banana\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.banana: Banana\n```",
+          },
         },
       ],
       {
@@ -420,7 +426,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation N.test\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop N.test(): void\n```" },
         },
       ],
       {
@@ -447,7 +453,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation test\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop I.test(): void\n```" },
         },
       ],
       {
@@ -473,7 +479,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Field,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodelproperty M.test\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```cadl\ntest: Cadl.string\n```",
+          },
         },
       ],
       {
@@ -498,7 +507,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Struct,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```cadl\ntemplateparameter Param\n```",
+          value: "(template parameter)\n```cadl\nParam\n```",
         },
       },
     ]);
@@ -639,6 +648,45 @@ describe("compiler: server: completion", () => {
     );
   });
 
+  it("shows doc comment documentation", async () => {
+    const completions = await complete(
+      `
+      namespace N {
+        /**
+         * Just an example.
+         *
+         * @param value The value.
+         *
+         * @example
+         * \`\`\`cadl
+         * @hello
+         * model M {}
+         * \`\`\`
+         */
+        extern dec hello(value: string);
+      }
+      @N.┆
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "hello",
+          insertText: "hello",
+          kind: CompletionItemKind.Function,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value:
+              "```cadl\ndec N.hello(value: Cadl.string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```cadl\n@hello\nmodel M {}\n```",
+          },
+        },
+      ],
+      { fullDocs: true }
+    );
+  });
+
   it("completes deprecated type", async () => {
     const completions = await complete(
       `
@@ -665,8 +713,17 @@ describe("compiler: server: completion", () => {
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],
-    options = { allowAdditionalCompletions: true }
+    options?: {
+      allowAdditionalCompletions?: boolean;
+      fullDocs?: boolean;
+    }
   ) {
+    options = {
+      allowAdditionalCompletions: true,
+      fullDocs: false,
+      ...options,
+    };
+
     ok(!list.isIncomplete, "list should not be incomplete.");
 
     const expectedMap = new Map(expectedItems.map((i) => [i.label, i]));
@@ -681,6 +738,23 @@ describe("compiler: server: completion", () => {
 
     for (const expected of expectedItems) {
       const actual = actualMap.get(expected.label);
+
+      // Unless given the fullDocs option, tests only give their expectation for the first
+      // markdown paragraph.
+      if (
+        !options.fullDocs &&
+        typeof actual?.documentation === "object" &&
+        actual.documentation.value.indexOf("\n\n") > 0
+      ) {
+        actual.documentation = {
+          kind: MarkupKind.Markdown,
+          value: actual.documentation.value.substring(
+            0,
+            actual.documentation.value.indexOf("\n\n")
+          ),
+        };
+      }
+
       ok(actual, `Expected completion item not found: '${expected.label}'.`);
       deepStrictEqual(actual, expected);
       actualMap.delete(actual.label);

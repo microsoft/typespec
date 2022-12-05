@@ -77,6 +77,18 @@ describe("compiler: service", () => {
     deepStrictEqual(listServices(runner.program), [{ type: S, version: "1.2.3" }]);
   });
 
+  it("emit diagnostic if service is used on a non namespace", async () => {
+    const diagnostics = await runner.diagnose(`
+      @service model S {}
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "decorator-wrong-target",
+      message:
+        "Cannot apply @service decorator to S since it is not assignable to Cadl.Reflection.Namespace",
+    });
+  });
+
   it("emit diagnostic if service version is not a string", async () => {
     const diagnostics = await runner.diagnose(`
       @test @service({version: 123}) namespace S {}

@@ -22,7 +22,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
     },
     assetsInclude: [/\.cadl$/],
     optimizeDeps: {
-      exclude: ["node-fetch"],
+      exclude: ["node-fetch", "swagger-ui"],
     },
     plugins: [
       react({

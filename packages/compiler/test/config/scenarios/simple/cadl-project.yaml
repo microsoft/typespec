@@ -1,3 +1,3 @@
 # This has comments
-emitters:
-  openapi: true
+emit:
+  - openapi

@@ -100,3 +100,33 @@ export function $onValidate(program: Program) {
 ```
 
 This will not run the linter right here, it will just add a new callback to the onValidate list giving time for all linters to register their rules.
+
+## Testing a linter
+
+To test linter rule an rule tester is provided letting you test a specific rule without enabling the others.
+
+First you'll want to create an instance of the rule tester using `createRuleTester` passing it the rule that is being tested.
+You can then provide different test checking the rule pass or fails.
+
+```ts
+import { createRuleTester } from "@cadl-lang/lint/testing";
+import { noFooModelRule } from "./no-foo-model.js";
+
+let ruleTester: RuleTester;
+
+beforeEach(() => {
+  const runner = createTestRunner();
+  ruleTester = createRuleTester(runner, noFooModelRule);
+});
+
+it("emit diagnostics when using model named foo", () => {
+  ruleTester.expect(`model Foo {}`).toEmitDiagnostic({
+    code: "my-library/no-foo-model",
+    message: "Cannot name a model with 'Foo'",
+  });
+});
+
+it("should be valid to use other names", () => {
+  ruleTester.expect(`model Bar {}`).toBeValid();
+});
+```

@@ -1,5 +1,14 @@
 import { JSONSchemaType } from "ajv";
-import { CadlRawConfig } from "./types.js";
+import { CadlRawConfig, EmitterOptions } from "./types.js";
+
+const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
+  type: "object",
+  additionalProperties: true,
+  required: [],
+  properties: {
+    "emitter-output-dir": { type: "string", nullable: true } as any,
+  },
+};
 
 export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
   type: "object",
@@ -9,6 +18,31 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       type: "string",
       nullable: true,
     },
+    "environment-variables": {
+      type: "object",
+      nullable: true,
+      required: [],
+      additionalProperties: {
+        type: "object",
+        properties: {
+          default: { type: "string" },
+        },
+        required: ["default"],
+      },
+    },
+    parameters: {
+      type: "object",
+      nullable: true,
+      required: [],
+      additionalProperties: {
+        type: "object",
+        properties: {
+          default: { type: "string" },
+        },
+        required: ["default"],
+      },
+    },
+
     "output-dir": {
       type: "string",
       nullable: true,
@@ -31,12 +65,23 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       nullable: true,
       items: { type: "string" },
     },
+    emit: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
+    options: {
+      type: "object",
+      nullable: true,
+      required: [],
+      additionalProperties: emitterOptionsSchema,
+    },
     emitters: {
       type: "object",
       nullable: true,
       required: [],
       additionalProperties: {
-        oneOf: [{ type: "boolean" }, { type: "object" }],
+        oneOf: [{ type: "boolean" }, emitterOptionsSchema],
       },
     },
   },

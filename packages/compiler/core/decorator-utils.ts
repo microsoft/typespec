@@ -1,9 +1,11 @@
 import { getPropertyType } from "../lib/decorators.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
+import { compilerAssert, SyntaxKind } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
   DecoratorContext,
+  DecoratorFunction,
   Diagnostic,
   DiagnosticTarget,
   IntrinsicScalarName,
@@ -403,4 +405,29 @@ function cadlTypeToJsonInternal(
             });
       return [undefined, [diagnostic]];
   }
+}
+
+export function validateDecoratorUniqueOnNode(
+  context: DecoratorContext,
+  type: Type,
+  decorator: DecoratorFunction
+) {
+  compilerAssert("decorators" in type, "Type should have decorators");
+
+  const sameDecorators = type.decorators.filter(
+    (x) =>
+      x.decorator === decorator &&
+      x.node?.kind === SyntaxKind.DecoratorExpression &&
+      x.node?.parent === type.node
+  );
+
+  if (sameDecorators.length > 1) {
+    reportDiagnostic(context.program, {
+      code: "duplicate-decorator",
+      format: { decoratorName: "@" + decorator.name.slice(1) },
+      target: context.decoratorTarget,
+    });
+    return false;
+  }
+  return true;
 }
