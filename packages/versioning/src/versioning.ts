@@ -8,6 +8,7 @@ import {
   ObjectType,
   Program,
   ProjectionApplication,
+  reportDeprecated,
   Tuple,
   Type,
 } from "@cadl-lang/compiler";
@@ -58,13 +59,24 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
   }
   program.stateMap(removedOnKey).set(t, version);
 }
+
+interface RenamedFrom {
+  version: Version;
+  oldName: string;
+}
+
 export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, oldName: string) {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
   }
-  const record = { v: version, oldName: oldName };
+
+  // retrieve statemap to update or create a new one
+  const record = getRenamedFrom(program, t) ?? [];
+  record.push({ version: version, oldName: oldName });
+  // ensure that records are stored in ascending order
+  record.sort((a, b) => a.version.index - b.version.index);
 
   program.stateMap(renamedFromKey).set(t, record);
 }
@@ -78,18 +90,70 @@ export function $madeOptional(context: DecoratorContext, t: Type, v: EnumMember)
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
+function toVersion(p: Program, t: Type, v: ObjectType): Version | undefined {
+  const [namespace] = getVersions(p, t);
+  if (namespace === undefined) {
+    return undefined;
+  }
+  return getVersionForNamespace(
+    p,
+    v,
+    (namespace.projectionBase as Namespace) ?? namespace
+  ) as Version;
+}
+
+function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
+  return p.stateMap(renamedFromKey).get(t) as Array<RenamedFrom>;
+}
+
 /**
  * @returns version when the given type was added if applicable.
  */
 export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
-  return p.stateMap(renamedFromKey).get(t)?.v;
+  reportDeprecated(
+    p,
+    "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
+    t
+  );
+  return p.stateMap(renamedFromKey).get(t)?.[0].version;
+}
+
+/**
+ * @returns the list of versions for which this decorator has been applied
+ */
+export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefined {
+  return getRenamedFrom(p, t)?.map((x) => x.version);
 }
 
 /**
  * @returns get old renamed name if applicable.
  */
-export function getRenamedFromOldName(p: Program, t: Type): string {
-  return p.stateMap(renamedFromKey).get(t)?.oldName ?? "";
+export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
+  reportDeprecated(
+    p,
+    "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
+    t
+  );
+  return p.stateMap(renamedFromKey).get(t)?.[0].oldName ?? "";
+}
+
+/**
+ * @returns get old name if applicable.
+ */
+export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
+  const version = toVersion(p, t, v);
+  const allValues = getRenamedFrom(p, t);
+  if (!allValues || !version) return "";
+
+  const targetIndex = version.index;
+
+  for (const val of allValues) {
+    const index = val.version.index;
+    if (targetIndex < index) {
+      return val.oldName;
+    }
+  }
+  return "";
 }
 
 /**
@@ -447,8 +511,17 @@ export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
 }
 
 export function renamedAfter(p: Program, type: Type, version: ObjectType) {
+  reportDeprecated(
+    p,
+    "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
+    type
+  );
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
   return appliesAt === null ? false : !appliesAt;
+}
+
+export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType) {
+  return getNameAtVersion(p, type, version) !== "";
 }
 
 export function madeOptionalAfter(p: Program, type: Type, version: ObjectType) {
@@ -471,15 +544,7 @@ function appliesAtVersion(
   type: Type,
   versionKey: ObjectType
 ): boolean | null {
-  const [namespace] = getVersions(p, type);
-  if (namespace === undefined) {
-    return null;
-  }
-  const version = getVersionForNamespace(
-    p,
-    versionKey,
-    (namespace.projectionBase as Namespace) ?? namespace
-  );
+  const version = toVersion(p, type, versionKey);
   if (version === undefined) {
     return null;
   }
