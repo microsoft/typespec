@@ -115,7 +115,11 @@ function validateVersionedNamespaceUsage(
     for (const target of targets) {
       const targetVersions = getVersion(program, target);
 
-      if (targetVersions !== undefined && dependencies?.get(target) === undefined) {
+      if (
+        targetVersions !== undefined &&
+        !(source && isSubNamespace(target, source)) &&
+        dependencies?.get(target) === undefined
+      ) {
         reportDiagnostic(program, {
           code: "using-versioned-library",
           format: {
@@ -127,6 +131,19 @@ function validateVersionedNamespaceUsage(
       }
     }
   }
+}
+
+function isSubNamespace(parent: Namespace, child: Namespace): boolean {
+  let current: Namespace | undefined = child;
+
+  while (current) {
+    if (current === parent) {
+      return true;
+    }
+    current = current.namespace;
+  }
+
+  return false;
 }
 
 interface IncompatibleVersionValidateOptions {
