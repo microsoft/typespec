@@ -444,8 +444,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   }
 
   function isOptional(property: ModelProperty, visibility: Visibility): boolean {
-    // Item flag is not a real visibility.
-    visibility &= ~Visibility.Item;
+    // Properties are only made optional for update visibility
     return property.optional || visibility === Visibility.Update;
   }
 

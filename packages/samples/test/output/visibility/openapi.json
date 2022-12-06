@@ -421,7 +421,12 @@
             },
             "x-cadl-name": "PersonRelative[]"
           }
-        }
+        },
+        "required": [
+          "name",
+          "other",
+          "relatives"
+        ]
       },
       "PersonRelative": {
         "type": "object",
@@ -477,7 +482,11 @@
           "relationship": {
             "type": "string"
           }
-        }
+        },
+        "required": [
+          "person",
+          "relationship"
+        ]
       },
       "OptionalPerson": {
         "type": "object",
