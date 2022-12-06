@@ -64,7 +64,16 @@ const sidebars = {
             "standard-library/rest/resource-routing",
           ],
         },
-        "standard-library/openapi",
+        {
+          type: "category",
+          label: "OpenAPI",
+          items: [
+            "standard-library/openapi/overview",
+            "standard-library/openapi/decorators",
+            "standard-library/openapi/openapi",
+            "standard-library/openapi/diagnostics",
+          ],
+        },
       ],
     },
     {

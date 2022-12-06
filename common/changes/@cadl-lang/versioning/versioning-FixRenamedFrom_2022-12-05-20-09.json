@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Deprecated getRenamedFromVersion, getRenamedFromOldName, and renamedAfter methods in favor of getRenamedFromVersions, getNameAtVersion, and hasDifferentNameAtVersion.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}

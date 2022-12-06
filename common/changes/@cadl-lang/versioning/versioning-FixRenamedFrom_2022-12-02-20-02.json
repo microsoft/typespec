@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Allow @renamedFrom to be used multiple times",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
