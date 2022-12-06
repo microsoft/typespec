@@ -3,7 +3,7 @@
     {
       "packageName": "@cadl-lang/compiler",
       "comment": "Fix member completion on aliases",
-      "type": "none"
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/compiler"
