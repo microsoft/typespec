@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Fix: Validation of versioned dependency giving false positive when inside a sub namespace of versioned namespace",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}

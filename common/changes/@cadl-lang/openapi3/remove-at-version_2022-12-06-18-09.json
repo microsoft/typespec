@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Remove undocumented use of atVersion projection",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}
