@@ -239,6 +239,43 @@ describe("versioning: reference versioned library", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("doesn't emit diagnostic when parent namespace is versioned and using type from it", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace DemoService {
+          enum Versions {v1, v2}
+          
+          model Foo {}
+
+          namespace SubNamespace {
+            op use(): Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't emit diagnostic when referencing to versioned library from subnamespace with parent namespace with versioned dependency", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {v1, v2}
+          
+          model Foo {}
+        }
+
+        @versionedDependency(Lib.Versions.v1)
+        namespace MyService {
+          namespace SubNamespace {
+            op use(): Lib.Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic when used in properties of generic type", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {

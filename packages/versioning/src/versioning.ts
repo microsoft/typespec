@@ -288,11 +288,25 @@ export function $versionedDependency(
   }
 }
 
+function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
+  let current: Namespace | undefined = namespace;
+
+  while (current) {
+    const data = program.stateMap(versionDependencyKey).get(current);
+    if (data !== undefined) {
+      return data;
+    }
+    current = current.namespace;
+  }
+
+  return undefined;
+}
+
 export function getVersionDependencies(
   program: Program,
   namespace: Namespace
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
-  const data = program.stateMap(versionDependencyKey).get(namespace);
+  const data = findVersionDependencyForNamespace(program, namespace);
   if (data === undefined) {
     return undefined;
   }
