@@ -3,7 +3,7 @@ import { dirname, resolve } from "path";
 import watch from "watch";
 import { clearScreen, logWithTime } from "./common.js";
 
-export function runWatch(dir: string, build: any, options: any) {
+export function runWatch(dir: string, build: any, options?: any) {
   let lastBuildTime: Date;
   dir = resolve(dir);
 
