@@ -6,7 +6,7 @@ import { resolve } from "path";
 
 async function build() {
   const inFile = resolve("src/spec.emu.html");
-  const outfile = resolve("../../docs/spec.html");
+  const outfile = resolve("dist/spec.html");
   const fetch = (path) => readFile(path, "utf-8");
 
   try {
@@ -15,7 +15,9 @@ async function build() {
       warn,
     });
     for (const [file, contents] of spec.generatedFiles) {
-      await writeFile(file, contents);
+      if (file) {
+        await writeFile(file, contents);
+      }
     }
   } catch (err) {
     console.log(`${inFile}(1,1): error EMU0001: Error generating spec: ${err.message}`);
