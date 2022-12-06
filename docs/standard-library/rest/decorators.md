@@ -43,6 +43,7 @@ title: Decorators
     - [@updatesResource](#updatesresource)
     - [@deletesResource](#deletesresource)
     - [@listsResource](#listsresource)
+    - [@parentResource](#parentresource)
 
 ## Http decorators
 
@@ -332,6 +333,16 @@ Syntax:
 ```
 
 This decorator is to used to signal the operation that is the Create operation for a particular resource.
+
+#### `@createsOrReplacesResource`
+
+Syntax:
+
+```cadl
+@createsOrReplacesResource(<Model>)
+```
+
+This decorator is to used to signal the operation that is the CreatesOrReplace operation for a particular resource.
 
 #### `@createsOrUpdatesResource`
 
