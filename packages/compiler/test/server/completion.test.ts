@@ -481,7 +481,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.Field,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(model property)\n```cadl\ntest: Cadl.string\n```",
+            value: "(model property)\n```cadl\nM.test: Cadl.string\n```",
           },
         },
       ],
@@ -685,6 +685,98 @@ describe("compiler: server: completion", () => {
       ],
       { fullDocs: true }
     );
+  });
+
+  it("completes aliased interface operations", async () => {
+    const completions = await complete(
+      `
+      interface Foo {
+        op Bar(): string;
+      }
+
+      alias FooAlias= Foo;
+      alias A = FooAlias.┆`
+    );
+    check(completions, [
+      {
+        label: "Bar",
+        insertText: "Bar",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: "markdown",
+          value: "```cadl\nop Foo.Bar(): Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        bar: string;
+      }
+
+      alias FooAlias = Foo;
+      alias A = FooAlias.┆`
+    );
+    check(completions, [
+      {
+        label: "bar",
+        insertText: "bar",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```cadl\nFoo.bar: Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased instantiated interface operations", async () => {
+    const completions = await complete(
+      `
+      interface Foo<T> {
+        op Bar(): T;
+      }
+
+      alias FooOfString = Foo<string>;
+      alias A = FooOfString.┆`
+    );
+    check(completions, [
+      {
+        label: "Bar",
+        insertText: "Bar",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: "markdown",
+          value: "```cadl\nop Foo<Cadl.string>.Bar(): Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased instantiated model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo<T> {
+        bar: T;
+      }
+
+      alias FooOfString = Foo<string>;
+      alias A = FooOfString.┆`
+    );
+    check(completions, [
+      {
+        label: "bar",
+        insertText: "bar",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```cadl\nFoo<Cadl.string>.bar: Cadl.string\n```",
+        },
+      },
+    ]);
   });
 
   it("completes deprecated type", async () => {
