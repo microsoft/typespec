@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Mark watch options as optional",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}
