@@ -10,9 +10,9 @@ import {
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 import {
+  findVersionedNamespace,
   getAddedOn,
   getRemovedOn,
-  getVersion,
   getVersionDependencies,
   getVersions,
   Version,
@@ -74,14 +74,14 @@ export function $onValidate(program: Program) {
         validateTargetVersionCompatible(program, op, op.returnType);
       },
       namespace: (namespace) => {
-        const version = getVersion(program, namespace);
+        const versionedNamespace = findVersionedNamespace(program, namespace);
         const dependencies = getVersionDependencies(program, namespace);
         if (dependencies === undefined) {
           return;
         }
 
         for (const [dependencyNs, value] of dependencies.entries()) {
-          if (version) {
+          if (versionedNamespace) {
             if (!(value instanceof Map)) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-record-not-mapping",
@@ -113,12 +113,12 @@ function validateVersionedNamespaceUsage(
   for (const [source, targets] of namespaceDependencies.entries()) {
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
-      const targetVersions = getVersion(program, target);
+      const targetVersionedNamespace = findVersionedNamespace(program, target);
 
       if (
-        targetVersions !== undefined &&
-        !(source && isSubNamespace(target, source)) &&
-        dependencies?.get(target) === undefined
+        targetVersionedNamespace !== undefined &&
+        !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
+        dependencies?.get(targetVersionedNamespace) === undefined
       ) {
         reportDiagnostic(program, {
           code: "using-versioned-library",
@@ -136,7 +136,7 @@ function validateVersionedNamespaceUsage(
 function isSubNamespace(parent: Namespace, child: Namespace): boolean {
   let current: Namespace | undefined = child;
 
-  while (current) {
+  while (current && current.name !== "") {
     if (current === parent) {
       return true;
     }
