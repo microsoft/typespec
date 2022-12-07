@@ -1,6 +1,24 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Internal: update to use new `getTypeName` and `getNamespaceString` helper
+- Deprecated getRenamedFromVersion, getRenamedFromOldName, and renamedAfter methods in favor of getRenamedFromVersions, getNameAtVersion, and hasDifferentNameAtVersion.
+
+### Patches
+
+- Fix: Issue with loading different version of versioning library in emitter
+- Update dependencies
+- Allow @renamedFrom to be used multiple times
+
+### Updates
+
+- Fix: Validation of versioned dependency giving false positive when inside a sub namespace of versioned namespace
 
 ## 0.10.0
 Sat, 12 Nov 2022 00:14:04 GMT
@@ -53,6 +71,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Add validation for incompatible versioning across references
 - Moved all decorators and functions to `Cadl.Versioning` namespace
 - **Breaking Change** Version must be defined using an enum and referenced using enums
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.5.0
 Fri, 06 May 2022 17:19:57 GMT
