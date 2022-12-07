@@ -238,7 +238,9 @@ describe("versioning: reference versioned library", () => {
     `);
       expectDiagnosticEmpty(diagnostics);
     });
+  });
 
+  describe("sub namespace of versioned namespace", () => {
     it("doesn't emit diagnostic when parent namespace is versioned and using type from it", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
@@ -291,6 +293,46 @@ describe("versioning: reference versioned library", () => {
           enum Versions {m1}
           namespace SubNamespace {
             op use(): Lib.Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed if versioned service reference sub namespace type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService {
+          enum Versions {m1}
+
+          op use(): SubNamespace.Foo;
+          namespace SubNamespace {
+            model Foo {}
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed reference versioned library sub namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {v1, v2}
+
+          namespace LibSub {
+            model Foo {}
+          }
+        }
+
+        @versioned(Versions)
+        @versionedDependency([[Versions.m1, Lib.Versions.v1]])
+        namespace MyService {
+          enum Versions {m1}
+          namespace ServiceSub {
+            op use(): Lib.LibSub.Foo;
           }
         }
 

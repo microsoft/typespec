@@ -212,15 +212,21 @@ export function $versioned(context: DecoratorContext, t: Namespace, versions: En
 }
 
 /**
- * Get the version map of the namespace. Lookup in parent namespace as well.
+ * Get the version map of the namespace.
  */
 export function getVersion(program: Program, namespace: Namespace): VersionMap | undefined {
+  return program.stateMap(versionsKey).get(namespace);
+}
+
+export function findVersionedNamespace(
+  program: Program,
+  namespace: Namespace
+): Namespace | undefined {
   let current: Namespace | undefined = namespace;
 
   while (current) {
-    const data = program.stateMap(versionsKey).get(current);
-    if (data !== undefined) {
-      return data;
+    if (program.stateMap(versionsKey).has(current)) {
+      return current;
     }
     current = current.namespace;
   }
