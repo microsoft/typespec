@@ -1,6 +1,13 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Patches
+
+- Update dependencies
 
 ## 0.17.0
 Sat, 12 Nov 2022 00:14:04 GMT
@@ -55,6 +62,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 
 - Improve error reporting when cadl-server is not found
 - Resolve issue with `language-configuration.json` being excluded from extension
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.14.0
 Fri, 06 May 2022 17:19:57 GMT

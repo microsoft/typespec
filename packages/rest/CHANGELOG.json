@@ -2,6 +2,55 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/rest_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add cadl docs on decorators"
+          },
+          {
+            "comment": "Update docs."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper"
+          },
+          {
+            "comment": "Add validation for `@route` to prevent `@route` used twice on the same operation/interface/namespace"
+          },
+          {
+            "comment": "Add support for multiple services"
+          },
+          {
+            "comment": "Uptake changes to compiler api to support Scalars"
+          },
+          {
+            "comment": "Add `@actionSegment` decorator. Deprecate `@segmentSeparator`."
+          },
+          {
+            "comment": "Update `ResourceLocation` to `extends url` instead of deprecated `uri` "
+          },
+          {
+            "comment": "Validate `multipart/form-data` request body is a `Model`"
+          },
+          {
+            "comment": "**Deprecation** Updated the `HttpOperationParameters` interface to include a new `body` field replacing the `bodyType` and `bodyParameter`."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.0",
       "tag": "@cadl-lang/rest_v0.19.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",

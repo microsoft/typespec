@@ -1,0 +1,22 @@
+{
+  "name": "@cadl-lang/migrate",
+  "entries": [
+    {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/migrate_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add migration for `model is` to `scalar extends`"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    }
+  ]
+}

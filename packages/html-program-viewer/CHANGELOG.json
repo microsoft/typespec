@@ -2,6 +2,34 @@
   "name": "@cadl-lang/html-program-viewer",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper"
+          },
+          {
+            "comment": "Uptake change to `onEmit` signature"
+          },
+          {
+            "comment": "**Breaking change** using new built-in `emitter-output-dir` option instead of custom `output-dir`."
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "@cadl-lang/html-program-viewer_v0.5.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",

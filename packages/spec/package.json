@@ -24,6 +24,6 @@
     "@types/mkdirp": "~1.0.1",
     "@types/node": "~18.11.9",
     "ecmarkup": "~12.0.3",
-    "@cadl-lang/internal-build-utils": "~0.3.1"
+    "@cadl-lang/internal-build-utils": "~0.3.2"
   }
 }

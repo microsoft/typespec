@@ -2,6 +2,37 @@
   "name": "@cadl-lang/openapi",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/openapi_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add cadl docs on decorators"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper"
+          },
+          {
+            "comment": "Add support for multiple services"
+          },
+          {
+            "comment": "Uptake changes to compiler api with new `scalar` type"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "tag": "@cadl-lang/openapi_v0.14.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",

@@ -38,7 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.37.0",
+    "@cadl-lang/compiler": "~0.38.0",
     "@rollup/plugin-virtual": "~3.0.1",
     "@rollup/plugin-commonjs": "~23.0.2",
     "@rollup/plugin-json": "~5.0.1",
@@ -49,7 +49,7 @@
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",
