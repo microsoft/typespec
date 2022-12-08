@@ -3,7 +3,7 @@ import { migrateCadlContent } from "../src/migrate.js";
 import { migrateModelToScalar } from "../src/migrations/v0.38/model-to-scalars.js";
 
 describe("migration: model to scalars", () => {
-  it("convert", async () => {
+  it("various models", async () => {
     const [result] = await migrateCadlContent(
       `
 model foo is string;
@@ -32,6 +32,46 @@ model foo is bar;
 @other
 @get
 scalar Resource<T> extends int32;
+    `.trim()
+    );
+  });
+
+  it("inside namespace", async () => {
+    const [result] = await migrateCadlContent(
+      `
+namespace MyService {        
+  model foo is string;
+}
+    `,
+      migrateModelToScalar
+    );
+
+    strictEqual(
+      result.trim(),
+      `
+namespace MyService {        
+  scalar foo extends string;
+}
+    `.trim()
+    );
+  });
+
+  it("with operations", async () => {
+    const [result] = await migrateCadlContent(
+      `
+model foo is string;
+
+op test(): string;
+    `,
+      migrateModelToScalar
+    );
+
+    strictEqual(
+      result.trim(),
+      `
+scalar foo extends string;
+
+op test(): string;
     `.trim()
     );
   });
