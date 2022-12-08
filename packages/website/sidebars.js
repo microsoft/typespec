@@ -59,6 +59,7 @@ const sidebars = {
           items: [
             "standard-library/rest/overview",
             "standard-library/rest/decorators",
+            "standard-library/rest/examples",
             "standard-library/rest/operations",
             "standard-library/rest/authentication",
             "standard-library/rest/resource-routing",
