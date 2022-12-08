@@ -150,3 +150,41 @@ body: { "name": "Rex", "age": 3 }
 ```ts title="Expected client"
 function update(pet: Pet): void;
 ```
+
+## Many individual parameters
+
+```cadl
+@route("/pets/{id}") op update(@path id: string, name: string, age: string, @header("ETag") eTag: strin;): void;
+```
+
+```yaml
+url: /pets/123
+headers:
+    ETag: abcdef
+body: { "name": "Rex", "age": 3 }
+```
+
+```ts title="Expected client"
+function update(id: string, name: string, age: string, eTag: string): void;
+```
+
+## Many individual parameters grouping body
+
+```cadl
+model UserContent {
+  name: string;
+  age: string
+}
+@route("/pets/{id}") op update(@path id: string, @body userContent: UserContent, @header("ETag") eTag: strin;): void;
+```
+
+```yaml
+url: /pets/123
+headers:
+    ETag: abcdef
+body: { "name": "Rex", "age": 3 }
+```
+
+```ts title="Expected client"
+function update(id: string, userContent: UserContent, eTag: string): void;
+```
