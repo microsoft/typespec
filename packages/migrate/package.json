@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/migrate",
-  "version": "0.38.0",
+  "version": "0.38.1",
   "author": "Microsoft Corporation",
   "description": "Migration tool for cadl.",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -39,13 +39,13 @@
   ],
   "dependencies": {
     "globby": "~13.1.1",
-    "@cadl-lang/compiler": "~0.38.0",
+    "@cadl-lang/compiler": "~0.38.1",
     "@cadl-lang/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.38.0",
+    "@cadl-lang/compiler": "~0.38.1",
     "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@cadl-lang/eslint-plugin": "~0.38.0",
     "eslint": "^8.12.0",
