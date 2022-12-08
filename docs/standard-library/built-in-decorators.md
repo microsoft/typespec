@@ -428,7 +428,7 @@ model Dog {
 // and @withVisibility will then remove those that are not visible with
 // create or update visibility.
 //
-// In this case, the id property removed, and the name and secretName
+// In this case, the id property is removed, and the name and secretName
 // properties are kept.
 @withVisibility("create", "update")
 model DogCreateOrUpdate {
