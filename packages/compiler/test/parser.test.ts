@@ -144,6 +144,23 @@ describe("compiler: parser", () => {
       ["model bar<a, b> = a | b;", [/'{' expected/]],
     ]);
   });
+
+  describe("scalar statements", () => {
+    parseEach([
+      "scalar uuid extends string;",
+      `@foo()
+      scalar uuid extends string;`,
+      `namespace Foo { 
+        scalar uuid extends string;}
+        `,
+    ]);
+
+    parseErrorEach([
+      ["scalar uuid extends string { }", [/Statement expected./]],
+      ["scalar uuid is string;", [/Statement expected./]],
+    ]);
+  });
+
   describe("interface statements", () => {
     parseEach([
       "interface Foo { }",

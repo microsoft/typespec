@@ -87,6 +87,8 @@ function migrateCadlContentInternal(
     segments.push(action.content);
     last = action.target.end;
   }
+  segments.push(content.slice(last, -1));
+
   const newContent = segments.join("");
 
   try {
