@@ -49,7 +49,7 @@ namespace MyService {
     strictEqual(
       result.trim(),
       `
-namespace MyService {        
+namespace MyService {
   scalar foo extends string;
 }
     `.trim()
