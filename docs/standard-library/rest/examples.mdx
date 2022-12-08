@@ -131,10 +131,8 @@ function update(pet: Pet): void;
 ```cadl
 model Pet {
   @path id: string;
-  
   name: string;
   age: int32;
-
   @header("ETag") eTag: string;
 }
 @route("/pets/{id}") op update(...Pet): void;
@@ -143,7 +141,7 @@ model Pet {
 ```yaml
 url: /pets/123
 headers:
-    ETag: abcdef
+  ETag: abcdef
 body: { "name": "Rex", "age": 3 }
 ```
 
@@ -154,13 +152,18 @@ function update(pet: Pet): void;
 ## Many individual parameters
 
 ```cadl
-@route("/pets/{id}") op update(@path id: string, name: string, age: string, @header("ETag") eTag: strin;): void;
+@route("/pets/{id}") op update(
+  @path id: string,
+  name: string,
+  age: string,
+  @header("ETag") eTag: strin
+): void;
 ```
 
 ```yaml
 url: /pets/123
 headers:
-    ETag: abcdef
+  ETag: abcdef
 body: { "name": "Rex", "age": 3 }
 ```
 
@@ -173,15 +176,27 @@ function update(id: string, name: string, age: string, eTag: string): void;
 ```cadl
 model UserContent {
   name: string;
-  age: string
+  age: string;
 }
-@route("/pets/{id}") op update(@path id: string, @body userContent: UserContent, @header("ETag") eTag: strin;): void;
+@route("/pets/{id}") op update(
+  @path id: string,
+  @body userContent: UserContent,
+  @header("ETag") eTag: string
+): void;
+
+// Equivalent to 
+alias User = {
+  @path id: string;
+  @body userContent: UserContent;
+  @header("ETag") eTag: string;
+};
+@route("/pets/{id}") op update(...User): void;
 ```
 
 ```yaml
 url: /pets/123
 headers:
-    ETag: abcdef
+  ETag: abcdef
 body: { "name": "Rex", "age": 3 }
 ```
 
