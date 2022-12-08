@@ -2,6 +2,18 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.38.1",
+      "tag": "@cadl-lang/compiler_v0.38.1",
+      "date": "Thu, 08 Dec 2022 22:04:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `scalar` can be used inside of namespace block"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.38.0",
       "tag": "@cadl-lang/compiler_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",

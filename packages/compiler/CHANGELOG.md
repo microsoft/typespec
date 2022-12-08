@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Dec 2022 22:04:15 GMT and should not be manually modified.
+
+## 0.38.1
+Thu, 08 Dec 2022 22:04:15 GMT
+
+### Patches
+
+- Fix: `scalar` can be used inside of namespace block
 
 ## 0.38.0
 Wed, 07 Dec 2022 17:21:52 GMT
