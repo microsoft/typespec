@@ -1,4 +1,8 @@
-import type { CadlScriptNode, TemplateParameterDeclarationNode } from "@cadl-lang/compiler-v0.37";
+import type {
+  CadlScriptNode,
+  Node,
+  TemplateParameterDeclarationNode,
+} from "@cadl-lang/compiler-v0.37";
 import {
   CadlCompilerV0_37,
   createMigration,
@@ -24,7 +28,7 @@ export const migrateModelToScalar = createMigration({
     }
 
     const actions: MigrateAction[] = [];
-    compilerV37.visitChildren(root, (node) => {
+    visitRecursive(compilerV37, root, (node) => {
       if (
         node.kind === compilerV37.SyntaxKind.ModelStatement &&
         node.is &&
@@ -46,6 +50,14 @@ export const migrateModelToScalar = createMigration({
     return actions;
   },
 });
+
+function visitRecursive(compiler: any, root: Node, callback: (node: Node) => void) {
+  const visit = (node: Node) => {
+    callback(node);
+    compiler.visitChildren(node, visit);
+  };
+  visit(root);
+}
 
 const builtInTypes = new Set([
   "bytes",
