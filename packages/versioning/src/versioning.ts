@@ -211,8 +211,27 @@ export function $versioned(context: DecoratorContext, t: Namespace, versions: En
   context.program.stateMap(versionsKey).set(t, new VersionMap(t, versions));
 }
 
-export function getVersion(p: Program, t: Namespace): VersionMap | undefined {
-  return p.stateMap(versionsKey).get(t);
+/**
+ * Get the version map of the namespace.
+ */
+export function getVersion(program: Program, namespace: Namespace): VersionMap | undefined {
+  return program.stateMap(versionsKey).get(namespace);
+}
+
+export function findVersionedNamespace(
+  program: Program,
+  namespace: Namespace
+): Namespace | undefined {
+  let current: Namespace | undefined = namespace;
+
+  while (current) {
+    if (program.stateMap(versionsKey).has(current)) {
+      return current;
+    }
+    current = current.namespace;
+  }
+
+  return undefined;
 }
 
 export function $versionedDependency(
@@ -288,11 +307,25 @@ export function $versionedDependency(
   }
 }
 
+function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
+  let current: Namespace | undefined = namespace;
+
+  while (current) {
+    const data = program.stateMap(versionDependencyKey).get(current);
+    if (data !== undefined) {
+      return data;
+    }
+    current = current.namespace;
+  }
+
+  return undefined;
+}
+
 export function getVersionDependencies(
   program: Program,
   namespace: Namespace
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
-  const data = program.stateMap(versionDependencyKey).get(namespace);
+  const data = findVersionDependencyForNamespace(program, namespace);
   if (data === undefined) {
     return undefined;
   }

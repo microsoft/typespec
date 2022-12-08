@@ -34,7 +34,8 @@ model CadlProjectSchema {
   "output-dir"?: boolean;
   "trace"?: string | string[];
   imports?: string;
-  emitters?: boolean | Record<unknown>
+  emit?: string[];
+  options?: Record<unknown>;
 }
 ```
 
@@ -47,24 +48,27 @@ For that you can use the `extends` property of the configuration file
 in `<my-pkg>/cadl-project.yaml`
 
 ```yaml
-emitters:
-  emitter1: true
+options:
+  emitter1:
+    some-option: my-name
+  emitter2:
+    some-other-option: This is a title
 ```
 
-in `<my-pkg>/proj2/cadl-project.yaml`, enable `emitter1` and `emitter2`
+in `<my-pkg>/proj2/cadl-project.yaml`, enable `emitter1` using the options specified in the parent `cadl-project.yaml
 
 ```yaml
 extends: ../cadl-project.yaml
-emitters:
-  emitter2: true
+emit:
+  - emitter1
 ```
 
-in `<my-pkg>/cadl-project.yaml`, enable `emitter1` and `emitter3`
+in `<my-pkg>/cadl-project.yaml`, enable `emitter2` using the options specified in the parent `cadl-project.yaml
 
 ```yaml
 extends: ../cadl-project.yaml
-emitters:
-  emitter3: true
+emit:
+  - emitter2
 ```
 
 ### Variable interpolation
@@ -144,7 +148,7 @@ Emitter options can reference each other using the other option name as the vari
 Can only interpolate emitter options from the same emitter.
 
 ```yaml
-emitters:
+options:
   @cadl-lang/openapi3:
     emitter-output-dir: {output-dir}/{emitter-sub-folder}
     emitter-sub-folder: bar
@@ -153,13 +157,14 @@ emitters:
 
 ## Cadl Configuration Options
 
-| Config          | Cli                     | Description                    |
-| --------------- | ----------------------- | ------------------------------ |
-| `output-dir`    | `--output-dir`          | Default output directory       |
-| `trace`         | `--trace`               | Specify tracing area to enable |
-| `warn-as-error` | `--warn-as-error`       | Treat warning as error         |
-| `imports`       | `--import`              | Additional imports to include  |
-| `emitters`      | `--emit` and `--option` | Emitter configuration          |
+| Config          | Cli                       | Description                    |
+| --------------- | ------------------------- | ------------------------------ |
+| `output-dir`    | `--output-dir`            | Default output directory       |
+| `trace`         | `--trace`                 | Specify tracing area to enable |
+| `warn-as-error` | `--warn-as-error`         | Treat warning as error         |
+| `imports`       | `--import`                | Additional imports to include  |
+| `emit`          | `--emit`                  | Emitter configuration          |
+| `options`       | `--option` or `--options` | Emitter configuration          |
 
 ### `output-dir` - Configure the default output dir
 
@@ -226,20 +231,30 @@ Specify additional cadl files to import
 cadl compile . --import "sidecar.cadl"
 ```
 
-### `emitters` - Configuring emitters
+### `emit` - Specifying which emitters to run
 
 Specify which emitters to use and their options if applicable.
 
+The value can be the name of an emitter or a path to the emitter package/entrypoint.
+
 ```yaml
-emitters:
-  emitter1: true
-  emitter2: true
+emit:
+  - emitter1 # Package name
+  - /path/to/emitter2 # Give a path to an emitter
 ```
+
+or via the cli
+
+```bash
+cadl compile . --emit emitter1 --emit /path/to/emitter2
+```
+
+### `options` - Configuring emitters
 
 Emitters can define a set of options, those can be set as the value of the map.
 
 ```yaml
-emitters:
+options:
   # Enable and configure emitter1
   emitter1:
     option1: "option1-value"
@@ -248,14 +263,14 @@ emitters:
   emitter2: true
 ```
 
-Emitters options can also be provided using the `--option` [flag](#option)
-
-Emitters selection can be overridden in the command line via `--emit` [flag](#emit).
+Emitters options can also be provided using the `--option` in this format `--option=<emitterName>.<optionName>=<value>`
 
 ```bash
 
-cadl compile . --emit emitter1 --option emitter1.option2="option2-value"
+cadl compile . --option "emitter1.option1=option1-value"
 ```
+
+Options specified via the CLI take precedence over the ones specified in `cadl-project.yaml`.
 
 #### Emitters built-in options
 
@@ -267,14 +282,6 @@ Default: `{output-dir}/{emitter-name}`
 
 ## Emitter control cli flags
 
-### `--emit`
-
-Select which emitters to use. If there are options in the cadl-project.yaml it will still use those.
-
-```yaml
-cadl compile . --emit emitter1
-```
-
 ### `--no-emit`
 
 Disable emitting. If emitters are still specified it will still run the emitter but emitters shouldn't be writing anything to disk.
@@ -284,16 +291,6 @@ Can also be used to hide the "There is no emitters warning".
 ```yaml
 cadl compile . --no-emit
 ```
-
-### `--option`
-
-Specify emitters options in this format`--option=<emitterName>.<optionName>=<value>`
-
-```bash
-cadl compile . --option "emitter1.option1=option1-value"
-```
-
-Options specified via the CLI take precedence over the ones specified in `cadl-project.yaml`.
 
 ## Other Command line flags
 

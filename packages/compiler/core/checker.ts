@@ -1702,9 +1702,12 @@ export function createChecker(program: Program): Checker {
     }
 
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
-      const base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
+      let base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
       if (base) {
-        const type = getTypeForNode(base.declarations[0], undefined);
+        if (base.flags & SymbolFlags.Alias) {
+          base = getAliasedSymbol(base, undefined);
+        }
+        const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
         lateBindMemberContainer(type);
         lateBindMembers(type, base);
         addCompletions(base.exports ?? base.members);
@@ -2332,7 +2335,8 @@ export function createChecker(program: Program): Checker {
       }
       const sym = createSymbol(member.node, member.name, kind | SymbolFlags.LateBound);
       mutate(sym).type = member;
-      containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members!);
+      compilerAssert(containerSym.members, "containerSym.members is undefined");
+      containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members);
       containerMembers.set(member.name, sym);
     }
   }

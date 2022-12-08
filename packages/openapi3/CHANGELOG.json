@@ -2,6 +2,63 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/openapi3_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Emit 'deprecated' operation property in openapi3"
+          },
+          {
+            "comment": "Internal: Update tests to change from `emitters` compiler options to `emit` and `options`"
+          },
+          {
+            "comment": "Fix: Respect `@header` and `@query` over the wire name"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Omit metadata properties of type `never`"
+          },
+          {
+            "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper"
+          },
+          {
+            "comment": "Uptake change to `onEmit` signature"
+          },
+          {
+            "comment": "**Breaking change** using new built-in `emitter-output-dir` option instead of custom `output-dir`."
+          },
+          {
+            "comment": "Add support for multiple services"
+          },
+          {
+            "comment": "Uptake changes to compiler api to support Scalars"
+          },
+          {
+            "comment": "Add support for renamed `url` scalar"
+          },
+          {
+            "comment": "Uptake changes to rest library api"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Remove undocumented use of atVersion projection"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.0",
       "tag": "@cadl-lang/openapi3_v0.17.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",

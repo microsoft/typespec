@@ -39,7 +39,7 @@ export function getTypeSignature(type: Type): string {
     case "FunctionParameter":
       return `(function parameter)\n${fence(getFunctionParameterSignature(type))}`;
     case "ModelProperty":
-      return `(model property)\n${fence(`${type.name}: ${getTypeName(type.type)}`)}`;
+      return `(model property)\n${fence(getModelPropertySignature(type))}`;
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":

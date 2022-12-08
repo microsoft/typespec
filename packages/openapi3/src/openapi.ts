@@ -339,13 +339,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const originalProgram = program;
       const versions = buildVersionProjections(program, service.type);
       for (const record of versions) {
-        if (record.version) {
-          record.projections.push({
-            projectionName: "atVersion",
-            arguments: [record.version],
-          });
-        }
-
         const projectedProgram = (program = projectProgram(originalProgram, [
           ...commonProjections,
           ...record.projections,

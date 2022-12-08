@@ -6,7 +6,7 @@ jobs:
   - job: publish_playground
     displayName: Publish playground
     pool:
-      name: azsdk-pool-mms-win-2019-general
+      name: azsdk-pool-mms-ubuntu-2004-general
     variables:
       CADL_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
     steps:
@@ -24,25 +24,29 @@ jobs:
       - script: npx @microsoft/rush rebuild --verbose
         displayName: Build
 
-      - task: AzureFileCopy@4
-        inputs:
-          sourcePath: "packages/playground/dist/*"
-          azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlplayground"
-          blobPrefix: $(CADL_WEBSITE_BASE_PATH)
-          containerName: "$web"
+      - task: AzureCLI@1
         displayName: "Publish playground to PR endpoint"
-
-      - task: AzureFileCopy@4
         inputs:
-          sourcePath: "packages/website/build/*"
           azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlwebsite"
-          blobPrefix: $(CADL_WEBSITE_BASE_PATH)
-          containerName: "$web"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination \$web \
+              --account-name "cadlplayground" \
+              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --source "./packages/playground/dist/"
+
+      - task: AzureCLI@1
         displayName: "Publish website to PR endpoint"
+        inputs:
+          azureSubscription: "Azure SDK Playground"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination \$web \
+              --account-name "cadlwebsite" \
+              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --source "./packages/playground/dist/"
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented
