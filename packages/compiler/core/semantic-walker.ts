@@ -2,6 +2,7 @@ import { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Enum,
+  Decorator,
   Interface,
   ListenerFlow,
   Model,
@@ -186,6 +187,10 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   for (const enumType of namespace.enums.values()) {
     navigateEnumType(enumType, context);
   }
+
+  for (const decorator of namespace.decoratorDeclarations.values()) {
+    navigateDecoratorDeclaration(decorator, context);
+  }
 }
 
 function checkVisited(visited: Set<any>, item: any) {
@@ -310,6 +315,13 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
 }
 
+function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("decorator", type) === ListenerFlow.NoRecursion) return;
+}
+
 function navigateTypeInternal(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
@@ -334,10 +346,11 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateTupleType(type, context);
     case "TemplateParameter":
       return navigateTemplateParameter(type, context);
+    case "Decorator":
+      return navigateDecoratorDeclaration(type, context);
     case "Object":
     case "Projection":
     case "Function":
-    case "Decorator":
     case "FunctionParameter":
     case "Boolean":
     case "EnumMember":

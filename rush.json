@@ -179,6 +179,12 @@
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/doc-gen",
+      "projectFolder": "packages/doc-gen",
+      "reviewCategory": "production",
+      "shouldPublish": false
     }
   ]
 }
