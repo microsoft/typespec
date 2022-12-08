@@ -1,0 +1,125 @@
+---
+title: Examples
+---
+
+# Examples
+
+Note `Expected client` section shows a general guidance on what the cadl should be represented as a client. It is represented as TypeScript Sync function for simplicity but is in no way tied to it.
+
+## Request parameters
+
+## No parameters
+
+```cadl
+op ping(): void;
+```
+
+```yaml
+url: /
+headers:
+body:
+```
+
+```ts title="Expected client"
+function ping(): void;
+```
+
+## With query parameters
+
+```cadl
+@route("/pets")
+op list(@query select: string, @query top: int32): Pet[];
+```
+
+```yaml
+url: /pets?select=foo,bar&top=100
+headers:
+body:
+```
+
+```ts title="Expected client"
+function list(select: string, top: number): Pet[];
+```
+
+## With headers parameters
+
+```cadl
+op update(@header("If-None-Match") ifNoneMatch: string, @header("Expires") expires: string): void;
+```
+
+```yaml
+url: /
+headers:
+  If-None-Match: "abcdef"
+  Expires: Wed, 21 Oct 2015 07:28:00 GMT
+body:
+```
+
+```ts title="Expected client"
+function update(ifNoneMatch: string, expires: string): void;
+```
+
+## With implicit body parameters
+
+```cadl
+op update(name: string, age: int32): void;
+```
+
+```yaml
+url: /
+headers:
+body: { "name": "Rex", "age": 3 }
+```
+
+```ts title="Expected client"
+function update(name: string, age: int32): void;
+```
+
+## With explicit body parameters (Using `@body`)
+
+```cadl
+model Pet {
+  name: string;
+  age: int32;
+}
+op update(@body pet: Pet): void;
+```
+
+```yaml
+url: /
+headers:
+body: { "name": "Rex", "age": 3 }
+```
+
+```ts title="Expected client"
+function update(pet: Pet): void;
+```
+:::caution
+Note: Without `@body` the result would be the same expected client interface but the payload would be nested under a `pet` property.
+
+```yaml
+url: /
+headers:
+body: { pet: { "name": "Rex", "age": 3 } }
+```
+:::
+
+## With spread body
+
+```cadl
+model Pet {
+  name: string;
+  age: int32;
+}
+op update(...Pet): void;
+```
+
+```yaml
+url: /
+headers:
+body: { "name": "Rex", "age": 3 }
+```
+
+```ts title="Expected client"
+function update(pet: Pet): void;
+```
