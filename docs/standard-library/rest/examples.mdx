@@ -94,6 +94,7 @@ body: { "name": "Rex", "age": 3 }
 ```ts title="Expected client"
 function update(pet: Pet): void;
 ```
+
 :::caution
 Note: Without `@body` the result would be the same expected client interface but the payload would be nested under a `pet` property.
 
@@ -102,9 +103,10 @@ url: /
 headers:
 body: { pet: { "name": "Rex", "age": 3 } }
 ```
+
 :::
 
-## With spread body
+## With spread model
 
 ```cadl
 model Pet {
@@ -117,6 +119,31 @@ op update(...Pet): void;
 ```yaml
 url: /
 headers:
+body: { "name": "Rex", "age": 3 }
+```
+
+```ts title="Expected client"
+function update(pet: Pet): void;
+```
+
+## With spread model and mixed properties targets
+
+```cadl
+model Pet {
+  @path id: string;
+  
+  name: string;
+  age: int32;
+
+  @header("ETag") eTag: string;
+}
+@route("/pets/{id}") op update(...Pet): void;
+```
+
+```yaml
+url: /pets/123
+headers:
+    ETag: abcdef
 body: { "name": "Rex", "age": 3 }
 ```
 
