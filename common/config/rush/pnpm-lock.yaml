@@ -22,6 +22,7 @@ specifiers:
   '@rush-temp/cadl-vs': file:./projects/cadl-vs.tgz
   '@rush-temp/cadl-vscode': file:./projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:./projects/compiler.tgz
+  '@rush-temp/doc-gen': file:./projects/doc-gen.tgz
   '@rush-temp/eslint-config-cadl': file:./projects/eslint-config-cadl.tgz
   '@rush-temp/eslint-plugin': file:./projects/eslint-plugin.tgz
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
@@ -142,6 +143,7 @@ dependencies:
   '@rush-temp/cadl-vs': file:projects/cadl-vs.tgz
   '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
+  '@rush-temp/doc-gen': file:projects/doc-gen.tgz
   '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.7.1
   '@rush-temp/eslint-plugin': file:projects/eslint-plugin.tgz
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
@@ -14017,6 +14019,25 @@ packages:
     transitivePeerDependencies:
       - '@volar/vue-language-plugin-pug'
       - '@volar/vue-typescript'
+      - supports-color
+    dev: false
+
+  file:projects/doc-gen.tgz:
+    resolution: {integrity: sha512-dmTb2TkcAd0/n12ueskiCUUOfr+q8HdpQHE6rfETF79F7JNYbxoOqsl8mPT23V+EjigUm6euX0wLZqf3FE2Ilw==, tarball: file:projects/doc-gen.tgz}
+    name: '@rush-temp/doc-gen'
+    version: 0.0.0
+    dependencies:
+      '@types/mocha': 10.0.0
+      '@types/node': 18.11.9
+      '@types/yargs': 17.0.13
+      c8: 7.12.0
+      eslint: 8.28.0
+      mocha: 10.1.0
+      mocha-junit-reporter: 2.2.0_mocha@10.1.0
+      mocha-multi-reporters: 1.5.1_mocha@10.1.0
+      rimraf: 3.0.2
+      typescript: 4.9.3
+    transitivePeerDependencies:
       - supports-color
     dev: false
 

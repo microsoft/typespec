@@ -1,25 +1,22 @@
 import {
   compile,
+  compilerAssert,
+  Decorator,
+  DocContent,
+  DocParamTagNode,
+  Enum,
+  getTypeName,
   navigateProgram,
   NodeHost,
   Model,
-  Enum,
-  Decorator,
   Operation,
+  Program,
   Projection,
   IdentifierNode,
-  DocTemplateTagNode,
-  DocParamTagNode,
-  TypeReferenceNode,
-  compilerAssert,
-  Program,
-  SyntaxKind,
-  DocContent,
   StringLiteral,
-  Node,
+  SyntaxKind,
   Type,
-  getTypeName, 
-  namespace
+  TypeReferenceNode
 } from "@cadl-lang/compiler";
 import * as fs from 'fs';
 
