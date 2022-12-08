@@ -380,36 +380,67 @@ The argument to `@tag` is a string tag value.
 
 ### Visibility decorators
 
-Additionally, the decorators `@withVisibility` and `@visibility` provide an extensible visibility framework that allows for defining a canonical model with fine-grained visibility flags and derived models that apply those flags. Flags can be any string value and so can be customized to your application. Also, `@visibility` can take multiple string flags to set multiple flags at once, and `@withVisibility` can take multiple string flags to filter on at once.
+Additionally, the decorators `@visibility` and `@withVisibility` provide an extensible visibility framework that allows for defining a canonical model with fine-grained visibility flags and derived models that apply those flags.
 
-Consider the following example:
+### `@visibility`
+
+Indicates that a property is only considered to be present or applicable ("visible") with the in the given named contexts ("visibilities"). When a property has no visibilities applied to it, it is implicitly visible always.
+
+As far as the Cadl core library is concerned, visibilities are open-ended and can be arbitrary strings, but the following visibilities are well-known to standard libraries and should be used with standard emitters that interpret them as follows:
+
+- "read": output of any operation.
+- "create": input to operations that create an entity..
+- "query": input to operations that read data.
+- "update": input to operations that update data.
+- "delete": input to operations that delete data.
+
+See also: [Automatic visibility](./rest/operations#automatic-visibility)
+
+#### Example
 
 ```cadl
 model Dog {
   // the service will generate an ID, so you don't need to send it.
   @visibility("read") id: int32;
   // the service will store this secret name, but won't ever return it
-  @visibility("create") secretName: string;
-  // no flags are like specifying all flags at once, so in this case
-  // equivalent to @visibility("read", "create")
+  @visibility("create", "update") secretName: string;
+  // the regular name is always present
   name: string;
-}
-
-// The spread operator will copy all the properties of Dog into ReadDog,
-// and withVisibility will remove any that don't match the current
-// visibility setting
-@withVisibility("read")
-model ReadDog {
-  ...Dog;
-}
-
-@withVisibility("create")
-model CreateDog {
-  ...Dog;
 }
 ```
 
-Note that the OpenAPI v3 emitter applies visibility automatically without needing explicit `@withVisibility`. See [automatic visibility](./rest/operations.md#automatic-visibility) for more information.
+### `@withVisibility`
+
+Removes properties that are not considered to be present or applicable ("visible") in the given named contexts ("visibilities"). Can be used together with spread to effectively spread only visible properties into a new model.
+
+See also: [Automatic visibility](./rest/operations#automatic-visibility)
+
+When using an emitter that applies visibility automatically, it is generally
+not necessary to use this decorator.
+
+```cadl
+model Dog {
+  @visibility("read") id: int32;
+  @visibility("create", "update") secretName: string;
+  name: string;
+}
+// The spread operator will copy all the properties of Dog into DogRead,
+// and @withVisibility will then remove those that are not visible with
+// create or update visibility.
+//
+// In this case, the id property removed, and the name and secretName
+// properties are kept.
+@withVisibility("create", "update")
+model DogCreateOrUpdate {
+  ...Dog;
+}
+// In this case the id and name properties are kept and the secretName property
+// is removed.
+@withVisibility("read")
+model DogRead {
+  ...Dog;
+}
+```
 
 ## Advanced decorators
 
