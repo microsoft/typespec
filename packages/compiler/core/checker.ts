@@ -46,6 +46,7 @@ import {
   MarshalledValue,
   MemberContainerNode,
   MemberExpressionNode,
+  MemberNode,
   MemberType,
   Model,
   ModelExpressionNode,
@@ -453,13 +454,6 @@ export function createChecker(program: Program): Checker {
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
           const type: Type & DecoratedType = links.type! as any;
-          const decApp = checkDecorator(type, decNode, undefined);
-          if (decApp) {
-            type.decorators.push(decApp);
-            applyDecoratorToType(program, decApp, type);
-          }
-        } else if (ref.flags & SymbolFlags.LateBound) {
-          const type: Type & DecoratedType = ref.type! as any;
           const decApp = checkDecorator(type, decNode, undefined);
           if (decApp) {
             type.decorators.push(decApp);
@@ -1426,7 +1420,7 @@ export function createChecker(program: Program): Checker {
     // Operations defined in interfaces aren't bound to symbols
     const links =
       node.parent?.kind === SyntaxKind.InterfaceStatement
-        ? getLateBoundMemberSymbolLinks(node)
+        ? getMemberSymbolLinks(node)
         : getSymbolLinks(node.symbol);
     if (links) {
       if (links.declaredType && mapper === undefined) {
@@ -2580,7 +2574,7 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
-    const links = getLateBoundMemberSymbolLinks(prop);
+    const links = getMemberSymbolLinks(prop);
     if (links && links.declaredType && mapper === undefined) {
       return links.declaredType as ModelProperty;
     }
@@ -2800,10 +2794,11 @@ export function createChecker(program: Program): Checker {
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
+    const sym = isMemberNode(node) ? getMemberSymbol(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
     const decoratorNodes = [
       ...node.decorators,
-      ...(augmentDecoratorsForSym.get(node.symbol) ?? []),
+      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []),
     ];
     for (const decNode of decoratorNodes) {
       const decorator = checkDecorator(targetType, decNode, mapper);
@@ -3129,7 +3124,7 @@ export function createChecker(program: Program): Checker {
     variantNode: UnionVariantNode,
     mapper: TypeMapper | undefined
   ): UnionVariant {
-    const links = getLateBoundMemberSymbolLinks(variantNode);
+    const links = getMemberSymbolLinks(variantNode);
     if (links && links.declaredType && mapper === undefined) {
       // we're not instantiating this union variant and we've already checked it
       return links.declaredType as UnionVariant;
@@ -3158,14 +3153,24 @@ export function createChecker(program: Program): Checker {
     return variantType;
   }
 
-  function getLateBoundMemberSymbolLinks(
-    node: EnumMemberNode | ModelPropertyNode | UnionVariantNode | OperationStatementNode
-  ): SymbolLinks | undefined {
+  function isMemberNode(node: Node): node is MemberNode {
+    return (
+      node.kind === SyntaxKind.ModelProperty ||
+      node.kind === SyntaxKind.EnumMember ||
+      node.kind === SyntaxKind.OperationStatement ||
+      node.kind === SyntaxKind.UnionVariant
+    );
+  }
+
+  function getMemberSymbol(node: MemberNode): Sym | undefined {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const parentSym = node.parent?.symbol;
-    return parentSym
-      ? getSymbolLinks(getOrCreateAugmentedSymbolTable(parentSym.members!).get(name)!)
-      : undefined;
+    return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
+  }
+
+  function getMemberSymbolLinks(node: MemberNode): SymbolLinks | undefined {
+    const sym = getMemberSymbol(node);
+    return sym ? getSymbolLinks(sym) : undefined;
   }
 
   function checkEnumMember(
@@ -3174,7 +3179,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     existingMemberNames: Set<string>
   ): EnumMember | undefined {
-    const links = getLateBoundMemberSymbolLinks(node);
+    const links = getMemberSymbolLinks(node);
     if (links?.type) {
       return links.type as EnumMember;
     }
