@@ -17,7 +17,7 @@ model HeaderOptions {
 /**
  * Specify this property is to be sent or received as an http header.
  *
- * @param headerName Optional name of the header when sent over http.
+ * @param headerNameOrOptions Optional name of the header when sent over http or header options.
  *
  * @example
  *
@@ -72,7 +72,7 @@ model PathOptions {
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
- * @param paramName Optional name of the parameter in the url template.
+ * @param paramNameOrOptions Optional name of the parameter in the url template or path parameter options.
  *
  * @example
  *
