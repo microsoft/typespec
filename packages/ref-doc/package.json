@@ -1,5 +1,5 @@
 {
-  "name": "@cadl-lang/doc-gen",
+  "name": "@cadl-lang/ref-doc",
   "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for generating cadl docs",
@@ -48,12 +48,12 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.37.0",
+    "@cadl-lang/compiler": "~0.38.1",
     "prettier": "~2.7.1"
   },
   "devDependencies": {
-    "@cadl-lang/compiler": "~0.37.0",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "@cadl-lang/compiler": "~0.38.1",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "c8": "~7.12.0",

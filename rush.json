@@ -182,8 +182,8 @@
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/doc-gen",
-      "projectFolder": "packages/doc-gen",
+      "packageName": "@cadl-lang/ref-doc",
+      "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
     }

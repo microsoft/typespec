@@ -1,5 +1,6 @@
 import prettier from "prettier";
 import { CadlRefDoc, DecoratorRefDoc } from "../types.js";
+import { codeblock, headings, inlinecode } from "../utils/markdown.js";
 import { getTypeSignature } from "../utils/type-signature.js";
 
 /**
@@ -12,10 +13,17 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
 }
 
 function renderDecoratorFile(refDoc: CadlRefDoc) {
-  let markdownString: string = "# Decorators\n\n";
+  const content = [
+    "---",
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 2",
+    "---",
+    headings.h1("Decorators"),
+  ];
   for (const dec of refDoc.decorators) {
-    markdownString += renderDecoratorMarkdown(dec) + "\n\n";
+    content.push(renderDecoratorMarkdown(dec), "");
   }
+  const markdownString = content.join("\n");
   try {
     return prettier.format(markdownString, {
       parser: "markdown",
@@ -24,13 +32,6 @@ function renderDecoratorFile(refDoc: CadlRefDoc) {
     console.error("Cannot format with prettier");
     return markdownString;
   }
-}
-
-function codeblock(code: string, lang: string = "") {
-  return "```" + lang + "\n" + code + "\n" + "```";
-}
-function inlinecode(code: string) {
-  return "`" + code + "`";
 }
 
 function table([header, ...rows]: string[][]) {
