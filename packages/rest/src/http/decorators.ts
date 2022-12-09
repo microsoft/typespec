@@ -60,7 +60,7 @@ export function getHeaderFieldOptions(program: Program, entity: Type): HeaderOpt
 }
 
 export function getHeaderFieldName(program: Program, entity: Type): string {
-  return getHeaderFieldOptions(program, entity).name;
+  return getHeaderFieldOptions(program, entity)?.name;
 }
 
 export function isHeader(program: Program, entity: Type) {
@@ -94,7 +94,7 @@ export function getQueryParamOptions(program: Program, entity: Type): QueryOptio
 }
 
 export function getQueryParamName(program: Program, entity: Type): string {
-  return getQueryParamOptions(program, entity).name;
+  return getQueryParamOptions(program, entity)?.name;
 }
 
 export function isQueryParam(program: Program, entity: Type) {
@@ -123,7 +123,7 @@ export function getPathParamOptions(program: Program, entity: Type): PathOptions
 }
 
 export function getPathParamName(program: Program, entity: Type): string {
-  return getPathParamOptions(program, entity).name;
+  return getPathParamOptions(program, entity)?.name;
 }
 
 export function isPathParam(program: Program, entity: Type) {
