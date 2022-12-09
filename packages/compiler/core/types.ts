@@ -744,6 +744,21 @@ export type TemplateableNode =
   | OperationStatementNode
   | UnionStatementNode;
 
+/**
+ * Node types that can have referencable members
+ */
+export type MemberContainerNode =
+  | ModelStatementNode
+  | ModelExpressionNode
+  | InterfaceStatementNode
+  | EnumStatementNode
+  | UnionStatementNode;
+
+/**
+ * Type that can be used as members of a container type.
+ */
+export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant;
+
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {
@@ -967,6 +982,7 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface UnionVariantNode extends BaseNode {
   readonly kind: SyntaxKind.UnionVariant;
+  readonly parent?: UnionStatementNode;
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
