@@ -1917,28 +1917,6 @@ export function createChecker(program: Program): Checker {
 
         return [undefined, args];
       } else if (base.flags & SymbolFlags.MemberContainer) {
-        // const type =
-        //   base.flags & SymbolFlags.LateBound
-        //     ? base.type!
-        //     : getTypeForNode(base.declarations[0], mapper);
-        // if (
-        //   type.kind !== "Model" &&
-        //   type.kind !== "Enum" &&
-        //   type.kind !== "Interface" &&
-        //   type.kind !== "Union"
-        // ) {
-        //   reportCheckerDiagnostic(
-        //     createDiagnostic({
-        //       code: "invalid-ref",
-        //       messageId: "underContainer",
-        //       format: { kind: type.kind, id: node.id.sv },
-        //       target: node,
-        //     })
-        //   );
-        //   return undefined;
-        // }
-
-        // lateBindMembers(type, base);
         const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
         if (!sym) {
           reportCheckerDiagnostic(
@@ -2330,9 +2308,9 @@ export function createChecker(program: Program): Checker {
 
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
-        if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
-          resolveAndCopyMembers(node.extends);
-        }
+        // if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
+        //   resolveAndCopyMembers(node.extends);
+        // }
         if (node.is && node.is.kind === SyntaxKind.TypeReference) {
           resolveAndCopyMembers(node.is);
         }
@@ -2369,7 +2347,10 @@ export function createChecker(program: Program): Checker {
     }
 
     function resolveAndCopyMembers(node: TypeReferenceNode) {
-      const ref = resolveTypeReferenceSym(node, undefined);
+      let ref = resolveTypeReferenceSym(node, undefined);
+      if (ref && ref.flags & SymbolFlags.Alias) {
+        ref = getAliasedSymbol(ref, undefined);
+      }
       if (ref && ref.members) {
         copyMembers(ref.members);
       }
@@ -2559,9 +2540,12 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ) {
     compilerAssert(typeof member.name === "string", "Cannot link unmapped unions");
+    if (containerNode.symbol === undefined) {
+      return;
+    }
     compilerAssert(
       containerNode.symbol.members,
-      `Computed member ${member.name} should have a symbol`
+      `Expected container node ${SyntaxKind[containerNode.kind]} to have members.`
     );
     const memberSym = getOrCreateAugmentedSymbolTable(containerNode.symbol.members).get(
       member.name

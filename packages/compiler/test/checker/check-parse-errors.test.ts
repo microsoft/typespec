@@ -1,5 +1,4 @@
-import { match, strictEqual } from "assert";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: semantic checks on source with parse errors", () => {
   let testHost: TestHost;
@@ -18,11 +17,11 @@ describe("compiler: semantic checks on source with parse errors", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 5);
-    match(diagnostics[0].message, /'}' expected/);
-    match(diagnostics[1].message, /Unknown identifier Q/);
-    match(diagnostics[2].message, /Unknown identifier B/);
-    match(diagnostics[3].message, /Unknown identifier C/);
-    match(diagnostics[4].message, /Model already has a property named a/);
+    expectDiagnostics(diagnostics, [
+      { message: /'}' expected/ },
+      { message: /Unknown identifier Q/ },
+      { message: /Unknown identifier B/ },
+      { message: /Model already has a property named a/ },
+    ]);
   });
 });
