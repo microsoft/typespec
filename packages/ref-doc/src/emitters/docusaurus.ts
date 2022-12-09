@@ -44,11 +44,17 @@ function table([header, ...rows]: string[][]) {
   ].join("\n");
 }
 
-function renderDecoratorMarkdown(dec: DecoratorRefDoc): string {
-  const content = [`## \`${dec.name}\``, "", dec.doc, codeblock(dec.signature, "cadl"), ""];
+function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 2): string {
+  const content = [
+    headings.hx(headingLevel, inlinecode(dec.name)),
+    "",
+    dec.doc,
+    codeblock(dec.signature, "cadl"),
+    "",
+  ];
 
   content.push(
-    "### Target",
+    headings.hx(headingLevel + 1, "Target"),
     dec.target.doc,
     inlinecode(getTypeSignature(dec.target.type.type)),
     ""
@@ -58,14 +64,16 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc): string {
   for (const param of dec.parameters) {
     paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
   }
-  content.push("### Parameters", table(paramTable), "");
+  content.push(headings.hx(headingLevel + 1, "Target"), table(paramTable), "");
 
-  content.push("### Examples");
-  for (const example of dec.examples) {
-    if (example.title) {
-      content.push(`#### ${example.title}`);
+  if (dec.examples.length > 0) {
+    content.push(headings.hx(headingLevel + 1, "Examples"));
+    for (const example of dec.examples) {
+      if (example.title) {
+        content.push(headings.hx(headingLevel + 2, example.title));
+      }
+      content.push("", example.content, "");
     }
-    content.push("", example.content, "");
   }
 
   return content.join("\n");

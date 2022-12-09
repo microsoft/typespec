@@ -4,6 +4,9 @@ export const headings = {
   h3: hx(3),
   h4: hx(4),
   h5: hx(5),
+  hx: (number: number, title: string) => {
+    return "#".repeat(number) + " " + title;
+  },
 };
 
 function hx(number: number) {

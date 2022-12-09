@@ -48,7 +48,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.38.1",
+    "@cadl-lang/compiler": "~0.38.3",
     "prettier": "~2.7.1"
   },
   "devDependencies": {
