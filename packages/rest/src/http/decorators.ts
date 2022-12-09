@@ -84,7 +84,7 @@ export function $query(
   } else {
     queryNameOrOptions.name = queryNameOrOptions.name ?? entity.name;
     queryNameOrOptions.format = queryNameOrOptions.format ?? "form";
-    queryNameOrOptions.explode = queryNameOrOptions.explode ?? true;
+    queryNameOrOptions.explode = queryNameOrOptions.explode ?? queryNameOrOptions.format === "form";
   }
   context.program.stateMap(queryFieldsKey).set(entity, queryNameOrOptions);
 }
