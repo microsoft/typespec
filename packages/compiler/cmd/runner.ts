@@ -1,4 +1,4 @@
-import { access, constants, readFile, realpath, stat } from "fs/promises";
+import { access, readFile, realpath, stat } from "fs/promises";
 import { join, resolve } from "path";
 import url from "url";
 import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
@@ -28,7 +28,7 @@ export async function runScript(relativePath: string, backupPath: string): Promi
 }
 
 function checkFileExists(file: string) {
-  return access(file, constants.F_OK)
+  return access(file)
     .then(() => true)
     .catch(() => false);
 }
