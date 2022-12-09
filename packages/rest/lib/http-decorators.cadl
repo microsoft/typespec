@@ -32,7 +32,7 @@ model QueryOptions {
   /**
    * Name of the query when included in the url.
    */
-  key?: string;
+  name?: string;
   /**
    * How the parameter value will be serialized
    */
@@ -47,16 +47,16 @@ model QueryOptions {
 /**
  * Specify this property is to be sent as a query parameter.
  *
- * @param queryKeyOrOptions Optional name of the query when included in the url or query parameter options.
+ * @param queryNameOrOptions Optional name of the query when included in the url or query parameter options.
  *
  * @example
  *
  * ```cadl
  * op read(@query select: string, @query("order-by") orderBy: string): void;
- * op list(@query({key: "id", format: "form", explode: false}) ids: string[]): void;
+ * op list(@query({name: "id", format: "form", explode: false}) ids: string[]): void;
  * ```
  */
-extern dec query(target: ModelProperty, queryKeyOrOptions?: string | QueryOptions);
+extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptions);
 
 model PathOptions {
   /**
