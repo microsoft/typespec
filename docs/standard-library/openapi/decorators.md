@@ -1,107 +1,106 @@
----
-title: Decorators
----
+# Decorators
 
-# OpenAPI Decorators
+## `@operationId`
 
-- [`@defaultResponse`](#defaultresponse)
-- [`@extension`](#extension)
-- [`@oneOf`](#oneof)
-- [`@externalDocs`](#externaldocs)
-- [`@operationId`](#operationid)
-- [`@useRef`](#useref)
-
-## `@defaultResponse`
-
-**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://microsoft.github.io/cadl/docs/standard-library/built-in-decorators/#error)**
-
-Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
+Specify the OpenAPI `operationId` property for this operation.
 
 ```cadl
-@defaultResponse
-model MyNonErrorResponse {}
+dec OpenAPI.operationId(target: Cadl.Reflection.Operation, operationId: Cadl.string)
+```
 
-op foo(): MyNonErrorResponse;
+### Target
+
+`model Cadl.Reflection.Operation`
+
+### Parameters
+
+| Name        | Type                 | Description         |
+| ----------- | -------------------- | ------------------- |
+| operationId | `scalar Cadl.string` | Operation id value. |
+
+### Examples
+
+```cadl
+@operationId("download")
+op read(): string;
 ```
 
 ## `@extension`
 
-This decorator lets you specify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
-[OpenAPI reference on extensions](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#specificationExtensions)
-
-Arguments:
-
-| Name    | foo          | Description                                                      |
-| ------- | ------------ | ---------------------------------------------------------------- |
-| `key`   | **Required** | Extension key. **MUST** start with `x-`                          |
-| `value` | **Required** | Value of the extension. Can be an primitive, a tuple or a model. |
+Attach some custom data to the OpenAPI element generated from this type.
 
 ```cadl
-@extension("x-custom", "MyCustomValue")
-model Foo {}
+dec OpenAPI.extension(target: unknown, key: Cadl.string, value: unknown)
+```
 
-// Value can be an model.
-@extension(
-  "x-custom",
-  {
-    some: "value",
-  }
-)
-model Foo {}
+### Target
+
+`(intrinsic) unknown`
+
+### Parameters
+
+| Name  | Type                  | Description                         |
+| ----- | --------------------- | ----------------------------------- |
+| key   | `scalar Cadl.string`  | Extension key. Must start with `x-` |
+| value | `(intrinsic) unknown` | Extension value.                    |
+
+### Examples
+
+```cadl
+@extension("x-custom", "My value")
+@extension("x-pageable", {nextLink: "x-next-link"})
+op read(): string;
+```
+
+## `@defaultResponse`
+
+Specify that this model is to be treated as the OpenAPI `default` response.
+This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
+
+```cadl
+dec OpenAPI.defaultResponse(target: Cadl.object)
+```
+
+### Target
+
+`model Cadl.object`
+
+### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
+### Examples
+
+```cadl
+@defaultResponse
+model PetStoreResponse is object;
+
+op listPets(): Pet[] | PetStoreResponse;
 ```
 
 ## `@externalDocs`
 
-Decorator that can be used to provide the `externalDocs` property on OpenAPI elements.
-[OpenAPI spec for externalDocs](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#externalDocumentationObject)
-
-Arguments:
-
-| Name          | foo          | Description                      |
-| ------------- | ------------ | -------------------------------- |
-| `url`         | **Required** | Url for the external docs        |
-| `description` | **Optional** | Description of the documentation |
+Specify the OpenAPI `externalDocs` property for this type.
 
 ```cadl
-@externalDocs("https://example.com", "More info there")
-model Foo {}
+dec OpenAPI.externalDocs(target: unknown, url: Cadl.string, description?: Cadl.string)
 ```
 
-### @oneOf
+### Target
 
-Syntax:
+`(intrinsic) unknown`
+
+### Parameters
+
+| Name        | Type                 | Description             |
+| ----------- | -------------------- | ----------------------- |
+| url         | `scalar Cadl.string` | Url to the docs         |
+| description | `scalar Cadl.string` | Description of the docs |
+
+### Examples
 
 ```cadl
-@oneOf()
+@externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")
+op listPets(): Pet[];
 ```
-
-`@oneOf`emits `oneOf` keyword for a union type in the resulting OpenAPI 3.0 specification. It indicates that the value of union type can only contain exactly one of the subschemas.
-
-`@oneOf` can only be applied to a union types.
-
-## `@operationId`
-
-Decorator that can be used on an operation to specify the `operationId` field in OpenAPI. If this is not provided the `operationId` will be the cadl operation name.
-
-Arguments:
-
-| Name   | foo          | Description         |
-| ------ | ------------ | ------------------- |
-| `opId` | **Required** | Id of the operation |
-
-```cadl
-@operationId("custom_Foo")
-op foo(): string;
-```
-
-### @useRef
-
-Syntax:
-
-```cadl
-@useRef(urlString)
-```
-
-`@useRef`
-
-`@useRef` is used to replace the Cadl model type in emitter output with a pre-existing named OpenAPI schema.
