@@ -191,6 +191,22 @@ export interface HttpOperationParameter {
   param: ModelProperty;
 }
 
+export interface HeaderOptions {
+  name: string;
+  explode: boolean;
+}
+
+export interface QueryOptions {
+  name: string;
+  format: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
+  explode: boolean;
+}
+
+export interface PathOptions {
+  name: string;
+  format: "simple" | "label" | "matrix";
+}
+
 /**
  * Represent the body information for an http request.
  *

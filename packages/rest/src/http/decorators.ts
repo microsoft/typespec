@@ -22,8 +22,11 @@ import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js
 import { extractParamsFromPath } from "../utils.js";
 import {
   AuthenticationOption,
+  HeaderOptions,
   HttpAuth,
   HttpVerb,
+  PathOptions,
+  QueryOptions,
   RouteOptions,
   RoutePath,
   ServiceAuthentication,
@@ -32,15 +35,32 @@ import {
 export const namespace = "Cadl.Http";
 
 const headerFieldsKey = createStateSymbol("header");
-export function $header(context: DecoratorContext, entity: ModelProperty, headerName?: string) {
-  if (!headerName) {
-    headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+export function $header(
+  context: DecoratorContext,
+  entity: ModelProperty,
+  headerNameOrOptions?: string | HeaderOptions
+) {
+  if (!headerNameOrOptions) {
+    headerNameOrOptions = {
+      name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
+      explode: false,
+    };
+  } else if (typeof headerNameOrOptions === "string") {
+    headerNameOrOptions = { name: headerNameOrOptions, explode: false };
+  } else {
+    headerNameOrOptions.name =
+      headerNameOrOptions.name ?? entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+    headerNameOrOptions.explode = headerNameOrOptions.explode ?? false;
   }
-  context.program.stateMap(headerFieldsKey).set(entity, headerName);
+  context.program.stateMap(headerFieldsKey).set(entity, headerNameOrOptions);
+}
+
+export function getHeaderFieldOptions(program: Program, entity: Type): HeaderOptions {
+  return program.stateMap(headerFieldsKey).get(entity);
 }
 
 export function getHeaderFieldName(program: Program, entity: Type): string {
-  return program.stateMap(headerFieldsKey).get(entity);
+  return getHeaderFieldOptions(program, entity).name;
 }
 
 export function isHeader(program: Program, entity: Type) {
@@ -48,27 +68,62 @@ export function isHeader(program: Program, entity: Type) {
 }
 
 const queryFieldsKey = createStateSymbol("query");
-export function $query(context: DecoratorContext, entity: ModelProperty, queryKey?: string) {
-  if (!queryKey && entity.kind === "ModelProperty") {
-    queryKey = entity.name;
+export function $query(
+  context: DecoratorContext,
+  entity: ModelProperty,
+  queryNameOrOptions?: string | QueryOptions
+) {
+  if (!queryNameOrOptions) {
+    queryNameOrOptions = { name: entity.name, format: "form", explode: true };
+  } else if (typeof queryNameOrOptions === "string") {
+    queryNameOrOptions = {
+      name: queryNameOrOptions,
+      format: "form",
+      explode: true,
+    };
+  } else {
+    queryNameOrOptions.name = queryNameOrOptions.name ?? entity.name;
+    queryNameOrOptions.format = queryNameOrOptions.format ?? "form";
+    queryNameOrOptions.explode = queryNameOrOptions.explode ?? true;
   }
-  context.program.stateMap(queryFieldsKey).set(entity, queryKey);
+  context.program.stateMap(queryFieldsKey).set(entity, queryNameOrOptions);
+}
+
+export function getQueryParamOptions(program: Program, entity: Type): QueryOptions {
+  return program.stateMap(queryFieldsKey).get(entity);
 }
 
 export function getQueryParamName(program: Program, entity: Type): string {
-  return program.stateMap(queryFieldsKey).get(entity);
+  return getQueryParamOptions(program, entity).name;
 }
 
 export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).has(entity);
 }
+
 const pathFieldsKey = createStateSymbol("path");
-export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
-  context.program.stateMap(pathFieldsKey).set(entity, paramName ?? entity.name);
+export function $path(
+  context: DecoratorContext,
+  entity: ModelProperty,
+  paramNameOrOptions?: string | PathOptions
+) {
+  if (!paramNameOrOptions) {
+    paramNameOrOptions = { name: entity.name, format: "simple" };
+  } else if (typeof paramNameOrOptions === "string") {
+    paramNameOrOptions = { name: paramNameOrOptions, format: "simple" };
+  } else {
+    paramNameOrOptions.name = paramNameOrOptions.name ?? entity.name;
+    paramNameOrOptions.format = paramNameOrOptions.format ?? "simple";
+  }
+  context.program.stateMap(pathFieldsKey).set(entity, paramNameOrOptions);
+}
+
+export function getPathParamOptions(program: Program, entity: Type): PathOptions {
+  return program.stateMap(pathFieldsKey).get(entity);
 }
 
 export function getPathParamName(program: Program, entity: Type): string {
-  return program.stateMap(pathFieldsKey).get(entity);
+  return getPathParamOptions(program, entity).name;
 }
 
 export function isPathParam(program: Program, entity: Type) {
