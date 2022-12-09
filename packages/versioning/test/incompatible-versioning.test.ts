@@ -4,16 +4,15 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@cadl-lang/compiler/testing";
-import { createVersioningTestHost } from "./test-host.js";
+import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
 describe("versioning: validate incompatible references", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
       import "@cadl-lang/versioning";
 
       using Cadl.Versioning;
@@ -22,8 +21,8 @@ describe("versioning: validate incompatible references", () => {
       namespace TestService {
         enum Versions {v1, v2, v3, v4}
         ${code}
-      }`
-    );
+      }`,
+    });
   });
 
   describe("operation return type", () => {
@@ -329,14 +328,7 @@ describe("versioning: validate incompatible references", () => {
     let runner: BasicTestRunner;
 
     beforeEach(async () => {
-      const host = await createVersioningTestHost();
-      runner = createTestWrapper(
-        host,
-        (code) => `
-        import "@cadl-lang/versioning";
-        using Cadl.Versioning;
-        ${code}`
-      );
+      runner = await createVersioningTestRunner();
     });
 
     it("emit diagnostic when referencing incompatible version via version dependency", async () => {

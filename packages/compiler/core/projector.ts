@@ -1,13 +1,14 @@
-import { isNeverType } from "../lib/decorators.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
   getParentTemplateNode,
-  isNeverIndexer,
+  getTypeName,
+  isNeverType,
   isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,
+  Scalar,
 } from "./index.js";
 import { Program } from "./program.js";
 import {
@@ -114,6 +115,9 @@ export function createProjector(
         );
         projected = projectNamespace(type, false);
         break;
+      case "Scalar":
+        projected = projectScalar(type);
+        break;
       case "Model":
         projected = projectModel(type);
         break;
@@ -163,7 +167,7 @@ export function createProjector(
       }
     }
   }
-  function projectNamespace(ns: Namespace, projectSubNamespace: boolean = true): Type {
+  function projectNamespace(ns: Namespace, projectSubNamespace: boolean = true): Namespace {
     const alreadyProjected = projectedTypes.get(ns) as Namespace;
     if (alreadyProjected) {
       if (projectSubNamespace) {
@@ -171,19 +175,15 @@ export function createProjector(
       }
       return alreadyProjected;
     }
-    const childNamespaces = new Map<string, Namespace>();
-    const childModels = new Map<string, Model>();
-    const childOperations = new Map<string, Operation>();
-    const childInterfaces = new Map<string, Interface>();
-    const childUnions = new Map<string, Union>();
-    const childEnums = new Map<string, Enum>();
+
     const projectedNs = shallowClone(ns, {
-      namespaces: childNamespaces,
-      models: childModels,
-      operations: childOperations,
-      interfaces: childInterfaces,
-      unions: childUnions,
-      enums: childEnums,
+      namespaces: new Map<string, Namespace>(),
+      scalars: new Map<string, Scalar>(),
+      models: new Map<string, Model>(),
+      operations: new Map<string, Operation>(),
+      interfaces: new Map<string, Interface>(),
+      unions: new Map<string, Union>(),
+      enums: new Map<string, Enum>(),
       decorators: [],
     });
 
@@ -201,7 +201,7 @@ export function createProjector(
     }
 
     projectedNamespaces.push(ns);
-    return applyProjection(ns, projectedNs);
+    return applyProjection(ns, projectedNs) as Namespace;
   }
 
   /**
@@ -222,6 +222,13 @@ export function createProjector(
       const projected = projectType(childModel);
       if (projected.kind === "Model") {
         projectedNs.models.set(projected.name, projected);
+      }
+    }
+
+    for (const scalar of ns.scalars.values()) {
+      const projected = projectType(scalar);
+      if (projected.kind === "Scalar") {
+        projectedNs.scalars.set(projected.name, projected);
       }
     }
 
@@ -275,20 +282,16 @@ export function createProjector(
     }
 
     if (model.indexer) {
-      if (isNeverIndexer(model.indexer)) {
-        projectedModel.indexer = { key: neverType, value: undefined };
-      } else {
-        projectedModel.indexer = {
-          key: projectModel(model.indexer.key),
-          value: projectType(model.indexer.value),
-        };
-      }
+      projectedModel.indexer = {
+        key: projectType(model.indexer.key) as Scalar,
+        value: projectType(model.indexer.value),
+      };
     }
 
     projectedTypes.set(model, projectedModel);
 
     for (const [key, prop] of model.properties) {
-      const projectedProp = projectType(prop);
+      const projectedProp = projectModelProperty(prop, projectedModel);
       if (projectedProp.kind === "ModelProperty") {
         properties.set(key, projectedProp);
       }
@@ -311,6 +314,39 @@ export function createProjector(
     return projectedResult;
   }
 
+  function projectScalar(scalar: Scalar): Type {
+    const projectedScalar = shallowClone(scalar, {
+      derivedScalars: [],
+    });
+
+    let templateArguments: Type[] | undefined;
+    if (scalar.templateArguments !== undefined) {
+      templateArguments = scalar.templateArguments.map(projectType);
+    }
+    projectedScalar.templateArguments = templateArguments;
+
+    if (scalar.baseScalar) {
+      projectedScalar.baseScalar = projectType(scalar.baseScalar) as Scalar;
+    }
+
+    projectedTypes.set(scalar, projectedScalar);
+
+    projectedScalar.decorators = projectDecorators(scalar.decorators);
+    if (shouldFinishType(scalar)) {
+      finishTypeForProgram(projectedProgram, projectedScalar);
+    }
+    const projectedResult = applyProjection(scalar, projectedScalar);
+    if (
+      !isNeverType(projectedResult) &&
+      projectedResult.kind === "Scalar" &&
+      projectedResult.baseScalar
+    ) {
+      projectedResult.baseScalar.derivedScalars ??= [];
+      projectedResult.baseScalar.derivedScalars.push(projectedScalar);
+    }
+    return projectedResult;
+  }
+
   /**
    * Returns true if we should finish a type. The only time we don't finish is when it's
    * a template type, because we don't want to run decorators for templates.
@@ -320,7 +356,11 @@ export function createProjector(
     return !parentTemplate || isTemplateInstance(type);
   }
 
-  function projectModelProperty(prop: ModelProperty): Type {
+  function projectModelProperty(prop: ModelProperty, projectedModel?: Model): Type {
+    if (prop.model && projectedModel === undefined) {
+      return projectViaParent(prop, prop.model);
+    }
+
     const projectedType = projectType(prop.type);
     const projectedDecs = projectDecorators(prop.decorators);
 
@@ -328,6 +368,15 @@ export function createProjector(
       type: projectedType,
       decorators: projectedDecs,
     });
+
+    if (projectedModel) {
+      projectedProp.model = projectedModel;
+    }
+
+    if (prop.sourceProperty) {
+      const sourceProperty = projectType(prop.sourceProperty) as ModelProperty;
+      projectedProp.sourceProperty = sourceProperty;
+    }
 
     if (shouldFinishType(prop)) {
       finishTypeForProgram(projectedProgram, projectedProp);
@@ -388,7 +437,7 @@ export function createProjector(
     });
 
     for (const [key, variant] of union.variants) {
-      const projectedVariant = projectType(variant);
+      const projectedVariant = projectUnionVariant(variant, union);
       if (projectedVariant.kind === "UnionVariant" && projectedVariant.type !== neverType) {
         variants.set(key, projectedVariant);
       }
@@ -401,7 +450,10 @@ export function createProjector(
     return applyProjection(union, projectedUnion);
   }
 
-  function projectUnionVariant(variant: UnionVariant) {
+  function projectUnionVariant(variant: UnionVariant, projectingUnion?: Union) {
+    if (projectingUnion === undefined) {
+      return projectViaParent(variant, variant.union);
+    }
     const projectedType = projectType(variant.type);
     const projectedDecs = projectDecorators(variant.decorators);
 
@@ -410,6 +462,8 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
+    const parentUnion = projectType(variant.union) as Union;
+    projectedVariant.union = parentUnion;
     finishTypeForProgram(projectedProgram, projectedVariant);
     return projectedVariant;
   }
@@ -448,7 +502,7 @@ export function createProjector(
     return applyProjection(e, projectedEnum);
   }
 
-  function projectEnumMember(e: EnumMember) {
+  function projectEnumMember(e: EnumMember, projectingEnum?: Enum) {
     const decorators = projectDecorators(e.decorators);
     const projectedMember = shallowClone(e, {
       decorators,
@@ -532,7 +586,7 @@ export function createProjector(
     const iface = interfaceScope();
     if (!iface) return iface;
     if (!projectedTypes.has(iface)) {
-      throw new Error("Interface should have been projected already");
+      throw new Error(`Interface "${iface.name}" should have been projected already`);
     }
     return projectType(iface) as Interface;
   }
@@ -557,7 +611,7 @@ export function createProjector(
     return projectedType;
   }
 
-  function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>) {
+  function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>): T {
     const scopeProps: any = {};
     if ("namespace" in type && type.namespace !== undefined) {
       scopeProps.namespace = projectedNamespaceScope();
@@ -586,5 +640,18 @@ export function createProjector(
 
     projectedTypes.set(type, clone);
     return clone;
+  }
+
+  /**
+   * Project the given type by projecting the parent type first.
+   * @param type Type to project.
+   * @param parentType Parent type that should be projected first.
+   * @returns Projected type
+   */
+  function projectViaParent(type: Type, parentType: Type): Type {
+    projectType(parentType);
+    const projectedProp = projectedTypes.get(type);
+    compilerAssert(projectedProp, `Type "${getTypeName(type)}" should have been projected by now.`);
+    return projectedProp;
   }
 }

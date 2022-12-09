@@ -1,4 +1,4 @@
-import "../dist/src/versioning.js";
+import "./decorators.cadl";
 import "../dist/src/validate.js";
 
 using Cadl.Versioning;
@@ -10,8 +10,8 @@ projection op#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
-    } else if renamedAfter(self, version) {
-      self::rename(getRenamedFromOldName(self));
+    } else if hasDifferentNameAtVersion(self, version) {
+      self::rename(getNameAtVersion(self, version));
     };
   }
   from(version) {
@@ -19,7 +19,7 @@ projection op#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
-    } else if renamedAfter(self, version) {
+    } else if hasDifferentNameAtVersion(self, version) {
       self::rename(self::projectionBase::name);
     };
   }
@@ -33,8 +33,8 @@ projection interface#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+      if hasDifferentNameAtVersion(self, version) {
+        self::rename(getNameAtVersion(self, version));
       };
 
       self::operations::forEach((operation) => {
@@ -52,7 +52,7 @@ projection interface#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
+      if hasDifferentNameAtVersion(self, version) {
         self::rename(self::projectionBase::name);
       };
 
@@ -75,8 +75,8 @@ projection union#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+      if hasDifferentNameAtVersion(self, version) {
+        self::rename(getNameAtVersion(self, version));
       };
 
       self::variants::forEach((variant) => {
@@ -84,8 +84,8 @@ projection union#v {
           self::deleteVariant(variant::name);
         } else if removedOnOrBefore(variant, version) {
           self::deleteVariant(variant::name);
-        } else if renamedAfter(variant, version) {
-          self::renameVariant(variant::name, getRenamedFromOldName(variant));
+        } else if hasDifferentNameAtVersion(variant, version) {
+          self::renameVariant(variant::name, getNameAtVersion(variant, version));
         };
       });
     };
@@ -96,7 +96,7 @@ projection union#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
+      if hasDifferentNameAtVersion(self, version) {
         self::rename(self::projectionBase::name);
       };
 
@@ -105,8 +105,8 @@ projection union#v {
           self::addVariant(variant::name, variant::type);
         } else if removedOnOrBefore(variant, version) {
           self::addVariant(variant::name, variant::type);
-        } else if renamedAfter(variant, version) {
-          self::renameVariant(getRenamedFromOldName(variant), variant::name);
+        } else if hasDifferentNameAtVersion(variant, version) {
+          self::renameVariant(getNameAtVersion(variant, version), variant::name);
         };
       });
     };
@@ -121,8 +121,8 @@ projection model#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+      if hasDifferentNameAtVersion(self, version) {
+        self::rename(getNameAtVersion(self, version));
       };
 
       self::properties::forEach((p) => {
@@ -134,8 +134,8 @@ projection model#v {
           self::deleteProperty(p::name);
         };
 
-        if renamedAfter(p, version) {
-          self::renameProperty(p::name, getRenamedFromOldName(p));
+        if hasDifferentNameAtVersion(p, version) {
+          self::renameProperty(p::name, getNameAtVersion(p, version));
         };
 
         if madeOptionalAfter(p, version) {
@@ -150,7 +150,7 @@ projection model#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
+      if hasDifferentNameAtVersion(self, version) {
         self::rename(self::projectionBase::name);
       };
 
@@ -163,8 +163,8 @@ projection model#v {
           self::addProperty(p::name, p::type);
         };
 
-        if renamedAfter(p, version) {
-          self::renameProperty(getRenamedFromOldName(p), p::name);
+        if hasDifferentNameAtVersion(p, version) {
+          self::renameProperty(getNameAtVersion(p, version), p::name);
         };
 
         if madeOptionalAfter(p, version) {
@@ -183,8 +183,8 @@ projection enum#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
-        self::rename(getRenamedFromOldName(self));
+      if hasDifferentNameAtVersion(self, version) {
+        self::rename(getNameAtVersion(self, version));
       };
 
       self::members::forEach((m) => {
@@ -196,8 +196,8 @@ projection enum#v {
           self::deleteMember(m::name);
         };
 
-        if renamedAfter(m, version) {
-          self::renameMember(m::name, getRenamedFromOldName(m));
+        if hasDifferentNameAtVersion(m, version) {
+          self::renameMember(m::name, getNameAtVersion(m, version));
         };
       });
     };
@@ -208,7 +208,7 @@ projection enum#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
-      if renamedAfter(self, version) {
+      if hasDifferentNameAtVersion(self, version) {
         self::rename(self::projectionBase::name);
       };
 
@@ -221,8 +221,8 @@ projection enum#v {
           self::addMember(m::name, m::type);
         };
 
-        if renamedAfter(m, version, self::projectionBase) {
-          self::renameMember(getRenamedFromOldName(m), m::name);
+        if hasDifferentNameAtVersion(m, version, self::projectionBase) {
+          self::renameMember(getNameAtVersion(m, version), m::name);
         };
       });
     };

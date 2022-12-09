@@ -1,11 +1,18 @@
-import assert, { deepStrictEqual } from "assert";
+import assert, { deepStrictEqual, strictEqual } from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
-import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
+import {
+  CadlScriptNode,
+  Node,
+  NodeFlags,
+  ParseOptions,
+  SourceFile,
+  SyntaxKind,
+} from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
-describe("compiler: syntax", () => {
+describe("compiler: parser", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
@@ -137,6 +144,23 @@ describe("compiler: syntax", () => {
       ["model bar<a, b> = a | b;", [/'{' expected/]],
     ]);
   });
+
+  describe("scalar statements", () => {
+    parseEach([
+      "scalar uuid extends string;",
+      `@foo()
+      scalar uuid extends string;`,
+      `namespace Foo { 
+        scalar uuid extends string;}
+        `,
+    ]);
+
+    parseErrorEach([
+      ["scalar uuid extends string { }", [/Statement expected./]],
+      ["scalar uuid is string;", [/Statement expected./]],
+    ]);
+  });
+
   describe("interface statements", () => {
     parseEach([
       "interface Foo { }",
@@ -152,7 +176,7 @@ describe("compiler: syntax", () => {
       ["interface X {", [/'}' expected/]],
       ["interface X { foo(): string; interface Y", [/'}' expected/]],
       ["interface X { foo(a: string", [/'\)' expected/]],
-      ["interface X { foo(@dec", [/Property expected/]],
+      ["interface X { foo(@myDec", [/Property expected/]],
       ["interface X { foo(#suppress x", [/Property expected/]],
     ]);
   });
@@ -180,14 +204,14 @@ describe("compiler: syntax", () => {
   describe("union declarations", () => {
     parseEach([
       "union A { x: number, y: number } ",
-      "@dec union A { @dec a: string }",
+      "@myDec union A { @myDec a: string }",
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
     ]);
 
     parseErrorEach([
       [
-        'union A { @dec "x" x: number, y: string }',
+        'union A { @myDec "x" x: number, y: string }',
         [/':' expected/],
         (n) => assert(!n.printable, "should not be printable"),
       ],
@@ -212,7 +236,7 @@ describe("compiler: syntax", () => {
       "namespace Store { op read(): int32; }",
       "namespace Store { op read(): int32; op write(v: int32): {}; }",
       "namespace Store.Read { op read(): int32; }",
-      "@foo namespace Store { @dec op read(): number; @dec op write(n: number): {}; }",
+      "@foo namespace Store { @myDec op read(): number; @myDec op write(n: number): {}; }",
       "@foo @bar namespace Store { @foo @bar op read(): number; }",
       "namespace Store { namespace Read { op read(): int32; } namespace Write { op write(v: int32): {}; } }",
       "namespace Store.Read { }",
@@ -306,7 +330,7 @@ describe("compiler: syntax", () => {
         ],
       ],
       ["model M {}; This is not a valid statement", [/Statement expected/]],
-      ["model M {}; @dec ;", [/Cannot decorate empty statement/]],
+      ["model M {}; @myDec ;", [/Cannot decorate empty statement/]],
     ]);
   });
 
@@ -540,6 +564,113 @@ describe("compiler: syntax", () => {
     });
   });
 
+  describe("augment decorator statements", () => {
+    parseEach(["@@tag(Foo);", `@@doc(Foo, "x");`, `@@doc(Foo.prop1, "x");`]);
+
+    parseErrorEach([
+      [
+        "@@tag",
+        [
+          {
+            code: "augment-decorator-target",
+            message: "Augment decorator first argument must be a type reference.",
+            pos: 5,
+          },
+        ],
+      ],
+    ]);
+  });
+
+  describe("decorator declarations", () => {
+    parseEach([
+      "dec myDec(target: Type);",
+      "extern dec myDec(target: Type);",
+      "namespace Lib { extern dec myDec(target: Type);}",
+      "extern dec myDec(target: Type, arg1: StringLiteral);",
+      "extern dec myDec(target: Type, optional?: StringLiteral);",
+      "extern dec myDec(target: Type, ...rest: StringLiteral[]);",
+      "extern dec myDec(target, arg1, ...rest);",
+    ]);
+
+    parseErrorEach([
+      ["dec myDec(target: Type)", [{ code: "token-expected", message: "';' expected." }]],
+      [
+        "dec myDec();",
+        [{ code: "decorator-decl-target", message: "dec must have at least one parameter." }],
+      ],
+      [
+        "dec myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral);",
+        [
+          {
+            code: "required-parameter-first",
+            message: "A required parameter cannot follow an optional parameter.",
+          },
+        ],
+      ],
+      [
+        "dec myDec(target: Type, ...optionalRest?: StringLiteral[]);",
+        [
+          {
+            code: "rest-parameter-required",
+            message: "A rest parameter cannot be optional.",
+          },
+        ],
+      ],
+      [
+        "dec myDec(target: Type, ...restFirst: StringLiteral[], paramAfter: StringLiteral);",
+        [
+          {
+            code: "rest-parameter-last",
+            message: "A rest parameter must be last in a parameter list.",
+          },
+        ],
+      ],
+    ]);
+  });
+
+  describe("function declarations", () => {
+    parseEach([
+      "fn myDec(): void;",
+      "extern fn myDec(): StringLiteral;",
+      "namespace Lib { extern fn myDec(): StringLiteral;}",
+      "extern fn myDec(arg1: StringLiteral): void;",
+      "extern fn myDec(optional?: StringLiteral): void;",
+      "extern fn myDec(...rest: StringLiteral[]): void;",
+      "extern fn myDec(arg1, ...rest): void;",
+    ]);
+
+    parseErrorEach([
+      ["fn myDec(target: Type): void", [{ code: "token-expected", message: "';' expected." }]],
+      [
+        "fn myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral): void;",
+        [
+          {
+            code: "required-parameter-first",
+            message: "A required parameter cannot follow an optional parameter.",
+          },
+        ],
+      ],
+      [
+        "fn myDec(target: Type, ...optionalRest?: StringLiteral[]): void;",
+        [
+          {
+            code: "rest-parameter-required",
+            message: "A rest parameter cannot be optional.",
+          },
+        ],
+      ],
+      [
+        "fn myDec(target: Type, ...restFirst: StringLiteral[], paramAfter: StringLiteral): void;",
+        [
+          {
+            code: "rest-parameter-last",
+            message: "A rest parameter must be last in a parameter list.",
+          },
+        ],
+      ],
+    ]);
+  });
+
   describe("projections", () => {
     describe("selectors", () => {
       const selectors = ["model", "op", "interface", "union", "someId"];
@@ -621,13 +752,116 @@ describe("compiler: syntax", () => {
   });
 
   describe("invalid statement", () => {
-    parseErrorEach([["@dec(N.)", [/Identifier expected/]]]);
+    parseErrorEach([["@myDecN.)", [/Identifier expected/]]]);
+  });
+
+  describe("doc comments", () => {
+    parseEach(
+      [
+        [
+          `
+          /** One-liner */
+          model M {}
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(docs[0].content[0].text, "One-liner");
+            strictEqual(docs[0].tags.length, 0);
+          },
+        ],
+        [
+          `
+          /**
+           * This one has a \`code span\` and a code fence and it spreads over
+           * more than one line.
+           *
+           * \`\`\`
+           * This is not a @tag because we're in a code fence.
+           * \`\`\`
+           *
+           * \`This is not a @tag either because we're in a code span\`.
+           *
+           * @param x the param
+           * @template T some template
+           * @returns something
+           * @pretend this an unknown tag
+           */
+          op test<T>(x: string): string;
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(
+              docs[0].content[0].text,
+              "This one has a `code span` and a code fence and it spreads over\nmore than one line.\n\n```\nThis is not a @tag because we're in a code fence.\n```\n\n`This is not a @tag either because we're in a code span`."
+            );
+            strictEqual(docs[0].tags.length, 4);
+            strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
+            strictEqual(docs[0].tags[0].tagName.sv, "param");
+            strictEqual(docs[0].tags[0].paramName.sv, "x");
+            strictEqual(docs[0].tags[0].content[0].text, "the param");
+            strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
+            strictEqual(docs[0].tags[1].tagName.sv, "template");
+            strictEqual(docs[0].tags[1].paramName.sv, "T");
+            strictEqual(docs[0].tags[2].kind, SyntaxKind.DocReturnsTag as const);
+            strictEqual(docs[0].tags[2].tagName.sv, "returns");
+            strictEqual(docs[0].tags[2].content[0].text, "something");
+            strictEqual(docs[0].tags[3].kind, SyntaxKind.DocUnknownTag as const);
+            strictEqual(docs[0].tags[3].tagName.sv, "pretend");
+            strictEqual(docs[0].tags[3].content[0].text, "this an unknown tag");
+          },
+        ],
+      ],
+      { docs: true }
+    );
+  });
+
+  describe("conflict marker", () => {
+    // NOTE: Use of ${} to obfuscate conflict markers so that they're not
+    // flagged while working on these tests.
+    parseErrorEach(
+      [
+        [
+          `
+${"<<<<<<<"} ours
+model XY {}
+${"|||||||"} base
+model X {}
+${"======="}
+model XYZ {}
+${">>>>>>>"} theirs`,
+          [
+            { code: "conflict-marker", pos: 1, end: 8 },
+            { code: "conflict-marker", pos: 26, end: 33 },
+            { code: "conflict-marker", pos: 50, end: 57 },
+            { code: "conflict-marker", pos: 71, end: 78 },
+          ],
+        ],
+        [
+          `
+${"<<<<<<<"} ours
+model XY {}
+${"======="}
+model XYZ {}
+${">>>>>>>"} theirs`,
+          [
+            { code: "conflict-marker", pos: 1, end: 8 },
+            { code: "conflict-marker", pos: 26, end: 33 },
+            { code: "conflict-marker", pos: 47, end: 54 },
+          ],
+        ],
+      ],
+      { strict: true }
+    );
   });
 });
 
 type Callback = (node: CadlScriptNode) => void;
 
-function parseEach(cases: (string | [string, Callback])[]) {
+function parseEach(cases: (string | [string, Callback])[], options?: ParseOptions) {
   for (const each of cases) {
     const code = typeof each === "string" ? each : each[0];
     const callback = typeof each === "string" ? undefined : each[1];
@@ -636,7 +870,7 @@ function parseEach(cases: (string | [string, Callback])[]) {
       logVerboseTestOutput(code);
 
       logVerboseTestOutput("\n=== Parse Result ===");
-      const astNode = parse(code);
+      const astNode = parse(code, options);
       if (callback) {
         callback(astNode);
       }
@@ -723,14 +957,14 @@ function checkPositioning(node: Node, file: SourceFile) {
  */
 function parseErrorEach(
   cases: [string, (RegExp | DiagnosticMatch)[], Callback?][],
-  options = { strict: false }
+  options: ParseOptions & { strict: boolean } = { strict: false }
 ) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse '${shorten(code)}'`, () => {
       logVerboseTestOutput("=== Source ===");
       logVerboseTestOutput(code);
 
-      const astNode = parse(code);
+      const astNode = parse(code, options);
       if (callback) {
         callback(astNode);
       }

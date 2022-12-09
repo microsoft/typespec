@@ -21,15 +21,12 @@ import {
   assertHasVariants,
 } from "./utils.js";
 
-describe("cadl: versioning", () => {
+describe("compiler: versioning", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `import "@cadl-lang/versioning";using Cadl.Versioning;\n${code}`
-    );
+    runner = createTestWrapper(host, { autoUsings: ["Cadl.Versioning"] });
   });
 
   describe("version compare", () => {
@@ -197,6 +194,37 @@ describe("cadl: versioning", () => {
           [v1, "v1"],
           [v2, "v2"],
           [v3, "v3"],
+        ],
+        source
+      );
+    });
+
+    it("can rename properties multiple times", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedModel(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `model Test {
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          d: int32;
+        }`
+      );
+      assertHasProperties(v1, ["a"]);
+      assertHasProperties(v2, ["b"]);
+      assertHasProperties(v3, ["c"]);
+      assertHasProperties(v4, ["c"]);
+      assertHasProperties(v5, ["d"]);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
+          [v5, "v5"],
         ],
         source
       );

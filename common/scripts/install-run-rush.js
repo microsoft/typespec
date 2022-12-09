@@ -3,7 +3,11 @@
 // See the @microsoft/rush package's LICENSE file for license information.
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -36,6 +40,7 @@ const fs = __importStar(require("fs"));
 const install_run_1 = require("./install-run");
 const PACKAGE_NAME = '@microsoft/rush';
 const RUSH_PREVIEW_VERSION = 'RUSH_PREVIEW_VERSION';
+const INSTALL_RUN_RUSH_LOCKFILE_PATH_VARIABLE = 'INSTALL_RUN_RUSH_LOCKFILE_PATH';
 function _getRushVersion(logger) {
     const rushPreviewVersion = process.env[RUSH_PREVIEW_VERSION];
     if (rushPreviewVersion !== undefined) {
@@ -100,7 +105,11 @@ function _run() {
     (0, install_run_1.runWithErrorAndStatusCode)(logger, () => {
         const version = _getRushVersion(logger);
         logger.info(`The rush.json configuration requests Rush version ${version}`);
-        return (0, install_run_1.installAndRun)(logger, PACKAGE_NAME, version, bin, packageBinArgs);
+        const lockFilePath = process.env[INSTALL_RUN_RUSH_LOCKFILE_PATH_VARIABLE];
+        if (lockFilePath) {
+            logger.info(`Found ${INSTALL_RUN_RUSH_LOCKFILE_PATH_VARIABLE}="${lockFilePath}", installing with lockfile.`);
+        }
+        return (0, install_run_1.installAndRun)(logger, PACKAGE_NAME, version, bin, packageBinArgs, lockFilePath);
     });
 }
 _run();

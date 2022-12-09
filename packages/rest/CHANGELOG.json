@@ -2,6 +2,147 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/rest_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add cadl docs on decorators"
+          },
+          {
+            "comment": "Update docs."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper"
+          },
+          {
+            "comment": "Add validation for `@route` to prevent `@route` used twice on the same operation/interface/namespace"
+          },
+          {
+            "comment": "Add support for multiple services"
+          },
+          {
+            "comment": "Uptake changes to compiler api to support Scalars"
+          },
+          {
+            "comment": "Add `@actionSegment` decorator. Deprecate `@segmentSeparator`."
+          },
+          {
+            "comment": "Update `ResourceLocation` to `extends url` instead of deprecated `uri` "
+          },
+          {
+            "comment": "Validate `multipart/form-data` request body is a `Model`"
+          },
+          {
+            "comment": "**Deprecation** Updated the `HttpOperationParameters` interface to include a new `body` field replacing the `bodyType` and `bodyParameter`."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.0",
+      "tag": "@cadl-lang/rest_v0.19.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Declare decorators in cadl using `extern dec`"
+          },
+          {
+            "comment": "Add MetadataInfo.getEffectivePayloadType helper"
+          },
+          {
+            "comment": "Deprecate write visibility"
+          },
+          {
+            "comment": "Allow `@route` and `@resetRoute` to accept a `shared` property to suppress route uniqueness validation."
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix: Issue with duplicate key in spread models"
+          },
+          {
+            "comment": "Move `duplicate-parent-key` check from the `parentResource` decorator to a linting rule"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.1` to `~0.2.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.18.0",
+      "tag": "@cadl-lang/rest_v0.18.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Empty object as a response will not produce a 204 response anymore"
+          },
+          {
+            "comment": "Feature: Add `isContentTypeHeader` helper."
+          },
+          {
+            "comment": "Implement automatic visibility transformations"
+          },
+          {
+            "comment": "**BREAKING** Remove `@discriminator` decorator. (Moved to @cadl-lang/compiler)"
+          },
+          {
+            "comment": "Disallow optional path params even if they have a default value"
+          },
+          {
+            "comment": "Add support for overloads(Using `@overload` decorator)"
+          },
+          {
+            "comment": "Reorganization of http data accessor. `getAllRoutes` is now deprecated and replaced with `getAllHttpServices`"
+          },
+          {
+            "comment": "`ResourceLocation<T>` is `uri`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Remove workaround for issue https://github.com/microsoft/cadl/issues/1069"
+          },
+          {
+            "comment": "Detect unannotated path parameters that are specified in route path"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.0` to `~0.2.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.0",
       "tag": "@cadl-lang/rest_v0.17.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

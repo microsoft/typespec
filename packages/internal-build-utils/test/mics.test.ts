@@ -1,5 +1,5 @@
 import { ok } from "assert";
 
-describe("Test", () => {
+describe("internal-build-utils", () => {
   it("todo", () => ok(true));
 });

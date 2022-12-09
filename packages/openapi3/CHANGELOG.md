@@ -1,6 +1,65 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Omit metadata properties of type `never`
+- Internal: update to use new `getTypeName` and `getNamespaceString` helper
+- Uptake change to `onEmit` signature
+- **Breaking change** using new built-in `emitter-output-dir` option instead of custom `output-dir`.
+- Add support for multiple services
+- Uptake changes to compiler api to support Scalars
+- Add support for renamed `url` scalar
+- Uptake changes to rest library api
+
+### Patches
+
+- Emit 'deprecated' operation property in openapi3
+- Internal: Update tests to change from `emitters` compiler options to `emit` and `options`
+- Fix: Respect `@header` and `@query` over the wire name
+- Update dependencies
+
+### Updates
+
+- Remove undocumented use of atVersion projection
+
+## 0.17.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Declare decorators in cadl using `extern dec`
+- Feature: Add support for `unknown`
+
+### Patches
+
+- Fix: @extension on a model is intrinsic types are being applied
+
+## 0.16.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Use new `getDiscriminatedUnion` helper from compiler
+- Empty object as a response will not produce a 204 response anymore
+- Implement automatic visibility transformations
+- Add support for `@minItems` and `@maxItems` decorators
+- Add support for referencing model properties.
+- Emitted openapi3 document include all types under the service namespace
+- Uptake move of  `@discriminator` into compiler
+- Add `output-dir` emitter option
+- Add support for overloads(Using `@overload` decorator)
+- Uptake changes to rest library
+
+### Patches
+
+- Fix: Response headers are marked as required unless optional
+- Fix: `Content-Type` request header lookup is case insensitive
+- Exclude properties of type `never` when emitting model schemas
 
 ## 0.15.0
 Thu, 08 Sep 2022 01:04:53 GMT
@@ -43,6 +102,10 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Remove `summary` property set on schemas
 - Make response descriptions more consistent
 
+### Updates
+
+- Update Readme.md for new decorators.
+
 ## 0.13.0
 Fri, 08 Jul 2022 23:22:57 GMT
 
@@ -65,6 +128,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Add support for new @server decorator used to specify api endpoints.
 - Find good names where possible for anonymous models that differ from named models only by properties that are not part of the schema
 - Uptake changes to versioning library using enums for version
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.11.0
 Fri, 06 May 2022 17:19:57 GMT

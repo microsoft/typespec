@@ -7,7 +7,7 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { buildVersionProjections } from "../src/versioning.js";
-import { createVersioningTestHost } from "./test-host.js";
+import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 import { assertHasProperties } from "./utils.js";
 
 describe("versioning: reference versioned library", () => {
@@ -15,9 +15,8 @@ describe("versioning: reference versioned library", () => {
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
       import "@cadl-lang/versioning";
 
       using Cadl.Versioning;
@@ -30,8 +29,8 @@ describe("versioning: reference versioned library", () => {
           @added(Versions.l2) age: int32;
         }
       }
-      ${code}`
-    );
+      ${code}`,
+    });
   });
 
   function assertFooV1(foo: Model) {
@@ -239,6 +238,107 @@ describe("versioning: reference versioned library", () => {
     `);
       expectDiagnosticEmpty(diagnostics);
     });
+  });
+
+  describe("sub namespace of versioned namespace", () => {
+    it("doesn't emit diagnostic when parent namespace is versioned and using type from it", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace DemoService {
+          enum Versions {v1, v2}
+          
+          model Foo {}
+
+          namespace SubNamespace {
+            op use(): Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't emit diagnostic when referencing to versioned library from subnamespace with parent namespace with versioned dependency", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {v1, v2}
+          
+          model Foo {}
+        }
+
+        @versionedDependency(Lib.Versions.v1)
+        namespace MyService {
+          namespace SubNamespace {
+            op use(): Lib.Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed if sub namespace of versioned service reference versioned library", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {v1, v2}
+          
+          model Foo {}
+        }
+
+        @versioned(Versions)
+        @versionedDependency([[Versions.m1, Lib.Versions.v1]])
+        namespace MyService {
+          enum Versions {m1}
+          namespace SubNamespace {
+            op use(): Lib.Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed if versioned service reference sub namespace type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService {
+          enum Versions {m1}
+
+          op use(): SubNamespace.Foo;
+          namespace SubNamespace {
+            model Foo {}
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed reference versioned library sub namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {v1, v2}
+
+          namespace LibSub {
+            model Foo {}
+          }
+        }
+
+        @versioned(Versions)
+        @versionedDependency([[Versions.m1, Lib.Versions.v1]])
+        namespace MyService {
+          enum Versions {m1}
+          namespace ServiceSub {
+            op use(): Lib.LibSub.Foo;
+          }
+        }
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
 
     it("emit diagnostic when used in properties of generic type", async () => {
       const diagnostics = await runner.diagnose(`
@@ -262,14 +362,7 @@ describe("versioning: dependencies", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `
-      import "@cadl-lang/versioning";
-      using Cadl.Versioning;
-      ${code}`
-    );
+    runner = await createVersioningTestRunner();
   });
 
   it("use model defined in non versioned library spreading properties", async () => {

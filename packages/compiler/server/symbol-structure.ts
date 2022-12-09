@@ -18,7 +18,7 @@ export function getSymbolStructure(ast: CadlScriptNode): DocumentSymbol[] {
   const file = ast.file;
 
   const fileNamespace = findFileNamespace(ast);
-  if (fileNamespace == undefined) {
+  if (fileNamespace === undefined) {
     return getForStatements(ast.statements);
   }
   const fileNamespaceSymbol = getForNamespace(fileNamespace);

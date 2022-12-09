@@ -117,6 +117,8 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
       name: keyName,
       decorators,
       optional: false,
+      model: target,
+      sourceProperty: undefined,
     });
 
     // Add the key property to the target type
@@ -185,30 +187,4 @@ export function $parentResource(context: DecoratorContext, entity: Type, parentT
   const { program } = context;
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
-
-  // Ensure that the parent resource type(s) don't have key name conflicts
-  const keyNameSet = new Set<string>();
-  let currentType: Model | undefined = entity as Model;
-  while (currentType) {
-    const resourceKey = getResourceTypeKey(program, currentType);
-    if (resourceKey) {
-      const keyName = getKeyName(program, resourceKey!.keyProperty);
-      if (keyNameSet.has(keyName)) {
-        reportDiagnostic(program, {
-          code: "duplicate-parent-key",
-          format: {
-            resourceName: (entity as Model).name,
-            parentName: currentType.name,
-            keyName,
-          },
-          target: resourceKey!.keyProperty,
-        });
-        return;
-      }
-
-      keyNameSet.add(keyName);
-    }
-
-    currentType = getParentResource(program, currentType);
-  }
 }

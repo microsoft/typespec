@@ -155,6 +155,55 @@
             "type": "string"
           }
         }
+      },
+      "Person": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "secret": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          },
+          "other": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "secret",
+          "name",
+          "test",
+          "other"
+        ]
+      },
+      "OptionalPerson": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "secret": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          },
+          "other": {
+            "type": "string"
+          }
+        }
       }
     }
   }

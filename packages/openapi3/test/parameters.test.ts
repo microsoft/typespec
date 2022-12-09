@@ -14,6 +14,37 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
   });
 
+  it("create a query param with a different name", async () => {
+    const res = await openApiFor(
+      `
+      op test(@query("$select") select: string): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "query");
+    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
+  });
+
+  it("create an header param", async () => {
+    const res = await openApiFor(
+      `
+      op test(@header arg1: string): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "header");
+    strictEqual(res.paths["/"].get.parameters[0].name, "arg1");
+    deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
+  });
+
+  it("create an header param with a different name", async () => {
+    const res = await openApiFor(
+      `
+      op test(@header("foo-bar") foo: string): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "header");
+    strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
+  });
+
   // Regression test for https://github.com/microsoft/cadl/issues/414
   it("@doc set the description on the parameter not its schema", async () => {
     const res = await openApiFor(
@@ -42,7 +73,8 @@ describe("openapi3: parameters", () => {
 
       @route("/test2")
       op test2(...Q): void;
-      `
+      `,
+      { "omit-unreachable-types": true }
     );
 
     expectDiagnostics(diagnostics, [
@@ -96,5 +128,61 @@ describe("openapi3: parameters", () => {
         },
       },
     ]);
+  });
+
+  it("omit parameters with type never", async () => {
+    const res = await openApiFor(
+      `
+      op test(@query select: never, @query top: int32): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters.length, 1);
+    strictEqual(res.paths["/"].get.parameters[0].in, "query");
+    strictEqual(res.paths["/"].get.parameters[0].name, "top");
+  });
+
+  describe("content type parameter", () => {
+    it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
+      const res = await openApiFor(
+        `
+        op test(
+          @header("Content-Type") explicitContentType: "application/octet-stream",
+          @body foo: string
+        ): void;
+        `
+      );
+      ok(res.paths["/"].post.requestBody.content["application/octet-stream"]);
+      deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
+        type: "string",
+      });
+    });
+
+    it("header named contentType gets resolved as content type for operation.", async () => {
+      const res = await openApiFor(
+        `
+        op test(
+          @header contentType: "application/octet-stream",
+          @body foo: string
+        ): void;
+        `
+      );
+      ok(res.paths["/"].post.requestBody.content["application/octet-stream"]);
+      deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
+        type: "string",
+      });
+    });
+
+    it("query named contentType doesn't get resolved as the content type parmaeter.", async () => {
+      const res = await openApiFor(
+        `
+        op test(
+          @query contentType: "application/octet-stream",
+          @body foo: string
+        ): void;
+        `
+      );
+      strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
+      ok(res.paths["/"].post.requestBody.content["application/json"]);
+    });
   });
 });

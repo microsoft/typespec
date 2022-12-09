@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
-import { CompilerHost, RmOptions } from "./types";
+import { CompilerHost, RmOptions } from "./types.js";
 import { getSourceFileKindFromExt } from "./util.js";
 
 /**

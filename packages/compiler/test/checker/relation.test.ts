@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { isNeverIndexer, Model } from "../../core/index.js";
+import { Model } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -18,7 +18,7 @@ interface RelatedTypeOptions {
 describe("compiler: checker: type relations", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost(), (x) => x);
+    runner = createTestWrapper(await createTestHost());
   });
 
   async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions) {
@@ -59,17 +59,6 @@ describe("compiler: checker: type relations", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("cannot add property to primitive type", async () => {
-      const diagnostics = await runner.diagnose(`
-        model Foo is string {
-          prop1: string;
-        }`);
-      expectDiagnostics(diagnostics, {
-        code: "no-prop",
-        message: "Property 'prop1' cannot be defined because model cannot hold properties.",
-      });
-    });
-
     it("cannot add property incompatible with indexer", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo is Record<int32> {
@@ -88,19 +77,18 @@ describe("compiler: checker: type relations", () => {
       `)) as { Bar: Model };
       const Foo = Bar.properties.get("foo")!.type as Model;
       ok(Foo.indexer);
-      ok(!isNeverIndexer(Foo.indexer));
       const indexValue = Foo.indexer.value;
       strictEqual(indexValue.kind, "Model" as const);
       deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);
     });
 
-    it("cannot intersect model with properties and a primitive type", async () => {
+    it("cannot intersect model with a scalar", async () => {
       const diagnostics = await runner.diagnose(`
         alias A = string & {prop1: string};
       `);
       expectDiagnostics(diagnostics, {
-        code: "intersect-invalid-index",
-        message: "Cannot intersect a model that cannot hold properties.",
+        code: "intersect-non-model",
+        message: "Cannot intersect non-model types (including union types).",
       });
     });
 
@@ -169,6 +157,10 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
+    it("can assign string literal union", async () => {
+      await expectTypeAssignable({ source: `"foo" | "bar"`, target: "string" });
+    });
+
     it("emit diagnostic when assigning numeric literal", async () => {
       await expectTypeNotAssignable(
         { source: "123", target: "string" },
@@ -213,6 +205,10 @@ describe("compiler: checker: type relations", () => {
 
     it("can assign numeric literal between -128 and 127", async () => {
       await expectTypeAssignable({ source: "123", target: "int8" });
+    });
+
+    it("can assign numeric literal union", async () => {
+      await expectTypeAssignable({ source: `4 | 123`, target: "int8" });
     });
 
     it("emit diagnostic when numeric literal is out of range large", async () => {

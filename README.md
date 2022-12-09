@@ -5,50 +5,14 @@
 Cadl is a language for describing cloud service APIs and generating other API
 description languages, client and service code, documentation, and other assets.
 Cadl provides highly extensible core language primitives that can describe API
-shapes common among REST, GraphQL, gRPC, and other protocols.
+shapes common among REST, OpenAPI, GraphQL, gRPC, and other protocols.
+
+Using Cadl, you can create reusable patterns for all aspects of an API, along with the ability to check for and flag known anti-patterns. These patterns establish "guardrails" for API designers and make it easier to follow best practices than deviate from them. Cadl promotes highly regular API designs that adhere to best practices by construction.
 
 You can try a work-in-progress build of the compiler by following the steps in
 the Getting Started section below. Please feel free to [file
 issues](https://github.com/Microsoft/cadl/issues) for any issues you encounter while
 using the preview.
-
-## Packages
-
-| Name                                            | Changelog                    | Latest                                                                                                                             | Next                                                                   |
-| ----------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Core functionality                              |                              |                                                                                                                                    |                                                                        |
-| [@cadl-lang/compiler][compiler_src]             | [Changelog][compiler_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/compiler)](https://www.npmjs.com/package/@cadl-lang/compiler)                         | ![](https://img.shields.io/npm/v/@cadl-lang/compiler/next)             |
-| Cadl Libraries                                  |                              |                                                                                                                                    |                                                                        |
-| [@cadl-lang/rest][rest_src]                     | [Changelog][rest_chg]        | [![](https://img.shields.io/npm/v/@cadl-lang/rest)](https://www.npmjs.com/package/@cadl-lang/rest)                                 | ![](https://img.shields.io/npm/v/@cadl-lang/rest/next)                 |
-| [@cadl-lang/openapi][openapi_src]               | [Changelog][openapi_chg]     | [![](https://img.shields.io/npm/v/@cadl-lang/openapi)](https://www.npmjs.com/package/@cadl-lang/openapi)                           | ![](https://img.shields.io/npm/v/@cadl-lang/openapi/next)              |
-| [@cadl-lang/openapi3][openapi3_src]             | [Changelog][openapi3_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/openapi3)](https://www.npmjs.com/package/@cadl-lang/openapi3)                         | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3/next)             |
-| [@cadl-lang/versioning][versioning_src]         | [Changelog][versioning_chg]  | [![](https://img.shields.io/npm/v/@cadl-lang/versioning)](https://www.npmjs.com/package/@cadl-lang/versioning)                     | ![](https://img.shields.io/npm/v/@cadl-lang/versioning/next)           |
-| Cadl Tools                                      |                              |                                                                                                                                    |                                                                        |
-| [@cadl-lang/prettier-plugin-cadl][prettier_src] | [Changelog][prettier_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl)](https://www.npmjs.com/package/@cadl-lang/prettier-plugin-cadl) | ![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl/next) |
-| [cadl-vs][cadl-vs_src]                          | [Changelog][cadl-vs_chg]     | [![](https://img.shields.io/npm/v/cadl-vs)](https://www.npmjs.com/package/cadl-vs)                                                 | ![](https://img.shields.io/npm/v/cadl-vs/next)                         |
-| [cadl-vscode][cadl-vscode_src]                  | [Changelog][cadl-vscode_chg] | [![](https://img.shields.io/npm/v/cadl-vscode)](https://www.npmjs.com/package/cadl-vscode)                                         | ![](https://img.shields.io/npm/v/cadl-vscode/next)                     |
-| [tmlanguage-generator][tmlanguage_src]          | [Changelog][tmlanguage_chg]  | [![](https://img.shields.io/npm/v/tmlanguage-generator)](https://www.npmjs.com/package/tmlanguage-generator)                       | ![](https://img.shields.io/npm/v/tmlanguage-generator/next)            |
-
-[compiler_src]: packages/compiler
-[compiler_chg]: packages/compiler/CHANGELOG.md
-[rest_src]: packages/rest
-[rest_chg]: packages/rest/CHANGELOG.md
-[openapi_src]: packages/openapi
-[openapi_chg]: packages/openapi/CHANGELOG.md
-[openapi3_src]: packages/openapi3
-[openapi3_chg]: packages/openapi3/CHANGELOG.md
-[versioning_src]: packages/versioning
-[versioning_chg]: packages/versioning/CHANGELOG.md
-[prettier_src]: packages/prettier-plugin-cadl
-[prettier_chg]: packages/prettier-plugin-cadl/CHANGELOG.md
-[cadl-vs_src]: packages/cadl-vs
-[cadl-vs_chg]: packages/cadl-vs/CHANGELOG.md
-[cadl-vscode_src]: packages/cadl-vscode
-[cadl-vscode_chg]: packages/cadl-vscode/CHANGELOG.md
-[tmlanguage_src]: packages/tmlanguage-generator
-[tmlanguage_chg]: packages/tmlanguage-generator/CHANGELOG.md
-
-`@next` version of the package are the latest versions available on the `main` branch.
 
 ## Try Cadl without installing anything
 
@@ -59,11 +23,15 @@ You can try Cadl on the web without installing anything.
 
 ## Getting Started
 
+For documentation for Cadl language, see https://microsoft.github.io/cadl.
+
 ### Using Docker
 
 [See docker documentation](./docs/docker.md)
 
 ### Using Node & Npm
+
+#### One-time Setup
 
 1. Install [Node.js 16 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
 
@@ -73,48 +41,45 @@ You can try Cadl on the web without installing anything.
 
    It is recommended to have npm 7+. To update npm run `npm install -g npm`
 
-2. Create a folder for your new Cadl project
+2. Install Cadl compiler and libraries:
 
-3. **Via init command:** Run `npx -p @cadl-lang/compiler cadl init` > Select openapi3 library template.
-
-4. **Alternatively manually:** In a command prompt, run the following commands:
-
-   ```
-   cd path\to\cadl\project
+```bash
    npm init -y
    npm install -g @cadl-lang/compiler
-   npm install @cadl-lang/rest @cadl-lang/openapi3
-   ```
+```
 
-   This will create a `package.json` file for your Cadl project and add the necessary Cadl dependencies to it.
+If you do not wish to install the compiler globally with `-g` flag, you will need to install it locally once in every Cadl project folder. You would also need to prefix every Cadl run command with `npx`. See [npx documentation](https://docs.npmjs.com/cli/v7/commands/npx)
 
-5. Install the Cadl extension for your editor of choice:
+```bash
+    npx cadl init
+    npx cadl compile
+```
+
+3. Install the Cadl extension for your editor of choice:
 
    - [Instructions for Visual Studio](#installing-visual-studio-extension)
    - [Instructions for Visual Studio Code](#installing-vs-code-extension)
 
-6. Open the folder in your editor and create a new file `main.cadl`
+### Creating Cadl project
 
-7. [Follow our tutorial](docs/tutorial.md) to get started writing Cadl!
+1. Create a folder for your new Cadl project
 
-8. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
+2. Initialize a Cadl project.
 
-   ```
-   npx cadl compile . --emit @cadl-lang/openapi3
+   - Run `cadl init` > Select `Generic Rest API` template with `@cadl-lang/rest` and `@cadl-lang/openapi3` libraries checked.
+   - Run `cadl install` to install node package dependencies.
+
+3. Open the folder in your editor and edit `main.cadl`
+
+4. Follow our [documentation](https://microsoft.github.io/cadl) to get started writing Cadl!
+
+5. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
+
+   ```bash
+   cadl compile .
    ```
 
    This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
-
-9. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter.
-
-Create a `cadl-project.yaml` file next to the `package.json` with this content:
-
-```yaml
-emitters:
-  "@cadl-lang/openapi3": true
-```
-
-After you should be able to just run `npx cadl compile .`
 
 ## Troubleshooting
 
@@ -230,3 +195,41 @@ Example
   "@cadl-lang/openapi": "~0.10.0-dev.2",
 }
 ```
+
+## Packages
+
+| Name                                            | Changelog                    | Latest                                                                                                                             | Next                                                                   |
+| ----------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Core functionality                              |                              |                                                                                                                                    |                                                                        |
+| [@cadl-lang/compiler][compiler_src]             | [Changelog][compiler_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/compiler)](https://www.npmjs.com/package/@cadl-lang/compiler)                         | ![](https://img.shields.io/npm/v/@cadl-lang/compiler/next)             |
+| Cadl Libraries                                  |                              |                                                                                                                                    |                                                                        |
+| [@cadl-lang/rest][rest_src]                     | [Changelog][rest_chg]        | [![](https://img.shields.io/npm/v/@cadl-lang/rest)](https://www.npmjs.com/package/@cadl-lang/rest)                                 | ![](https://img.shields.io/npm/v/@cadl-lang/rest/next)                 |
+| [@cadl-lang/openapi][openapi_src]               | [Changelog][openapi_chg]     | [![](https://img.shields.io/npm/v/@cadl-lang/openapi)](https://www.npmjs.com/package/@cadl-lang/openapi)                           | ![](https://img.shields.io/npm/v/@cadl-lang/openapi/next)              |
+| [@cadl-lang/openapi3][openapi3_src]             | [Changelog][openapi3_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/openapi3)](https://www.npmjs.com/package/@cadl-lang/openapi3)                         | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3/next)             |
+| [@cadl-lang/versioning][versioning_src]         | [Changelog][versioning_chg]  | [![](https://img.shields.io/npm/v/@cadl-lang/versioning)](https://www.npmjs.com/package/@cadl-lang/versioning)                     | ![](https://img.shields.io/npm/v/@cadl-lang/versioning/next)           |
+| Cadl Tools                                      |                              |                                                                                                                                    |                                                                        |
+| [@cadl-lang/prettier-plugin-cadl][prettier_src] | [Changelog][prettier_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl)](https://www.npmjs.com/package/@cadl-lang/prettier-plugin-cadl) | ![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl/next) |
+| [cadl-vs][cadl-vs_src]                          | [Changelog][cadl-vs_chg]     | [![](https://img.shields.io/npm/v/cadl-vs)](https://www.npmjs.com/package/cadl-vs)                                                 | ![](https://img.shields.io/npm/v/cadl-vs/next)                         |
+| [cadl-vscode][cadl-vscode_src]                  | [Changelog][cadl-vscode_chg] | [![](https://img.shields.io/npm/v/cadl-vscode)](https://www.npmjs.com/package/cadl-vscode)                                         | ![](https://img.shields.io/npm/v/cadl-vscode/next)                     |
+| [tmlanguage-generator][tmlanguage_src]          | [Changelog][tmlanguage_chg]  | [![](https://img.shields.io/npm/v/tmlanguage-generator)](https://www.npmjs.com/package/tmlanguage-generator)                       | ![](https://img.shields.io/npm/v/tmlanguage-generator/next)            |
+
+[compiler_src]: packages/compiler
+[compiler_chg]: packages/compiler/CHANGELOG.md
+[rest_src]: packages/rest
+[rest_chg]: packages/rest/CHANGELOG.md
+[openapi_src]: packages/openapi
+[openapi_chg]: packages/openapi/CHANGELOG.md
+[openapi3_src]: packages/openapi3
+[openapi3_chg]: packages/openapi3/CHANGELOG.md
+[versioning_src]: packages/versioning
+[versioning_chg]: packages/versioning/CHANGELOG.md
+[prettier_src]: packages/prettier-plugin-cadl
+[prettier_chg]: packages/prettier-plugin-cadl/CHANGELOG.md
+[cadl-vs_src]: packages/cadl-vs
+[cadl-vs_chg]: packages/cadl-vs/CHANGELOG.md
+[cadl-vscode_src]: packages/cadl-vscode
+[cadl-vscode_chg]: packages/cadl-vscode/CHANGELOG.md
+[tmlanguage_src]: packages/tmlanguage-generator
+[tmlanguage_chg]: packages/tmlanguage-generator/CHANGELOG.md
+
+`@next` version of the package are the latest versions available on the `main` branch.

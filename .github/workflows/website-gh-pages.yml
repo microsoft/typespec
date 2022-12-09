@@ -1,10 +1,6 @@
 name: Deploy Cadl Website to github pages
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: []
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -38,12 +34,12 @@ jobs:
       - name: Build
         run: npx @microsoft/rush build --to @cadl-lang/website
         env:
-          CADL_WEBSITE_BASE_PATH: "/cadl/" # microsoft.github.io/cadl/
+          CADL_WEBSITE_BASE_PATH: "/cadl/"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./packages/website/dist
+          path: ./packages/website/build
 
   # Deployment job
   deploy:

@@ -22,22 +22,12 @@ export async function createRestTestHost(): Promise<TestHost> {
 }
 export async function createHttpTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
-  return createTestWrapper(
-    host,
-    (code) =>
-      `import "@cadl-lang/rest"; using Cadl.Http;
-      ${code}`
-  );
+  return createTestWrapper(host, { autoUsings: ["Cadl.Http"] });
 }
 
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
-  return createTestWrapper(
-    host,
-    (code) =>
-      `import "@cadl-lang/rest"; using Cadl.Rest; using Cadl.Http;
-      ${code}`
-  );
+  return createTestWrapper(host, { autoUsings: ["Cadl.Http", "Cadl.Rest"] });
 }
 
 export interface RouteDetails {

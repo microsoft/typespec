@@ -1,7 +1,7 @@
 import { BasicTestRunner } from "@cadl-lang/compiler/testing";
 import { createViewerTestRunner } from "./test-host.js";
 
-describe("Smoke tests", () => {
+describe("html-program-viewer: smoke tests", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

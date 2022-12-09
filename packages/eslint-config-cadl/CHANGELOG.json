@@ -2,6 +2,23 @@
   "name": "@cadl-lang/eslint-config-cadl",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@cadl-lang/eslint-config-cadl_v0.5.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Enable `eqeqeq` rule in eslint to ban usage of `==` or `!=`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.1",
       "tag": "@cadl-lang/eslint-config-cadl_v0.4.1",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

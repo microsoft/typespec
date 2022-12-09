@@ -23,6 +23,8 @@ import {
 export { cadlVersion } from "./manifest.js";
 export { NodeHost } from "./node-host.js";
 
+export class ExternalError extends Error {}
+
 /**
  * Recursively calls Object.freeze such that all objects and arrays
  * referenced are frozen.
@@ -251,6 +253,13 @@ export function isDefined<T>(arg: T | undefined): arg is T {
 }
 
 /**
+ * Remove undefined properties from object.
+ */
+export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+/**
  * Look for the project root by looking up until a `package.json` is found.
  * @param path Path to start looking
  * @param lookIn
@@ -433,5 +442,37 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
   delete(key: string) {
     return super.delete(key.toUpperCase());
+  }
+}
+
+/**
+ * Helper class to track duplicate instance
+ */
+export class DuplicateTracker<K, V> {
+  #entries = new Map<K, V[]>();
+
+  /**
+   * Track usage of K.
+   * @param k key that is being checked for duplicate.
+   * @param v value that map to the key
+   */
+  track(k: K, v: V) {
+    const existing = this.#entries.get(k);
+    if (existing === undefined) {
+      this.#entries.set(k, [v]);
+    } else {
+      existing.push(v);
+    }
+  }
+
+  /**
+   * Return iterator of all the duplicate entries.
+   */
+  *entries(): Iterable<[K, V[]]> {
+    for (const [k, v] of this.#entries.entries()) {
+      if (v.length > 1) {
+        yield [k, v];
+      }
+    }
   }
 }

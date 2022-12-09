@@ -7,7 +7,7 @@ import {
   resolveVirtualPath,
 } from "../../testing/index.js";
 
-describe("server: reuse", () => {
+describe("compiler: server: reuse", () => {
   it("reuses unchanged programs", async () => {
     const host = await createTestServerHost();
     const document = host.addOrUpdateDocument("main.cadl", "model M  {}");

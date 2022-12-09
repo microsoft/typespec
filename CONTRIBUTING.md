@@ -292,6 +292,14 @@ As a contributor you can run the following command to trigger the build and crea
 /azp run Cadl Pull Request Try It
 ```
 
+## Run formatter
+
+Trigger a workflow that will format the code, commit and push.
+
+```
+/cadleng format
+```
+
 # Cadl website
 
 ## Publish website to github.io

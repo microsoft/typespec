@@ -8,6 +8,12 @@ export interface OpenAPI3EmitterOptions {
    * @default lf
    */
   "new-line"?: "crlf" | "lf";
+
+  /**
+   * Omit unreachable types.
+   * By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
+   */
+  "omit-unreachable-types"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -16,6 +22,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   properties: {
     "output-file": { type: "string", nullable: true },
     "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
+    "omit-unreachable-types": { type: "boolean", nullable: true },
   },
   required: [],
 };
@@ -79,22 +86,6 @@ export const libDef = {
         empty:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
         null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
-      },
-    },
-    discriminator: {
-      severity: "error",
-      messages: {
-        duplicate: paramMessage`Discriminator value "${"val"}" defined in two different variants: ${"model1"} and ${"model2"}`,
-        missing: "The discriminator property is not defined in a variant of a discriminated union.",
-        required: "The discriminator property must be a required property.",
-        type: "The discriminator property must be type 'string'.",
-      },
-    },
-    "discriminator-value": {
-      severity: "warning",
-      messages: {
-        literal:
-          "Each variant of a discriminated union should define the discriminator property with a string literal value.",
       },
     },
     "invalid-default": {

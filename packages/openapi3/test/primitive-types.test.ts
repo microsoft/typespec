@@ -4,6 +4,7 @@ import { oapiForModel } from "./test-host.js";
 describe("openapi3: primitives", () => {
   describe("handle cadl intrinsic types", () => {
     const cases = [
+      ["unknown", {}],
       ["int8", { type: "integer", format: "int8" }],
       ["int16", { type: "integer", format: "int16" }],
       ["int32", { type: "integer", format: "int32" }],
@@ -43,7 +44,7 @@ describe("openapi3: primitives", () => {
     const res = await oapiForModel(
       "Pet",
       `
-      model shortString is string {}
+      scalar shortString extends string;
       model Pet { name: shortString };
       `
     );
@@ -56,13 +57,13 @@ describe("openapi3: primitives", () => {
     });
   });
 
-  describe("specify attributes on model is", () => {
+  describe("specify attributes on scalar is", () => {
     it("includes data passed on the model", async () => {
       const res = await oapiForModel(
         "Pet",
         `
       @maxLength(10) @minLength(10)
-      model shortString is string {}
+      scalar shortString extends string;
       model Pet { name: shortString };
       `
       );
@@ -82,9 +83,9 @@ describe("openapi3: primitives", () => {
         "Pet",
         `
       @maxLength(10)
-      model shortString is string {}
+      scalar shortString extends string;
       @minLength(1)
-      model shortButNotEmptyString is shortString {};
+      scalar shortButNotEmptyString extends shortString;
       model Pet { name: shortButNotEmptyString, breed: shortString };
       `
       );
@@ -103,6 +104,22 @@ describe("openapi3: primitives", () => {
         maxLength: 10,
       });
     });
+
+    it("includes extensions passed on the model", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+      @extension("x-custom", "my-value")
+      scalar Pet extends string;
+      `
+      );
+
+      ok(res.schemas.Pet, "expected definition named Pet");
+      deepStrictEqual(res.schemas.Pet, {
+        type: "string",
+        "x-custom": "my-value",
+      });
+    });
   });
 
   describe("using @doc decorator", () => {
@@ -111,7 +128,7 @@ describe("openapi3: primitives", () => {
         "shortString",
         `
       @doc("My custom description")
-      model shortString is string {}
+      scalar shortString extends string;
       `
       );
 
@@ -128,7 +145,7 @@ describe("openapi3: primitives", () => {
         "specialint",
         `
       @doc("My custom description")
-      model specialint is int32 {}
+      scalar specialint extends int32;
       `
       );
 
@@ -148,7 +165,7 @@ describe("openapi3: primitives", () => {
         "Pet",
         `
       @secret
-      model Pet is string;
+      scalar Pet extends string;
       `
       );
       deepStrictEqual(res.schemas.Pet, { type: "string", format: "password" });

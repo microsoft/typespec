@@ -1,13 +1,24 @@
 # Change Log - @cadl-lang/eslint-config-cadl
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.5.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Enable `eqeqeq` rule in eslint to ban usage of `==` or `!=`
+
+### Patches
+
+- Update dependencies
 
 ## 0.4.1
 Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Patches
 
-- Add warning when using `.only` to remmeber to remove before pushing
+- Add warning when using `.only` to remember to remove before pushing
 
 ## 0.4.0
 Thu, 11 Aug 2022 19:05:23 GMT

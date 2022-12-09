@@ -17,13 +17,20 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
         },
       },
     },
-    esbuild: {},
+    esbuild: {
+      logOverride: { "this-is-undefined-in-esm": "silent" },
+    },
     assetsInclude: [/\.cadl$/],
     optimizeDeps: {
-      exclude: ["node-fetch"],
+      exclude: ["node-fetch", "swagger-ui"],
     },
     plugins: [
-      react(),
+      react({
+        jsxImportSource: "@emotion/react",
+        babel: {
+          plugins: ["@emotion/babel-plugin"],
+        },
+      }),
       playgroundManifestPlugin(config),
       cadlBundlePlugin({
         folderName: "libs",

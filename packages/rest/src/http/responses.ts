@@ -3,10 +3,9 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getDoc,
-  getIntrinsicModelName,
   isArrayModelType,
   isErrorModel,
-  isIntrinsic,
+  isNullType,
   isVoidType,
   Model,
   ModelProperty,
@@ -16,6 +15,7 @@ import {
   walkPropertiesInherited,
 } from "@cadl-lang/compiler";
 import { createDiagnostic } from "../lib.js";
+import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
@@ -38,22 +38,18 @@ export function getResponsesForOperation(
   const responseType = operation.returnType;
   const responses: Record<string | symbol, HttpOperationResponse> = {};
   if (responseType.kind === "Union") {
-    for (const option of responseType.options) {
-      if (isNullType(program, option)) {
+    for (const option of responseType.variants.values()) {
+      if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/cadl/issues/356
         continue;
       }
-      processResponseType(program, diagnostics, responses, option);
+      processResponseType(program, diagnostics, responses, option.type);
     }
   } else {
     processResponseType(program, diagnostics, responses, responseType);
   }
 
   return diagnostics.wrap(Object.values(responses));
-}
-
-function isNullType(program: Program, type: Type): boolean {
-  return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
 }
 
 function processResponseType(
@@ -172,45 +168,11 @@ function getResponseContentTypes(
 ): string[] {
   const contentTypes: string[] = [];
   for (const prop of metadata) {
-    if (isHeader(program, prop)) {
-      const headerName = getHeaderFieldName(program, prop);
-      if (headerName && headerName.toLowerCase() === "content-type") {
-        contentTypes.push(...diagnostics.pipe(getContentTypes(prop)));
-      }
+    if (isHeader(program, prop) && isContentTypeHeader(program, prop)) {
+      contentTypes.push(...diagnostics.pipe(getContentTypes(prop)));
     }
   }
   return contentTypes;
-}
-
-/**
- * Resolve the content types from a model property by looking at the value.
- * @property property Model property
- * @returns List of contnet types and any diagnostics if there was an issue.
- */
-export function getContentTypes(property: ModelProperty): [string[], readonly Diagnostic[]] {
-  const diagnostics = createDiagnosticCollector();
-  if (property.type.kind === "String") {
-    return [[property.type.value], []];
-  } else if (property.type.kind === "Union") {
-    const contentTypes = [];
-    for (const option of property.type.options) {
-      if (option.kind === "String") {
-        contentTypes.push(option.value);
-      } else {
-        diagnostics.add(
-          createDiagnostic({
-            code: "content-type-string",
-            target: property,
-          })
-        );
-        continue;
-      }
-    }
-
-    return diagnostics.wrap(contentTypes);
-  }
-
-  return [[], [createDiagnostic({ code: "content-type-string", target: property })]];
 }
 
 /**
@@ -237,11 +199,7 @@ function getResponseBody(
   metadata: Set<ModelProperty>
 ): Type | undefined {
   // non-model or intrinsic/array model -> response body is response type
-  if (
-    responseType.kind !== "Model" ||
-    isIntrinsic(program, responseType) ||
-    isArrayModelType(program, responseType)
-  ) {
+  if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
     return responseType;
   }
 
@@ -261,9 +219,9 @@ function getResponseBody(
   }
 
   // Without an explicit body, response type is response model itself if
-  // there it has at least one non-metadata property, or if it has derived
+  // there it has at least one non-metadata property, if it is an empty object or if it has derived
   // models
-  if (responseType.derivedModels.length > 0) {
+  if (responseType.derivedModels.length > 0 || responseType.properties.size === 0) {
     return responseType;
   }
   for (const property of walkPropertiesInherited(responseType)) {

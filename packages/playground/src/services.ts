@@ -128,6 +128,20 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function monacoSignatureHelp(
+    help: lsp.SignatureHelp | undefined
+  ): monaco.languages.SignatureHelp {
+    return {
+      signatures:
+        help?.signatures.map((x) => ({
+          ...x,
+          parameters: x.parameters ?? [],
+        })) ?? [],
+      activeSignature: help?.activeSignature ?? 0,
+      activeParameter: help?.activeParameter ?? 0,
+    };
+  }
+
   function monacoRange(range: lsp.Range): monaco.IRange {
     return {
       startColumn: range.start.character + 1,
@@ -212,6 +226,15 @@ export async function attachServices(host: BrowserHost) {
     async provideHover(model, position) {
       const hover = await serverLib.getHover(lspArgs(model, position));
       return monacoHover(hover);
+    },
+  });
+
+  monaco.languages.registerSignatureHelpProvider("cadl", {
+    signatureHelpTriggerCharacters: ["(", ",", "<"],
+    signatureHelpRetriggerCharacters: [")"],
+    async provideSignatureHelp(model, position) {
+      const help = await serverLib.getSignatureHelp(lspArgs(model, position));
+      return { value: monacoSignatureHelp(help), dispose: () => {} };
     },
   });
 

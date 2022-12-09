@@ -29,7 +29,7 @@ Decorators:
 
 ### `@defaultResponse`
 
-**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#error)**
+**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://microsoft.github.io/cadl/docs/standard-library/built-in-decorators/#error)**
 
 Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
 
@@ -101,5 +101,5 @@ op foo(): string;
 ## See also
 
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md)
+- [Cadl Website](https://microsoft.github.io/cadl)
 - [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)

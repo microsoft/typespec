@@ -1,6 +1,6 @@
 {
   "name": "tmlanguage-generator",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/Microsoft/cadl/tree/master/packages/tmlanguage-generator",
@@ -37,11 +37,11 @@
     "plist": "~3.0.2"
   },
   "devDependencies": {
-    "@types/node": "~16.0.3",
+    "@types/node": "~18.11.9",
     "@types/plist": "~3.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "eslint": "^8.12.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.8.2"
+    "typescript": "~4.9.3"
   }
 }

@@ -48,7 +48,7 @@ const libDefinition = {
     "duplicate-parent-key": {
       severity: "error",
       messages: {
-        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which is already used by parent type '${"parentName"}'.`,
+        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which conflicts with the key name of a parent or child resource.`,
       },
     },
     "missing-path-param": {
@@ -60,7 +60,7 @@ const libDefinition = {
     "optional-path-param": {
       severity: "error",
       messages: {
-        default: paramMessage`Path parameter '${"paramName"}' cannot be optional without a default value.`,
+        default: paramMessage`Path parameter '${"paramName"}' cannot be optional.`,
       },
     },
     "missing-server-param": {
@@ -82,8 +82,6 @@ const libDefinition = {
     "duplicate-route-decorator": {
       severity: "error",
       messages: {
-        operation: "@route was defined twice on this operation.",
-        interface: "@route was defined twice on this interface.",
         namespace: "@route was defined twice on this namespace and has different values.",
       },
     },
@@ -122,7 +120,7 @@ const libDefinition = {
     "content-type-ignored": {
       severity: "warning",
       messages: {
-        default: "content-type header ignored because return type has no body",
+        default: "`Content-Type` header ignored because there is no body.",
       },
     },
     "no-routes": {
@@ -132,25 +130,28 @@ const libDefinition = {
           "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
       },
     },
-
     "invalid-type-for-auth": {
       severity: "error",
       messages: {
         default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
       },
     },
-    "invalid-discriminated-union": {
+    "shared-boolean": {
       severity: "error",
       messages: {
-        noAnonVariants: "Unions with anonymous variants cannot be discriminated",
+        default: "shared parameter must be a boolean.",
       },
     },
-    "invalid-discriminated-union-variant": {
+    "write-visibility-not-supported": {
+      severity: "warning",
+      messages: {
+        default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
+      },
+    },
+    "multipart-model": {
       severity: "error",
       messages: {
-        default: paramMessage`Union variant ${"name"} must be a model type`,
-        noDiscriminant: paramMessage`Variant ${"name"}'s type is missing the discriminant property ${"discriminant"}`,
-        wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
+        default: "Multipart request body must be a model.",
       },
     },
   },

@@ -8,11 +8,18 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol } from "../lib.js";
-import { getSegment, getSegmentSeparator, isAutoRoute } from "../rest.js";
+import {
+  getActionSegment,
+  getActionSeparator,
+  getSegment,
+  getSegmentSeparator,
+  isAutoRoute,
+} from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import { getRouteOptionsForNamespace, getRoutePath } from "./decorators.js";
 import { getOperationParameters } from "./parameters.js";
 import {
+  HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
   RouteOptions,
@@ -46,13 +53,30 @@ function buildPath(pathFragments: string[]) {
   return path.length > 0 && path[0] === "/" ? path : `/${path}`;
 }
 
+function addActionFragment(program: Program, target: Type, pathFragments: string[]) {
+  // add the action segment, if present
+  const defaultSeparator = "/";
+  const actionSegment = getActionSegment(program, target);
+  if (actionSegment && actionSegment !== "") {
+    // Have to use segmentSeparator as a fallback to avoid breaking changes
+    // However, segmentSeparator does not work in certain cases and should not be used
+    const actionSeparator =
+      getActionSeparator(program, target) ??
+      getSegmentSeparator(program, target) ??
+      defaultSeparator;
+    pathFragments.push(`${actionSeparator}${actionSegment}`);
+  }
+}
+
 function addSegmentFragment(program: Program, target: Type, pathFragments: string[]) {
   // Don't add the segment prefix if it is meant to be excluded
   // (empty string means exclude the segment)
   const segment = getSegment(program, target);
-  const separator = getSegmentSeparator(program, target);
+
   if (segment && segment !== "") {
-    pathFragments.push(`${separator ?? "/"}${segment}`);
+    const defaultSeparator = "/";
+    const separator = getSegmentSeparator(program, target) ?? defaultSeparator;
+    pathFragments.push(`${separator}${segment}`);
   }
 }
 
@@ -97,14 +121,25 @@ function generatePathFromParameters(
 
   // Add the operation's own segment if present
   addSegmentFragment(program, operation, pathFragments);
+
+  // Add the operation's action segment if present
+  addActionFragment(program, operation, pathFragments);
 }
 
 export function resolvePathAndParameters(
   program: Program,
   operation: Operation,
+  overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
-): [{ path: string; parameters: HttpOperationParameters }, readonly Diagnostic[]] {
-  let segments = [];
+): [
+  {
+    path: string;
+    pathSegments: string[];
+    parameters: HttpOperationParameters;
+  },
+  readonly Diagnostic[]
+] {
+  let segments: string[] = [];
   let parameters: HttpOperationParameters;
   const diagnostics = createDiagnosticCollector();
   if (isAutoRoute(program, operation)) {
@@ -119,9 +154,11 @@ export function resolvePathAndParameters(
       ...options,
     });
   } else {
-    [segments] = getRouteSegments(program, operation);
+    segments = getOperationRouteSegments(program, operation, overloadBase);
     const declaredPathParams = segments.flatMap(extractParamsFromPath);
-    parameters = diagnostics.pipe(getOperationParameters(program, operation, declaredPathParams));
+    parameters = diagnostics.pipe(
+      getOperationParameters(program, operation, overloadBase, declaredPathParams)
+    );
 
     // Pull out path parameters to verify what's in the path string
     const paramByName = new Map(
@@ -156,8 +193,21 @@ export function resolvePathAndParameters(
 
   return diagnostics.wrap({
     path: buildPath(segments),
+    pathSegments: segments,
     parameters,
   });
+}
+
+function getOperationRouteSegments(
+  program: Program,
+  operation: Operation,
+  overloadBase: HttpOperation | undefined
+): string[] {
+  if (overloadBase !== undefined && getRoutePath(program, operation) === undefined) {
+    return overloadBase.pathSegments;
+  } else {
+    return getRouteSegments(program, operation)[0];
+  }
 }
 
 function getParentSegments(

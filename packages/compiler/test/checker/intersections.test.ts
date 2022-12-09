@@ -13,7 +13,7 @@ describe("compiler: intersections", () => {
 
   beforeEach(async () => {
     const host = await createTestHost();
-    runner = createTestWrapper(host, (code) => code);
+    runner = createTestWrapper(host);
   });
 
   it("intersect 2 models", async () => {

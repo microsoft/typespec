@@ -8,6 +8,7 @@ import {
   EnumMember,
   Interface,
   Model,
+  ModelProperty,
   Namespace,
   NumericLiteral,
   Operation,
@@ -19,7 +20,7 @@ import {
 import { getDoc } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
-describe("cadl: projections", () => {
+describe("compiler: projections", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -212,6 +213,70 @@ describe("cadl: projections", () => {
   });
 
   describe("models", () => {
+    it("link projected model to projected properties", async () => {
+      const code = `
+      @test model Foo {
+        name: string;
+      }
+      #suppress "projections-are-experimental"
+      projection model#test {to {}}`;
+      const result = (await testProjection(code)) as Model;
+      ok(result.projectionBase);
+      strictEqual(result.properties.get("name")?.model, result);
+    });
+
+    it("link projected property with sourceProperty", async () => {
+      const code = `
+      @test model Foo {
+        ...Bar
+      }
+
+      model Bar {
+        name: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {to {}}`;
+      const Foo = (await testProjection(code)) as Model;
+      ok(Foo.projectionBase);
+      const sourceProperty = Foo.properties.get("name")?.sourceProperty;
+      ok(sourceProperty);
+      strictEqual(sourceProperty, Foo.namespace!.models.get("Bar")?.properties.get("name"));
+      strictEqual(sourceProperty.model, Foo.namespace!.models.get("Bar"));
+    });
+
+    it("project all properties first", async () => {
+      const keySym = Symbol("key");
+      testHost.addJsFile("lib.js", {
+        $tagProp({ program }: DecoratorContext, t: ModelProperty) {
+          program.stateSet(keySym).add(t);
+        },
+        $tagModel({ program }: DecoratorContext, t: Model) {
+          for (const prop of t.properties.values()) {
+            ok(
+              program.stateSet(keySym).has(prop),
+              `Prop ${prop.name} should have run @key decorator by this time.`
+            );
+          }
+        },
+      });
+
+      const code = `
+      import "./lib.js";
+
+      @test @tagModel model Foo {
+        ...Bar;
+      }
+
+      model Bar {
+        @tagProp name: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {to {}}`;
+      await testProjection(code);
+    });
+
     it("works for versioning", async () => {
       const addedOnKey = Symbol("addedOn");
       const removedOnKey = Symbol("removedOn");
@@ -238,10 +303,10 @@ describe("cadl: projections", () => {
         getRemovedOn(p: Program, t: Type) {
           return p.stateMap(removedOnKey).get(t) || Infinity;
         },
-        getRenamedFromVersion(p: Program, t: Type) {
+        getRenamedFromVersions(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.v ?? -1;
         },
-        getRenamedFromOldName(p: Program, t: Type) {
+        getNameAtVersion(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.oldName || "";
         },
         getRenamedFromNewName(p: Program, t: Type) {
@@ -275,8 +340,8 @@ describe("cadl: projections", () => {
                   self::deleteProperty(p::name);
                 } else if getRemovedOn(p) <= version {
                   self::deleteProperty(p::name);
-                } else if getRenamedFromVersion(p) > version {
-                  self::renameProperty(p::name, getRenamedFromOldName(p));
+                } else if getRenamedFromVersions(p) > version {
+                  self::renameProperty(p::name, getNameAtVersion(p, version));
                 };
               });
             };
@@ -512,6 +577,18 @@ describe("cadl: projections", () => {
       strictEqual((variant.type as Model).name, typeName);
     }
 
+    it("link projected model to projected properties", async () => {
+      const code = `
+      @test union Foo {
+        one: {};
+      }
+      #suppress "projections-are-experimental"
+      projection model#test {to {}}`;
+      const result = (await testProjection(code)) as Union;
+      ok(result.projectionBase);
+      strictEqual(result.variants.get("one")?.union, result);
+    });
+
     it("can rename itself", async () => {
       const code = `
        ${unionCode}
@@ -638,6 +715,18 @@ describe("cadl: projections", () => {
       ${projectionCode(body)}
     `;
 
+    it("link projected interfaces to its projected operations", async () => {
+      const code = `
+      @test interface Foo {
+        op test(): string;
+      }
+      #suppress "projections-are-experimental"
+      projection interface#test {to {}}`;
+      const result = (await testProjection(code)) as Interface;
+      ok(result.projectionBase);
+      strictEqual(result.operations.get("test")?.interface, result);
+    });
+
     it("can rename itself", async () => {
       const code = `
         ${interfaceCode}
@@ -691,6 +780,14 @@ describe("cadl: projections", () => {
       ${enumCode}
       ${projectionCode(body)}
     `;
+
+    it("link projected enum to projected members", async () => {
+      const code = defaultCode("");
+      const result = (await testProjection(code)) as Enum;
+      ok(result.projectionBase);
+      strictEqual(result.members.get("one")?.enum, result);
+      strictEqual(result.members.get("two")?.enum, result);
+    });
 
     it("can rename itself", async () => {
       const code = `
@@ -852,7 +949,9 @@ describe("cadl: projections", () => {
         let run = 0;
 
         testHost.addJsFile("mark.js", {
-          $mark: () => run++,
+          $mark: () => {
+            run++;
+          },
         });
 
         testHost.addCadlFile(
@@ -889,7 +988,7 @@ describe("cadl: projections", () => {
             prop: string;
           }
 
-          model Instance is Foo<string>;
+          model Instance {prop: Foo<string>};
         `,
           1
         );
@@ -902,7 +1001,7 @@ describe("cadl: projections", () => {
             @mark(T)
             prop: string;
           }
-          model Instance is Foo<string>;
+          model Instance {prop: Foo<string>};
         `,
           1
         );

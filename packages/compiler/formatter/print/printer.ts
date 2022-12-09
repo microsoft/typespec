@@ -1,17 +1,22 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
+import { compilerAssert } from "../../core/diagnostics.js";
 import { createScanner, Token } from "../../core/scanner.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
+  FunctionDeclarationStatementNode,
+  FunctionParameterNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -47,6 +52,7 @@ import {
   ProjectionTupleExpressionNode,
   ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
+  ScalarStatementNode,
   Statement,
   StringLiteralNode,
   SyntaxKind,
@@ -138,6 +144,8 @@ export function printNode(
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
       return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
+    case SyntaxKind.ScalarStatement:
+      return printScalarStatement(path as AstPath<ScalarStatementNode>, options, print);
     case SyntaxKind.AliasStatement:
       return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
@@ -161,6 +169,8 @@ export function printNode(
       return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
     case SyntaxKind.DecoratorExpression:
       return printDecorator(path as AstPath<DecoratorExpressionNode>, options, print);
+    case SyntaxKind.AugmentDecoratorStatement:
+      return printAugmentDecorator(path as AstPath<AugmentDecoratorStatementNode>, options, print);
     case SyntaxKind.DirectiveExpression:
       return printDirective(path as AstPath<DirectiveExpressionNode>, options, print);
     case SyntaxKind.UnionExpression:
@@ -189,6 +199,26 @@ export function printNode(
       );
     case SyntaxKind.ModelSpreadProperty:
       return printModelSpread(path as AstPath<ModelSpreadPropertyNode>, options, print);
+    case SyntaxKind.DecoratorDeclarationStatement:
+      return printDecoratorDeclarationStatement(
+        path as AstPath<DecoratorDeclarationStatementNode>,
+        options,
+        print
+      );
+    case SyntaxKind.FunctionDeclarationStatement:
+      return printFunctionDeclarationStatement(
+        path as AstPath<FunctionDeclarationStatementNode>,
+        options,
+        print
+      );
+    case SyntaxKind.FunctionParameter:
+      return printFunctionParameterDeclaration(
+        path as AstPath<FunctionParameterNode>,
+        options,
+        print
+      );
+    case SyntaxKind.ExternKeyword:
+      return "extern";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -284,12 +314,22 @@ export function printNode(
       return path.call(print, "target");
     case SyntaxKind.Return:
       return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
+    case SyntaxKind.Doc:
+    case SyntaxKind.DocText:
+    case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocTemplateTag:
+    case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocUnknownTag:
+      // https://github.com/microsoft/cadl/issues/1319 Tracks pretty-printing doc comments.
+      compilerAssert(
+        false,
+        "Currently, doc comments are only handled as regular comments and we do not opt in to parsing them so we shouldn't reach here."
+      );
+      return "";
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.InvalidStatement:
       return getRawText(node, options);
-    // default:
-    //   return getRawText(node, options);
     default:
       // Dummy const to ensure we handle all node types.
       // If you get an error here, add a case for the new node type
@@ -432,6 +472,35 @@ export function printDecorator(
 ) {
   const args = printDecoratorArgs(path, options, print);
   return ["@", path.call(print, "target"), args];
+}
+
+export function printAugmentDecorator(
+  path: AstPath<AugmentDecoratorStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const args = printAugmentDecoratorArgs(path, options, print);
+  return ["@@", path.call(print, "target"), args, ";"];
+}
+
+function printAugmentDecoratorArgs(
+  path: AstPath<AugmentDecoratorStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return [
+    "(",
+    group([
+      indent(
+        join(", ", [
+          path.call(print, "targetType"),
+          ...path.map((arg) => [softline, print(arg)], "arguments"),
+        ])
+      ),
+      softline,
+    ]),
+    ")",
+  ];
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
@@ -964,6 +1033,28 @@ function isModelExpressionInBlock(
   }
 }
 
+export function printScalarStatement(
+  path: AstPath<ScalarStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+  const template = printTemplateParameters(path, options, print, "templateParameters");
+
+  const heritage = node.extends
+    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
+    : "";
+  return [
+    printDecorators(path, options, print, { tryInline: false }).decorators,
+    "scalar ",
+    id,
+    template,
+    group(indent(["", heritage])),
+    ";",
+  ];
+}
+
 export function printNamespaceStatement(
   path: AstPath<NamespaceStatementNode>,
   options: CadlPrettierOptions,
@@ -1137,6 +1228,80 @@ function printModelSpread(
   print: PrettierChildPrint
 ): prettier.Doc {
   return ["...", path.call(print, "target")];
+}
+
+function printDecoratorDeclarationStatement(
+  path: prettier.AstPath<DecoratorDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const id = path.call(print, "id");
+  const parameters = [
+    group([
+      indent(
+        join(", ", [
+          [softline, path.call(print, "target")],
+          ...path.map((arg) => [softline, print(arg)], "parameters"),
+        ])
+      ),
+      softline,
+    ]),
+  ];
+  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")", ";"];
+}
+
+function printFunctionDeclarationStatement(
+  path: prettier.AstPath<FunctionDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+  const parameters = [
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "parameters")
+        )
+      ),
+      softline,
+    ]),
+  ];
+  const returnType = node.returnType ? [": ", path.call(print, "returnType")] : "";
+  return [printModifiers(path, options, print), "fn ", id, "(", parameters, ")", returnType, ";"];
+}
+
+function printFunctionParameterDeclaration(
+  path: prettier.AstPath<FunctionParameterNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+
+  const type = node.type ? [": ", path.call(print, "type")] : "";
+
+  return [
+    node.rest ? "..." : "",
+    printDirectives(path, options, print),
+    id,
+    node.optional ? "?" : "",
+    type,
+  ];
+}
+
+export function printModifiers(
+  path: AstPath<DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  if (node.modifiers.length === 0) {
+    return "";
+  }
+
+  return path.map((x) => [print(x as any), " "], "modifiers");
 }
 
 function printStringLiteral(

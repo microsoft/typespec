@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import { FunctionComponent, useCallback, useState } from "react";
 import { PlaygroundManifest } from "../manifest";
 import { OutputEditor } from "./cadl-editor";
@@ -21,9 +22,9 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
   );
 
   return (
-    <>
+    <div css={{ width: "100%", height: "100%", overflow: "hidden" }}>
       {PlaygroundManifest.enableSwaggerUI ? (
-        <select className="output-dropdown" onChange={handleSelected} value={selected}>
+        <select css={DropdownStyle} onChange={handleSelected} value={selected}>
           {options.map((item) => {
             return (
               <option key={item.value} value={item.value}>
@@ -41,6 +42,13 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
       ) : (
         <SwaggerUI spec={props.content} />
       )}
-    </>
+    </div>
   );
 };
+
+const DropdownStyle = css({
+  margin: "0.5rem 1.5rem",
+  position: "absolute",
+  "z-index": 1,
+  right: 0,
+});

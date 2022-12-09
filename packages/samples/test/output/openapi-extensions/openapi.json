@@ -55,6 +55,45 @@
         "required": [
           "id"
         ]
+      },
+      "MyConfig": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "Foo"
+            ]
+          },
+          "age": {
+            "type": "number",
+            "enum": [
+              12
+            ]
+          },
+          "other": {
+            "$ref": "#/components/schemas/NestedConfig"
+          }
+        },
+        "required": [
+          "name",
+          "age",
+          "other"
+        ]
+      },
+      "NestedConfig": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "some"
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ]
       }
     }
   }

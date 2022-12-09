@@ -2,6 +2,103 @@
   "name": "@cadl-lang/openapi",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/openapi_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add cadl docs on decorators"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Internal: update to use new `getTypeName` and `getNamespaceString` helper"
+          },
+          {
+            "comment": "Add support for multiple services"
+          },
+          {
+            "comment": "Uptake changes to compiler api with new `scalar` type"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.14.0",
+      "tag": "@cadl-lang/openapi_v0.14.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Declare decorators in cadl using `extern dec`"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.18.0` to `~0.19.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.1` to `~0.2.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.18.0` to `~0.19.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.13.0",
+      "tag": "@cadl-lang/openapi_v0.13.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Remove workaround for issue with `KeysOf` https://github.com/microsoft/cadl/issues/462"
+          },
+          {
+            "comment": "Add/update docs for openapi3 emitter"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Implement automatic visibility transformations"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.17.0` to `~0.18.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.0` to `~0.2.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.17.0` to `~0.18.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.0",
       "tag": "@cadl-lang/openapi_v0.12.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

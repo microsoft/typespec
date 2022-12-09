@@ -9,9 +9,5 @@ export async function createOpenAPITestHost() {
 }
 export async function createOpenAPITestRunner() {
   const host = await createOpenAPITestHost();
-  return createTestWrapper(
-    host,
-    (code) =>
-      `import "@cadl-lang/rest"; import "@cadl-lang/openapi";using Cadl.Rest;using Cadl.Http;using OpenAPI;${code}`
-  );
+  return createTestWrapper(host, { autoUsings: ["OpenAPI"] });
 }

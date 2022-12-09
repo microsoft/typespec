@@ -1,4 +1,5 @@
 import { MANIFEST } from "@cadl-lang/compiler";
+import { css } from "@emotion/react";
 import { FunctionComponent, PropsWithChildren } from "react";
 
 export const Footer: FunctionComponent = () => {
@@ -11,7 +12,18 @@ export const Footer: FunctionComponent = () => {
     <></>
   );
   return (
-    <div className={`footer ${MANIFEST.pr ? "in-pr" : ""}`}>
+    <div
+      css={[
+        {
+          gridArea: "footer",
+          gridRow: "3",
+          backgroundColor: "#007acc",
+          display: "flex",
+          fontSize: "14px",
+        },
+        MANIFEST.pr ? { backgroundColor: "#ce662a" } : {},
+      ]}
+    >
       {prItem}
       <FooterItem>
         <span>Cadl Version </span>
@@ -30,10 +42,20 @@ interface FooterItemProps {
 }
 const FooterItem: FunctionComponent<PropsWithChildren<FooterItemProps>> = ({ children, link }) => {
   return link ? (
-    <a className="item" href={link} target="_blank">
+    <a css={FooterItemStyles} href={link} target="_blank">
       {children}
     </a>
   ) : (
-    <div className="item">{children}</div>
+    <div css={FooterItemStyles}>{children}</div>
   );
 };
+
+const FooterItemStyles = css({
+  textDecoration: "none",
+  color: "#fefefe",
+  borderRight: "1px solid #d5d5d5",
+  padding: "0 5px",
+  "&:hover": {
+    backgroundColor: "#063a5c",
+  },
+});

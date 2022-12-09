@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "attach",
       "name": "Attach to Default Port",
       "port": 9229,
@@ -21,7 +21,7 @@
       }
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "attach",
       "name": "Tests",
       "port": 9229,
@@ -42,7 +42,7 @@
     },
     {
       "name": "Attach to Language Server",
-      "type": "pwa-node",
+      "type": "node",
       "request": "attach",
       "port": 4242,
       "restart": {
@@ -63,14 +63,14 @@
       }
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Compile Scratch",
-      "program": "${workspaceFolder}/packages/compiler/dist/core/cli.js",
+      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
       "args": [
         "compile",
         "../samples/scratch",
-        "--output-path=temp/scratch-output",
+        "--output-dir=temp/scratch-output",
         "--emit=@cadl-lang/openapi3"
       ],
       "smartStep": true,
@@ -86,11 +86,11 @@
       }
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Compile Scratch (nostdlib)",
-      "program": "${workspaceFolder}/packages/compiler/dist/core/cli.js",
-      "args": ["compile", "../samples/scratch", "--output-path=temp/scratch-output", "--nostdlib"],
+      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
+      "args": ["compile", "../samples/scratch", "--output-dir=temp/scratch-output", "--nostdlib"],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
@@ -105,7 +105,7 @@
     },
     {
       "name": "Regenerate .tmlanguage",
-      "type": "pwa-node",
+      "type": "node",
       "program": "${workspaceFolder}/packages/cadl-vscode/scripts/generate-tmlanguage.js",
       "request": "launch",
       "cwd": "${workspaceFolder}/packages/cadl-vscode",

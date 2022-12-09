@@ -1,22 +1,22 @@
 import jsyaml from "js-yaml";
-import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
+import { createDiagnostic } from "../core/messages.js";
+import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, loadFile } from "../core/util.js";
+import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
+import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
-import { CadlConfig } from "./types.js";
+import { CadlConfig, CadlRawConfig } from "./types.js";
 
 export const CadlConfigFilename = "cadl-project.yaml";
 
-export const defaultConfig: CadlConfig = deepFreeze({
-  diagnostics: [],
-  emitters: {},
+export const defaultConfig = deepFreeze({
+  outputDir: "{cwd}/cadl-output",
+  diagnostics: [] as Diagnostic[],
 });
 
 /**
  * Look for the project root by looking up until a `cadl-project.yaml` is found.
  * @param path Path to start looking
- * @param lookIn
  */
 export async function findCadlConfigPath(
   host: CompilerHost,
@@ -53,7 +53,7 @@ export async function loadCadlConfigForPath(
 ): Promise<CadlConfig> {
   const cadlConfigPath = await findCadlConfigPath(host, directoryPath);
   if (cadlConfigPath === undefined) {
-    return deepClone(defaultConfig);
+    return { ...deepClone(defaultConfig), projectRoot: directoryPath };
   }
   return loadCadlConfigFile(host, cadlConfigPath);
 }
@@ -92,13 +92,13 @@ const configValidator = createJSONSchemaValidator(CadlConfigJsonSchema);
 
 async function loadConfigFile(
   host: CompilerHost,
-  filePath: string,
+  filename: string,
   loadData: (content: string) => any
 ): Promise<CadlConfig> {
   let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
 
-  let [data, file] = await loadFile(host, filePath, loadData, reportDiagnostic);
+  let [data, file] = await loadFile<CadlRawConfig>(host, filename, loadData, reportDiagnostic);
 
   if (data) {
     diagnostics = diagnostics.concat(configValidator.validate(data, file));
@@ -108,10 +108,82 @@ async function loadConfigFile(
     // NOTE: Don't trust the data if there are errors and use default
     // config. Otherwise, we may return an object that does not conform to
     // CadlConfig's typing.
-    data = deepClone(defaultConfig);
+    data = deepClone(defaultConfig) as CadlRawConfig;
   }
 
-  data.filename = filePath;
-  data.diagnostics = diagnostics;
-  return data;
+  let emit = data.emit;
+  let options = data.options;
+
+  // @deprecated Legacy backward compatibility of emitters option. To remove March Sprint.
+  if (data.emitters) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message:
+            "`emitters` options in cadl-project.yaml is deprecated use `emit` and `options` instead.",
+        },
+        target: NoTarget,
+      })
+    );
+    emit = [];
+    options = {};
+    for (const [name, emitterOptions] of Object.entries(data.emitters)) {
+      if (emitterOptions === true) {
+        emit.push(name);
+        options[name] = {};
+      } else if (emitterOptions === false) {
+      } else {
+        emit.push(name);
+        options[name] = emitterOptions;
+      }
+    }
+  }
+
+  return omitUndefined({
+    projectRoot: getDirectoryPath(filename),
+    filename,
+    diagnostics,
+    extends: data.extends,
+    environmentVariables: data["environment-variables"],
+    parameters: data.parameters,
+    outputDir: data["output-dir"] ?? "{cwd}/cadl-output",
+    warnAsError: data["warn-as-error"],
+    imports: data.imports,
+    trace: typeof data.trace === "string" ? [data.trace] : data.trace,
+    emit,
+    options,
+  });
+}
+
+export function validateConfigPathsAbsolute(config: CadlConfig): readonly Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  function checkPath(value: string | undefined) {
+    if (value === undefined) {
+      return;
+    }
+    const diagnostic = validatePathAbsolute(value);
+    if (diagnostic) {
+      diagnostics.push(diagnostic);
+    }
+  }
+
+  checkPath(config.outputDir);
+  for (const emitterOptions of Object.values(config.options ?? {})) {
+    checkPath(emitterOptions["emitter-output-dir"]);
+  }
+  return diagnostics;
+}
+
+function validatePathAbsolute(path: string): Diagnostic | undefined {
+  if (path.startsWith(".") || !isPathAbsolute(path)) {
+    return createDiagnostic({
+      code: "config-path-absolute",
+      format: { path },
+      target: NoTarget,
+    });
+  }
+
+  return undefined;
 }

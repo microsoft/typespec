@@ -1,6 +1,18 @@
 # Change Log - cadl-vs
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+_Version update only_
+
+## 0.9.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Extension lookup for a local cadl compiler first instead of a global
 
 ## 0.8.0
 Thu, 08 Sep 2022 01:04:53 GMT

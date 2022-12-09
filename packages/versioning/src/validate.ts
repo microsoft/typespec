@@ -1,4 +1,6 @@
 import {
+  getNamespaceFullName,
+  getTypeName,
   isTemplateInstance,
   Namespace,
   navigateProgram,
@@ -8,9 +10,9 @@ import {
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 import {
+  findVersionedNamespace,
   getAddedOn,
   getRemovedOn,
-  getVersion,
   getVersionDependencies,
   getVersions,
   Version,
@@ -33,70 +35,74 @@ export function $onValidate(program: Program) {
     }
   }
 
-  navigateProgram(program, {
-    model: (model) => {
-      // If this is an instantiated type we don't want to keep the mapping.
-      if (isTemplateInstance(model)) {
-        return;
-      }
-      addDependency(model.namespace, model.baseModel);
-      for (const prop of model.properties.values()) {
-        addDependency(model.namespace, prop.type);
+  navigateProgram(
+    program,
+    {
+      model: (model) => {
+        // If this is an instantiated type we don't want to keep the mapping.
+        if (isTemplateInstance(model)) {
+          return;
+        }
+        addDependency(model.namespace, model.baseModel);
+        for (const prop of model.properties.values()) {
+          addDependency(model.namespace, prop.type);
 
-        // Validate model -> property have correct versioning
-        validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
+          // Validate model -> property have correct versioning
+          validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
 
-        // Validate model property -> type have correct versioning
-        validateReference(program, prop, prop.type);
-      }
-    },
-    union: (union) => {
-      if (union.namespace === undefined) {
-        return;
-      }
-      for (const option of union.options.values()) {
-        addDependency(union.namespace, option);
-      }
-    },
-    operation: (op) => {
-      const namespace = op.namespace ?? op.interface?.namespace;
-      addDependency(namespace, op.parameters);
-      addDependency(namespace, op.returnType);
+          // Validate model property -> type have correct versioning
+          validateReference(program, prop, prop.type);
+        }
+      },
+      union: (union) => {
+        if (union.namespace === undefined) {
+          return;
+        }
+        for (const option of union.options.values()) {
+          addDependency(union.namespace, option);
+        }
+      },
+      operation: (op) => {
+        const namespace = op.namespace ?? op.interface?.namespace;
+        addDependency(namespace, op.parameters);
+        addDependency(namespace, op.returnType);
 
-      if (op.interface) {
-        // Validate model -> property have correct versioning
-        validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
-      }
-      validateTargetVersionCompatible(program, op, op.returnType);
-    },
-    namespace: (namespace) => {
-      const version = getVersion(program, namespace);
-      const dependencies = getVersionDependencies(program, namespace);
-      if (dependencies === undefined) {
-        return;
-      }
+        if (op.interface) {
+          // Validate model -> property have correct versioning
+          validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
+        }
+        validateTargetVersionCompatible(program, op, op.returnType);
+      },
+      namespace: (namespace) => {
+        const versionedNamespace = findVersionedNamespace(program, namespace);
+        const dependencies = getVersionDependencies(program, namespace);
+        if (dependencies === undefined) {
+          return;
+        }
 
-      for (const [dependencyNs, value] of dependencies.entries()) {
-        if (version) {
-          if (!(value instanceof Map)) {
-            reportDiagnostic(program, {
-              code: "versioned-dependency-record-not-mapping",
-              format: { dependency: program.checker.getNamespaceString(dependencyNs) },
-              target: namespace,
-            });
-          }
-        } else {
-          if (value instanceof Map) {
-            reportDiagnostic(program, {
-              code: "versioned-dependency-not-picked",
-              format: { dependency: program.checker.getNamespaceString(dependencyNs) },
-              target: namespace,
-            });
+        for (const [dependencyNs, value] of dependencies.entries()) {
+          if (versionedNamespace) {
+            if (!(value instanceof Map)) {
+              reportDiagnostic(program, {
+                code: "versioned-dependency-record-not-mapping",
+                format: { dependency: getNamespaceFullName(dependencyNs) },
+                target: namespace,
+              });
+            }
+          } else {
+            if (value instanceof Map) {
+              reportDiagnostic(program, {
+                code: "versioned-dependency-not-picked",
+                format: { dependency: getNamespaceFullName(dependencyNs) },
+                target: namespace,
+              });
+            }
           }
         }
-      }
+      },
     },
-  });
+    { includeTemplateDeclaration: true }
+  );
   validateVersionedNamespaceUsage(program, namespaceDependencies);
 }
 
@@ -107,20 +113,37 @@ function validateVersionedNamespaceUsage(
   for (const [source, targets] of namespaceDependencies.entries()) {
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
-      const targetVersions = getVersion(program, target);
+      const targetVersionedNamespace = findVersionedNamespace(program, target);
 
-      if (targetVersions !== undefined && dependencies?.get(target) === undefined) {
+      if (
+        targetVersionedNamespace !== undefined &&
+        !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
+        dependencies?.get(targetVersionedNamespace) === undefined
+      ) {
         reportDiagnostic(program, {
           code: "using-versioned-library",
           format: {
-            sourceNs: program.checker.getNamespaceString(source),
-            targetNs: program.checker.getNamespaceString(target),
+            sourceNs: source ? getNamespaceFullName(source) : "global",
+            targetNs: getNamespaceFullName(target),
           },
           target: source ?? NoTarget,
         });
       }
     }
   }
+}
+
+function isSubNamespace(parent: Namespace, child: Namespace): boolean {
+  let current: Namespace | undefined = child;
+
+  while (current && current.name !== "") {
+    if (current === parent) {
+      return true;
+    }
+    current = current.namespace;
+  }
+
+  return false;
 }
 
 interface IncompatibleVersionValidateOptions {
@@ -236,8 +259,8 @@ function translateVersionRange(
         code: "incompatible-versioned-reference",
         messageId: "versionedDependencyAddedAfter",
         format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
           dependencyVersion: prettyVersion(versionMap),
           targetAddedOn: prettyVersion(range.added),
         },
@@ -249,8 +272,8 @@ function translateVersionRange(
         code: "incompatible-versioned-reference",
         messageId: "versionedDependencyRemovedBefore",
         format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
           dependencyVersion: prettyVersion(versionMap),
           targetAddedOn: prettyVersion(range.added),
         },
@@ -351,8 +374,8 @@ function validateRangeCompatibleForRef(
         code: "incompatible-versioned-reference",
         messageId: "default",
         format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
         },
         target: source,
       });
@@ -369,8 +392,8 @@ function validateRangeCompatibleForRef(
       code: "incompatible-versioned-reference",
       messageId: "addedAfter",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceAddedOn: prettyVersion(sourceRange.added),
         targetAddedOn: prettyVersion(targetRange.added),
       },
@@ -385,8 +408,8 @@ function validateRangeCompatibleForRef(
       code: "incompatible-versioned-reference",
       messageId: "removedBefore",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceRemovedOn: prettyVersion(sourceRange.removed),
         targetRemovedOn: prettyVersion(targetRange.removed),
       },
@@ -417,8 +440,8 @@ function validateRangeCompatibleForContains(
       code: "incompatible-versioned-reference",
       messageId: "dependentAddedAfter",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceAddedOn: prettyVersion(sourceRange.added),
         targetAddedOn: prettyVersion(targetRange.added),
       },
@@ -433,8 +456,8 @@ function validateRangeCompatibleForContains(
       code: "incompatible-versioned-reference",
       messageId: "dependentRemovedBefore",
       format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
+        sourceName: getTypeName(source),
+        targetName: getTypeName(target),
         sourceRemovedOn: prettyVersion(sourceRange.removed),
         targetRemovedOn: prettyVersion(targetRange.removed),
       },

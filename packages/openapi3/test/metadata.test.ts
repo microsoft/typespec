@@ -45,6 +45,21 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, { $ref: "#/components/schemas/MRead" });
 
     deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          c: {
+            type: "string",
+          },
+          r: {
+            readOnly: true,
+            type: "string",
+          },
+          u: {
+            type: "string",
+          },
+        },
+      },
       MCreate: {
         type: "object",
         properties: {
@@ -61,7 +76,8 @@ describe("openapi3: metadata", () => {
   });
 
   it("bubbles up visibility changes to referencers", async () => {
-    const res = await openApiFor(`
+    const res = await openApiFor(
+      `
     model M {
       @visibility("read") r?: string;
       @visibility("create") c?: string;
@@ -122,7 +138,10 @@ describe("openapi3: metadata", () => {
       @patch op update(...U): U;
       @delete op delete(...U): void;
     }
-    `);
+    `,
+      undefined,
+      { "omit-unreachable-types": true }
+    );
 
     deepStrictEqual(res.components.schemas, {
       MQuery: {
@@ -296,7 +315,7 @@ describe("openapi3: metadata", () => {
               "application/json": {
                 schema: {
                   type: "array",
-                  items: { $ref: "#/components/schemas/Parameters" },
+                  items: { $ref: "#/components/schemas/ParametersQueryItem" },
                   "x-cadl-name": "Parameters[]",
                 },
               },
@@ -329,12 +348,22 @@ describe("openapi3: metadata", () => {
       schemas: {
         Parameters: {
           type: "object",
+          properties: {},
+        },
+        ParametersQueryItem: {
           properties: {
-            q: { type: "string" },
-            p: { type: "string" },
-            h: { type: "string" },
+            h: {
+              type: "string",
+            },
+            p: {
+              type: "string",
+            },
+            q: {
+              type: "string",
+            },
           },
           required: ["q", "p", "h"],
+          type: "object",
         },
       },
     });
@@ -375,6 +404,33 @@ describe("openapi3: metadata", () => {
         },
       },
       schemas: {
+        Bag: {
+          type: "object",
+          properties: {
+            items: {
+              type: "array",
+              items: { $ref: "#/components/schemas/ThingItem" },
+              "x-cadl-name": "Thing[]",
+            },
+          },
+        },
+        Thing: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            d: { type: "string" },
+          },
+          required: ["name", "d"],
+        },
+        ThingItem: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            d: { type: "string" },
+            etag: { type: "string" },
+          },
+          required: ["etag", "name", "d"],
+        },
         ThingCreate: {
           type: "object",
           properties: {
@@ -439,6 +495,16 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, { $ref: "#/components/schemas/ThingRead" });
 
     deepStrictEqual(res.components.schemas, {
+      Thing: {
+        type: "object",
+        properties: {
+          c: { type: "string" },
+          inner: { $ref: "#/components/schemas/Thing" },
+          u: {
+            type: "string",
+          },
+        },
+      },
       ThingRead: {
         type: "object",
         properties: {

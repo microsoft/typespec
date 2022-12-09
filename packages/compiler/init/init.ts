@@ -5,6 +5,7 @@ import prompts from "prompts";
 import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
+import { NodePackage } from "../core/module-resolver.js";
 import { getBaseFileName, joinPaths } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
@@ -216,8 +217,10 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     dependencies[library] = "latest";
   }
 
-  const packageJson = {
+  const packageJson: NodePackage = {
     name: config.name,
+    version: "0.1.0",
+    type: "module",
     dependencies,
     private: true,
   };

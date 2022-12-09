@@ -1,7 +1,7 @@
 parameters:
   - name: nodeVersion
     type: string
-  - name: imageName
+  - name: poolName
     type: string
 
 steps:
@@ -42,12 +42,12 @@ steps:
       testResultsFiles: "packages/*/test-results.xml"
       mergeTestResults: true
       failTaskOnFailedTests: true
-      testRunTitle: "Test os: ${{ parameters.imageName }}, node: ${{ parameters.nodeVersion }}"
+      testRunTitle: "Test os: ${{ parameters.poolName }}, node: ${{ parameters.nodeVersion }}"
     displayName: Publish test results
     condition: or(failed(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - publish: ./packages/playground/test-results
-    artifact: "uitestresults-${{ parameters.imageName }}-node-${{ parameters.nodeVersion }}"
+    artifact: "uitestresults-${{ parameters.poolName }}-node-${{ parameters.nodeVersion }}"
     displayName: Publish UI tests artifacts
     condition: failed()
 
@@ -73,4 +73,5 @@ steps:
     displayName: E2E Tests
     # Skipping the e2e test on the prepare publish branch as there is a bug in the npm version installed on node 16
     # causing npx to try to download the unpublished version of the cli.
-    condition: and(not(startsWith(variables['Build.SourceBranch'], 'refs/publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))
+    condition: eq('${{ parameters.nodeVersion }}', '18.x')
+    # condition: and(not(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))

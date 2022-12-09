@@ -242,6 +242,7 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
+      #suppress "deprecated"
       @get
       @autoRoute
       @segment("actionTwo")
@@ -458,6 +459,30 @@ describe("rest: routes", () => {
       });
     });
 
+    it("emit error if using multipart/form-data contentType parameter with a body not being a model", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@header contentType: "multipart/form-data", @body body: string | int32): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/multipart-model",
+        message: "Multipart request body must be a model.",
+      });
+    });
+
+    it("emit warning if using contentType parameter without a body", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@header contentType: "image/png"): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/content-type-ignored",
+        message: "`Content-Type` header ignored because there is no body.",
+      });
+    });
+
     it("resolve body when defined with @body", async () => {
       const [routes, diagnostics] = await compileOperations(`
         @route("/test")
@@ -571,10 +596,16 @@ describe("rest: routes", () => {
         @route("/test")
         op get(): string;
     `);
-      expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
-        message: "@route was defined twice on this operation.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+      ]);
     });
 
     it("emit diagnostic if specifying route twice on interface", async () => {
@@ -585,10 +616,16 @@ describe("rest: routes", () => {
           get(): string
         }
     `);
-      expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
-        message: "@route was defined twice on this interface.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+      ]);
     });
 
     it("emit diagnostic if namespace have route but different values", async () => {
@@ -667,8 +704,16 @@ describe("rest: routes", () => {
       @autoRoute
       namespace Things {
         @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        #suppress "deprecated"
+        @action
         @segmentSeparator(":")
-        @put op customAction(
+        @put op customAction2(
           @segment("things")
           @path thingId: string
         ): string;
@@ -678,6 +723,7 @@ describe("rest: routes", () => {
           @path subscriptionId: string;
 
           // Is it useful for ARM modelling?
+          #suppress "deprecated"
           @path
           @segment("accounts")
           @segmentSeparator("Microsoft.Accounts/")
@@ -688,13 +734,71 @@ describe("rest: routes", () => {
     );
 
     deepStrictEqual(routes, [
-      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}:customAction2", params: ["thingId"] },
       {
         verb: "get",
         path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
         params: ["subscriptionId", "accountName"],
       },
     ]);
+  });
+
+  it("allows customization of action separators", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/")
+        @put op customAction2(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/:")
+        @put op customAction3(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    deepStrictEqual(routes, [
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/customAction2", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/:customAction3", params: ["thingId"] },
+    ]);
+  });
+
+  it("emits error if invalid action separator used", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator("x")
+        @put op customAction(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "invalid-argument");
+    strictEqual(
+      diagnostics[0].message,
+      `Argument 'x' is not assignable to parameter of type '/ | : | /:'`
+    );
   });
 
   it("skips templated operations", async () => {

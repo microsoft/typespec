@@ -56,8 +56,8 @@ describe("compiler: libraries", () => {
 
   it("report errors in js files", async () => {
     const testHost = await createTestHost();
-    testHost.addJsFile("lib1.js", { $dec: () => null });
-    testHost.addJsFile("lib2.js", { $dec: () => null });
+    testHost.addJsFile("lib1.js", { $myDec: () => null });
+    testHost.addJsFile("lib2.js", { $myDec: () => null });
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -69,12 +69,12 @@ describe("compiler: libraries", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "duplicate-symbol",
-        message: `Duplicate name: "@dec"`,
+        message: `Duplicate name: "@myDec"`,
         file: "lib1.js",
       },
       {
         code: "duplicate-symbol",
-        message: `Duplicate name: "@dec"`,
+        message: `Duplicate name: "@myDec"`,
         file: "lib2.js",
       },
     ]);

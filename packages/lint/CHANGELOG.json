@@ -1,0 +1,62 @@
+{
+  "name": "@cadl-lang/lint",
+  "entries": [
+    {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/lint_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.0",
+      "tag": "@cadl-lang/lint_v0.3.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Library linter auto enable rules must be auto enabled in onValidate"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.0",
+      "tag": "@cadl-lang/lint_v0.2.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake change to navigateProgram"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          }
+        ]
+      }
+    }
+  ]
+}

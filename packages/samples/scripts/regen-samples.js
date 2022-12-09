@@ -38,10 +38,10 @@ async function main() {
     mkdirp(outputPath);
 
     await run(process.execPath, [
-      "../../packages/compiler/dist/core/cli.js",
+      "../../packages/compiler/dist/core/cli/cli.js",
       "compile",
       inputPath,
-      `--output-path=${outputPath}`,
+      `--option="@cadl-lang/openapi3.emitter-output-dir=${outputPath}"`,
       `--emit=@cadl-lang/openapi3`,
       `--warn-as-error`,
       `--debug`,

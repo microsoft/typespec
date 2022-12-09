@@ -19,7 +19,7 @@ using Cadl.Http;
 using Cadl.Rest;
 ```
 
-See [Rest section in the tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#rest-apis)
+See [Http and rest](https://microsoft.github.io/cadl/docs/standard-library/http/).
 
 ## Library Tour
 
@@ -110,6 +110,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 | @segment                  | model properties, operation parameters                | Syntax:<br> `@segment(segmentString)` <br><br>Note:<br>`@segment` defines the preceding path segment for a `@path` parameter in auto-generated routes. The first argument should be a string that will be inserted into the operation route before the path parameter's name field. For example: <br> `op getUser(@path @segment("users") userId: string): User` <br> will produce the route `/users/{userId}`.                                              |
 | @segmentOf                | models                                                | Syntax:<br> `@segment(segmentString)` <br><br>Note:<br>`@segmentOf` returns the URL segment of a given model if it has `@segment` and `@key` decorator.                                                                                                                                                                                                                                                                                                      |
 | @segmentSeparator         | model properties, operation parameters, or operations | Syntax:<br> `@segmentSeparator(separatorString)` <br><br>Note:<br> `@segmentSeparator` defines the separator string that is inserted between the target's `@segment` and the preceding route path in auto-generated routes. <br> The first argument should be a string that will be inserted into the operation route before the target's `@segment` value. Can be a string of any length. Defaults to `/`.                                                  |
+| @actionSeparator          | model properties, operation parameters, or operations | Syntax:<br> `@actionSeparator(separatorString)` <br><br>Note:<br> `@actionSeparator` defines the separator string that is inserted before the action name in auto-generated routes for actions.                                                                                                                                                                                                                                                              |
 | @autoRoute                | operations                                            | Syntax:<br> `@autoRoute()` <br><br>Note:<br>`@autoRoute` enables automatic route generation for an operation, namespace, or interface. <br> When applied to an operation, it automatically generates the operation's route based on path parameter metadata. When applied to a namespace or interface, it causes all operations under that scope to have auto-generated routes.                                                                              |
 
 ## Interfaces
@@ -198,7 +199,7 @@ op getPng(@header contentType: "application/png", @body _: bytes): void;
 - [HTTP example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7CnVzaW5nIENhZGwuSHR0cDsKCm1vZGVsIMdAewogIEBrZXkgaWQ6IHN0cmluZzsKICB3ZWlnaHQ6IGludDMyxBFjb2xvcjogInJlZCIgfCAiYmx1ZSI7Cn0KCkBlcnJvcsdWRcQMxVVjb2Rly0BtZXNzYWdlymR9CgppbnRlcmbkALLmAI3nALTFP0DkAJ1saXN0KCk6xx9bXSB8xmHEUUByb3V0ZSgid8Uccy97aWR9IinGOHJlYWQoQHBhdGjrANfJSM1GcG9zdCBjcmVhdGUoQGJvZHkgxAXIK9Y0x3pjdXN0b21HZXTId8kR6gC0yjh9Cg%3D%3D):
 - [REST example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7Cgp1c2luZyBDYWRsLkh0dHA7zBFSZXN0OwoKbW9kZWwgx1J7CiAgQGtleSBpZDogc3RyaW5nOwogIHdlaWdodDogaW50MzLEEWNvbG9yOiAicmVkIiB8ICJibHVlIjsKfQoKQGVycm9yx1ZFxAzFVWNvZGXLQG1lc3NhZ2XKZH0KCmludGVyZuQAxOYAjecAxiBleHRlbmRzIFJlc291cmNl5AC5xQlPcGVyYXRpb25zPMYyLMZxPsVyQOQA0EByb3V0ZSgiY3VzdG9tR2V0IikgyQwoKTrHa%2BQAgA%3D%3D):
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md)
+- [Cadl Website](https://microsoft.github.io/cadl)
 
 ```
 

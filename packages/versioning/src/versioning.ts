@@ -3,13 +3,14 @@ import {
   DiagnosticTarget,
   Enum,
   EnumMember,
+  getNamespaceFullName,
   Namespace,
   ObjectType,
   Program,
   ProjectionApplication,
+  reportDeprecated,
+  Tuple,
   Type,
-  validateDecoratorParamType,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
@@ -41,9 +42,6 @@ function checkIsVersion(
 export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
   const { program } = context;
 
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
@@ -55,34 +53,36 @@ export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
 export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
   const { program } = context;
 
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
   }
   program.stateMap(removedOnKey).set(t, version);
 }
+
+interface RenamedFrom {
+  version: Version;
+  oldName: string;
+}
+
 export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, oldName: string) {
   const { program } = context;
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
   }
-  const record = { v: version, oldName: oldName };
+
+  // retrieve statemap to update or create a new one
+  const record = getRenamedFrom(program, t) ?? [];
+  record.push({ version: version, oldName: oldName });
+  // ensure that records are stored in ascending order
+  record.sort((a, b) => a.version.index - b.version.index);
 
   program.stateMap(renamedFromKey).set(t, record);
 }
 
 export function $madeOptional(context: DecoratorContext, t: Type, v: EnumMember) {
   const { program } = context;
-  if (!validateDecoratorParamType(program, t, v, "EnumMember")) {
-    return;
-  }
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
@@ -90,18 +90,70 @@ export function $madeOptional(context: DecoratorContext, t: Type, v: EnumMember)
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
+function toVersion(p: Program, t: Type, v: ObjectType): Version | undefined {
+  const [namespace] = getVersions(p, t);
+  if (namespace === undefined) {
+    return undefined;
+  }
+  return getVersionForNamespace(
+    p,
+    v,
+    (namespace.projectionBase as Namespace) ?? namespace
+  ) as Version;
+}
+
+function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
+  return p.stateMap(renamedFromKey).get(t) as Array<RenamedFrom>;
+}
+
 /**
  * @returns version when the given type was added if applicable.
  */
 export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
-  return p.stateMap(renamedFromKey).get(t)?.v;
+  reportDeprecated(
+    p,
+    "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
+    t
+  );
+  return p.stateMap(renamedFromKey).get(t)?.[0].version;
+}
+
+/**
+ * @returns the list of versions for which this decorator has been applied
+ */
+export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefined {
+  return getRenamedFrom(p, t)?.map((x) => x.version);
 }
 
 /**
  * @returns get old renamed name if applicable.
  */
-export function getRenamedFromOldName(p: Program, t: Type): string {
-  return p.stateMap(renamedFromKey).get(t)?.oldName ?? "";
+export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
+  reportDeprecated(
+    p,
+    "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
+    t
+  );
+  return p.stateMap(renamedFromKey).get(t)?.[0].oldName ?? "";
+}
+
+/**
+ * @returns get old name if applicable.
+ */
+export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
+  const version = toVersion(p, t, v);
+  const allValues = getRenamedFrom(p, t);
+  if (!allValues || !version) return "";
+
+  const targetIndex = version.index;
+
+  for (const val of allValues) {
+    const index = val.version.index;
+    if (targetIndex < index) {
+      return val.oldName;
+    }
+  }
+  return "";
 }
 
 /**
@@ -155,34 +207,39 @@ export class VersionMap {
   }
 }
 
-export function $versioned(context: DecoratorContext, t: Type, versions: Type) {
-  if (!validateDecoratorTarget(context, t, "@versioned", "Namespace")) {
-    return;
-  }
-  if (!validateDecoratorParamType(context.program, t, versions, "Enum")) {
-    return;
-  }
-
+export function $versioned(context: DecoratorContext, t: Namespace, versions: Enum) {
   context.program.stateMap(versionsKey).set(t, new VersionMap(t, versions));
 }
 
-export function getVersion(p: Program, t: Namespace): VersionMap | undefined {
-  return p.stateMap(versionsKey).get(t);
+/**
+ * Get the version map of the namespace.
+ */
+export function getVersion(program: Program, namespace: Namespace): VersionMap | undefined {
+  return program.stateMap(versionsKey).get(namespace);
+}
+
+export function findVersionedNamespace(
+  program: Program,
+  namespace: Namespace
+): Namespace | undefined {
+  let current: Namespace | undefined = namespace;
+
+  while (current) {
+    if (program.stateMap(versionsKey).has(current)) {
+      return current;
+    }
+    current = current.namespace;
+  }
+
+  return undefined;
 }
 
 export function $versionedDependency(
   context: DecoratorContext,
-  referenceNamespace: Type,
-  versionRecord: string | Type
+  referenceNamespace: Namespace,
+  versionRecord: Tuple | EnumMember
 ) {
   const { program } = context;
-  if (
-    !validateDecoratorTarget(context, referenceNamespace, "@versionedDependency", "Namespace") ||
-    !validateDecoratorParamType(program, referenceNamespace, versionRecord, ["Tuple", "EnumMember"])
-  ) {
-    return;
-  }
-
   let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
     Namespace,
     Version | Map<EnumMember, Version>
@@ -234,8 +291,8 @@ export function $versionedDependency(
         reportDiagnostic(context.program, {
           code: "versioned-dependency-same-namespace",
           format: {
-            namespace1: program.checker.getNamespaceString(targetNamespace),
-            namespace2: program.checker.getNamespaceString(targetVersion.namespace),
+            namespace1: getNamespaceFullName(targetNamespace),
+            namespace2: getNamespaceFullName(targetVersion.namespace),
           },
           target: targetMember,
         });
@@ -250,11 +307,25 @@ export function $versionedDependency(
   }
 }
 
+function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
+  let current: Namespace | undefined = namespace;
+
+  while (current) {
+    const data = program.stateMap(versionDependencyKey).get(current);
+    if (data !== undefined) {
+      return data;
+    }
+    current = current.namespace;
+  }
+
+  return undefined;
+}
+
 export function getVersionDependencies(
   program: Program,
   namespace: Namespace
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
-  const data = program.stateMap(versionDependencyKey).get(namespace);
+  const data = findVersionDependencyForNamespace(program, namespace);
   if (data === undefined) {
     return undefined;
   }
@@ -308,8 +379,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
       const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (version instanceof Map) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceFullName(rootNs);
+          const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`
           );
@@ -328,8 +399,8 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
 
       for (const [dependencyNs, versionMap] of dependencies) {
         if (!(versionMap instanceof Map)) {
-          const rootNsName = program.checker.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
+          const rootNsName = getNamespaceFullName(rootNs);
+          const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );
@@ -350,8 +421,6 @@ interface VersionProjections {
   projections: ProjectionApplication[];
 }
 
-const versionIndex = new Map<ObjectType, Map<Namespace, Version>>();
-
 /**
  * @internal
  */
@@ -360,17 +429,21 @@ export function indexVersions(program: Program, versions: Map<Namespace, Version
     kind: "Object",
     properties: {},
   } as any);
-  versionIndex.set(versionKey, versions);
+  program.stateMap(key).set(versionKey, versions);
   return versionKey;
 }
 
-function getVersionForNamespace(versionKey: ObjectType, namespaceType: Namespace) {
-  return versionIndex.get(versionKey)?.get(namespaceType);
+function getVersionForNamespace(
+  program: Program,
+  versionKey: ObjectType,
+  namespaceType: Namespace
+) {
+  return program.stateMap(key).get(versionKey)?.get(namespaceType);
 }
 
+const key = createStateSymbol("version-index");
 export function buildVersionProjections(program: Program, rootNs: Namespace): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
-  versionIndex.clear();
   return resolutions.map((resolution) => {
     if (resolution.versions.size === 0) {
       return { version: undefined, projections: [] };
@@ -471,8 +544,17 @@ export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
 }
 
 export function renamedAfter(p: Program, type: Type, version: ObjectType) {
+  reportDeprecated(
+    p,
+    "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
+    type
+  );
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
   return appliesAt === null ? false : !appliesAt;
+}
+
+export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType) {
+  return getNameAtVersion(p, type, version) !== "";
 }
 
 export function madeOptionalAfter(p: Program, type: Type, version: ObjectType) {
@@ -495,14 +577,7 @@ function appliesAtVersion(
   type: Type,
   versionKey: ObjectType
 ): boolean | null {
-  const [namespace] = getVersions(p, type);
-  if (namespace === undefined) {
-    return null;
-  }
-  const version = getVersionForNamespace(
-    versionKey,
-    (namespace.projectionBase as Namespace) ?? namespace
-  );
+  const version = toVersion(p, type, versionKey);
   if (version === undefined) {
     return null;
   }

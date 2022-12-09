@@ -1,6 +1,7 @@
 import {
   compilerAssert,
   DiagnosticCollector,
+  getEffectiveModelType,
   isVisible as isVisibleCore,
   Model,
   ModelProperty,
@@ -11,7 +12,14 @@ import {
   Union,
   walkPropertiesInherited,
 } from "@cadl-lang/compiler";
-import { isBody, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import {
+  includeInapplicableMetadataInPayload,
+  isBody,
+  isHeader,
+  isPathParam,
+  isQueryParam,
+  isStatusCode,
+} from "./decorators.js";
 import { HttpVerb } from "./types.js";
 
 /**
@@ -292,6 +300,12 @@ export interface MetadataInfo {
    * filtered out by the given visibility.
    */
   isPayloadProperty(property: ModelProperty, visibility: Visibility): boolean;
+
+  /**
+   * If type is an anonymous model, tries to find a named model that has the
+   * same set of properties when non-payload properties are excluded.
+   */
+  getEffectivePayloadType(type: Type, visibility: Visibility): Type;
 }
 
 export interface MetadataInfoOptions {
@@ -321,6 +335,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     isEmptied,
     isTransformed,
     isPayloadProperty,
+    getEffectivePayloadType,
   };
 
   function isEmptied(type: Type | undefined, visibility: Visibility): boolean {
@@ -340,7 +355,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       case State.Transformed:
         return true;
       case State.Emptied:
-        return visibility == Visibility.All || !isEmptied(type, Visibility.All);
+        return visibility === Visibility.All || !isEmptied(type, Visibility.All);
       default:
         return false;
     }
@@ -408,7 +423,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       return false;
     }
     for (const property of model.properties.values()) {
-      if (isPayloadProperty(property, visibility)) {
+      if (isPayloadProperty(property, visibility, /* keep shared */ true)) {
         return false;
       }
     }
@@ -421,8 +436,9 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     keepShareableProperties?: boolean
   ): boolean {
     if (
+      isEmptied(property.type, visibility) ||
       isApplicableMetadata(program, property, visibility) ||
-      isEmptied(property.type, visibility)
+      (isMetadata(program, property) && !includeInapplicableMetadataInPayload(program, property))
     ) {
       return false;
     }
@@ -442,5 +458,21 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     }
 
     return true;
+  }
+
+  /**
+   * If the type is an anonymous model, tries to find a named model that has the same
+   * set of properties when non-payload properties are excluded.
+   */
+  function getEffectivePayloadType(type: Type, visibility: Visibility): Type {
+    if (type.kind === "Model" && !type.name) {
+      const effective = getEffectiveModelType(program, type, (p) =>
+        isPayloadProperty(p, visibility)
+      );
+      if (effective.name) {
+        return effective;
+      }
+    }
+    return type;
   }
 }

@@ -1,6 +1,5 @@
-import React, { FunctionComponent, PropsWithChildren } from "react";
-import _styled from "styled-components";
-export const styled = typeof _styled === "function" ? _styled : (_styled as any).default;
+import { css } from "@emotion/react";
+import { FunctionComponent, PropsWithChildren } from "react";
 
 export interface SectionProps {
   title: string;
@@ -8,18 +7,20 @@ export interface SectionProps {
   hide?: boolean;
 }
 
-const SectionDiv = styled.div`
-  border: 1px solid #c5c5c5;
-`;
-const SectionTitle = styled.div`
-  border-bottom: 1px solid #c5c5c5;
-  background-color: #4875ca;
-  color: #f5f5f5;
-  padding: 2px 5px;
-`;
-const SectionContent = styled.div`
-  padding: 1rem;
-`;
+const SectionDivStyles = css({
+  border: "1px solid #c5c5c5",
+});
+
+const SectionTitleStyles = css({
+  borderBottom: "1px solid #c5c5c5",
+  backgroundColor: "#4875ca",
+  color: "#f5f5f5",
+  padding: "2px 5px",
+});
+
+const SectionContentStyles = css({
+  padding: "1rem",
+});
 export const Section: FunctionComponent<PropsWithChildren<SectionProps>> = ({
   id,
   title,
@@ -30,24 +31,27 @@ export const Section: FunctionComponent<PropsWithChildren<SectionProps>> = ({
     return <div></div>;
   }
   return (
-    <SectionDiv id={id}>
-      <SectionTitle>{title}</SectionTitle>
-      <SectionContent>{children}</SectionContent>
-    </SectionDiv>
+    <div css={SectionDivStyles} id={id}>
+      <div css={SectionTitleStyles}>{title}</div>
+      <div css={SectionContentStyles}>{children}</div>
+    </div>
   );
 };
 
-const ItemDiv = styled.div`
-  border: 1px solid #c5c5c5;
-`;
-const ItemTitle = styled.div`
-  border-bottom: 1px solid #c5c5c5;
-  background-color: #dedede;
-  padding: 2px 5px;
-`;
-const ItemContent = styled.div`
-  padding: 1rem;
-`;
+const ItemStyles = css({
+  border: "1px solid #c5c5c5",
+});
+
+const ItemTitleStyles = css({
+  border: "1px solid #c5c5c5",
+  backgroundColor: "#dedede",
+  padding: "2px 5px",
+});
+
+const ItemContentStyles = css({
+  padding: "1rem",
+});
+
 export const Item: FunctionComponent<PropsWithChildren<SectionProps>> = ({
   id,
   title,
@@ -58,14 +62,13 @@ export const Item: FunctionComponent<PropsWithChildren<SectionProps>> = ({
     return <div></div>;
   }
   return (
-    <ItemDiv id={id}>
-      <ItemTitle>{title}</ItemTitle>
-      <ItemContent>{children}</ItemContent>
-    </ItemDiv>
+    <div css={ItemStyles} id={id}>
+      <div css={ItemTitleStyles}>{title}</div>
+      <div css={ItemContentStyles}>{children}</div>
+    </div>
   );
 };
 
-export const Literal = styled.div`
-  color: #5da713;
-  display: inline;
-`;
+export const Literal: FunctionComponent<{ children: any }> = ({ children }) => (
+  <div css={{ color: "#5da713", display: "inline" }}>{children}</div>
+);

@@ -1,6 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { Binder, createBinder } from "../core/binder.js";
 import { createSourceFile } from "../core/diagnostics.js";
+import { createLogger } from "../core/logger/logger.js";
+import { createTracer } from "../core/logger/tracer.js";
 import { parse } from "../core/parser.js";
 import { Program } from "../core/program.js";
 import {
@@ -367,9 +369,9 @@ describe("compiler: binder", () => {
   });
 
   it("binds JS files", () => {
-    const $dec = () => {};
-    const $dec2 = () => {};
-    $dec2.namespace = "Bar";
+    const $myDec = () => {};
+    const $myDec2 = () => {};
+    $myDec2.namespace = "Bar";
 
     const fn = () => {};
     const fn2 = () => {};
@@ -377,8 +379,8 @@ describe("compiler: binder", () => {
 
     const exports = {
       namespace: "Foo",
-      $dec,
-      $dec2,
+      $myDec,
+      $myDec2,
       fn,
       fn2,
     };
@@ -393,22 +395,22 @@ describe("compiler: binder", () => {
             flags: SymbolFlags.Namespace,
             declarations: [SyntaxKind.JsSourceFile],
             exports: {
-              "@dec2": {
-                flags: SymbolFlags.Decorator,
+              "@myDec2": {
+                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
               fn2: {
-                flags: SymbolFlags.Function,
+                flags: SymbolFlags.Function | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
             },
           },
-          "@dec": {
-            flags: SymbolFlags.Decorator,
+          "@myDec": {
+            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
           fn: {
-            flags: SymbolFlags.Function,
+            flags: SymbolFlags.Function | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },
@@ -482,6 +484,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
 
 function createProgramShim(): Program {
   return {
+    tracer: createTracer(createLogger({ sink: { log: () => {} } })),
     reportDuplicateSymbols() {},
     onValidate() {},
   } as any;

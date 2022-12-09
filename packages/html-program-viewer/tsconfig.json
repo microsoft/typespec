@@ -10,8 +10,10 @@
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
-    "types": ["node", "mocha"],
-    "jsx": "react"
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    "lib": ["DOM", "ES2022"],
+    "types": ["@emotion/react", "mocha"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
 }

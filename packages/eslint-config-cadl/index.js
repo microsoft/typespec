@@ -50,6 +50,7 @@ module.exports = {
         destructuring: "all",
       },
     ],
+    eqeqeq: ["warn", "always", { null: "ignore" }],
 
     // Do not want console.log left from debugging or using console.log for logging. Use the program logger.
     "no-console": "warn",

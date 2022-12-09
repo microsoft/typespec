@@ -1,3 +1,4 @@
+import { EmitterOptions } from "../config/types.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
@@ -14,7 +15,7 @@ import {
   ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { isImportStatement, parse } from "./parser.js";
+import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
@@ -25,8 +26,8 @@ import {
   DiagnosticTarget,
   Directive,
   DirectiveExpressionNode,
-  Emitter,
-  EmitterOptions,
+  EmitContext,
+  EmitterFunc,
   JsSourceFileNode,
   LiteralType,
   Namespace,
@@ -43,7 +44,16 @@ import {
   Tracer,
   Type,
 } from "./types.js";
-import { deepEquals, doIO, findProjectRoot, loadFile, mapEquals } from "./util.js";
+import {
+  deepEquals,
+  doIO,
+  ExternalError,
+  findProjectRoot,
+  isDefined,
+  loadFile,
+  mapEquals,
+  mutate,
+} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -79,12 +89,36 @@ export interface Program {
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+
   getGlobalNamespaceType(): Namespace;
+  resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+}
+
+interface LibraryMetadata {
+  /**
+   * Library name as specified in the package.json or in exported $lib.
+   */
+  name?: string;
+
+  /**
+   * Library homepage.
+   */
+  homepage?: string;
+
+  bugs?: {
+    /**
+     * Url where to file bugs for this library.
+     */
+    url?: string;
+  };
 }
 
 interface EmitterRef {
-  emitter: Emitter;
-  options: EmitterOptions;
+  emitFunction: EmitterFunc;
+  main: string;
+  metadata: LibraryMetadata;
+  emitterOutputDir: string;
+  options: Record<string, unknown>;
 }
 
 class StateMap extends Map<undefined | Projector, Map<Type, unknown>> {}
@@ -243,7 +277,7 @@ export async function compile(
 
   const program: Program = {
     checker: undefined!,
-    compilerOptions: options,
+    compilerOptions: resolveOptions(options),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
     literalTypes: new Map(),
@@ -267,7 +301,10 @@ export async function compile(
       validateCbs.push(cb);
     },
     getGlobalNamespaceType,
+    resolveTypeReference,
   };
+
+  trace("compiler.options", JSON.stringify(options, null, 2));
 
   function trace(area: string, message: string) {
     tracer.trace(area, message);
@@ -293,9 +330,14 @@ export async function compile(
     await loadMain(resolvedMain, options);
   }
 
-  if (resolvedMain && options.emitters) {
-    const emitters = computeEmitters(options.emitters);
-    await loadEmitters(resolvedMain, emitters);
+  if (resolvedMain) {
+    let emit = options.emit;
+    let emitterOptions = options.options;
+    if (options.emitters) {
+      emit ??= Object.keys(options.emitters);
+      emitterOptions ??= options.emitters;
+    }
+    await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
   }
 
   if (
@@ -351,7 +393,7 @@ export async function compile(
   }
 
   for (const instance of emitters) {
-    await instance.emitter(program, instance.options);
+    await runEmitter(instance);
   }
 
   return program;
@@ -404,6 +446,7 @@ export async function compile(
       );
     }
   }
+
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir, NoTarget);
@@ -563,61 +606,167 @@ export async function compile(
     }
   }
 
-  async function loadEmitters(mainFile: string, emitters: Record<string, Record<string, unknown>>) {
-    for (const [emitterPackage, options] of Object.entries(emitters)) {
-      await loadEmitter(mainFile, emitterPackage, options);
+  async function loadEmitters(
+    mainFile: string,
+    emitterNameOrPaths: string[],
+    emitterOptions: Record<string, EmitterOptions>
+  ) {
+    const emitterThatShouldExists = new Set(Object.keys(emitterOptions));
+    for (const emitterNameOrPath of emitterNameOrPaths) {
+      const emitter = await loadEmitter(mainFile, emitterNameOrPath, emitterOptions);
+      if (emitter) {
+        emitters.push(emitter);
+        emitterThatShouldExists.delete(emitter.metadata.name ?? emitterNameOrPath);
+      }
+    }
+
+    // This is the emitter names under options that haven't been used. We need to check if it points to an emitter that wasn't loaded
+    for (const emitterName of emitterThatShouldExists) {
+      // attempt to resolve a node module with this name
+      const module = await resolveEmitterModuleAndEntrypoint(mainFile, emitterName);
+      if (module?.entrypoint === undefined) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "emitter-not-found",
+            format: { emitterName },
+            target: NoTarget,
+          })
+        );
+      }
     }
   }
 
-  async function loadEmitter(
+  async function resolveEmitterModuleAndEntrypoint(
     mainFile: string,
-    emitterPackage: string,
-    options: Record<string, unknown>
-  ) {
+    emitterNameOrPath: string
+  ): Promise<
+    { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined
+  > {
     const basedir = getDirectoryPath(mainFile);
+
     // attempt to resolve a node module with this name
-    const module = await resolveJSLibrary(emitterPackage, basedir);
+    const module = await resolveJSLibrary(emitterNameOrPath, basedir);
     if (!module) {
-      return;
+      return undefined;
     }
 
-    const file = await loadJsFile(module, NoTarget);
+    const entrypoint = module.type === "file" ? module.path : module.mainFile;
+    const file = await loadJsFile(entrypoint, NoTarget);
 
-    if (file === undefined) {
+    return { module, entrypoint: file };
+  }
+  async function loadEmitter(
+    mainFile: string,
+    emitterNameOrPath: string,
+    emittersOptions: Record<string, EmitterOptions>
+  ): Promise<EmitterRef | undefined> {
+    const resolution = await resolveEmitterModuleAndEntrypoint(mainFile, emitterNameOrPath);
+
+    if (resolution === undefined) {
+      return undefined;
+    }
+    const { module, entrypoint } = resolution;
+
+    if (entrypoint === undefined) {
       program.reportDiagnostic(
         createDiagnostic({
-          code: "emitter-not-found",
-          format: { emitterPackage },
+          code: "invalid-emitter",
+          format: { emitterPackage: emitterNameOrPath },
           target: NoTarget,
         })
       );
-      return;
+      return undefined;
     }
 
-    const emitterFunction = file.esmExports.$onEmit;
-    const libDefinition: CadlLibrary<any> | undefined = file.esmExports.$lib;
+    const emitFunction = entrypoint.esmExports.$onEmit;
+    const libDefinition: CadlLibrary<any> | undefined = entrypoint.esmExports.$lib;
+    const metadata = computeLibraryMetadata(module);
+
+    let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
+      emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
+    if (emitterOutputDir === undefined) {
+      emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
+    }
     if (libDefinition?.requireImports) {
       for (const lib of libDefinition.requireImports) {
         requireImports.set(lib, libDefinition.name);
       }
     }
-    if (emitterFunction !== undefined) {
+    if (emitFunction !== undefined) {
       if (libDefinition?.emitter?.options) {
-        const diagnostics = libDefinition?.emitterOptionValidator?.validate(options, NoTarget);
+        const diagnostics = libDefinition?.emitterOptionValidator?.validate(
+          emitterOptions,
+          NoTarget
+        );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
           return;
         }
       }
-      emitters.push({ emitter: emitterFunction, options });
+      return {
+        main: entrypoint.file.path,
+        emitFunction,
+        metadata,
+        emitterOutputDir,
+        options: emitterOptions,
+      };
     } else {
       program.reportDiagnostic(
         createDiagnostic({
-          code: "emitter-not-found",
-          format: { emitterPackage },
+          code: "invalid-emitter",
+          format: { emitterPackage: emitterNameOrPath },
           target: NoTarget,
         })
       );
+      return undefined;
+    }
+  }
+
+  function computeLibraryMetadata(module: ModuleResolutionResult): LibraryMetadata {
+    if (module.type === "file") {
+      return {};
+    }
+
+    const metadata: LibraryMetadata = {
+      name: module.manifest.name,
+    };
+
+    if (module.manifest.homepage) {
+      metadata.homepage = module.manifest.homepage;
+    }
+    if (module.manifest.bugs?.url) {
+      metadata.bugs = { url: module.manifest.bugs?.url };
+    }
+
+    return metadata;
+  }
+
+  /**
+   * @param emitter Emitter ref to run
+   */
+  async function runEmitter(emitter: EmitterRef) {
+    const context: EmitContext<any> = {
+      program,
+      emitterOutputDir: emitter.emitterOutputDir,
+      options: emitter.options,
+    };
+    try {
+      await emitter.emitFunction(context);
+    } catch (error: any) {
+      const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
+      if (emitter.metadata.bugs?.url) {
+        msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
+      } else {
+        msg.push(`Please contact emitter author to report this issue.`);
+      }
+      msg.push("");
+      if ("stack" in error) {
+        msg.push(error.stack);
+      } else {
+        msg.push(String(error));
+      }
+
+      throw new ExternalError(msg.join("\n"));
     }
   }
 
@@ -666,14 +815,12 @@ export async function compile(
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/dist/lib.js".
    */
-  async function resolveJSLibrary(specifier: string, baseDir: string): Promise<string | undefined> {
+  async function resolveJSLibrary(
+    specifier: string,
+    baseDir: string
+  ): Promise<ModuleResolutionResult | undefined> {
     try {
-      const resolved = await resolveModule(getResolveModuleHost(), specifier, { baseDir });
-      if (resolved.type === "file") {
-        return resolved.path;
-      } else {
-        return resolved.mainFile;
-      }
+      return await resolveModule(getResolveModuleHost(), specifier, { baseDir });
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
@@ -819,7 +966,7 @@ export async function compile(
   }
 
   function getOption(key: string): string | undefined {
-    return (options.miscOptions || {})[key];
+    return (options.miscOptions || {})[key] as any;
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
@@ -967,7 +1114,19 @@ export async function compile(
   }
 
   function getGlobalNamespaceType() {
-    return program.checker!.getGlobalNamespaceType();
+    return program.checker.getGlobalNamespaceType();
+  }
+
+  function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = program.checker.getGlobalNamespaceNode();
+
+    return program.checker.resolveTypeReference(node);
   }
 }
 
@@ -1001,17 +1160,14 @@ export function createStateAccessors(
   return { stateMap, stateSet };
 }
 
-function computeEmitters(
-  emitters: Record<string, Record<string, unknown> | boolean>
-): Record<string, Record<string, unknown>> {
-  const processedEmitters: Record<string, Record<string, unknown>> = {};
-
-  for (const [emitter, options] of Object.entries(emitters)) {
-    if (options === false) {
-      continue;
-    }
-    processedEmitters[emitter] = options === true ? {} : options;
-  }
-
-  return processedEmitters;
+/**
+ * Resolve compiler options from input options.
+ */
+function resolveOptions(options: CompilerOptions): CompilerOptions {
+  const outputDir = options.outputDir ?? options.outputPath;
+  return {
+    ...options,
+    outputDir,
+    outputPath: outputDir,
+  };
 }
