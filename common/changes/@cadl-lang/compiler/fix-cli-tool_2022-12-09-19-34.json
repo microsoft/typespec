@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix: Revert breaking change to global cli usage",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
