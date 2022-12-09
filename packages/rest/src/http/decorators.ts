@@ -38,21 +38,27 @@ const headerFieldsKey = createStateSymbol("header");
 export function $header(
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: string | HeaderOptions
+  headerNameOrOptions?: string | Model
 ) {
-  if (!headerNameOrOptions) {
-    headerNameOrOptions = {
-      name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
-      explode: false,
-    };
-  } else if (typeof headerNameOrOptions === "string") {
-    headerNameOrOptions = { name: headerNameOrOptions, explode: false };
-  } else {
-    headerNameOrOptions.name =
-      headerNameOrOptions.name ?? entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-    headerNameOrOptions.explode = headerNameOrOptions.explode ?? false;
+  const options: HeaderOptions = {
+    name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
+    explode: false,
+  };
+  if (headerNameOrOptions) {
+    if (typeof headerNameOrOptions === "string") {
+      options.name = headerNameOrOptions;
+    } else {
+      const name = headerNameOrOptions.properties.get("name")?.type;
+      if (name?.kind === "String") {
+        options.name = name.value;
+      }
+      const explode = headerNameOrOptions.properties.get("explode")?.type;
+      if (explode?.kind === "Boolean") {
+        options.explode = explode.value;
+      }
+    }
   }
-  context.program.stateMap(headerFieldsKey).set(entity, headerNameOrOptions);
+  context.program.stateMap(headerFieldsKey).set(entity, options);
 }
 
 export function getHeaderFieldOptions(program: Program, entity: Type): HeaderOptions {
@@ -71,22 +77,41 @@ const queryFieldsKey = createStateSymbol("query");
 export function $query(
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: string | QueryOptions
+  queryNameOrOptions?: string | Model
 ) {
-  if (!queryNameOrOptions) {
-    queryNameOrOptions = { name: entity.name, format: "form", explode: true };
-  } else if (typeof queryNameOrOptions === "string") {
-    queryNameOrOptions = {
-      name: queryNameOrOptions,
-      format: "form",
-      explode: true,
-    };
-  } else {
-    queryNameOrOptions.name = queryNameOrOptions.name ?? entity.name;
-    queryNameOrOptions.format = queryNameOrOptions.format ?? "form";
-    queryNameOrOptions.explode = queryNameOrOptions.explode ?? queryNameOrOptions.format === "form";
+  const options: QueryOptions = {
+    name: entity.name,
+    format: "form",
+    explode: true,
+  };
+  if (queryNameOrOptions) {
+    if (typeof queryNameOrOptions === "string") {
+      options.name = queryNameOrOptions;
+    } else {
+      const name = queryNameOrOptions.properties.get("name")?.type;
+      if (name?.kind === "String") {
+        options.name = name.value;
+      }
+      const format = queryNameOrOptions.properties.get("format")?.type;
+      if (format?.kind === "String") {
+        if (
+          format.value === "form" ||
+          format.value === "spaceDelimited" ||
+          format.value === "pipeDelimited" ||
+          format.value === "deepObject"
+        ) {
+          options.format = format.value;
+        }
+      }
+      const explode = queryNameOrOptions.properties.get("explode")?.type;
+      if (explode?.kind === "Boolean") {
+        options.explode = explode.value;
+      } else {
+        options.explode = options.format === "form";
+      }
+    }
   }
-  context.program.stateMap(queryFieldsKey).set(entity, queryNameOrOptions);
+  context.program.stateMap(queryFieldsKey).set(entity, options);
 }
 
 export function getQueryParamOptions(program: Program, entity: Type): QueryOptions {
@@ -105,17 +130,29 @@ const pathFieldsKey = createStateSymbol("path");
 export function $path(
   context: DecoratorContext,
   entity: ModelProperty,
-  paramNameOrOptions?: string | PathOptions
+  paramNameOrOptions?: string | Model
 ) {
-  if (!paramNameOrOptions) {
-    paramNameOrOptions = { name: entity.name, format: "simple" };
-  } else if (typeof paramNameOrOptions === "string") {
-    paramNameOrOptions = { name: paramNameOrOptions, format: "simple" };
-  } else {
-    paramNameOrOptions.name = paramNameOrOptions.name ?? entity.name;
-    paramNameOrOptions.format = paramNameOrOptions.format ?? "simple";
+  const options: PathOptions = {
+    name: entity.name,
+    format: "simple",
+  };
+  if (paramNameOrOptions) {
+    if (typeof paramNameOrOptions === "string") {
+      options.name = paramNameOrOptions;
+    } else {
+      const name = paramNameOrOptions.properties.get("name")?.type;
+      if (name?.kind === "String") {
+        options.name = name.value;
+      }
+      const format = paramNameOrOptions.properties.get("format")?.type;
+      if (format?.kind === "String") {
+        if (format.value === "simple" || format.value === "label" || format.value === "matrix") {
+          options.format = format.value;
+        }
+      }
+    }
   }
-  context.program.stateMap(pathFieldsKey).set(entity, paramNameOrOptions);
+  context.program.stateMap(pathFieldsKey).set(entity, options);
 }
 
 export function getPathParamOptions(program: Program, entity: Type): PathOptions {
