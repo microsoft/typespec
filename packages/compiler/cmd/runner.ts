@@ -1,5 +1,5 @@
 import { access, constants, readFile, realpath, stat } from "fs/promises";
-import { join } from "path";
+import { join, resolve } from "path";
 import url from "url";
 import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
 
@@ -64,5 +64,5 @@ async function resolvePackageRoot(): Promise<string> {
 }
 
 async function getThisPackageRoot() {
-  return path.resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
+  return resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
 }
