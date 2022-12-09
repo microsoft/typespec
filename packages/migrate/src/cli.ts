@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /* eslint-disable no-console */
 import { migrateCadlFiles } from "./migrate.js";
 import { migrateModelToScalar } from "./migrations/v0.38/model-to-scalars.js";
