@@ -2,6 +2,9 @@ namespace Cadl.Http;
 
 using Cadl.Reflection;
 
+/**
+ * Header options.
+ */
 model HeaderOptions {
   /**
    * Name of the header when sent over http.
@@ -28,6 +31,9 @@ model HeaderOptions {
  */
 extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
 
+/**
+ * Query parameter options.
+ */
 model QueryOptions {
   /**
    * Name of the query when included in the url.
@@ -58,6 +64,9 @@ model QueryOptions {
  */
 extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptions);
 
+/**
+ * Path parameter options.
+ */
 model PathOptions {
   /**
    * Name of the path parameter in the url template.
