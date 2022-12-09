@@ -1,5 +1,5 @@
-import { readFile, realpath, stat } from "fs/promises";
-import path from "path";
+import { access, constants, readFile, realpath, stat } from "fs/promises";
+import { join } from "path";
 import url from "url";
 import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
 
@@ -10,18 +10,27 @@ import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
  * Prevents loading two conflicting copies of Cadl modules from global and
  * local package locations.
  */
-export async function runScript(relativePath: string): Promise<void> {
+export async function runScript(relativePath: string, backupPath: string): Promise<void> {
   const packageRoot = await resolvePackageRoot();
 
   if (packageRoot) {
-    const script = path.join(packageRoot, relativePath);
+    let script = join(packageRoot, relativePath);
+    if (!(await checkFileExists(script)) && backupPath) {
+      script = join(packageRoot, backupPath);
+    }
     const scriptUrl = url.pathToFileURL(script).toString();
-    import(scriptUrl);
+    await import(scriptUrl);
   } else {
     throw new Error(
       "Couldn't resolve Cadl compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/cadl."
     );
   }
+}
+
+function checkFileExists(file: string) {
+  return access(file, constants.F_OK)
+    .then(() => true)
+    .catch(() => false);
 }
 
 async function resolvePackageRoot(): Promise<string> {
