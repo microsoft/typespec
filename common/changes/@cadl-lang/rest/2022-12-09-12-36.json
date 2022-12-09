@@ -3,7 +3,7 @@
     {
       "packageName": "@cadl-lang/rest",
       "comment": "Support query/header/path encoding options",
-      "type": "none"
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/rest"
