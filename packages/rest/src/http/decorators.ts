@@ -104,8 +104,10 @@ export function $query(
         }
       }
       const explode = queryNameOrOptions.properties.get("explode")?.type;
-      if (explode?.kind === "Boolean") {
-        options.explode = explode.value;
+      if (explode) {
+        if (explode?.kind === "Boolean") {
+          options.explode = explode.value;
+        }
       } else {
         options.explode = options.format === "form";
       }
