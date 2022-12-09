@@ -147,7 +147,7 @@ describe("rest: http decorators", () => {
       const diagnostics = await runner.diagnose(`
           op test(@query(123) MyQuery: string): string;
           op test2(@query({name: 123}) MyQuery: string): string;
-          op test3(@query({format: 123}) MyQuery: string): string;
+          op test3(@query({format: "invalid"}) MyQuery: string): string;
           op test4(@query({explode: 123}) MyQuery: string): string;
         `);
 
