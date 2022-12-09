@@ -549,7 +549,7 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
 export function addedAfter(p: Program, type: Type, version: ObjectType) {
-  reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsOnVersion instead.", type);
+  reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsAtVersion instead.", type);
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
@@ -557,27 +557,18 @@ export function addedAfter(p: Program, type: Type, version: ObjectType) {
 export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
   reportDeprecated(
     p,
-    "Deprecated: removedOnOrBefore is deprecated. Use existsOnVersion instead.",
+    "Deprecated: removedOnOrBefore is deprecated. Use existsAtVersion instead.",
     type
   );
   const appliesAt = appliesAtVersion(getRemovedOn, p, type, version);
   return appliesAt === null ? false : appliesAt;
 }
 
-function getSortedVersions(p: Program, t: Type): Version[] | undefined {
+function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
 
-  const allVersions = getVersion(p, namespace)?.getVersions();
-  return allVersions?.sort((a, b) => a.index - b.index);
-}
-
-function getFirst(arr: Version[]): Version | undefined {
-  if (!arr.length) return undefined;
-  if (arr.length > 1) {
-    // TODO: Error?
-  }
-  return arr[0];
+  return getVersion(p, namespace)?.getVersions();
 }
 
 export enum Availability {
@@ -599,31 +590,34 @@ export function getAvailabilityMap(
 ): Map<string, Availability> | undefined {
   const avail = new Map<string, Availability>();
 
-  const allVersions = getSortedVersions(program, type);
+  const allVersions = getAllVersions(program, type);
   // if unversioned then everything exists
   if (allVersions === undefined) return undefined;
 
-  let added = program.stateMap(addedOnKey).get(type) as Version[];
+  const added = (program.stateMap(addedOnKey).get(type) as Version[]) ?? [];
   const removed = (program.stateMap(removedOnKey).get(type) as Version[]) ?? [];
-  if (added === undefined && removed.length === 0) return undefined;
-  if (added === undefined) {
-    added = [allVersions[0]];
+  // if there's absolutely no versioning information, return undefined
+  // contextually, this might mean it inherits its versioning info from a parent
+  // or that it is treated as unversioned
+  if (!added.length && !removed.length) return undefined;
+
+  // implicitly, all versioned things are assumed to have been added at
+  // v1 if not specified
+  if (!added.length) {
+    added.push(allVersions[0]);
   }
 
   // something isn't available by default
   let isAvail = false;
   for (const ver of allVersions) {
-    const add = getFirst(added.filter((x) => x.index === ver.index));
-    const rem = getFirst(removed.filter((x) => x.index === ver.index));
-    if (add && rem) {
-      throw Error(`type cannot be added and removed on the same version ${ver.name}`);
-    }
-    if (add) {
-      isAvail = true;
-      avail.set(ver.name, Availability.Added);
-    } else if (rem) {
+    const add = added.find((x) => x.index === ver.index);
+    const rem = removed.find((x) => x.index === ver.index);
+    if (rem) {
       isAvail = false;
       avail.set(ver.name, Availability.Removed);
+    } else if (add) {
+      isAvail = true;
+      avail.set(ver.name, Availability.Added);
     } else if (isAvail) {
       avail.set(ver.name, Availability.Available);
     } else {
@@ -633,7 +627,7 @@ export function getAvailabilityMap(
   return avail;
 }
 
-export function existsOnVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
+export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
   const version = toVersion(p, type, versionKey);
   // if unversioned then everything exists
   if (version === undefined) return true;
