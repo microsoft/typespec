@@ -115,6 +115,10 @@ projection model#v {
         if madeOptionalAfter(p, version) {
           p::setOptional(false);
         };
+
+        if hasOldTypeAtVersion(p, version) {
+          self::changePropertyType(p::name, getTypeBeforeVersion(p, version));
+        };
       });
     };
   }
@@ -137,6 +141,10 @@ projection model#v {
 
         if madeOptionalAfter(p, version) {
           p::setOptional(true);
+        };
+
+        if hasOldTypeAtVersion(p, version) {
+          self::changePropertyType(p::name, p::type);
         };
       });
     };

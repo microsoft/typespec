@@ -7,6 +7,7 @@ import {
   Operation,
   ProjectionApplication,
   projectProgram,
+  Scalar,
   Type,
   Union,
 } from "@cadl-lang/compiler";
@@ -277,6 +278,27 @@ describe("compiler: versioning", () => {
         ],
         source
       );
+    });
+
+    it("can change property types", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `
+        model Test {
+          @typeChangedFrom(Versions.v2, string)
+          @typeChangedFrom(Versions.v3, zonedDateTime)
+          changed: MyDate;
+        }
+        
+        model MyDate {}
+        `
+      );
+
+      ok((v1.properties.get("changed")!.type as Scalar).name === "string");
+      ok((v2.properties.get("changed")!.type as Scalar).name === "zonedDateTime");
+      ok((v3.properties.get("changed")!.type as Model).name === "MyDate");
     });
 
     async function versionedModel(versions: string[], model: string) {

@@ -65,6 +65,20 @@ export function createProjectionMembers(checker: Checker): {
           return voidType;
         });
       },
+      changePropertyType(base) {
+        return createFunctionType((nameT: Type, newType: Type) => {
+          assertType("property name", nameT, "String");
+          const propertyName = nameT.value;
+
+          const prop = base.properties.get(propertyName);
+          if (!prop) {
+            throw new ProjectionError(`Property ${propertyName} not found`);
+          }
+          prop.type = newType;
+
+          return voidType;
+        });
+      },
       addProperty(base) {
         return createFunctionType((nameT: Type, type: Type, defaultT: Type) => {
           assertType("property", nameT, "String");
@@ -90,7 +104,6 @@ export function createProjectionMembers(checker: Checker): {
           return voidType;
         });
       },
-
       deleteProperty(base) {
         return createFunctionType((nameT: Type) => {
           assertType("property", nameT, "String");

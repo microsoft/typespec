@@ -20,6 +20,7 @@ const versionsKey = createStateSymbol("versions");
 const versionDependencyKey = createStateSymbol("versionDependency");
 const renamedFromKey = createStateSymbol("renamedFrom");
 const madeOptionalKey = createStateSymbol("madeOptional");
+const typeChangedFromKey = createStateSymbol("typeChangedFrom");
 
 export const namespace = "Cadl.Versioning";
 
@@ -71,6 +72,32 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
   (record as Version[]).sort((a, b) => a.index - b.index);
 
   program.stateMap(removedOnKey).set(t, record);
+}
+
+/**
+ * Returns the mapping of versions to old type values, if applicable
+ * @param p Cadl program
+ * @param t type to query
+ * @returns Map of versions to old types, if any
+ */
+export function getTypeChangedFrom(p: Program, t: Type): Map<Version, Type> | undefined {
+  return p.stateMap(typeChangedFromKey).get(t) as Map<Version, Type>;
+}
+
+export function $typeChangedFrom(context: DecoratorContext, t: Type, v: EnumMember, oldType: any) {
+  const { program } = context;
+
+  const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
+  if (!version) {
+    return;
+  }
+
+  // retrieve statemap to update or create a new one
+  let record = getTypeChangedFrom(program, t) ?? new Map<Version, any>();
+  record.set(version, oldType);
+  // ensure the map is sorted by version
+  record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
+  program.stateMap(typeChangedFromKey).set(t, record);
 }
 
 interface RenamedFrom {
@@ -166,6 +193,22 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
     const index = val.version.index;
     if (targetIndex < index) {
       return val.oldName;
+    }
+  }
+  return "";
+}
+
+/**
+ * @returns get old type if applicable.
+ */
+export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): any {
+  const target = toVersion(p, t, v);
+  const map = getTypeChangedFrom(p, t);
+  if (!map || !target) return "";
+
+  for (const [key, val] of map) {
+    if (target.index < key.index) {
+      return val;
     }
   }
   return "";
@@ -567,7 +610,7 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
  * @param version
  * @returns
  */
-export function addedAfter(p: Program, type: Type, version: ObjectType) {
+export function addedAfter(p: Program, type: Type, version: ObjectType): boolean {
   reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsAtVersion instead.", type);
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
@@ -580,7 +623,7 @@ export function addedAfter(p: Program, type: Type, version: ObjectType) {
  * @param version
  * @returns
  */
-export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
+export function removedOnOrBefore(p: Program, type: Type, version: ObjectType): boolean {
   reportDeprecated(
     p,
     "Deprecated: removedOnOrBefore is deprecated. Use existsAtVersion instead.",
@@ -673,7 +716,7 @@ export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType):
  * @param version
  * @returns
  */
-export function renamedAfter(p: Program, type: Type, version: ObjectType) {
+export function renamedAfter(p: Program, type: Type, version: ObjectType): boolean {
   reportDeprecated(
     p,
     "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
@@ -683,13 +726,17 @@ export function renamedAfter(p: Program, type: Type, version: ObjectType) {
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType) {
+export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType): boolean {
   return getNameAtVersion(p, type, version) !== "";
 }
 
-export function madeOptionalAfter(p: Program, type: Type, version: ObjectType) {
+export function madeOptionalAfter(p: Program, type: Type, version: ObjectType): boolean {
   const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
+}
+
+export function hasOldTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
+  return getTypeBeforeVersion(p, type, version) !== "";
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
