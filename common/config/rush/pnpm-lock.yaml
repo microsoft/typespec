@@ -14023,18 +14023,20 @@ packages:
     dev: false
 
   file:projects/doc-gen.tgz:
-    resolution: {integrity: sha512-dmTb2TkcAd0/n12ueskiCUUOfr+q8HdpQHE6rfETF79F7JNYbxoOqsl8mPT23V+EjigUm6euX0wLZqf3FE2Ilw==, tarball: file:projects/doc-gen.tgz}
+    resolution: {integrity: sha512-wWIPMyh2ral3v8gLEq4dUEwZgbs5ncmtNsp+qfvfmK+Zi1c3cmlMVbhMbvnfgGsEXnZGFV9RTY03eTxD3B6FSQ==, tarball: file:projects/doc-gen.tgz}
     name: '@rush-temp/doc-gen'
     version: 0.0.0
     dependencies:
       '@types/mocha': 10.0.0
       '@types/node': 18.11.9
+      '@types/prettier': 2.6.0
       '@types/yargs': 17.0.13
       c8: 7.12.0
       eslint: 8.28.0
       mocha: 10.1.0
       mocha-junit-reporter: 2.2.0_mocha@10.1.0
       mocha-multi-reporters: 1.5.1_mocha@10.1.0
+      prettier: 2.7.1
       rimraf: 3.0.2
       typescript: 4.9.3
     transitivePeerDependencies:

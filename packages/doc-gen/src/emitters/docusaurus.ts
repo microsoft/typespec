@@ -1,3 +1,4 @@
+import prettier from "prettier";
 import { CadlRefDoc, DecoratorRefDoc } from "../types.js";
 import { getTypeSignature } from "../utils/type-signature.js";
 
@@ -11,14 +12,16 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
 }
 
 function renderDecoratorFile(refDoc: CadlRefDoc) {
-  let markdownString: string = "# Decorators";
+  let markdownString: string = "# Decorators\n\n";
   for (const dec of refDoc.decorators) {
-    if (dec.name !== "@service") {
-      continue;
-    }
     markdownString += renderDecoratorMarkdown(dec) + "\n\n";
   }
-  return markdownString;
+  try {
+    return prettier.format(markdownString);
+  } catch (e) {
+    console.error("Cannot format with prettier");
+    return markdownString;
+  }
 }
 
 function codeblock(code: string, lang: string = "") {
