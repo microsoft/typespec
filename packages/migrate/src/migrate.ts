@@ -26,7 +26,7 @@ async function loadCompiler<V extends CadlCompilerVersion>(version: V): Promise<
   try {
     return await import(`@cadl-lang/compiler-v${version}`);
   } catch {
-    return await import("@cadl-lang/compiler");
+    return (await import("@cadl-lang/compiler")) as any;
   }
 }
 
@@ -87,6 +87,8 @@ function migrateCadlContentInternal(
     segments.push(action.content);
     last = action.target.end;
   }
+  segments.push(content.slice(last, -1));
+
   const newContent = segments.join("");
 
   try {

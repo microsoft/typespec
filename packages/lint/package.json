@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/lint",
-  "version": "0.3.0",
+  "version": "0.38.0",
   "author": "Microsoft Corporation",
   "description": "Helper ",
   "homepage": "https://github.com/Azure/cadl",
@@ -50,14 +50,14 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.37.0"
+    "@cadl-lang/compiler": "~0.38.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.37.0",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
-    "@cadl-lang/eslint-plugin": "~0.1.1",
+    "@cadl-lang/compiler": "~0.38.1",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@cadl-lang/eslint-plugin": "~0.38.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",

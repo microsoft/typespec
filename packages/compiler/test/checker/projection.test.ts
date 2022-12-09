@@ -303,10 +303,10 @@ describe("compiler: projections", () => {
         getRemovedOn(p: Program, t: Type) {
           return p.stateMap(removedOnKey).get(t) || Infinity;
         },
-        getRenamedFromVersion(p: Program, t: Type) {
+        getRenamedFromVersions(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.v ?? -1;
         },
-        getRenamedFromOldName(p: Program, t: Type) {
+        getNameAtVersion(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.oldName || "";
         },
         getRenamedFromNewName(p: Program, t: Type) {
@@ -340,8 +340,8 @@ describe("compiler: projections", () => {
                   self::deleteProperty(p::name);
                 } else if getRemovedOn(p) <= version {
                   self::deleteProperty(p::name);
-                } else if getRenamedFromVersion(p) > version {
-                  self::renameProperty(p::name, getRenamedFromOldName(p));
+                } else if getRenamedFromVersions(p) > version {
+                  self::renameProperty(p::name, getNameAtVersion(p, version));
                 };
               });
             };

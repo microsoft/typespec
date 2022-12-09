@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "**Deprecation** Renamed `url` to `uri`. Old `uri` is deprecated",
-      "type": "minor"
+      "comment": "Improve visibility decorator documentation",
+      "type": "none"
     }
   ],
   "packageName": "@cadl-lang/compiler"

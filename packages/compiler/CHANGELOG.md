@@ -1,6 +1,50 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Dec 2022 22:04:15 GMT and should not be manually modified.
+
+## 0.38.1
+Thu, 08 Dec 2022 22:04:15 GMT
+
+### Patches
+
+- Fix: `scalar` can be used inside of namespace block
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Allow subtypes to override parent properties if the derived property type is a subtype of the parent property.
+- Add opt-in support for parsing JSDoc-like developer documentation
+- Show developer docs in IDE features
+- Doc: Add Doc comments to built-in types and decorators
+- **Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI
+- Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function 
+- Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
+- Add variable interpolation functionality in the cadl-project.yaml
+- Add built-in `emitter-output-dir` options for all emitter.
+- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter.
+- Fix typing and export format command
+- **Api Breaking** Multiple `@service` per specs are now allowed.
+- Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name
+- **Breaking** Add new `scalar` type and updated all intrinsic types to be a scalar type. `model MyString is string` changes to `scalar MyString extends string`
+- `LanguageServer` Feature: Add signature help for decorators
+- `Testing` Simplification of the testing framework
+- `cadl init` Initialize the package.json with `type: module`
+- **Deprecation** Renamed `url` to `uri`. Old `uri` is deprecated
+
+### Patches
+
+- Fix member completion on aliases
+- Improve error recovery in the presence of merge conflict markers
+- Fix reportDiagnostics error from emitters
+- Fix: Should still instantiate template with invalid args but using constrain value
+- Fix: Issue with diagnostic location when target was the operation parmeters
+- Fix: miscOptions handling
+- **Fix** Handle no service in services deprecated apis
+- Fix: Validate `@service` decorator is targetting a namespace
+- Fix: Cascading error when template is used with invalid arguments
+- Update dependencies
 
 ## 0.37.0
 Sat, 12 Nov 2022 00:14:04 GMT
@@ -195,6 +239,12 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Improve tracking of open documents in language server
 - Fix issues with referencing enum from decorator on namespace
 
+### Updates
+
+- Allow cadl compile . on the compiler itself
+- `getTypeName` returns type name for more types
+- Upgrade to TS4.7
+
 ## 0.31.0
 Fri, 06 May 2022 17:19:57 GMT
 
@@ -235,6 +285,10 @@ Fri, 06 May 2022 17:19:57 GMT
 - Give a helpful error when code is missing from path
 - Don't complete decorator names in type reference position
 - Preserve namespace nesting in versioning projections
+
+### Updates
+
+- Add `CadlLanguageConfiguration` containing the configuration used by editor (vscode, monaco)
 
 ## 0.30.0
 Thu, 31 Mar 2022 17:10:49 GMT
@@ -729,6 +783,11 @@ Thu, 11 Mar 2021 19:14:29 GMT
 - Refactor scanner to use less state
 - Log source locations with all errors
 - Support multiple content types for request bodies
+
+### Updates
+
+- Implement extends, re-implement spread to copy properties, implement visibility framework, move to explicit bodies in responses, and fix various bugs.
+- Implement nostdlib option
 
 ## 0.2.1
 Thu, 28 Jan 2021 21:30:01 GMT

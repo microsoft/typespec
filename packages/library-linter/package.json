@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/library-linter",
-  "version": "0.2.2",
+  "version": "0.38.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for linting another library.",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -51,13 +51,13 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.37.0"
+    "@cadl-lang/compiler": "~0.38.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.37.0",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "@cadl-lang/compiler": "~0.38.1",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",
