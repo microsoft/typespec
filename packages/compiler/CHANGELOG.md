@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 08 Dec 2022 22:04:15 GMT and should not be manually modified.
+This log was last generated on Fri, 09 Dec 2022 20:43:01 GMT and should not be manually modified.
+
+## 0.38.2
+Fri, 09 Dec 2022 20:43:01 GMT
+
+### Patches
+
+- Fix: Revert breaking change to global cli usage
 
 ## 0.38.1
 Thu, 08 Dec 2022 22:04:15 GMT
