@@ -3,109 +3,92 @@ import {
   Decorator,
   DocContent,
   DocUnknownTagNode,
-  Enum,
   getSourceLocation,
-  Model,
+  ignoreDiagnostics,
+  Namespace,
   navigateProgram,
-  Operation,
+  navigateTypesInNamespace,
   Program,
-  Projection,
-  StringLiteral,
   SyntaxKind,
   Type,
+  TypeListeners,
 } from "@cadl-lang/compiler";
-import { CadlRefDoc, ExampleRefDoc, FunctionParameterRefDoc } from "./types.js";
+import { CadlRefDoc, DecoratorRefDoc, ExampleRefDoc, FunctionParameterRefDoc } from "./types.js";
 import { getTypeSignature } from "./utils/type-signature.js";
 
-export function extractRefDocs(program: Program): CadlRefDoc {
-  const result = {
-    models: [] as Model[],
-    enums: [] as Enum[],
-    operations: [] as Operation[],
-    decorators: [] as Decorator[],
-    projections: [] as Projection[],
-    strings: [] as StringLiteral[],
-  };
-
-  navigateProgram(
-    program,
-    {
-      model(m) {
-        result.models.push(m);
-      },
-      enum(e) {
-        result.enums.push(e);
-      },
-      operation(o) {
-        result.operations.push(o);
-      },
-      decorator(d) {
-        result.decorators.push(d);
-      },
-
-      projection(p) {
-        result.projections.push(p);
-      },
-      string(s) {
-        result.strings.push(s);
-      },
-    },
-    { includeTemplateDeclaration: true }
-  );
+export function extractRefDocs(program: Program, filterToNamespace: string[] = []): CadlRefDoc {
+  const namespaceTypes = filterToNamespace
+    .map((x) => ignoreDiagnostics(program.resolveTypeReference(x)))
+    .filter((x): x is Namespace => x !== undefined);
 
   const refDoc: CadlRefDoc = {
     decorators: [],
   };
-  for (const dec of result.decorators) {
-    let mainDoc: string = "";
-    const paramDoc = getParameterDocumentation(dec);
-    const parameters: FunctionParameterRefDoc[] = dec.parameters.map((x) => {
-      return {
-        type: x,
-        doc: paramDoc.get(x.name) ?? "",
-        name: x.name,
-        optional: x.optional,
-        rest: x.rest,
-      };
-    });
-    const examples: ExampleRefDoc[] = [];
-    for (const doc of dec.node.docs ?? []) {
-      for (const dContent of doc.content) {
-        mainDoc += dContent.text + "\n";
-      }
 
-      for (const dTag of doc.tags) {
-        switch (dTag.kind) {
-          case SyntaxKind.DocUnknownTag:
-            if (dTag.tagName.sv === "example") {
-              examples.push(extractExample(dTag));
-            }
-            break;
-          case SyntaxKind.DocParamTag:
-            break;
-        }
-      }
+  const hooks: TypeListeners = {
+    decorator(dec) {
+      refDoc.decorators.push(extractDecoratorRefDoc(dec));
+    },
+  };
+
+  if (namespaceTypes.length === 0) {
+    navigateProgram(program, hooks, { includeTemplateDeclaration: true });
+  } else {
+    for (const namespace of namespaceTypes) {
+      navigateTypesInNamespace(namespace, hooks, { includeTemplateDeclaration: true });
     }
-
-    refDoc.decorators.push({
-      name: dec.name,
-      type: dec,
-      signature: getTypeSignature(dec),
-      doc: mainDoc,
-      parameters,
-      examples,
-      otherTags: [],
-      target: {
-        type: dec.target,
-        doc: paramDoc.get(dec.target.name) ?? "",
-        name: dec.target.name,
-        optional: dec.target.optional,
-        rest: dec.target.rest,
-      },
-    });
   }
 
   return refDoc;
+}
+
+function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
+  let mainDoc: string = "";
+  const paramDoc = getParameterDocumentation(decorator);
+  const parameters: FunctionParameterRefDoc[] = decorator.parameters.map((x) => {
+    return {
+      type: x,
+      doc: paramDoc.get(x.name) ?? "",
+      name: x.name,
+      optional: x.optional,
+      rest: x.rest,
+    };
+  });
+  const examples: ExampleRefDoc[] = [];
+  for (const doc of decorator.node.docs ?? []) {
+    for (const dContent of doc.content) {
+      mainDoc += dContent.text + "\n";
+    }
+
+    for (const dTag of doc.tags) {
+      switch (dTag.kind) {
+        case SyntaxKind.DocUnknownTag:
+          if (dTag.tagName.sv === "example") {
+            examples.push(extractExample(dTag));
+          }
+          break;
+        case SyntaxKind.DocParamTag:
+          break;
+      }
+    }
+  }
+
+  return {
+    name: decorator.name,
+    type: decorator,
+    signature: getTypeSignature(decorator),
+    doc: mainDoc,
+    parameters,
+    examples,
+    otherTags: [],
+    target: {
+      type: decorator.target,
+      doc: paramDoc.get(decorator.target.name) ?? "",
+      name: decorator.target.name,
+      optional: decorator.target.optional,
+      rest: decorator.target.rest,
+    },
+  };
 }
 
 function checkIfTagHasDocOnSameLine(tag: DocUnknownTagNode): boolean {
