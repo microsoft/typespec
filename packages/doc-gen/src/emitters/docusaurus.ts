@@ -17,7 +17,9 @@ function renderDecoratorFile(refDoc: CadlRefDoc) {
     markdownString += renderDecoratorMarkdown(dec) + "\n\n";
   }
   try {
-    return prettier.format(markdownString);
+    return prettier.format(markdownString, {
+      parser: "markdown",
+    });
   } catch (e) {
     console.error("Cannot format with prettier");
     return markdownString;

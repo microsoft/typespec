@@ -14,8 +14,9 @@ dec format(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, for
 `union Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name   | Type                 | Description  |
+| ------ | -------------------- | ------------ |
 | format | `scalar Cadl.string` | format name. |
 
 ### Examples
@@ -24,7 +25,6 @@ dec format(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, for
 @format("uuid")
 scalar uuid extends string;
 ```
-
 
 ## `@deprecated`
 
@@ -39,8 +39,9 @@ dec deprecated(target: unknown, message: Cadl.string)
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name    | Type                 | Description          |
+| ------- | -------------------- | -------------------- |
 | message | `scalar Cadl.string` | Deprecation message. |
 
 ### Examples
@@ -49,7 +50,6 @@ dec deprecated(target: unknown, message: Cadl.string)
 @deprecated("Use ActionV2")
 op Action<T>(): T;
 ```
-
 
 ## `@doc`
 
@@ -64,10 +64,11 @@ dec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| doc | `scalar Cadl.string` | Documentation string |
-| formatArgs | `model Cadl.object` | Record with key value pair that can be interpolated in the doc. |
+
+| Name       | Type                 | Description                                                     |
+| ---------- | -------------------- | --------------------------------------------------------------- |
+| doc        | `scalar Cadl.string` | Documentation string                                            |
+| formatArgs | `model Cadl.object`  | Record with key value pair that can be interpolated in the doc. |
 
 ### Examples
 
@@ -76,9 +77,7 @@ dec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)
 model Pet {}
 ```
 
-
 ## `@withUpdateableProperties`
-
 
 ```cadl
 dec withUpdateableProperties(target: Cadl.object)
@@ -89,13 +88,13 @@ dec withUpdateableProperties(target: Cadl.object)
 `model Cadl.object`
 
 ### Parameters
+
 | Name | Type | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 
 ### Examples
 
 ## `@withoutOmittedProperties`
-
 
 ```cadl
 dec withoutOmittedProperties(target: Cadl.object, omit: Cadl.string | Cadl.Reflection.Union)
@@ -106,14 +105,14 @@ dec withoutOmittedProperties(target: Cadl.object, omit: Cadl.string | Cadl.Refle
 `model Cadl.object`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| omit | `union Cadl.string | Cadl.Reflection.Union` |  |
+
+| Name | Type               | Description            |
+| ---- | ------------------ | ---------------------- | --- |
+| omit | `union Cadl.string | Cadl.Reflection.Union` |     |
 
 ### Examples
 
 ## `@withoutDefaultValues`
-
 
 ```cadl
 dec withoutDefaultValues(target: Cadl.object)
@@ -124,13 +123,13 @@ dec withoutDefaultValues(target: Cadl.object)
 `model Cadl.object`
 
 ### Parameters
+
 | Name | Type | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 
 ### Examples
 
 ## `@withDefaultKeyVisibility`
-
 
 ```cadl
 dec withDefaultKeyVisibility(target: Cadl.object, visibility: unknown)
@@ -141,9 +140,10 @@ dec withDefaultKeyVisibility(target: Cadl.object, visibility: unknown)
 `model Cadl.object`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| visibility | `(intrinsic) unknown` |  |
+
+| Name       | Type                  | Description |
+| ---------- | --------------------- | ----------- |
+| visibility | `(intrinsic) unknown` |             |
 
 ### Examples
 
@@ -160,8 +160,9 @@ dec summary(target: unknown, summary: Cadl.string)
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name    | Type                 | Description     |
+| ------- | -------------------- | --------------- |
 | summary | `scalar Cadl.string` | Summary string. |
 
 ### Examples
@@ -170,7 +171,6 @@ dec summary(target: unknown, summary: Cadl.string)
 @summary("This is a pet")
 model Pet {}
 ```
-
 
 ## `@service`
 
@@ -185,8 +185,9 @@ dec service(target: Cadl.Reflection.Namespace, options?: Cadl.ServiceOptions)
 `model Cadl.Reflection.Namespace`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name    | Type                        | Description                             |
+| ------- | --------------------------- | --------------------------------------- |
 | options | `model Cadl.ServiceOptions` | Optional configuration for the service. |
 
 ### Examples
@@ -210,7 +211,6 @@ namespace PetStore;
 namespace PetStore;
 ```
 
-
 ## `@error`
 
 Specify that this model is an error type. Operations return error types when the operation has failed.
@@ -224,8 +224,9 @@ dec error(target: Cadl.object)
 `model Cadl.object`
 
 ### Parameters
+
 | Name | Type | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 
 ### Examples
 
@@ -236,7 +237,6 @@ code: string;
 message: string;
 }
 ```
-
 
 ## `@pattern`
 
@@ -253,8 +253,9 @@ dec pattern(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, pa
 `union Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name    | Type                 | Description         |
+| ------- | -------------------- | ------------------- |
 | pattern | `scalar Cadl.string` | Regular expression. |
 
 ### Examples
@@ -263,7 +264,6 @@ dec pattern(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, pa
 @pattern("[a-z]+")
 scalar LowerAlpha extends string;
 ```
-
 
 ## `@minLength`
 
@@ -278,8 +278,9 @@ dec minLength(target: Cadl.string | Cadl.Reflection.ModelProperty, value: Cadl.i
 `union Cadl.string | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                  | Description    |
+| ----- | --------------------- | -------------- |
 | value | `scalar Cadl.integer` | Minimum length |
 
 ### Examples
@@ -288,7 +289,6 @@ dec minLength(target: Cadl.string | Cadl.Reflection.ModelProperty, value: Cadl.i
 @minLength(2)
 scalar Username extends string;
 ```
-
 
 ## `@maxLength`
 
@@ -303,8 +303,9 @@ dec maxLength(target: Cadl.string | Cadl.Reflection.ModelProperty, value: Cadl.i
 `union Cadl.string | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                  | Description    |
+| ----- | --------------------- | -------------- |
 | value | `scalar Cadl.integer` | Maximum length |
 
 ### Examples
@@ -313,7 +314,6 @@ dec maxLength(target: Cadl.string | Cadl.Reflection.ModelProperty, value: Cadl.i
 @maxLength(20)
 scalar Username extends string;
 ```
-
 
 ## `@minItems`
 
@@ -328,8 +328,9 @@ dec minItems(target: unknown[] | Cadl.Reflection.ModelProperty, value: Cadl.inte
 `union unknown[] | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                  | Description    |
+| ----- | --------------------- | -------------- |
 | value | `scalar Cadl.integer` | Minimum number |
 
 ### Examples
@@ -338,7 +339,6 @@ dec minItems(target: unknown[] | Cadl.Reflection.ModelProperty, value: Cadl.inte
 @minItems(1)
 model Endpoints is string[];
 ```
-
 
 ## `@maxItems`
 
@@ -353,8 +353,9 @@ dec maxItems(target: unknown[] | Cadl.Reflection.ModelProperty, value: Cadl.inte
 `union unknown[] | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                  | Description    |
+| ----- | --------------------- | -------------- |
 | value | `scalar Cadl.integer` | Maximum number |
 
 ### Examples
@@ -363,7 +364,6 @@ dec maxItems(target: unknown[] | Cadl.Reflection.ModelProperty, value: Cadl.inte
 @maxItems(5)
 model Endpoints is string[];
 ```
-
 
 ## `@minValue`
 
@@ -378,8 +378,9 @@ dec minValue(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.n
 `union Cadl.numeric | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                  | Description   |
+| ----- | --------------------- | ------------- |
 | value | `scalar Cadl.numeric` | Minimum value |
 
 ### Examples
@@ -388,7 +389,6 @@ dec minValue(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.n
 @maxValue(18)
 scalar Age is int32;
 ```
-
 
 ## `@maxValue`
 
@@ -403,8 +403,9 @@ dec maxValue(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.n
 `union Cadl.numeric | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                  | Description   |
+| ----- | --------------------- | ------------- |
 | value | `scalar Cadl.numeric` | Maximum value |
 
 ### Examples
@@ -413,7 +414,6 @@ dec maxValue(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.n
 @maxValue(200)
 scalar Age is int32;
 ```
-
 
 ## `@secret`
 
@@ -428,8 +428,9 @@ dec secret(target: Cadl.string | Cadl.Reflection.ModelProperty)
 `union Cadl.string | Cadl.Reflection.ModelProperty`
 
 ### Parameters
+
 | Name | Type | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 
 ### Examples
 
@@ -437,7 +438,6 @@ dec secret(target: Cadl.string | Cadl.Reflection.ModelProperty)
 @secret
 scalar Password is string;
 ```
-
 
 ## `@tag`
 
@@ -452,9 +452,10 @@ dec tag(target: Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Ref
 `union Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Reflection.Operation`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| tag | `scalar Cadl.string` | Tag value |
+
+| Name | Type                 | Description |
+| ---- | -------------------- | ----------- |
+| tag  | `scalar Cadl.string` | Tag value   |
 
 ### Examples
 
@@ -471,10 +472,11 @@ dec friendlyName(target: unknown, name: Cadl.string, formatArgs?: unknown)
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| name | `scalar Cadl.string` | name the template instance should take |
-| formatArgs | `(intrinsic) unknown` |  |
+
+| Name       | Type                  | Description                            |
+| ---------- | --------------------- | -------------------------------------- |
+| name       | `scalar Cadl.string`  | name the template instance should take |
+| formatArgs | `(intrinsic) unknown` |                                        |
 
 ### Examples
 
@@ -485,7 +487,6 @@ value: T[];
 nextLink: string;
 }
 ```
-
 
 ## `@knownValues`
 
@@ -500,8 +501,9 @@ dec knownValues(target: Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProper
 `union Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name   | Type                         | Description        |
+| ------ | ---------------------------- | ------------------ |
 | values | `model Cadl.Reflection.Enum` | Known values enum. |
 
 ### Examples
@@ -516,7 +518,6 @@ Invalid,
 }
 ```
 
-
 ## `@key`
 
 Mark a model property as the key to identify instances of that type
@@ -530,9 +531,10 @@ dec key(target: Cadl.Reflection.ModelProperty, altName?: Cadl.string)
 `model Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| altName | `scalar Cadl.string` |  |
+
+| Name    | Type                 | Description |
+| ------- | -------------------- | ----------- |
+| altName | `scalar Cadl.string` |             |
 
 ### Examples
 
@@ -541,7 +543,6 @@ model Pet {
 @key id: string;
 }
 ```
-
 
 ## `@overload`
 
@@ -556,8 +557,9 @@ dec overload(target: Cadl.Reflection.Operation, overloadbase: Cadl.Reflection.Op
 `model Cadl.Reflection.Operation`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name         | Type                              | Description                                            |
+| ------------ | --------------------------------- | ------------------------------------------------------ |
 | overloadbase | `model Cadl.Reflection.Operation` | Base operation that should be a union of all overloads |
 
 ### Examples
@@ -569,7 +571,6 @@ op uploadString(data: string, @header contentType: "text/plain" ): void;
 @overload(upload)
 op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
 ```
-
 
 ## `@projectedName`
 
@@ -584,10 +585,11 @@ dec projectedName(target: unknown, targetName: Cadl.string, projectedName: Cadl.
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| targetName | `scalar Cadl.string` | Projection target |
-| projectedName | `scalar Cadl.string` | Alternative name |
+
+| Name          | Type                 | Description       |
+| ------------- | -------------------- | ----------------- |
+| targetName    | `scalar Cadl.string` | Projection target |
+| projectedName | `scalar Cadl.string` | Alternative name  |
 
 ### Examples
 
@@ -597,7 +599,6 @@ model Certificate {
 expireAt: int32;
 }
 ```
-
 
 ## `@discriminator`
 
@@ -612,9 +613,10 @@ dec discriminator(target: Cadl.object | Cadl.Reflection.Union, propertyName: Cad
 `union Cadl.object | Cadl.Reflection.Union`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| propertyName | `scalar Cadl.string` |  |
+
+| Name         | Type                 | Description |
+| ------------ | -------------------- | ----------- |
+| propertyName | `scalar Cadl.string` |             |
 
 ### Examples
 
@@ -634,7 +636,6 @@ model Cat extends Pet {kind: "cat", meow: boolean}
 model Dog extends Pet  {kind: "dog", bark: boolean}
 ```
 
-
 ## `@visibility`
 
 Provide an extensible visibility framework that allows for defining a canonical model with fine-grained visibility flags and derived models that apply those flags.
@@ -649,8 +650,9 @@ dec visibility(target: Cadl.Reflection.ModelProperty, ...visibilities: Cadl.stri
 `model Cadl.Reflection.ModelProperty`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name         | Type                  | Description                                         |
+| ------------ | --------------------- | --------------------------------------------------- |
 | visibilities | `model Cadl.string[]` | Visibilities that applies to the target properties. |
 
 ### Examples
@@ -668,14 +670,14 @@ dec withVisibility(target: Cadl.object, ...visibilities: Cadl.string[])
 `model Cadl.object`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| visibilities | `model Cadl.string[]` |  |
+
+| Name         | Type                  | Description |
+| ------------ | --------------------- | ----------- |
+| visibilities | `model Cadl.string[]` |             |
 
 ### Examples
 
 ## `@inspectType`
-
 
 ```cadl
 dec inspectType(target: unknown, text: Cadl.string)
@@ -686,14 +688,14 @@ dec inspectType(target: unknown, text: Cadl.string)
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| text | `scalar Cadl.string` |  |
+
+| Name | Type                 | Description |
+| ---- | -------------------- | ----------- |
+| text | `scalar Cadl.string` |             |
 
 ### Examples
 
 ## `@inspectTypeName`
-
 
 ```cadl
 dec inspectTypeName(target: unknown, text: Cadl.string)
@@ -704,9 +706,9 @@ dec inspectTypeName(target: unknown, text: Cadl.string)
 `(intrinsic) unknown`
 
 ### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| text | `scalar Cadl.string` |  |
+
+| Name | Type                 | Description |
+| ---- | -------------------- | ----------- |
+| text | `scalar Cadl.string` |             |
 
 ### Examples
-
