@@ -1,11 +1,13 @@
 ---
 toc_min_heading_level: 2
-toc_max_heading_level: 2
+toc_max_heading_level: 3
 ---
 
 # Decorators
 
-## `@operationId`
+## OpenAPI
+
+### `@operationId`
 
 Specify the OpenAPI `operationId` property for this operation.
 
@@ -13,24 +15,24 @@ Specify the OpenAPI `operationId` property for this operation.
 dec OpenAPI.operationId(target: Cadl.Reflection.Operation, operationId: Cadl.string)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name        | Type                 | Description         |
 | ----------- | -------------------- | ------------------- |
 | operationId | `scalar Cadl.string` | Operation id value. |
 
-### Examples
+#### Examples
 
 ```cadl
 @operationId("download")
 op read(): string;
 ```
 
-## `@extension`
+### `@extension`
 
 Attach some custom data to the OpenAPI element generated from this type.
 
@@ -38,18 +40,18 @@ Attach some custom data to the OpenAPI element generated from this type.
 dec OpenAPI.extension(target: unknown, key: Cadl.string, value: unknown)
 ```
 
-### Target
+#### Target
 
 `(intrinsic) unknown`
 
-### Parameters
+#### Parameters
 
 | Name  | Type                  | Description                         |
 | ----- | --------------------- | ----------------------------------- |
 | key   | `scalar Cadl.string`  | Extension key. Must start with `x-` |
 | value | `(intrinsic) unknown` | Extension value.                    |
 
-### Examples
+#### Examples
 
 ```cadl
 @extension("x-custom", "My value")
@@ -57,7 +59,7 @@ dec OpenAPI.extension(target: unknown, key: Cadl.string, value: unknown)
 op read(): string;
 ```
 
-## `@defaultResponse`
+### `@defaultResponse`
 
 Specify that this model is to be treated as the OpenAPI `default` response.
 This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
@@ -66,16 +68,16 @@ This differs from the compiler built-in `@error` decorator as this does not nece
 dec OpenAPI.defaultResponse(target: Cadl.object)
 ```
 
-### Target
+#### Target
 
 `model Cadl.object`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @defaultResponse
@@ -84,7 +86,7 @@ model PetStoreResponse is object;
 op listPets(): Pet[] | PetStoreResponse;
 ```
 
-## `@externalDocs`
+### `@externalDocs`
 
 Specify the OpenAPI `externalDocs` property for this type.
 
@@ -92,18 +94,18 @@ Specify the OpenAPI `externalDocs` property for this type.
 dec OpenAPI.externalDocs(target: unknown, url: Cadl.string, description?: Cadl.string)
 ```
 
-### Target
+#### Target
 
 `(intrinsic) unknown`
 
-### Parameters
+#### Parameters
 
 | Name        | Type                 | Description             |
 | ----------- | -------------------- | ----------------------- |
 | url         | `scalar Cadl.string` | Url to the docs         |
 | description | `scalar Cadl.string` | Description of the docs |
 
-### Examples
+#### Examples
 
 ```cadl
 @externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")

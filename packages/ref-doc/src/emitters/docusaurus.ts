@@ -1,6 +1,6 @@
 import prettier from "prettier";
 import { CadlRefDoc, DecoratorRefDoc } from "../types.js";
-import { codeblock, headings, inlinecode } from "../utils/markdown.js";
+import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
 import { getTypeSignature } from "../utils/type-signature.js";
 
 /**
@@ -16,12 +16,16 @@ function renderDecoratorFile(refDoc: CadlRefDoc) {
   const content = [
     "---",
     "toc_min_heading_level: 2",
-    "toc_max_heading_level: 2",
+    "toc_max_heading_level: 3",
     "---",
     headings.h1("Decorators"),
   ];
-  for (const dec of refDoc.decorators) {
-    content.push(renderDecoratorMarkdown(dec), "");
+  for (const namespace of refDoc.namespaces) {
+    content.push(headings.h2(namespace.fullName), "");
+
+    for (const dec of namespace.decorators) {
+      content.push(renderDecoratorMarkdown(dec), "");
+    }
   }
   const markdownString = content.join("\n");
   try {
@@ -34,17 +38,7 @@ function renderDecoratorFile(refDoc: CadlRefDoc) {
   }
 }
 
-function table([header, ...rows]: string[][]) {
-  const renderRow = (row: string[]): string => `| ${row.join(" | ")} |`;
-
-  return [
-    renderRow(header),
-    "|" + header.map((x) => "-".repeat(x.length + 2)).join("|") + "|",
-    ...rows.map(renderRow),
-  ].join("\n");
-}
-
-function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 2): string {
+function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3): string {
   const content = [
     headings.hx(headingLevel, inlinecode(dec.name)),
     "",
@@ -64,7 +58,7 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 2)
   for (const param of dec.parameters) {
     paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
   }
-  content.push(headings.hx(headingLevel + 1, "Target"), table(paramTable), "");
+  content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
 
   if (dec.examples.length > 0) {
     content.push(headings.hx(headingLevel + 1, "Examples"));

@@ -1,6 +1,11 @@
 import { Decorator, FunctionParameter } from "@cadl-lang/compiler";
 
 export interface CadlRefDoc {
+  namespaces: NamespaceRefDoc[];
+}
+
+export interface NamespaceRefDoc {
+  fullName: string;
   decorators: DecoratorRefDoc[];
 }
 

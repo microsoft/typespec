@@ -1,11 +1,13 @@
 ---
 toc_min_heading_level: 2
-toc_max_heading_level: 2
+toc_max_heading_level: 3
 ---
 
 # Decorators
 
-## `@statusCode`
+## Cadl.Http
+
+### `@statusCode`
 
 Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
 
@@ -13,23 +15,23 @@ Specify the status code for this response. Property type must be a status code i
 dec Cadl.Http.statusCode(target: Cadl.Reflection.ModelProperty)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.ModelProperty`
+`ModelProperty`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 op read(): {@statusCode: 200, @body pet: Pet}
 op create(): {@statusCode: 201 | 202}
 ```
 
-## `@body`
+### `@body`
 
 Explicitly specify that this property is to be set as the body
 
@@ -37,23 +39,23 @@ Explicitly specify that this property is to be set as the body
 dec Cadl.Http.body(target: Cadl.Reflection.ModelProperty)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.ModelProperty`
+`ModelProperty`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 op upload(@body image: bytes): void;
 op download(): {@body image: bytes};
 ```
 
-## `@header`
+### `@header`
 
 Specify this property is to be sent or received as an http header.
 
@@ -61,23 +63,23 @@ Specify this property is to be sent or received as an http header.
 dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerName?: Cadl.string)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.ModelProperty`
+`ModelProperty`
 
-### Parameters
+#### Parameters
 
 | Name       | Type                 | Description                                      |
 | ---------- | -------------------- | ------------------------------------------------ |
 | headerName | `scalar Cadl.string` | Optional name of the header when sent over http. |
 
-### Examples
+#### Examples
 
 ```cadl
 op read(@header accept: string): {@header("E-Tag") eTag: string};
 ```
 
-## `@query`
+### `@query`
 
 Specify this property is to be sent as a query parameter.
 
@@ -85,23 +87,23 @@ Specify this property is to be sent as a query parameter.
 dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryKey?: Cadl.string)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.ModelProperty`
+`ModelProperty`
 
-### Parameters
+#### Parameters
 
 | Name     | Type                 | Description                                          |
 | -------- | -------------------- | ---------------------------------------------------- |
 | queryKey | `scalar Cadl.string` | Optional name of the query when included in the url. |
 
-### Examples
+#### Examples
 
 ```cadl
 op read(@query select: string, @query("order-by") orderBy: string): void;
 ```
 
-## `@path`
+### `@path`
 
 Explicitly specify that this property is to be interpolated as a path parameter.
 
@@ -109,24 +111,24 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 dec Cadl.Http.path(target: Cadl.Reflection.ModelProperty, paramName?: Cadl.string)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.ModelProperty`
+`ModelProperty`
 
-### Parameters
+#### Parameters
 
 | Name      | Type                 | Description                                         |
 | --------- | -------------------- | --------------------------------------------------- |
 | paramName | `scalar Cadl.string` | Optional name of the parmaeter in the url template. |
 
-### Examples
+#### Examples
 
 ```cadl
 @route("/read/{explicit}/things/{implicit}")
 op read(@path explicit: string, implicit: string): void;
 ```
 
-## `@get`
+### `@get`
 
 Specify the http verb for the target operation to be `GET`.
 
@@ -134,22 +136,22 @@ Specify the http verb for the target operation to be `GET`.
 dec Cadl.Http.get(target: Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @get op read(): string
 ```
 
-## `@put`
+### `@put`
 
 Specify the http verb for the target operation to be `PUT`.
 
@@ -157,22 +159,22 @@ Specify the http verb for the target operation to be `PUT`.
 dec Cadl.Http.put(target: Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @put op set(pet: Pet): void
 ```
 
-## `@post`
+### `@post`
 
 Specify the http verb for the target operation to be `POST`.
 
@@ -180,22 +182,22 @@ Specify the http verb for the target operation to be `POST`.
 dec Cadl.Http.post(target: Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @post op create(pet: Pet): void
 ```
 
-## `@patch`
+### `@patch`
 
 Specify the http verb for the target operation to be `PATCH`.
 
@@ -203,22 +205,22 @@ Specify the http verb for the target operation to be `PATCH`.
 dec Cadl.Http.patch(target: Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @patch op update(pet: Pet): void
 ```
 
-## `@delete`
+### `@delete`
 
 Specify the http verb for the target operation to be `DELETE`.
 
@@ -226,22 +228,22 @@ Specify the http verb for the target operation to be `DELETE`.
 dec Cadl.Http.delete(target: Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @delete op set(petId: string): void
 ```
 
-## `@head`
+### `@head`
 
 Specify the http verb for the target operation to be `HEAD`.
 
@@ -249,22 +251,22 @@ Specify the http verb for the target operation to be `HEAD`.
 dec Cadl.Http.head(target: Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @head op ping(petId: string): void
 ```
 
-## `@server`
+### `@server`
 
 Specify the endpoint for this service.
 
@@ -272,11 +274,11 @@ Specify the endpoint for this service.
 dec Cadl.Http.server(target: Cadl.Reflection.Namespace, url: Cadl.string, description: Cadl.string, parameters?: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Namespace`
+`Namespace`
 
-### Parameters
+#### Parameters
 
 | Name        | Type                 | Description                                             |
 | ----------- | -------------------- | ------------------------------------------------------- |
@@ -284,7 +286,7 @@ dec Cadl.Http.server(target: Cadl.Reflection.Namespace, url: Cadl.string, descri
 | description | `scalar Cadl.string` |                                                         |
 | parameters  | `model Cadl.object`  | Optional set of parameters used to interpolate the url. |
 
-### Examples
+#### Examples
 
 ```cadl
 @service
@@ -292,7 +294,7 @@ dec Cadl.Http.server(target: Cadl.Reflection.Namespace, url: Cadl.string, descri
 namespace PetStore;
 ```
 
-#### parameterized
+##### parameterized
 
 ```cadl
 @server("https://{region}.foo.com", "Regional endpoint", {
@@ -301,7 +303,7 @@ region?: string = "westus",
 })
 ```
 
-## `@useAuth`
+### `@useAuth`
 
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/cadl/standard-library/rest/authentication] for full details.
 
@@ -309,17 +311,17 @@ Specify this service authentication. See the [documentation in the Http library]
 dec Cadl.Http.useAuth(target: Cadl.Reflection.Namespace, auth: Cadl.object | Cadl.Reflection.Union | Cadl.object[])
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Namespace`
+`Namespace`
 
-### Parameters
+#### Parameters
 
 | Name | Type               | Description           |
 | ---- | ------------------ | --------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union Cadl.object | Cadl.Reflection.Union | Cadl.object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
-### Examples
+#### Examples
 
 ```cadl
 @service
@@ -327,7 +329,7 @@ dec Cadl.Http.useAuth(target: Cadl.Reflection.Namespace, auth: Cadl.object | Cad
 namespace PetStore;
 ```
 
-## `@includeInapplicableMetadataInPayload`
+### `@includeInapplicableMetadataInPayload`
 
 Specify if inapplicable metadata should be included in the payload for the given entity.
 
@@ -335,37 +337,35 @@ Specify if inapplicable metadata should be included in the payload for the given
 dec Cadl.Http.includeInapplicableMetadataInPayload(target: unknown, value: Cadl.boolean)
 ```
 
-### Target
+#### Target
 
 `(intrinsic) unknown`
 
-### Parameters
+#### Parameters
 
 | Name  | Type                  | Description |
 | ----- | --------------------- | ----------- |
 | value | `scalar Cadl.boolean` |             |
 
-### Examples
+## Cadl.Rest
 
-## `@resourceLocation`
+### `@resourceLocation`
 
 ```cadl
 dec Cadl.Rest.Private.resourceLocation(target: Cadl.string, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
 `scalar Cadl.string`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@autoRoute`
+### `@autoRoute`
 
 This namespace, interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
 
@@ -373,16 +373,16 @@ This namespace, interface or operation should resolve its route automatically. T
 dec Cadl.Rest.autoRoute(target: Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Reflection.Operation)
 ```
 
-### Target
+#### Target
 
 `union Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Reflection.Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
-### Examples
+#### Examples
 
 ```cadl
 @autoRoute
@@ -391,7 +391,7 @@ get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
 }
 ```
 
-## `@segment`
+### `@segment`
 
 Defines the preceding path segment for a
 
@@ -399,19 +399,19 @@ Defines the preceding path segment for a
 dec Cadl.Rest.segment(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation, name: Cadl.string)
 ```
 
-### Target
+#### Target
 
 `union Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type                 | Description                                                                                    |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------- |
 | name | `scalar Cadl.string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
-### Examples
+#### Examples
 
-## `@segmentOf`
+### `@segmentOf`
 
 Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
 
@@ -419,19 +419,17 @@ Returns the URL segment of a given model if it has `@segment` and `@key` decorat
 dec Cadl.Rest.segmentOf(target: Cadl.Reflection.Operation, type: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type                | Description |
 | ---- | ------------------- | ----------- |
 | type | `model Cadl.object` |             |
 
-### Examples
-
-## `@actionSeparator`
+### `@actionSeparator`
 
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
@@ -439,37 +437,33 @@ Defines the separator string that is inserted before the action name in auto-gen
 dec Cadl.Rest.actionSeparator(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation, seperator: / | : | /:)
 ```
 
-### Target
+#### Target
 
 `union Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation`
 
-### Parameters
+#### Parameters
 
 | Name      | Type     | Description |
 | --------- | -------- | ----------- | --- | ---------------------------------------------------------------- |
 | seperator | `union / | :           | /:` | Seperator seperating the action segment from the rest of the url |
 
-### Examples
-
-## `@segmentSeparator`
+### `@segmentSeparator`
 
 ```cadl
 dec Cadl.Rest.segmentSeparator(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation, seperator: Cadl.string)
 ```
 
-### Target
+#### Target
 
 `union Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation`
 
-### Parameters
+#### Parameters
 
 | Name      | Type                 | Description |
 | --------- | -------------------- | ----------- |
 | seperator | `scalar Cadl.string` |             |
 
-### Examples
-
-## `@resource`
+### `@resource`
 
 Mark this model as a resource type with a name.
 
@@ -477,19 +471,17 @@ Mark this model as a resource type with a name.
 dec Cadl.Rest.resource(target: Cadl.object, collectionName: Cadl.string)
 ```
 
-### Target
+#### Target
 
 `model Cadl.object`
 
-### Parameters
+#### Parameters
 
 | Name           | Type                 | Description            |
 | -------------- | -------------------- | ---------------------- |
 | collectionName | `scalar Cadl.string` | type's collection name |
 
-### Examples
-
-## `@readsResource`
+### `@readsResource`
 
 Specify that this is a Read operation for a given resource.
 
@@ -497,19 +489,17 @@ Specify that this is a Read operation for a given resource.
 dec Cadl.Rest.readsResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@createsResource`
+### `@createsResource`
 
 Specify that this is a Create operation for a given resource.
 
@@ -517,19 +507,17 @@ Specify that this is a Create operation for a given resource.
 dec Cadl.Rest.createsResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@createsOrReplacesResource`
+### `@createsOrReplacesResource`
 
 Specify that this is a CreateOrReplace operation for a given resource.
 
@@ -537,19 +525,17 @@ Specify that this is a CreateOrReplace operation for a given resource.
 dec Cadl.Rest.createsOrReplacesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@createsOrUpdatesResource`
+### `@createsOrUpdatesResource`
 
 Specify that this is a CreatesOrUpdate operation for a given resource.
 
@@ -557,19 +543,17 @@ Specify that this is a CreatesOrUpdate operation for a given resource.
 dec Cadl.Rest.createsOrUpdatesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@updatesResource`
+### `@updatesResource`
 
 Specify that this is a Update operation for a given resource.
 
@@ -577,19 +561,17 @@ Specify that this is a Update operation for a given resource.
 dec Cadl.Rest.updatesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@deletesResource`
+### `@deletesResource`
 
 Specify that this is a Delete operation for a given resource.
 
@@ -597,19 +579,17 @@ Specify that this is a Delete operation for a given resource.
 dec Cadl.Rest.deletesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@listsResource`
+### `@listsResource`
 
 Specify that this is a List operation for a given resource.
 
@@ -617,19 +597,17 @@ Specify that this is a List operation for a given resource.
 dec Cadl.Rest.listsResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                | Description |
 | ------------ | ------------------- | ----------- |
 | resourceType | `model Cadl.object` |             |
 
-### Examples
-
-## `@action`
+### `@action`
 
 Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
 
@@ -637,19 +615,17 @@ Specify this operation is an action. (Scopped to a resource item /pets/{petId}/m
 dec Cadl.Rest.action(target: Cadl.Reflection.Operation, name?: Cadl.string)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name | Type                 | Description |
 | ---- | -------------------- | ----------- |
 | name | `scalar Cadl.string` |             |
 
-### Examples
-
-## `@collectionAction`
+### `@collectionAction`
 
 Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
 
@@ -657,15 +633,13 @@ Specify this operation is a collection action. (Scopped to a resource, /pets/my-
 dec Cadl.Rest.collectionAction(target: Cadl.Reflection.Operation, resourceType: Cadl.object, name?: Cadl.string)
 ```
 
-### Target
+#### Target
 
-`model Cadl.Reflection.Operation`
+`Operation`
 
-### Parameters
+#### Parameters
 
 | Name         | Type                 | Description |
 | ------------ | -------------------- | ----------- |
 | resourceType | `model Cadl.object`  |             |
 | name         | `scalar Cadl.string` |             |
-
-### Examples

@@ -4,16 +4,21 @@ import {
   DocContent,
   DocUnknownTagNode,
   getSourceLocation,
+  getTypeName,
   ignoreDiagnostics,
   Namespace,
-  navigateProgram,
   navigateTypesInNamespace,
   Program,
   SyntaxKind,
   Type,
-  TypeListeners,
 } from "@cadl-lang/compiler";
-import { CadlRefDoc, DecoratorRefDoc, ExampleRefDoc, FunctionParameterRefDoc } from "./types.js";
+import {
+  CadlRefDoc,
+  DecoratorRefDoc,
+  ExampleRefDoc,
+  FunctionParameterRefDoc,
+  NamespaceRefDoc,
+} from "./types.js";
 import { getTypeSignature } from "./utils/type-signature.js";
 
 export function extractRefDocs(program: Program, filterToNamespace: string[] = []): CadlRefDoc {
@@ -22,21 +27,24 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
     .filter((x): x is Namespace => x !== undefined);
 
   const refDoc: CadlRefDoc = {
-    decorators: [],
+    namespaces: [],
   };
 
-  const hooks: TypeListeners = {
-    decorator(dec) {
-      refDoc.decorators.push(extractDecoratorRefDoc(dec));
-    },
-  };
-
-  if (namespaceTypes.length === 0) {
-    navigateProgram(program, hooks, { includeTemplateDeclaration: true });
-  } else {
-    for (const namespace of namespaceTypes) {
-      navigateTypesInNamespace(namespace, hooks, { includeTemplateDeclaration: true });
-    }
+  for (const namespace of namespaceTypes) {
+    const namespaceDoc: NamespaceRefDoc = {
+      fullName: getTypeName(namespace),
+      decorators: [],
+    };
+    refDoc.namespaces.push(namespaceDoc);
+    navigateTypesInNamespace(
+      namespace,
+      {
+        decorator(dec) {
+          namespaceDoc.decorators.push(extractDecoratorRefDoc(dec));
+        },
+      },
+      { includeTemplateDeclaration: true }
+    );
   }
 
   return refDoc;

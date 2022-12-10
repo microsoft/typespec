@@ -5,6 +5,7 @@ import {
   FunctionParameter,
   FunctionType,
   getTypeName,
+  Model,
   ModelProperty,
   Operation,
   Type,
@@ -13,6 +14,9 @@ import {
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
+  if (isReflectionType(type)) {
+    return type.name;
+  }
   switch (type.kind) {
     case "Scalar":
     case "Enum":
@@ -56,6 +60,14 @@ export function getTypeSignature(type: Type): string {
       compilerAssert(false, "Unexpected type kind");
       return "";
   }
+}
+
+function isReflectionType(type: Type): type is Model & { name: "" } {
+  return (
+    type.kind === "Model" &&
+    type.namespace?.name === "Reflection" &&
+    type.namespace?.namespace?.name === "Cadl"
+  );
 }
 
 function getDecoratorSignature(type: Decorator) {

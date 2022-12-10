@@ -21,3 +21,13 @@ export function codeblock(code: string, lang: string = "") {
 export function inlinecode(code: string) {
   return "`" + code + "`";
 }
+
+export function table([header, ...rows]: string[][]) {
+  const renderRow = (row: string[]): string => `| ${row.join(" | ")} |`;
+
+  return [
+    renderRow(header),
+    "|" + header.map((x) => "-".repeat(x.length + 2)).join("|") + "|",
+    ...rows.map(renderRow),
+  ].join("\n");
+}
