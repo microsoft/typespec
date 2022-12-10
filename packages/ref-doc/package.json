@@ -34,9 +34,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-cadl-library",
+    "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
