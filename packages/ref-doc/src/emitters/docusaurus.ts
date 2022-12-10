@@ -15,6 +15,7 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
 function renderDecoratorFile(refDoc: CadlRefDoc) {
   const content = [
     "---",
+    `title: "Decorators"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
@@ -40,7 +41,7 @@ function renderDecoratorFile(refDoc: CadlRefDoc) {
 
 function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3): string {
   const content = [
-    headings.hx(headingLevel, inlinecode(dec.name)),
+    headings.hx(headingLevel, `${inlinecode(dec.name)} {#${dec.id}}`),
     "",
     dec.doc,
     codeblock(dec.signature, "cadl"),

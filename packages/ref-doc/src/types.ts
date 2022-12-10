@@ -11,6 +11,10 @@ export interface NamespaceRefDoc {
 
 export interface DecoratorRefDoc {
   type: Decorator;
+  /**
+   * Fully qualified name of decorator in format `<namespace>.<sub-namespace>.<dec-name>`
+   */
+  id: string;
   signature: string;
   name: string;
   target: FunctionParameterRefDoc;

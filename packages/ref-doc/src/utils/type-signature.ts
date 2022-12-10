@@ -114,7 +114,7 @@ function getEnumMemberSignature(member: EnumMember) {
   return value === undefined ? `${ns}${member.name}` : `${ns}${member.name}: ${value}`;
 }
 
-function getQualifier(parent: Type | undefined) {
+export function getQualifier(parent: Type | undefined) {
   if (!parent) {
     return "";
   }

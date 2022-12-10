@@ -1,4 +1,5 @@
 ---
+title: "Decorators"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
@@ -7,7 +8,7 @@ toc_max_heading_level: 3
 
 ## OpenAPI
 
-### `@operationId`
+### `@operationId` {#@OpenAPI.operationId}
 
 Specify the OpenAPI `operationId` property for this operation.
 
@@ -32,7 +33,7 @@ dec OpenAPI.operationId(target: Cadl.Reflection.Operation, operationId: Cadl.str
 op read(): string;
 ```
 
-### `@extension`
+### `@extension` {#@OpenAPI.extension}
 
 Attach some custom data to the OpenAPI element generated from this type.
 
@@ -59,7 +60,7 @@ dec OpenAPI.extension(target: unknown, key: Cadl.string, value: unknown)
 op read(): string;
 ```
 
-### `@defaultResponse`
+### `@defaultResponse` {#@OpenAPI.defaultResponse}
 
 Specify that this model is to be treated as the OpenAPI `default` response.
 This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
@@ -86,7 +87,7 @@ model PetStoreResponse is object;
 op listPets(): Pet[] | PetStoreResponse;
 ```
 
-### `@externalDocs`
+### `@externalDocs` {#@OpenAPI.externalDocs}
 
 Specify the OpenAPI `externalDocs` property for this type.
 

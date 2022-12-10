@@ -19,7 +19,7 @@ import {
   FunctionParameterRefDoc,
   NamespaceRefDoc,
 } from "./types.js";
-import { getTypeSignature } from "./utils/type-signature.js";
+import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
 export function extractRefDocs(program: Program, filterToNamespace: string[] = []): CadlRefDoc {
   const namespaceTypes = filterToNamespace
@@ -82,6 +82,7 @@ function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
   }
 
   return {
+    id: getDecoratorHeadingId(decorator),
     name: decorator.name,
     type: decorator,
     signature: getTypeSignature(decorator),
@@ -99,6 +100,9 @@ function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
   };
 }
 
+function getDecoratorHeadingId(decorator: Decorator) {
+  return "@" + getQualifier(decorator.namespace) + decorator.name.slice(1);
+}
 function checkIfTagHasDocOnSameLine(tag: DocUnknownTagNode): boolean {
   const start = tag.content[0]?.pos;
   const end = tag.content[0]?.end;
