@@ -8,6 +8,7 @@ import {
   ignoreDiagnostics,
   Interface,
   isTemplateDeclaration,
+  Model,
   Namespace,
   navigateTypesInNamespace,
   Operation,
@@ -22,6 +23,7 @@ import {
   ExampleRefDoc,
   FunctionParameterRefDoc,
   InterfaceRefDoc,
+  ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
 } from "./types.js";
@@ -38,10 +40,11 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
 
   for (const namespace of namespaceTypes) {
     const namespaceDoc: NamespaceRefDoc = {
-      fullName: getTypeName(namespace),
+      id: getTypeName(namespace),
       decorators: [],
       operations: [],
       interfaces: [],
+      models: [],
     };
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
@@ -57,6 +60,9 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
         },
         interface(iface) {
           namespaceDoc.interfaces.push(extractInterfaceRefDocs(iface));
+        },
+        model(model) {
+          namespaceDoc.models.push(extractModelRefDocs(model));
         },
       },
       { includeTemplateDeclaration: true, skipSubNamespaces: true }
@@ -132,6 +138,18 @@ function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
       optional: decorator.target.optional,
       rest: decorator.target.rest,
     },
+  };
+}
+
+function extractModelRefDocs(type: Model): ModelRefDoc {
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
+    templateParameters: extractTemplateParameterDocs(type),
+    doc: extractMainDoc(type),
+    examples: extractExamples(type),
   };
 }
 

@@ -1,30 +1,23 @@
-import { Decorator, FunctionParameter, Interface, Operation } from "@cadl-lang/compiler";
+import { Decorator, FunctionParameter, Interface, Model, Operation } from "@cadl-lang/compiler";
 
 export interface CadlRefDoc {
   namespaces: NamespaceRefDoc[];
 }
 
 export interface NamespaceRefDoc {
-  fullName: string;
+  id: string;
   decorators: DecoratorRefDoc[];
   operations: OperationRefDoc[];
   interfaces: InterfaceRefDoc[];
+  models: ModelRefDoc[];
 }
 
-export interface DecoratorRefDoc {
+export type DecoratorRefDoc = NamedTypeRefDoc & {
   type: Decorator;
-  /**
-   * Fully qualified name of decorator in format `<namespace>.<sub-namespace>.<dec-name>`
-   */
-  id: string;
-  signature: string;
-  name: string;
   target: FunctionParameterRefDoc;
-  doc: string;
   parameters: FunctionParameterRefDoc[];
-  examples: ExampleRefDoc[];
   otherTags: string[];
-}
+};
 
 export interface FunctionParameterRefDoc {
   type: FunctionParameter;
@@ -39,45 +32,36 @@ export interface ExampleRefDoc {
   content: string;
 }
 
-export interface OperationRefDoc {
+export type OperationRefDoc = NamedTypeRefDoc & {
   type: Operation;
 
-  /**
-   * Fully qualified name of operation in format `<namespace>.<sub-namespace>[.interfaceName].<dec-name>`
-   */
-  id: string;
-
-  name: string;
-
-  signature: string;
-
   templateParameters?: TemplateParameterRefDoc[];
+};
 
-  doc: string;
-
-  examples: ExampleRefDoc[];
-}
-
-export interface InterfaceRefDoc {
+export type InterfaceRefDoc = NamedTypeRefDoc & {
   type: Interface;
-
-  /**
-   * Fully qualified name of operation in format `<namespace>.<sub-namespace>[.interfaceName].<dec-name>`
-   */
-  id: string;
-
-  name: string;
-
-  signature: string;
-
   templateParameters?: TemplateParameterRefDoc[];
-
-  doc: string;
-
-  examples: ExampleRefDoc[];
-}
+};
 
 export interface TemplateParameterRefDoc {
   name: string;
   doc: string;
 }
+
+export type ModelRefDoc = NamedTypeRefDoc & {
+  type: Model;
+
+  templateParameters?: TemplateParameterRefDoc[];
+};
+
+export type NamedTypeRefDoc = {
+  /**
+   * Fully qualified id
+   */
+  id: string;
+
+  name: string;
+  signature: string;
+  doc: string;
+  examples: ExampleRefDoc[];
+};

@@ -526,5 +526,3 @@ dec Cadl.Rest.collectionAction(target: Cadl.Reflection.Operation, resourceType: 
 | ------------ | -------------------- | ----------- |
 | resourceType | `model Cadl.object`  |             |
 | name         | `scalar Cadl.string` |             |
-
-## Cadl.Rest.Resource

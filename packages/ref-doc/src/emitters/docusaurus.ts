@@ -3,6 +3,8 @@ import {
   CadlRefDoc,
   DecoratorRefDoc,
   InterfaceRefDoc,
+  ModelRefDoc,
+  NamespaceRefDoc,
   OperationRefDoc,
   TemplateParameterRefDoc,
 } from "../types.js";
@@ -25,6 +27,20 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
     files["interfaces.md"] = interfaceFile;
   }
 
+  const dataTypes = renderDataTypes(refDoc);
+  if (dataTypes) {
+    files["data-types.md"] = dataTypes;
+  }
+
+  for (const [file, content] of Object.entries(files)) {
+    try {
+      files[file] = prettier.format(content, {
+        parser: "markdown",
+      });
+    } catch (e) {
+      console.error(`Cannot format with prettier ${file}`);
+    }
+  }
   return files;
 }
 
@@ -40,23 +56,22 @@ function renderDecoratorFile(refDoc: CadlRefDoc): string | undefined {
     "---",
     headings.h1("Decorators"),
   ];
-  for (const namespace of refDoc.namespaces) {
-    content.push(headings.h2(namespace.fullName), "");
 
-    for (const dec of namespace.decorators) {
-      content.push(renderDecoratorMarkdown(dec), "");
-    }
-  }
+  content.push(
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      if (namespace.decorators.length === 0) {
+        return undefined;
+      }
 
-  const markdownString = content.join("\n");
-  try {
-    return prettier.format(markdownString, {
-      parser: "markdown",
-    });
-  } catch (e) {
-    console.error("Cannot format with prettier");
-    return markdownString;
-  }
+      const content = [];
+      for (const dec of namespace.decorators) {
+        content.push(renderDecoratorMarkdown(dec), "");
+      }
+      return content.join("\n");
+    })
+  );
+
+  return content.join("\n");
 }
 
 function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3): string {
@@ -106,30 +121,26 @@ function renderInterfacesFile(refDoc: CadlRefDoc): string | undefined {
     "---",
     headings.h1("Interfaces and Operations"),
   ];
-  for (const namespace of refDoc.namespaces) {
-    if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
-      continue;
-    }
-    content.push(headings.h2(namespace.fullName), "");
 
-    for (const iface of namespace.interfaces) {
-      content.push(renderInterfaceMarkdown(iface), "");
-    }
+  content.push(
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
+        return undefined;
+      }
 
-    for (const operation of namespace.operations) {
-      content.push(renderOperationMarkdown(operation), "");
-    }
-  }
+      const content = [];
+      for (const iface of namespace.interfaces) {
+        content.push(renderInterfaceMarkdown(iface), "");
+      }
 
-  const markdownString = content.join("\n");
-  try {
-    return prettier.format(markdownString, {
-      parser: "markdown",
-    });
-  } catch (e) {
-    console.error("Cannot format with prettier");
-    return markdownString;
-  }
+      for (const operation of namespace.operations) {
+        content.push(renderOperationMarkdown(operation), "");
+      }
+      return content.join("\n");
+    })
+  );
+
+  return content.join("\n");
 }
 
 function renderOperationMarkdown(op: OperationRefDoc, headingLevel: number = 3) {
@@ -173,5 +184,65 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
     content.push(renderTemplateParametersTable(iface.templateParameters, headingLevel + 1));
   }
 
+  return content.join("\n");
+}
+
+function renderDataTypes(refDoc: CadlRefDoc): string | undefined {
+  if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
+    return undefined;
+  }
+  const content = [
+    "---",
+    `title: "Data types"`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+    headings.h1("Data types"),
+  ];
+
+  content.push(
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      if (namespace.models.length === 0) {
+        return undefined;
+      }
+      const content = [];
+      for (const model of namespace.models) {
+        content.push(renderModel(model), "");
+      }
+      return content.join("\n");
+    })
+  );
+
+  return content.join("\n");
+}
+
+function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
+  const content = [
+    headings.hx(headingLevel, `${inlinecode(model.name)} {#${model.id}}`),
+    "",
+    model.doc,
+    codeblock(model.signature, "cadl"),
+    "",
+  ];
+
+  if (model.templateParameters) {
+    content.push(renderTemplateParametersTable(model.templateParameters, headingLevel + 1));
+  }
+
+  return content.join("\n");
+}
+
+function groupByNamespace(
+  namespaces: NamespaceRefDoc[],
+  callback: (namespace: NamespaceRefDoc) => string | undefined
+): string {
+  const content = [];
+  for (const namespace of namespaces) {
+    const contentForNamespace = callback(namespace);
+    if (contentForNamespace) {
+      content.push(headings.h2(namespace.id), "");
+      content.push(contentForNamespace, "");
+    }
+  }
   return content.join("\n");
 }
