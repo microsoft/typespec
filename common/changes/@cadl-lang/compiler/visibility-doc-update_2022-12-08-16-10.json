@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix member completion on aliases",
-      "type": "patch"
+      "comment": "Improve visibility decorator documentation",
+      "type": "none"
     }
   ],
   "packageName": "@cadl-lang/compiler"

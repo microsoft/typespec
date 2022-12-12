@@ -1,6 +1,31 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Omit metadata properties of type `never`
+- Internal: update to use new `getTypeName` and `getNamespaceString` helper
+- Uptake change to `onEmit` signature
+- **Breaking change** using new built-in `emitter-output-dir` option instead of custom `output-dir`.
+- Add support for multiple services
+- Uptake changes to compiler api to support Scalars
+- Add support for renamed `url` scalar
+- Uptake changes to rest library api
+
+### Patches
+
+- Emit 'deprecated' operation property in openapi3
+- Internal: Update tests to change from `emitters` compiler options to `emit` and `options`
+- Fix: Respect `@header` and `@query` over the wire name
+- Update dependencies
+
+### Updates
+
+- Remove undocumented use of atVersion projection
 
 ## 0.17.0
 Sat, 12 Nov 2022 00:14:04 GMT
@@ -77,6 +102,10 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Remove `summary` property set on schemas
 - Make response descriptions more consistent
 
+### Updates
+
+- Update Readme.md for new decorators.
+
 ## 0.13.0
 Fri, 08 Jul 2022 23:22:57 GMT
 
@@ -99,6 +128,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Add support for new @server decorator used to specify api endpoints.
 - Find good names where possible for anonymous models that differ from named models only by properties that are not part of the schema
 - Uptake changes to versioning library using enums for version
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.11.0
 Fri, 06 May 2022 17:19:57 GMT
