@@ -278,22 +278,6 @@ dec Cadl.Http.includeInapplicableMetadataInPayload(target: unknown, value: Cadl.
 
 ## Cadl.Rest
 
-### `@resourceLocation` {#@Cadl.Rest.Private.resourceLocation}
-
-```cadl
-dec Cadl.Rest.Private.resourceLocation(target: Cadl.string, resourceType: Cadl.object)
-```
-
-#### Target
-
-`scalar Cadl.string`
-
-#### Parameters
-
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
-| resourceType | `model Cadl.object` |             |
-
 ### `@autoRoute` {#@Cadl.Rest.autoRoute}
 
 ```cadl

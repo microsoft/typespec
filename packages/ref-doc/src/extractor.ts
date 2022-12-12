@@ -59,7 +59,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
           namespaceDoc.interfaces.push(extractInterfaceRefDocs(iface));
         },
       },
-      { includeTemplateDeclaration: true }
+      { includeTemplateDeclaration: true, skipSubNamespaces: true }
     );
   }
 
