@@ -42,7 +42,6 @@ export function $header(
 ) {
   const options: HeaderOptions = {
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
-    explode: false,
   };
   if (headerNameOrOptions) {
     if (typeof headerNameOrOptions === "string") {
@@ -81,8 +80,6 @@ export function $query(
 ) {
   const options: QueryOptions = {
     name: entity.name,
-    format: "form",
-    explode: true,
   };
   if (queryNameOrOptions) {
     if (typeof queryNameOrOptions === "string") {
@@ -104,12 +101,8 @@ export function $query(
         }
       }
       const explode = queryNameOrOptions.properties.get("explode")?.type;
-      if (explode) {
-        if (explode?.kind === "Boolean") {
-          options.explode = explode.value;
-        }
-      } else {
-        options.explode = options.format === "form";
+      if (explode?.kind === "Boolean") {
+        options.explode = explode.value;
       }
     }
   }
@@ -136,7 +129,6 @@ export function $path(
 ) {
   const options: PathOptions = {
     name: entity.name,
-    format: "simple",
   };
   if (paramNameOrOptions) {
     if (typeof paramNameOrOptions === "string") {
@@ -151,6 +143,10 @@ export function $path(
         if (format.value === "simple" || format.value === "label" || format.value === "matrix") {
           options.format = format.value;
         }
+      }
+      const explode = paramNameOrOptions.properties.get("explode")?.type;
+      if (explode?.kind === "Boolean") {
+        options.explode = explode.value;
       }
     }
   }

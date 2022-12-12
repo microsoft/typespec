@@ -12,7 +12,7 @@ model HeaderOptions {
   name?: string;
   /**
    * Whether parameter values of type `object` generate separate parameters for key-value pair of the map.
-   * For other types of parameters this property has no effect. The default value is `false`.
+   * For other types of parameters this property has no effect.
    */
   explode?: boolean;
 }
@@ -45,7 +45,7 @@ model QueryOptions {
   format?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
   /**
    * Whether parameter values of type `array` or `object` generate separate parameters for each value of the array or key-value pair of the map.
-   * For other types of parameters this property has no effect. When format is `form`, the default value is `true`. For all other styles, the default value is `false`.
+   * For other types of parameters this property has no effect.
    */
   explode?: boolean;
 }
@@ -76,6 +76,11 @@ model PathOptions {
    * How the parameter value will be serialized
    */
   format?: "simple" | "label" | "matrix";
+  /**
+   * Whether parameter values of type `array` or `object` generate separate parameters for each value of the array or key-value pair of the map.
+   * For other types of parameters this property has no effect.
+   */
+  explode?: boolean;
 }
 
 /**

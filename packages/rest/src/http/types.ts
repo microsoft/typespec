@@ -193,18 +193,19 @@ export interface HttpOperationParameter {
 
 export interface HeaderOptions {
   name: string;
-  explode: boolean;
+  explode?: boolean;
 }
 
 export interface QueryOptions {
   name: string;
-  format: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
-  explode: boolean;
+  format?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
+  explode?: boolean;
 }
 
 export interface PathOptions {
   name: string;
-  format: "simple" | "label" | "matrix";
+  format?: "simple" | "label" | "matrix";
+  explode?: boolean;
 }
 
 /**

@@ -10,7 +10,9 @@ import {
   getHeaderFieldName,
   getHeaderFieldOptions,
   getPathParamName,
+  getPathParamOptions,
   getQueryParamName,
+  getQueryParamOptions,
   getServers,
   includeInapplicableMetadataInPayload,
   isBody,
@@ -110,7 +112,7 @@ describe("rest: http decorators", () => {
 
     it("override header with HeaderOptions", async () => {
       const { MyHeader } = await runner.compile(`
-          op test(@test @header({name: "x-my-header", explode: true}) MyHeader: string): string;
+          op test(@test @header({name: "x-my-header", explode: true}) MyHeader: string[]): string;
         `);
 
       deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
@@ -189,6 +191,18 @@ describe("rest: http decorators", () => {
           op test(@test @query("$select") select: string): string;
         `);
 
+      strictEqual(getQueryParamName(runner.program, select), "$select");
+    });
+
+    it("override query with QueryOptions", async () => {
+      const { select } = await runner.compile(`
+          op test(@test @query({name: "$select", format: "pipeDelimited"}) select: string[]): string;
+        `);
+
+      deepStrictEqual(getQueryParamOptions(runner.program, select), {
+        name: "$select",
+        format: "pipeDelimited",
+      });
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
   });
@@ -315,6 +329,18 @@ describe("rest: http decorators", () => {
           op test(@test @path("$select") select: string): string;
         `);
 
+      strictEqual(getPathParamName(runner.program, select), "$select");
+    });
+
+    it("override path with PathOptions", async () => {
+      const { select } = await runner.compile(`
+          op test(@test @path({name: "$select", format: "simple"}) select: string[]): string;
+        `);
+
+      deepStrictEqual(getPathParamOptions(runner.program, select), {
+        name: "$select",
+        format: "simple",
+      });
       strictEqual(getPathParamName(runner.program, select), "$select");
     });
   });
