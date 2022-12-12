@@ -11,6 +11,10 @@ model HeaderOptions {
    */
   name?: string;
   /**
+   * How the parameter value will be serialized
+   */
+  format?: "simple";
+  /**
    * Whether parameter values of type `object` generate separate parameters for key-value pair of the map.
    * For other types of parameters this property has no effect.
    */

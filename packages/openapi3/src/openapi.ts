@@ -661,26 +661,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const parameter of parameters) {
-      const { type, param } = parameter;
-      if (params.has(param)) {
-        currentEndpoint.parameters.push(params.get(param));
+    for (const httpOpParam of parameters) {
+      if (params.has(httpOpParam.param)) {
+        currentEndpoint.parameters.push(params.get(httpOpParam.param));
         continue;
       }
-
-      switch (type) {
-        case "path":
-          emitParameter(parameter, visibility);
-          break;
-        case "query":
-          emitParameter(parameter, visibility);
-          break;
-        case "header":
-          if (!isContentTypeHeader(program, param)) {
-            emitParameter(parameter, visibility);
-          }
-          break;
+      if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
+        continue;
       }
+      emitParameter(httpOpParam, visibility);
     }
   }
 
@@ -752,6 +741,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = parameter.name;
     ph.in = parameter.type;
+    ph.style = parameter.format;
+    ph.explode = parameter.explode;
     Object.assign(ph, getOpenAPIParameterBase(parameter.param, visibility));
   }
 

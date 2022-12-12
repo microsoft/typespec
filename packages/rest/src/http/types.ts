@@ -188,6 +188,7 @@ export interface RouteResolutionOptions extends RouteOptions {
 export interface HeaderFieldOptions {
   type: "header";
   name: string;
+  format?: "simple";
   explode?: boolean;
 }
 

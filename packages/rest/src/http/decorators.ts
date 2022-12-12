@@ -52,6 +52,12 @@ export function $header(
       if (name?.kind === "String") {
         options.name = name.value;
       }
+      const format = headerNameOrOptions.properties.get("format")?.type;
+      if (format?.kind === "String") {
+        if (format.value === "simple") {
+          options.format = format.value;
+        }
+      }
       const explode = headerNameOrOptions.properties.get("explode")?.type;
       if (explode?.kind === "Boolean") {
         options.explode = explode.value;
