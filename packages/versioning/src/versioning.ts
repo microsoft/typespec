@@ -120,6 +120,7 @@ function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
 }
 
 /**
+ * @deprecated since version 0.39.0. Use getRenamedFromVersions
  * @returns version when the given type was added if applicable.
  */
 export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
@@ -139,6 +140,7 @@ export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefin
 }
 
 /**
+ * @deprecated since version 0.39.0. Use getNameAtVersion instead.
  * @returns get old renamed name if applicable.
  */
 export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
@@ -170,6 +172,7 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
 }
 
 /**
+ * @deprecated since version 0.39.0.
  * @returns version when the given type was added if applicable.
  */
 export function getAddedOn(p: Program, t: Type): Version | undefined {
@@ -178,11 +181,20 @@ export function getAddedOn(p: Program, t: Type): Version | undefined {
 }
 
 /**
+ * @deprecated since version 0.39.0.
  * @returns version when the given type was removed if applicable.
  */
 export function getRemovedOn(p: Program, t: Type): Version | undefined {
   reportDeprecated(p, "Deprecated: getRemovedOn is deprecated.", t);
   return p.stateMap(removedOnKey).get(t)?.[0];
+}
+
+function getAddedOnVersions(p: Program, t: Type): Version[] | undefined {
+  return p.stateMap(addedOnKey).get(t) as Version[];
+}
+
+function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined {
+  return p.stateMap(removedOnKey).get(t) as Version[];
 }
 
 /**
@@ -548,12 +560,26 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
 
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
+/**
+ * @deprecated since version 0.39.0. Use existsAtVersion instead.
+ * @param p
+ * @param type
+ * @param version
+ * @returns
+ */
 export function addedAfter(p: Program, type: Type, version: ObjectType) {
   reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsAtVersion instead.", type);
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
 
+/**
+ * @deprecated since version 0.39.0. Use existsAtVersion instead.
+ * @param p
+ * @param type
+ * @param version
+ * @returns
+ */
 export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
   reportDeprecated(
     p,
@@ -594,8 +620,9 @@ export function getAvailabilityMap(
   // if unversioned then everything exists
   if (allVersions === undefined) return undefined;
 
-  const added = (program.stateMap(addedOnKey).get(type) as Version[]) ?? [];
-  const removed = (program.stateMap(removedOnKey).get(type) as Version[]) ?? [];
+  const added = getAddedOnVersions(program, type) ?? [];
+  const removed = getRemovedOnVersions(program, type) ?? [];
+
   // if there's absolutely no versioning information, return undefined
   // contextually, this might mean it inherits its versioning info from a parent
   // or that it is treated as unversioned
@@ -639,6 +666,13 @@ export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType):
   return [Availability.Added, Availability.Available].includes(isAvail);
 }
 
+/**
+ * @deprecated since version 0.39.0. Use hasDifferentNameAtVersion instead.
+ * @param p
+ * @param type
+ * @param version
+ * @returns
+ */
 export function renamedAfter(p: Program, type: Type, version: ObjectType) {
   reportDeprecated(
     p,
