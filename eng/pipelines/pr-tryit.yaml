@@ -46,7 +46,7 @@ jobs:
               --destination \$web \
               --account-name "cadlwebsite" \
               --destination-path $(CADL_WEBSITE_BASE_PATH) \
-              --source "./packages/playground/dist/"
+              --source "./packages/website/build/"
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented
