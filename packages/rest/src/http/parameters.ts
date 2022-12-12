@@ -11,10 +11,10 @@ import { createDiagnostic } from "../lib.js";
 import { getAction, getCollectionAction, getResourceOperation } from "../rest.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
-  getHeaderFieldName,
+  getHeaderFieldOptions,
   getOperationVerb,
-  getPathParamName,
-  getQueryParamName,
+  getPathParamOptions,
+  getQueryParamOptions,
   isBody,
 } from "./decorators.js";
 import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
@@ -82,15 +82,16 @@ function getOperationParametersForVerb(
   let contentTypes: string[] | undefined;
 
   for (const param of metadata) {
-    const queryParam = getQueryParamName(program, param);
-    const pathParam =
-      getPathParamName(program, param) ?? (isImplicitPathParam(param) && param.name);
-    const headerParam = getHeaderFieldName(program, param);
+    const queryOptions = getQueryParamOptions(program, param);
+    const pathOptions =
+      getPathParamOptions(program, param) ??
+      (isImplicitPathParam(param) && { type: "path", name: param.name });
+    const headerOptions = getHeaderFieldOptions(program, param);
     const bodyParam = isBody(program, param);
     const defined = [
-      ["query", queryParam],
-      ["path", pathParam],
-      ["header", headerParam],
+      ["query", queryOptions],
+      ["path", pathOptions],
+      ["header", headerOptions],
       ["body", bodyParam],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
@@ -103,9 +104,12 @@ function getOperationParametersForVerb(
       );
     }
 
-    if (queryParam) {
-      parameters.push({ type: "query", name: queryParam, param });
-    } else if (pathParam) {
+    if (queryOptions) {
+      parameters.push({
+        ...queryOptions,
+        param,
+      });
+    } else if (pathOptions) {
       if (param.optional) {
         diagnostics.add(
           createDiagnostic({
@@ -115,12 +119,18 @@ function getOperationParametersForVerb(
           })
         );
       }
-      parameters.push({ type: "path", name: pathParam, param });
-    } else if (headerParam) {
+      parameters.push({
+        ...pathOptions,
+        param,
+      });
+    } else if (headerOptions) {
       if (isContentTypeHeader(program, param)) {
         contentTypes = diagnostics.pipe(getContentTypes(param));
       }
-      parameters.push({ type: "header", name: headerParam, param });
+      parameters.push({
+        ...headerOptions,
+        param,
+      });
     } else if (bodyParam) {
       if (bodyType === undefined) {
         bodyParameter = param;

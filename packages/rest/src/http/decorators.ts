@@ -22,11 +22,11 @@ import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js
 import { extractParamsFromPath } from "../utils.js";
 import {
   AuthenticationOption,
-  HeaderOptions,
+  HeaderFieldOptions,
   HttpAuth,
   HttpVerb,
-  PathOptions,
-  QueryOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
   RouteOptions,
   RoutePath,
   ServiceAuthentication,
@@ -40,7 +40,8 @@ export function $header(
   entity: ModelProperty,
   headerNameOrOptions?: string | Model
 ) {
-  const options: HeaderOptions = {
+  const options: HeaderFieldOptions = {
+    type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
   };
   if (headerNameOrOptions) {
@@ -60,7 +61,7 @@ export function $header(
   context.program.stateMap(headerFieldsKey).set(entity, options);
 }
 
-export function getHeaderFieldOptions(program: Program, entity: Type): HeaderOptions {
+export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
   return program.stateMap(headerFieldsKey).get(entity);
 }
 
@@ -78,7 +79,8 @@ export function $query(
   entity: ModelProperty,
   queryNameOrOptions?: string | Model
 ) {
-  const options: QueryOptions = {
+  const options: QueryParameterOptions = {
+    type: "query",
     name: entity.name,
   };
   if (queryNameOrOptions) {
@@ -109,7 +111,7 @@ export function $query(
   context.program.stateMap(queryFieldsKey).set(entity, options);
 }
 
-export function getQueryParamOptions(program: Program, entity: Type): QueryOptions {
+export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
   return program.stateMap(queryFieldsKey).get(entity);
 }
 
@@ -127,7 +129,8 @@ export function $path(
   entity: ModelProperty,
   paramNameOrOptions?: string | Model
 ) {
-  const options: PathOptions = {
+  const options: PathParameterOptions = {
+    type: "path",
     name: entity.name,
   };
   if (paramNameOrOptions) {
@@ -153,7 +156,7 @@ export function $path(
   context.program.stateMap(pathFieldsKey).set(entity, options);
 }
 
-export function getPathParamOptions(program: Program, entity: Type): PathOptions {
+export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
   return program.stateMap(pathFieldsKey).get(entity);
 }
 

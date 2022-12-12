@@ -116,6 +116,7 @@ describe("rest: http decorators", () => {
         `);
 
       deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
+        type: "header",
         name: "x-my-header",
         explode: true,
       });
@@ -200,6 +201,7 @@ describe("rest: http decorators", () => {
         `);
 
       deepStrictEqual(getQueryParamOptions(runner.program, select), {
+        type: "query",
         name: "$select",
         format: "pipeDelimited",
       });
@@ -338,6 +340,7 @@ describe("rest: http decorators", () => {
         `);
 
       deepStrictEqual(getPathParamOptions(runner.program, select), {
+        type: "path",
         name: "$select",
         format: "simple",
       });
