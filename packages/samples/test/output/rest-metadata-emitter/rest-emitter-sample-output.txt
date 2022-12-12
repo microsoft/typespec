@@ -1,0 +1,52 @@
+
+service: UserService
+  title: User service
+  version: v1
+  ops:
+    op: POST /users/{id}
+      request:
+        path id: Cadl.string
+        body: UserService.User
+      response: 200
+        body: UserService.User (Read)
+    op: GET /users/{id}
+      request:
+        path id: Cadl.string
+      response: 200
+        body: UserService.User (Read)
+  models:
+    model: UserService.User
+      id: Cadl.string (Read only)
+      secret: Cadl.string (Create only)
+      name: Cadl.string
+  
+  
+  service: UserService
+    title: User service
+    version: v2
+    ops:
+      op: POST /users/{id}
+        request:
+          path id: Cadl.string
+          body: UserService.User
+        response: 200
+          body: UserService.User (Read)
+      op: GET /users/{id}
+        request:
+          path id: Cadl.string
+        response: 200
+          body: UserService.User (Read)
+    models:
+      model: UserService.User
+        id: Cadl.string (Read only)
+        secret: Cadl.string (Create only)
+        name: Cadl.string
+        age: Cadl.int32
+    
+    
+    service: AnotherService
+      ops:
+        op: GET /test
+          response: 204
+      models:
+      

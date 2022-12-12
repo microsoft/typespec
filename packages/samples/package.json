@@ -23,7 +23,9 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "echo \"nothing to do for samples\"",
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
     "regen-samples": "node scripts/regen-samples.js"
   },
   "files": [
@@ -43,6 +45,8 @@
     "@cadl-lang/internal-build-utils": "~0.3.3",
     "@types/mkdirp": "~1.0.1",
     "autorest": "~3.3.2",
-    "mkdirp": "~1.0.4"
+    "mkdirp": "~1.0.4",
+    "rimraf": "~3.0.2",
+    "typescript": "~4.9.3"
   }
 }

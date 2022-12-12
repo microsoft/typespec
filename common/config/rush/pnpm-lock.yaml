@@ -15454,7 +15454,7 @@ packages:
     dev: false
 
   file:projects/ref-doc.tgz:
-    resolution: {integrity: sha512-ZZFxEHmpahIxxgTL7emDOYK6ORPoRxx3prrAo4sjef+75Gss+nVrdpXBOq7GlT7FQq4Qq3XkgHQZecOv3nV2Ug==, tarball: file:projects/ref-doc.tgz}
+    resolution: {integrity: sha512-DGZJoIyG/16I9kJA8diS9HwhXw4+lJdWENJETQU/2qOQVI1BTUZ327o/dPwxB5SM7hdVSU4NUMpe2C8JO3MYSg==, tarball: file:projects/ref-doc.tgz}
     name: '@rush-temp/ref-doc'
     version: 0.0.0
     dependencies:
@@ -15495,13 +15495,15 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-moAVhG29T1YmqWLVUJXCs30lQuoL8PWecODceVZ+KRQqfYOEqdK3rOp776yBwQifAGPmW6x0Y47iO1+oivjszA==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-8bPEYj6MBQdC1DkbMWaW90azA2O3pj8aGGkuUNg5FX6PAGRbaU/Lx4rMbptp8U6XDPD5pGdkKv6dFj1I7tegFw==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
       '@types/mkdirp': 1.0.2
       autorest: 3.3.2
       mkdirp: 1.0.4
+      rimraf: 3.0.2
+      typescript: 4.9.3
     dev: false
 
   file:projects/spec.tgz:
@@ -15554,7 +15556,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.0.25:
-    resolution: {integrity: sha512-3GsmNKLHFMiEtrHwU5lN7UnZSRtZ9f3eFS2/qq9ERMRhDdTiTX6ywOb9iLyVboSSenPIQ6vw7dzrqS/Ti0eDaQ==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-v3JJXhRMQKElZdo3gNMDqnmcnPYQRq2u4f8xTqlvHnOn//tyqQhW1STh2J3SW01Af2sc/ab0ZZoAlo6ResqbjA==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0
