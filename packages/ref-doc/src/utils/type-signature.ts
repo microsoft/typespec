@@ -5,9 +5,11 @@ import {
   FunctionParameter,
   FunctionType,
   getTypeName,
+  Interface,
   Model,
   ModelProperty,
   Operation,
+  TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
 } from "@cadl-lang/compiler";
@@ -21,10 +23,11 @@ export function getTypeSignature(type: Type): string {
     case "Scalar":
     case "Enum":
     case "Union":
-    case "Interface":
     case "Model":
     case "Namespace":
       return `${type.kind.toLowerCase()} ${getTypeName(type)}`;
+    case "Interface":
+      return getInterfaceSignature(type);
     case "Decorator":
       return getDecoratorSignature(type);
     case "Function":
@@ -58,7 +61,6 @@ export function getTypeSignature(type: Type): string {
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
-      return "";
   }
 }
 
@@ -83,10 +85,23 @@ function getFunctionSignature(type: FunctionType) {
   return `fn ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
 }
 
+function getInterfaceSignature(type: Interface) {
+  const ns = getQualifier(type.namespace);
+
+  const templateParams = type.node.templateParameters
+    ? getTemplateParameters(type.node.templateParameters)
+    : "";
+  return `interface ${ns}${type.name}${templateParams}`;
+}
+
+function getTemplateParameters(templateParameters: readonly TemplateParameterDeclarationNode[]) {
+  const params = templateParameters.map((x) => `${x.id.sv}`);
+  return `<${params.join(", ")}>`;
+}
 function getOperationSignature(type: Operation) {
-  const ns = getQualifier(type.namespace) || getQualifier(type.interface);
+  const qualifier = getQualifier(type.interface ?? type.namespace);
   const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);
-  return `op ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
+  return `op ${qualifier}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {

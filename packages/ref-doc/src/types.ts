@@ -1,4 +1,4 @@
-import { Decorator, FunctionParameter } from "@cadl-lang/compiler";
+import { Decorator, FunctionParameter, Interface, Operation } from "@cadl-lang/compiler";
 
 export interface CadlRefDoc {
   namespaces: NamespaceRefDoc[];
@@ -7,6 +7,8 @@ export interface CadlRefDoc {
 export interface NamespaceRefDoc {
   fullName: string;
   decorators: DecoratorRefDoc[];
+  operations: OperationRefDoc[];
+  interfaces: InterfaceRefDoc[];
 }
 
 export interface DecoratorRefDoc {
@@ -35,4 +37,47 @@ export interface FunctionParameterRefDoc {
 export interface ExampleRefDoc {
   title?: string;
   content: string;
+}
+
+export interface OperationRefDoc {
+  type: Operation;
+
+  /**
+   * Fully qualified name of operation in format `<namespace>.<sub-namespace>[.interfaceName].<dec-name>`
+   */
+  id: string;
+
+  name: string;
+
+  signature: string;
+
+  templateParameters?: TemplateParameterRefDoc[];
+
+  doc: string;
+
+  examples: ExampleRefDoc[];
+}
+
+export interface InterfaceRefDoc {
+  type: Interface;
+
+  /**
+   * Fully qualified name of operation in format `<namespace>.<sub-namespace>[.interfaceName].<dec-name>`
+   */
+  id: string;
+
+  name: string;
+
+  signature: string;
+
+  templateParameters?: TemplateParameterRefDoc[];
+
+  doc: string;
+
+  examples: ExampleRefDoc[];
+}
+
+export interface TemplateParameterRefDoc {
+  name: string;
+  doc: string;
 }

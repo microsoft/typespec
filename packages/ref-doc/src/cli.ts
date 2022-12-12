@@ -1,5 +1,5 @@
 import { compile, joinPaths, NodeHost, normalizePath } from "@cadl-lang/compiler";
-import { writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { resolve } from "path";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
 import { extractRefDocs } from "./extractor.js";
@@ -34,6 +34,7 @@ async function main() {
   });
   const refDoc = extractRefDocs(program, namespaces);
   const files = renderToDocusaurusMarkdown(refDoc);
+  await mkdir(resolvedOutputDir, { recursive: true });
   for (const [name, content] of Object.entries(files)) {
     writeFile(joinPaths(resolvedOutputDir, name), content);
   }
