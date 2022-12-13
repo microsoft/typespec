@@ -13,7 +13,7 @@ const config = definePlaygroundViteConfig({
   samples: {
     "API versioning": "samples/versioning.cadl",
     "Discriminated unions": "samples/unions.cadl",
-    "Http service": "samples/http.cadl",
+    "HTTP service": "samples/http.cadl",
     "REST framework": "samples/rest.cadl",
   },
   enableSwaggerUI: true,
