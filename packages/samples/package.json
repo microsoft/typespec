@@ -33,7 +33,7 @@
   ],
   "dependencies": {
     "@cadl-lang/versioning": "~0.38.0",
-    "@cadl-lang/compiler": "~0.38.1",
+    "@cadl-lang/compiler": "~0.38.3",
     "@cadl-lang/rest": "~0.38.0",
     "@cadl-lang/openapi": "~0.38.0",
     "@cadl-lang/openapi3": "~0.38.0",
