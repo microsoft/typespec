@@ -16,7 +16,10 @@ npm install @cadl-lang/rest
 
 ## Details
 
-- [Decorators references](./decorators.md)
+- [References](./reference/index.md)
+  - [Decorators](./reference/decorators.md)
+  - [Data types](./reference/data-types.md)
+  - [Interface and operations](./reference/interfaces.md)
 - [Authentication](./authentication.md)
 
 ## Cheat sheet
