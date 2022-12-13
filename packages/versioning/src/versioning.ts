@@ -176,7 +176,7 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
  * @returns version when the given type was added if applicable.
  */
 export function getAddedOn(p: Program, t: Type): Version | undefined {
-  reportDeprecated(p, "Deprecated: getAddedOn is deprecated.", t);
+  reportDeprecated(p, "Deprecated: getAddedOn is deprecated. Use getAddedOnVersions.", t);
   return p.stateMap(addedOnKey).get(t)?.[0];
 }
 
@@ -185,15 +185,15 @@ export function getAddedOn(p: Program, t: Type): Version | undefined {
  * @returns version when the given type was removed if applicable.
  */
 export function getRemovedOn(p: Program, t: Type): Version | undefined {
-  reportDeprecated(p, "Deprecated: getRemovedOn is deprecated.", t);
+  reportDeprecated(p, "Deprecated: getRemovedOn is deprecated. Use getRemovedOnVersions.", t);
   return p.stateMap(removedOnKey).get(t)?.[0];
 }
 
-function getAddedOnVersions(p: Program, t: Type): Version[] | undefined {
+export function getAddedOnVersions(p: Program, t: Type): Version[] | undefined {
   return p.stateMap(addedOnKey).get(t) as Version[];
 }
 
-function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined {
+export function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined {
   return p.stateMap(removedOnKey).get(t) as Version[];
 }
 
