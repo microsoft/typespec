@@ -2,11 +2,13 @@ import prettier from "prettier";
 import {
   CadlRefDoc,
   DecoratorRefDoc,
+  EnumRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
   TemplateParameterRefDoc,
+  UnionRefDoc,
 } from "../types.js";
 import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
 import { getTypeSignature } from "../utils/type-signature.js";
@@ -15,7 +17,9 @@ import { getTypeSignature } from "../utils/type-signature.js";
  * Render doc to a markdown using docusaurus addons.
  */
 export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, string> {
-  const files: Record<string, string> = {};
+  const files: Record<string, string> = {
+    "index.md": renderIndexFile(refDoc),
+  };
 
   const decoratorFile = renderDecoratorFile(refDoc);
   if (decoratorFile) {
@@ -42,6 +46,49 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
     }
   }
   return files;
+}
+
+function renderIndexFile(refDoc: CadlRefDoc): string {
+  const content = [
+    "---",
+    `title: Index`,
+    `sidebar_position: 0`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+  ];
+
+  for (const namespace of refDoc.namespaces) {
+    content.push(headings.h2(namespace.id), "");
+    if (namespace.decorators.length > 0) {
+      content.push(headings.h3("Decorators"), "");
+      for (const decorator of namespace.decorators) {
+        content.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
+      }
+    }
+
+    if (namespace.interfaces.length > 0) {
+      content.push(headings.h3("Interfaces"), "");
+      for (const iface of namespace.interfaces) {
+        content.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
+      }
+    }
+
+    if (namespace.operations.length > 0) {
+      content.push(headings.h3("Operations"), "");
+      for (const operation of namespace.operations) {
+        content.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
+      }
+    }
+
+    if (namespace.models.length > 0) {
+      content.push(headings.h3("Models"), "");
+      for (const model of namespace.models) {
+        content.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
+      }
+    }
+  }
+  return content.join("\n");
 }
 
 function renderDecoratorFile(refDoc: CadlRefDoc): string | undefined {
@@ -209,6 +256,12 @@ function renderDataTypes(refDoc: CadlRefDoc): string | undefined {
       for (const model of namespace.models) {
         content.push(renderModel(model), "");
       }
+      for (const e of namespace.enums) {
+        content.push(renderEnum(e), "");
+      }
+      for (const union of namespace.unions) {
+        content.push(renderUnion(union), "");
+      }
       return content.join("\n");
     })
   );
@@ -227,6 +280,33 @@ function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
 
   if (model.templateParameters) {
     content.push(renderTemplateParametersTable(model.templateParameters, headingLevel + 1));
+  }
+
+  return content.join("\n");
+}
+
+function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
+  const content = [
+    headings.hx(headingLevel, `${inlinecode(e.name)} {#${e.id}}`),
+    "",
+    e.doc,
+    codeblock(e.signature, "cadl"),
+    "",
+  ];
+
+  return content.join("\n");
+}
+function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
+  const content = [
+    headings.hx(headingLevel, `${inlinecode(union.name)} {#${union.id}}`),
+    "",
+    union.doc,
+    codeblock(union.signature, "cadl"),
+    "",
+  ];
+
+  if (union.templateParameters) {
+    content.push(renderTemplateParametersTable(union.templateParameters, headingLevel + 1));
   }
 
   return content.join("\n");

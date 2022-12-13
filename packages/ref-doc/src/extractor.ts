@@ -3,6 +3,7 @@ import {
   Decorator,
   DocContent,
   DocUnknownTagNode,
+  Enum,
   getSourceLocation,
   getTypeName,
   ignoreDiagnostics,
@@ -16,16 +17,19 @@ import {
   SyntaxKind,
   TemplatedType,
   Type,
+  Union,
 } from "@cadl-lang/compiler";
 import {
   CadlRefDoc,
   DecoratorRefDoc,
+  EnumRefDoc,
   ExampleRefDoc,
   FunctionParameterRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  UnionRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
@@ -45,6 +49,8 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       operations: [],
       interfaces: [],
       models: [],
+      enums: [],
+      unions: [],
     };
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
@@ -63,6 +69,14 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
         },
         model(model) {
           namespaceDoc.models.push(extractModelRefDocs(model));
+        },
+        enum(e) {
+          namespaceDoc.enums.push(extractEnumRefDoc(e));
+        },
+        union(union) {
+          if (union.name !== undefined) {
+            namespaceDoc.unions.push(extractUnionRefDocs(union as any));
+          }
         },
       },
       { includeTemplateDeclaration: true, skipSubNamespaces: true }
@@ -142,6 +156,28 @@ function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
 }
 
 function extractModelRefDocs(type: Model): ModelRefDoc {
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
+    templateParameters: extractTemplateParameterDocs(type),
+    doc: extractMainDoc(type),
+    examples: extractExamples(type),
+  };
+}
+
+function extractEnumRefDoc(type: Enum): EnumRefDoc {
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
+    doc: extractMainDoc(type),
+    examples: extractExamples(type),
+  };
+}
+function extractUnionRefDocs(type: Union & { name: string }): UnionRefDoc {
   return {
     id: getNamedTypeId(type),
     name: type.name,
