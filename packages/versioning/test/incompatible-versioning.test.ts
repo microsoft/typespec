@@ -70,7 +70,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("succeed if version are compatible", async () => {
+    it("succeed if versions are compatible in model", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         @removed(Versions.v4)
@@ -83,7 +83,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("succeed if version are compatible in interface", async () => {
+    it("succeed if versions are compatible in interface", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         @removed(Versions.v4)
@@ -150,7 +150,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("succeed if version are compatible", async () => {
+    it("succeed if version are compatible in model", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         @removed(Versions.v4)
@@ -208,7 +208,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when op was removed after return type", async () => {
+    it("emit diagnostic when model property was removed after model itself", async () => {
       const diagnostics = await runner.diagnose(`
         @removed(Versions.v2)
         model Bar {
@@ -280,7 +280,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("emit diagnostic when model property was added before model itself", async () => {
+    it("emit diagnostic when operation was added before interface itself", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v3)
         interface Bar {
@@ -387,7 +387,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("emit diagnostic when using item not available in selected version of library", async () => {
+    it("emit diagnostic when using item that was added in a later version of library", async () => {
       // Here Foo was added in v2 but version 1 was selected.
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
@@ -406,6 +406,28 @@ describe("versioning: validate incompatible references", () => {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
+      });
+    });
+
+    it("emit diagnostic when using item that was removed in an earlier version of library", async () => {
+      // Here Foo was removed in v2 but version 2 was selected.
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace VersionedLib {
+          enum Versions {l1, l2}
+          @removed(Versions.l2)
+          model Foo {}
+        }
+
+        @versionedDependency(VersionedLib.Versions.l2)
+        namespace TestService {
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is l2.",
       });
     });
   });
