@@ -6,7 +6,7 @@ title: Operations
 
 ## Operation verb
 
-You can use one of the [verb decorators](./decorators.md#verb-decorators): `@get`, `@put`, etc.
+You can use one of the [verb decorators](./reference/decorators.md): `@get`, `@put`, etc.
 
 ## Route
 
