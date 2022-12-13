@@ -69,6 +69,9 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
           namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
         },
         model(model) {
+          if (model.name === "") {
+            return;
+          }
           namespaceDoc.models.push(extractModelRefDocs(program, model));
         },
         enum(e) {
