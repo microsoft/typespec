@@ -1,8 +1,8 @@
 import { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
 import {
-  Enum,
   Decorator,
+  Enum,
   Interface,
   ListenerFlow,
   Model,
