@@ -335,7 +335,7 @@ Metadata is determined to be applicable or inapplicable based on the context tha
 
 Additionally metadata that appears in an array element type always inapplicable.
 
-When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload](./decorators.md#includeinapplicablemetadatainpayload) decorator is used and given a value of `false`.
+When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload](./reference/decorators.md#@Cadl.Rest.includeinapplicablemetadatainpayload) decorator is used and given a value of `false`.
 
 The handling of metadata applicability furthers the goal of keeping a single logical model in Cadl. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
 
