@@ -222,6 +222,24 @@ model Cadl.Http.PasswordFlow
 model Cadl.Http.ClientCredentialsFlow
 ```
 
+### `AuthType` {#Cadl.Http.AuthType}
+
+```cadl
+enum Cadl.Http.AuthType
+```
+
+### `ApiKeyLocation` {#Cadl.Http.ApiKeyLocation}
+
+```cadl
+enum Cadl.Http.ApiKeyLocation
+```
+
+### `OAuth2FlowType` {#Cadl.Http.OAuth2FlowType}
+
+```cadl
+enum Cadl.Http.OAuth2FlowType
+```
+
 ## Cadl.Rest.Resource
 
 ### `ResourceError` {#Cadl.Rest.Resource.ResourceError}
