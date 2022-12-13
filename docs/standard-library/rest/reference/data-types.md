@@ -200,11 +200,15 @@ model OAuth2Auth<TFlows>
 
 ### `AuthorizationCodeFlow` {#Cadl.Http.AuthorizationCodeFlow}
 
+Authorization Code flow
+
 ```cadl
 model Cadl.Http.AuthorizationCodeFlow
 ```
 
 ### `ImplicitFlow` {#Cadl.Http.ImplicitFlow}
+
+Implicit flow
 
 ```cadl
 model Cadl.Http.ImplicitFlow
@@ -212,11 +216,15 @@ model Cadl.Http.ImplicitFlow
 
 ### `PasswordFlow` {#Cadl.Http.PasswordFlow}
 
+Resource Owner Password flow
+
 ```cadl
 model Cadl.Http.PasswordFlow
 ```
 
 ### `ClientCredentialsFlow` {#Cadl.Http.ClientCredentialsFlow}
+
+Client credentials flow
 
 ```cadl
 model Cadl.Http.ClientCredentialsFlow
@@ -224,17 +232,23 @@ model Cadl.Http.ClientCredentialsFlow
 
 ### `AuthType` {#Cadl.Http.AuthType}
 
+Authentication type
+
 ```cadl
 enum Cadl.Http.AuthType
 ```
 
 ### `ApiKeyLocation` {#Cadl.Http.ApiKeyLocation}
 
+Describes the location of the API key
+
 ```cadl
 enum Cadl.Http.ApiKeyLocation
 ```
 
 ### `OAuth2FlowType` {#Cadl.Http.OAuth2FlowType}
+
+Describes the OAuth2 flow type
 
 ```cadl
 enum Cadl.Http.OAuth2FlowType
@@ -243,6 +257,8 @@ enum Cadl.Http.OAuth2FlowType
 ## Cadl.Rest.Resource
 
 ### `ResourceError` {#Cadl.Rest.Resource.ResourceError}
+
+The default error response for resource operations.
 
 ```cadl
 model Cadl.Rest.Resource.ResourceError
@@ -333,6 +349,8 @@ model ResourceCreateOrUpdateModel<TResource>
 | TResource |             |
 
 ### `ResourceDeletedResponse` {#Cadl.Rest.Resource.ResourceDeletedResponse}
+
+Resource deleted successfully.
 
 ```cadl
 model Cadl.Rest.Resource.ResourceDeletedResponse

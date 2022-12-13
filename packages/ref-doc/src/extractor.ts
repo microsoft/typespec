@@ -4,6 +4,7 @@ import {
   DocContent,
   DocUnknownTagNode,
   Enum,
+  getDoc,
   getSourceLocation,
   getTypeName,
   ignoreDiagnostics,
@@ -61,21 +62,21 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
         },
         operation(operation) {
           if (operation.interface === undefined) {
-            namespaceDoc.operations.push(extractOperationRefDoc(operation));
+            namespaceDoc.operations.push(extractOperationRefDoc(program, operation));
           }
         },
         interface(iface) {
-          namespaceDoc.interfaces.push(extractInterfaceRefDocs(iface));
+          namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
         },
         model(model) {
-          namespaceDoc.models.push(extractModelRefDocs(model));
+          namespaceDoc.models.push(extractModelRefDocs(program, model));
         },
         enum(e) {
-          namespaceDoc.enums.push(extractEnumRefDoc(e));
+          namespaceDoc.enums.push(extractEnumRefDoc(program, e));
         },
         union(union) {
           if (union.name !== undefined) {
-            namespaceDoc.unions.push(extractUnionRefDocs(union as any));
+            namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
           }
         },
       },
@@ -98,26 +99,26 @@ function extractTemplateParameterDocs(type: TemplatedType) {
   }
 }
 
-function extractInterfaceRefDocs(iface: Interface): InterfaceRefDoc {
+function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceRefDoc {
   return {
     id: getNamedTypeId(iface),
     name: iface.name,
     signature: getTypeSignature(iface),
     type: iface,
     templateParameters: extractTemplateParameterDocs(iface),
-    doc: extractMainDoc(iface),
+    doc: extractMainDoc(program, iface),
     examples: extractExamples(iface),
   };
 }
 
-function extractOperationRefDoc(operation: Operation): OperationRefDoc {
+function extractOperationRefDoc(program: Program, operation: Operation): OperationRefDoc {
   return {
     id: getNamedTypeId(operation),
     name: operation.name,
     signature: getTypeSignature(operation),
     type: operation,
     templateParameters: extractTemplateParameterDocs(operation),
-    doc: extractMainDoc(operation),
+    doc: extractMainDoc(program, operation),
     examples: extractExamples(operation),
   };
 }
@@ -155,48 +156,48 @@ function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
   };
 }
 
-function extractModelRefDocs(type: Model): ModelRefDoc {
+function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
   return {
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(type),
-    doc: extractMainDoc(type),
+    doc: extractMainDoc(program, type),
     examples: extractExamples(type),
   };
 }
 
-function extractEnumRefDoc(type: Enum): EnumRefDoc {
+function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
   return {
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
     type,
-    doc: extractMainDoc(type),
+    doc: extractMainDoc(program, type),
     examples: extractExamples(type),
   };
 }
-function extractUnionRefDocs(type: Union & { name: string }): UnionRefDoc {
+function extractUnionRefDocs(program: Program, type: Union & { name: string }): UnionRefDoc {
   return {
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(type),
-    doc: extractMainDoc(type),
+    doc: extractMainDoc(program, type),
     examples: extractExamples(type),
   };
 }
 
-function extractMainDoc(type: Type): string {
+function extractMainDoc(program: Program, type: Type): string {
   let mainDoc: string = "";
   for (const doc of type.node?.docs ?? []) {
     for (const dContent of doc.content) {
       mainDoc += dContent.text + "\n";
     }
   }
-  return mainDoc;
+  return mainDoc !== "" ? mainDoc : getDoc(program, type) ?? "";
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {
