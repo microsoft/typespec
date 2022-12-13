@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Added `getAddedOnVersions` and `getRemovedOnVersions` helper methods.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
