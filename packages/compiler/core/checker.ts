@@ -247,6 +247,10 @@ export function createChecker(program: Program): Checker {
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
+  const referenceSymCache = new WeakMap<
+    TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    Sym | undefined
+  >();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -1884,6 +1888,19 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     resolveDecorator = false
   ): Sym | undefined {
+    if (mapper === undefined && referenceSymCache.has(node)) {
+      return referenceSymCache.get(node);
+    }
+    const sym = resolveTypeReferenceSymInternal(node, mapper, resolveDecorator);
+    referenceSymCache.set(node, sym);
+    return sym;
+  }
+
+  function resolveTypeReferenceSymInternal(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+    resolveDecorator = false
+  ): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -1987,8 +2004,7 @@ export function createChecker(program: Program): Checker {
       const sym = resolveIdentifierInScope(node, mapper, resolveDecorator);
       if (!sym) return undefined;
 
-      const result = sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
-      return result;
+      return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
     }
 
     compilerAssert(false, "Unknown type reference kind", node);

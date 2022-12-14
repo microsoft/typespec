@@ -241,7 +241,7 @@ describe("compiler: using statements", () => {
     ]);
   });
 
-  it.only("ambiguous use doesn't affect other files", async () => {
+  it("ambiguous use doesn't affect other files", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `

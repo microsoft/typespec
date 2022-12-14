@@ -21,6 +21,7 @@ describe("compiler: semantic checks on source with parse errors", () => {
       { message: /'}' expected/ },
       { message: /Unknown identifier Q/ },
       { message: /Unknown identifier B/ },
+      { message: /Unknown identifier C/ },
       { message: /Model already has a property named a/ },
     ]);
   });
