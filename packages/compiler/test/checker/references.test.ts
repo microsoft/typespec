@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { Enum, Model, Operation, UnionVariant } from "../../core/types.js";
+import { Enum, Interface, Model, Operation, UnionVariant } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: references", () => {
@@ -254,6 +254,40 @@ describe("compiler: references", () => {
 
       strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
     });
+
+    it("can reference another model property defined before", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      @test model Foo {
+        a: string;
+        b: Foo.a;
+      }
+      `
+      );
+
+      const { Foo } = (await testHost.compile("./main.cadl")) as {
+        Foo: Model;
+      };
+      strictEqual(Foo.properties.get("b")!.type, Foo.properties.get("a"));
+    });
+
+    it("can reference another model property defined after", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      @test model Foo {
+        a: Foo.b;
+        b: string;
+      }
+      `
+      );
+
+      const { Foo } = (await testHost.compile("./main.cadl")) as {
+        Foo: Model;
+      };
+      strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
+    });
   });
   describe("enum members", () => {
     it("can reference enum members", async () => {
@@ -473,6 +507,54 @@ describe("compiler: references", () => {
       };
 
       strictEqual(operation, Bar.properties.get("prop")!.type);
+    });
+
+    describe("reference other members", () => {
+      let linkedValue: Operation | undefined;
+      beforeEach(() => {
+        testHost.addJsFile("./test-link.js", {
+          $testLink: (_: any, t: any, value: Operation) => {
+            linkedValue;
+          },
+        });
+      });
+      it("defined before", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+        import "./test-link.js";
+        @test interface Foo {
+          one(): void;
+          @testLink(Foo.one)
+          two(): void;
+        }
+      `
+        );
+
+        const { Foo } = (await testHost.compile("./main.cadl")) as {
+          Foo: Interface;
+        };
+        strictEqual(linkedValue, Foo.operations.get("a"));
+      });
+
+      it("defined after", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+        import "./test-link.js";
+        @test interface Foo {
+          @testLink(Foo.two) // <- No issues here!
+          one(): void;
+          two(): void;
+        }
+      `
+        );
+
+        const { Foo } = (await testHost.compile("./main.cadl")) as {
+          Foo: Interface;
+        };
+        strictEqual(linkedValue, Foo.operations.get("a"));
+      });
     });
   });
 
