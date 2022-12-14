@@ -10,6 +10,8 @@ toc_max_heading_level: 3
 
 ### `@operationId` {#@OpenAPI.operationId}
 
+Specify the OpenAPI `operationId` property for this operation.
+
 ```cadl
 dec OpenAPI.operationId(target: Cadl.Reflection.Operation, operationId: Cadl.string)
 ```
@@ -25,6 +27,8 @@ dec OpenAPI.operationId(target: Cadl.Reflection.Operation, operationId: Cadl.str
 | operationId | `scalar Cadl.string` | Operation id value. |
 
 ### `@extension` {#@OpenAPI.extension}
+
+Attach some custom data to the OpenAPI element generated from this type.
 
 ```cadl
 dec OpenAPI.extension(target: unknown, key: Cadl.string, value: unknown)
@@ -42,6 +46,9 @@ dec OpenAPI.extension(target: unknown, key: Cadl.string, value: unknown)
 | value | `(intrinsic) unknown` | Extension value.                    |
 
 ### `@defaultResponse` {#@OpenAPI.defaultResponse}
+
+Specify that this model is to be treated as the OpenAPI `default` response.
+This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
 
 ```cadl
 dec OpenAPI.defaultResponse(target: Cadl.object)
@@ -66,6 +73,8 @@ op listPets(): Pet[] | PetStoreResponse;
 ```
 
 ### `@externalDocs` {#@OpenAPI.externalDocs}
+
+Specify the OpenAPI `externalDocs` property for this type.
 
 ```cadl
 dec OpenAPI.externalDocs(target: unknown, url: Cadl.string, description?: Cadl.string)

@@ -10,6 +10,8 @@ toc_max_heading_level: 3
 
 ### `@statusCode` {#@Cadl.Http.statusCode}
 
+Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
+
 ```cadl
 dec Cadl.Http.statusCode(target: Cadl.Reflection.ModelProperty)
 ```
@@ -31,6 +33,8 @@ op create(): {@statusCode: 201 | 202}
 ```
 
 ### `@body` {#@Cadl.Http.body}
+
+Explicitly specify that this property is to be set as the body
 
 ```cadl
 dec Cadl.Http.body(target: Cadl.Reflection.ModelProperty)
@@ -54,6 +58,8 @@ op download(): {@body image: bytes};
 
 ### `@header` {#@Cadl.Http.header}
 
+Specify this property is to be sent or received as an http header.
+
 ```cadl
 dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerName?: Cadl.string)
 ```
@@ -69,6 +75,8 @@ dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerName?: Cadl.st
 | headerName | `scalar Cadl.string` | Optional name of the header when sent over http. |
 
 ### `@query` {#@Cadl.Http.query}
+
+Specify this property is to be sent as a query parameter.
 
 ```cadl
 dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryKey?: Cadl.string)
@@ -86,6 +94,8 @@ dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryKey?: Cadl.strin
 
 ### `@path` {#@Cadl.Http.path}
 
+Explicitly specify that this property is to be interpolated as a path parameter.
+
 ```cadl
 dec Cadl.Http.path(target: Cadl.Reflection.ModelProperty, paramName?: Cadl.string)
 ```
@@ -101,6 +111,8 @@ dec Cadl.Http.path(target: Cadl.Reflection.ModelProperty, paramName?: Cadl.strin
 | paramName | `scalar Cadl.string` | Optional name of the parmaeter in the url template. |
 
 ### `@get` {#@Cadl.Http.get}
+
+Specify the http verb for the target operation to be `GET`.
 
 ```cadl
 dec Cadl.Http.get(target: Cadl.Reflection.Operation)
@@ -123,6 +135,8 @@ dec Cadl.Http.get(target: Cadl.Reflection.Operation)
 
 ### `@put` {#@Cadl.Http.put}
 
+Specify the http verb for the target operation to be `PUT`.
+
 ```cadl
 dec Cadl.Http.put(target: Cadl.Reflection.Operation)
 ```
@@ -143,6 +157,8 @@ dec Cadl.Http.put(target: Cadl.Reflection.Operation)
 ```
 
 ### `@post` {#@Cadl.Http.post}
+
+Specify the http verb for the target operation to be `POST`.
 
 ```cadl
 dec Cadl.Http.post(target: Cadl.Reflection.Operation)
@@ -165,6 +181,8 @@ dec Cadl.Http.post(target: Cadl.Reflection.Operation)
 
 ### `@patch` {#@Cadl.Http.patch}
 
+Specify the http verb for the target operation to be `PATCH`.
+
 ```cadl
 dec Cadl.Http.patch(target: Cadl.Reflection.Operation)
 ```
@@ -185,6 +203,8 @@ dec Cadl.Http.patch(target: Cadl.Reflection.Operation)
 ```
 
 ### `@delete` {#@Cadl.Http.delete}
+
+Specify the http verb for the target operation to be `DELETE`.
 
 ```cadl
 dec Cadl.Http.delete(target: Cadl.Reflection.Operation)
@@ -207,6 +227,8 @@ dec Cadl.Http.delete(target: Cadl.Reflection.Operation)
 
 ### `@head` {#@Cadl.Http.head}
 
+Specify the http verb for the target operation to be `HEAD`.
+
 ```cadl
 dec Cadl.Http.head(target: Cadl.Reflection.Operation)
 ```
@@ -228,6 +250,8 @@ dec Cadl.Http.head(target: Cadl.Reflection.Operation)
 
 ### `@server` {#@Cadl.Http.server}
 
+Specify the endpoint for this service.
+
 ```cadl
 dec Cadl.Http.server(target: Cadl.Reflection.Namespace, url: Cadl.string, description: Cadl.string, parameters?: Cadl.object)
 ```
@@ -246,6 +270,8 @@ dec Cadl.Http.server(target: Cadl.Reflection.Namespace, url: Cadl.string, descri
 
 ### `@useAuth` {#@Cadl.Http.useAuth}
 
+Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/cadl/standard-library/rest/authentication] for full details.
+
 ```cadl
 dec Cadl.Http.useAuth(target: Cadl.Reflection.Namespace, auth: Cadl.object | Cadl.Reflection.Union | Cadl.object[])
 ```
@@ -261,6 +287,8 @@ dec Cadl.Http.useAuth(target: Cadl.Reflection.Namespace, auth: Cadl.object | Cad
 | auth | `union Cadl.object | Cadl.Reflection.Union | Cadl.object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
 ### `@includeInapplicableMetadataInPayload` {#@Cadl.Http.includeInapplicableMetadataInPayload}
+
+Specify if inapplicable metadata should be included in the payload for the given entity.
 
 ```cadl
 dec Cadl.Http.includeInapplicableMetadataInPayload(target: unknown, value: Cadl.boolean)
@@ -279,6 +307,8 @@ dec Cadl.Http.includeInapplicableMetadataInPayload(target: unknown, value: Cadl.
 ## Cadl.Rest
 
 ### `@autoRoute` {#@Cadl.Rest.autoRoute}
+
+This namespace, interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
 
 ```cadl
 dec Cadl.Rest.autoRoute(target: Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Reflection.Operation)
@@ -304,6 +334,8 @@ get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
 
 ### `@segment` {#@Cadl.Rest.segment}
 
+Defines the preceding path segment for a
+
 ```cadl
 dec Cadl.Rest.segment(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation, name: Cadl.string)
 ```
@@ -320,6 +352,8 @@ dec Cadl.Rest.segment(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl
 
 ### `@segmentOf` {#@Cadl.Rest.segmentOf}
 
+Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
+
 ```cadl
 dec Cadl.Rest.segmentOf(target: Cadl.Reflection.Operation, type: Cadl.object)
 ```
@@ -335,6 +369,8 @@ dec Cadl.Rest.segmentOf(target: Cadl.Reflection.Operation, type: Cadl.object)
 | type | `model Cadl.object` |             |
 
 ### `@actionSeparator` {#@Cadl.Rest.actionSeparator}
+
+Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```cadl
 dec Cadl.Rest.actionSeparator(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation, seperator: / | : | /:)
@@ -368,6 +404,8 @@ dec Cadl.Rest.segmentSeparator(target: Cadl.object | Cadl.Reflection.ModelProper
 
 ### `@resource` {#@Cadl.Rest.resource}
 
+Mark this model as a resource type with a name.
+
 ```cadl
 dec Cadl.Rest.resource(target: Cadl.object, collectionName: Cadl.string)
 ```
@@ -383,6 +421,8 @@ dec Cadl.Rest.resource(target: Cadl.object, collectionName: Cadl.string)
 | collectionName | `scalar Cadl.string` | type's collection name |
 
 ### `@readsResource` {#@Cadl.Rest.readsResource}
+
+Specify that this is a Read operation for a given resource.
 
 ```cadl
 dec Cadl.Rest.readsResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
@@ -400,6 +440,8 @@ dec Cadl.Rest.readsResource(target: Cadl.Reflection.Operation, resourceType: Cad
 
 ### `@createsResource` {#@Cadl.Rest.createsResource}
 
+Specify that this is a Create operation for a given resource.
+
 ```cadl
 dec Cadl.Rest.createsResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
@@ -415,6 +457,8 @@ dec Cadl.Rest.createsResource(target: Cadl.Reflection.Operation, resourceType: C
 | resourceType | `model Cadl.object` |             |
 
 ### `@createsOrReplacesResource` {#@Cadl.Rest.createsOrReplacesResource}
+
+Specify that this is a CreateOrReplace operation for a given resource.
 
 ```cadl
 dec Cadl.Rest.createsOrReplacesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
@@ -432,6 +476,8 @@ dec Cadl.Rest.createsOrReplacesResource(target: Cadl.Reflection.Operation, resou
 
 ### `@createsOrUpdatesResource` {#@Cadl.Rest.createsOrUpdatesResource}
 
+Specify that this is a CreatesOrUpdate operation for a given resource.
+
 ```cadl
 dec Cadl.Rest.createsOrUpdatesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
@@ -447,6 +493,8 @@ dec Cadl.Rest.createsOrUpdatesResource(target: Cadl.Reflection.Operation, resour
 | resourceType | `model Cadl.object` |             |
 
 ### `@updatesResource` {#@Cadl.Rest.updatesResource}
+
+Specify that this is a Update operation for a given resource.
 
 ```cadl
 dec Cadl.Rest.updatesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
@@ -464,6 +512,8 @@ dec Cadl.Rest.updatesResource(target: Cadl.Reflection.Operation, resourceType: C
 
 ### `@deletesResource` {#@Cadl.Rest.deletesResource}
 
+Specify that this is a Delete operation for a given resource.
+
 ```cadl
 dec Cadl.Rest.deletesResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
 ```
@@ -479,6 +529,8 @@ dec Cadl.Rest.deletesResource(target: Cadl.Reflection.Operation, resourceType: C
 | resourceType | `model Cadl.object` |             |
 
 ### `@listsResource` {#@Cadl.Rest.listsResource}
+
+Specify that this is a List operation for a given resource.
 
 ```cadl
 dec Cadl.Rest.listsResource(target: Cadl.Reflection.Operation, resourceType: Cadl.object)
@@ -496,6 +548,8 @@ dec Cadl.Rest.listsResource(target: Cadl.Reflection.Operation, resourceType: Cad
 
 ### `@action` {#@Cadl.Rest.action}
 
+Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
+
 ```cadl
 dec Cadl.Rest.action(target: Cadl.Reflection.Operation, name?: Cadl.string)
 ```
@@ -511,6 +565,8 @@ dec Cadl.Rest.action(target: Cadl.Reflection.Operation, name?: Cadl.string)
 | name | `scalar Cadl.string` |             |
 
 ### `@collectionAction` {#@Cadl.Rest.collectionAction}
+
+Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
 
 ```cadl
 dec Cadl.Rest.collectionAction(target: Cadl.Reflection.Operation, resourceType: Cadl.object, name?: Cadl.string)
