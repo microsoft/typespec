@@ -144,7 +144,7 @@ describe("compiler: versioning", () => {
         @renamedFrom(Versions.v2, "Foo")
         @renamedFrom(Versions.v3, "Bar")
         @renamedFrom(Versions.v5, "Baz")
-        model Buz {
+        model Test {
           name: string,
         }`
       );
@@ -152,7 +152,7 @@ describe("compiler: versioning", () => {
       strictEqual((v2 as Model).name, "Bar");
       strictEqual((v3 as Model).name, "Baz");
       strictEqual((v4 as Model).name, "Baz");
-      strictEqual((v5 as Model).name, "Buz");
+      strictEqual((v5 as Model).name, "Test");
     });
 
     it("can be added/removed multiple times", async () => {
