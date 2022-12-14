@@ -34,7 +34,8 @@ jobs:
               --destination \$web \
               --account-name "cadlplayground" \
               --destination-path $(CADL_WEBSITE_BASE_PATH) \
-              --source "./packages/playground/dist/"
+              --source "./packages/playground/dist/" \
+              --overwrite
 
       - task: AzureCLI@1
         displayName: "Publish website to PR endpoint"
@@ -46,7 +47,8 @@ jobs:
               --destination \$web \
               --account-name "cadlwebsite" \
               --destination-path $(CADL_WEBSITE_BASE_PATH) \
-              --source "./packages/website/build/"
+              --source "./packages/website/build/" \
+              --overwrite
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented
