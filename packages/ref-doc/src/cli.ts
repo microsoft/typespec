@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { normalizePath } from "@cadl-lang/compiler";
 import { resolve } from "path";
 import { generateDocs } from "./index.js";
@@ -27,5 +28,5 @@ async function main() {
     resolvedOutputDir,
   });
 
-  generateDocs(main, namespaces, resolvedOutputDir);
+  await generateDocs(main, namespaces, resolvedOutputDir);
 }

@@ -58,7 +58,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       namespace,
       {
         decorator(dec) {
-          namespaceDoc.decorators.push(extractDecoratorRefDoc(dec));
+          namespaceDoc.decorators.push(extractDecoratorRefDoc(program, dec));
         },
         operation(operation) {
           if (operation.interface === undefined) {
@@ -126,8 +126,7 @@ function extractOperationRefDoc(program: Program, operation: Operation): Operati
   };
 }
 
-function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
-  let mainDoc: string = "";
+function extractDecoratorRefDoc(program: Program, decorator: Decorator): DecoratorRefDoc {
   const paramDoc = getParmeterDocs(decorator);
   const parameters: FunctionParameterRefDoc[] = decorator.parameters.map((x) => {
     return {
@@ -145,7 +144,7 @@ function extractDecoratorRefDoc(decorator: Decorator): DecoratorRefDoc {
     name: decorator.name,
     type: decorator,
     signature: getTypeSignature(decorator),
-    doc: mainDoc,
+    doc: extractMainDoc(program, decorator),
     parameters,
     examples,
     otherTags: [],

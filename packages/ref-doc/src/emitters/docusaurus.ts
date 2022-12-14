@@ -42,6 +42,7 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
         parser: "markdown",
       });
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(`Cannot format with prettier ${file}`);
     }
   }
