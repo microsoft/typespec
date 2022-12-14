@@ -1,11 +1,11 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
 @service({
   title: "Widget Service",
   version: "1.0.0",
 })
 namespace DemoService;
-using Cadl.Http;
 
 model Widget {
   @visibility("read", "update")
