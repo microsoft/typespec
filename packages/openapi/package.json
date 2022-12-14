@@ -53,13 +53,21 @@
   ],
   "peerDependencies": {
     "@cadl-lang/compiler": "~0.38.3",
+<<<<<<< HEAD
     "@cadl-lang/rest": "~0.38.1"
+=======
+    "@cadl-lang/rest": "~0.38.0"
+>>>>>>> c90d5a51293cfb7e382609a45864c1d6ae8fceea
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@cadl-lang/compiler": "~0.38.3",
+<<<<<<< HEAD
     "@cadl-lang/rest": "~0.38.1",
+=======
+    "@cadl-lang/rest": "~0.38.0",
+>>>>>>> c90d5a51293cfb7e382609a45864c1d6ae8fceea
     "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@cadl-lang/library-linter": "~0.38.0",
     "@cadl-lang/eslint-plugin": "~0.38.0",

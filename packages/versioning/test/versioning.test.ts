@@ -199,24 +199,26 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can rename properties multiple times", async () => {
+    it("can add/remove properties multiple times", async () => {
       const {
         source,
-        projections: [v1, v2, v3, v4, v5],
+        projections: [v1, v2, v3, v4, v5, v6],
       } = await versionedModel(
-        ["v1", "v2", "v3", "v4", "v5"],
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
         `model Test {
-          @renamedFrom(Versions.v2, "a")
-          @renamedFrom(Versions.v3, "b")
-          @renamedFrom(Versions.v5, "c")
-          d: int32;
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)
+          val: int32;
         }`
       );
-      assertHasProperties(v1, ["a"]);
-      assertHasProperties(v2, ["b"]);
-      assertHasProperties(v3, ["c"]);
-      assertHasProperties(v4, ["c"]);
-      assertHasProperties(v5, ["d"]);
+      assertHasProperties(v1, []);
+      assertHasProperties(v2, ["val"]);
+      assertHasProperties(v3, []);
+      assertHasProperties(v4, []);
+      assertHasProperties(v5, ["val"]);
+      assertHasProperties(v6, []);
 
       assertModelProjectsTo(
         [
@@ -225,6 +227,7 @@ describe("compiler: versioning", () => {
           [v3, "v3"],
           [v4, "v4"],
           [v5, "v5"],
+          [v6, "v6"],
         ],
         source
       );
