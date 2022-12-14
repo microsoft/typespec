@@ -608,6 +608,27 @@ describe("compiler: versioning", () => {
       assertHasProperties(v2.parameters, ["a"]);
     });
 
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(["v1", "v2"], `op Test(@removed(Versions.v2) a: string): void;`);
+
+      assertHasProperties(v1.parameters, ["a"]);
+      assertHasProperties(v2.parameters, []);
+    });
+
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `op Test(@renamedFrom(Versions.v2, "a") b: string): void;`
+      );
+
+      assertHasProperties(v1.parameters, ["a"]);
+      assertHasProperties(v2.parameters, ["b"]);
+    });
+
     async function versionedOperation(versions: string[], operation: string) {
       const { Test } = (await runner.compile(`
         @versioned(Versions)
@@ -646,7 +667,43 @@ describe("compiler: versioning", () => {
       assertHasVariants(v2.returnType as Union, ["a", "b"]);
     });
 
-    it("can change return types", async () => {
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          a: string;
+          @removed(Versions.v2) b: int32;
+        }
+        `
+      );
+
+      assertHasVariants(v1.returnType as Union, ["a", "b"]);
+      assertHasVariants(v2.returnType as Union, ["a"]);
+    });
+
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          a: string;
+          @renamedFrom(Versions.v2, "b") c: int32;
+        }
+        `
+      );
+
+      assertHasVariants(v1.returnType as Union, ["a", "b"]);
+      assertHasVariants(v2.returnType as Union, ["a", "c"]);
+    });
+
+    it("can be changed", async () => {
       const {
         projections: [v1, v2, v3],
       } = await versionedOperation(
@@ -796,12 +853,12 @@ describe("compiler: versioning", () => {
       } = await versionedInterface(
         ["v1", "v2"],
         `interface Test {
-          @renamedFrom(Versions.v2, "bar") foo(): void;
-        }`
+        @renamedFrom(Versions.v2, "foo") bar(): void;
+      }`
       );
 
-      assertHasOperations(v1, ["bar"]);
-      assertHasOperations(v2, ["foo"]);
+      assertHasOperations(v1, ["foo"]);
+      assertHasOperations(v2, ["bar"]);
       assertInterfaceProjectsTo(
         [
           [v1, "v1"],
@@ -877,6 +934,34 @@ describe("compiler: versioning", () => {
 
       assertHasProperties(v1.operations.get("foo")!.parameters, []);
       assertHasProperties(v2.operations.get("foo")!.parameters, ["a"]);
+    });
+
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface(
+        ["v1", "v2"],
+        `interface Test {
+        op foo(@removed(Versions.v2) a: string): void;
+      }`
+      );
+
+      assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v2.operations.get("foo")!.parameters, []);
+    });
+
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface(
+        ["v1", "v2"],
+        `interface Test {
+          op foo(@renamedFrom(Versions.v2, "a") b: string): void;
+        }`
+      );
+
+      assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v2.operations.get("foo")!.parameters, ["b"]);
     });
 
     async function versionedInterface(versions: string[], iface: string) {
