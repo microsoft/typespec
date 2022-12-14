@@ -459,6 +459,14 @@ export function createChecker(program: Program): Checker {
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
+        } else if (ref.flags & SymbolFlags.LateBound) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "augment-decorator-target",
+              messageId: "noInstance",
+              target: decNode.target,
+            })
+          );
         } else {
           let list = augmentDecoratorsForSym.get(ref);
           if (list === undefined) {
@@ -536,6 +544,8 @@ export function createChecker(program: Program): Checker {
         return checkAlias(node, mapper);
       case SyntaxKind.EnumStatement:
         return checkEnum(node, mapper);
+      case SyntaxKind.EnumMember:
+        return checkEnumMember(node, mapper);
       case SyntaxKind.InterfaceStatement:
         return checkInterface(node, mapper);
       case SyntaxKind.UnionStatement:
@@ -1636,7 +1646,7 @@ export function createChecker(program: Program): Checker {
 
     switch (kind) {
       case IdentifierKind.Declaration:
-        if (node.symbol && (!("templateParameters" in node) || mapper === undefined)) {
+        if (node.symbol && (!isTemplatedNode(node) || mapper === undefined)) {
           sym = getMergedSymbol(node.symbol);
           break;
         }
@@ -1714,6 +1724,11 @@ export function createChecker(program: Program): Checker {
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
           base = getAliasedSymbol(base, undefined);
+        }
+        if (isTemplatedNode(base.declarations[0])) {
+          const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
+          lateBindMemberContainer(type);
+          lateBindMembers(type, base);
         }
         addCompletions(base.exports ?? base.members);
       }
@@ -1929,7 +1944,7 @@ export function createChecker(program: Program): Checker {
 
         return undefined;
       } else if (base.flags & SymbolFlags.MemberContainer) {
-        if ("templateParameters" in base.declarations[0]) {
+        if (isTemplatedNode(base.declarations[0])) {
           const type =
             base.flags & SymbolFlags.LateBound
               ? base.type!
@@ -1973,11 +1988,6 @@ export function createChecker(program: Program): Checker {
       if (!sym) return undefined;
 
       const result = sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
-
-      // TODO-TIM remove?
-      if (result !== undefined && result.flags & SymbolFlags.MemberContainer) {
-        bindMembers(result.declarations[0], result);
-      }
       return result;
     }
 
@@ -2306,11 +2316,6 @@ export function createChecker(program: Program): Checker {
 
   function bindMembers(node: Node, containerSym: Sym) {
     let containerMembers: Mutable<SymbolTable>;
-    // if (containerSym.flags & SymbolFlags.LateBound) {
-    //   return;
-    // }
-
-    // mutate(containerSym).flags |= SymbolFlags.LateBound;
 
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
@@ -2351,6 +2356,9 @@ export function createChecker(program: Program): Checker {
         }
         break;
     }
+
+    // TODO: PR check if we prefer this alternative to dup
+    // program.reportDuplicateSymbols(getOrCreateAugmentedSymbolTable(containerSym.members!));
 
     function resolveAndCopyMembers(node: TypeReferenceNode) {
       let ref = resolveTypeReferenceSym(node, undefined);
@@ -2568,6 +2576,7 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "is-model", messageId: "modelExpression", target: isExpr })
       );
+      return undefined;
     }
 
     return isType;
@@ -2625,9 +2634,11 @@ export function createChecker(program: Program): Checker {
     );
     const memberSym = getOrCreateAugmentedSymbolTable(containerNode.symbol.members).get(
       member.name
-    )!;
-    const links = getSymbolLinks(memberSym);
-    linkMemberType(links, member, mapper);
+    );
+    if (memberSym) {
+      const links = getSymbolLinks(memberSym);
+      linkMemberType(links, member, mapper);
+    }
   }
 
   function checkModelProperty(
@@ -3009,10 +3020,20 @@ export function createChecker(program: Program): Checker {
 
       for (const member of node.members) {
         if (member.kind === SyntaxKind.EnumMember) {
-          const memberType = checkEnumMember(enumType, member, mapper, memberNames);
-          if (memberType) {
-            enumType.members.set(memberType.name, memberType);
+          const memberType = checkEnumMember(member, mapper);
+          if (memberNames.has(memberType.name)) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "enum-member-duplicate",
+                format: { name: memberType.name },
+                target: node,
+              })
+            );
+            continue;
           }
+          memberNames.add(memberType.name);
+          memberType.enum = enumType;
+          enumType.members.set(memberType.name, memberType);
         } else {
           const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
           for (const memberType of members) {
@@ -3230,35 +3251,20 @@ export function createChecker(program: Program): Checker {
 
   function getMemberSymbolLinks(node: MemberNode): SymbolLinks | undefined {
     const sym = getMemberSymbol(node);
-    return sym ? getSymbolLinks(sym) : undefined;
+    return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym) : undefined) : undefined;
   }
 
-  function checkEnumMember(
-    parentEnum: Enum,
-    node: EnumMemberNode,
-    mapper: TypeMapper | undefined,
-    existingMemberNames: Set<string>
-  ): EnumMember | undefined {
+  function checkEnumMember(node: EnumMemberNode, mapper: TypeMapper | undefined): EnumMember {
     const links = getMemberSymbolLinks(node);
     if (links?.type) {
       return links.type as EnumMember;
     }
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
-    if (existingMemberNames.has(name)) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "enum-member-duplicate",
-          format: { name: name },
-          target: node,
-        })
-      );
-      return;
-    }
-    existingMemberNames.add(name);
+
     const member: EnumMember = createType({
       kind: "EnumMember",
-      enum: parentEnum,
+      enum: undefined!,
       name,
       node,
       value,
@@ -5030,6 +5036,10 @@ function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLi
   type: T
 ): MarshalledValue<T> {
   return type.value as any;
+}
+
+function isTemplatedNode(node: Node): boolean {
+  return "templateParameters" in node && node.templateParameters.length > 0;
 }
 
 /**
