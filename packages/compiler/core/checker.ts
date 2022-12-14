@@ -3036,7 +3036,7 @@ export function createChecker(program: Program): Checker {
 
       for (const member of node.members) {
         if (member.kind === SyntaxKind.EnumMember) {
-          const memberType = checkEnumMember(member, mapper);
+          const memberType = checkEnumMember(member, mapper, enumType);
           if (memberNames.has(memberType.name)) {
             reportCheckerDiagnostic(
               createDiagnostic({
@@ -3048,7 +3048,6 @@ export function createChecker(program: Program): Checker {
             continue;
           }
           memberNames.add(memberType.name);
-          memberType.enum = enumType;
           enumType.members.set(memberType.name, memberType);
         } else {
           const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
@@ -3270,17 +3269,25 @@ export function createChecker(program: Program): Checker {
     return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym) : undefined) : undefined;
   }
 
-  function checkEnumMember(node: EnumMemberNode, mapper: TypeMapper | undefined): EnumMember {
+  function checkEnumMember(
+    node: EnumMemberNode,
+    mapper: TypeMapper | undefined,
+    parentEnum?: Enum
+  ): EnumMember {
+    const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
+    if (parentEnum === undefined) {
+      const resolvedEnum = getTypeForNode(node.parent!, mapper) as Enum;
+      return resolvedEnum.members.get(name)!;
+    }
     const links = getMemberSymbolLinks(node);
     if (links?.type) {
       return links.type as EnumMember;
     }
-    const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
 
     const member: EnumMember = createType({
       kind: "EnumMember",
-      enum: undefined!,
+      enum: parentEnum,
       name,
       node,
       value,

@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { Enum, Model, Operation, UnionVariant } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
@@ -322,7 +322,51 @@ describe("compiler: references", () => {
 
       strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
     });
+
+    it("can reference enum resolved in a namespace decorator", async () => {
+      let taggedValue: Model | undefined;
+      testHost.addJsFile("collect.js", {
+        $collect: (_: any, t: any, value: any) => (taggedValue = value),
+      });
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+          import "./collect.js";
+          @test enum MyEnum { a, b }
+
+          model Template<T extends AorB> {
+            t: T;
+          }
+
+          alias AorB = A | B;
+
+          model A {
+            type: MyEnum.a;
+          }
+
+          model B {
+            type: MyEnum.b;
+          }
+
+          model My {
+            type: MyEnum.b;
+          }
+
+          @collect(Template<My>)
+          namespace Test { }
+      `
+      );
+
+      const { MyEnum } = (await testHost.compile("./main.cadl")) as { MyEnum: Enum };
+
+      ok(taggedValue);
+      const t = taggedValue.properties.get("t")?.type;
+      strictEqual(t?.kind, "Model" as const);
+      strictEqual(t.properties.get("type")?.type.kind, "EnumMember" as const);
+      strictEqual(t.properties.get("type")?.type, MyEnum.members.get("b"));
+    });
   });
+
   describe("union variants", () => {
     it("can reference union variants", async () => {
       testHost.addCadlFile(
