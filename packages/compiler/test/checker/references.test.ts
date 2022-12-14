@@ -103,6 +103,32 @@ describe("compiler: references", () => {
       strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("y"));
     });
 
+    it("can reference spread template properties", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      model B {
+        b: string;
+      }
+
+      @test model Spreadable<T> {
+        a: string;
+        ...T;
+      }
+
+      alias Spread = Spreadable<B>;
+      @test model Foo { b: Spread.b }
+      `
+      );
+
+      const { Foo, Spreadable } = (await testHost.compile("./main.cadl")) as {
+        Foo: Model;
+        Spreadable: Model;
+      };
+
+      strictEqual(Foo.properties.get("b")!.type, Spreadable.properties.get("b"));
+    });
+
     it("can reference model is properties", async () => {
       testHost.addCadlFile(
         "main.cadl",
