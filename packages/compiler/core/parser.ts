@@ -449,6 +449,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ModelKeyword:
           item = parseModelStatement(pos, decorators);
           break;
+        case Token.ScalarKeyword:
+          item = parseScalarStatement(pos, decorators);
+          break;
         case Token.NamespaceKeyword:
           const ns = parseNamespaceStatement(pos, decorators);
 

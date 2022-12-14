@@ -2,6 +2,29 @@
   "name": "@cadl-lang/migrate",
   "entries": [
     {
+      "version": "0.38.1",
+      "tag": "@cadl-lang/migrate_v0.38.1",
+      "date": "Thu, 08 Dec 2022 22:04:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix missing file env header"
+          },
+          {
+            "comment": "Fix issue with end of file getting dropped."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.38.0` to `~0.38.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.38.0` to `~0.38.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.38.0",
       "tag": "@cadl-lang/migrate_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
