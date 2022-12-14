@@ -2,6 +2,18 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.38.1",
+      "tag": "@cadl-lang/rest_v0.38.1",
+      "date": "Wed, 14 Dec 2022 20:34:58 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Broken doc comment causing IDE build to not show errors"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.38.0",
       "tag": "@cadl-lang/rest_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
