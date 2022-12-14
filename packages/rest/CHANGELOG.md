@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Wed, 14 Dec 2022 20:34:58 GMT and should not be manually modified.
+
+## 0.38.1
+Wed, 14 Dec 2022 20:34:58 GMT
+
+### Patches
+
+- Fix: Broken doc comment causing IDE build to not show errors
 
 ## 0.38.0
 Wed, 07 Dec 2022 17:21:52 GMT

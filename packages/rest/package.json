@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/rest",
-  "version": "0.38.0",
+  "version": "0.38.1",
   "author": "Microsoft Corporation",
   "description": "Cadl REST protocol binding",
   "homepage": "https://github.com/Microsoft/cadl",
