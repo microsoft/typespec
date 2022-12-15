@@ -10,13 +10,12 @@ import {
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 import {
+  Availability,
   findVersionedNamespace,
-  getAddedOn,
-  getRemovedOn,
+  getAvailabilityMap,
   getVersionDependencies,
   getVersions,
   Version,
-  VersionMap,
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
@@ -167,6 +166,35 @@ function validateReference(program: Program, source: Type, target: Type) {
   }
 }
 
+function getAvailabilityMapWithParentInfo(
+  program: Program,
+  type: Type
+): Map<string, Availability> | undefined {
+  const base = getAvailabilityMap(program, type);
+
+  // get any parent availability information
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  switch (type.kind) {
+    case "Operation":
+      const parentInterface = type.interface;
+      if (parentInterface) {
+        parentMap = getAvailabilityMap(program, parentInterface);
+      }
+      break;
+    case "ModelProperty":
+      const parentModel = type.model;
+      if (parentModel) {
+        parentMap = getAvailabilityMap(program, parentModel);
+      }
+      break;
+    default:
+      break;
+  }
+  if (!base && !parentMap) return undefined;
+  else if (!base && parentMap) return parentMap;
+  else return base;
+}
+
 /**
  * Validate the target versioning is compatible with the versioning of the source.
  * e.g. The target cannot be added after the source was added.
@@ -179,197 +207,146 @@ function validateTargetVersionCompatible(
   target: Type,
   validateOptions: IncompatibleVersionValidateOptions = {}
 ) {
-  let targetVersionRange = getResolvedVersionRange(program, target);
-  if (targetVersionRange === undefined) {
-    return;
-  }
+  const sourceAvailability = getAvailabilityMapWithParentInfo(program, source);
+  const [sourceNamespace] = getVersions(program, source);
 
-  const sourceVersionRange = getResolvedVersionRange(program, source);
-
-  const [sourceNamespace, sourceVersions] = getVersions(program, source);
-  const [targetNamespace, _targetVersions] = getVersions(program, target);
-  if (sourceNamespace === undefined) {
-    return;
-  }
-  if (targetNamespace === undefined) {
-    return;
-  }
+  let targetAvailability = getAvailabilityMapWithParentInfo(program, target);
+  const [targetNamespace] = getVersions(program, target);
+  if (!targetAvailability || !targetNamespace) return;
 
   if (sourceNamespace !== targetNamespace) {
     const versionMap = getVersionDependencies(program, (source as any).namespace)?.get(
       targetNamespace
     );
-    if (versionMap === undefined) {
-      return;
-    }
-    targetVersionRange = translateVersionRange(
+    if (versionMap === undefined) return;
+
+    targetAvailability = translateAvailability(
       program,
-      targetVersionRange,
+      targetAvailability,
       versionMap,
       source,
       target
     );
-    if (targetVersionRange === undefined) {
+    if (!targetAvailability) {
       return;
     }
   }
 
   if (validateOptions.isTargetADependent) {
-    validateRangeCompatibleForContains(
+    validateAvailabilityForContains(
       program,
-      sourceVersionRange,
-      targetVersionRange,
+      sourceAvailability,
+      targetAvailability,
       source,
       target
     );
   } else {
-    validateRangeCompatibleForRef(
-      program,
-      sourceVersions!,
-      sourceVersionRange,
-      targetVersionRange,
-      source,
-      target
-    );
+    validateAvailabilityForRef(program, sourceAvailability, targetAvailability, source, target);
   }
 }
 
-interface VersionRange {
-  added: Version | undefined;
-  removed: Version | undefined;
-}
-
-interface VersionRangeIndex {
-  added: number | undefined;
-  removed: number | undefined;
-}
-
-function translateVersionRange(
+function translateAvailability(
   program: Program,
-  range: VersionRange,
+  avail: Map<string, Availability>,
   versionMap: Map<Version, Version> | Version,
   source: Type,
   target: Type
-): VersionRange | undefined {
+): Map<string, Availability> | undefined {
   if (!(versionMap instanceof Map)) {
-    const rangeIndex = getVersionRangeIndex(range);
-    const selectedVersionIndex = versionMap.index;
-    if (rangeIndex.added !== undefined && rangeIndex.added > selectedVersionIndex) {
-      reportDiagnostic(program, {
-        code: "incompatible-versioned-reference",
-        messageId: "versionedDependencyAddedAfter",
-        format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
-          dependencyVersion: prettyVersion(versionMap),
-          targetAddedOn: prettyVersion(range.added),
-        },
-        target: source,
-      });
-    }
-    if (rangeIndex.removed !== undefined && rangeIndex.removed < selectedVersionIndex) {
-      reportDiagnostic(program, {
-        code: "incompatible-versioned-reference",
-        messageId: "versionedDependencyRemovedBefore",
-        format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
-          dependencyVersion: prettyVersion(versionMap),
-          targetAddedOn: prettyVersion(range.added),
-        },
-        target: source,
-      });
+    const version = versionMap;
+    if ([Availability.Removed, Availability.Unavailable].includes(avail.get(version.name)!)) {
+      const addedAfter = findAvailabilityAfterVersion(version.name, Availability.Added, avail);
+      const removedBefore = findAvailabilityOnOrBeforeVersion(
+        version.name,
+        Availability.Removed,
+        avail
+      );
+      if (addedAfter) {
+        reportDiagnostic(program, {
+          code: "incompatible-versioned-reference",
+          messageId: "versionedDependencyAddedAfter",
+          format: {
+            sourceName: getTypeName(source),
+            targetName: getTypeName(target),
+            dependencyVersion: prettyVersion(version),
+            targetAddedOn: addedAfter,
+          },
+          target: source,
+        });
+      }
+      if (removedBefore) {
+        reportDiagnostic(program, {
+          code: "incompatible-versioned-reference",
+          messageId: "versionedDependencyRemovedBefore",
+          format: {
+            sourceName: getTypeName(source),
+            targetName: getTypeName(target),
+            dependencyVersion: prettyVersion(version),
+            targetAddedOn: removedBefore,
+          },
+          target: source,
+        });
+      }
     }
     return undefined;
   } else {
-    return {
-      added: range.added ? findVersionMapping(versionMap, range.added) : undefined,
-      removed: range.removed ? findVersionMapping(versionMap, range.removed) : undefined,
-    };
+    const newAvail = new Map<string, Availability>();
+    for (const [key, val] of versionMap) {
+      const isAvail = avail.get(val.name)!;
+      newAvail.set(key.name, isAvail);
+    }
+    return newAvail;
   }
 }
 
-function findVersionMapping(
-  versionMap: Map<Version, Version>,
-  version: Version
-): Version | undefined {
-  return [...versionMap.entries()].find(([k, v]) => v === version)?.[0];
-}
-
-function getVersionRange(program: Program, type: Type): VersionRange | undefined {
-  const addedOn = getAddedOn(program, type);
-  const removedOn = getRemovedOn(program, type);
-
-  if (addedOn === undefined && removedOn === undefined) {
-    return undefined;
+function findAvailabilityAfterVersion(
+  version: string,
+  status: Availability,
+  avail: Map<string, Availability>
+): string | undefined {
+  let search = false;
+  for (const [key, val] of avail) {
+    if (version === key) {
+      search = true;
+      continue;
+    }
+    if (!search) continue;
+    if (val === status) return key;
   }
-  return { added: addedOn, removed: removedOn };
+  return undefined;
 }
 
-/**
- * Resolve the version range when the given type is to be included. This include looking up in the parent interface or model for versioning information.
- * @param program Program
- * @param type Type to resolve the version range from.
- * @returns A version range specifying when this type was added and removed.
- */
-function getResolvedVersionRange(program: Program, type: Type): VersionRange | undefined {
-  const range = getVersionRange(program, type);
-  switch (type.kind) {
-    case "Operation":
-      return mergeRanges(
-        range,
-        type.interface ? getResolvedVersionRange(program, type.interface) : undefined
-      );
-    case "ModelProperty":
-      return mergeRanges(
-        range,
-        type.model ? getResolvedVersionRange(program, type.model) : undefined
-      );
-    default:
-      return range;
+function findAvailabilityOnOrBeforeVersion(
+  version: string,
+  status: Availability,
+  avail: Map<string, Availability>
+): string | undefined {
+  let search = false;
+  for (const [key, val] of avail) {
+    if ([Availability.Added, Availability.Added].includes(val)) {
+      search = true;
+    }
+    if (!search) continue;
+    if (val === status) {
+      return key;
+    }
+    if (key === version) {
+      break;
+    }
   }
+  return undefined;
 }
 
-function mergeRanges(
-  base: VersionRange | undefined,
-  parent: VersionRange | undefined
-): VersionRange | undefined {
-  if (parent === undefined) {
-    return base;
-  }
-  if (base === undefined) {
-    return parent;
-  }
-
-  return {
-    added: base.added ?? parent.added,
-    removed: base.removed ?? parent.removed,
-  };
-}
-
-function getVersionRangeIndex(range: VersionRange): VersionRangeIndex {
-  const added = range.added ? range.added.index : -1;
-  const removed = range.removed ? range.removed.index : -1;
-  return {
-    added: added !== -1 ? added : undefined,
-    removed: removed !== -1 ? removed : undefined,
-  };
-}
-
-function validateRangeCompatibleForRef(
+function validateAvailabilityForRef(
   program: Program,
-  versions: VersionMap,
-  sourceRange: VersionRange | undefined,
-  targetRange: VersionRange,
+  sourceAvail: Map<string, Availability> | undefined,
+  targetAvail: Map<string, Availability>,
   source: Type,
   target: Type
 ) {
-  const targetRangeIndex = getVersionRangeIndex(targetRange);
-  if (sourceRange === undefined) {
-    if (
-      (targetRangeIndex.added && targetRangeIndex.added > 0) ||
-      (targetRangeIndex.removed && targetRangeIndex.removed < versions.size)
-    ) {
+  // if source is unversioned and target is versioned
+  if (sourceAvail === undefined) {
+    if (!isAvailableInAllVersion(targetAvail)) {
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
         messageId: "default",
@@ -382,88 +359,109 @@ function validateRangeCompatibleForRef(
     }
     return;
   }
-  const sourceRangeIndex = getVersionRangeIndex(sourceRange);
 
-  if (
-    targetRangeIndex.added !== undefined &&
-    (sourceRangeIndex.added === undefined || targetRangeIndex.added > sourceRangeIndex.added)
-  ) {
-    reportDiagnostic(program, {
-      code: "incompatible-versioned-reference",
-      messageId: "addedAfter",
-      format: {
-        sourceName: getTypeName(source),
-        targetName: getTypeName(target),
-        sourceAddedOn: prettyVersion(sourceRange.added),
-        targetAddedOn: prettyVersion(targetRange.added),
-      },
-      target: source,
-    });
-  }
-  if (
-    targetRangeIndex.removed !== undefined &&
-    (sourceRangeIndex.removed === undefined || targetRangeIndex.removed < sourceRangeIndex.removed)
-  ) {
-    reportDiagnostic(program, {
-      code: "incompatible-versioned-reference",
-      messageId: "removedBefore",
-      format: {
-        sourceName: getTypeName(source),
-        targetName: getTypeName(target),
-        sourceRemovedOn: prettyVersion(sourceRange.removed),
-        targetRemovedOn: prettyVersion(targetRange.removed),
-      },
-      target: source,
-    });
+  const keySet = new Set([...sourceAvail.keys(), ...targetAvail.keys()]);
+
+  for (const key of keySet) {
+    const sourceVal = sourceAvail.get(key)!;
+    const targetVal = targetAvail.get(key)!;
+    if (
+      [Availability.Added].includes(sourceVal) &&
+      [Availability.Removed, Availability.Unavailable].includes(targetVal)
+    ) {
+      const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, targetAvail);
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "addedAfter",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          sourceAddedOn: key,
+          targetAddedOn: targetAddedOn!,
+        },
+        target: source,
+      });
+    }
+    if (
+      [Availability.Removed].includes(sourceVal) &&
+      [Availability.Unavailable].includes(targetVal)
+    ) {
+      const targetRemovedOn = findAvailabilityOnOrBeforeVersion(
+        key,
+        Availability.Removed,
+        targetAvail
+      );
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "removedBefore",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          sourceRemovedOn: key,
+          targetRemovedOn: targetRemovedOn!,
+        },
+        target: source,
+      });
+    }
   }
 }
 
-function validateRangeCompatibleForContains(
+function validateAvailabilityForContains(
   program: Program,
-  sourceRange: VersionRange | undefined,
-  targetRange: VersionRange,
+  sourceAvail: Map<string, Availability> | undefined,
+  targetAvail: Map<string, Availability>,
   source: Type,
   target: Type
 ) {
-  if (sourceRange === undefined) {
-    return;
-  }
+  if (!sourceAvail) return;
 
-  const sourceRangeIndex = getVersionRangeIndex(sourceRange);
-  const targetRangeIndex = getVersionRangeIndex(targetRange);
+  const keySet = new Set([...sourceAvail.keys(), ...targetAvail.keys()]);
 
-  if (
-    targetRangeIndex.added !== undefined &&
-    (sourceRangeIndex.added === undefined || targetRangeIndex.added < sourceRangeIndex.added)
-  ) {
-    reportDiagnostic(program, {
-      code: "incompatible-versioned-reference",
-      messageId: "dependentAddedAfter",
-      format: {
-        sourceName: getTypeName(source),
-        targetName: getTypeName(target),
-        sourceAddedOn: prettyVersion(sourceRange.added),
-        targetAddedOn: prettyVersion(targetRange.added),
-      },
-      target: target,
-    });
+  for (const key of keySet) {
+    const sourceVal = sourceAvail.get(key)!;
+    const targetVal = targetAvail.get(key)!;
+    if (
+      [Availability.Added].includes(targetVal) &&
+      [Availability.Removed, Availability.Unavailable].includes(sourceVal)
+    ) {
+      const sourceAddedOn = findAvailabilityOnOrBeforeVersion(key, Availability.Added, sourceAvail);
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "dependentAddedAfter",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          sourceAddedOn: sourceAddedOn!,
+          targetAddedOn: key,
+        },
+        target: target,
+      });
+    }
+    if (
+      [Availability.Removed].includes(sourceVal) &&
+      [Availability.Added, Availability.Available].includes(targetVal)
+    ) {
+      const targetRemovedOn = findAvailabilityAfterVersion(key, Availability.Removed, targetAvail);
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "dependentRemovedBefore",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          sourceRemovedOn: key,
+          targetRemovedOn: targetRemovedOn!,
+        },
+        target: target,
+      });
+    }
   }
-  if (
-    targetRangeIndex.removed !== undefined &&
-    (sourceRangeIndex.removed === undefined || targetRangeIndex.removed > sourceRangeIndex.removed)
-  ) {
-    reportDiagnostic(program, {
-      code: "incompatible-versioned-reference",
-      messageId: "dependentRemovedBefore",
-      format: {
-        sourceName: getTypeName(source),
-        targetName: getTypeName(target),
-        sourceRemovedOn: prettyVersion(sourceRange.removed),
-        targetRemovedOn: prettyVersion(targetRange.removed),
-      },
-      target: target,
-    });
+}
+
+function isAvailableInAllVersion(avail: Map<string, Availability>): boolean {
+  for (const val of avail.values()) {
+    if ([Availability.Removed, Availability.Unavailable].includes(val)) return false;
   }
+  return true;
 }
 
 function prettyVersion(version: Version | undefined): string {
