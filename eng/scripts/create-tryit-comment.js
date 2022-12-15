@@ -94,13 +94,14 @@ async function request(method, url, data) {
 
   return new Promise((resolve, reject) => {
     const req = lib.request(params, (res) => {
-      if (res.statusCode < 200 || res.statusCode >= 300) {
+      if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
         return reject(new Error(`Status Code: ${res.statusCode}`));
       }
 
       const data = [];
 
       res.on("data", (chunk) => {
+        console.error("Data", data.toString());
         data.push(chunk);
       });
 
