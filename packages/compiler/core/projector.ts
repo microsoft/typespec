@@ -516,6 +516,7 @@ export function createProjector(
   function projectDecorators(decs: DecoratorApplication[]) {
     const decorators: DecoratorApplication[] = [];
     for (const dec of decs) {
+      let skip = false;
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
         // filter out primitive arguments
@@ -525,10 +526,15 @@ export function createProjector(
         }
 
         const projected = projectType(arg.value);
+        if (isNeverType(projected) && !isNeverType(arg.value)) {
+          skip = true;
+        }
         args.push({ ...arg, value: projected });
       }
 
-      decorators.push({ ...dec, args });
+      if (!skip) {
+        decorators.push({ ...dec, args });
+      }
     }
 
     return decorators;
