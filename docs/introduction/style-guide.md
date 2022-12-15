@@ -153,9 +153,9 @@ alias foo = [1, 2, 3];
 
 <!-- prettier-ignore -->
 ```cadl
-// bad
+//bad
 
-//good
+// good
 ```
 
 - Avoid trailing spaces at the end of lines.
