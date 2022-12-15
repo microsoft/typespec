@@ -62,6 +62,9 @@ steps:
   - script: cd packages/samples && npm run regen-samples
     displayName: Regenerate Samples
 
+  - script: node common/scripts/install-run-rush.js regen-docs
+    displayName: Regenerate Reference Docs
+
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
