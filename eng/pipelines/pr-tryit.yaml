@@ -6,7 +6,7 @@ jobs:
   - job: publish_playground
     displayName: Publish playground
     pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-latest
     variables:
       CADL_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
     steps:
