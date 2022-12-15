@@ -58,6 +58,7 @@ import {
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
+import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import {
@@ -79,6 +80,7 @@ import {
   Token,
 } from "../core/scanner.js";
 import {
+  AugmentDecoratorStatementNode,
   CadlScriptNode,
   CompilerHost,
   DecoratorDeclarationStatementNode,
@@ -770,29 +772,45 @@ export function createServer(host: ServerHost): Server {
         return undefined;
       }
       const type = program.checker.getTypeForNode(decoratorDeclNode);
-      compilerAssert(type.kind === ("Decorator" as const), "Expected type to be a decorator.");
+      compilerAssert(type.kind === "Decorator", "Expected type to be a decorator.");
 
       const parameterDocs = getParameterDocumentation(program, type);
-      const parameters = type.parameters.map((x) => {
-        const info: ParameterInformation = {
-          // prettier-ignore
-          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${program.checker.getTypeName(x.type)}`,
-        };
+      let labelPrefix = "";
+      const parameters: ParameterInformation[] = [];
+      if (node.kind === SyntaxKind.AugmentDecoratorStatement) {
+        const targetType = decoratorDeclNode.target.type
+          ? program.checker.getTypeForNode(decoratorDeclNode.target.type)
+          : undefined;
 
-        const doc = parameterDocs.get(x.name);
-        if (doc) {
-          info.documentation = { kind: MarkupKind.Markdown, value: doc };
-        }
+        parameters.push({
+          label: `${decoratorDeclNode.target.id.sv}: ${
+            targetType ? getTypeName(targetType) : "unknown"
+          }`,
+        });
 
-        return info;
-      });
+        labelPrefix = "@";
+      }
+
+      parameters.push(
+        ...type.parameters.map((x) => {
+          const info: ParameterInformation = {
+            // prettier-ignore
+            label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getTypeName(x.type)}`,
+          };
+          const doc = parameterDocs.get(x.name);
+          if (doc) {
+            info.documentation = { kind: MarkupKind.Markdown, value: doc };
+          }
+          return info;
+        })
+      );
 
       const help: SignatureHelp = {
         signatures: [
           {
-            label: `${type.name}(${parameters.map((x) => x.label).join(", ")})`,
+            label: `${labelPrefix}${type.name}(${parameters.map((x) => x.label).join(", ")})`,
             parameters,
-            activeParameter: Math.min(type.parameters.length - 1, argumentIndex),
+            activeParameter: Math.min(parameters.length - 1, argumentIndex),
           },
         ],
         activeSignature: 0,
@@ -1597,18 +1615,34 @@ export function createServer(host: ServerHost): Server {
   }
 }
 
+type DecoratorNode = DecoratorExpressionNode | AugmentDecoratorStatementNode;
+
 function findDecoratorOrParameter(
   node: Node
-): { node: DecoratorExpressionNode; argumentIndex: number } | undefined {
+): { node: DecoratorNode; argumentIndex: number } | undefined {
   if (node.kind === SyntaxKind.DecoratorExpression) {
     return { node, argumentIndex: node.arguments.length };
   }
+
+  if (node.kind === SyntaxKind.AugmentDecoratorStatement) {
+    return { node, argumentIndex: node.arguments.length + 1 };
+  }
+
   let current: Node | undefined = node;
   while (current) {
     if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
       return {
         node: current.parent,
         argumentIndex: current.parent.arguments.indexOf(current as any),
+      };
+    }
+    if (current.parent?.kind === SyntaxKind.AugmentDecoratorStatement) {
+      return {
+        node: current.parent,
+        argumentIndex:
+          current == current.parent?.targetType
+            ? 0
+            : current.parent.arguments.indexOf(current as any) + 1,
       };
     }
     current = current.parent;
