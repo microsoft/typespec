@@ -50,6 +50,12 @@
     },
     {
       "commandKind": "global",
+      "name": "regen-docs",
+      "summary": "(CUSTOM) Regenerate the reference docs.",
+      "shellCommand": "node eng/scripts/regen-docs.js"
+    },
+    {
+      "commandKind": "global",
       "name": "regen-samples",
       "summary": "(CUSTOM) Regenerate samples.",
       "shellCommand": "node eng/scripts/npm-run.js regen-samples"

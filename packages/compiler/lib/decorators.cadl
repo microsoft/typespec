@@ -33,6 +33,8 @@ extern dec doc(target: unknown, doc: string, formatArgs?: object);
  * Mark this type as deprecated
  * @param message Deprecation message.
  *
+ * @example
+ *
  * ```cadl
  * @deprecated("Use ActionV2")
  * op Action<T>(): T;
