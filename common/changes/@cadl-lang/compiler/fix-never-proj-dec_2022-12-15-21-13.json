@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix issue with projection resolving to never decorator argument",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
