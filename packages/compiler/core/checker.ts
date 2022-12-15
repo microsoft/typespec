@@ -1299,8 +1299,6 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    applyAugmentDecorators(node);
-
     const links = getSymbolLinks(getMergedSymbol(node.symbol));
     let type = links.type as Namespace;
     if (!type) {
@@ -2076,6 +2074,10 @@ export function createChecker(program: Program): Checker {
     }
 
     for (const file of program.sourceFiles.values()) {
+      applyAugmentDecoratorsInScope(file);
+    }
+
+    for (const file of program.sourceFiles.values()) {
       checkSourceFile(file);
     }
 
@@ -2089,8 +2091,24 @@ export function createChecker(program: Program): Checker {
     validateInheritanceDiscriminatedUnions(program);
   }
 
+  function applyAugmentDecoratorsInScope(scope: CadlScriptNode | NamespaceStatementNode) {
+    applyAugmentDecorators(scope);
+    if (scope.statements === undefined) {
+      return;
+    }
+
+    if (isArray(scope.statements)) {
+      for (const statement of scope.statements) {
+        if (statement.kind === SyntaxKind.NamespaceStatement) {
+          applyAugmentDecoratorsInScope(statement);
+        }
+      }
+    } else {
+      applyAugmentDecoratorsInScope(scope.statements);
+    }
+  }
+
   function checkSourceFile(file: CadlScriptNode) {
-    applyAugmentDecorators(file);
     for (const statement of file.statements) {
       getTypeForNode(statement, undefined);
     }
