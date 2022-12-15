@@ -116,6 +116,7 @@ async function main() {
           })
           .option("arg", {
             type: "array",
+            alias: "args",
             string: true,
             describe: "Key/value of arguments that are used in the configuration.",
           });
