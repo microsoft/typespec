@@ -1,8 +1,8 @@
 {
-  "name": "@cadl-lang/openapi3",
-  "version": "0.38.0",
+  "name": "@cadl-lang/ref-doc",
+  "version": "0.1.0",
   "author": "Microsoft Corporation",
-  "description": "Cadl library for emitting OpenAPI 3.0 from the Cadl REST protocol binding",
+  "description": "Cadl library for generating cadl docs",
   "homepage": "https://github.com/Microsoft/cadl",
   "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
   "license": "MIT",
@@ -19,16 +19,12 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
+    ".": "./dist/src/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
         "./dist/src/index.d.ts"
-      ],
-      "testing": [
-        "./dist/src/testing/index.d.ts"
       ]
     }
   },
@@ -38,11 +34,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-cadl-library",
+    "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "test": "echo 'no tests'",
+    "test-official": "echo 'no tests'",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -51,28 +46,22 @@
     "dist/**",
     "!dist/test/**"
   ],
-  "peerDependencies": {
-    "@cadl-lang/versioning": "~0.38.0",
+  "dependencies": {
     "@cadl-lang/compiler": "~0.38.3",
-    "@cadl-lang/rest": "~0.38.1",
-    "@cadl-lang/openapi": "~0.38.0"
+    "prettier": "~2.7.1"
   },
   "devDependencies": {
+    "@cadl-lang/compiler": "~0.38.3",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.38.3",
-    "@cadl-lang/rest": "~0.38.1",
-    "@cadl-lang/openapi": "~0.38.0",
-    "@cadl-lang/versioning": "~0.38.0",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/library-linter": "~0.38.0",
-    "@cadl-lang/eslint-plugin": "~0.38.0",
+    "c8": "~7.12.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.12.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.9.3"
+    "typescript": "~4.9.3",
+    "@types/prettier": "2.6.0"
   }
 }
