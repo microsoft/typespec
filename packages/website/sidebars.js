@@ -93,7 +93,7 @@ const sidebars = {
           label: "OpenAPI",
           items: [
             "standard-library/openapi/overview",
-            createLibraryReferenceStructure("rest", ["standard-library/openapi/diagnostics"]),
+            createLibraryReferenceStructure("openapi", ["standard-library/openapi/diagnostics"]),
             "standard-library/openapi/openapi",
           ],
         },
