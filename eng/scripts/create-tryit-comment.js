@@ -95,7 +95,11 @@ async function request(method, url, data) {
   return new Promise((resolve, reject) => {
     const req = lib.request(params, (res) => {
       if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
-        return reject(new Error(`Status Code: ${res.statusCode}`));
+        return reject(
+          new Error(
+            `Status Code: ${res.statusCode}, headers: ${JSON.stringify(res.headers, null, 2)}`
+          )
+        );
       }
 
       const data = [];
