@@ -8,7 +8,7 @@ The OpenAPI emitter converts Cadl language elements into their natural OpenAPI e
 
 ## Servers
 
-If the Cadl file contains an [(Http) `@server` decorator](../rest/decorators.md#server)
+If the Cadl file contains an [(Http) `@server` decorator](../rest/reference/decorators.md#@Cadl.Http.server)
 the OpenAPI emitter will generate a `servers` object with the server URL, description, and variables specified in the decorator.
 
 You can specify multiple `@server` decorators to obtain multiple entries in the `servers` object.
@@ -23,8 +23,8 @@ The path for the operation comes from the [(Http) `@route` decorator][http-route
 The `@route` decorator can also be specified on a namespace and/or an interface (group of operations).
 When specified, the route for the enclosing namespace(s) and interface are prefixed to the operation route.
 
-[http-verb-decorators]: ../rest/decorators.md#http-verb-decorators
-[http-route-decorator]: ../rest/decorators.md#routing
+[http-verb-decorators]: ../rest/reference/decorators.md
+[http-route-decorator]: ../rest/reference/decorators.md#@Cadl.Http.route
 
 The fields of the [OpenAPI Operation object][] are set as described below.
 
@@ -59,8 +59,8 @@ A parameter without one of these decorators is assumed to be passed in the reque
 The request body parameter can also be explicitly decorated with an [(Http) `@body` decorator][http-body-decorator].
 In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body.
 
-[http-parameter-decorators]: ../rest/decorators.md#data-types
-[http-body-decorator]: ../rest/decorators.md#body
+[http-parameter-decorators]: ../rest/reference/decorators.md#data-types
+[http-body-decorator]: ../rest/reference/decorators.md#@Cadl.Http.body
 
 The content of a (built-in) `@doc` decorator on a parameter will be set in the description.
 
@@ -85,7 +85,7 @@ When a return type model has a property explicitly decorated with an [(Http) `@b
 is taken as the response body.
 In the absence of explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 
-[http-statuscode-decorator]: ../rest/decorators.md#statuscode
+[http-statuscode-decorator]: ../rest/reference/decorators.md#@Cadl.Http.statuscode
 [error-decorator]: ../built-in-decorators.md#error
 
 See also [metadata](../rest/operations.md#metadata) for more advanced details.
@@ -106,12 +106,12 @@ deprecated field is set to true.
 
 ### externalDocs
 
-If the Cadl operation has an [(OpenAPI) `@externalDocs` decorator](./decorators.md#externaldocs) this will produce
+If the Cadl operation has an [(OpenAPI) `@externalDocs` decorator](./reference/decorators.md#@OpenAPI.externaldocs) this will produce
 an externalDocs field in the OpenAPI operation.
 
 ### Specification extensions
 
-Any extensions specified on the Cadl operation with the [(OpenAPI) `@extension` decorator](./decorators.md#extension)
+Any extensions specified on the Cadl operation with the [(OpenAPI) `@extension` decorator](./reference/decorators.md#OpenAPI.extension)
 are included in the emitted OpenAPI operation.
 
 ## Models and enums
@@ -168,7 +168,7 @@ For an array type:
 | `@minItems(value)` | built-in | `minItems: value`           |       |
 | `@maxItems(value)` | built-in | `maxItems: value`           |       |
 
-The OpenAPI emitter provides an [`@useRef` decorator](./decorators.md#useref) which will replace the Cadl model type in emitter output
+The OpenAPI emitter provides an [`@useRef` decorator](./reference/decorators.md#@OpenAPI.useref) which will replace the Cadl model type in emitter output
 with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
 
 Example:
@@ -255,12 +255,12 @@ union GoodBreed {
 The OpenAPI emitter represents either form of union with an `anyOf` with an element for each option of the union.
 The OpenAPI emitter ignores the "names" for variants in named unions.
 
-The OpenAPI emitter also defines the[`@oneOf` decorator](./decorators.md#oneof) which can be specified on a `union` statement to indicate
+The OpenAPI emitter also defines the[`@oneOf` decorator](./reference/decorators.md#OpenAPI.oneof) which can be specified on a `union` statement to indicate
 that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Security Definitions
 
-The OpenAPI emitter takes the [(http) `@useAuth` decorator](../rest/decorators.md#useauth)
+The OpenAPI emitter takes the [(http) `@useAuth` decorator](../rest/reference/decorators.md#@Cadl.Http.useauth)
 
 ### Examples
 
