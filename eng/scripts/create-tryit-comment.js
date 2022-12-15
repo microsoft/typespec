@@ -105,7 +105,11 @@ async function request(method, url, data) {
         if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
           return reject(
             new Error(
-              `Status Code: ${res.statusCode}, headers: ${JSON.stringify(res.headers, null, 2)}`
+              `Status Code: ${res.statusCode}, statusMessage: ${
+                res.statusMessage
+              }, headers: ${JSON.stringify(res.headers, null, 2)}, body: ${Buffer.concat(
+                data
+              ).toString()}`
             )
           );
         } else {
