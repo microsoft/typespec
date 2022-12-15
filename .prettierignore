@@ -28,3 +28,6 @@ packages/samples/local-cadl/test.cadl
 packages/website/build/
 
 spec.emu.html
+
+# Auto generated reference docs.
+docs/**/reference/

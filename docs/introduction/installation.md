@@ -42,7 +42,7 @@ To get your first Cadl project started run in a fresh directory
 cadl init
 ```
 
-This will prompt you with a few question, pick the `Generic Rest API` template.
+This will prompt you with a few question, pick the `Generic Rest API` template, your project name, and select the `@cadl-lang/openapi3` library.
 
 Next, you can install the dependencies
 

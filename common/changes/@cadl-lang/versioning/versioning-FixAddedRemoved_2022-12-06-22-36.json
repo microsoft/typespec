@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Fix issues with @added and @removed. Deprecate addedAfter and removedOnOrBefore. Added existsAtVersion.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
