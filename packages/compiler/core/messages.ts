@@ -572,7 +572,7 @@ const diagnostics = {
     },
   },
   "emitter-not-found": {
-    severity: "error",
+    severity: "warning",
     messages: {
       default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
     },
