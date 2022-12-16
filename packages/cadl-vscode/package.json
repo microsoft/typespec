@@ -21,7 +21,7 @@
   "categories": [
     "Programming Languages"
   ],
-  "type": "commonjs",
+  "type": "module",
   "main": "./extension-shim.js",
   "engines": {
     "vscode": "^1.53.0"

@@ -5,14 +5,14 @@ import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
-import { BrowserHost } from "../browser-host";
-import { importCadlCompiler } from "../core";
-import { PlaygroundManifest } from "../manifest";
-import { CadlEditor } from "./cadl-editor";
-import { useMonacoModel } from "./editor";
-import { EditorCommandBar } from "./editor-command-bar";
-import { Footer } from "./footer";
-import { OutputView } from "./output-view";
+import { BrowserHost } from "../browser-host.js";
+import { importCadlCompiler } from "../core.js";
+import { PlaygroundManifest } from "../manifest.js";
+import { CadlEditor } from "./cadl-editor.js";
+import { useMonacoModel } from "./editor.jsx";
+import { EditorCommandBar } from "./editor-command-bar.js";
+import { Footer } from "./footer.js";
+import { OutputView } from "./output-view.js";
 
 export interface PlaygroundProps {
   host: BrowserHost;

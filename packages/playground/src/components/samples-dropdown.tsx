@@ -1,5 +1,5 @@
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
-import { PlaygroundManifest } from "../manifest";
+import { PlaygroundManifest } from "../manifest.js";
 export interface SamplesDropdownProps {
   onSelectSample: (content: string) => void;
 }

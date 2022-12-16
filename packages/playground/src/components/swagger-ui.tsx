@@ -10,7 +10,7 @@ export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   >(undefined);
   useEffect(() => {
     void import("swagger-ui-react").then((lib) => {
-      setSwaggerUILib({ swaggerUIComp: lib.default });
+      setSwaggerUILib({ swaggerUIComp: lib.default as any });
     });
   }, [setSwaggerUILib]);
 
