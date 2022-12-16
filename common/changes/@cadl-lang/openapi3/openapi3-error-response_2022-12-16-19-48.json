@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Render @error response as 4XX in OpenAPI 3",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

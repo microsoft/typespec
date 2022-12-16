@@ -488,7 +488,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getOpenAPIStatuscode(response: HttpOperationResponse): string {
     switch (response.statusCode) {
       case "*":
-        return "default";
+        return "4XX";
       default:
         return response.statusCode;
     }
@@ -536,6 +536,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getResponseDescriptionForStatusCode(statusCode: string) {
+    if (statusCode === "4XX") {
+      return "Client error";
+    }
     if (statusCode === "default") {
       return "An unexpected error response.";
     }

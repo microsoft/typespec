@@ -76,7 +76,7 @@ See also [metadata](../rest/operations.md#metadata) for more advanced details.
 
 The return type(s) of the Cadl operation are translated into responses for the OpenAPI operation.
 The status code for a response can be specified as a property in the return type model with the [(Http) `@statusCode` decorator][http-statuscode-decorator] (the property name is ignored).
-If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "default" response for the operation.
+If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "4XX" (client error) response for the operation.
 The media type for a response will be "application/json" unless the return type model includes an explicit `content-type`
 header.
 Models with different status codes and/or media types can be unioned together to describe complex response designs.

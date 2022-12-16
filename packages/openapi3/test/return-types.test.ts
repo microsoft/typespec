@@ -392,7 +392,7 @@ describe("openapi3: return types", () => {
     ok(responses["204"].content === undefined);
   });
 
-  it("defaults status code to default when model has @error decorator", async () => {
+  it("defaults status code to 4XX when model has @error decorator", async () => {
     const res = await openApiFor(
       `
       @error
@@ -413,14 +413,14 @@ describe("openapi3: return types", () => {
     deepStrictEqual(responses["200"].content["application/json"].schema, {
       $ref: "#/components/schemas/Foo",
     });
-    ok(responses["default"]);
-    ok(responses["default"].content);
-    deepStrictEqual(responses["default"].content["application/json"].schema, {
+    ok(responses["4XX"]);
+    ok(responses["4XX"].content);
+    deepStrictEqual(responses["4XX"].content["application/json"].schema, {
       $ref: "#/components/schemas/Error",
     });
   });
 
-  it("defaults status code to default when model has @error decorator and explicit body", async () => {
+  it("defaults status code to 4XX when model has @error decorator and explicit body", async () => {
     const res = await openApiFor(
       `
       @error
@@ -441,9 +441,9 @@ describe("openapi3: return types", () => {
     deepStrictEqual(responses["200"].content["application/json"].schema, {
       $ref: "#/components/schemas/Foo",
     });
-    ok(responses["default"]);
-    ok(responses["default"].content);
-    deepStrictEqual(responses["default"].content["application/json"].schema, {
+    ok(responses["4XX"]);
+    ok(responses["4XX"].content);
+    deepStrictEqual(responses["4XX"].content["application/json"].schema, {
       type: "string",
     });
   });

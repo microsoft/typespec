@@ -281,7 +281,7 @@ export interface RoutePath {
   shared: boolean;
 }
 
-export type StatusCode = `${number}` | "*";
+export type StatusCode = `${number}` | "*" /* error */ | "default";
 export interface HttpOperationResponse {
   statusCode: StatusCode;
   type: Type;

@@ -82,7 +82,7 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
 export function $defaultResponse(context: DecoratorContext, entity: Model) {
-  http.setStatusCode(context.program, entity, ["*"]);
+  http.setStatusCode(context.program, entity, ["default"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 }
 
