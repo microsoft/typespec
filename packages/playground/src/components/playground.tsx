@@ -9,8 +9,8 @@ import { BrowserHost } from "../browser-host.js";
 import { importCadlCompiler } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
 import { CadlEditor } from "./cadl-editor.js";
-import { useMonacoModel } from "./editor.jsx";
 import { EditorCommandBar } from "./editor-command-bar.js";
+import { useMonacoModel } from "./editor.jsx";
 import { Footer } from "./footer.js";
 import { OutputView } from "./output-view.js";
 
