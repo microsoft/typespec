@@ -55,8 +55,9 @@ function resolveArgs(
   if (declarations !== undefined) {
     for (const [name, definition] of Object.entries(declarations)) {
       unmatchedArgs.delete(name);
-      result[name] =
-        args?.[name] ?? ignoreDiagnostics(resolveValue(definition.default, predefinedVariables));
+      result[name] = ignoreDiagnostics(
+        resolveValue(args?.[name] ?? definition.default, predefinedVariables)
+      );
     }
   }
 
