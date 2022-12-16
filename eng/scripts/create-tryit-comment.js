@@ -97,7 +97,6 @@ async function request(method, url, data) {
       const data = [];
 
       res.on("data", (chunk) => {
-        console.error("Data", data.toString());
         data.push(chunk);
       });
 

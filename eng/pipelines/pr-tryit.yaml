@@ -13,42 +13,42 @@ jobs:
       - checkout: self
         persistCredentials: true
 
-      # - task: NodeTool@0
-      #   inputs:
-      #     versionSpec: 16.x
-      #   displayName: Install Node.js
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 16.x
+        displayName: Install Node.js
 
-      # - script: npx @microsoft/rush install
-      #   displayName: Install JavaScript Dependencies
+      - script: npx @microsoft/rush install
+        displayName: Install JavaScript Dependencies
 
-      # - script: npx @microsoft/rush rebuild --verbose
-      #   displayName: Build
+      - script: npx @microsoft/rush rebuild --verbose
+        displayName: Build
 
-      # - task: AzureCLI@1
-      #   displayName: "Publish playground to PR endpoint"
-      #   inputs:
-      #     azureSubscription: "Azure SDK Playground"
-      #     scriptLocation: inlineScript
-      #     inlineScript: |
-      #       az storage blob upload-batch \
-      #         --destination \$web \
-      #         --account-name "cadlplayground" \
-      #         --destination-path $(CADL_WEBSITE_BASE_PATH) \
-      #         --source "./packages/playground/dist/" \
-      #         --overwrite
+      - task: AzureCLI@1
+        displayName: "Publish playground to PR endpoint"
+        inputs:
+          azureSubscription: "Azure SDK Playground"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination \$web \
+              --account-name "cadlplayground" \
+              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --source "./packages/playground/dist/" \
+              --overwrite
 
-      # - task: AzureCLI@1
-      #   displayName: "Publish website to PR endpoint"
-      #   inputs:
-      #     azureSubscription: "Azure SDK Playground"
-      #     scriptLocation: inlineScript
-      #     inlineScript: |
-      #       az storage blob upload-batch \
-      #         --destination \$web \
-      #         --account-name "cadlwebsite" \
-      #         --destination-path $(CADL_WEBSITE_BASE_PATH) \
-      #         --source "./packages/website/build/" \
-      #         --overwrite
+      - task: AzureCLI@1
+        displayName: "Publish website to PR endpoint"
+        inputs:
+          azureSubscription: "Azure SDK Playground"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination \$web \
+              --account-name "cadlwebsite" \
+              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --source "./packages/website/build/" \
+              --overwrite
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented
