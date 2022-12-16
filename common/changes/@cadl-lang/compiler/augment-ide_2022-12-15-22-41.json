@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Add IDE completion and signature help for augment decorators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
