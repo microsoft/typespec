@@ -129,8 +129,8 @@ function getEnumMemberSignature(member: EnumMember) {
   return value === undefined ? `${ns}${member.name}` : `${ns}${member.name}: ${value}`;
 }
 
-export function getQualifier(parent: Type | undefined) {
-  if (!parent) {
+export function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
+  if (!parent?.name || typeof parent.name !== "string") {
     return "";
   }
 
