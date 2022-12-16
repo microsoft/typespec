@@ -23,7 +23,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -50,7 +50,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -88,7 +88,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -115,7 +115,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -153,7 +153,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -180,7 +180,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -218,7 +218,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -245,7 +245,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -283,7 +283,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -310,7 +310,7 @@
             }
           },
           "4XX": {
-            "description": "Unexpected error",
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -420,7 +420,7 @@
             "type": "string"
           }
         },
-        "description": "Unexpected error",
+        "description": "Client error",
         "required": [
           "body"
         ]

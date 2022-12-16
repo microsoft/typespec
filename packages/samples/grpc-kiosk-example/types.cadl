@@ -30,7 +30,7 @@ model LatLng {
 
 model Empty {}
 
-@doc("An unexpected error response.")
+@doc("A client error response.")
 @error
 model RpcStatus {
   code?: int32;

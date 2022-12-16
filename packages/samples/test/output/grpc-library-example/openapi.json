@@ -480,7 +480,7 @@
             "x-cadl-name": "ProtobufAny[]"
           }
         },
-        "description": "An unexpected error response."
+        "description": "A client error response."
       },
       "ListShelvesResponse": {
         "type": "object",

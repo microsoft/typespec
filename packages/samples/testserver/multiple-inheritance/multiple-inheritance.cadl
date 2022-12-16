@@ -29,7 +29,7 @@ model Horse extends Pet {
   isAShowHorse: boolean;
 }
 
-@doc("Unexpected error")
+@doc("Client error")
 @error
 model ErrorResponse {
   @body body: string;
