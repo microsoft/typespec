@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/lint",
+      "comment": "Internal: Update TS module resolution to node16",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/lint"
+}
