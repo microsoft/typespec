@@ -1640,7 +1640,7 @@ function findDecoratorOrParameter(
       return {
         node: current.parent,
         argumentIndex:
-          current == current.parent?.targetType
+          current === current.parent?.targetType
             ? 0
             : current.parent.arguments.indexOf(current as any) + 1,
       };
