@@ -5,17 +5,6 @@ import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile }
 export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;
 }
-<<<<<<< HEAD
-export class SchemaValidator<T> {
-  private ajv: any;
-
-  public constructor(private schema: JSONSchemaType<T>, options: SchemaValidatorOptions = {}) {
-    this.ajv = new (Ajv as any)({
-      strict: true,
-      coerceTypes: options.coerceTypes,
-    });
-  }
-=======
 
 export function createJSONSchemaValidator<T>(
   schema: JSONSchemaType<T>,
@@ -25,7 +14,6 @@ export function createJSONSchemaValidator<T>(
     strict: true,
     coerceTypes: options.coerceTypes,
   });
->>>>>>> e106d1334b7a05189a57bdf43ace76accf2697a2
 
   return { validate };
 

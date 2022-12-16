@@ -1,7 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program.js";
-<<<<<<< HEAD
-=======
 
 // prettier-ignore
 export type MarshalledValue<Type>  = 
@@ -9,7 +7,6 @@ export type MarshalledValue<Type>  =
   : Type extends NumericLiteral ? number
   : Type extends BooleanLiteral ? boolean
   : Type
->>>>>>> e106d1334b7a05189a57bdf43ace76accf2697a2
 
 /**
  * Type System types

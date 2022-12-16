@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { LogLevel } from "./types.js";
-=======
 import { EmitterOptions } from "../config/types.js";
 import { ParseOptions } from "./types.js";
->>>>>>> e106d1334b7a05189a57bdf43ace76accf2697a2
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;

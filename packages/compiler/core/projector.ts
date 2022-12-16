@@ -1,8 +1,5 @@
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-<<<<<<< HEAD
-import { isNeverIndexer, isTemplateDeclaration } from "./index.js";
-=======
 import {
   createStateAccessors,
   getParentTemplateNode,
@@ -13,7 +10,6 @@ import {
   ProjectedProgram,
   Scalar,
 } from "./index.js";
->>>>>>> e106d1334b7a05189a57bdf43ace76accf2697a2
 import { Program } from "./program.js";
 import {
   DecoratorApplication,
