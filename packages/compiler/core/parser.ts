@@ -3069,6 +3069,7 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.TypeReference:
       kind = IdentifierKind.TypeReference;
       break;
+    case SyntaxKind.AugmentDecoratorStatement:
     case SyntaxKind.DecoratorExpression:
       kind = IdentifierKind.Decorator;
       break;
