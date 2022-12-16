@@ -2,6 +2,18 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.38.5",
+      "tag": "@cadl-lang/compiler_v0.38.5",
+      "date": "Fri, 16 Dec 2022 22:02:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "emitter not found validation in emitter options is a warning"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.38.4",
       "tag": "@cadl-lang/compiler_v0.38.4",
       "date": "Thu, 15 Dec 2022 02:21:08 GMT",
