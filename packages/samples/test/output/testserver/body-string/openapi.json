@@ -31,8 +31,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -54,8 +54,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -100,8 +100,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -123,8 +123,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -170,8 +170,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -193,8 +193,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -240,8 +240,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -263,8 +263,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -308,8 +308,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -331,8 +331,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -373,8 +373,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -396,8 +396,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -437,8 +437,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -460,8 +460,8 @@
           "200": {
             "description": "The request has succeeded."
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {

@@ -22,7 +22,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -49,7 +49,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -87,7 +87,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -114,7 +114,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -152,7 +152,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -179,7 +179,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -217,7 +217,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -244,7 +244,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -282,7 +282,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {
@@ -309,7 +309,7 @@
               }
             }
           },
-          "default": {
+          "4XX": {
             "description": "Unexpected error",
             "content": {
               "application/json": {

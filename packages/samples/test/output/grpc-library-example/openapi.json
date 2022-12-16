@@ -29,8 +29,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -76,8 +76,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -112,8 +112,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -139,8 +139,8 @@
           "204": {
             "description": "There is no content to send for this request, but the headers may be useful. "
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -175,8 +175,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -221,8 +221,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -271,8 +271,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -307,8 +307,8 @@
               }
             }
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
@@ -334,8 +334,8 @@
           "204": {
             "description": "There is no content to send for this request, but the headers may be useful. "
           },
-          "default": {
-            "description": "An unexpected error response.",
+          "4XX": {
+            "description": "Client error",
             "content": {
               "application/json": {
                 "schema": {
