@@ -1,8 +1,10 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi";
 
-@serviceTitle("Pet Store Service")
-@serviceVersion("2021-03-25")
+@service({
+  title: "Pet Store Service",
+  version: "2021-03-25",
+})
 namespace PetStore;
 using Cadl.Http;
 

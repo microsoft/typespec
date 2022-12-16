@@ -1,6 +1,4 @@
-import { CadlPrettierPlugin } from "@cadl-lang/compiler";
-import { editor, KeyCode, KeyMod } from "monaco-editor";
-import prettier from "prettier";
+import { editor } from "monaco-editor";
 import { FunctionComponent } from "react";
 import { Editor, EditorCommand, useMonacoModel } from "./editor";
 
@@ -18,30 +16,8 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
       enabled: false,
     },
   };
-
-  const format = () => {
-    const output = prettier.format(props.model.getValue(), {
-      parser: "cadl",
-      plugins: [CadlPrettierPlugin],
-    });
-    props.model.setValue(output);
-  };
-
   // Add shortcuts
-  const commands = [
-    // ctrl/cmd+shift+F => format
-    { binding: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF, handle: format },
-    // alt+shift+F => format
-    { binding: KeyMod.Alt | KeyMod.Shift | KeyCode.KeyF, handle: format },
-    ...props.commands ?? [],
-  ];
-  return (
-    <Editor
-      model={props.model}
-      commands={commands}
-      options={options}
-    ></Editor>
-  );
+  return <Editor model={props.model} commands={props.commands} options={options}></Editor>;
 };
 
 export const OutputEditor: FunctionComponent<{ value: string }> = ({ value }) => {

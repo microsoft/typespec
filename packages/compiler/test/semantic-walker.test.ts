@@ -1,14 +1,17 @@
-import assert from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
-  InterfaceType,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
-  UnionType,
-  UnionTypeVariant,
+  getNamespaceFullName,
+  Interface,
+  ListenerFlow,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  SemanticNodeListener,
+  Union,
+  UnionVariant,
 } from "../core/index.js";
-import { getProperty, navigateProgram } from "../core/semantic-walker.js";
+import { getProperty, navigateProgram, navigateTypesInNamespace } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "../testing/index.js";
 
 describe("compiler: semantic walker", () => {
@@ -18,30 +21,57 @@ describe("compiler: semantic walker", () => {
     host = await createTestHost();
   });
 
-  async function runNavigator(cadl: string) {
+  function createCollector(customListener?: SemanticNodeListener) {
+    const result = {
+      models: [] as Model[],
+      modelProperties: [] as ModelProperty[],
+      namespaces: [] as Namespace[],
+      operations: [] as Operation[],
+      interfaces: [] as Interface[],
+      unions: [] as Union[],
+      unionVariants: [] as UnionVariant[],
+    };
+
+    const listener: SemanticNodeListener = {
+      namespace: (x) => {
+        result.namespaces.push(x);
+        return customListener?.namespace?.(x);
+      },
+      operation: (x) => {
+        result.operations.push(x);
+        return customListener?.operation?.(x);
+      },
+      model: (x) => {
+        result.models.push(x);
+        return customListener?.model?.(x);
+      },
+      modelProperty: (x) => {
+        result.modelProperties.push(x);
+        return customListener?.modelProperty?.(x);
+      },
+      union: (x) => {
+        result.unions.push(x);
+        return customListener?.union?.(x);
+      },
+      interface: (x) => {
+        result.interfaces.push(x);
+        return customListener?.interface?.(x);
+      },
+      unionVariant: (x) => {
+        result.unionVariants.push(x);
+        return customListener?.unionVariant?.(x);
+      },
+    };
+    return [result, listener] as const;
+  }
+
+  async function runNavigator(cadl: string, customListener?: SemanticNodeListener) {
     host.addCadlFile("main.cadl", cadl);
 
     await host.compile("main.cadl", { nostdlib: true });
 
-    const result = {
-      models: [] as ModelType[],
-      modelProperties: [] as ModelTypeProperty[],
-      namespaces: [] as NamespaceType[],
-      operations: [] as OperationType[],
-      interfaces: [] as InterfaceType[],
-      unions: [] as UnionType[],
-      unionVariants: [] as UnionTypeVariant[],
-    };
-
-    navigateProgram(host.program, {
-      namespace: (x) => result.namespaces.push(x),
-      operation: (x) => result.operations.push(x),
-      model: (x) => result.models.push(x),
-      modelProperty: (x) => result.modelProperties.push(x),
-      union: (x) => result.unions.push(x),
-      interface: (x) => result.interfaces.push(x),
-      unionVariant: (x) => result.unionVariants.push(x),
-    });
+    const [result, listener] = createCollector(customListener);
+    navigateProgram(host.program, listener);
 
     return result;
   }
@@ -59,10 +89,10 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.strictEqual(result.models.length, 3);
-    assert.strictEqual(result.models[0].name, "Foo");
-    assert.strictEqual(result.models[1].name, "", "Inline models don't have name");
-    assert.strictEqual(result.models[2].name, "Bar");
+    strictEqual(result.models.length, 3);
+    strictEqual(result.models[0].name, "Foo");
+    strictEqual(result.models[1].name, "", "Inline models don't have name");
+    strictEqual(result.models[2].name, "Bar");
   });
 
   it("finds operations", async () => {
@@ -74,9 +104,9 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.strictEqual(result.operations.length, 2);
-    assert.strictEqual(result.operations[0].name, "foo");
-    assert.strictEqual(result.operations[1].name, "bar");
+    strictEqual(result.operations.length, 2);
+    strictEqual(result.operations[0].name, "foo");
+    strictEqual(result.operations[1].name, "bar");
   });
 
   it("finds namespaces", async () => {
@@ -90,8 +120,8 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.deepStrictEqual(
-      result.namespaces.map((x) => host.program.checker.getNamespaceString(x)),
+    deepStrictEqual(
+      result.namespaces.map((x) => getNamespaceFullName(x)),
       ["", "Global", "Global.My", "Global.My.Simple", "Global.My.Parent", "Global.My.Parent.Child"]
     );
   });
@@ -109,10 +139,10 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.strictEqual(result.modelProperties.length, 3);
-    assert.strictEqual(result.modelProperties[0].name, "nested");
-    assert.strictEqual(result.modelProperties[1].name, "inline");
-    assert.strictEqual(result.modelProperties[2].name, "name");
+    strictEqual(result.modelProperties.length, 3);
+    strictEqual(result.modelProperties[0].name, "nested");
+    strictEqual(result.modelProperties[1].name, "inline");
+    strictEqual(result.modelProperties[2].name, "name");
   });
 
   it("finds unions", async () => {
@@ -122,10 +152,10 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.strictEqual(result.unions.length, 1);
-    assert.strictEqual(result.unions[0].name!, "A");
-    assert.strictEqual(result.unionVariants.length, 1);
-    assert.strictEqual(result.unionVariants[0].name!, "x");
+    strictEqual(result.unions.length, 1);
+    strictEqual(result.unions[0].name!, "A");
+    strictEqual(result.unionVariants.length, 1);
+    strictEqual(result.unionVariants[0].name!, "x");
   });
 
   it("finds interfaces", async () => {
@@ -136,10 +166,10 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.strictEqual(result.interfaces.length, 1, "finds interfaces");
-    assert.strictEqual(result.interfaces[0].name, "A");
-    assert.strictEqual(result.operations.length, 1, "finds operations");
-    assert.strictEqual(result.operations[0].name, "a");
+    strictEqual(result.interfaces.length, 1, "finds interfaces");
+    strictEqual(result.interfaces[0].name, "A");
+    strictEqual(result.operations.length, 1, "finds operations");
+    strictEqual(result.operations[0].name, "a");
   });
 
   it("finds owned or inherited properties", async () => {
@@ -153,11 +183,74 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    assert.strictEqual(result.models.length, 2);
-    assert.strictEqual(result.models[0].name, "Pet");
-    assert.strictEqual(result.models[1].name, "Cat");
-    assert.ok(getProperty(result.models[1], "meow"));
-    assert.ok(getProperty(result.models[1], "name"));
-    assert.strictEqual(getProperty(result.models[1], "bark"), undefined);
+    strictEqual(result.models.length, 2);
+    strictEqual(result.models[0].name, "Pet");
+    strictEqual(result.models[1].name, "Cat");
+    ok(getProperty(result.models[1], "meow"));
+    ok(getProperty(result.models[1], "name"));
+    strictEqual(getProperty(result.models[1], "bark"), undefined);
+  });
+
+  it("stop navigation of children when returning NoRecursion from callback", async () => {
+    const result = await runNavigator(
+      `
+      model A {
+        shouldNotNavigate: true;
+      }
+
+      model B {
+        shouldNavigate: true;
+      }
+    `,
+      { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) }
+    );
+
+    strictEqual(result.modelProperties.length, 1);
+    strictEqual(result.modelProperties[0].name, "shouldNavigate");
+  });
+
+  describe("findInNamespace", () => {
+    async function runFindInNamespace(code: string) {
+      host.addCadlFile("main.cadl", code);
+      await host.compile("main.cadl", { nostdlib: true });
+
+      const TargetNs = host.program.getGlobalNamespaceType().namespaces.get("TargetNs");
+      ok(TargetNs, "Should have a namespace called TargetNs");
+      const [result, listener] = createCollector();
+      navigateTypesInNamespace(TargetNs, listener);
+
+      return result;
+    }
+
+    it("find models only in given namespace", async () => {
+      const results = await runFindInNamespace(`
+        namespace TargetNs {
+          model A {}
+        }
+
+        model B {}
+
+        namespace Other {
+          model C {}
+        }
+      `);
+      strictEqual(results.models.length, 1);
+      strictEqual(results.models[0].name, "A");
+    });
+
+    it("find models in sub namespace", async () => {
+      const results = await runFindInNamespace(`
+        namespace TargetNs {
+          model A {}
+
+          namespace Sub {
+            model B {}
+          }
+        }
+      `);
+      strictEqual(results.models.length, 2);
+      strictEqual(results.models[0].name, "A");
+      strictEqual(results.models[1].name, "B");
+    });
   });
 });

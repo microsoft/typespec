@@ -10,7 +10,7 @@ WORKDIR /app
 ENV CADL_SKIP_VS_BUILD=1
 RUN npm install -g @microsoft/rush
 RUN rush install
-RUN rush rebuild
+RUN rush rebuild --to @cadl-lang/compiler
 
 WORKDIR /app/packages/compiler
 RUN npm pack

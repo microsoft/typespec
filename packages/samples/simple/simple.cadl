@@ -3,7 +3,7 @@ import "@cadl-lang/rest";
 using Cadl.Http;
 
 @route("/alpha/{id}")
-op doAlpha(@path id: string): string;
+op doAlpha(id: string): string;
 
 @route("/beta/{id}")
-op doBeta(@path id: string): string;
+op doBeta(id: string): string;

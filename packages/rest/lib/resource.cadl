@@ -24,18 +24,23 @@ model KeysOf<T> {}
 model ParentKeysOf<T> {}
 
 @doc("Represents operation parameters for resource TResource.")
-model ResourceParameters<TResource> {
+model ResourceParameters<TResource extends object> {
   ...KeysOf<TResource>;
 }
 
 @doc("Represents collection operation parameters for resource TResource.")
-model ResourceCollectionParameters<TResource> {
+model ResourceCollectionParameters<TResource extends object> {
   ...ParentKeysOf<TResource>;
 }
 
+/**
+ * Represent the resource GET operation.
+ * @template TResource The resource model.
+ * @template TError The error response.
+ */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceRead<TResource, TError> {
+interface ResourceRead<TResource extends object, TError> {
   @autoRoute
   @doc("Gets an instance of the resource.")
   @readsResource(TResource)
@@ -48,7 +53,7 @@ model ResourceCreatedResponse<T> {
   @body body: T;
 }
 
-interface ResourceCreateOrReplace<TResource, TError> {
+interface ResourceCreateOrReplace<TResource extends object, TError> {
   @autoRoute
   @doc("Creates or replaces a instance of the resource.")
   @createsOrReplacesResource(TResource)
@@ -59,10 +64,10 @@ interface ResourceCreateOrReplace<TResource, TError> {
 }
 
 @friendlyName("{name}Update", TResource)
-model ResourceCreateOrUpdateModel<TResource>
+model ResourceCreateOrUpdateModel<TResource extends object>
   is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>>;
 
-interface ResourceCreateOrUpdate<TResource, TError> {
+interface ResourceCreateOrUpdate<TResource extends object, TError> {
   @autoRoute
   @doc("Creates or update a instance of the resource.")
   @createsOrUpdatesResource(TResource)
@@ -73,10 +78,10 @@ interface ResourceCreateOrUpdate<TResource, TError> {
 }
 
 @friendlyName("{name}Create", TResource)
-model ResourceCreateModel<TResource>
+model ResourceCreateModel<TResource extends object>
   is UpdateableProperties<DefaultKeyVisibility<TResource, "read">>;
 
-interface ResourceCreate<TResource, TError> {
+interface ResourceCreate<TResource extends object, TError> {
   @autoRoute
   @doc("Creates a new instance of the resource.")
   @createsResource(TResource)
@@ -88,7 +93,7 @@ interface ResourceCreate<TResource, TError> {
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceUpdate<TResource, TError> {
+interface ResourceUpdate<TResource extends object, TError> {
   @autoRoute
   @doc("Updates an existing instance of the resource.")
   @updatesResource(TResource)
@@ -107,16 +112,21 @@ model ResourceDeletedResponse {
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceDelete<TResource, TError> {
+interface ResourceDelete<TResource extends object, TError> {
   @autoRoute
   @doc("Deletes an existing instance of the resource.")
   @deletesResource(TResource)
   delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
+/**
+ * Structure for a paging response using `value` and `nextLink` to represent pagination.
+ * This only provides the model structure and not actual pagination support.
+ * See https://github.com/microsoft/cadl/issues/705 for general paging support.
+ */
 @doc("Paged response of {name} items", T)
-@friendlyName("{name}Page", T)
-model Page<T> {
+@friendlyName("{name}CollectionWithNextLink", T)
+model CollectionWithNextLink<T extends object> {
   @doc("The items on this page")
   value: T[];
 
@@ -124,35 +134,35 @@ model Page<T> {
   nextLink?: ResourceLocation<T>;
 }
 
-interface ResourceList<TResource, TError> {
+interface ResourceList<TResource extends object, TError> {
   @autoRoute
   @doc("Lists all instances of the resource.")
   @listsResource(TResource)
-  list(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
+  list(...ResourceCollectionParameters<TResource>): CollectionWithNextLink<TResource> | TError;
 }
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceInstanceOperations<TResource, TError>
+interface ResourceInstanceOperations<TResource extends object, TError>
   extends ResourceRead<TResource, TError>,
     ResourceUpdate<TResource, TError>,
     ResourceDelete<TResource, TError> {}
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceCollectionOperations<TResource, TError>
+interface ResourceCollectionOperations<TResource extends object, TError>
   extends ResourceCreate<TResource, TError>,
     ResourceList<TResource, TError> {}
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceOperations<TResource, TError>
+interface ResourceOperations<TResource extends object, TError>
   extends ResourceInstanceOperations<TResource, TError>,
     ResourceCollectionOperations<TResource, TError> {}
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface SingletonResourceRead<TSingleton, TResource, TError> {
+interface SingletonResourceRead<TSingleton extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Gets the singleton resource.")
   @segmentOf(TSingleton)
@@ -162,7 +172,7 @@ interface SingletonResourceRead<TSingleton, TResource, TError> {
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface SingletonResourceUpdate<TSingleton, TResource, TError> {
+interface SingletonResourceUpdate<TSingleton extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Updates the singleton resource.")
   @segmentOf(TSingleton)
@@ -175,20 +185,24 @@ interface SingletonResourceUpdate<TSingleton, TResource, TError> {
   ): TSingleton | TError;
 }
 
-interface SingletonResourceOperations<TSingleton, TResource, TError>
+interface SingletonResourceOperations<TSingleton extends object, TResource extends object, TError>
   extends SingletonResourceRead<TSingleton, TResource, TError>,
     SingletonResourceUpdate<TSingleton, TResource, TError> {}
 
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ExtensionResourceRead<TExtension, TResource, TError> {
+interface ExtensionResourceRead<TExtension extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Gets an instance of the extension resource.")
   @readsResource(TExtension)
   Get(...ResourceParameters<TResource>, ...ResourceParameters<TExtension>): TExtension | TError;
 }
 
-interface ExtensionResourceCreateOrUpdate<TExtension, TResource, TError> {
+interface ExtensionResourceCreateOrUpdate<
+  TExtension extends object,
+  TResource extends object,
+  TError
+> {
   @autoRoute
   @doc("Creates or update a instance of the extension resource.")
   @createsOrUpdatesResource(TExtension)
@@ -199,7 +213,7 @@ interface ExtensionResourceCreateOrUpdate<TExtension, TResource, TError> {
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
 }
 
-interface ExtensionResourceCreate<TExtension, TResource, TError> {
+interface ExtensionResourceCreate<TExtension extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Creates a new instance of the extension resource.")
   @createsResource(TExtension)
@@ -209,7 +223,7 @@ interface ExtensionResourceCreate<TExtension, TResource, TError> {
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
 }
 
-interface ExtensionResourceUpdate<TExtension, TResource, TError> {
+interface ExtensionResourceUpdate<TExtension extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Updates an existing instance of the extension resource.")
   @updatesResource(TExtension)
@@ -222,7 +236,7 @@ interface ExtensionResourceUpdate<TExtension, TResource, TError> {
   ): TExtension | TError;
 }
 
-interface ExtensionResourceDelete<TExtension, TResource, TError> {
+interface ExtensionResourceDelete<TExtension extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Deletes an existing instance of the extension resource.")
   @deletesResource(TExtension)
@@ -232,25 +246,33 @@ interface ExtensionResourceDelete<TExtension, TResource, TError> {
   ): ResourceDeletedResponse | TError;
 }
 
-interface ExtensionResourceList<TExtension, TResource, TError> {
+interface ExtensionResourceList<TExtension extends object, TResource extends object, TError> {
   @autoRoute
   @doc("Lists all instances of the extension resource.")
   @listsResource(TExtension)
   List(
     ...ResourceParameters<TResource>,
     ...ResourceCollectionParameters<TExtension>
-  ): Page<TExtension> | TError;
+  ): CollectionWithNextLink<TExtension> | TError;
 }
 
-interface ExtensionResourceInstanceOperations<TExtension, TResource, TError>
+interface ExtensionResourceInstanceOperations<
+  TExtension extends object,
+  TResource extends object,
+  TError
+>
   extends ExtensionResourceRead<TExtension, TResource, TError>,
     ExtensionResourceUpdate<TExtension, TResource, TError>,
     ExtensionResourceDelete<TExtension, TResource, TError> {}
 
-interface ExtensionResourceCollectionOperations<TExtension, TResource, TError>
+interface ExtensionResourceCollectionOperations<
+  TExtension extends object,
+  TResource extends object,
+  TError
+>
   extends ExtensionResourceCreate<TExtension, TResource, TError>,
     ExtensionResourceList<TExtension, TResource, TError> {}
 
-interface ExtensionResourceOperations<TExtension, TResource, TError>
+interface ExtensionResourceOperations<TExtension extends object, TResource extends object, TError>
   extends ExtensionResourceInstanceOperations<TExtension, TResource, TError>,
     ExtensionResourceCollectionOperations<TExtension, TResource, TError> {}

@@ -1,12 +1,12 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { OperationDetails } from "../src/http/route.js";
+import { HttpOperation } from "../src/http/types.js";
 import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   // Describe how routes should be included.
   describe("route inclusion", () => {
-    function expectRouteIncluded(routes: OperationDetails[], expectedRoutePaths: string[]) {
+    function expectRouteIncluded(routes: HttpOperation[], expectedRoutePaths: string[]) {
       const includedRoutes = routes.map((x) => x.path);
       deepStrictEqual(includedRoutes, expectedRoutePaths);
     }
@@ -70,7 +70,7 @@ describe("rest: routes", () => {
       it("operation in the service namespace are included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService;
           @get op index(): void;
           `
@@ -85,7 +85,7 @@ describe("rest: routes", () => {
           @route("/not-included")
           @get op notIncluded(): void;
 
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService {
             @route("/included")
             @get op included(): void;
@@ -98,7 +98,7 @@ describe("rest: routes", () => {
       it("interface in the service namespace are included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService;
           interface Foo {
             @get index(): void;
@@ -111,7 +111,7 @@ describe("rest: routes", () => {
       it("operation in namespace in the service namespace are be included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService;
 
           namespace MyArea{ 
@@ -126,7 +126,7 @@ describe("rest: routes", () => {
       it("operation in a different namespace are not included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService {
             @route("/included")
             @get op test(): string;
@@ -242,6 +242,7 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
+      #suppress "deprecated"
       @get
       @autoRoute
       @segment("actionTwo")
@@ -409,6 +410,17 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[1].message, `Duplicate operation "get2" routed at "get /test".`);
   });
 
+  it("emit diagnostic if passing arguments to autoroute decorators", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      @autoRoute("/test") op test(): string;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument-count",
+      message: "Expected 0 arguments, but got 1.",
+    });
+  });
+
   describe("operation parameters", () => {
     it("emit diagnostic for parameters with multiple http request annotations", async () => {
       const [_, diagnostics] = await compileOperations(`
@@ -444,6 +456,30 @@ describe("rest: routes", () => {
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/rest/duplicate-body",
         message: "Operation has multiple @body parameters declared",
+      });
+    });
+
+    it("emit error if using multipart/form-data contentType parameter with a body not being a model", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@header contentType: "multipart/form-data", @body body: string | int32): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/multipart-model",
+        message: "Multipart request body must be a model.",
+      });
+    });
+
+    it("emit warning if using contentType parameter without a body", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@header contentType: "image/png"): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/content-type-ignored",
+        message: "`Content-Type` header ignored because there is no body.",
       });
     });
 
@@ -503,6 +539,54 @@ describe("rest: routes", () => {
         },
       ]);
     });
+
+    it("resolves unannotated path parameters that are included in the route path", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test/{name}/sub/{foo}")
+        @get op get(
+          name: string,
+          foo: string
+        ): string;
+
+        @route("/nested/{name}")
+        namespace A {
+          @route("sub")
+          namespace B {
+            @route("{bar}")
+            @get op get(
+              name: string,
+              bar: string
+            ): string;
+          }
+        }
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test/{name}/sub/{foo}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "foo" },
+            ],
+            body: undefined,
+          },
+        },
+        {
+          verb: "get",
+          path: "/nested/{name}/sub/{bar}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "bar" },
+            ],
+            body: undefined,
+          },
+        },
+      ]);
+    });
   });
 
   describe("double @route", () => {
@@ -512,9 +596,16 @@ describe("rest: routes", () => {
         @route("/test")
         op get(): string;
     `);
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(diagnostics[0].message, "@route was defined twice on this operation.");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+      ]);
     });
 
     it("emit diagnostic if specifying route twice on interface", async () => {
@@ -525,9 +616,16 @@ describe("rest: routes", () => {
           get(): string
         }
     `);
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(diagnostics[0].message, "@route was defined twice on this interface.");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same node.",
+        },
+      ]);
     });
 
     it("emit diagnostic if namespace have route but different values", async () => {
@@ -545,12 +643,10 @@ describe("rest: routes", () => {
         }
     `);
 
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(
-        diagnostics[0].message,
-        "@route was defined twice on this namespace and has different values."
-      );
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this namespace and has different values.",
+      });
     });
 
     it("merge namespace if @route value is the same", async () => {
@@ -608,8 +704,16 @@ describe("rest: routes", () => {
       @autoRoute
       namespace Things {
         @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        #suppress "deprecated"
+        @action
         @segmentSeparator(":")
-        @put op customAction(
+        @put op customAction2(
           @segment("things")
           @path thingId: string
         ): string;
@@ -619,6 +723,7 @@ describe("rest: routes", () => {
           @path subscriptionId: string;
 
           // Is it useful for ARM modelling?
+          #suppress "deprecated"
           @path
           @segment("accounts")
           @segmentSeparator("Microsoft.Accounts/")
@@ -629,13 +734,71 @@ describe("rest: routes", () => {
     );
 
     deepStrictEqual(routes, [
-      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}:customAction2", params: ["thingId"] },
       {
         verb: "get",
         path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
         params: ["subscriptionId", "accountName"],
       },
     ]);
+  });
+
+  it("allows customization of action separators", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator(":")
+        @put op customAction1(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/")
+        @put op customAction2(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @action
+        @actionSeparator("/:")
+        @put op customAction3(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    deepStrictEqual(routes, [
+      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/customAction2", params: ["thingId"] },
+      { verb: "put", path: "/things/{thingId}/:customAction3", params: ["thingId"] },
+    ]);
+  });
+
+  it("emits error if invalid action separator used", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @actionSeparator("x")
+        @put op customAction(
+          @segment("things")
+          @path thingId: string
+        ): string;
+      }
+      `
+    );
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "invalid-argument");
+    strictEqual(
+      diagnostics[0].message,
+      `Argument 'x' is not assignable to parameter of type '/ | : | /:'`
+    );
   });
 
   it("skips templated operations", async () => {

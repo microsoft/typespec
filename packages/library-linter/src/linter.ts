@@ -1,4 +1,4 @@
-import { NamespaceType, Program, SymbolFlags, Type } from "@cadl-lang/compiler";
+import { Namespace, Program, SymbolFlags, Type } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {
@@ -7,7 +7,7 @@ export function $onValidate(program: Program) {
   validateNoExportAtRoot(program, root);
 }
 
-function validateNoExportAtRoot(program: Program, root: NamespaceType) {
+function validateNoExportAtRoot(program: Program, root: Namespace) {
   function validateFor(items: Map<string, Type & { name?: string }>) {
     for (const type of items.values()) {
       reportDiagnostic(program, {

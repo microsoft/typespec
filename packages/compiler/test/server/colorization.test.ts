@@ -4,7 +4,7 @@ import { createRequire } from "module";
 import path, { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
-import vscode_textmate, { IOnigLib, StackElement } from "vscode-textmate";
+import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
 import { CadlScope } from "../../server/tmlanguage.js";
@@ -30,12 +30,21 @@ type Tokenize = (input: string) => Promise<Token[]>;
 const Token = {
   keywords: {
     model: createToken("model", "keyword.other.cadl"),
+    scalar: createToken("scalar", "keyword.other.cadl"),
     operation: createToken("op", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
     alias: createToken("alias", "keyword.other.cadl"),
+    dec: createToken("dec", "keyword.other.cadl"),
+    fn: createToken("fn", "keyword.other.cadl"),
+    projection: createToken("projection", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
+    extern: createToken("extern", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
+    if: createToken("if", "keyword.other.cadl"),
+    else: createToken("else", "keyword.other.cadl"),
+    to: createToken("to", "keyword.other.cadl"),
+    from: createToken("from", "keyword.other.cadl"),
     other: (text: string) => createToken(text, "keyword.other.cadl"),
   },
 
@@ -52,12 +61,14 @@ const Token = {
     assignment: createToken("=", "keyword.operator.assignment.cadl"),
     optional: createToken("?", "keyword.operator.optional.cadl"),
     typeAnnotation: createToken(":", "keyword.operator.type.annotation.cadl"),
+    selector: createToken("#", "keyword.operator.selector.cadl"),
     spread: createToken("...", "keyword.operator.spread.cadl"),
   },
 
   punctuation: {
     comma: createToken(",", "punctuation.comma.cadl"),
     accessor: createToken(".", "punctuation.accessor.cadl"),
+    valueAccessor: createToken("::", "punctuation.accessor.cadl"),
     openBracket: createToken("[", "punctuation.squarebracket.open.cadl"),
     closeBracket: createToken("]", "punctuation.squarebracket.close.cadl"),
     openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
@@ -167,6 +178,47 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.literals.numeric("123"),
           Token.punctuation.closeParen,
         ]);
+      });
+    });
+
+    describe("augment decorators", () => {
+      const params = [
+        Token.punctuation.openParen,
+        Token.identifiers.type("MyModel"),
+        Token.punctuation.comma,
+        Token.literals.string("param1"),
+        Token.punctuation.comma,
+        Token.literals.numeric("123"),
+        Token.punctuation.closeParen,
+      ];
+
+      it("decorator", async () => {
+        const tokens = await tokenize(`@@foo(MyModel, "param1", 123)`);
+        if (tokenize === tokenizeTMLanguage) {
+          deepStrictEqual(tokens, [Token.identifiers.tag("@@foo"), ...params]);
+        } else {
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.tag("foo"),
+            ...params,
+          ]);
+        }
+      });
+
+      it("fully qualified decorator name", async () => {
+        const tokens = await tokenize(`@@Foo.bar(MyModel, "param1", 123)`);
+
+        if (tokenize === tokenizeTMLanguage) {
+          deepStrictEqual(tokens, [Token.identifiers.tag("@@Foo.bar"), ...params]);
+        } else {
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.type("Foo"),
+            Token.punctuation.accessor,
+            Token.identifiers.tag("bar"),
+            ...params,
+          ]);
+        }
       });
     });
 
@@ -487,6 +539,40 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("scalar", () => {
+      it("simple scalar", async () => {
+        const tokens = await tokenize("scalar Foo;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("scalar with extends", async () => {
+        const tokens = await tokenize("scalar Foo extends Bar;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("single template argument model", async () => {
+        const tokens = await tokenize("scalar Foo<T>;");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");
@@ -656,6 +742,173 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
     });
+
+    describe("decorator declarations", () => {
+      it("extern decorator", async () => {
+        const tokens = await tokenize("extern dec tag(target: Namespace);");
+        deepStrictEqual(tokens, [
+          Token.keywords.extern,
+          Token.keywords.dec,
+          Token.identifiers.functionName("tag"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("target"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("Namespace"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("function declarations", () => {
+      it("extern fn", async () => {
+        const tokens = await tokenize("extern fn camelCase(target: StringLiteral): StringLiteral;");
+        deepStrictEqual(tokens, [
+          Token.keywords.extern,
+          Token.keywords.fn,
+          Token.identifiers.functionName("camelCase"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("target"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("StringLiteral"),
+          Token.punctuation.closeParen,
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("StringLiteral"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("projections", () => {
+      it("simple projection", async () => {
+        const tokens = await tokenize(`
+      projection op#foo {
+        to(arg1) {
+          calling(arg1);
+        }
+      }
+      `);
+        deepStrictEqual(tokens, [
+          Token.keywords.projection,
+          Token.keywords.operation,
+          Token.operators.selector,
+          Token.identifiers.variable("foo"),
+          Token.punctuation.openBrace,
+          Token.keywords.to,
+          Token.punctuation.openParen,
+          Token.identifiers.variable("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.identifiers.functionName("calling"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      async function testProjectionBody(body: string, expectedTokens: Token[]) {
+        const tokens = await tokenize(`
+      projection op#foo {
+        to(arg1) {
+          ${body}
+        }
+      }
+      `);
+        deepStrictEqual(tokens, [
+          Token.keywords.projection,
+          Token.keywords.operation,
+          Token.operators.selector,
+          Token.identifiers.variable("foo"),
+          Token.punctuation.openBrace,
+          Token.keywords.to,
+          Token.punctuation.openParen,
+          Token.identifiers.variable("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          ...expectedTokens,
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      }
+
+      it("if expression with body", async () => {
+        await testProjectionBody(
+          `
+        if hasFoo(arg1) {
+          doFoo(arg1);
+        };
+      `,
+          [
+            Token.keywords.if,
+            Token.identifiers.functionName("hasFoo"),
+            Token.punctuation.openParen,
+            Token.identifiers.type("arg1"),
+            Token.punctuation.closeParen,
+            Token.punctuation.openBrace,
+            Token.identifiers.functionName("doFoo"),
+            Token.punctuation.openParen,
+            Token.identifiers.type("arg1"),
+            Token.punctuation.closeParen,
+            Token.punctuation.semicolon,
+            Token.punctuation.closeBrace,
+            Token.punctuation.semicolon,
+          ]
+        );
+      });
+
+      it("if, else if, else expression", async () => {
+        await testProjectionBody(
+          `
+        if hasFoo() {
+        } else if hasBar() {
+        } else {
+        };
+      `,
+          [
+            Token.keywords.if,
+            Token.identifiers.functionName("hasFoo"),
+            Token.punctuation.openParen,
+            Token.punctuation.closeParen,
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
+
+            Token.keywords.else,
+            Token.keywords.if,
+            Token.identifiers.functionName("hasBar"),
+            Token.punctuation.openParen,
+            Token.punctuation.closeParen,
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
+
+            Token.keywords.else,
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
+
+            Token.punctuation.semicolon,
+          ]
+        );
+      });
+
+      it("property accessor", async () => {
+        await testProjectionBody(
+          `
+        doFoo(self::name);
+        `,
+          [
+            Token.identifiers.functionName("doFoo"),
+            Token.punctuation.openParen,
+            Token.identifiers.type("self"),
+            ...(tokenize === tokenizeSemantic ? [Token.punctuation.valueAccessor] : []),
+            Token.identifiers.type("name"),
+            Token.punctuation.closeParen,
+            Token.punctuation.semicolon,
+          ]
+        );
+      });
+    });
   });
 }
 
@@ -676,7 +929,7 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
     }
   }
 
-  // Make @dec one token to match tmlanguage
+  // Make @myDec one token to match tmlanguage
   for (let i = 0; i < tokens.length - 1; i++) {
     if (
       tokens[i].scope === "entity.name.tag.cadl" &&
@@ -716,8 +969,9 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:
         if (text === "@") return Token.identifiers.tag("@");
+        if (text === "@@") return Token.identifiers.tag("@@");
         const punctuation = punctuationMap.get(text);
-        ok(punctuation, "No tmlanugage equivalent for punctuation: " + text);
+        ok(punctuation, `No tmlanguage equivalent for punctuation: "${text}".`);
         return punctuation;
       default:
         ok(false, "Unexpected SemanticTokenKind: " + SemanticTokenKind[token.kind]);
@@ -756,7 +1010,7 @@ export async function tokenizeTMLanguage(input: string | Input): Promise<Token[]
   }
 
   const tokens: Token[] = [];
-  let previousStack: StackElement | null = null;
+  let previousStack: StateStack | null = null;
   const grammar = await registry.loadGrammar("source.cadl");
 
   if (grammar === null) {

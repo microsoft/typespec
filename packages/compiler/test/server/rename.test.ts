@@ -13,23 +13,23 @@ describe("compiler: server: rename and find references", () => {
   test(
     "models",
     `
-      model Model/**/ {
-        prop: Mo┆del/**/; 
+      model MyModel/**/ {
+        prop: MyMo┆del/**/; 
       }
 
-      model A extends Model/**/ {}
+      model A extends MyModel/**/ {}
 
-      model D extends C<Model/**/>
+      model D extends C<MyModel/**/>
 
       namespace M {
-        model Model {} // different model
+        model MyModel {} // different model
       }
 
       model B {
-        Model: string; // property name
+        MyModel: string; // property name
       }
 
-      model C<Model> {} // template parameter name
+      model C<MyModel> {} // template parameter name
       `
   );
 

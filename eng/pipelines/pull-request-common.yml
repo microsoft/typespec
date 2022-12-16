@@ -1,7 +1,7 @@
 parameters:
   - name: nodeVersion
     type: string
-  - name: imageName
+  - name: poolName
     type: string
 
 steps:
@@ -13,6 +13,15 @@ steps:
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
+
+  - script: |
+      echo "Node:"
+      node -v
+      echo "Npm:"
+      npm -v
+      echo "Dotnet:"
+      dotnet --version
+    displayName: "Log tool versions used"
 
   - script: node common/scripts/install-run-rush.js install
     displayName: Install JavaScript Dependencies
@@ -33,12 +42,12 @@ steps:
       testResultsFiles: "packages/*/test-results.xml"
       mergeTestResults: true
       failTaskOnFailedTests: true
-      testRunTitle: "Test os: ${{ parameters.imageName }}, node: ${{ parameters.nodeVersion }}"
+      testRunTitle: "Test os: ${{ parameters.poolName }}, node: ${{ parameters.nodeVersion }}"
     displayName: Publish test results
     condition: or(failed(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - publish: ./packages/playground/test-results
-    artifact: "uitestresults-${{ parameters.imageName }}-node-${{ parameters.nodeVersion }}"
+    artifact: "uitestresults-${{ parameters.poolName }}-node-${{ parameters.nodeVersion }}"
     displayName: Publish UI tests artifacts
     condition: failed()
 
@@ -53,8 +62,19 @@ steps:
   - script: cd packages/samples && npm run regen-samples
     displayName: Regenerate Samples
 
+  - script: node common/scripts/install-run-rush.js regen-docs
+    displayName: Regenerate Reference Docs
+
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
+  - script: node common/scripts/install-run-rush.js cspell
+    displayName: Spell check
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
+
   - script: node common/scripts/install-run-rush.js e2e
     displayName: E2E Tests
+    # Skipping the e2e test on the prepare publish branch as there is a bug in the npm version installed on node 16
+    # causing npx to try to download the unpublished version of the cli.
+    condition: eq('${{ parameters.nodeVersion }}', '18.x')
+    # condition: and(not(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))

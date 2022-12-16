@@ -2,7 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
-@serviceTitle("Grpc Kiosk sample")
+@service({
+  title: "Grpc Kiosk sample",
+})
 namespace GrpcKioskSample;
 
 @route("/v1")
@@ -19,12 +21,12 @@ namespace Display {
 
   @doc("Get a kiosk.")
   @route("kiosks/{id}")
-  op getKiosk(@path id: KioskId): Kiosk | RpcStatus;
+  op getKiosk(id: KioskId): Kiosk | RpcStatus;
 
   @doc("Delete a kiosk.")
   @route("kiosks/{id}")
   @delete
-  op deleteKiosk(@path id: KioskId): Empty | RpcStatus;
+  op deleteKiosk(id: KioskId): void | RpcStatus;
 
   @doc("Create a sign. This enrolls the sign for sign display.")
   @route("signs")
@@ -37,21 +39,21 @@ namespace Display {
 
   @doc("Get a sign.")
   @route("signs/{id}")
-  op getSign(@path id: SignId): Sign | RpcStatus;
+  op getSign(id: SignId): Sign | RpcStatus;
 
   @doc("Delete a sign.")
   @route("signs/{id}")
   @delete
-  op deleteSign(@path id: SignId): Empty | RpcStatus;
+  op deleteSign(id: SignId): void | RpcStatus;
 
   @doc("Set a sign for display on one or more kiosks.")
   @route("signs/{sign_id}")
   @post
-  op setSignIdForKioskIds(...SetSignIdForKioskIdsRequest): Empty | RpcStatus;
+  op setSignIdForKioskIds(...SetSignIdForKioskIdsRequest): void | RpcStatus;
 
   @doc("Get the sign that should be displayed on a kiosk.")
   @route("kiosks/{kiosk_id}/sign")
-  op getSignIdForKioskId(@path kiosk_id: int32): GetSignIdResponse | RpcStatus;
+  op getSignIdForKioskId(kiosk_id: int32): GetSignIdResponse | RpcStatus;
 
   //
   // TODO[JC]: Streaming ?
@@ -112,13 +114,10 @@ model ListSignsResponse {
 
 model SetSignIdForKioskIdsRequest {
   @body kiosk_ids: int32[];
-
-  @path
   sign_id: int32;
 }
 
 model GetSignIdForKioskIdRequest {
-  @path
   kiosk_id: int32;
 }
 

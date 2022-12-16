@@ -536,12 +536,13 @@ export type OpenAPI3ParameterBase = Extensions & {
 
   /** When this is true, parameter values of type array or object generate separate parameters for each value of the array or key-value pair of the map. For other types of parameters this property has no effect. When style is form, the default value is true. For all other styles, the default value is false.  */
   explode?: boolean;
+
+  schema: OpenAPI3Schema;
 };
 
 export type OpenAPI3ParameterType = "header" | "query" | "path";
 export type OpenAPI3Parameter = OpenAPI3ParameterBase & {
   in: OpenAPI3ParameterType;
-  schema: OpenAPI3Schema;
   name: string;
 };
 
@@ -570,6 +571,7 @@ export type OpenAPI3Operation = Extensions & {
   operationId?: string;
   requestBody?: any;
   parameters: OpenAPI3Parameter[];
+  deprecated?: boolean;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,10 +1,9 @@
-import "../dist/src/validate.js";
-
 import "./http.cadl";
+import "./rest-decorators.cadl";
 import "./resource.cadl";
 
 namespace Cadl.Rest;
 
 @doc("The location of an instance of {name}", TResource)
 @Private.resourceLocation(TResource)
-model ResourceLocation<TResource> is string;
+scalar ResourceLocation<TResource extends object> extends url;

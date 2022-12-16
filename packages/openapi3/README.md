@@ -34,19 +34,18 @@ For configuration [see options](#emitter-options)
 ```cadl
 import "@cadl-lang/openapi3";
 
-using OpenAPI.V3;
+using OpenAPI;
 
 // Using `using`
 @useRef("common.json#/components/schemas/Foo")
 model Foo {}
 
 // Using fully qualified names
-@OpenAPI.V3.oneOf
+@OpenAPI.oneOf
 union MyUnion {
   cat: Cat,
   dog: Dog,
 }
-
 ```
 
 ## Decorators
@@ -114,8 +113,12 @@ Set the newline character for emitting files. Can be either:
 - `lf`(Default)
 - `crlf`
 
+### `omit-unreachable-types`
+
+Only include types referenced via an operation.
+
 ## See also
 
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md)
+- [Cadl Website](https://microsoft.github.io/cadl)
 - [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)

@@ -2,6 +2,77 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.38.0",
+      "tag": "cadl-vs_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.1` to `~0.3.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.9.0",
+      "tag": "cadl-vs_v0.9.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Extension lookup for a local cadl compiler first instead of a global"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `~0.16.1` to `~0.17.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.8.0",
+      "tag": "cadl-vs_v0.8.0",
+      "date": "Thu, 08 Sep 2022 01:04:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add support for `${workspaceFolder}` interpolation in configuration"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix issue with configured cadl-server location not being found when opening a solution."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `~0.15.2` to `~0.16.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.2",
+      "tag": "cadl-vs_v0.7.2",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Providing `cadl.cadl-server.path` option will force the specified compiler to be used"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `~0.15.1` to `~0.15.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.0` to `~0.3.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.1",
       "tag": "cadl-vs_v0.7.1",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",

@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { ModelType, Type } from "../../core/types.js";
+import { Model, Type } from "../../core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -19,7 +19,7 @@ describe("compiler: spread", () => {
   beforeEach(async () => {
     const host = await createTestHost();
     host.addJsFile("blue.js", { $blue });
-    runner = createTestWrapper(host, (code) => code);
+    runner = createTestWrapper(host);
   });
 
   it("clones decorated properties", async () => {
@@ -28,7 +28,7 @@ describe("compiler: spread", () => {
       model A { @blue foo: string }
       model B { @blue bar: string }
       @test model C { ... A, ... B }
-      `)) as { C: ModelType };
+      `)) as { C: Model };
 
     strictEqual(C.kind, "Model");
     strictEqual(C.properties.size, 2);
@@ -38,7 +38,7 @@ describe("compiler: spread", () => {
     }
   });
 
-  it("doesn't emit additional diagnostic if spread reference is unknown-identitfier", async () => {
+  it("doesn't emit additional diagnostic if spread reference is unknown-identifier", async () => {
     const diagnostics = await runner.diagnose(`
       model Foo {
         ...NotDefined
@@ -65,7 +65,7 @@ describe("compiler: spread", () => {
     });
   });
 
-  it("emit diagnostic if spreading type not allowing properties", async () => {
+  it("emit diagnostic if spreading scalar type", async () => {
     const diagnostics = await runner.diagnose(`
       model Foo {
         ...string
@@ -74,7 +74,7 @@ describe("compiler: spread", () => {
 
     expectDiagnostics(diagnostics, {
       code: "spread-model",
-      message: "Cannot spread type because it cannot hold properties.",
+      message: "Cannot spread properties of non-model type.",
     });
   });
 

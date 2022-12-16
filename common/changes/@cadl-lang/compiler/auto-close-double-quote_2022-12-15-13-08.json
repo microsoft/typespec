@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Add double quote to autoClosingPairs",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

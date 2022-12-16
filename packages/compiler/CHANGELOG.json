@@ -2,6 +2,526 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.38.4",
+      "tag": "@cadl-lang/compiler_v0.38.4",
+      "date": "Thu, 15 Dec 2022 02:21:08 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `--arg` wasn't being picked up"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.3",
+      "tag": "@cadl-lang/compiler_v0.38.3",
+      "date": "Fri, 09 Dec 2022 22:03:04 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `constants` not available in `fs/promise`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.2",
+      "tag": "@cadl-lang/compiler_v0.38.2",
+      "date": "Fri, 09 Dec 2022 20:43:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Revert breaking change to global cli usage"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.1",
+      "tag": "@cadl-lang/compiler_v0.38.1",
+      "date": "Thu, 08 Dec 2022 22:04:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `scalar` can be used inside of namespace block"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/compiler_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Allow subtypes to override parent properties if the derived property type is a subtype of the parent property."
+          },
+          {
+            "comment": "Add opt-in support for parsing JSDoc-like developer documentation"
+          },
+          {
+            "comment": "Show developer docs in IDE features"
+          },
+          {
+            "comment": "Doc: Add Doc comments to built-in types and decorators"
+          },
+          {
+            "comment": "**Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI"
+          },
+          {
+            "comment": "Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function "
+          },
+          {
+            "comment": "Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node"
+          },
+          {
+            "comment": "Add variable interpolation functionality in the cadl-project.yaml"
+          },
+          {
+            "comment": "Add built-in `emitter-output-dir` options for all emitter."
+          },
+          {
+            "comment": "**Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter."
+          },
+          {
+            "comment": "Fix typing and export format command"
+          },
+          {
+            "comment": "**Api Breaking** Multiple `@service` per specs are now allowed."
+          },
+          {
+            "comment": "Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name"
+          },
+          {
+            "comment": "**Breaking** Add new `scalar` type and updated all intrinsic types to be a scalar type. `model MyString is string` changes to `scalar MyString extends string`"
+          },
+          {
+            "comment": "`LanguageServer` Feature: Add signature help for decorators"
+          },
+          {
+            "comment": "`Testing` Simplification of the testing framework"
+          },
+          {
+            "comment": "`cadl init` Initialize the package.json with `type: module`"
+          },
+          {
+            "comment": "**Deprecation** Renamed `url` to `uri`. Old `uri` is deprecated"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix member completion on aliases"
+          },
+          {
+            "comment": "Improve error recovery in the presence of merge conflict markers"
+          },
+          {
+            "comment": "Fix reportDiagnostics error from emitters"
+          },
+          {
+            "comment": "Fix: Should still instantiate template with invalid args but using constrain value"
+          },
+          {
+            "comment": "Fix: Issue with diagnostic location when target was the operation parmeters"
+          },
+          {
+            "comment": "Fix: miscOptions handling"
+          },
+          {
+            "comment": "**Fix** Handle no service in services deprecated apis"
+          },
+          {
+            "comment": "Fix: Validate `@service` decorator is targetting a namespace"
+          },
+          {
+            "comment": "Fix: Cascading error when template is used with invalid arguments"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.1` to `~0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.1` to `~0.3.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.37.0",
+      "tag": "@cadl-lang/compiler_v0.37.0",
+      "date": "Sat, 12 Nov 2022 00:14:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments"
+          },
+          {
+            "comment": "**Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`."
+          },
+          {
+            "comment": "Fix: crash with referencing global namespace"
+          },
+          {
+            "comment": "Added a new export to only import the module resolver"
+          },
+          {
+            "comment": "Debugging: adding tracing information for JS decorators and function binding"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "`emitFile` now ensures that the folder exists prior to writing to the path."
+          },
+          {
+            "comment": "Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.36.1",
+      "tag": "@cadl-lang/compiler_v0.36.1",
+      "date": "Wed, 19 Oct 2022 19:36:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix** augment decorators can be applied on namespace"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.36.0",
+      "tag": "@cadl-lang/compiler_v0.36.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix bug where cloned type members had wrong parent"
+          },
+          {
+            "comment": "Internal: Update type of `CompilerOptions.miscOptions` to be more accurate."
+          },
+          {
+            "comment": "Fix: Intersection types belong to namespace they are declared in."
+          },
+          {
+            "comment": "Fix: namespace and non namespace types should have unique names"
+          },
+          {
+            "comment": "Fix: Deprecated `output-path` not being respected"
+          },
+          {
+            "comment": "Fix: Property included via `model is` were not referencing the right model parent."
+          },
+          {
+            "comment": "Fix: Projected types point to projected parent type for Model properties, Union variants."
+          },
+          {
+            "comment": "Fix: Projected model property sourceProperty point to projected property"
+          },
+          {
+            "comment": "Minor improvemens to decorator definitions"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Remove `createProgram` and change `compile` parameter order to match old `createProgram`."
+          },
+          {
+            "comment": "Add new `getDiscriminatedUnion` helper to resolve the variants of a discriminated model or union"
+          },
+          {
+            "comment": "Emitter throwing exception will emit a new `emitter-uncaught-error` diagnostic with information on how to file issue for the given emitter."
+          },
+          {
+            "comment": "Expose module resolver"
+          },
+          {
+            "comment": "Add support for augment decorators."
+          },
+          {
+            "comment": "Language server provide document formatting using Cadl formatter"
+          },
+          {
+            "comment": "**Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. "
+          },
+          {
+            "comment": "`API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`."
+          },
+          {
+            "comment": "Add `uri` built-in type"
+          },
+          {
+            "comment": "Allow referencing global namespace as `global` for disambiguation"
+          },
+          {
+            "comment": "**Feature** `Api`: `resolveUsages` can now be used on a list of operation, interface or namespaces"
+          },
+          {
+            "comment": "**Fix** `Api`: `resolveUsages` collect reference to array element type and record value correctly."
+          },
+          {
+            "comment": "Expose helper to walk inherited properties and some helper data structures"
+          },
+          {
+            "comment": "Feature: `decorators` Add `@minItems` and `@maxItems` decorators"
+          },
+          {
+            "comment": "Add `navigateNamespace` helper letting user to navigate types under a namespace.(Similar to `navigateProgram`)"
+          },
+          {
+            "comment": "Include `@discriminator` decorator from \"@cadl-lang/rest\" library"
+          },
+          {
+            "comment": "Language Server: Improvement to outline, symbols correctly structured."
+          },
+          {
+            "comment": "Rename `output-path` to `output-dir` and deprecate old name."
+          },
+          {
+            "comment": "Add additional validation for `@overload` decorator: Make sure overloads are in the same container and that return types are compatible"
+          },
+          {
+            "comment": "Added `listOperations` helper method"
+          },
+          {
+            "comment": "**Breaking** Model `extends` or `is` cannot reference a model expression."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.35.0",
+      "tag": "@cadl-lang/compiler_v0.35.0",
+      "date": "Thu, 08 Sep 2022 01:04:53 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Api: `isGlobalNamespace` takes projection into account"
+          },
+          {
+            "comment": "Internal: Facilitate adding new tokens to scanner.\""
+          },
+          {
+            "comment": "Formatter: Cadl doesn't include blank line at the end of embedded markdown codeblock"
+          },
+          {
+            "comment": "Fix issue with ever-increasing duplicate symbol errors in IDE"
+          },
+          {
+            "comment": "Formatter: Directive on model property with decorators will hug decorator."
+          },
+          {
+            "comment": "Fix additional issues for decorators not running in projections in templated type instance"
+          },
+          {
+            "comment": "Internal: Fix some functionally not compatible in the browser"
+          },
+          {
+            "comment": "Fix issue where decorators would get called on uninstantiated template declarations"
+          },
+          {
+            "comment": "Internal: Don't clear template arguments on clone"
+          },
+          {
+            "comment": "Internal: Make scanner capable of scanning future keywords that are longer than 10 characters."
+          }
+        ],
+        "minor": [
+          {
+            "comment": "implementation of documentHighlight"
+          },
+          {
+            "comment": "**Breaking** Update `Enum` type members type to be a `Map<string, EnumMember>` instead of `EnumMember[]`"
+          },
+          {
+            "comment": "Add `@projectedName` decorator and projection for projected names"
+          },
+          {
+            "comment": "Add auto formatting support for projections"
+          },
+          {
+            "comment": "Add syntax highlighting for projections"
+          },
+          {
+            "comment": "**API BREAKING** Replace `enableProjections` and `disableProjections` with a new function `projectProgram` removing the state of the program around the current projection."
+          },
+          {
+            "comment": "Api: Add helper method to resolve model usages"
+          },
+          {
+            "comment": "Formatter: Comments in between decorators will stay between the decorators when formatting."
+          },
+          {
+            "comment": "Hovering over a symbol gives the fully-qualified name and documentation"
+          },
+          {
+            "comment": "Enable loading multiple installation of the same library as long as the versions are the same"
+          },
+          {
+            "comment": "Internal: Remove `evalCadlScript` from `Program`"
+          },
+          {
+            "comment": "Remove Type suffix from most Types and deprecate old names"
+          },
+          {
+            "comment": "Perf: Reuse unchanged files and programs in language server."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.34.0",
+      "tag": "@cadl-lang/compiler_v0.34.0",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "combine consecutive single line comments that are separated by whitespace"
+          },
+          {
+            "comment": "comment folding"
+          },
+          {
+            "comment": "implemented folding for comments"
+          },
+          {
+            "comment": "Allow extracting value from enums"
+          },
+          {
+            "comment": "Add helper method for emitting file in emitters"
+          },
+          {
+            "comment": "Feature: Emitter can specify a list of required imports"
+          },
+          {
+            "comment": "Allow `@secret` on model property"
+          },
+          {
+            "comment": "Add type relations and include a few more built-in types `any`, `object`, `Record`. `Map` was removed"
+          },
+          {
+            "comment": "Added support for template constraints"
+          },
+          {
+            "comment": "Format `model Foo is Bar {}` to `model Foo is Bar;`"
+          },
+          {
+            "comment": "Added ability for decorator validator to accept any type"
+          },
+          {
+            "comment": "Add @overload decorator"
+          },
+          {
+            "comment": "Add helper to check if a namespace is the global namespace"
+          },
+          {
+            "comment": "Support spread enum"
+          },
+          {
+            "comment": "Add editor support for document symbols."
+          },
+          {
+            "comment": "Improve language configuration to help with comment indentation"
+          },
+          {
+            "comment": "Provide helper to check types are template, template declaration or template instance"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix: Allow omiting optional properties"
+          },
+          {
+            "comment": "Improve `cloneType` implementation to duplicate decorator lists correctly"
+          },
+          {
+            "comment": "Add DefaultKeyVisibility<T, Visibility> and @withDefaultKeyVisibility to assign a default visibility value to model @key properties in specific operation signatures"
+          },
+          {
+            "comment": "Fix: Referencing previous template parameter in template parameter default"
+          },
+          {
+            "comment": "Fix bug in finding effective type"
+          },
+          {
+            "comment": "Fix issue with required parentheses being dropped with union, intersection and array expressions"
+          },
+          {
+            "comment": "Fix issue with formatting multi line tuple adding trailing comma."
+          },
+          {
+            "comment": "Fix parsing error locations for imports and blockless namespaces"
+          },
+          {
+            "comment": "Fix issue with multi-file specs in VS Code on Windows where common definitions are not found."
+          },
+          {
+            "comment": "Fix `mix` message when trying to extend non-interface"
+          },
+          {
+            "comment": "Fix issue with projection of nested namespace passing partial projected element to decorators"
+          },
+          {
+            "comment": "Fix: Operation signature with circular reference causing crash and updated message+code to be relevant to operations."
+          },
+          {
+            "comment": "Fix: Couldn't use operation defined inside interfaces as signature."
+          },
+          {
+            "comment": "Fix uninitialized parent namespaces in projections"
+          },
+          {
+            "comment": "Run projections on types returned from getEffectiveType"
+          },
+          {
+            "comment": "Fix: Issue with Nested namespace in projection causing versioning library to fail when Service is using nested namespace"
+          },
+          {
+            "comment": "Internal: union variant type has reference to parent union."
+          },
+          {
+            "comment": "Fix null reference in getTypeName API when called on anonymous models without a backing syntax node"
+          },
+          {
+            "comment": "Emit diagnostic when an optional property is marked with @key"
+          },
+          {
+            "comment": "Providing `cadl.cadl-server.path` option will force the specified compiler to be used"
+          },
+          {
+            "comment": "Fix error location of duplicate property from spread"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.0` to `~0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.0` to `~0.3.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.33.0",
       "tag": "@cadl-lang/compiler_v0.33.0",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",
@@ -52,7 +572,7 @@
             "comment": "Improve error message when loading library with invalid `main` file"
           },
           {
-            "comment": "Added new decorator signatgure validation helper"
+            "comment": "Added new decorator signature validation helper"
           },
           {
             "comment": "Allow empty tuples"
@@ -280,7 +800,7 @@
             "comment": "Fix formatting of comment between decorator and property"
           },
           {
-            "comment": "Fix using `&` with tempalte parameters"
+            "comment": "Fix using `&` with template parameters"
           },
           {
             "comment": "Support browser builds"
@@ -303,7 +823,7 @@
             "comment": "Prevent decorators from running if arguments are errors."
           },
           {
-            "comment": "Handle unknown identfier/error types used in spread operator."
+            "comment": "Handle unknown identifier/error types used in spread operator."
           },
           {
             "comment": "Add parent .model to ModelTypeProperty"
@@ -466,7 +986,7 @@
             "comment": "Fix error with file ending with mutline comment"
           },
           {
-            "comment": "**Fix** issue when loading cadl using a different casing than the actual casing in a case insenstivie file system"
+            "comment": "**Fix** issue when loading cadl using a different casing than the actual casing in a case insensitive file system"
           },
           {
             "comment": "Add @friendlyName decorator to customize model names for emitters"
@@ -492,7 +1012,7 @@
             "comment": "Add @error decorator in core"
           },
           {
-            "comment": "**Added** --emit flag to configure the emitter(s) to use and seperate library imports from emitters"
+            "comment": "**Added** --emit flag to configure the emitter(s) to use and separate library imports from emitters"
           },
           {
             "comment": "Add directory manipulation to CompilerHost"
@@ -548,7 +1068,7 @@
             "comment": "**Formatter** fix issues with empty model and interface with comments being moved outside."
           },
           {
-            "comment": "**Formatter** fix crash when having a comment in anynoymous empty model."
+            "comment": "**Formatter** fix crash when having a comment in anonymous empty model."
           },
           {
             "comment": "**Formatter** fix crash when using multi-line comment without each line starting with `*`."
@@ -557,7 +1077,7 @@
             "comment": "**Formatter** Tweak formatting of interface mixes that overflow."
           },
           {
-            "comment": "**Formatter** Keep single value decroator inline."
+            "comment": "**Formatter** Keep single value decorator inline."
           },
           {
             "comment": "**Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation)."
@@ -836,7 +1356,7 @@
       "comments": {
         "patch": [
           {
-            "comment": "Add support for discovering updatabale properties using visibility"
+            "comment": "Add support for discovering updatable properties using visibility"
           },
           {
             "comment": "Fix error in `cadl vs uninstall` command"
@@ -1069,7 +1589,7 @@
             "comment": "Fix issue where dynamic namespaces were not evaluated"
           },
           {
-            "comment": "Virtualize writting to filesytem to enable programtic usage of adl"
+            "comment": "Virtualize writting to filesystem to enable programtic usage of adl"
           }
         ],
         "minor": [

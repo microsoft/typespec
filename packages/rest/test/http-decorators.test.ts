@@ -1,4 +1,4 @@
-import { ModelTypeProperty, NamespaceType } from "@cadl-lang/compiler";
+import { ModelProperty, Namespace } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -11,19 +11,20 @@ import {
   getPathParamName,
   getQueryParamName,
   getServers,
+  includeInapplicableMetadataInPayload,
   isBody,
   isHeader,
   isPathParam,
   isQueryParam,
   isStatusCode,
 } from "../src/http/decorators.js";
-import { createRestTestRunner } from "./test-host.js";
+import { createHttpTestRunner } from "./test-host.js";
 
 describe("rest: http decorators", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    runner = await createRestTestRunner();
+    runner = await createHttpTestRunner();
   });
 
   describe("emit diagnostic if passing arguments to verb decorators", () => {
@@ -52,11 +53,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @header decorator to Operation",
+          message:
+            "Cannot apply @header decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @header decorator to Model",
+          message:
+            "Cannot apply @header decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -68,7 +71,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -101,11 +104,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @query decorator to Operation",
+          message:
+            "Cannot apply @query decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @query decorator to Model",
+          message:
+            "Cannot apply @query decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -117,7 +122,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -139,6 +144,47 @@ describe("rest: http decorators", () => {
     });
   });
 
+  describe("@route", () => {
+    it("emit diagnostics when duplicated unshared routes are applied", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") op test(): string;
+        @route("/test") op test2(): string;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@cadl-lang/rest/duplicate-operation",
+          message: `Duplicate operation "test" routed at "get /test".`,
+        },
+        {
+          code: "@cadl-lang/rest/duplicate-operation",
+          message: `Duplicate operation "test2" routed at "get /test".`,
+        },
+      ]);
+    });
+
+    it("do not emit diagnostics when duplicated shared routes are applied", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", {shared: true}) op test(): string;
+        @route("/test", {shared: true}) op test2(): string;
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("emit diagnostic when wrong type for shared is provided", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", {shared: "yes"}) op test(): string;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@cadl-lang/rest/shared-boolean",
+          message: `shared parameter must be a boolean.`,
+        },
+      ]);
+    });
+  });
+
   describe("@path", () => {
     it("emit diagnostics when @path is not used on model property", async () => {
       const diagnostics = await runner.diagnose(`
@@ -150,11 +196,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @path decorator to Operation",
+          message:
+            "Cannot apply @path decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @path decorator to Model",
+          message:
+            "Cannot apply @path decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -166,16 +214,8 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/rest/optional-path-param",
-        message: "Path parameter 'myPath' cannot be optional without a default value.",
+        message: "Path parameter 'myPath' cannot be optional.",
       });
-    });
-
-    it("accept optional property with default values", async () => {
-      const diagnostics = await runner.diagnose(`
-        @route("/") op test(@path myPath?: string = "my-default"): string;
-      `);
-
-      expectDiagnosticEmpty(diagnostics);
     });
 
     it("accept optional path when not used as operation parameter", async () => {
@@ -193,7 +233,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -226,11 +266,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @body decorator to Operation",
+          message:
+            "Cannot apply @body decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @body decorator to Model",
+          message:
+            "Cannot apply @body decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -255,11 +297,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @statusCode decorator to Operation",
+          message:
+            "Cannot apply @statusCode decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @statusCode decorator to Model",
+          message:
+            "Cannot apply @statusCode decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -286,11 +330,13 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @server decorator to Operation",
+          message:
+            "Cannot apply @server decorator to test since it is not assignable to Cadl.Reflection.Namespace",
         },
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @server decorator to Model",
+          message:
+            "Cannot apply @server decorator to Foo since it is not assignable to Cadl.Reflection.Namespace",
         },
       ]);
     });
@@ -303,7 +349,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -315,7 +361,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
       });
     });
 
@@ -327,7 +373,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument-count",
-        message: "Expected between 2 and 3 arguments, but got 1.",
+        message: "Expected 2-3 arguments, but got 1.",
       });
     });
 
@@ -339,7 +385,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'Model'",
+        message: "Argument '123' is not assignable to parameter of type 'Cadl.object'",
       });
     });
 
@@ -359,7 +405,7 @@ describe("rest: http decorators", () => {
       const { MyService } = (await runner.compile(`
         @server("https://example.com", "My service url")
         @test namespace MyService {}
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
@@ -375,13 +421,13 @@ describe("rest: http decorators", () => {
       const { MyService, NameParam } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", {@test("NameParam") name: string })
         @test namespace MyService {}
-      `)) as { MyService: NamespaceType; NameParam: ModelTypeProperty };
+      `)) as { MyService: Namespace; NameParam: ModelProperty };
 
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
         {
           description: "My service url",
-          parameters: new Map<string, ModelTypeProperty>([["name", NameParam]]),
+          parameters: new Map<string, ModelProperty>([["name", NameParam]]),
           url: "https://example.com/{name}/foo",
         },
       ]);
@@ -389,7 +435,7 @@ describe("rest: http decorators", () => {
   });
 
   describe("@useAuth", () => {
-    it("emit diagnostics when @header is not used on namespace", async () => {
+    it("emit diagnostics when @useAuth is not used on namespace", async () => {
       const diagnostics = await runner.diagnose(`
           @useAuth(BasicAuth) op test(): string;
         `);
@@ -397,21 +443,24 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @useAuth decorator to Operation",
+          message:
+            "Cannot apply @useAuth decorator to test since it is not assignable to Cadl.Reflection.Namespace",
         },
       ]);
     });
 
     it("emit diagnostics when config is not a model, tuple or union", async () => {
       const diagnostics = await runner.diagnose(`
-          @useAuth(123)
+          @useAuth(anOp)
           namespace Foo {}
+
+          op anOp(): void;
         `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument '123' of type 'Number' is not assignable to parameter of type 'Model, Union, Tuple'",
+          "Argument 'anOp' is not assignable to parameter of type 'Cadl.object | Cadl.Reflection.Union | Cadl.object[]'",
       });
     });
 
@@ -419,7 +468,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [{ schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] }],
@@ -432,7 +481,7 @@ describe("rest: http decorators", () => {
         model MyAuth is BasicAuth;
         @useAuth(MyAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -449,7 +498,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BearerAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [{ schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] }],
@@ -460,7 +509,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -469,7 +518,7 @@ describe("rest: http decorators", () => {
       });
     });
 
-    it("can specify OAauth2", async () => {
+    it("can specify OAuth2", async () => {
       const { Foo } = (await runner.compile(`
         model MyFlow {
           type: OAuth2FlowType.implicit;
@@ -479,7 +528,7 @@ describe("rest: http decorators", () => {
         }
         @useAuth(OAuth2Auth<[MyFlow]>)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -493,7 +542,7 @@ describe("rest: http decorators", () => {
                     type: "implicit",
                     authorizationUrl: "https://api.example.com/oauth2/authorize",
                     refreshUrl: "https://api.example.com/oauth2/refresh",
-                    scopes: ["read", "write"],
+                    scopes: [{ value: "read" }, { value: "write" }],
                   },
                 ],
               },
@@ -507,7 +556,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth | BearerAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -521,7 +570,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth([BasicAuth, BearerAuth])
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -539,7 +588,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -554,6 +603,89 @@ describe("rest: http decorators", () => {
           },
         ],
       });
+    });
+  });
+
+  describe("@visibility", () => {
+    it("warns on unsupported write visibility", async () => {
+      const diagnostics = await runner.diagnose(`
+        @test model M {
+          @visibility("write") w: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          severity: "warning",
+          code: "@cadl-lang/rest/write-visibility-not-supported",
+        },
+      ]);
+    });
+  });
+
+  describe("@includeInapplicableMetadataInPayload", () => {
+    it("defaults to true", async () => {
+      const { M } = await runner.compile(`
+        namespace Foo;
+        @test model M {p: string; }
+      `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        true
+      );
+    });
+    it("can specify at namespace level", async () => {
+      const { M } = await runner.compile(`
+        @includeInapplicableMetadataInPayload(false)
+        namespace Foo;
+        @test model M {p: string; }
+      `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        false
+      );
+    });
+    it("can specify at model level", async () => {
+      const { M } = await runner.compile(`
+      namespace Foo;
+      @includeInapplicableMetadataInPayload(false) @test model M { p: string; }
+    `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        false
+      );
+    });
+    it("can specify at property level", async () => {
+      const { M } = await runner.compile(`
+      namespace Foo;
+      @test model M { @includeInapplicableMetadataInPayload(false) p: string; }
+    `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        false
+      );
+    });
+
+    it("can be overridden", async () => {
+      const { M } = await runner.compile(`
+      @includeInapplicableMetadataInPayload(false)
+      namespace Foo;
+      @includeInapplicableMetadataInPayload(true) @test model M { p: string; }
+    `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        true
+      );
     });
   });
 });

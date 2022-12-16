@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix `(anonymous model).paramName` showing in operation signatures in IDE",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

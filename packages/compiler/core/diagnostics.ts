@@ -396,7 +396,7 @@ export interface DiagnosticCollector {
   /**
    * Wrap the given value in a tuple including the diagnostics following the Cadl accessor pattern.
    * @param value Accessor value to return
-   * @exmaple return diagnostics.wrap(routes);
+   * @example return diagnostics.wrap(routes);
    */
   wrap<T>(value: T): DiagnosticResult<T>;
 }

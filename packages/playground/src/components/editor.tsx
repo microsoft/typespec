@@ -28,7 +28,13 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, command
     }
   }, []);
 
-  return <div className="monaco-editor-container" ref={editorContainerRef}></div>;
+  return (
+    <div
+      className="monaco-editor-container"
+      css={{ width: "100%", height: "100%", overflow: "hidden" }}
+      ref={editorContainerRef}
+    ></div>
+  );
 };
 
 export function useMonacoModel(uri: string, language: string): editor.IModel {

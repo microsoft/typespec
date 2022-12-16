@@ -6,15 +6,16 @@ jobs:
   - job: publish_playground
     displayName: Publish playground
     pool:
-      vmImage: windows-latest
-
+      name: azsdk-pool-mms-ubuntu-2004-general
+    variables:
+      CADL_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
     steps:
       - checkout: self
         persistCredentials: true
 
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.14.2
+          versionSpec: 16.x
         displayName: Install Node.js
 
       - script: npx @microsoft/rush install
@@ -23,15 +24,31 @@ jobs:
       - script: npx @microsoft/rush rebuild --verbose
         displayName: Build
 
-      - task: AzureFileCopy@4
+      - task: AzureCLI@1
+        displayName: "Publish playground to PR endpoint"
         inputs:
-          sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlplayground"
-          blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
-          containerName: "$web"
-        displayName: "Update playground"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination \$web \
+              --account-name "cadlplayground" \
+              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --source "./packages/playground/dist/" \
+              --overwrite
+
+      - task: AzureCLI@1
+        displayName: "Publish website to PR endpoint"
+        inputs:
+          azureSubscription: "Azure SDK Playground"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination \$web \
+              --account-name "cadlwebsite" \
+              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --source "./packages/website/build/" \
+              --overwrite
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented

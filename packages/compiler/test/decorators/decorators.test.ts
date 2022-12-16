@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, ModelType, OperationType } from "../../core/index.js";
+import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -40,7 +40,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T>  {
+        model Template<T extends object>  {
         }
 
         @test
@@ -132,13 +132,13 @@ describe("compiler: built-in decorators", () => {
 
     it("emit diagnostic if doc is not a string", async () => {
       const diagnostics = await runner.diagnose(`
-        @doc("foo" | "bar")
+        @doc(123)
         model A { }
       `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument 'foo | bar' of type 'Union' is not assignable to parameter of type 'String'`,
+        message: `Argument '123' is not assignable to parameter of type 'Cadl.string'`,
       });
     });
   });
@@ -186,18 +186,21 @@ describe("compiler: built-in decorators", () => {
 
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
-      strictEqual(diagnostics[0].message, `Cannot apply @error decorator to Enum`);
+      strictEqual(
+        diagnostics[0].message,
+        `Cannot apply @error decorator to A since it is not assignable to Cadl.object`
+      );
     });
   });
 
   describe("@knownValues", () => {
-    it("assign the known values to string model", async () => {
+    it("assign the known values to string scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {one: "one", two: "two"}
         @test
         @knownValues(Foo)
-        model Bar is string {}
-      `)) as { Bar: ModelType };
+        scalar Bar extends string;
+      `)) as { Bar: Scalar };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -205,7 +208,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(knownValues.kind, "Enum");
     });
 
-    it("assign the known values to number model", async () => {
+    it("assign the known values to number scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {
           one: 1; 
@@ -213,8 +216,8 @@ describe("compiler: built-in decorators", () => {
         }
         @test
         @knownValues(Foo)
-        model Bar is int32 {}
-      `)) as { Bar: ModelType };
+        scalar Bar extends int32;
+      `)) as { Bar: Scalar };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -231,7 +234,8 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @format decorator to Enum",
+        message:
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty",
       });
     });
 
@@ -242,12 +246,12 @@ describe("compiler: built-in decorators", () => {
           two: 2;
         }
         @knownValues(Foo)
-        model Bar is string {}
+        scalar Bar extends string;
       `);
 
       expectDiagnostics(diagnostics, {
         code: "known-values-invalid-enum",
-        message: "Enum cannot be used on this type. Member one is not assignable to type string.",
+        message: "Enum cannot be used on this type. Member one is not assignable to type Bar.",
       });
     });
 
@@ -261,7 +265,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty",
       });
     });
 
@@ -269,12 +273,12 @@ describe("compiler: built-in decorators", () => {
       const diagnostics = await runner.diagnose(`
         model Foo {}
         @knownValues(Foo)
-        model Bar is string {}
+        scalar Bar extends string;
       `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' of type 'Model' is not assignable to parameter of type 'Enum'",
+        message: "Argument 'Foo' is not assignable to parameter of type 'Cadl.Reflection.Enum'",
       });
     });
   });
@@ -291,7 +295,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' of type 'Number' is not assignable to parameter of type 'String'",
+          message: "Argument '4' is not assignable to parameter of type 'Cadl.string'",
         },
       ]);
     });
@@ -305,7 +309,8 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @key decorator to Model",
+          message:
+            "Cannot apply @key decorator to M since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -402,7 +407,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
         } `
-      )) as { TestModel: ModelType };
+      )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
     });
@@ -419,7 +424,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
         } `
-      )) as { TestModel: ModelType };
+      )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
         "read",
@@ -505,7 +510,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument 'foo' of type 'String' is not assignable to parameter of type 'Operation'",
+          "Argument 'foo' is not assignable to parameter of type 'Cadl.Reflection.Operation'",
         severity: "error",
       });
     });
@@ -556,10 +561,10 @@ describe("compiler: built-in decorators", () => {
         op someUnrelatedThing(): void;
 
       `)) as {
-        someThing: OperationType;
-        someStringThing: OperationType;
-        someNumberThing: OperationType;
-        someUnrelatedThing: OperationType;
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
+        someUnrelatedThing: Operation;
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
@@ -568,30 +573,31 @@ describe("compiler: built-in decorators", () => {
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       ok(!getOverloadedOperation(runner.program, compiled.someUnrelatedThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
-      ok(overloadedBy?.length == 2);
-      ok(overloadedBy?.indexOf("someStringThing") !== -1);
-      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(overloadedBy?.length === 2);
+      ok(overloadedBy?.includes("someStringThing"));
+      ok(overloadedBy?.includes("someNumberThing"));
       ok(getOverloads(runner.program, compiled.someUnrelatedThing) === undefined);
     });
 
     it("can overload operations defined in a namespace", async () => {
       const compiled = (await runner.compile(`
-        namespace ADifferentNS {
+        namespace MyArea {
           @test
           op someThing(param: string | int32): string | int32;
 
           @test
           @overload(someThing)
           op someStringThing(param: string): string;
+
+          @test
+          @overload(MyArea.someThing)
+          op someNumberThing(param: int32): int32;
         }
 
-        @test
-        @overload(ADifferentNS.someThing)
-        op someNumberThing(param: int32): int32;
       `)) as {
-        someThing: OperationType;
-        someStringThing: OperationType;
-        someNumberThing: OperationType;
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
@@ -599,9 +605,9 @@ describe("compiler: built-in decorators", () => {
       ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
-      ok(overloadedBy?.length == 2);
-      ok(overloadedBy?.indexOf("someStringThing") !== -1);
-      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(overloadedBy?.length === 2);
+      ok(overloadedBy?.includes("someStringThing"));
+      ok(overloadedBy?.includes("someNumberThing"));
     });
 
     it("can overload operations defined in an interface", async () => {
@@ -619,9 +625,9 @@ describe("compiler: built-in decorators", () => {
           op someNumberThing(param: int32): int32;
         }
       `)) as {
-        someThing: OperationType;
-        someStringThing: OperationType;
-        someNumberThing: OperationType;
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
@@ -629,9 +635,239 @@ describe("compiler: built-in decorators", () => {
       ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
-      ok(overloadedBy?.length == 2);
-      ok(overloadedBy?.indexOf("someStringThing") !== -1);
-      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(overloadedBy?.length === 2);
+      ok(overloadedBy?.includes("someStringThing"));
+      ok(overloadedBy?.includes("someNumberThing"));
+    });
+
+    describe("overloads must have the same parent as the overload base", () => {
+      it("emit diagnostic if outside of interface", async () => {
+        const diagnostics = await runner.diagnose(`
+          interface SomeInterface {
+            someThing(param: string | int32): string | int32;
+          }
+  
+          @overload(SomeInterface.someThing)
+          op someStringThing(param: string): string;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if outside of namespace", async () => {
+        const diagnostics = await runner.diagnose(`
+          namespace SomeNamespace {
+            op someThing(param: string | int32): string | int32;
+          }
+  
+          @overload(SomeNamespace.someThing)
+          op someStringThing(param: string): string;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if different interface", async () => {
+        const diagnostics = await runner.diagnose(`
+          interface SomeInterface {
+            someThing(param: string | int32): string | int32;
+          }
+  
+          interface OtherInterface {
+            @overload(SomeInterface.someThing)
+            someStringThing(param: string): string;
+          }
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if different namespace", async () => {
+        const diagnostics = await runner.diagnose(`
+          namespace SomeNamespace {
+            op someThing(param: string | int32): string | int32;
+          }
+  
+          namespace OtherNamespace {
+            @overload(SomeNamespace.someThing)
+            op someStringThing(param: string): string;
+          }
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if in an interface but base isn't", async () => {
+        const diagnostics = await runner.diagnose(`
+          op someThing(param: string | int32): string | int32;
+  
+          interface OtherInterface {
+            @overload(someThing)
+            someStringThing(param: string): string;
+          }
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+    });
+  });
+
+  describe("@secret", () => {
+    it("can be applied on a string model", async () => {
+      const { A } = await runner.compile(
+        `
+        @test
+        @secret
+        scalar A extends string;
+        `
+      );
+
+      ok(isSecret(runner.program, A));
+    });
+
+    it("can be applied on a model property with string type", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        model A {
+          @secret
+          a: string;
+        }
+        `
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("can be applied on a model property with stringlike model as type", async () => {
+      const { A } = (await runner.compile(
+        `
+        scalar CustomStr extends string;
+
+        @test
+        model A {
+          @secret
+          a: CustomStr;
+        }
+        `
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("emit diagnostic if model is not a string", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        @secret
+        model A {}
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message:
+          "Cannot apply @secret decorator to A since it is not assignable to Cadl.string | Cadl.Reflection.ModelProperty",
+      });
+    });
+
+    it("emit diagnostic if model is a different intrinsic type(not a string)", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        @secret
+        scalar A extends int32;
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message:
+          "Cannot apply @secret decorator to A since it is not assignable to Cadl.string | Cadl.Reflection.ModelProperty",
+      });
+    });
+
+    it("emit diagnostic if model property is not a string type", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        model A {
+          @secret
+          a: int32;
+        }
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
+      });
+    });
+  });
+
+  describe("@discriminator on unions", () => {
+    it("requires variants to be models", async () => {
+      const diagnostics = await runner.diagnose(`
+        @discriminator("kind")
+        union Foo {
+          a: "hi"
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message: `Union variant "a" must be a model type.`,
+        },
+      ]);
+    });
+    it("requires variants to have the discriminator property", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+
+        }
+        @discriminator("kind")
+        union Foo {
+          a: A
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message: `Variant "a" type is missing the discriminant property "kind".`,
+        },
+      ]);
+    });
+
+    it("requires variant discriminator properties to be string literals or string enum values", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          kind: string,
+        }
+
+        @discriminator("kind")
+        union Foo {
+          a: A
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
+        },
+      ]);
     });
   });
 });

@@ -1,6 +1,61 @@
 # Change Log - @cadl-lang/openapi
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Internal: update to use new `getTypeName` and `getNamespaceString` helper
+- Add support for multiple services
+- Uptake changes to compiler api with new `scalar` type
+
+### Patches
+
+- Add cadl docs on decorators
+- Update dependencies
+
+## 0.14.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Declare decorators in cadl using `extern dec`
+
+## 0.13.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Implement automatic visibility transformations
+
+### Patches
+
+- Remove workaround for issue with `KeysOf` https://github.com/microsoft/cadl/issues/462
+- Add/update docs for openapi3 emitter
+
+## 0.12.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Update decororator state key to allow multiple instance of library to work together.
+- React to Type suffix removal
+
+### Patches
+
+- Api: Operation id resolver takes projection into account
+
+## 0.11.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Uptake changes to type relations
+- Inline generic instantiations without `@friendlyName`
+- Added helper to resolve operation id
+- Internal: Uptake new compiler helpers to work with template types
 
 ## 0.10.1
 Fri, 08 Jul 2022 23:22:57 GMT
@@ -13,6 +68,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 ### Minor changes
 
 - Uptake changes to decorator context
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.9.0
 Fri, 06 May 2022 17:19:57 GMT

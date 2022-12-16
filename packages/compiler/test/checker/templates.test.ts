@@ -1,11 +1,12 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/diagnostics.js";
-import { Diagnostic, ModelType, StringLiteralType } from "../../core/types.js";
+import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
+  extractCursor,
   extractSquiggles,
   TestHost,
 } from "../../testing/index.js";
@@ -100,13 +101,13 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
-    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual((a.type as StringLiteral).value, "bye");
     strictEqual(b.type.kind, "String");
-    strictEqual((b.type as StringLiteralType).value, "hi");
+    strictEqual((b.type as StringLiteral).value, "hi");
   });
 
   it("allows default template parameters that are models", async () => {
@@ -120,10 +121,10 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
-    strictEqual(a.type.kind, "Model");
-    strictEqual((a.type as ModelType).name, "string");
+    strictEqual(a.type.kind, "Scalar");
+    strictEqual((a.type as Model).name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
@@ -139,7 +140,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { Test } = (await testHost.compile("main.cadl")) as { Test: ModelType };
+    const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
     const a = Test.properties.get("a")!;
     const b = Test.properties.get("b")!;
     const c = Test.properties.get("c")!;
@@ -223,6 +224,42 @@ describe("compiler: templates", () => {
     });
   });
 
+  describe("instantiating a template with invalid args", () => {
+    it("shouldn't pass thru the invalid args", async () => {
+      const { pos, source } = extractCursor(`
+    model AnObject<T extends object> { t: T }
+    
+    alias Bar<T extends object>  = AnObject<T>;
+    
+    alias NoConstaint<T> = Bar<┆T>;
+  `);
+      testHost.addCadlFile("main.cadl", source);
+      const diagnostics = await testHost.diagnose("main.cadl");
+      // Only one error, Bar<T> can't be created as T is not constraint to object
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'unknown' is not assignable to type 'Cadl.object'",
+        pos,
+      });
+    });
+
+    it("operation should still be able to be used(no extra diagnostic)", async () => {
+      const { pos, source } = extractCursor(`
+    op Action<T extends object>(): T;
+
+    op foo is Action<┆"abc">;
+  `);
+      testHost.addCadlFile("main.cadl", source);
+      const diagnostics = await testHost.diagnose("main.cadl");
+      // Only one error, Bar<T> can't be created as T is not constraint to object
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'abc' is not assignable to type 'Cadl.object'",
+        pos,
+      });
+    });
+  });
+
   it("can reference other parameters", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -234,13 +271,13 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
-    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual((a.type as StringLiteral).value, "bye");
     strictEqual(b.type.kind, "String");
-    strictEqual((b.type as StringLiteralType).value, "bye");
+    strictEqual((b.type as StringLiteral).value, "bye");
   });
 
   it("can reference other parameters in default in a model expression", async () => {
@@ -254,7 +291,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
     const t = b.type.properties.get("t")!.type;
@@ -277,7 +314,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
     const t = b.type.properties.get("t")!.type;
@@ -420,6 +457,62 @@ describe("compiler: templates", () => {
         pos,
         end,
       });
+    });
+  });
+
+  describe("doesn't run decorators on model properties when projecting template declarations", () => {
+    async function expectMarkDecoratorNotCalled(code: string) {
+      testHost.addJsFile("mark.js", {
+        $mark: () => fail("Should not have called decorator"),
+      });
+
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      import "./mark.js";
+      ${code}
+     `
+      );
+
+      await testHost.compile("main.cadl");
+    }
+
+    it("on model", async () => {
+      await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+    });
+
+    it("on model properties", async () => {
+      await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+    });
+
+    it("on model properties (on operation)", async () => {
+      await expectMarkDecoratorNotCalled(`
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+        `);
+    });
+
+    it("on model properties (nested)", async () => {
+      await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            nested: {
+              @mark(T)
+              prop: string;
+            }
+          }
+        `);
     });
   });
 });

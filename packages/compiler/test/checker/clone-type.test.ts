@@ -16,12 +16,14 @@ describe("compiler: type cloning", () => {
     });
   });
 
-  testClone("models", "@test @blue model test { }");
+  testClone("models", "@test @blue model test { p: string; }");
   testClone("model properties", "model Foo { @test @blue test: string }");
   testClone("operations", "@test @blue op test(): string;");
   testClone("parameters", "op test(@test @blue test: string): string;");
-  testClone("enums", "@test @blue enum test { }");
+  testClone("enums", "@test @blue enum test { e }");
   testClone("enum members", "enum Foo { @test @blue test: 1 }");
+  testClone("interfaces", "@test @blue interface test { o(): void; }");
+  testClone("unions", "@test @blue union test { s: string; n: int32; }");
 
   function testClone(description: string, code: string) {
     it(`clones ${description}`, async () => {
@@ -52,6 +54,73 @@ describe("compiler: type cloning", () => {
         strictEqual(test.decorators.length, 2);
         strictEqual(clone.decorators.length, 3);
       }
+
+      // Ensure that cloned members are re-parented
+      switch (clone.kind) {
+        case "Model":
+          for (const each of clone.properties.values()) {
+            strictEqual(each.model, clone, "model property not re-parented");
+          }
+          break;
+        case "Enum":
+          for (const each of clone.members.values()) {
+            strictEqual(each.enum, clone, "enum member not re-parented");
+          }
+          break;
+        case "Interface":
+          for (const each of clone.operations.values()) {
+            strictEqual(each.interface, clone, "interface operation not re-parented");
+          }
+          break;
+        case "Union":
+          for (const each of clone.variants.values()) {
+            strictEqual(each.union, clone, "union variant not re-parented");
+          }
+          break;
+      }
+
+      // Ensure that you can set your own member list
+      switch (test.kind) {
+        case "Model":
+          const newModel = testHost.program.checker.cloneType(test, { properties: new Map() });
+          ok(test.properties.size > 0, "no properties to change");
+          strictEqual(newModel.properties.size, 0, "properties not set.");
+          break;
+        case "Enum":
+          const newEnum = testHost.program.checker.cloneType(test, { members: new Map() });
+          ok(test.members.size > 0, "no members to change");
+          strictEqual(newEnum.members.size, 0, "members not set");
+          break;
+        case "Interface":
+          const newInterface = testHost.program.checker.cloneType(test, { operations: new Map() });
+          ok(test.operations.size > 0, "no operations to change");
+          strictEqual(newInterface.operations.size, 0, "operations not set");
+          break;
+        case "Union":
+          const newUnion = testHost.program.checker.cloneType(test, { variants: new Map() });
+          ok(test.variants.size > 0, "no variants to change");
+          strictEqual(newUnion.variants.size, 0, "variants not set");
+          break;
+      }
     });
   }
+
+  it("preserves template arguments", async () => {
+    testHost.addCadlFile(
+      "test.cadl",
+      `
+      model Template<T, U> {}
+      model Test {
+        @test test: Template<string, int32>;
+      }
+      `
+    );
+
+    const { test } = await testHost.compile("./test.cadl");
+    strictEqual(test.kind, "ModelProperty" as const);
+    strictEqual(test.type.kind, "Model" as const);
+    const clone = testHost.program.checker.cloneType(test.type);
+    strictEqual(clone.templateArguments?.length, 2);
+    deepStrictEqual(test.type.templateArguments, clone.templateArguments);
+  });
 });

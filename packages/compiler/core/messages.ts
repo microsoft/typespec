@@ -149,6 +149,18 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
+  "augment-decorator-target": {
+    severity: "error",
+    messages: {
+      default: `Augment decorator first argument must be a type reference.`,
+    },
+  },
+  "duplicate-decorator": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same node.`,
+    },
+  },
   "reserved-identifier": {
     severity: "error",
     messages: {
@@ -189,6 +201,25 @@ const diagnostics = {
         "Template parameter defaults can only reference previously declared type parameters.",
     },
   },
+  "required-parameter-first": {
+    severity: "error",
+    messages: {
+      default: "A required parameter cannot follow an optional parameter.",
+    },
+  },
+  "rest-parameter-last": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be last in a parameter list.",
+    },
+  },
+  "rest-parameter-required": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter cannot be optional.",
+    },
+  },
+
   /**
    * Checker
    */
@@ -272,28 +303,36 @@ const diagnostics = {
       default: paramMessage`Model already has a property named ${"propName"}`,
     },
   },
-  "override-property": {
+  "override-property-mismatch": {
     severity: "error",
     messages: {
-      default: paramMessage`Model has an inherited property named ${"propName"} which cannot be overridden`,
+      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
+    },
+  },
+  "override-property-intrinsic": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which can only override an intrinsic type on the parent property, not ${"parentType"}`,
+    },
+  },
+  "extend-scalar": {
+    severity: "error",
+    messages: {
+      default: "Scalar must extend other scalars.",
     },
   },
   "extend-model": {
     severity: "error",
     messages: {
       default: "Models must extend other models.",
-    },
-  },
-  "extend-primitive": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Cannot extend primitive types. Use 'model ${"modelName"} is ${"baseModelName"}' instead.`,
+      modelExpression: "Models cannot extend model expressions.",
     },
   },
   "is-model": {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
+      modelExpression: "Model `is` cannot specify a model expression.",
     },
   },
   "is-operation": {
@@ -382,7 +421,58 @@ const diagnostics = {
       default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
+  "rest-parameter-array": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be of an array type.",
+    },
+  },
+  "decorator-extern": {
+    severity: "error",
+    messages: {
+      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-extern": {
+    severity: "error",
+    messages: {
+      default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "missing-implementation": {
+    severity: "error",
+    messages: {
+      default: "Extern declaration must have an implementation in JS file.",
+    },
+  },
+  "overload-same-parent": {
+    severity: "error",
+    messages: {
+      default: `Overload must be in the same interface or namespace.`,
+    },
+  },
 
+  /**
+   * Configuration
+   */
+  "config-invalid-argument": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Argument "${"name"}" is not defined as a parameter in the config.`,
+    },
+  },
+  "config-circular-variable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`There is a circular reference to variable "${"name"}" in the cli configuration or arguments.`,
+    },
+  },
+  "config-path-absolute": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+    },
+  },
   /**
    * Program
    */
@@ -417,16 +507,29 @@ const diagnostics = {
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
-  "compiler-version-mismatch": {
-    severity: "error",
+  "incompatible-library": {
+    severity: "warning",
     messages: {
-      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this error occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this error occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
+      default: paramMessage`Multiple versions of "${"name"}" library were loaded:\n${"versionMap"}`,
+    },
+  },
+  "compiler-version-mismatch": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
     },
   },
   "duplicate-symbol": {
     severity: "error",
     messages: {
       default: paramMessage`Duplicate name: "${"name"}"`,
+    },
+  },
+  "decorator-decl-target": {
+    severity: "error",
+    messages: {
+      default: "dec must have at least one parameter.",
+      required: "dec first parameter must be required.",
     },
   },
   "projections-are-experimental": {
@@ -462,10 +565,16 @@ const diagnostics = {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
-  "emitter-not-found": {
+  "invalid-emitter": {
     severity: "error",
     messages: {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
     },
   },
   "missing-import": {
@@ -482,19 +591,20 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
+      withExpected: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"} since it is not assignable to ${"expected"}`,
     },
   },
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' of type '${"actual"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
-      between: paramMessage`Expected between ${"min"} and ${"max"} arguments, but got ${"actual"}.`,
+      atLeast: paramMessage`Expected at least ${"expected"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {
@@ -522,6 +632,35 @@ const diagnostics = {
       default: paramMessage`Property '${"propertyName"}' marked as key cannot be optional.`,
     },
   },
+  "invalid-discriminated-union": {
+    severity: "error",
+    messages: {
+      default: "",
+      noAnonVariants: "Unions with anonymous variants cannot be discriminated",
+    },
+  },
+  "invalid-discriminated-union-variant": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Union variant "${"name"}" must be a model type.`,
+      noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
+      wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
+    },
+  },
+  "missing-discriminator-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Each derived model of a discriminated model type should have set the discriminator property("${"discriminator"}") or have a derived model which has. Add \`${"discriminator"}: "<discriminator-value>"\``,
+    },
+  },
+  "invalid-discriminator-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Discriminator value should be a string, union of string or string enum but was ${"kind"}.`,
+      required: "The discriminator property must be a required property.",
+      duplicate: paramMessage`Discriminator value "${"discriminator"}" is already used in another variant.`,
+    },
+  },
 
   /**
    * Service
@@ -529,19 +668,19 @@ const diagnostics = {
   "service-decorator-duplicate": {
     severity: "error",
     messages: {
-      default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
-    },
-  },
-  "service-namespace-duplicate": {
-    severity: "error",
-    messages: {
-      default: "Cannot set service namespace more than once in a Cadl project.",
+      default: `@service can only be set once per Cadl document.`,
     },
   },
   "list-type-not-model": {
     severity: "error",
     messages: {
       default: "@list decorator's parameter must be a model type.",
+    },
+  },
+  "invalid-range": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Range "${"start"}..${"end"}" is invalid.`,
     },
   },
 
@@ -581,7 +720,7 @@ const diagnostics = {
   "circular-base-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
   "circular-op-signature": {
@@ -594,6 +733,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "conflict-marker": {
+    severity: "error",
+    messages: {
+      default: "Conflict marker encountered.",
     },
   },
 } as const;

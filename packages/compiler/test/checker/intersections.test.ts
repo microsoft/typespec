@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { ModelType } from "../../core/index.js";
+import { Model } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -13,7 +13,7 @@ describe("compiler: intersections", () => {
 
   beforeEach(async () => {
     const host = await createTestHost();
-    runner = createTestWrapper(host, (code) => code);
+    runner = createTestWrapper(host);
   });
 
   it("intersect 2 models", async () => {
@@ -21,13 +21,34 @@ describe("compiler: intersections", () => {
       @test model Foo {
         prop: {a: string} & {b: string};
       }
-    `)) as { Foo: ModelType };
+    `)) as { Foo: Model };
 
-    const prop = Foo.properties.get("prop")!.type as ModelType;
+    const prop = Foo.properties.get("prop")!.type as Model;
     strictEqual(prop.kind, "Model");
     strictEqual(prop.properties.size, 2);
     ok(prop.properties.has("a"));
     ok(prop.properties.has("b"));
+  });
+
+  it("intersection type belong to namespace it is declared in", async () => {
+    const { Foo } = (await runner.compile(`
+      namespace A {
+        model ModelA {name: string}
+      }
+      namespace B {
+        model ModelB {age: int32}
+      }
+      namespace C {
+        @test model Foo {
+          prop: A.ModelA & B.ModelB;
+        }
+      }
+    `)) as { Foo: Model };
+
+    const prop = Foo.properties.get("prop")!.type as Model;
+    strictEqual(prop.kind, "Model");
+    ok(prop.namespace);
+    strictEqual(prop.namespace.name, "C");
   });
 
   it("allow intersections of template params", async () => {
@@ -38,10 +59,10 @@ describe("compiler: intersections", () => {
       @test model Foo {
         prop: Bar<{a: string}, {b: string}>;
       }
-    `)) as { Foo: ModelType };
+    `)) as { Foo: Model };
 
-    const Bar = Foo.properties.get("prop")!.type as ModelType;
-    const prop = Bar.properties.get("prop")!.type as ModelType;
+    const Bar = Foo.properties.get("prop")!.type as Model;
+    const prop = Bar.properties.get("prop")!.type as Model;
     strictEqual(prop.kind, "Model");
     strictEqual(prop.properties.size, 2);
     ok(prop.properties.has("a"));

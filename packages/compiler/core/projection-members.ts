@@ -1,7 +1,7 @@
 import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
 import { Checker } from "./checker.js";
 import { assertType, ProjectionError } from "./diagnostics.js";
-import { ObjectType, Type, UnionTypeVariant } from "./types.js";
+import { ObjectType, Type, UnionVariant } from "./types.js";
 
 export function createProjectionMembers(checker: Checker): {
   [TKind in Type["kind"]]?: Record<string, (base: Type & { kind: TKind }) => Type>;
@@ -40,7 +40,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("block", block, "Function");
               const props = Array.from(base.properties.values());
-              props.forEach((p) => block.call(p));
+              props.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -81,7 +81,7 @@ export function createProjectionMembers(checker: Checker): {
               name,
               optional: false,
               decorators: [],
-              node: undefined as any,
+              node: undefined!,
               default: defaultT,
               type,
             })
@@ -135,7 +135,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("block", block, "Function");
               const variants = Array.from(base.variants.values());
-              variants.forEach((p) => block.call(p));
+              variants.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -144,7 +144,7 @@ export function createProjectionMembers(checker: Checker): {
       renameVariant(base) {
         return createFunctionType((oldNameT: Type, newNameT: Type) => {
           assertType("old variant name", oldNameT, "String");
-          assertType("new vaariant name", newNameT, "String");
+          assertType("new variant name", newNameT, "String");
           const oldName = oldNameT.value;
           const newName = newNameT.value;
 
@@ -165,7 +165,7 @@ export function createProjectionMembers(checker: Checker): {
         return createFunctionType((nameT: Type, type: Type) => {
           assertType("Variant name", nameT, "String");
           const name = nameT.value;
-          const variantType: UnionTypeVariant = createType({
+          const variantType: UnionVariant = createType({
             kind: "UnionVariant",
             decorators: [],
             name,
@@ -224,7 +224,7 @@ export function createProjectionMembers(checker: Checker): {
             forEach: createFunctionType((block: Type) => {
               assertType("block", block, "Function");
               const props = Array.from(base.operations.values());
-              props.forEach((p) => block.call(p));
+              props.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -264,7 +264,7 @@ export function createProjectionMembers(checker: Checker): {
             createType({
               kind: "Operation",
               name,
-              node: undefined as any,
+              node: undefined!,
               parameters,
               returnType,
               decorators: [],
@@ -302,8 +302,8 @@ export function createProjectionMembers(checker: Checker): {
           properties: {
             forEach: createFunctionType((block: Type) => {
               assertType("parameter", block, "Function");
-              const props = Array.from(base.members);
-              props.forEach((p) => block.call(p));
+              const props = Array.from(base.members.values());
+              props.forEach((p) => block.implementation(p));
               return voidType;
             }),
           },
@@ -318,7 +318,7 @@ export function createProjectionMembers(checker: Checker): {
           type && assertType("enum type", type, "String", "Number");
 
           const name = nameT.value;
-          const member = base.members.find((member) => member.name === name);
+          const member = base.members.get(name);
           if (member) {
             throw new ProjectionError(`Enum already has a member named ${name}`);
           }
@@ -327,13 +327,14 @@ export function createProjectionMembers(checker: Checker): {
             throw new ProjectionError(`Enum member types must be string or number`);
           }
 
-          base.members.push(
+          base.members.set(
+            name,
             createType({
               kind: "EnumMember",
               enum: base,
               name,
               decorators: [],
-              node: undefined as any,
+              node: undefined!,
               value: type ? type.value : undefined,
             })
           );
@@ -347,11 +348,7 @@ export function createProjectionMembers(checker: Checker): {
 
           const name = nameT.value;
 
-          const member = base.members.findIndex((member) => member.name === name);
-          if (member === -1) return voidType;
-
-          base.members.splice(member, 1);
-
+          base.members.delete(name);
           return voidType;
         });
       },
@@ -363,11 +360,13 @@ export function createProjectionMembers(checker: Checker): {
           const name = nameT.value;
           const newName = newNameT.value;
 
-          const member = base.members.find((member) => member.name === name);
+          const member = base.members.get(name);
           if (!member) {
             throw new ProjectionError(`Enum doesn't have member ${name}`);
           }
           member.name = newName;
+          base.members.delete(name);
+          base.members.set(newName, member);
           return voidType;
         });
       },

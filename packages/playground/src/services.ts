@@ -1,6 +1,7 @@
 import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
+import { FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BrowserHost } from "./browser-host";
 import { importCadlCompiler } from "./core";
@@ -92,10 +93,52 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function lspFormattingOptions(options: monaco.languages.FormattingOptions) {
+    return FormattingOptions.create(options.tabSize, options.insertSpaces);
+  }
+
   function monacoLocation(loc: lsp.Location): monaco.languages.Location {
     return {
       uri: monaco.Uri.parse(loc.uri),
       range: monacoRange(loc.range),
+    };
+  }
+
+  function monacoDocumentHighlight(
+    highlight: lsp.DocumentHighlight
+  ): monaco.languages.DocumentHighlight {
+    return {
+      range: monacoRange(highlight.range),
+      kind: highlight.kind,
+    };
+  }
+
+  function monacoHoverContents(contents: lsp.MarkupContent): monaco.IMarkdownString[] {
+    return [{ value: contents.value }];
+  }
+
+  function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
+    if (Array.isArray(hover.contents) || lsp.MarkedString.is(hover.contents)) {
+      throw new Error("MarkedString (deprecated) not supported.");
+    }
+
+    return {
+      contents: monacoHoverContents(hover.contents),
+      range: hover.range ? monacoRange(hover.range) : undefined,
+    };
+  }
+
+  function monacoSignatureHelp(
+    help: lsp.SignatureHelp | undefined
+  ): monaco.languages.SignatureHelp {
+    return {
+      signatures:
+        help?.signatures.map((x) => ({
+          ...x,
+          parameters: x.parameters ?? [],
+        })) ?? [],
+      activeSignature: help?.activeSignature ?? 0,
+      activeParameter: help?.activeParameter ?? 0,
     };
   }
 
@@ -116,6 +159,10 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function monacoTextEdits(edit: lsp.TextEdit[]): monaco.languages.TextEdit[] {
+    return edit.map(monacoTextEdit);
+  }
+
   function monacoTextEdit(edit: lsp.TextEdit): monaco.languages.TextEdit {
     return {
       range: monacoRange(edit.range),
@@ -124,11 +171,11 @@ export async function attachServices(host: BrowserHost) {
   }
 
   function monacoWorkspaceEdit(edit: lsp.WorkspaceEdit): monaco.languages.WorkspaceEdit {
-    const edits: monaco.languages.WorkspaceTextEdit[] = [];
+    const edits: monaco.languages.IWorkspaceTextEdit[] = [];
     for (const [uri, changes] of Object.entries(edit.changes ?? {})) {
       const resource = monaco.Uri.parse(uri);
       for (const change of changes) {
-        edits.push({ resource, edit: monacoTextEdit(change) });
+        edits.push({ resource, textEdit: monacoTextEdit(change), versionId: undefined });
       }
     }
     return { edits };
@@ -172,6 +219,39 @@ export async function attachServices(host: BrowserHost) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
       return output;
+    },
+  });
+
+  monaco.languages.registerHoverProvider("cadl", {
+    async provideHover(model, position) {
+      const hover = await serverLib.getHover(lspArgs(model, position));
+      return monacoHover(hover);
+    },
+  });
+
+  monaco.languages.registerSignatureHelpProvider("cadl", {
+    signatureHelpTriggerCharacters: ["(", ",", "<"],
+    signatureHelpRetriggerCharacters: [")"],
+    async provideSignatureHelp(model, position) {
+      const help = await serverLib.getSignatureHelp(lspArgs(model, position));
+      return { value: monacoSignatureHelp(help), dispose: () => {} };
+    },
+  });
+
+  monaco.languages.registerDocumentFormattingEditProvider("cadl", {
+    async provideDocumentFormattingEdits(model, options, token) {
+      const edits = await serverLib.formatDocument({
+        ...lspDocumentArgs(model),
+        options: lspFormattingOptions(options),
+      });
+      return monacoTextEdits(edits);
+    },
+  });
+
+  monaco.languages.registerDocumentHighlightProvider("cadl", {
+    async provideDocumentHighlights(model, position) {
+      const highlights = await serverLib.findDocumentHighlight(lspArgs(model, position));
+      return highlights.map(monacoDocumentHighlight);
     },
   });
 

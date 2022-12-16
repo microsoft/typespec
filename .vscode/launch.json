@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "attach",
       "name": "Attach to Default Port",
       "port": 9229,
@@ -21,7 +21,7 @@
       }
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "attach",
       "name": "Tests",
       "port": 9229,
@@ -42,7 +42,7 @@
     },
     {
       "name": "Attach to Language Server",
-      "type": "pwa-node",
+      "type": "node",
       "request": "attach",
       "port": 4242,
       "restart": {
@@ -63,14 +63,14 @@
       }
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Compile Scratch",
-      "program": "${workspaceRoot}/packages/compiler/dist/core/cli.js",
+      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
       "args": [
         "compile",
         "../samples/scratch",
-        "--output-path=temp/scratch-output",
+        "--output-dir=temp/scratch-output",
         "--emit=@cadl-lang/openapi3"
       ],
       "smartStep": true,
@@ -80,17 +80,17 @@
         "${workspaceFolder}/packages/*/dist/**/*.js",
         "${workspaceFolder}/packages/*/dist-dev/**/*.js"
       ],
-      "cwd": "${workspaceRoot}/packages/compiler",
+      "cwd": "${workspaceFolder}/packages/compiler",
       "presentation": {
         "order": 2
       }
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Compile Scratch (nostdlib)",
-      "program": "${workspaceRoot}/packages/compiler/dist/core/cli.js",
-      "args": ["compile", "../samples/scratch", "--output-path=temp/scratch-output", "--nostdlib"],
+      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
+      "args": ["compile", "../samples/scratch", "--output-dir=temp/scratch-output", "--nostdlib"],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
@@ -98,17 +98,17 @@
         "${workspaceFolder}/packages/*/dist/**/*.js",
         "${workspaceFolder}/packages/*/dist-dev/**/*.js"
       ],
-      "cwd": "${workspaceRoot}/packages/compiler",
+      "cwd": "${workspaceFolder}/packages/compiler",
       "presentation": {
         "order": 2
       }
     },
     {
       "name": "Regenerate .tmlanguage",
-      "type": "pwa-node",
-      "program": "${workspaceRoot}/packages/cadl-vscode/scripts/generate-tmlanguage.js",
+      "type": "node",
+      "program": "${workspaceFolder}/packages/cadl-vscode/scripts/generate-tmlanguage.js",
       "request": "launch",
-      "cwd": "${workspaceRoot}/packages/cadl-vscode",
+      "cwd": "${workspaceFolder}/packages/cadl-vscode",
       "presentation": {
         "order": 999
       }
@@ -117,10 +117,20 @@
       "name": "VS Code Extension (Client)",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceRoot}/packages/cadl-vscode"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/cadl-vscode"],
       "env": {
-        "CADL_DEVELOPMENT_MODE": "true",
-        "CADL_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242"
+        // Log elapsed time for each call to server.
+        //"CADL_SERVER_LOG_TIMING": "true",
+
+        // Save .cpuprofile for last run of each server function here
+        // NOTE: This will add a lot of lag so don't trust logged timing if also enabled above.
+        //"CADL_SERVER_PROFILE_DIR": "${workspaceRoot}/temp",
+
+        // Use empty node options and don't debug while profiling to get the most accurate timing
+        //"CADL_SERVER_NODE_OPTIONS": "",
+
+        "CADL_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
+        "CADL_DEVELOPMENT_MODE": "true"
       },
       "presentation": {
         "hidden": true

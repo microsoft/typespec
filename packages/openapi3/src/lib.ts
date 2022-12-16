@@ -8,14 +8,21 @@ export interface OpenAPI3EmitterOptions {
    * @default lf
    */
   "new-line"?: "crlf" | "lf";
+
+  /**
+   * Omit unreachable types.
+   * By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
+   */
+  "omit-unreachable-types"?: boolean;
 }
 
-const EmiterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
+const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
     "output-file": { type: "string", nullable: true },
     "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
+    "omit-unreachable-types": { type: "boolean", nullable: true },
   },
   required: [],
 };
@@ -27,12 +34,6 @@ export const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
-      },
-    },
-    "security-service-namespace": {
-      severity: "error",
-      messages: {
-        default: "Cannot add security details to a namespace other than the service namespace.",
       },
     },
     "resource-namespace": {
@@ -87,22 +88,6 @@ export const libDef = {
         null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
       },
     },
-    discriminator: {
-      severity: "error",
-      messages: {
-        duplicate: paramMessage`Discriminator value "${"val"}" defined in two different variants: ${"model1"} and ${"model2"}`,
-        missing: "The discriminator property is not defined in a variant of a discriminated union.",
-        required: "The discriminator property must be a required property.",
-        type: "The discriminator property must be type 'string'.",
-      },
-    },
-    "discriminator-value": {
-      severity: "warning",
-      messages: {
-        literal:
-          "Each variant of a discriminated union should define the discriminator property with a string literal value.",
-      },
-    },
     "invalid-default": {
       severity: "error",
       messages: {
@@ -117,11 +102,11 @@ export const libDef = {
     },
   },
   emitter: {
-    options: EmiterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
+    options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
 } as const;
 
 export const $lib = createCadlLibrary(libDef);
-export const { reportDiagnostic } = $lib;
+export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

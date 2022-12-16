@@ -1,0 +1,44 @@
+name: Merge release branch back into main
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches:
+      - "release/*"
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Create PR
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Generate branch name
+        id: branchname
+        run: |
+          echo "::set-output name=branchname::backmerge/${{ github.ref_name }}-$(date +'%Y-%m-%d')"
+      - name: Create branch
+        run: |
+          branch="${{ steps.branchname.outputs.branchname }}"
+          git checkout -b $branch
+          git push --set-upstream origin $branch
+
+      - name: create pull request
+        id: open-pr
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: ${{ steps.branchname.outputs.branchname }}
+          destination_branch: ${{ github.event.repository.default_branch }}
+          pr_title: "[Automated] Merge ${{ github.ref_name }} into ${{ github.event.repository.default_branch }}"
+          pr_body: "Merge ${{github.ref}} back into ${{ github.event.repository.default_branch }}"

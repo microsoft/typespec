@@ -1,4 +1,5 @@
-import { Diagnostic } from "@cadl-lang/compiler";
+import type { Diagnostic } from "@cadl-lang/compiler";
+import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
 import { DiagnosticList } from "./diagnostic-list";
 
@@ -24,13 +25,26 @@ export interface InternalCompilerErrorProps {
 
 export const InternalCompilerError: FunctionComponent<InternalCompilerErrorProps> = ({ error }) => {
   return (
-    <div className="center">
-      <div className="internal-server-error">
+    <div css={{ CenterStyles }}>
+      <div
+        css={{
+          border: "1px solid #cc2222",
+          padding: "10px",
+          margin: "20px",
+        }}
+      >
         <h3>Internal Compiler error</h3>
         <div>File issue at https://github.com/microsoft/cadl</div>
-        <hr/>
+        <hr />
         <div>{error.stack}</div>
       </div>
     </div>
   );
 };
+
+const CenterStyles = css({
+  display: "flex",
+  height: "100%",
+  alignItems: "center",
+  justifyContent: "center",
+});

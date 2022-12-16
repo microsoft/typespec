@@ -32,6 +32,7 @@ export async function createTestServerHost(options?: TestHostOptions) {
 
   const serverHost: TestServerHost = {
     ...fileSystem,
+    throwInternalErrors: true,
     server: undefined!, // initialized later due to cycle
     logMessages,
     getOpenDocumentByURL(url) {
@@ -42,9 +43,19 @@ export async function createTestServerHost(options?: TestHostOptions) {
     },
     addOrUpdateDocument(path: string, content: string) {
       const url = this.getURL(path);
-      const version = documents.get(url)?.version ?? 1;
+
+      let version = 1;
+      const oldDocument = documents.get(url);
+      if (oldDocument) {
+        version = oldDocument.version;
+        if (oldDocument.getText() !== content) {
+          version++;
+        }
+      }
+
       const document = TextDocument.create(url, "cadl", version, content);
       documents.set(url, document);
+      fileSystem.addCadlFile(path, ""); // force virtual file system to create directory where document lives.
       return document;
     },
     getDiagnostics(path) {

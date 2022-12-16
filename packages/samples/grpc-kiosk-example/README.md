@@ -81,7 +81,7 @@ rpc CreateBook(CreateBookRequest) returns (Book) {
 
 ### Using `...` in Request parameters
 
-In this example and the Library example we see a few different patterns on how a gRPC `rpc` definiton uses different `message`. While some directly use things that look like Cadl models as request and response messages, a more general patter is that a gRPC op `Foo` usually has `FooRequest` and `FooResponse` messages which embed models inside, e.g.
+In this example and the Library example we see a few different patterns on how a gRPC `rpc` definition uses different `message`. While some directly use things that look like Cadl models as request and response messages, a more general patter is that a gRPC op `Foo` usually has `FooRequest` and `FooResponse` messages which embed models inside, e.g.
 
 a natural direct mapping of:
 
@@ -111,7 +111,7 @@ model GetKioskRequest {
 op GetKiosk(... GetKioskRequest): Kiosk | RpcStatus;
 ```
 
-This produces slightly different, but functionaly equivalent swagger in that the gRPC generator inlines the parameter id, while Cadl create a `"$ref": "#/parameters/GetKioskRequest"` which points to a single parameter, `id`.
+This produces slightly different, but functionality equivalent swagger in that the gRPC generator inline the parameter id, while Cadl create a `"$ref": "#/parameters/GetKioskRequest"` which points to a single parameter, `id`.
 
 If we wrote the Cadl directly with the id specified in the `op` parameters we get equivalent to the gRPC version:
 
@@ -122,4 +122,4 @@ If we wrote the Cadl directly with the id specified in the `op` parameters we ge
 op GetKiosk(@path id: int32): Kiosk | RpcStatus;
 ```
 
-the downside with this approach is that it's not as convient to add documentation inside the parameter. Could we perhaps add a new decorator @parameter_doc("id","This is a unique identified") that we add to the `op` ?
+the downside with this approach is that it's not as convenient to add documentation inside the parameter. Could we perhaps add a new decorator @parameter_doc("id","This is a unique identified") that we add to the `op` ?

@@ -2,16 +2,25 @@ import { strictEqual, throws } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../formatter/index.js";
 
-function format(code: string): string {
+type TestParser = "cadl" | "markdown";
+function format(code: string, parser: TestParser = "cadl"): string {
   const output = prettier.format(code, {
-    parser: "cadl",
+    parser,
     plugins: [plugin],
   });
   return output;
 }
 
-function assertFormat({ code, expected }: { code: string; expected: string }) {
-  const result = format(code);
+function assertFormat({
+  code,
+  expected,
+  parser,
+}: {
+  code: string;
+  expected: string;
+  parser?: TestParser;
+}) {
+  const result = format(code, parser ?? "cadl");
   strictEqual(result.trim(), expected.trim());
 }
 
@@ -279,7 +288,7 @@ model Foo {
       });
     });
 
-    it("remove unncessary quotes", () => {
+    it("remove unnecessary quotes", () => {
       assertFormat({
         code: `
 model Foo {
@@ -297,6 +306,59 @@ model Foo {
     });
   });
 
+  describe("scalar", () => {
+    it("format on single line", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo
+`,
+        expected: `
+scalar Foo;
+`,
+      });
+    });
+
+    it("format with extends", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo extends 
+        string
+`,
+        expected: `
+scalar Foo extends string;
+`,
+      });
+    });
+
+    it("format with template parameters", () => {
+      assertFormat({
+        code: `
+scalar
+   Foo<K,
+    V> 
+`,
+        expected: `
+scalar Foo<K, V>;
+`,
+      });
+    });
+
+    it("format with decorator", () => {
+      assertFormat({
+        code: `
+      @some @decorator
+scalar   Foo 
+`,
+        expected: `
+@some
+@decorator
+scalar Foo;
+`,
+      });
+    });
+  });
   describe("comments", () => {
     it("format comment at position 0", () => {
       assertFormat({
@@ -397,7 +459,7 @@ model Foo {
       });
     });
 
-    it("format empty anynymous model with comment inside", () => {
+    it("format empty anonymous model with comment inside", () => {
       assertFormat({
         code: `
 model Foo {
@@ -457,12 +519,12 @@ interface Foo {
       assertFormat({
         code: `
 @foo
-// comment
+   // comment
 namespace Bar;
 `,
         expected: `
-// comment
 @foo
+// comment
 namespace Bar;
 `,
       });
@@ -472,31 +534,103 @@ namespace Bar;
       assertFormat({
         code: `
 @foo
-// comment
+  // comment
 model Bar {}
 `,
         expected: `
-// comment
 @foo
+// comment
 model Bar {}
 `,
       });
     });
 
-    it("format comment between decorator and model property", () => {
+    it("keeps comment in between decorators", () => {
+      assertFormat({
+        code: `
+@foo
+  // comment
+  @bar
+model Bar {}
+`,
+        expected: `
+@foo
+// comment
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps comment at the end of line of a decorators", () => {
+      assertFormat({
+        code: `
+@foo          // comment
+  @bar
+model Bar {}
+`,
+        expected: `
+@foo // comment
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("comment preceding decorators hug decorators", () => {
+      assertFormat({
+        code: `
+        // comment
+@foo          
+  @bar
+model Bar {}
+`,
+        expected: `
+// comment
+@foo
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on model property", () => {
       assertFormat({
         code: `
 model Bar {
-  @foo
-// comment
-myProp: string;
+      @foo
+        // comment
+    @bar
+  foo: string;
 }
 `,
         expected: `
 model Bar {
   @foo
   // comment
-  myProp: string;
+  @bar
+  foo: string;
+}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on enum member", () => {
+      assertFormat({
+        code: `
+enum Bar {
+      @foo
+        // comment
+    @bar
+  foo: "foo",
+}
+`,
+        expected: `
+        enum Bar {
+  @foo
+  // comment
+  @bar
+  foo: "foo",
 }
 `,
       });
@@ -584,7 +718,7 @@ alias Bar = One & Two;
       });
     });
 
-    it("format intersection of anoymous models", () => {
+    it("format intersection of anonymous models", () => {
       assertFormat({
         code: `
 alias     Foo   = { foo: string }       &   {bar: string};
@@ -664,7 +798,7 @@ enum Bar {
       });
     });
 
-    it("seperate members if there is decorators", () => {
+    it("separate members if there is decorators", () => {
       assertFormat({
         code: `
 enum      Foo       {   
@@ -984,6 +1118,179 @@ namespace MyNamespace {
 `,
       });
     });
+
+    it("directive hugs decorators on model property", () => {
+      assertFormat({
+        code: `
+model Foo {
+  prop1: string;
+  #suppress   "some-error"     "because"
+    @decorate("args")
+   @decorate
+   prop2: string;
+  }
+`,
+        expected: `
+model Foo {
+  prop1: string;
+
+  #suppress "some-error" "because"
+  @decorate("args")
+  @decorate
+  prop2: string;
+}
+`,
+      });
+    });
+  });
+
+  describe("decorator declaration", () => {
+    it("format simple decorator declaration inline", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, 
+      arg1: StringLiteral);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format decorator without parameter types", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern dec foo(target, arg1);
+`,
+      });
+    });
+
+    it("format decorator with optional parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, arg1: StringLiteral, 
+      arg2?: StringLiteral);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
+`,
+      });
+    });
+
+    it("format decorator with rest parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target: Type, arg1: StringLiteral,
+      ...args: StringLiteral[]);
+      `,
+        expected: `
+extern dec foo(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
+`,
+      });
+    });
+
+    it("split decorator argument into multiple lines if too long", () => {
+      assertFormat({
+        code: `
+extern dec  foo(target: Type,   arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral);
+      `,
+        expected: `
+extern dec foo(
+  target: Type,
+  arg1: StringLiteral,
+  arg2: StringLiteral,
+  arg3: StringLiteral,
+  arg4: StringLiteral
+);
+`,
+      });
+    });
+  });
+
+  describe("function declaration", () => {
+    it("format simple function declaration inline", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo( 
+      arg1: StringLiteral) :   void;
+      `,
+        expected: `
+extern fn foo(arg1: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function without parameter types and return type", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern fn foo(target, arg1);
+`,
+      });
+    });
+
+    it("format function with optional parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target: Type, arg1: StringLiteral, 
+      arg2?: StringLiteral): void;
+      `,
+        expected: `
+extern fn foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function with rest parameters", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target: Type, arg1: Type,
+      ...args: Type[]): void;
+      `,
+        expected: `
+extern fn foo(target: Type, arg1: Type, ...args: Type[]): void;
+`,
+      });
+    });
+
+    it("split decorator argument into multiple lines if too long", () => {
+      assertFormat({
+        code: `
+extern fn  foo( arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral) : void;
+      `,
+        expected: `
+extern fn foo(
+  arg1: StringLiteral,
+  arg2: StringLiteral,
+  arg3: StringLiteral,
+  arg4: StringLiteral
+): void;
+`,
+      });
+    });
   });
 
   describe("decorators", () => {
@@ -1054,6 +1361,38 @@ namespace Foo {
     });
   });
 
+  describe("augment decorators", () => {
+    it("format into a single line if possible", () => {
+      assertFormat({
+        code: `
+@@doc(Foo, 
+  
+        "This is some post doc"
+        
+        )
+      `,
+        expected: `
+@@doc(Foo, "This is some post doc");
+      `,
+      });
+    });
+
+    it("break arguments per lines if the decorator is too long", () => {
+      assertFormat({
+        code: `
+@@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
+      `,
+        expected: `
+@@doc(Foo,
+  "This is getting very very very long 1",
+  "This is getting very very very long 2",
+  "This is getting very very very long 3"
+);
+      `,
+      });
+    });
+  });
+
   describe("interfaces", () => {
     it("removes op prefix", () => {
       assertFormat({
@@ -1104,7 +1443,7 @@ model Foo<T extends string, K extends {foo: int32}> {}`,
       });
     });
 
-    it("format parameter declarations with constraints and defauls", () => {
+    it("format parameter declarations with constraints and defaults", () => {
       assertFormat({
         code: `
 model Foo<T       extends    string =      
@@ -1257,6 +1596,248 @@ model Foo {
 model Foo {
   p: Some.Nested.bar;
 }
+`,
+      });
+    });
+  });
+
+  describe("projections", () => {
+    it("format to and from", () => {
+      assertFormat({
+        code: `
+projection         model#proj 
+  {to{} from {}}
+`,
+        expected: `
+projection model#proj {
+  to {
+
+  }
+  from {
+
+  }
+}
+`,
+      });
+    });
+
+    it("format to and from with args", () => {
+      assertFormat({
+        code: `
+projection         model#proj 
+  {to(   val) {} from(  
+    
+    val) {}}
+`,
+        expected: `
+projection model#proj {
+  to(val) {
+
+  }
+  from(val) {
+
+  }
+}
+`,
+      });
+    });
+
+    it("format function call", () => {
+      assertFormat({
+        code: `
+projection model#proj {
+to {
+   bar(     one, 
+    
+    two)
+}
+`,
+        expected: `
+projection model#proj {
+  to {
+    bar(one, two);
+  }
+}
+`,
+      });
+    });
+
+    describe("format operation expression(s)", () => {
+      ["+", "-", "*", "/", "==", "!=", ">", "<", ">=", "<=", "||", "&&"].forEach((op) => {
+        it(`with ${op}`, () => {
+          assertFormat({
+            code: `
+projection model#proj {
+to {
+    bar( one 
+    
+      ${op} 
+      two)
+}
+}
+    `,
+            expected: `
+projection model#proj {
+  to {
+    bar(one ${op} two);
+  }
+}
+    `,
+          });
+        });
+      });
+
+      [
+        ["1 + 2 * 3", "1 + (2 * 3)"],
+        ["( 1 + 2) * 3", "(1 + 2) * 3"],
+        ["one || two && three", "one || (two && three)"],
+      ].forEach(([input, expected]) => {
+        it(`case ${expected}`, () => {
+          assertFormat({
+            code: `
+projection model#proj {
+to {
+    bar(${input})
+}
+}
+    `,
+            expected: `
+projection model#proj {
+  to {
+    bar(${expected});
+  }
+}
+    `,
+          });
+        });
+      });
+    });
+
+    it("format lambda", () => {
+      assertFormat({
+        code: `
+projection model#proj {
+to {
+  (  a ,  
+    b) => { bar();}
+}
+}
+`,
+        expected: `
+projection model#proj {
+  to {
+    (a, b) => {
+      bar();
+    };
+  }
+}
+`,
+      });
+    });
+
+    describe("if", () => {
+      it("format simple if", () => {
+        assertFormat({
+          code: `
+projection model#proj {
+  to {
+    if foo 
+    
+      {
+              bar();
+    }
+  }
+}
+`,
+          expected: `
+projection model#proj {
+  to {
+    if foo {
+      bar();
+    };
+  }
+}
+`,
+        });
+      });
+
+      it("format with else if", () => {
+        assertFormat({
+          code: `
+projection model#proj {
+  to {
+    if one 
+    
+      {
+              bar();
+    } else 
+    if two { bar()}
+  }
+}
+`,
+          expected: `
+projection model#proj {
+  to {
+    if one {
+      bar();
+    } else if two {
+      bar();
+    };
+  }
+}
+`,
+        });
+      });
+
+      it("format with else", () => {
+        assertFormat({
+          code: `
+projection model#proj {
+  to {
+    if one 
+    
+      {
+              bar();
+    } else 
+     { bar()}
+  }
+}
+`,
+          expected: `
+projection model#proj {
+  to {
+    if one {
+      bar();
+    } else {
+      bar();
+    };
+  }
+}
+`,
+        });
+      });
+    });
+  });
+
+  describe("when embedded", () => {
+    it("doesn't include blank line at the end (in markdown)", () => {
+      assertFormat({
+        parser: "markdown",
+        code: `
+This is markdown
+\`\`\`cadl
+
+op test(): string;
+
+
+\`\`\`
+`,
+        expected: `
+This is markdown
+
+\`\`\`cadl
+op test(): string;
+\`\`\`
 `,
       });
     });

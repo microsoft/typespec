@@ -1,3 +1,19 @@
+import {
+  Interface,
+  ListOperationOptions,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Type,
+} from "@cadl-lang/compiler";
+
+/**
+ * @deprecated use `HttpOperation`. To remove in November 2022 release.
+ */
+export type OperationDetails = HttpOperation;
+
+export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
+
 export interface ServiceAuthentication {
   /**
    * Either one of those options can be used independently to authenticate.
@@ -112,7 +128,7 @@ export interface AuthorizationCodeFlow {
   authorizationUrl: string;
   tokenUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
 }
 
 /**
@@ -122,7 +138,7 @@ export interface ImplicitFlow {
   type: "implicit";
   authorizationUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
 }
 
 /**
@@ -132,7 +148,7 @@ export interface PasswordFlow {
   type: "password";
   authorizationUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
 }
 
 /**
@@ -142,5 +158,150 @@ export interface ClientCredentialsFlow {
   type: "clientCredentials";
   tokenUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
+}
+
+export interface OAuth2Scope {
+  value: string;
+  description?: string;
+}
+
+export type OperationContainer = Namespace | Interface;
+
+export interface FilteredRouteParam {
+  routeParamString?: string;
+  excludeFromOperationParams?: boolean;
+}
+
+export interface AutoRouteOptions {
+  routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
+}
+
+export interface RouteOptions {
+  autoRouteOptions?: AutoRouteOptions;
+}
+
+export interface RouteResolutionOptions extends RouteOptions {
+  listOptions?: ListOperationOptions;
+}
+
+export interface HttpOperationParameter {
+  type: "query" | "path" | "header";
+  name: string;
+  param: ModelProperty;
+}
+
+/**
+ * Represent the body information for an http request.
+ *
+ * @note the `type` must be a `Model` if the content type is multipart.
+ */
+export interface HttpOperationRequestBody extends HttpOperationBody {
+  /**
+   * If the body was explicitly set as a property. Correspond to the property with `@body`
+   */
+  parameter?: ModelProperty;
+}
+
+export interface HttpOperationParameters {
+  parameters: HttpOperationParameter[];
+
+  body?: HttpOperationRequestBody;
+
+  /** @deprecated use @see body.type */
+  bodyType?: Type;
+  /** @deprecated use @see body.property */
+  bodyParameter?: ModelProperty;
+
+  /**
+   * @internal
+   * NOTE: The verb is determined when processing parameters as it can
+   * depend on whether there is a request body if not explicitly specified.
+   * Marked internal to keep from polluting the public API with the verb at
+   * two levels.
+   */
+  verb: HttpVerb;
+}
+
+export interface HttpService {
+  namespace: Namespace;
+  operations: HttpOperation[];
+}
+
+export interface HttpOperation {
+  /**
+   * Route path
+   */
+  path: string;
+
+  /**
+   * Path segments
+   */
+  pathSegments: string[];
+
+  /**
+   * Route verb.
+   */
+  verb: HttpVerb;
+
+  /**
+   * Parent type being the interface, namespace or global namespace.
+   */
+  container: OperationContainer;
+
+  /**
+   * Parameters.
+   */
+  parameters: HttpOperationParameters;
+
+  /**
+   * Responses.
+   */
+  responses: HttpOperationResponse[];
+
+  /**
+   * Operation type reference.
+   */
+  operation: Operation;
+
+  /**
+   * Overload this operation
+   */
+  overloading?: HttpOperation;
+
+  /**
+   * List of operations that overloads this one.
+   */
+  overloads?: HttpOperation[];
+}
+
+export interface RoutePath {
+  path: string;
+  isReset: boolean;
+  shared: boolean;
+}
+
+export type StatusCode = `${number}` | "*";
+export interface HttpOperationResponse {
+  statusCode: StatusCode;
+  type: Type;
+  description?: string;
+  responses: HttpOperationResponseContent[];
+}
+
+export interface HttpOperationResponseContent {
+  headers?: Record<string, ModelProperty>;
+  body?: HttpOperationBody;
+}
+
+export interface HttpOperationBody {
+  /**
+   * Content types.
+   */
+  contentTypes: string[];
+
+  /**
+   * Type of the operation body.
+   */
+  type: Type;
 }

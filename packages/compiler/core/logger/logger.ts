@@ -2,9 +2,7 @@ import { getSourceLocation } from "../diagnostics.js";
 import { Logger, LogInfo, LogLevel, LogSink, ProcessedLog } from "../types.js";
 
 const LogLevels = {
-  debug: 10,
-  verbose: 20,
-  info: 30,
+  trace: 10,
   warning: 40,
   error: 50,
 } as const;
@@ -15,7 +13,7 @@ export interface LoggerOptions {
 }
 
 const defaultOptions = {
-  level: "info",
+  level: "trace",
 } as const;
 
 export function createLogger(options: LoggerOptions): Logger {
@@ -29,9 +27,7 @@ export function createLogger(options: LoggerOptions): Logger {
 
   return {
     log,
-    debug: (message) => log({ level: "debug", message }),
-    verbose: (message) => log({ level: "verbose", message }),
-    info: (message) => log({ level: "info", message }),
+    trace: (message) => log({ level: "trace", message }),
     warn: (message) => log({ level: "warning", message }),
     error: (message) => log({ level: "error", message }),
   };

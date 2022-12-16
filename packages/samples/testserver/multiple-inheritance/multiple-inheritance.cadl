@@ -3,7 +3,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
-@serviceTitle("sample")
+@service({
+  title: "sample",
+})
 namespace Sample;
 
 model Pet {

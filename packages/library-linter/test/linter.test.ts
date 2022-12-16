@@ -6,13 +6,13 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { createLibraryLinterTestHost } from "./test-host.js";
 
-describe("cadl: library-linter", () => {
+describe("library-linter", () => {
   let runner: BasicTestRunner;
   let host: TestHost;
 
   beforeEach(async () => {
     host = await createLibraryLinterTestHost();
-    runner = await createTestWrapper(host, (code) => `import "@cadl-lang/library-linter";${code}`);
+    runner = createTestWrapper(host);
   });
 
   describe("missing namespace", () => {

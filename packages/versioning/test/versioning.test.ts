@@ -1,13 +1,14 @@
 import {
-  EnumType,
-  InterfaceType,
+  Enum,
+  Interface,
   IntrinsicType,
-  ModelType,
-  NamespaceType,
-  OperationType,
+  Model,
+  Namespace,
+  Operation,
   ProjectionApplication,
+  projectProgram,
   Type,
-  UnionType,
+  Union,
 } from "@cadl-lang/compiler";
 import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
@@ -20,15 +21,12 @@ import {
   assertHasVariants,
 } from "./utils.js";
 
-describe("cadl: versioning", () => {
+describe("compiler: versioning", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(
-      host,
-      (code) => `import "@cadl-lang/versioning";using Cadl.Versioning;\n${code}`
-    );
+    runner = createTestWrapper(host, { autoUsings: ["Cadl.Versioning"] });
   });
 
   describe("version compare", () => {
@@ -48,12 +46,12 @@ describe("cadl: versioning", () => {
           @added(Versions.v2) b: 1;
           @added(Versions.v3) c: 1;
         }
-        `)) as { Test: ModelType };
+        `)) as { Test: Model };
 
       const v1 = project(Test, "1");
       ok(v1.properties.has("a"), "v1 has a");
       ok(!v1.properties.has("b"), "v1 doesn't have b");
-      ok(!v1.properties.has("c"), "v1 desn't have c");
+      ok(!v1.properties.has("c"), "v1 doesn't have c");
       const v2 = project(Test, "version two");
       ok(v2.properties.has("a"), "v2 has a");
       ok(v2.properties.has("b"), "v2 has b");
@@ -118,9 +116,9 @@ describe("cadl: versioning", () => {
 
       assertHasProperties(v1, ["a"]);
       assertHasProperties(v2, ["a", "b", "nested"]);
-      assertHasProperties(v2.properties.get("nested")!.type as ModelType, ["d"]);
+      assertHasProperties(v2.properties.get("nested")!.type as Model, ["d"]);
       assertHasProperties(v3, ["a", "b", "c", "nested"]);
-      assertHasProperties(v3.properties.get("nested")!.type as ModelType, ["d", "e"]);
+      assertHasProperties(v3.properties.get("nested")!.type as Model, ["d", "e"]);
 
       assertModelProjectsTo(
         [
@@ -161,9 +159,9 @@ describe("cadl: versioning", () => {
         `
       );
       assertHasProperties(v1, ["a", "b", "c", "nested"]);
-      assertHasProperties(v1.properties.get("nested")!.type as ModelType, ["d", "e"]);
+      assertHasProperties(v1.properties.get("nested")!.type as Model, ["d", "e"]);
       assertHasProperties(v2, ["a", "c", "nested"]);
-      assertHasProperties(v2.properties.get("nested")!.type as ModelType, ["d"]);
+      assertHasProperties(v2.properties.get("nested")!.type as Model, ["d"]);
       assertHasProperties(v3, ["a"]);
       assertModelProjectsTo(
         [
@@ -196,6 +194,40 @@ describe("cadl: versioning", () => {
           [v1, "v1"],
           [v2, "v2"],
           [v3, "v3"],
+        ],
+        source
+      );
+    });
+
+    it("can add/remove properties multiple times", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedModel(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `model Test {
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)
+          val: int32;
+        }`
+      );
+      assertHasProperties(v1, []);
+      assertHasProperties(v2, ["val"]);
+      assertHasProperties(v3, []);
+      assertHasProperties(v4, []);
+      assertHasProperties(v5, ["val"]);
+      assertHasProperties(v6, []);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
+          [v5, "v5"],
+          [v6, "v6"],
         ],
         source
       );
@@ -255,7 +287,7 @@ describe("cadl: versioning", () => {
       enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
       @test ${model}
-      `)) as { Test: ModelType };
+      `)) as { Test: Model };
 
       return {
         source: Test,
@@ -319,9 +351,9 @@ describe("cadl: versioning", () => {
       assertHasVariants(v1, ["a"]);
 
       assertHasVariants(v2, ["a", "b", "nested"]);
-      assertHasProperties(v2.variants.get("nested")!.type as ModelType, ["d"]);
+      assertHasProperties(v2.variants.get("nested")!.type as Model, ["d"]);
       assertHasVariants(v3, ["a", "b", "c", "nested"]);
-      assertHasProperties(v3.variants.get("nested")!.type as ModelType, ["d", "e"]);
+      assertHasProperties(v3.variants.get("nested")!.type as Model, ["d", "e"]);
       assertUnionProjectsTo(
         [
           [v1, "v1"],
@@ -361,9 +393,9 @@ describe("cadl: versioning", () => {
         `
       );
       assertHasVariants(v1, ["a", "b", "c", "nested"]);
-      assertHasProperties(v1.variants.get("nested")!.type as ModelType, ["d", "e"]);
+      assertHasProperties(v1.variants.get("nested")!.type as Model, ["d", "e"]);
       assertHasVariants(v2, ["a", "c", "nested"]);
-      assertHasProperties(v2.variants.get("nested")!.type as ModelType, ["d"]);
+      assertHasProperties(v2.variants.get("nested")!.type as Model, ["d"]);
       assertHasVariants(v3, ["a"]);
       assertUnionProjectsTo(
         [
@@ -409,7 +441,7 @@ describe("cadl: versioning", () => {
       enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
       @test ${union}
-      `)) as { Test: UnionType };
+      `)) as { Test: Union };
 
       return {
         source: Test,
@@ -475,8 +507,8 @@ describe("cadl: versioning", () => {
         `
       );
 
-      assertHasVariants(v1.returnType as UnionType, ["a"]);
-      assertHasVariants(v2.returnType as UnionType, ["a", "b"]);
+      assertHasVariants(v1.returnType as Union, ["a"]);
+      assertHasVariants(v2.returnType as Union, ["a", "b"]);
     });
 
     async function versionedOperation(versions: string[], operation: string) {
@@ -487,7 +519,7 @@ describe("cadl: versioning", () => {
         enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
         @test ${operation}
-      `)) as { Test: OperationType };
+      `)) as { Test: Operation };
 
       return {
         source: Test,
@@ -628,7 +660,7 @@ describe("cadl: versioning", () => {
         enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
         @test ${iface}
-      `)) as { Test: InterfaceType };
+      `)) as { Test: Interface };
 
       return {
         source: Test,
@@ -769,7 +801,7 @@ describe("cadl: versioning", () => {
         enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
         @test ${enumCode}
-      `)) as { Test: EnumType };
+      `)) as { Test: Enum };
 
       return {
         source: Test,
@@ -780,7 +812,7 @@ describe("cadl: versioning", () => {
     }
   });
 
-  function assertModelProjectsTo(types: [ModelType, string][], target: ModelType) {
+  function assertModelProjectsTo(types: [Model, string][], target: Model) {
     types.forEach(([m, version]) => {
       const projection = project(m, version, "from");
       strictEqual(projection.properties.size, target.properties.size);
@@ -790,7 +822,7 @@ describe("cadl: versioning", () => {
     });
   }
 
-  function assertUnionProjectsTo(types: [UnionType, string][], target: UnionType) {
+  function assertUnionProjectsTo(types: [Union, string][], target: Union) {
     types.forEach(([m, version]) => {
       const projection = project(m, version, "from");
       strictEqual(projection.variants.size, target.variants.size);
@@ -799,7 +831,7 @@ describe("cadl: versioning", () => {
       }
     });
   }
-  function assertInterfaceProjectsTo(types: [InterfaceType, string][], target: InterfaceType) {
+  function assertInterfaceProjectsTo(types: [Interface, string][], target: Interface) {
     types.forEach(([m, version]) => {
       const projection = project(m, version, "from");
       strictEqual(projection.operations.size, target.operations.size);
@@ -808,15 +840,12 @@ describe("cadl: versioning", () => {
       }
     });
   }
-  function assertEnumProjectsTo(types: [EnumType, string][], target: EnumType) {
+  function assertEnumProjectsTo(types: [Enum, string][], target: Enum) {
     types.forEach(([m, version]) => {
       const projection = project(m, version, "from");
-      strictEqual(projection.members.length, target.members.length);
-      for (const member of projection.members) {
-        ok(
-          target.members.findIndex((m) => m.name === member.name) > -1,
-          "enum should have operation " + member.name
-        );
+      strictEqual(projection.members.size, target.members.size);
+      for (const member of projection.members.values()) {
+        ok(target.members.has(member.name), "enum should have operation " + member.name);
       }
     });
   }
@@ -829,14 +858,14 @@ describe("cadl: versioning", () => {
     if (actualVersion === undefined) {
       fail(`Should have found the version ${version}`);
     }
-    const versionMap = new Map<NamespaceType, Version>([[actualVersion.namespace, actualVersion]]);
+    const versionMap = new Map<Namespace, Version>([[actualVersion.namespace, actualVersion]]);
     const versionKey = indexVersions(runner.program, versionMap);
     const projection: ProjectionApplication = {
       arguments: [versionKey],
       projectionName: "v",
       direction,
     };
-    const projector = runner.program.enableProjections([projection], target);
+    const projector = projectProgram(runner.program, [projection], target).projector;
     return projector.projectedTypes.get(target) as T;
   }
 });

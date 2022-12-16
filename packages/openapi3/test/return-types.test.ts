@@ -73,6 +73,28 @@ describe("openapi3: return types", () => {
     });
   });
 
+  it("response header are marked required", async () => {
+    const res = await openApiFor(
+      `
+      @put op create(): {@header eTag: string};
+      `
+    );
+    ok(res.paths["/"].put.responses["204"]);
+    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, true);
+  });
+
+  it("optional response header are marked required: false", async () => {
+    const res = await openApiFor(
+      `
+      @put op create(): {@header eTag?: string};
+      `
+    );
+    ok(res.paths["/"].put.responses["204"]);
+    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, false);
+  });
+
   it("defines responses with headers and status codes in base model", async () => {
     const res = await openApiFor(
       `
@@ -284,17 +306,68 @@ describe("openapi3: return types", () => {
     );
   });
 
-  it("return type with no properties should be 204 response w/ no content", async () => {
+  it("return type with no properties should be 200 with empty object as type", async () => {
     const res = await openApiFor(
       `
-      @get op delete(): {};
+      @get op test(): {};
       `
     );
 
     const responses = res.paths["/"].get.responses;
-    ok(responses["204"]);
-    ok(responses["204"].content === undefined, "response should have no content");
-    ok(responses["200"] === undefined);
+    ok(responses["200"]);
+    deepStrictEqual(responses["200"].content, {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {},
+          "x-cadl-name": "{}",
+        },
+      },
+    });
+  });
+
+  it("object return type should produce 200 ", async () => {
+    const res = await openApiFor(
+      `
+      @get op test(): object;
+      `
+    );
+
+    const responses = res.paths["/"].get.responses;
+    ok(responses["200"]);
+    deepStrictEqual(responses["200"].content, {
+      "application/json": {
+        schema: {
+          $ref: "#/components/schemas/object",
+        },
+      },
+    });
+    deepStrictEqual(res.components.schemas.object, {
+      type: "object",
+      properties: {},
+    });
+  });
+
+  it("produce additionalProperties schema if response is Record<T>", async () => {
+    const res = await openApiFor(
+      `
+      @get op test(): Record<string>;
+      `
+    );
+
+    const responses = res.paths["/"].get.responses;
+    ok(responses["200"]);
+    deepStrictEqual(responses["200"].content, {
+      "application/json": {
+        schema: {
+          type: "object",
+          additionalProperties: {
+            type: "string",
+          },
+          "x-cadl-name": "Record<string>",
+        },
+      },
+    });
   });
 
   it("return type with only response metadata should be 204 response w/ no content", async () => {

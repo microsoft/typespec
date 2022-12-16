@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/compiler",
-  "version": "0.33.0",
+  "version": "0.38.4",
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -22,13 +22,26 @@
   "cadlMain": "lib/main.cadl",
   "exports": {
     ".": "./dist/core/index.js",
-    "./testing": "./dist/testing/index.js"
+    "./testing": "./dist/testing/index.js",
+    "./module-resolver": "./dist/core/module-resolver.js"
   },
   "browser": {
     "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
     "./dist/core/logger/console-sink.js": "./dist/core/logger/console-sink.browser.js"
   },
-  "types": "dist/core/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/core/index.d.ts"
+      ],
+      "testing": [
+        "./dist/testing/index.d.ts"
+      ],
+      "module-resolver": [
+        "./dist/core/module-resolver.d.ts"
+      ]
+    }
+  },
   "engines": {
     "node": ">=16.0.0"
   },
@@ -58,19 +71,19 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.16.7",
-    "ajv": "~8.9.0",
+    "@babel/code-frame": "~7.18.6",
+    "ajv": "~8.11.2",
     "picocolors": "~1.0.0",
     "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
     "mustache": "~4.2.0",
     "prettier": "~2.7.1",
-    "node-fetch": "~3.2.0",
+    "node-fetch": "3.2.8",
     "prompts": "~2.4.1",
-    "vscode-languageserver": "~7.0.0",
+    "vscode-languageserver": "~8.0.2",
     "vscode-languageserver-textdocument": "~1.0.1",
-    "yargs": "~17.3.1",
+    "yargs": "~17.6.2",
     "node-watch": "~0.7.1",
     "change-case": "~4.1.2"
   },
@@ -78,26 +91,26 @@
     "@types/babel__code-frame": "~7.0.3",
     "@types/js-yaml": "~4.0.1",
     "@types/mkdirp": "~1.0.1",
-    "@types/mocha": "~9.1.0",
-    "@types/mustache": "~4.1.2",
-    "@types/node": "~16.0.3",
+    "@types/mocha": "~10.0.0",
+    "@types/mustache": "~4.2.1",
+    "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
-    "@types/prompts": "~2.0.14",
+    "@types/prompts": "~2.4.1",
     "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.3.0",
-    "@cadl-lang/internal-build-utils": "~0.3.0",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@cadl-lang/internal-build-utils": "~0.3.2",
     "eslint": "^8.12.0",
-    "grammarkdown": "~3.1.2",
-    "mocha": "~9.2.0",
-    "mocha-junit-reporter": "~2.0.2",
+    "grammarkdown": "~3.2.0",
+    "mocha": "~10.1.0",
+    "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.11.0",
-    "prettier-plugin-organize-imports": "~2.3.4",
+    "c8": "~7.12.0",
+    "prettier-plugin-organize-imports": "~3.2.0",
     "source-map-support": "~0.5.19",
     "rimraf": "~3.0.2",
-    "tmlanguage-generator": "~0.3.0",
-    "typescript": "~4.7.2",
+    "tmlanguage-generator": "~0.3.2",
+    "typescript": "~4.9.3",
     "vscode-oniguruma": "~1.6.1",
-    "vscode-textmate": "~6.0.0"
+    "vscode-textmate": "~7.0.3"
   }
 }

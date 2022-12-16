@@ -4,6 +4,7 @@ import {
   getSourceFileKindFromExt,
   resolvePath,
 } from "@cadl-lang/compiler";
+import { importShim } from "./core";
 import { PlaygroundManifest } from "./manifest";
 
 export interface BrowserHost extends CompilerHost {
@@ -20,7 +21,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
   const libsToLoad = PlaygroundManifest.libraries;
 
   for (const libName of libsToLoad) {
-    const { _CadlLibrary_ } = await import(/* @vite-ignore */ libName);
+    const { _CadlLibrary_ } = (await importShim(libName)) as any;
     for (const [key, value] of Object.entries<any>(_CadlLibrary_.cadlSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }

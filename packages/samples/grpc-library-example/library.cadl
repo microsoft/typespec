@@ -8,7 +8,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
-@serviceTitle("Grpc Library sample")
+@service({
+  title: "Grpc Library sample",
+})
 namespace GrpcLibrarySample;
 
 @doc("""
@@ -44,7 +46,7 @@ shelves will not necessarily be added to the end of this list.
   @doc("Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.")
   @route("shelves")
   @delete
-  op deleteShelf(...DeleteShelfRequest): Empty | RpcStatus;
+  op deleteShelf(...DeleteShelfRequest): void | RpcStatus;
 
   @doc("""
 Merges two shelves by adding all books from the shelf named
@@ -78,7 +80,7 @@ Returns NOT_FOUND if the shelf does not exist.
   @route("shelves/shelf_name/books/{name}")
   @doc("Deletes a book. Returns NOT_FOUND if the book does not exist.")
   @delete
-  op deleteBook(...DeleteBookRequest): Empty | RpcStatus;
+  op deleteBook(...DeleteBookRequest): void | RpcStatus;
 }
 
 @doc("""
@@ -86,7 +88,7 @@ The name of a book.
 Book names have the form `shelves/{shelf_id}/books/{book_id}`
 """)
 @pattern("shelves/\\w+/books/\\w+")
-model book_name is string;
+scalar book_name extends string;
 
 @doc("A single book in the library.")
 model Book {
@@ -112,7 +114,7 @@ The name of a shelf.
 Shelf names have the form `shelves/{shelf_id}`.
 """)
 @pattern("shelves/\\w+")
-model shelf_name is string;
+scalar shelf_name extends string;
 
 @doc("A Shelf contains a collection of books with a theme.")
 model Shelf {

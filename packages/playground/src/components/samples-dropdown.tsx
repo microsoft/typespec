@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback, useState } from "react";
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { PlaygroundManifest } from "../manifest";
 export interface SamplesDropdownProps {
   onSelectSample: (content: string) => void;
@@ -8,6 +8,17 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({ onSel
   const options = Object.keys(PlaygroundManifest.samples).map((sample) => {
     return <option key={sample}>{sample}</option>;
   });
+
+  useEffect(() => {
+    if (window.location.search.length > 0) {
+      const parsed = new URLSearchParams(window.location.search);
+      const sample = parsed.get("sample");
+      if (sample) {
+        setSelected(sample);
+        onSelectSample(PlaygroundManifest.samples[sample]);
+      }
+    }
+  }, []);
 
   const handleSelected = useCallback(
     (evt: any) => {

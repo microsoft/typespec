@@ -7,6 +7,7 @@ import {
 import { OpenAPITestLibrary } from "@cadl-lang/openapi/testing";
 import { RestTestLibrary } from "@cadl-lang/rest/testing";
 import { VersioningTestLibrary } from "@cadl-lang/versioning/testing";
+import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
 
 export async function createOpenAPITestHost() {
@@ -28,8 +29,11 @@ export async function createOpenAPITestRunner({
   using OpenAPI;
   ${withVersioning ? "using Cadl.Versioning;" : ""}
 `;
-  return createTestWrapper(host, (code) => `${importAndUsings} ${code}`, {
-    emitters: { "@cadl-lang/openapi3": {} },
+  return createTestWrapper(host, {
+    wrapper: (code) => `${importAndUsings} ${code}`,
+    compilerOptions: {
+      emit: ["@cadl-lang/openapi3"],
+    },
   });
 }
 
@@ -37,13 +41,20 @@ function versionedOutput(path: string, version: string) {
   return path.replace(".json", "." + version + ".json");
 }
 
-export async function diagnoseOpenApiFor(code: string) {
+export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const runner = await createOpenAPITestRunner();
-  const diagnostics = await runner.diagnose(code);
+  const diagnostics = await runner.diagnose(code, {
+    emit: ["@cadl-lang/openapi3"],
+    options: { "@cadl-lang/openapi3": options as any },
+  });
   return diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes");
 }
 
-export async function openApiFor(code: string, versions?: string[]) {
+export async function openApiFor(
+  code: string,
+  versions?: string[],
+  options: OpenAPI3EmitterOptions = {}
+) {
   const host = await createOpenAPITestHost();
   const outPath = resolveVirtualPath("openapi.json");
   host.addCadlFile(
@@ -54,7 +65,8 @@ export async function openApiFor(code: string, versions?: string[]) {
   );
   const diagnostics = await host.diagnose("./main.cadl", {
     noEmit: false,
-    emitters: { "@cadl-lang/openapi3": { "output-file": outPath } },
+    emit: ["@cadl-lang/openapi3"],
+    options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
   });
   expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
 
@@ -77,7 +89,7 @@ export async function checkFor(code: string) {
 export async function oapiForModel(name: string, modelDef: string) {
   const oapi = await openApiFor(`
     ${modelDef};
-    @serviceTitle("Testing model")
+    @service({title: "Testing model"})
     @route("/")
     namespace root {
       op read(): { @body body: ${name} };

@@ -1,9 +1,9 @@
-import { ModelType } from "@cadl-lang/compiler";
+import { Model } from "@cadl-lang/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
-describe("cadl: rest: responses", () => {
+describe("rest: responses", () => {
   it("issues diagnostics for duplicate body decorator", async () => {
     const [_, diagnostics] = await compileOperations(
       `
@@ -105,7 +105,7 @@ describe("cadl: rest: responses", () => {
   });
 
   // Regression test for https://github.com/microsoft/cadl/issues/328
-  it("empty response model becomes body if it has childrens", async () => {
+  it("empty response model becomes body if it has children", async () => {
     const [routes, diagnostics] = await getOperationsWithServiceNamespace(
       `
       @route("/") op read(): A;
@@ -131,6 +131,6 @@ describe("cadl: rest: responses", () => {
     const response = responses[0];
     const body = response.responses[0].body;
     ok(body);
-    strictEqual((body.type as ModelType).name, "A");
+    strictEqual((body.type as Model).name, "A");
   });
 });

@@ -5,15 +5,16 @@ import prompts from "prompts";
 import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
+import { NodePackage } from "../core/module-resolver.js";
 import { getBaseFileName, joinPaths } from "../core/path-utils.js";
-import { SchemaValidator } from "../core/schema-validator.js";
+import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
 import { InitTemplate, InitTemplateDefinitionsSchema, InitTemplateFile } from "./init-template.js";
 
 interface ScaffoldingConfig extends InitTemplate {
   /**
-   * Path where this template was laoded from.
+   * Path where this template was loaded from.
    */
   templateUri: string;
 
@@ -117,9 +118,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     description: "Create a project representing a generic Rest API",
     libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
     config: {
-      emitters: {
-        "@cadl-lang/openapi3": true,
-      },
+      emit: ["@cadl-lang/openapi3"],
     },
   },
 };
@@ -216,8 +215,10 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     dependencies[library] = "latest";
   }
 
-  const packageJson = {
+  const packageJson: NodePackage = {
     name: config.name,
+    version: "0.1.0",
+    type: "module",
     dependencies,
     private: true,
   };
@@ -246,7 +247,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(joinPaths(config.directory, "main.cadl"), await formatCadl(content));
+  return host.writeFile(joinPaths(config.directory, "main.cadl"), formatCadl(content));
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
@@ -272,7 +273,7 @@ function validateTemplateDefinitions(
   templates: unknown,
   file: SourceFile
 ): asserts templates is Record<string, InitTemplate> {
-  const validator = new SchemaValidator(InitTemplateDefinitionsSchema);
+  const validator = createJSONSchemaValidator(InitTemplateDefinitionsSchema);
   const diagnostics = validator.validate(templates, file);
   if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);

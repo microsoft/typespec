@@ -6,6 +6,7 @@ import {
   isDigit,
   isHexDigit,
   isIdentifierContinue,
+  isIdentifierStart,
   isLineBreak,
   isLowercaseAsciiLetter,
   isNonAsciiIdentifierCharacter,
@@ -14,178 +15,234 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { compilerAssert, createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
-import { DiagnosticReport, SourceFile } from "./types.js";
+import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
 const mergeConflictMarkerLength = 7;
 
 export enum Token {
-  None = 0,
-  Invalid = 1,
-  EndOfFile = 2,
+  None,
+  Invalid,
+  EndOfFile,
+  Identifier,
+  NumericLiteral,
+  StringLiteral,
+  // Add new tokens above if they don't fit any of the categories below
 
+  ///////////////////////////////////////////////////////////////
   // Trivia
-  SingleLineComment = 3,
-  MultiLineComment = 4,
-  NewLine = 5,
-  Whitespace = 6,
+  /**@internal */ __StartTrivia,
 
-  // We detect and provide better error recovery when we encounter a git merge marker.  This
-  // allows us to edit files with git-conflict markers in them in a much more pleasant manner.
-  ConflictMarker = 7,
+  SingleLineComment = __StartTrivia,
+  MultiLineComment,
+  NewLine,
+  Whitespace,
+  ConflictMarker,
+  // Add new trivia above
 
-  // Literals
-  NumericLiteral = 8,
-  StringLiteral = 9,
+  /** @internal */ __EndTrivia,
+  ///////////////////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////////////////
+  // Doc comment content
+  /** @internal */ __StartDocComment = __EndTrivia,
+  DocText = __StartDocComment,
+  DocCodeSpan,
+  DocCodeFenceDelimiter,
+  /** @internal */ __EndDocComment,
+  ///////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////
   // Punctuation
-  OpenBrace = 10,
-  CloseBrace = 11,
-  OpenParen = 12,
-  CloseParen = 13,
-  OpenBracket = 14,
-  CloseBracket = 15,
-  Dot = 16,
-  Ellipsis = 17,
-  Semicolon = 18,
-  Comma = 19,
-  LessThan = 20,
-  GreaterThan = 21,
-  Equals = 22,
-  Ampersand = 23,
-  Bar = 24,
-  Question = 25,
-  Colon = 26,
-  ColonColon = 27,
-  At = 28,
-  Hash = 29,
-  Star = 30,
-  ForwardSlash = 31,
-  Plus = 32,
-  Hyphen = 33,
-  Exclamation = 34,
-  LessThanEquals = 35,
-  GreaterThanEquals = 36,
-  AmpsersandAmpersand = 37,
-  BarBar = 38,
-  EqualsEquals = 39,
-  ExclamationEquals = 40,
-  EqualsGreaterThan = 41,
-  // Update MaxPunctuation if anything is added right above here
+  /** @internal */ __StartPunctuation = __EndDocComment,
 
-  // Identifiers
-  Identifier = 42,
+  OpenBrace = __StartPunctuation,
+  CloseBrace,
+  OpenParen,
+  CloseParen,
+  OpenBracket,
+  CloseBracket,
+  Dot,
+  Ellipsis,
+  Semicolon,
+  Comma,
+  LessThan,
+  GreaterThan,
+  Equals,
+  Ampersand,
+  Bar,
+  Question,
+  Colon,
+  ColonColon,
+  At,
+  AtAt,
+  Hash,
+  Star,
+  ForwardSlash,
+  Plus,
+  Hyphen,
+  Exclamation,
+  LessThanEquals,
+  GreaterThanEquals,
+  AmpsersandAmpersand,
+  BarBar,
+  EqualsEquals,
+  ExclamationEquals,
+  EqualsGreaterThan,
+  // Add new punctuation above
 
-  // Statement Keywords
-  ImportKeyword = 43,
-  ModelKeyword = 44,
-  NamespaceKeyword = 45,
-  UsingKeyword = 46,
-  OpKeyword = 47,
-  EnumKeyword = 48,
-  AliasKeyword = 49,
-  IsKeyword = 50,
-  InterfaceKeyword = 51,
-  UnionKeyword = 52,
-  ProjectionKeyword = 53,
-  ElseKeyword = 54,
-  IfKeyword = 55,
-  // Update MaxStatementKeyword if anything is added right above here
+  /** @internal */ __EndPunctuation,
+  ///////////////////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////////////////
+  // Statement keywords
+  /** @internal */ __StartKeyword = __EndPunctuation,
+  /** @internal */ __StartStatementKeyword = __StartKeyword,
+
+  ImportKeyword = __StartStatementKeyword,
+  ModelKeyword,
+  ScalarKeyword,
+  NamespaceKeyword,
+  UsingKeyword,
+  OpKeyword,
+  EnumKeyword,
+  AliasKeyword,
+  IsKeyword,
+  InterfaceKeyword,
+  UnionKeyword,
+  ProjectionKeyword,
+  ElseKeyword,
+  IfKeyword,
+  DecKeyword,
+  FnKeyword,
+  // Add new statement keyword above
+
+  /** @internal */ __EndStatementKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////
+
+  /** @internal */ __StartModifierKeyword = __EndStatementKeyword,
+
+  ExternKeyword = __StartModifierKeyword,
+
+  /** @internal */ __EndModifierKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////
   // Other keywords
-  ExtendsKeyword = 56,
-  TrueKeyword = 57,
-  FalseKeyword = 58,
-  ReturnKeyword = 59,
-  VoidKeyword = 60,
-  NeverKeyword = 61,
-  UnknownKeyword = 62,
-  // Update MaxKeyword if anything is added right above here
+
+  ExtendsKeyword = __EndModifierKeyword,
+  TrueKeyword,
+  FalseKeyword,
+  ReturnKeyword,
+  VoidKeyword,
+  NeverKeyword,
+  UnknownKeyword,
+  // Add new non-statement keyword above
+
+  /** @internal */ __EndKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  /** @internal */ __Count = __EndKeyword,
 }
 
-const MinKeyword = Token.ImportKeyword;
-const MaxKeyword = Token.UnknownKeyword;
-
-const MinPunctuation = Token.OpenBrace;
-const MaxPunctuation = Token.EqualsGreaterThan;
-
-const MinStatementKeyword = Token.ImportKeyword;
-const MaxStatementKeyword = Token.IfKeyword;
-
-/** @internal */
-export const TokenDisplay: readonly string[] = [
-  "none",
-  "invalid",
-  "end of file",
-  "single-line comment",
-  "multi-line comment",
-  "newline",
-  "whitespace",
-  "conflict marker",
-  "numeric literal",
-  "string literal",
-  "'{'", // 10
-  "'}'",
-  "'('",
-  "')'",
-  "'['",
-  "']'",
-  "'.'",
-  "'...'",
-  "';'",
-  "','",
-  "'<'", // 20
-  "'>'",
-  "'='",
-  "'&'",
-  "'|'",
-  "'?'",
-  "':'",
-  "'::'",
-  "'@'",
-  "'#'",
-  "'*'", // 30
-  "'/'",
-  "'+'",
-  "'-'",
-  "'!'",
-  "'<='",
-  "'>='",
-  "'&&'",
-  "'||'",
-  "'=='",
-  "'!='", // 40
-  "'=>'",
-  "identifier",
-  "'import'",
-  "'model'",
-  "'namespace'",
-  "'using'",
-  "'op'",
-  "'enum'",
-  "'alias'",
-  "'is'", // 50
-  "'interface'",
-  "'union'",
-  "'projection'",
-  "'else'",
-  "'if'",
-  "'extends'",
-  "'true'",
-  "'false'",
-  "'return'",
-  "'void'", // 60
-  "'never'",
-  "'unknown'",
-];
+export type DocToken =
+  | Token.NewLine
+  | Token.Whitespace
+  | Token.ConflictMarker
+  | Token.Star
+  | Token.At
+  | Token.CloseBrace
+  | Token.Identifier
+  | Token.DocText
+  | Token.DocCodeSpan
+  | Token.DocCodeFenceDelimiter
+  | Token.EndOfFile;
 
 /** @internal */
-export const Keywords: readonly [string, Token][] = [
+export const TokenDisplay = getTokenDisplayTable([
+  [Token.None, "none"],
+  [Token.Invalid, "invalid"],
+  [Token.EndOfFile, "end of file"],
+  [Token.SingleLineComment, "single-line comment"],
+  [Token.MultiLineComment, "multi-line comment"],
+  [Token.ConflictMarker, "conflict marker"],
+  [Token.NumericLiteral, "numeric literal"],
+  [Token.StringLiteral, "string literal"],
+  [Token.NewLine, "newline"],
+  [Token.Whitespace, "whitespace"],
+  [Token.DocCodeFenceDelimiter, "doc code fence delimiter"],
+  [Token.DocCodeSpan, "doc code span"],
+  [Token.DocText, "doc text"],
+  [Token.OpenBrace, "'{'"],
+  [Token.CloseBrace, "'}'"],
+  [Token.OpenParen, "'('"],
+  [Token.CloseParen, "')'"],
+  [Token.OpenBracket, "'['"],
+  [Token.CloseBracket, "']'"],
+  [Token.Dot, "'.'"],
+  [Token.Ellipsis, "'...'"],
+  [Token.Semicolon, "';'"],
+  [Token.Comma, "','"],
+  [Token.LessThan, "'<'"],
+  [Token.GreaterThan, "'>'"],
+  [Token.Equals, "'='"],
+  [Token.Ampersand, "'&'"],
+  [Token.Bar, "'|'"],
+  [Token.Question, "'?'"],
+  [Token.Colon, "':'"],
+  [Token.ColonColon, "'::'"],
+  [Token.At, "'@'"],
+  [Token.AtAt, "'@@'"],
+  [Token.Hash, "'#'"],
+  [Token.Star, "'*'"],
+  [Token.ForwardSlash, "'/'"],
+  [Token.Plus, "'+'"],
+  [Token.Hyphen, "'-'"],
+  [Token.Exclamation, "'!'"],
+  [Token.LessThanEquals, "'<='"],
+  [Token.GreaterThanEquals, "'>='"],
+  [Token.AmpsersandAmpersand, "'&&'"],
+  [Token.BarBar, "'||'"],
+  [Token.EqualsEquals, "'=='"],
+  [Token.ExclamationEquals, "'!='"],
+  [Token.EqualsGreaterThan, "'=>'"],
+  [Token.Identifier, "identifier"],
+  [Token.ImportKeyword, "'import'"],
+  [Token.ModelKeyword, "'model'"],
+  [Token.ScalarKeyword, "'scalar'"],
+  [Token.NamespaceKeyword, "'namespace'"],
+  [Token.UsingKeyword, "'using'"],
+  [Token.OpKeyword, "'op'"],
+  [Token.EnumKeyword, "'enum'"],
+  [Token.AliasKeyword, "'alias'"],
+  [Token.IsKeyword, "'is'"],
+  [Token.InterfaceKeyword, "'interface'"],
+  [Token.UnionKeyword, "'union'"],
+  [Token.ProjectionKeyword, "'projection'"],
+  [Token.ElseKeyword, "'else'"],
+  [Token.IfKeyword, "'if'"],
+  [Token.DecKeyword, "'dec'"],
+  [Token.FnKeyword, "'fn'"],
+  [Token.ExtendsKeyword, "'extends'"],
+  [Token.TrueKeyword, "'true'"],
+  [Token.FalseKeyword, "'false'"],
+  [Token.ReturnKeyword, "'return'"],
+  [Token.VoidKeyword, "'void'"],
+  [Token.NeverKeyword, "'never'"],
+  [Token.UnknownKeyword, "'unknown'"],
+  [Token.ExternKeyword, "'extern'"],
+]);
+
+/** @internal */
+export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["import", Token.ImportKeyword],
   ["model", Token.ModelKeyword],
+  ["scalar", Token.ScalarKeyword],
   ["namespace", Token.NamespaceKeyword],
   ["interface", Token.InterfaceKeyword],
   ["union", Token.UnionKeyword],
@@ -198,42 +255,21 @@ export const Keywords: readonly [string, Token][] = [
   ["is", Token.IsKeyword],
   ["enum", Token.EnumKeyword],
   ["alias", Token.AliasKeyword],
+  ["dec", Token.DecKeyword],
+  ["fn", Token.FnKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
   ["return", Token.ReturnKeyword],
   ["void", Token.VoidKeyword],
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
-];
+  ["extern", Token.ExternKeyword],
+]);
 
 /** @internal */
 export const enum KeywordLimit {
   MinLength = 2,
-  // If this ever exceeds 10, we will overflow the keyword map key, needing 11*5
-  // = 55 bits or more, exceeding the JavaScript safe integer range. We would
-  // have to change the keyword lookup algorithm in that case.
   MaxLength = 10,
-}
-const KeywordMap: ReadonlyMap<number, Token> = new Map(
-  Keywords.map((e) => [keywordKey(e[0]), e[1]])
-);
-
-// Since keywords are short and all lowercase, we can pack the whole string into
-// a single number by using 5 bits for each letter, and use that as the map key.
-// This lets us lookup keywords without making temporary substrings.
-function keywordKey(keyword: string) {
-  let key = 0;
-  for (let i = 0; i < keyword.length; i++) {
-    key = updateKeywordKey(key, keyword.charCodeAt(i));
-  }
-  return key;
-}
-
-function updateKeywordKey(key: number, ch: number) {
-  // Do not simplify this to (key << 5) | (ch - CharCode.a) as JavaScript
-  // bitwise operations truncate to 32-bits, and that will create
-  // collisions.
-  return key * 32 + (ch - CharCode.a);
 }
 
 export interface Scanner {
@@ -249,8 +285,17 @@ export interface Scanner {
   /** The offset in UTF-16 code units to the start of the current token. */
   readonly tokenPosition: number;
 
+  /** The flags on the current token. */
+  readonly tokenFlags: TokenFlags;
+
   /** Advance one token. */
   scan(): Token;
+
+  /** Advance one token inside DocComment. Use inside {@link scanRange} callback over DocComment range. */
+  scanDoc(): DocToken;
+
+  /** Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state. */
+  scanRange<T>(range: TextRange, callback: () => T): T;
 
   /** Determine if the scanner has reached the end of the input. */
   eof(): boolean;
@@ -268,30 +313,17 @@ export interface Scanner {
   getTokenValue(): string;
 }
 
-const enum TokenFlags {
+export enum TokenFlags {
   None = 0,
   Escaped = 1 << 0,
   TripleQuoted = 1 << 1,
   Unterminated = 1 << 2,
   NonAscii = 1 << 3,
-}
-
-export function isLiteral(token: Token) {
-  return (
-    token === Token.NumericLiteral ||
-    token === Token.StringLiteral ||
-    token === Token.TrueKeyword ||
-    token === Token.FalseKeyword
-  );
+  DocComment = 1 << 4,
 }
 
 export function isTrivia(token: Token) {
-  return (
-    token === Token.Whitespace ||
-    token === Token.NewLine ||
-    token === Token.SingleLineComment ||
-    token === Token.MultiLineComment
-  );
+  return token >= Token.__StartTrivia && token < Token.__EndTrivia;
 }
 
 export function isComment(token: Token) {
@@ -299,15 +331,19 @@ export function isComment(token: Token) {
 }
 
 export function isKeyword(token: Token) {
-  return token >= MinKeyword && token <= MaxKeyword;
+  return token >= Token.__StartKeyword && token < Token.__EndKeyword;
 }
 
 export function isPunctuation(token: Token) {
-  return token >= MinPunctuation && token <= MaxPunctuation;
+  return token >= Token.__StartPunctuation && token < Token.__EndPunctuation;
+}
+
+export function isModifier(token: Token) {
+  return token >= Token.__StartModifierKeyword && token < Token.__EndModifierKeyword;
 }
 
 export function isStatementKeyword(token: Token) {
-  return token >= MinStatementKeyword && token <= MaxStatementKeyword;
+  return token >= Token.__StartStatementKeyword && token < Token.__EndStatementKeyword;
 }
 
 export function createScanner(
@@ -317,12 +353,12 @@ export function createScanner(
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
   const input = file.text;
   let position = 0;
+  let endPosition = input.length;
   let token = Token.None;
   let tokenPosition = -1;
   let tokenFlags = TokenFlags.None;
-
   // Skip BOM
-  if (input.charCodeAt(position) === CharCode.ByteOrderMark) {
+  if (position < endPosition && input.charCodeAt(position) === CharCode.ByteOrderMark) {
     position++;
   }
 
@@ -336,15 +372,20 @@ export function createScanner(
     get tokenPosition() {
       return tokenPosition;
     },
+    get tokenFlags() {
+      return tokenFlags;
+    },
     file,
     scan,
+    scanRange,
+    scanDoc,
     eof,
     getTokenText,
     getTokenValue,
   };
 
   function eof() {
-    return position >= input.length;
+    return position >= endPosition;
   }
 
   function getTokenText() {
@@ -363,7 +404,11 @@ export function createScanner(
   }
 
   function lookAhead(offset: number) {
-    return input.charCodeAt(position + offset);
+    const p = position + offset;
+    if (p >= endPosition) {
+      return Number.NaN;
+    }
+    return input.charCodeAt(p);
   }
 
   function scan(): Token {
@@ -415,7 +460,7 @@ export function createScanner(
           return next(Token.CloseBrace);
 
         case CharCode.At:
-          return next(Token.At);
+          return lookAhead(1) === CharCode.At ? next(Token.AtAt, 2) : next(Token.At);
 
         case CharCode.Hash:
           return next(Token.Hash);
@@ -472,56 +517,51 @@ export function createScanner(
           return scanNumber();
 
         case CharCode.LessThan:
+          if (atConflictMarker()) return scanConflictMarker();
           return lookAhead(1) === CharCode.Equals
             ? next(Token.LessThanEquals, 2)
-            : isConflictMarker()
-            ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.LessThan);
 
         case CharCode.GreaterThan:
+          if (atConflictMarker()) return scanConflictMarker();
           return lookAhead(1) === CharCode.Equals
             ? next(Token.GreaterThanEquals, 2)
-            : isConflictMarker()
-            ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.GreaterThan);
 
         case CharCode.Equals:
-          return lookAhead(1) === CharCode.Equals
-            ? next(Token.EqualsEquals, 2)
-            : lookAhead(1) === CharCode.GreaterThan
-            ? next(Token.EqualsGreaterThan, 2)
-            : isConflictMarker()
-            ? next(Token.ConflictMarker, mergeConflictMarkerLength)
-            : next(Token.Equals);
+          if (atConflictMarker()) return scanConflictMarker();
+          switch (lookAhead(1)) {
+            case CharCode.Equals:
+              return next(Token.EqualsEquals, 2);
+            case CharCode.GreaterThan:
+              return next(Token.EqualsGreaterThan, 2);
+          }
+          return next(Token.Equals);
 
         case CharCode.Bar:
-          return lookAhead(1) === CharCode.Bar
-            ? next(Token.BarBar, 2)
-            : isConflictMarker()
-            ? next(Token.ConflictMarker, mergeConflictMarkerLength)
-            : next(Token.Bar);
+          if (atConflictMarker()) return scanConflictMarker();
+          return lookAhead(1) === CharCode.Bar ? next(Token.BarBar, 2) : next(Token.Bar);
 
         case CharCode.DoubleQuote:
           return lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote
             ? scanTripleQuotedString()
             : scanString();
+
         case CharCode.Exclamation:
           return lookAhead(1) === CharCode.Equals
             ? next(Token.ExclamationEquals, 2)
             : next(Token.Exclamation);
+
         default:
           if (isLowercaseAsciiLetter(ch)) {
             return scanIdentifierOrKeyword();
           }
-
           if (isAsciiIdentifierStart(ch)) {
             return scanIdentifier();
           }
-
           if (ch <= CharCode.MaxAscii) {
             return scanInvalidCharacter();
           }
-
           return scanNonAsciiToken();
       }
     }
@@ -529,15 +569,101 @@ export function createScanner(
     return (token = Token.EndOfFile);
   }
 
-  function next(t: Token, count = 1) {
-    position += count;
-    return (token = t);
+  function scanDoc(): DocToken {
+    tokenPosition = position;
+    tokenFlags = TokenFlags.None;
+
+    if (!eof()) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
+        case CharCode.CarriageReturn:
+          if (lookAhead(1) === CharCode.LineFeed) {
+            position++;
+          }
+        // fallthrough
+        case CharCode.LineFeed:
+          return next(Token.NewLine);
+
+        case CharCode.Space:
+        case CharCode.Tab:
+        case CharCode.VerticalTab:
+        case CharCode.FormFeed:
+          return scanWhitespace();
+
+        case CharCode.CloseBrace:
+          return next(Token.CloseBrace);
+
+        case CharCode.At:
+          return next(Token.At);
+
+        case CharCode.Asterisk:
+          return next(Token.Star);
+
+        case CharCode.Backtick:
+          return lookAhead(1) === CharCode.Backtick && lookAhead(2) === CharCode.Backtick
+            ? next(Token.DocCodeFenceDelimiter, 3)
+            : scanDocCodeSpan();
+
+        case CharCode.LessThan:
+        case CharCode.GreaterThan:
+        case CharCode.Equals:
+        case CharCode.Bar:
+          if (atConflictMarker()) return scanConflictMarker();
+          return next(Token.DocText);
+      }
+
+      if (isAsciiIdentifierStart(ch)) {
+        return scanIdentifier();
+      }
+
+      if (ch <= CharCode.MaxAscii) {
+        return next(Token.DocText);
+      }
+
+      const cp = input.codePointAt(position)!;
+      if (isIdentifierStart(cp)) {
+        return scanNonAsciiIdentifier(cp);
+      }
+
+      return scanUnknown(Token.DocText);
+    }
+
+    return (token = Token.EndOfFile);
   }
 
-  function unterminated(t: Token) {
+  function scanRange<T>(range: TextRange, callback: () => T): T {
+    const savedPosition = position;
+    const savedEndPosition = endPosition;
+    const savedToken = token;
+    const savedTokenPosition = tokenPosition;
+    const savedTokenFlags = tokenFlags;
+
+    position = range.pos;
+    endPosition = range.end;
+    token = Token.None;
+    tokenPosition = -1;
+    tokenFlags = TokenFlags.None;
+
+    const result = callback();
+
+    position = savedPosition;
+    endPosition = savedEndPosition;
+    token = savedToken;
+    tokenPosition = savedTokenPosition;
+    tokenFlags = savedTokenFlags;
+
+    return result;
+  }
+
+  function next<T extends Token>(t: T, count = 1): T {
+    position += count;
+    return (token = t) as T;
+  }
+
+  function unterminated<T extends Token>(t: T): T {
     tokenFlags |= TokenFlags.Unterminated;
     error({ code: "unterminated", format: { token: TokenDisplay[t] } });
-    return (token = t);
+    return (token = t) as T;
   }
 
   function scanNonAsciiToken() {
@@ -556,28 +682,15 @@ export function createScanner(
     return scanInvalidCharacter();
   }
 
-  function scanInvalidCharacter() {
-    const codePoint = input.codePointAt(position)!;
-    token = next(Token.Invalid, utf16CodeUnits(codePoint));
+  function scanInvalidCharacter(): Token.Invalid {
+    token = scanUnknown(Token.Invalid);
     error({ code: "invalid-character" });
     return token;
   }
 
-  function isConflictMarker() {
-    // Conflict markers must be at the start of a line.
-    const ch = input.charCodeAt(position);
-    if (position === 0 || isLineBreak(input.charCodeAt(position - 1))) {
-      if (position + mergeConflictMarkerLength < input.length) {
-        for (let i = 0; i < mergeConflictMarkerLength; i++) {
-          if (lookAhead(i) !== ch) {
-            return false;
-          }
-        }
-        return ch === CharCode.Equals || lookAhead(mergeConflictMarkerLength) === CharCode.Space;
-      }
-    }
-
-    return false;
+  function scanUnknown<T extends Token>(t: T): T {
+    const codePoint = input.codePointAt(position)!;
+    return (token = next(t, utf16CodeUnits(codePoint)));
   }
 
   function error<
@@ -591,7 +704,7 @@ export function createScanner(
     diagnosticHandler(diagnostic);
   }
 
-  function scanWhitespace(): Token {
+  function scanWhitespace(): Token.Whitespace {
     do {
       position++;
     } while (!eof() && isWhiteSpaceSingleLine(input.charCodeAt(position)));
@@ -599,12 +712,12 @@ export function createScanner(
     return (token = Token.Whitespace);
   }
 
-  function scanSignedNumber() {
+  function scanSignedNumber(): Token.NumericLiteral {
     position++; // consume '+/-'
     return scanNumber();
   }
 
-  function scanNumber() {
+  function scanNumber(): Token.NumericLiteral {
     scanKnownDigits();
     if (!eof() && input.charCodeAt(position) === CharCode.Dot) {
       position++;
@@ -621,13 +734,13 @@ export function createScanner(
     return (token = Token.NumericLiteral);
   }
 
-  function scanKnownDigits() {
+  function scanKnownDigits(): void {
     do {
       position++;
     } while (!eof() && isDigit(input.charCodeAt(position)));
   }
 
-  function scanRequiredDigits() {
+  function scanRequiredDigits(): void {
     if (eof() || !isDigit(input.charCodeAt(position))) {
       error({ code: "digit-expected" });
       return;
@@ -635,7 +748,7 @@ export function createScanner(
     scanKnownDigits();
   }
 
-  function scanHexNumber() {
+  function scanHexNumber(): Token.NumericLiteral {
     position += 2; // consume '0x'
 
     if (eof() || !isHexDigit(input.charCodeAt(position))) {
@@ -649,7 +762,7 @@ export function createScanner(
     return (token = Token.NumericLiteral);
   }
 
-  function scanBinaryNumber() {
+  function scanBinaryNumber(): Token.NumericLiteral {
     position += 2; // consume '0b'
 
     if (eof() || !isBinaryDigit(input.charCodeAt(position))) {
@@ -663,19 +776,40 @@ export function createScanner(
     return (token = Token.NumericLiteral);
   }
 
-  function scanSingleLineComment() {
-    position = skipSingleLineComment(input, position);
+  function scanSingleLineComment(): Token.SingleLineComment {
+    position = skipSingleLineComment(input, position, endPosition);
     return (token = Token.SingleLineComment);
   }
 
-  function scanMultiLineComment() {
+  function scanMultiLineComment(): Token.MultiLineComment {
+    token = Token.MultiLineComment;
+    if (lookAhead(2) === CharCode.Asterisk) {
+      tokenFlags |= TokenFlags.DocComment;
+    }
     const [newPosition, terminated] = skipMultiLineComment(input, position);
     position = newPosition;
-    token = Token.MultiLineComment;
     return terminated ? token : unterminated(token);
   }
 
-  function scanString() {
+  function scanDocCodeSpan(): Token.DocCodeSpan {
+    position++; // consume '`'
+
+    loop: for (; !eof(); position++) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
+        case CharCode.Backtick:
+          position++;
+          return (token = Token.DocCodeSpan);
+        case CharCode.CarriageReturn:
+        case CharCode.LineFeed:
+          break loop;
+      }
+    }
+
+    return unterminated(Token.DocCodeSpan);
+  }
+
+  function scanString(): Token.StringLiteral {
     position++; // consume '"'
 
     loop: for (; !eof(); position++) {
@@ -700,7 +834,7 @@ export function createScanner(
     return unterminated(Token.StringLiteral);
   }
 
-  function scanTripleQuotedString() {
+  function scanTripleQuotedString(): Token.StringLiteral {
     tokenFlags |= TokenFlags.TripleQuoted;
     position += 3; // consume '"""'
 
@@ -718,7 +852,7 @@ export function createScanner(
     return unterminated(Token.StringLiteral);
   }
 
-  function getStringTokenValue() {
+  function getStringTokenValue(): string {
     const quoteLength = tokenFlags & TokenFlags.TripleQuoted ? 3 : 1;
     const start = tokenPosition + quoteLength;
     const end = tokenFlags & TokenFlags.Unterminated ? position : position - quoteLength;
@@ -734,12 +868,12 @@ export function createScanner(
     return input.substring(start, end);
   }
 
-  function getIdentifierTokenValue() {
+  function getIdentifierTokenValue(): string {
     const text = getTokenText();
     return tokenFlags & TokenFlags.NonAscii ? text.normalize("NFC") : text;
   }
 
-  function unindentAndUnescapeTripleQuotedString(start: number, end: number) {
+  function unindentAndUnescapeTripleQuotedString(start: number, end: number): string {
     // ignore leading whitespace before required initial line break
     while (start < end && isWhiteSpaceSingleLine(input.charCodeAt(start))) {
       start++;
@@ -801,7 +935,7 @@ export function createScanner(
       if (pos < end) {
         if (isCrlf(pos, start, end)) {
           // CRLF in multi-line string is normalized to LF in string value.
-          // This keeps program behavior unchanged by line-eding conversion.
+          // This keeps program behavior unchanged by line-ending conversion.
           result += input.substring(start, pos);
           result += "\n";
           pos += 2;
@@ -831,7 +965,7 @@ export function createScanner(
     end: number,
     indentationStart: number,
     indentationEnd: number
-  ) {
+  ): number {
     let indentationPos = indentationStart;
     end = Math.min(end, pos + (indentationEnd - indentationStart));
 
@@ -852,7 +986,7 @@ export function createScanner(
     return pos;
   }
 
-  function unescapeString(start: number, end: number) {
+  function unescapeString(start: number, end: number): string {
     let result = "";
     let pos = start;
 
@@ -878,7 +1012,7 @@ export function createScanner(
     return result;
   }
 
-  function unescapeOne(pos: number) {
+  function unescapeOne(pos: number): string {
     const ch = input.charCodeAt(pos + 1);
     switch (ch) {
       case CharCode.r:
@@ -897,15 +1031,13 @@ export function createScanner(
     }
   }
 
-  function scanIdentifierOrKeyword() {
-    let key = 0;
+  function scanIdentifierOrKeyword(): Token {
     let count = 0;
     let ch = input.charCodeAt(position);
 
     while (true) {
       position++;
       count++;
-      key = updateKeywordKey(key, ch);
 
       if (eof()) {
         break;
@@ -931,7 +1063,7 @@ export function createScanner(
     }
 
     if (count >= KeywordLimit.MinLength && count <= KeywordLimit.MaxLength) {
-      const keyword = KeywordMap.get(key);
+      const keyword = Keywords.get(getTokenText());
       if (keyword) {
         return (token = keyword);
       }
@@ -940,7 +1072,7 @@ export function createScanner(
     return (token = Token.Identifier);
   }
 
-  function scanIdentifier() {
+  function scanIdentifier(): Token.Identifier {
     let ch: number;
 
     do {
@@ -960,7 +1092,7 @@ export function createScanner(
     return (token = Token.Identifier);
   }
 
-  function scanNonAsciiIdentifier(startCodePoint: number) {
+  function scanNonAsciiIdentifier(startCodePoint: number): Token.Identifier {
     tokenFlags |= TokenFlags.NonAscii;
     let cp = startCodePoint;
     do {
@@ -969,10 +1101,43 @@ export function createScanner(
 
     return (token = Token.Identifier);
   }
+
+  function atConflictMarker(): boolean {
+    return isConflictMarker(input, position, endPosition);
+  }
+
+  function scanConflictMarker(): Token.ConflictMarker {
+    const marker = input.charCodeAt(position);
+    position += mergeConflictMarkerLength;
+    error({ code: "conflict-marker" });
+
+    if (marker === CharCode.LessThan || marker === CharCode.GreaterThan) {
+      // Consume everything from >>>>>>> or <<<<<<< to the end of the line.
+      while (position < endPosition && !isLineBreak(input.charCodeAt(position))) {
+        position++;
+      }
+    } else {
+      // Consume everything from the start of a ||||||| or =======
+      // marker to the start of the next ======= or >>>>>>> marker.
+      while (position < endPosition) {
+        const ch = input.charCodeAt(position);
+        if (
+          (ch === CharCode.Equals || ch === CharCode.GreaterThan) &&
+          ch !== marker &&
+          isConflictMarker(input, position, endPosition)
+        ) {
+          break;
+        }
+        position++;
+      }
+    }
+
+    return (token = Token.ConflictMarker);
+  }
 }
 
-export function skipTrivia(input: string, position: number): number {
-  while (position < input.length) {
+export function skipTrivia(input: string, position: number, endPosition = input.length): number {
+  while (position < endPosition) {
     const ch = input.charCodeAt(position);
 
     if (isWhiteSpace(ch)) {
@@ -983,10 +1148,10 @@ export function skipTrivia(input: string, position: number): number {
     if (ch === CharCode.Slash) {
       switch (input.charCodeAt(position + 1)) {
         case CharCode.Slash:
-          position = skipSingleLineComment(input, position);
+          position = skipSingleLineComment(input, position, endPosition);
           continue;
         case CharCode.Asterisk:
-          position = skipMultiLineComment(input, position)[0];
+          position = skipMultiLineComment(input, position, endPosition)[0];
           continue;
       }
     }
@@ -997,8 +1162,12 @@ export function skipTrivia(input: string, position: number): number {
   return position;
 }
 
-export function skipWhiteSpace(input: string, position: number): number {
-  while (position < input.length) {
+export function skipWhiteSpace(
+  input: string,
+  position: number,
+  endPosition = input.length
+): number {
+  while (position < endPosition) {
     const ch = input.charCodeAt(position);
 
     if (!isWhiteSpace(ch)) {
@@ -1010,10 +1179,14 @@ export function skipWhiteSpace(input: string, position: number): number {
   return position;
 }
 
-function skipSingleLineComment(input: string, position: number): number {
+function skipSingleLineComment(
+  input: string,
+  position: number,
+  endPosition = input.length
+): number {
   position += 2; // consume '//'
 
-  for (; position < input.length; position++) {
+  for (; position < endPosition; position++) {
     if (isLineBreak(input.charCodeAt(position))) {
       break;
     }
@@ -1024,11 +1197,12 @@ function skipSingleLineComment(input: string, position: number): number {
 
 function skipMultiLineComment(
   input: string,
-  position: number
+  position: number,
+  endPosition = input.length
 ): [position: number, terminated: boolean] {
   position += 2; // consume '/*'
 
-  for (; position < input.length; position++) {
+  for (; position < endPosition; position++) {
     if (
       input.charCodeAt(position) === CharCode.Asterisk &&
       input.charCodeAt(position + 1) === CharCode.Slash
@@ -1038,4 +1212,46 @@ function skipMultiLineComment(
   }
 
   return [position, false];
+}
+
+function isConflictMarker(input: string, position: number, endPosition = input.length): boolean {
+  // Conflict markers must be at the start of a line.
+  const ch = input.charCodeAt(position);
+  if (position === 0 || isLineBreak(input.charCodeAt(position - 1))) {
+    if (position + mergeConflictMarkerLength < endPosition) {
+      for (let i = 0; i < mergeConflictMarkerLength; i++) {
+        if (input.charCodeAt(position + i) !== ch) {
+          return false;
+        }
+      }
+      return (
+        ch === CharCode.Equals ||
+        input.charCodeAt(position + mergeConflictMarkerLength) === CharCode.Space
+      );
+    }
+  }
+
+  return false;
+}
+
+function getTokenDisplayTable(entries: [Token, string][]): readonly string[] {
+  const table = new Array<string>(entries.length);
+
+  for (const [token, display] of entries) {
+    compilerAssert(
+      token >= 0 && token < Token.__Count,
+      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`
+    );
+    compilerAssert(
+      !table[token],
+      `Duplicate entry in token display table for: ${token}, ${Token[token]}, ${display}`
+    );
+    table[token] = display;
+  }
+
+  for (let token = 0; token < Token.__Count; token++) {
+    compilerAssert(table[token], `Missing entry in token display table: ${token}, ${Token[token]}`);
+  }
+
+  return table;
 }

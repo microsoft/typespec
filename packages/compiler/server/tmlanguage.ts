@@ -29,6 +29,7 @@ export type CadlScope =
   | "keyword.operator.type.annotation.cadl"
   | "keyword.operator.assignment.cadl"
   | "keyword.operator.optional.cadl"
+  | "keyword.operator.selector.cadl"
   | "keyword.operator.spread.cadl"
   // Punctuation
   | "punctuation.comma.cadl"
@@ -45,14 +46,16 @@ export type CadlScope =
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
+// cspell:disable-next-line
 const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
-const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
-const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
+const modifierKeyword = `\\b(?:extern)\\b`;
+const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
+const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
  * Universal end with extra end char: `=`
@@ -198,6 +201,17 @@ const decorator: BeginEndRule = {
   patterns: [token, parenthesizedExpression],
 };
 
+const augmentDecoratorStatement: BeginEndRule = {
+  key: "augment-decorator-statement",
+  scope: meta,
+  begin: `(@@${qualifiedIdentifier})`,
+  beginCaptures: {
+    "1": { scope: "entity.name.tag.cadl" },
+  },
+  end: `${beforeIdentifier}|${universalEnd}`,
+  patterns: [token, parenthesizedExpression],
+};
+
 const identifierExpression: MatchRule = {
   key: "identifier-expression",
   scope: "entity.name.type.cadl",
@@ -317,7 +331,7 @@ const modelSpreadProperty: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `(#${identifier})`,
+  begin: `\\s*(#${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.cadl" },
   },
@@ -372,6 +386,33 @@ const modelStatement: BeginEndRule = {
     token,
     typeParameters,
     modelHeritage, // before expression or `extends` or `is` will look like type name
+    expression, // enough to match name, type parameters, and body.
+  ],
+};
+
+const scalarExtends: BeginEndRule = {
+  key: "scalar-extends",
+  scope: meta,
+  begin: "\\b(extends)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEndExceptComma,
+  patterns: [expression, punctuationComma],
+};
+
+const scalarStatement: BeginEndRule = {
+  key: "scalar-statement",
+  scope: meta,
+  begin: "\\b(scalar)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEnd,
+  patterns: [
+    token,
+    typeParameters,
+    scalarExtends, // before expression or `extends` will look like type name
     expression, // enough to match name, type parameters, and body.
   ],
 };
@@ -564,6 +605,168 @@ const usingStatement: BeginEndRule = {
   patterns: [token, identifierExpression],
 };
 
+const decoratorDeclarationStatement: BeginEndRule = {
+  key: "decorator-declaration-statement",
+  scope: meta,
+  begin: `(?:(extern)\\s+)?\\b(dec)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters],
+};
+
+const functionDeclarationStatement: BeginEndRule = {
+  key: "function-declaration-statement",
+  scope: meta,
+  begin: `(?:(extern)\\s+)?\\b(fn)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters, typeAnnotation],
+};
+
+const projectionParameter: BeginEndRule = {
+  key: "projection-parameter",
+  scope: meta,
+  begin: `(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "variable.name.cadl" },
+  },
+  end: `(?=\\))|${universalEnd}`,
+  patterns: [],
+};
+
+const projectionParameters: BeginEndRule = {
+  key: "projection-parameters",
+  scope: meta,
+  begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.cadl" },
+  },
+  end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [token, projectionParameter],
+};
+
+const projectionExpression: IncludeRule = {
+  key: "projection-expression",
+  patterns: [
+    /* placeholder filled later due to cycle*/
+  ],
+};
+
+const projectionBody: BeginEndRule = {
+  key: "projection-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
+  patterns: [projectionExpression, punctuationSemicolon],
+};
+
+const ifExpression: BeginEndRule = {
+  key: "if-expression",
+  scope: meta,
+  begin: `\\b(if)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionExpression, projectionBody],
+};
+
+const elseIfExpression: BeginEndRule = {
+  key: "else-if-expression",
+  scope: meta,
+  begin: `\\b(else)\\s+(if)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionExpression, projectionBody],
+};
+
+const elseExpression: BeginEndRule = {
+  key: "else-expression",
+  scope: meta,
+  begin: `\\b(else)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionExpression, projectionBody],
+};
+
+const functionCall: BeginEndRule = {
+  key: "function-call",
+  scope: meta,
+  begin: `(${identifier})\\s*(\\()`,
+  beginCaptures: {
+    "1": { scope: "entity.name.function.cadl" },
+    "2": { scope: "punctuation.parenthesis.open.cadl" },
+  },
+  end: `\\)`,
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [expression],
+};
+
+projectionExpression.patterns = [elseIfExpression, ifExpression, elseExpression, functionCall];
+
+const projection: BeginEndRule = {
+  key: "projection",
+  scope: meta,
+  begin: "(from|to)",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionParameters, projectionBody],
+};
+
+const projectionStatementBody: BeginEndRule = {
+  key: "projection-statement-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
+  patterns: [projection],
+};
+
+const projectionStatement: BeginEndRule = {
+  key: "projection-statement",
+  scope: meta,
+  begin: `\\b(projection)\\b\\s+(${identifier})(#)(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "keyword.operator.selector.cadl" },
+    "4": { scope: "variable.name.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionStatementBody],
+};
+
 // NOTE: We don't actually classify all the different expression types and their
 // punctuation yet. For now, at least, we only deal with the ones that would
 // break coloring due to breaking out of context inappropriately with parens/
@@ -583,8 +786,10 @@ expression.patterns = [
 statement.patterns = [
   token,
   directive,
+  augmentDecoratorStatement,
   decorator,
   modelStatement,
+  scalarStatement,
   unionStatement,
   interfaceStatement,
   enumStatement,
@@ -593,6 +798,9 @@ statement.patterns = [
   operationStatement,
   importStatement,
   usingStatement,
+  decoratorDeclarationStatement,
+  functionDeclarationStatement,
+  projectionStatement,
   punctuationSemicolon,
 ];
 

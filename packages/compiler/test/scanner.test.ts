@@ -317,14 +317,6 @@ describe("compiler: scanner", () => {
 
   // It's easy to forget to update TokenDisplay or Min/Max ranges...
   it("provides friendly token display and classification", () => {
-    const tokenCount = Object.values(Token).filter((v) => typeof v === "number").length;
-    const tokenDisplayCount = TokenDisplay.length;
-    assert.strictEqual(
-      tokenCount,
-      tokenDisplayCount,
-      `Token enum has ${tokenCount} elements but TokenDisplay array has ${tokenDisplayCount}.`
-    );
-
     // check that keywords have appropriate display and limits
     const nonStatementKeywords = [
       Token.ExtendsKeyword,
@@ -334,6 +326,7 @@ describe("compiler: scanner", () => {
       Token.VoidKeyword,
       Token.NeverKeyword,
       Token.UnknownKeyword,
+      Token.ExternKeyword,
     ];
     let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
     let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;
@@ -349,7 +342,12 @@ describe("compiler: scanner", () => {
 
       assert.strictEqual(TokenDisplay[token], `'${name}'`, "token display should match");
       assert(isKeyword(token), `${name} should be classified as a keyword`);
-      if (!nonStatementKeywords.includes(token)) {
+      if (nonStatementKeywords.includes(token)) {
+        assert(
+          !isStatementKeyword(token),
+          `${name} should not be classified as a statement keyword`
+        );
+      } else {
         assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);
       }
     }
@@ -364,10 +362,6 @@ describe("compiler: scanner", () => {
       maxKeywordLengthFound,
       KeywordLimit.MaxLength,
       `max keyword length is incorrect, set KeywordLimit.MaxLength to ${maxKeywordLengthFound}`
-    );
-    assert(
-      maxKeywordLengthFound < 11,
-      "We need to change the keyword lookup algorithm in the scanner if we ever add a keyword with 11 characters or more."
     );
 
     // check single character punctuation
@@ -430,12 +424,13 @@ describe("compiler: scanner", () => {
         `U+${codePoint.toString(16)} should be allowed to continue identifier.`
       );
     }
-
+    // cspell:disable-next-line
     assert(isIdentifierContinue(0x200c), "U+200C (ZWNJ) should be allowed to continue identifier.");
     assert(isIdentifierContinue(0x200d), "U+200D (ZWJ) should be allowed to continue identifier.");
   });
 
   describe("keyword collision", () => {
+    // cspell:disable-next-line
     for (const identifier of ["outerface", "famespace", "notanamespace", "notaninterface"]) {
       it(`does not think ${identifier} is a keyword`, () => {
         const [[token]] = tokens(identifier);

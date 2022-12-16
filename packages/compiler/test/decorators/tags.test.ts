@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "assert";
-import { InterfaceType, NamespaceType, OperationType } from "../../core/types.js";
+import { Interface, Namespace, Operation } from "../../core/types.js";
 import { getAllTags } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
@@ -62,15 +62,15 @@ describe("compiler: tag decorator", () => {
       RecursiveInterface,
       RecursiveOperation,
     } = (await testHost.compile("./")) as {
-      OpNamespace: NamespaceType;
-      OpInterface: InterfaceType;
-      UntaggedInterface: InterfaceType;
-      NamespaceOperation: OperationType;
-      InterfaceOperation: OperationType;
-      TaggedOperation: OperationType;
-      RecursiveNamespace: NamespaceType;
-      RecursiveInterface: InterfaceType;
-      RecursiveOperation: OperationType;
+      OpNamespace: Namespace;
+      OpInterface: Interface;
+      UntaggedInterface: Interface;
+      NamespaceOperation: Operation;
+      InterfaceOperation: Operation;
+      TaggedOperation: Operation;
+      RecursiveNamespace: Namespace;
+      RecursiveInterface: Interface;
+      RecursiveOperation: Operation;
     };
 
     deepStrictEqual(getAllTags(testHost.program, OpNamespace), ["namespace"]);

@@ -12,32 +12,26 @@ namespace Microsoft.Cadl.VisualStudio
 
 
     [Serializable]
-    public class CadlUserErrorException : Exception
+    internal class CadlUserErrorException : Exception
     {
-        public CadlUserErrorException() { }
-
-        public CadlUserErrorException(string message)
-            : base(message)
+        public CadlUserErrorException(string message, Exception? innerException = null)
+            : base(message, innerException)
         {
-
         }
     }
 
-
     [Serializable]
-    public class CadlServerNotFoundException : CadlUserErrorException
+    internal sealed class CadlServerNotFoundException : CadlUserErrorException
     {
-        public CadlServerNotFoundException() { }
-
-        public CadlServerNotFoundException(string name)
+        public CadlServerNotFoundException(string fileName, Exception? innerException = null)
             : base(string.Join("\n", new string[]
             {
-            $"Cadl server exectuable was not found: '{name}' is not found. Make sure either:",
-            " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
-            " - cadl server path is configured with https://github.com/microsoft/cadl/blob/main/packages/cadl-vs/README.md#configure-cadl-visual-studio-extension."
-            }))
+                $"Cadl server executable was not found: '{fileName}' is not found. Make sure either:",
+                " - cadl is installed locally at the root of this workspace or in a parent directory.",
+                " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
+                " - cadl server path is configured with https://github.com/microsoft/cadl/blob/main/packages/cadl-vs/README.md#configure-cadl-visual-studio-extension."
+            }), innerException)
         {
-
         }
     }
 }

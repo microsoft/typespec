@@ -16,7 +16,6 @@ npm install @cadl-lang/openapi
 import "@cadl-lang/openapi";
 
 using OpenAPI;
-
 ```
 
 ## References
@@ -30,7 +29,7 @@ Decorators:
 
 ### `@defaultResponse`
 
-**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#error)**
+**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://microsoft.github.io/cadl/docs/standard-library/built-in-decorators/#error)**
 
 Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
 
@@ -39,13 +38,12 @@ Decorator that can be used on a response model to specify the `default` status c
 model MyNonErrorResponse {}
 
 op foo(): MyNonErrorResponse;
-
 ```
 
 ### `@extension`
 
-This decorator lets you sepecify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
-[OpenAPI reference on extensions](https://swagger.io/docs/specification/openapi-extensions/)
+This decorator lets you specify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
+[OpenAPI reference on extensions](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#specificationExtensions)
 
 Arguments:
 
@@ -66,13 +64,12 @@ model Foo {}
   }
 )
 model Foo {}
-
 ```
 
 ### `@externalDocs`
 
 Decorator that can be used to provide the `externalDocs` property on OpenAPI elements.
-[OpenAPI spec for extenalDocs](https://swagger.io/specification/#external-documentation-object)
+[OpenAPI spec for externalDocs](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#externalDocumentationObject)
 
 Arguments:
 
@@ -84,7 +81,6 @@ Arguments:
 ```cadl
 @externalDocs("https://example.com", "More info there")
 model Foo {}
-
 ```
 
 ### `@operationId`
@@ -100,11 +96,10 @@ Arguments:
 ```cadl
 @operationId("custom_Foo")
 op foo(): string;
-
 ```
 
 ## See also
 
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md)
+- [Cadl Website](https://microsoft.github.io/cadl)
 - [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)

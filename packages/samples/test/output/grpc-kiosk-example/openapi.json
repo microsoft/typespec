@@ -533,6 +533,39 @@
           "height"
         ]
       },
+      "SetSignIdForKioskIdsRequest": {
+        "type": "object",
+        "properties": {
+          "kiosk_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-cadl-name": "int32[]"
+          },
+          "sign_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "kiosk_ids",
+          "sign_id"
+        ]
+      },
+      "GetSignIdForKioskIdRequest": {
+        "type": "object",
+        "properties": {
+          "kiosk_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "kiosk_id"
+        ]
+      },
       "LatLng": {
         "type": "object",
         "properties": {

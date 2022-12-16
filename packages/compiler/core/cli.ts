@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -655,111 +656,9 @@ async function uninstallVSExtension() {
   });
 }
 
+=======
+>>>>>>> e106d1334b7a05189a57bdf43ace76accf2697a2
 /**
- * Print the resolved Cadl configuration.
+ * For backward compatibility where global compiler would look at ./node_modules/@cadl-lang/compiler/dist/core/cli/cli.js
  */
-async function printInfo(host: CompilerHost) {
-  const cwd = process.cwd();
-  console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
-
-  const config = await loadCadlConfigForPath(host, cwd);
-  const jsyaml = await import("js-yaml");
-  const excluded = ["diagnostics", "filename"];
-  const replacer = (emitter: string, value: any) =>
-    excluded.includes(emitter) ? undefined : value;
-
-  console.log(`User Config: ${config.filename ?? "No config file found"}`);
-  console.log("-----------");
-  console.log(jsyaml.dump(config, { replacer }));
-  console.log("-----------");
-  logDiagnostics(config.diagnostics, host.logSink);
-  logDiagnosticCount(config.diagnostics);
-  if (config.diagnostics.some((d) => d.severity === "error")) {
-    process.exit(1);
-  }
-}
-
-// NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
-// ENOENT checking and handles spaces poorly in some cases.
-const isCmdOnWindows = ["code", "code-insiders", "npm"];
-
-interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> {
-  debug?: boolean;
-  extraEnv?: NodeJS.ProcessEnv;
-  allowNotFound?: boolean;
-  allowedExitCodes?: number[];
-}
-
-function run(command: string, commandArgs: string[], options?: RunOptions) {
-  if (options?.debug) {
-    if (options) {
-      console.log(options);
-    }
-    console.log(`> ${command} ${commandArgs.join(" ")}\n`);
-  }
-
-  if (options?.extraEnv) {
-    options.env = {
-      ...(options?.env ?? process.env),
-      ...options.extraEnv,
-    };
-  }
-
-  const baseCommandName = getBaseFileName(command);
-  if (process.platform === "win32" && isCmdOnWindows.includes(command)) {
-    command += ".cmd";
-  }
-
-  const finalOptions: SpawnSyncOptionsWithStringEncoding = {
-    encoding: "utf-8",
-    stdio: "inherit",
-    ...(options ?? {}),
-  };
-
-  const proc = spawnSync(command, commandArgs, finalOptions);
-  if (options?.debug) {
-    console.log(proc);
-  }
-
-  if (proc.error) {
-    if ((proc.error as any).code === "ENOENT" && !options?.allowNotFound) {
-      console.error(`error: Command '${baseCommandName}' not found.`);
-      if (options?.debug) {
-        console.log(proc.error.stack);
-      }
-      process.exit(1);
-    } else {
-      throw proc.error;
-    }
-  }
-
-  if (proc.status !== 0 && !options?.allowedExitCodes?.includes(proc.status ?? 0)) {
-    console.error(
-      `error: Command '${baseCommandName} ${commandArgs.join(" ")}' failed with exit code ${
-        proc.status
-      }.`
-    );
-    process.exit(proc.status || 1);
-  }
-
-  return proc;
-}
-
-function internalCompilerError(error: unknown): never {
-  // NOTE: An expected error, like one thrown for bad input, shouldn't reach
-  // here, but be handled somewhere else. If we reach here, it should be
-  // considered a bug and therefore we should not suppress the stack trace as
-  // that risks losing it in the case of a bug that does not repro easily.
-  console.error("Internal compiler error!");
-  console.error("File issue at https://github.com/microsoft/cadl");
-  console.error();
-  console.error(error);
-  process.exit(1);
-}
-
-process.on("unhandledRejection", (error: unknown) => {
-  console.error("Unhandled promise rejection!");
-  internalCompilerError(error);
-});
-
-main().catch(internalCompilerError);
+import "./cli/cli.js";

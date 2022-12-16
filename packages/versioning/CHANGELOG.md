@@ -1,6 +1,60 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Internal: update to use new `getTypeName` and `getNamespaceString` helper
+- Deprecated getRenamedFromVersion, getRenamedFromOldName, and renamedAfter methods in favor of getRenamedFromVersions, getNameAtVersion, and hasDifferentNameAtVersion.
+
+### Patches
+
+- Fix: Issue with loading different version of versioning library in emitter
+- Update dependencies
+- Allow @renamedFrom to be used multiple times
+
+### Updates
+
+- Fix: Validation of versioned dependency giving false positive when inside a sub namespace of versioned namespace
+
+## 0.10.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Declare decorators in cadl using `extern dec`
+
+## 0.9.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Uptake changes to navigateProgram
+
+## 0.8.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Uptake change to enum members map type
+- Uptake changes to compiler with current projection
+- Update decororator state key to allow multiple instance of library to work together.
+- React to Type suffix removal
+
+## 0.7.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Internal: Uptake new compiler helpers to work with template types
+
+### Patches
+
+- Fix: Versioning when non-versioned library has template with spread.
+- Fix: Versioning when multiple service versions consume the same library version.
 
 ## 0.6.1
 Fri, 08 Jul 2022 23:22:57 GMT
@@ -17,6 +71,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Add validation for incompatible versioning across references
 - Moved all decorators and functions to `Cadl.Versioning` namespace
 - **Breaking Change** Version must be defined using an enum and referenced using enums
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.5.0
 Fri, 06 May 2022 17:19:57 GMT

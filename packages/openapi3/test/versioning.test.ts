@@ -1,4 +1,4 @@
-import { DecoratorContext, NamespaceType } from "@cadl-lang/compiler";
+import { DecoratorContext, getNamespaceFullName, Namespace } from "@cadl-lang/compiler";
 import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
@@ -9,8 +9,7 @@ describe("openapi3: versioning", () => {
       `
       @versioned(Versions)
       @versionedDependency([[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
-      @serviceTitle("My Service")
-      @serviceVersion("hi")
+      @service({title: "My Service", version: "hi"})
       namespace MyService {
         enum Versions {"v1", "v2", "v3"}
         model Test {
@@ -107,20 +106,16 @@ describe("openapi3: versioning", () => {
 
     let storedNamespace: string | undefined = undefined;
     host.addJsFile("test.js", {
-      $armNamespace(context: DecoratorContext, entity: NamespaceType) {
-        storedNamespace = context.program.checker.getNamespaceString(entity);
+      $armNamespace(context: DecoratorContext, entity: Namespace) {
+        storedNamespace = getNamespaceFullName(entity);
       },
     });
 
-    const runner = createTestWrapper(
-      host,
-      (code) =>
-        `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
-          import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
-          import "./test.js";
-          using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
-      { emitters: { "@cadl-lang/openapi3": {} } }
-    );
+    const runner = createTestWrapper(host, {
+      autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
+      autoUsings: ["Cadl.Rest", "Cadl.Http", "OpenAPI", "Cadl.Versioning"],
+      compilerOptions: { emit: ["@cadl-lang/openapi3"] },
+    });
 
     await runner.compile(`
     @versioned(Contoso.Library.Versions)
@@ -129,7 +124,7 @@ describe("openapi3: versioning", () => {
       enum Versions { v1 };
     }
     @armNamespace
-    @serviceTitle("Widgets 'r' Us")
+    @service({title: "Widgets 'r' Us"})
     @versionedDependency(Contoso.Library.Versions.v1)
     namespace Contoso.WidgetService {
       model Widget {
@@ -161,7 +156,7 @@ describe("openapi3: versioning", () => {
         }
       }
       
-      @serviceTitle("Service")
+      @service({title: "Service"})
       @versionedDependency(Library.Versions.v1)
       namespace Service {
         model Widget {

@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 
-@serviceTitle("Parameter Decorators")
+@service({
+  title: "Parameter Decorators",
+})
 namespace Cadl.Samples;
 
 using Cadl.Http;
@@ -11,7 +13,6 @@ namespace Operations {
   op getThing(
     @pattern("^[a-zA-Z0-9-]{3,24}$")
     @format("UUID")
-    @path
     name: string,
 
     @minValue(0)
@@ -36,6 +37,5 @@ model NameParameter {
   @doc("Name parameter")
   @pattern("^[a-zA-Z0-9-]{3,24}$")
   @format("UUID")
-  @path
   name: string;
 }

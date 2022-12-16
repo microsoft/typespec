@@ -10,7 +10,7 @@ const config: PlaywrightTestConfig = {
   timeout: 120 * 1000,
   webServer: {
     command: "npm run watch",
-    port: 3000,
+    port: 5173,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
   },
@@ -18,6 +18,16 @@ const config: PlaywrightTestConfig = {
     baseURL: resolve(root, "dist"),
     trace: "retain-on-failure",
   },
+  projects: [
+    {
+      name: "chromium",
+      use: { browserName: "chromium" },
+    },
+    {
+      name: "firefox",
+      use: { browserName: "firefox" },
+    },
+  ],
   testMatch: "*.e2e.ts",
 };
 export default config;

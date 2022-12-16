@@ -1,6 +1,6 @@
 import { ok } from "assert";
 
-describe("bundler:", () => {
+describe("bundler", () => {
   it("works", () => {
     ok(true);
   });

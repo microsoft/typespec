@@ -1,6 +1,49 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Fri, 08 Jul 2022 23:22:58 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Patches
+
+- Update dependencies
+
+## 0.17.0
+Sat, 12 Nov 2022 00:14:04 GMT
+
+### Minor changes
+
+- Extension lookup for a local cadl compiler first instead of a global
+
+### Patches
+
+- Internal: Fix loading VS Code extension unbundled in F5 dev scenario
+
+## 0.16.1
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Patches
+
+- Fix preference documentation for cadl-server path configuration
+
+## 0.16.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Add support for `${workspaceFolder}` interpolation in configuration. As `workspaceRoot` is deprecated by VSCode
+
+### Patches
+
+- Allow cadl.restartServer command to work when no .cadl file has been opened
+
+## 0.15.2
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Patches
+
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.15.1
 Fri, 08 Jul 2022 23:22:58 GMT
@@ -19,6 +62,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 
 - Improve error reporting when cadl-server is not found
 - Resolve issue with `language-configuration.json` being excluded from extension
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.14.0
 Fri, 06 May 2022 17:19:57 GMT

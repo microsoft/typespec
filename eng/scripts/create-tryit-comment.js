@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 import https from "https";
 
 const AZP_USERID = "azure-pipelines[bot]";
-const TRYID_COMMENT_IDENTIFIER = "_CADL_TRYIT_COMMENT_";
+const TRY_ID_COMMENT_IDENTIFIER = "_CADL_TRYIT_COMMENT_";
 main().catch((e) => {
   console.error(e);
   // @ts-ignore
@@ -33,14 +33,19 @@ async function main() {
   const azoComments = data.filter((x) => x.user?.login === AZP_USERID);
   console.log(`Found ${azoComments.length} comment(s) from Azure Pipelines.`);
 
-  const tryItComments = data.filter((x) => x.body.includes(TRYID_COMMENT_IDENTIFIER));
+  const tryItComments = data.filter((x) => x.body.includes(TRY_ID_COMMENT_IDENTIFIER));
   console.log(`Found ${azoComments.length} Cadl Try It comment(s)`);
   if (tryItComments.length > 0) {
     console.log("##vso[task.setvariable variable=SKIP_COMMENT;]true");
     return;
   }
 
-  const comment = `<!-- ${TRYID_COMMENT_IDENTIFIER} -->\nYou can try these changes at https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/`;
+  const comment = [
+    `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
+    `You can try these changes at https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
+    "",
+    `Check the website changes at https://cadlwebsite.z1.web.core.windows.net${folderName}/prs/${prNumber}/`,
+  ].join("\n");
   await writeComment(repo, prNumber, comment, ghAuth);
 }
 

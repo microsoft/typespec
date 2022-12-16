@@ -1,5 +1,5 @@
-import { readFile, realpath, stat } from "fs/promises";
-import path from "path";
+import { access, readFile, realpath, stat } from "fs/promises";
+import { join, resolve } from "path";
 import url from "url";
 import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
 
@@ -10,18 +10,27 @@ import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
  * Prevents loading two conflicting copies of Cadl modules from global and
  * local package locations.
  */
-export async function runScript(relativePath: string): Promise<void> {
+export async function runScript(relativePath: string, backupPath: string): Promise<void> {
   const packageRoot = await resolvePackageRoot();
 
   if (packageRoot) {
-    const script = path.join(packageRoot, relativePath);
+    let script = join(packageRoot, relativePath);
+    if (!(await checkFileExists(script)) && backupPath) {
+      script = join(packageRoot, backupPath);
+    }
     const scriptUrl = url.pathToFileURL(script).toString();
-    import(scriptUrl);
+    await import(scriptUrl);
   } else {
     throw new Error(
       "Couldn't resolve Cadl compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/cadl."
     );
   }
+}
+
+function checkFileExists(file: string) {
+  return access(file)
+    .then(() => true)
+    .catch(() => false);
 }
 
 async function resolvePackageRoot(): Promise<string> {
@@ -38,7 +47,12 @@ async function resolvePackageRoot(): Promise<string> {
     const resolved = await resolveModule(host, "@cadl-lang/compiler", {
       baseDir: process.cwd(),
     });
-    return path.resolve(resolved, "../../..");
+    if (resolved.type !== "module") {
+      throw new Error(
+        `Error resolving "@cadl-lang/compiler", expected to find a node module but found a file: "${resolved.path}".`
+      );
+    }
+    return resolved.path;
   } catch (err: any) {
     if (err.code === "MODULE_NOT_FOUND") {
       // Resolution from cwd failed: use current package.
@@ -50,5 +64,5 @@ async function resolvePackageRoot(): Promise<string> {
 }
 
 async function getThisPackageRoot() {
-  return path.resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
+  return resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
 }

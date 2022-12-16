@@ -1,9 +1,9 @@
-import { OperationType } from "@cadl-lang/compiler";
+import { Operation } from "@cadl-lang/compiler";
 import { BasicTestRunner, createTestRunner } from "@cadl-lang/compiler/testing";
 import { strictEqual } from "assert";
 import { resolveOperationId } from "../src/helpers.js";
 
-describe("OpenAPI3 Helpers", () => {
+describe("openapi: helpers", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -11,7 +11,7 @@ describe("OpenAPI3 Helpers", () => {
   });
   describe("resolveOperationId", () => {
     async function testResolveOperationId(code: string) {
-      const { foo } = (await runner.compile(code)) as { foo: OperationType };
+      const { foo } = (await runner.compile(code)) as { foo: Operation };
       return resolveOperationId(runner.program, foo);
     }
 
@@ -22,7 +22,7 @@ describe("OpenAPI3 Helpers", () => {
 
     it("return operation name if operation is defined under service namespace", async () => {
       const id = await testResolveOperationId(`
-        @serviceTitle("Abc")
+        @service({title: "Abc"})
         namespace MyService;
 
         @test op foo(): string;
@@ -30,7 +30,7 @@ describe("OpenAPI3 Helpers", () => {
       strictEqual(id, "foo");
     });
 
-    it("return group name and operaiton name if operation is defined under interface", async () => {
+    it("return group name and operation name if operation is defined under interface", async () => {
       const id = await testResolveOperationId(`
         interface Bar {
           @test op foo(): string;
@@ -41,7 +41,7 @@ describe("OpenAPI3 Helpers", () => {
 
     it("return group name and operation name if operation is defined under namespace that is not the service namespace", async () => {
       const id = await testResolveOperationId(`
-        @serviceTitle("Abc")
+        @service({title: "Abc"})
         namespace MyService;
 
         namespace Bar {

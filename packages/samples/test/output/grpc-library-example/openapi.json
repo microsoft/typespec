@@ -137,7 +137,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No body returned"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
             "description": "An unexpected error response.",
@@ -332,7 +332,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No body returned"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
             "description": "An unexpected error response.",
@@ -558,6 +558,23 @@
           "books"
         ]
       },
+      "CreateShelfRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Shelf"
+              }
+            ],
+            "description": "The shelf to create."
+          }
+        },
+        "description": "Request message for LibraryService.CreateShelf.",
+        "required": [
+          "body"
+        ]
+      },
       "ProtobufAny": {
         "type": "object",
         "properties": {
@@ -569,10 +586,139 @@
           }
         }
       },
+      "GetShelfRequest": {
+        "type": "object",
+        "properties": {},
+        "description": "Request message for LibraryService.GetShelf."
+      },
+      "ListRequestBase": {
+        "type": "object",
+        "properties": {}
+      },
+      "ListResponseBase": {
+        "type": "object",
+        "properties": {
+          "next_page_token": {
+            "type": "string",
+            "description": "A token to retrieve next page of results.\nPass this value in the\n[ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]\nfield in the subsequent call to `ListShelves` method to retrieve the next\npage of results."
+          }
+        }
+      },
+      "DeleteShelfRequest": {
+        "type": "object",
+        "properties": {},
+        "description": "Request message for LibraryService.DeleteShelf."
+      },
+      "MergeShelvesRequest": {
+        "type": "object",
+        "properties": {
+          "other_shelf_name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/shelf_name"
+              }
+            ],
+            "description": "The name of the shelf we're removing books from and deleting."
+          }
+        },
+        "description": "Describes the shelf being removed (other_shelf_name) and updated\n(name) in this merge",
+        "required": [
+          "other_shelf_name"
+        ]
+      },
+      "CreateBookRequest": {
+        "type": "object",
+        "properties": {
+          "book": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Book"
+              }
+            ],
+            "description": "The book to create."
+          }
+        },
+        "description": "Request message for LibraryService.CreateBook.",
+        "required": [
+          "book"
+        ]
+      },
       "book_name": {
         "type": "string",
         "description": "The name of a book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`",
         "pattern": "shelves/\\w+/books/\\w+"
+      },
+      "GetBookRequest": {
+        "type": "object",
+        "properties": {},
+        "description": "Request message for LibraryService.GetBook."
+      },
+      "ListBooksRequest": {
+        "type": "object",
+        "properties": {},
+        "description": "Request message for LibraryService.ListBooks."
+      },
+      "DeleteBookRequest": {
+        "type": "object",
+        "properties": {},
+        "description": "Request message for LibraryService.DeleteBook."
+      },
+      "UpdateBookRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/book_name"
+              }
+            ],
+            "description": "The name of the book to update."
+          },
+          "book": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Book"
+              }
+            ],
+            "description": "The book to update with. The name must match or be empty."
+          }
+        },
+        "description": "Request message for LibraryService.UpdateBook.",
+        "required": [
+          "name",
+          "book"
+        ]
+      },
+      "MoveBookRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/book_name"
+              }
+            ],
+            "description": "The name of the book to move."
+          },
+          "other_shelf_name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/shelf_name"
+              }
+            ],
+            "description": "The name of the destination shelf."
+          }
+        },
+        "description": "Describes what book to move (name) and what shelf we're moving it\nto (other_shelf_name).",
+        "required": [
+          "name",
+          "other_shelf_name"
+        ]
+      },
+      "Empty": {
+        "type": "object",
+        "properties": {},
+        "description": "No body returned"
       }
     }
   }

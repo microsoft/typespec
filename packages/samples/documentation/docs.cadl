@@ -2,7 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
-@serviceTitle("Documentaion sample")
+@service({
+  title: "Documentaion sample",
+})
 namespace DocSample;
 
 @route("/foo")

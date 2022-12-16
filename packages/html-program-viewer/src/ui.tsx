@@ -1,71 +1,66 @@
 import {
-  EnumMemberType,
-  EnumType,
-  InterfaceType,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
+  Enum,
+  EnumMember,
+  getNamespaceFullName,
+  Interface,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
   Program,
   Type,
-  UnionType,
+  Union,
 } from "@cadl-lang/compiler";
+import { css } from "@emotion/react";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
-import { ServerStyleSheet } from "styled-components";
-import { Item, Literal, styled } from "./common.js";
+import { Item, Literal } from "./common.js";
 import { inspect } from "./inspect.js";
 
-function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
+function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
 }
 
 const ProgramContext = React.createContext<Program>({} as any);
 
 export function renderProgram(program: Program) {
-  const sheet = new ServerStyleSheet();
-  const html = ReactDOMServer.renderToString(
-    sheet.collectStyles(<CadlProgramViewer program={program} />)
-  );
-  const styleTags = sheet.getStyleTags();
-  return styleTags + "\n" + html;
+  const html = ReactDOMServer.renderToString(<CadlProgramViewer program={program} />);
+  return html;
 }
 
 export interface CadlProgramViewerProps {
   program: Program;
 }
 
-const ProgramViewerStyle = styled.div`
-  font-family: monospace;
-  background-color: #f3f3f3;
-
-  ul {
-    margin: 0;
-    padding-left: 20px;
-    overflow: auto;
-  }
-
-  li {
-    margin: 0;
-    list-style: none;
-    position: relative;
-  }
-`;
+const ProgramViewerStyles = css({
+  fontFamily: "monospace",
+  backgroundColor: "#f3f3f3",
+  ul: {
+    margin: 0,
+    paddingLeft: "20px",
+    overflow: "auto",
+  },
+  li: {
+    margin: 0,
+    listStyle: "none",
+    position: "relative",
+  },
+});
 
 export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ program }) => {
   const root = program.checker!.getGlobalNamespaceType();
   const namespaces = expandNamespaces(root);
   return (
     <ProgramContext.Provider value={program}>
-      <ProgramViewerStyle>
+      <div css={ProgramViewerStyles}>
         <ul>
           {namespaces.map((namespace) => (
-            <li key={program.checker!.getNamespaceString(namespace)}>
+            <li key={getNamespaceFullName(namespace)}>
               <Namespace type={namespace} />
             </li>
           ))}
         </ul>
-      </ProgramViewerStyle>
+      </div>
     </ProgramContext.Provider>
   );
 };
@@ -86,37 +81,34 @@ export interface TypeUIProps {
   properties: TypeUIProperty[];
 }
 
-const PropName = styled.span`
-  color: #9c5d27;
-`;
-const PropValue = styled.span``;
+const TypeTypeStyles = css({
+  display: "inline",
+  color: "#7a3e9d",
+  marginRight: "5px",
+});
 
-const TypeType = styled.span`
-  display: inline;
-  color: #7a3e9d;
-  margin-right: 5px;
-`;
-
-const TypeName = styled.span`
-  display: inline;
-  color: #333333;
-`;
+const TypeNameStyles = css({
+  display: "inline",
+  color: "#333333",
+});
 export const TypeUI: FunctionComponent<TypeUIProps> = (props) => {
   const program = useContext(ProgramContext);
   const id = props.id ?? getIdForType(program, props.type);
   const properties = props.properties.map((prop) => {
     return (
       <li key={prop.name}>
-        <PropName title={prop.description}>{prop.name}</PropName>:{" "}
-        <PropValue>{prop.value}</PropValue>
+        <span css={{ color: "#9c5d27" }} title={prop.description}>
+          {prop.name}
+        </span>
+        : <span>{prop.value}</span>
       </li>
     );
   });
   return (
     <div>
       <div id={id}>
-        <TypeType>{props.type.kind}</TypeType>
-        <TypeName>{props.name}</TypeName>
+        <span css={TypeTypeStyles}>{props.type.kind}</span>
+        <span css={TypeNameStyles}>{props.name}</span>
       </div>
       <ul>{properties}</ul>
     </div>
@@ -147,9 +139,9 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
   );
 };
 
-const Namespace: FunctionComponent<{ type: NamespaceType }> = ({ type }) => {
+const Namespace: FunctionComponent<{ type: Namespace }> = ({ type }) => {
   const program = useContext(ProgramContext);
-  const name = program.checker!.getNamespaceString(type) || "<root>";
+  const name = getNamespaceFullName(type) || "<root>";
 
   const properties = [
     {
@@ -176,7 +168,7 @@ const Namespace: FunctionComponent<{ type: NamespaceType }> = ({ type }) => {
   return <TypeUI type={type} name={name} properties={properties} />;
 };
 
-const Interface: FunctionComponent<{ type: InterfaceType }> = ({ type }) => {
+const Interface: FunctionComponent<{ type: Interface }> = ({ type }) => {
   const properties = [
     {
       name: "operations",
@@ -187,7 +179,7 @@ const Interface: FunctionComponent<{ type: InterfaceType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} properties={properties} />;
 };
 
-const Operation: FunctionComponent<{ type: OperationType }> = ({ type }) => {
+const Operation: FunctionComponent<{ type: Operation }> = ({ type }) => {
   const properties = [
     {
       name: "parameters",
@@ -209,7 +201,7 @@ function getDataProperty(type: Type): TypeUIProperty {
     value: <TypeData type={type} />,
   };
 }
-const Model: FunctionComponent<{ type: ModelType }> = ({ type }) => {
+const Model: FunctionComponent<{ type: Model }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -222,7 +214,7 @@ const Model: FunctionComponent<{ type: ModelType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const ModelProperty: FunctionComponent<{ type: ModelTypeProperty }> = ({ type }) => {
+const ModelProperty: FunctionComponent<{ type: ModelProperty }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -239,7 +231,7 @@ const ModelProperty: FunctionComponent<{ type: ModelTypeProperty }> = ({ type })
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const Enum: FunctionComponent<{ type: EnumType }> = ({ type }) => {
+const Enum: FunctionComponent<{ type: Enum }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -252,7 +244,7 @@ const Enum: FunctionComponent<{ type: EnumType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const EnumMember: FunctionComponent<{ type: EnumMemberType }> = ({ type }) => {
+const EnumMember: FunctionComponent<{ type: EnumMember }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -265,7 +257,7 @@ const EnumMember: FunctionComponent<{ type: EnumMemberType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
+const Union: FunctionComponent<{ type: Union }> = ({ type }) => {
   const program = useContext(ProgramContext);
 
   return (
@@ -277,15 +269,15 @@ const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
   );
 };
 
-const UnionOptions: FunctionComponent<{ type: UnionType }> = ({ type }) => {
-  if (type.options.length === 0) {
+const UnionOptions: FunctionComponent<{ type: Union }> = ({ type }) => {
+  if (type.variants.size === 0) {
     return <div></div>;
   }
   return (
     <ul>
-      {[...type.options.entries()].map(([k, v]) => (
-        <li key={k}>
-          <TypeReference type={v} />
+      {[...type.variants.entries()].map(([k, variant]) => (
+        <li key={variant.name?.toString() ?? k.toString()}>
+          <TypeReference type={variant.type} />
         </li>
       ))}
     </ul>
@@ -295,26 +287,17 @@ const UnionOptions: FunctionComponent<{ type: UnionType }> = ({ type }) => {
 function getIdForType(program: Program, type: Type) {
   switch (type.kind) {
     case "Namespace":
-      return program.checker!.getNamespaceString(type);
+      return getNamespaceFullName(type);
     case "Model":
     case "Enum":
     case "Union":
     case "Operation":
     case "Interface":
-      return `${program.checker!.getNamespaceString(type.namespace)}.${type.name}`;
+      return type.namespace ? `${getNamespaceFullName(type.namespace)}.${type.name}` : type.name;
     default:
       return undefined;
   }
 }
-
-const TypeRef = styled.a`
-  color: #268bd2;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
 
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
@@ -327,9 +310,20 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
       const id = getIdForType(program, type);
       const href = `#${id}`;
       return (
-        <TypeRef href={href} title={type.kind + ": " + id}>
+        <a
+          css={{
+            color: "#268bd2",
+            textDecoration: "none",
+
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+          href={href}
+          title={type.kind + ": " + id}
+        >
           {type.name}
-        </TypeRef>
+        </a>
       );
     case "Union":
       return (
@@ -356,19 +350,10 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   }
 };
 
-const TypeDataEntry = styled.div`
-  display: flex;
-`;
-const TypeDataKey = styled.div`
-  color: #333;
-  margin-right: 5px;
-`;
-const TypeDataValue = styled.div`
-`;
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const entries = [...program.stateMaps.entries()]
-    .map(([k, v]) => [k, v.get(type)])
+    .map(([k, v]) => [k, v.get(undefined)?.get(type) as any])
     .filter(([k, v]) => !!v);
   if (entries.length === 0) {
     return null;
@@ -376,9 +361,10 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   return (
     <ul>
       {entries.map(([k, v], i) => (
-        <TypeDataEntry key={i}>
-          <TypeDataKey>{k.toString()}:</TypeDataKey> <TypeDataValue>{inspect(v)}</TypeDataValue>
-        </TypeDataEntry>
+        <div css={{ display: "flex" }} key={i}>
+          <div css={{ color: "#333", marginRight: "5px" }}>{k.toString()}:</div>{" "}
+          <div>{inspect(v)}</div>
+        </div>
       ))}
     </ul>
   );

@@ -9,5 +9,5 @@ export async function createLibraryLinterTestHost() {
 
 export async function createLibraryLinterTestRunner() {
   const host = await createLibraryLinterTestHost();
-  return createTestWrapper(host, (code) => `import "@cadl-lang/library-linter";${code}`);
+  return createTestWrapper(host);
 }

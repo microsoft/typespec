@@ -1,2 +1,4 @@
-import "../dist/lib/decorators.js";
 import "./lib.cadl";
+import "./decorators.cadl";
+import "./reflection.cadl";
+import "./projected-names.cadl";

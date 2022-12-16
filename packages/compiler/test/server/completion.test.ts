@@ -4,8 +4,11 @@ import {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
+  MarkupKind,
 } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
+
+// cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
@@ -16,19 +19,18 @@ describe("compiler: server: completion", () => {
       }
       `
     );
-
     check(completions, [
       {
         label: "int32",
         insertText: "int32",
-        kind: CompletionItemKind.Keyword,
-        documentation: undefined,
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.int32\n```" },
       },
       {
-        label: "Map",
-        insertText: "Map",
+        label: "Record",
+        insertText: "Record",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Record<T>\n```" },
       },
     ]);
   });
@@ -38,7 +40,7 @@ describe("compiler: server: completion", () => {
       "test/package.json": JSON.stringify({
         dependencies: {
           "@cadl-lang/library1": "~0.1.0",
-          noncadllibrary: "~0.1.0",
+          "non-cadl-library": "~0.1.0",
         },
         peerDependencies: {
           "@cadl-lang/library2": "~0.1.0",
@@ -47,7 +49,7 @@ describe("compiler: server: completion", () => {
       "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
         cadlMain: "./foo.js",
       }),
-      "test/node_modules/noncadllibrary/package.json": JSON.stringify({}),
+      "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
       "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
         cadlMain: "./foo.js",
       }),
@@ -201,7 +203,31 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes augment decorators", async () => {
+    const completions = await complete(
+      `
+      @@┆
+      `
+    );
+    check(completions, [
+      {
+        label: "doc",
+        insertText: "doc",
+        kind: CompletionItemKind.Function,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
       },
     ]);
   });
@@ -236,7 +262,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
       },
     ]);
   });
@@ -249,13 +279,12 @@ describe("compiler: server: completion", () => {
       }
       `
     );
-
     check(completions, [
       {
         label: "string",
         insertText: "string",
-        kind: CompletionItemKind.Keyword,
-        documentation: undefined,
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.string\n```" },
       },
     ]);
   });
@@ -275,7 +304,7 @@ describe("compiler: server: completion", () => {
         label: "𐌰𐌲𐌰𐌲𐌰𐌲",
         insertText: "𐌰𐌲𐌰𐌲𐌰𐌲",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel 𐌰𐌲𐌰𐌲𐌰𐌲\n```" },
       },
     ]);
   });
@@ -299,13 +328,13 @@ describe("compiler: server: completion", () => {
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
         },
         {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.B\n```" },
         },
       ],
       {
@@ -335,13 +364,19 @@ describe("compiler: server: completion", () => {
           label: "Orange",
           insertText: "Orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(enum member)\n```cadl\nFruit.Orange\n```",
+          },
         },
         {
           label: "Banana",
           insertText: "Banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(enum member)\n```cadl\nFruit.Banana\n```",
+          },
         },
       ],
       {
@@ -373,13 +408,19 @@ describe("compiler: server: completion", () => {
           label: "orange",
           insertText: "orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.orange: Orange\n```",
+          },
         },
         {
           label: "banana",
           insertText: "banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.banana: Banana\n```",
+          },
         },
       ],
       {
@@ -394,7 +435,7 @@ describe("compiler: server: completion", () => {
        namespace N {
         op test(): void;
        }
-       @dec(N.┆)
+       @myDec(N.┆)
       `
     );
 
@@ -405,7 +446,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop N.test(): void\n```" },
         },
       ],
       {
@@ -418,10 +459,10 @@ describe("compiler: server: completion", () => {
     const completions = await complete(
       `
        interface I {
-        test(): void;
+        test(param: string): void;
        }
       
-       @dec(I.┆
+       @myDec(I.┆
       `
     );
 
@@ -432,7 +473,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```cadl\nop I.test(param: Cadl.string): void\n```",
+          },
         },
       ],
       {
@@ -447,7 +491,7 @@ describe("compiler: server: completion", () => {
        model M {
         test: string;
        }
-       @dec(M.┆
+       @myDec(M.┆
       `
     );
 
@@ -458,7 +502,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Field,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```cadl\nM.test: Cadl.string\n```",
+          },
         },
       ],
       {
@@ -481,7 +528,10 @@ describe("compiler: server: completion", () => {
         label: "Param",
         insertText: "Param",
         kind: CompletionItemKind.Struct,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```cadl\nParam\n```",
+        },
       },
     ]);
   });
@@ -501,7 +551,7 @@ describe("compiler: server: completion", () => {
         label: "A",
         insertText: "A",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
       },
     ]);
   });
@@ -527,7 +577,7 @@ describe("compiler: server: completion", () => {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Module,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nnamespace A.B\n```" },
         },
       ],
       {
@@ -606,19 +656,150 @@ describe("compiler: server: completion", () => {
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
         },
         {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.B\n```" },
         },
       ],
       {
         allowAdditionalCompletions: false,
       }
     );
+  });
+
+  it("shows doc comment documentation", async () => {
+    const completions = await complete(
+      `
+      namespace N {
+        /**
+         * Just an example.
+         *
+         * @param value The value.
+         *
+         * @example
+         * \`\`\`cadl
+         * @hello
+         * model M {}
+         * \`\`\`
+         */
+        extern dec hello(value: string);
+      }
+      @N.┆
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "hello",
+          insertText: "hello",
+          kind: CompletionItemKind.Function,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value:
+              "```cadl\ndec N.hello(value: Cadl.string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```cadl\n@hello\nmodel M {}\n```",
+          },
+        },
+      ],
+      { fullDocs: true }
+    );
+  });
+
+  it("completes aliased interface operations", async () => {
+    const completions = await complete(
+      `
+      interface Foo {
+        op Bar(): string;
+      }
+
+      alias FooAlias= Foo;
+      alias A = FooAlias.┆`
+    );
+    check(completions, [
+      {
+        label: "Bar",
+        insertText: "Bar",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: "markdown",
+          value: "```cadl\nop Foo.Bar(): Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        bar: string;
+      }
+
+      alias FooAlias = Foo;
+      alias A = FooAlias.┆`
+    );
+    check(completions, [
+      {
+        label: "bar",
+        insertText: "bar",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```cadl\nFoo.bar: Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased instantiated interface operations", async () => {
+    const completions = await complete(
+      `
+      interface Foo<T> {
+        op Bar(): T;
+      }
+
+      alias FooOfString = Foo<string>;
+      alias A = FooOfString.┆`
+    );
+    check(completions, [
+      {
+        label: "Bar",
+        insertText: "Bar",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: "markdown",
+          value: "```cadl\nop Foo<Cadl.string>.Bar(): Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased instantiated model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo<T> {
+        bar: T;
+      }
+
+      alias FooOfString = Foo<string>;
+      alias A = FooOfString.┆`
+    );
+    check(completions, [
+      {
+        label: "bar",
+        insertText: "bar",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```cadl\nFoo<Cadl.string>.bar: Cadl.string\n```",
+        },
+      },
+    ]);
   });
 
   it("completes deprecated type", async () => {
@@ -638,7 +819,7 @@ describe("compiler: server: completion", () => {
         label: "Foo",
         insertText: "Foo",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Foo\n```" },
         tags: [CompletionItemTag.Deprecated],
       },
     ]);
@@ -647,8 +828,17 @@ describe("compiler: server: completion", () => {
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],
-    options = { allowAdditionalCompletions: true }
+    options?: {
+      allowAdditionalCompletions?: boolean;
+      fullDocs?: boolean;
+    }
   ) {
+    options = {
+      allowAdditionalCompletions: true,
+      fullDocs: false,
+      ...options,
+    };
+
     ok(!list.isIncomplete, "list should not be incomplete.");
 
     const expectedMap = new Map(expectedItems.map((i) => [i.label, i]));
@@ -663,6 +853,23 @@ describe("compiler: server: completion", () => {
 
     for (const expected of expectedItems) {
       const actual = actualMap.get(expected.label);
+
+      // Unless given the fullDocs option, tests only give their expectation for the first
+      // markdown paragraph.
+      if (
+        !options.fullDocs &&
+        typeof actual?.documentation === "object" &&
+        actual.documentation.value.indexOf("\n\n") > 0
+      ) {
+        actual.documentation = {
+          kind: MarkupKind.Markdown,
+          value: actual.documentation.value.substring(
+            0,
+            actual.documentation.value.indexOf("\n\n")
+          ),
+        };
+      }
+
       ok(actual, `Expected completion item not found: '${expected.label}'.`);
       deepStrictEqual(actual, expected);
       actualMap.delete(actual.label);
