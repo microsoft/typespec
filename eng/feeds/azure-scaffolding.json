@@ -9,9 +9,7 @@
       "@azure-tools/cadl-azure-core"
     ],
     "config": {
-      "emitters": {
-        "@azure-tools/cadl-autorest": true
-      }
+      "emit": ["@azure-tools/cadl-autorest"]
     }
   },
   "azure-arm": {
@@ -25,9 +23,7 @@
       "@azure-tools/cadl-azure-resource-manager"
     ],
     "config": {
-      "emitters": {
-        "@azure-tools/cadl-autorest": true
-      }
+      "emit": ["@azure-tools/cadl-autorest"]
     }
   }
 }

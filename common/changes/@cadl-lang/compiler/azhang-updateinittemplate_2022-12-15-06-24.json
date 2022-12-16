@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Update built-in init template and Azure template to use latest configuration format",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
