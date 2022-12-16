@@ -58,4 +58,4 @@ Built-in types that are known string formats
 
 | Type  | Description  |
 | ----- | ------------ |
-| `uri` | A uri String |
+| `url` | A url String |
