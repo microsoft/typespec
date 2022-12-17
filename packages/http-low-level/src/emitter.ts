@@ -9,6 +9,7 @@ import {
   ModelProperty,
   NumericLiteral,
   Operation,
+  Scalar,
   StringLiteral,
   Tuple,
   Type,
@@ -16,6 +17,7 @@ import {
   UnionVariant,
 } from "@cadl-lang/compiler";
 import { EmitContext } from "@cadl-lang/compiler/core";
+import { getHttpOperation } from "@cadl-lang/rest/http";
 
 import {
   code,
@@ -41,18 +43,7 @@ export function isArrayType(m: Model) {
   return m.name === "Array";
 }
 
-export const intrinsicNameToTSType = new Map<string, string>([
-  ["string", "string"],
-  ["int32", "number"],
-  ["int16", "number"],
-  ["float16", "number"],
-  ["float32", "number"],
-  ["int64", "bigint"],
-  ["boolean", "boolean"],
-  ["null", "null"],
-]);
-
-export class TypeScriptInterfaceEmitter extends TypeEmitter {
+export class HttpLowLevelEmitter extends TypeEmitter {
   // type literals
   booleanLiteral(boolean: BooleanLiteral): EmitEntityOrString {
     return JSON.stringify(boolean.value);
@@ -66,13 +57,8 @@ export class TypeScriptInterfaceEmitter extends TypeEmitter {
     return JSON.stringify(string.value);
   }
 
-  modelScalar(model: Model, scalarName: string): EmitEntityOrString {
-    if (!intrinsicNameToTSType.has(scalarName)) {
-      throw new Error("Unknown scalar type " + scalarName);
-    }
-
-    const code = intrinsicNameToTSType.get(scalarName)!;
-    return this.emitter.result.rawCode(code);
+  modelScalar(scalar: Scalar): EmitEntityOrString {
+    return this.emitter.result.rawCode(scalar.name);
   }
 
   modelLiteral(model: Model): EmitEntityOrString {
@@ -140,10 +126,13 @@ export class TypeScriptInterfaceEmitter extends TypeEmitter {
   operationDeclaration(operation: Operation, name: string): EmitEntityOrString {
     return this.emitter.result.declaration(
       name,
-      code`interface ${name} {
-      ${this.#operationSignature(operation)}
-    }`
+      code`${this.operationDecorators(operation)} op ${name}${this.#operationSignature(operation)}`
     );
+  }
+
+  operationDecorators(operation: Operation) {
+    const [httpOperation] = getHttpOperation(this.emitter.getProgram(), operation);
+    return [`@${httpOperation.verb}`, `@route("${httpOperation.path}")`].join("\n");
   }
 
   operationParameters(operation: Operation, parameters: Model): EmitEntityOrString {
@@ -179,7 +168,9 @@ export class TypeScriptInterfaceEmitter extends TypeEmitter {
   }
 
   interfaceOperationDeclaration(operation: Operation, name: string): EmitEntityOrString {
-    return code`${name}${this.#operationSignature(operation)}`;
+    return code`${this.operationDecorators(operation)}${name}${this.#operationSignature(
+      operation
+    )}`;
   }
 
   enumDeclaration(en: Enum, name: string): EmitEntityOrString {
@@ -272,7 +263,7 @@ export class TypeScriptInterfaceEmitter extends TypeEmitter {
   }
 }
 
-class SingleFileEmitter extends TypeScriptInterfaceEmitter {
+class SingleFileEmitter extends HttpLowLevelEmitter {
   programContext(): Context {
     const outputFile = this.emitter.createSourceFile("cadl-output/output.cadl");
     return { scope: outputFile.globalScope };

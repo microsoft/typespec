@@ -10,6 +10,7 @@ import {
   NumericLiteral,
   Operation,
   Program,
+  Scalar,
   StringLiteral,
   Tuple,
   Type,
@@ -79,7 +80,7 @@ export class TypeEmitter {
     return {};
   }
 
-  modelScalar(model: Model, scalarName: string): EmitEntityOrString {
+  modelScalar(scalar: Scalar): EmitEntityOrString {
     return this.emitter.result.none();
   }
 
