@@ -1,5 +1,5 @@
 import { editor } from "monaco-editor";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect } from "react";
 import { Editor, EditorCommand, useMonacoModel } from "./editor";
 
 export interface CadlEditorProps {
@@ -20,16 +20,22 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
   return <Editor model={props.model} commands={props.commands} options={options}></Editor>;
 };
 
-export const OutputEditor: FunctionComponent<{ value: string }> = ({ value }) => {
+export const OutputEditor: FunctionComponent<{ filename: string; value: string }> = ({
+  filename,
+  value,
+}) => {
+  if(filename === "") {
+    return null;
+  }
   const options: editor.IStandaloneEditorConstructionOptions = {
     readOnly: true,
-    language: "json",
+    tabSize: 2,
     automaticLayout: true,
     minimap: {
       enabled: false,
     },
   };
-  const model = useMonacoModel("inmemory://output.json", "json");
+  const model = useMonacoModel(`inmemory://test/${filename}`);
   model.setValue(value);
   return <Editor model={model} options={options}></Editor>;
 };

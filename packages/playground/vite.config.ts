@@ -2,13 +2,14 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { definePlaygroundViteConfig } from "./src/build-utils";
 
 const config = definePlaygroundViteConfig({
-  defaultEmitter: "@cadl-lang/openapi3",
+  defaultEmitter: "@cadl-lang/http-low-level",
   libraries: [
     "@cadl-lang/compiler",
     "@cadl-lang/rest",
     "@cadl-lang/openapi",
     "@cadl-lang/versioning",
     "@cadl-lang/openapi3",
+    "@cadl-lang/http-low-level",
   ],
   samples: {
     "API versioning": "samples/versioning.cadl",

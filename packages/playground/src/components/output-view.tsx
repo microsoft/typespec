@@ -100,7 +100,7 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
 }) => {
   switch (viewSelection.type) {
     case "file":
-      return <OpenAPIOutput content={viewSelection.content} />;
+      return <OpenAPIOutput filename={viewSelection.filename} content={viewSelection.content} />;
     case "errors":
       return (
         <ErrorTab

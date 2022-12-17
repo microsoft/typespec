@@ -4,6 +4,7 @@ import { PlaygroundManifest } from "../manifest";
 import { OutputEditor } from "./cadl-editor";
 import { SwaggerUI } from "./swagger-ui";
 export interface OpenAPIOutputProps {
+  filename: string;
   content: string;
 }
 
@@ -38,7 +39,7 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
       )}
 
       {selected === "raw" ? (
-        <OutputEditor value={props.content} />
+        <OutputEditor filename={props.filename} value={props.content} />
       ) : (
         <SwaggerUI spec={props.content} />
       )}
