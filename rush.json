@@ -186,6 +186,12 @@
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/http-low-level",
+      "projectFolder": "packages/http-low-level",
+      "reviewCategory": "production",
+      "shouldPublish": false
     }
   ]
 }
