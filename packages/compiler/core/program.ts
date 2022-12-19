@@ -623,7 +623,7 @@ export async function compile(
     // This is the emitter names under options that haven't been used. We need to check if it points to an emitter that wasn't loaded
     for (const emitterName of emitterThatShouldExists) {
       // attempt to resolve a node module with this name
-      const module = await resolveEmitterModuleAndEntrypoint(mainFile, emitterName);
+      const [module, _] = await resolveEmitterModuleAndEntrypoint(mainFile, emitterName);
       if (module?.entrypoint === undefined) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -640,29 +640,36 @@ export async function compile(
     mainFile: string,
     emitterNameOrPath: string
   ): Promise<
-    { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined
+    [
+      { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined,
+      readonly Diagnostic[]
+    ]
   > {
     const basedir = getDirectoryPath(mainFile);
 
     // attempt to resolve a node module with this name
-    const module = await resolveJSLibrary(emitterNameOrPath, basedir);
+    const [module, diagnostics] = await resolveJSLibrary(emitterNameOrPath, basedir);
     if (!module) {
-      return undefined;
+      return [undefined, diagnostics];
     }
 
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
     const file = await loadJsFile(entrypoint, NoTarget);
 
-    return { module, entrypoint: file };
+    return [{ module, entrypoint: file }, []];
   }
   async function loadEmitter(
     mainFile: string,
     emitterNameOrPath: string,
     emittersOptions: Record<string, EmitterOptions>
   ): Promise<EmitterRef | undefined> {
-    const resolution = await resolveEmitterModuleAndEntrypoint(mainFile, emitterNameOrPath);
+    const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
+      mainFile,
+      emitterNameOrPath
+    );
 
     if (resolution === undefined) {
+      program.reportDiagnostics(diagnostics);
       return undefined;
     }
     const { module, entrypoint } = resolution;
@@ -818,28 +825,32 @@ export async function compile(
   async function resolveJSLibrary(
     specifier: string,
     baseDir: string
-  ): Promise<ModuleResolutionResult | undefined> {
+  ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
-      return await resolveModule(getResolveModuleHost(), specifier, { baseDir });
+      return [await resolveModule(getResolveModuleHost(), specifier, { baseDir }), []];
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "import-not-found",
-            format: { path: specifier },
-            target: NoTarget,
-          })
-        );
-        return undefined;
+        return [
+          undefined,
+          [
+            createDiagnostic({
+              code: "import-not-found",
+              format: { path: specifier },
+              target: NoTarget,
+            }),
+          ],
+        ];
       } else if (e.code === "INVALID_MAIN") {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "library-invalid",
-            format: { path: specifier },
-            target: NoTarget,
-          })
-        );
-        return undefined;
+        return [
+          undefined,
+          [
+            createDiagnostic({
+              code: "library-invalid",
+              format: { path: specifier },
+              target: NoTarget,
+            }),
+          ],
+        ];
       } else {
         throw e;
       }
