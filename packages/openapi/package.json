@@ -52,13 +52,13 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.38.3",
+    "@cadl-lang/compiler": "~0.38.5",
     "@cadl-lang/rest": "~0.38.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.38.3",
+    "@cadl-lang/compiler": "~0.38.5",
     "@cadl-lang/rest": "~0.38.1",
     "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@cadl-lang/library-linter": "~0.38.0",
