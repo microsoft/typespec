@@ -170,6 +170,17 @@ describe("compiler: config interpolation", () => {
           outputDir: "/github-dir/my-output",
         });
       });
+
+      it("expand predefined variables inside args passed", () => {
+        const resolved = expectExpandConfigVariables(config, {
+          cwd: "/dev/wd",
+          args: { "repo-dir": "{cwd}/github-dir" },
+        });
+        deepStrictEqual(resolved, {
+          ...config,
+          outputDir: "/dev/wd/github-dir/my-output",
+        });
+      });
     });
 
     describe("interpolating env", () => {

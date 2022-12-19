@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Type graph navigation navigate decorators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

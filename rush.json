@@ -180,6 +180,12 @@
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/ref-doc",
+      "projectFolder": "packages/ref-doc",
+      "reviewCategory": "production",
+      "shouldPublish": false
     }
   ]
 }

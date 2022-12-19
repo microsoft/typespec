@@ -212,6 +212,26 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes augment decorators", async () => {
+    const completions = await complete(
+      `
+      @@┆
+      `
+    );
+    check(completions, [
+      {
+        label: "doc",
+        insertText: "doc",
+        kind: CompletionItemKind.Function,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
+      },
+    ]);
+  });
+
   it("does not complete functions or decorators in type position", async () => {
     const completions = await complete(
       `
@@ -439,7 +459,7 @@ describe("compiler: server: completion", () => {
     const completions = await complete(
       `
        interface I {
-        test(): void;
+        test(param: string): void;
        }
       
        @myDec(I.┆
@@ -453,7 +473,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop I.test(): void\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```cadl\nop I.test(param: Cadl.string): void\n```",
+          },
         },
       ],
       {
