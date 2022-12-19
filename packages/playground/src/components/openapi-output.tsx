@@ -1,8 +1,8 @@
 import { css } from "@emotion/react";
 import { FunctionComponent, useCallback, useState } from "react";
-import { PlaygroundManifest } from "../manifest";
-import { OutputEditor } from "./cadl-editor";
-import { SwaggerUI } from "./swagger-ui";
+import { PlaygroundManifest } from "../manifest.js";
+import { OutputEditor } from "./cadl-editor.js";
+import { SwaggerUI } from "./swagger-ui.js";
 export interface OpenAPIOutputProps {
   filename: string;
   content: string;

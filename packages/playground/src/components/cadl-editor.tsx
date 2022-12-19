@@ -1,6 +1,6 @@
 import { editor } from "monaco-editor";
-import { FunctionComponent, useEffect } from "react";
-import { Editor, EditorCommand, useMonacoModel } from "./editor";
+import { FunctionComponent } from "react";
+import { Editor, EditorCommand, useMonacoModel } from "./editor.js";
 
 export interface CadlEditorProps {
   model: editor.IModel;
@@ -24,7 +24,7 @@ export const OutputEditor: FunctionComponent<{ filename: string; value: string }
   filename,
   value,
 }) => {
-  if(filename === "") {
+  if (filename === "") {
     return null;
   }
   const options: editor.IStandaloneEditorConstructionOptions = {

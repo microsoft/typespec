@@ -25,7 +25,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
       exclude: ["node-fetch", "swagger-ui"],
     },
     plugins: [
-      react({
+      (react as any)({
         jsxImportSource: "@emotion/react",
         babel: {
           plugins: ["@emotion/babel-plugin"],

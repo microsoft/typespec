@@ -1,4 +1,4 @@
-import assert, { fail, match, strictEqual } from "assert";
+import { fail, match, strictEqual } from "assert";
 import { Diagnostic, formatDiagnostic, getSourceLocation, NoTarget, Type } from "../core/index.js";
 import { isArray } from "../core/util.js";
 import { resolveVirtualPath } from "./test-host.js";
@@ -9,7 +9,7 @@ import { resolveVirtualPath } from "./test-host.js";
  */
 export function expectDiagnosticEmpty(diagnostics: readonly Diagnostic[]) {
   if (diagnostics.length > 0) {
-    assert.fail(`Unexpected diagnostics:\n${formatDiagnostics(diagnostics)}`);
+    fail(`Unexpected diagnostics:\n${formatDiagnostics(diagnostics)}`);
   }
 }
 
@@ -65,7 +65,7 @@ export function expectDiagnostics(
   const array = isArray(match) ? match : [match];
 
   if (options.strict && array.length !== diagnostics.length) {
-    assert.fail(
+    fail(
       `Expected ${array.length} diagnostics but found ${diagnostics.length}:\n ${formatDiagnostics(
         diagnostics
       )}`

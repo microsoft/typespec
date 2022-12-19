@@ -1,5 +1,5 @@
 import { visualizer } from "rollup-plugin-visualizer";
-import { definePlaygroundViteConfig } from "./src/build-utils";
+import { definePlaygroundViteConfig } from "./src/build-utils/index.js";
 
 const config = definePlaygroundViteConfig({
   defaultEmitter: "@cadl-lang/http-low-level",

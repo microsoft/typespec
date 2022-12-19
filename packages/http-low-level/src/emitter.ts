@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  EmitContext,
   Enum,
   EnumMember,
   formatCadl,
@@ -16,7 +17,6 @@ import {
   Union,
   UnionVariant,
 } from "@cadl-lang/compiler";
-import { EmitContext } from "@cadl-lang/compiler/core";
 import { getHttpOperation } from "@cadl-lang/rest/http";
 
 import {

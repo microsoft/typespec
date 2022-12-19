@@ -94,17 +94,27 @@ async function request(method, url, data) {
 
   return new Promise((resolve, reject) => {
     const req = lib.request(params, (res) => {
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        return reject(new Error(`Status Code: ${res.statusCode}`));
-      }
-
       const data = [];
 
       res.on("data", (chunk) => {
         data.push(chunk);
       });
 
-      res.on("end", () => resolve(Buffer.concat(data).toString()));
+      res.on("end", () => {
+        if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+          return reject(
+            new Error(
+              `Status Code: ${res.statusCode}, statusMessage: ${
+                res.statusMessage
+              }, headers: ${JSON.stringify(res.headers, null, 2)}, body: ${Buffer.concat(
+                data
+              ).toString()}`
+            )
+          );
+        } else {
+          resolve(Buffer.concat(data).toString());
+        }
+      });
     });
 
     req.on("error", reject);

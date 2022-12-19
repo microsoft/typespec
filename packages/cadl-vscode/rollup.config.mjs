@@ -10,6 +10,7 @@ export default defineConfig({
     format: "commonjs",
     sourcemap: true,
     exports: "named",
+    inlineDynamicImports: true,
   },
   external: ["fs/promises", "vscode"],
   plugins: [resolve({ preferBuiltins: true }), commonjs()],

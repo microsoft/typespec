@@ -3,8 +3,8 @@ import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { BrowserHost } from "./browser-host";
-import { importCadlCompiler } from "./core";
+import { BrowserHost } from "./browser-host.js";
+import { importCadlCompiler } from "./core.js";
 import "./style.css";
 
 function getIndentAction(
