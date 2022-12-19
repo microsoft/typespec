@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  DecoratorApplication,
   EmitContext,
   Enum,
   EnumMember,
@@ -8,6 +9,7 @@ import {
   Interface,
   Model,
   ModelProperty,
+  NoTarget,
   NumericLiteral,
   Operation,
   Scalar,
@@ -81,7 +83,7 @@ export class HttpLowLevelEmitter extends TypeEmitter {
       extendsClause = "";
     }
 
-    let comment = getDoc(this.emitter.getProgram(), model);
+    const comment = getDoc(this.emitter.getProgram(), model);
     let commentCode = "";
 
     if (comment) {
@@ -132,7 +134,35 @@ export class HttpLowLevelEmitter extends TypeEmitter {
 
   operationDecorators(operation: Operation) {
     const [httpOperation] = getHttpOperation(this.emitter.getProgram(), operation);
-    return [`@${httpOperation.verb}`, `@route("${httpOperation.path}")`].join("\n");
+    return [
+      this.emitDecorators(operation, [
+        "autoRoute",
+        "route",
+        "get",
+        "post",
+        "patch",
+        "put",
+        "delete",
+      ]),
+      `@${httpOperation.verb}`,
+      `@route("${httpOperation.path}")`,
+    ].join("\n");
+  }
+
+  emitDecorators(type: Type & { decorators: DecoratorApplication[] }, exclude: string[] = []) {
+    const exclusion = new Set(exclude);
+
+    return type.decorators
+      .filter((x) => !exclusion.has(x.decorator.name.slice(1)))
+      .map((x) => this.emitDecoratorApplication(x))
+      .join("\n");
+  }
+  emitDecoratorApplication(decoratorApplication: DecoratorApplication) {
+    const name = "@" + decoratorApplication.decorator.name.slice(1);
+    const args = decoratorApplication.args.map(
+      (x) => code`${this.emitter.emitTypeReference(x.value)}`
+    );
+    return `${name}(${args.join(",")})`;
   }
 
   operationParameters(operation: Operation, parameters: Model): EmitEntityOrString {
@@ -152,8 +182,7 @@ export class HttpLowLevelEmitter extends TypeEmitter {
   }
 
   operationReturnType(operation: Operation, returnType: Type): EmitEntityOrString {
-    // return this.emitter.emitTypeReference(returnType);
-    return "void";
+    return this.emitter.emitTypeReference(returnType);
   }
 
   interfaceDeclaration(iface: Interface, name: string): EmitEntityOrString {
@@ -170,7 +199,7 @@ export class HttpLowLevelEmitter extends TypeEmitter {
   interfaceOperationDeclaration(operation: Operation, name: string): EmitEntityOrString {
     return code`${this.operationDecorators(operation)}${name}${this.#operationSignature(
       operation
-    )}`;
+    )}\n\n`;
   }
 
   enumDeclaration(en: Enum, name: string): EmitEntityOrString {
@@ -233,7 +262,6 @@ export class HttpLowLevelEmitter extends TypeEmitter {
     if (!commonScope) {
       const sourceSf = (pathUp[0] as SourceFileScope).sourceFile;
       const targetSf = (pathDown[0] as SourceFileScope).sourceFile;
-      console.log(sourceSf, targetSf);
       sourceSf.imports.set(`./${targetSf.path.replace(".js", ".ts")}`, [targetDeclaration.name]);
     }
 
@@ -257,7 +285,12 @@ export class HttpLowLevelEmitter extends TypeEmitter {
     try {
       emittedSourceFile.contents = formatCadl(emittedSourceFile.contents);
     } catch (e) {
-      console.error("failed to format", e);
+      this.emitter.getProgram().reportDiagnostic({
+        code: "format-fail",
+        severity: "warning",
+        message: "Failed to format",
+        target: NoTarget,
+      });
     }
     return emittedSourceFile;
   }
