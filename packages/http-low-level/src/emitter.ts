@@ -5,7 +5,6 @@ import {
   Enum,
   EnumMember,
   formatCadl,
-  getDoc,
   Interface,
   Model,
   ModelProperty,
@@ -83,21 +82,11 @@ export class HttpLowLevelEmitter extends TypeEmitter {
       extendsClause = "";
     }
 
-    const comment = getDoc(this.emitter.getProgram(), model);
-    let commentCode = "";
-
-    if (comment) {
-      commentCode = `
-        /**
-         * ${comment}
-         */`;
-    }
-
     return this.emitter.result.declaration(
       name,
-      code`${commentCode}\nmodel ${name} ${extendsClause} {
+      code`${this.emitDecorators(model)}\nmodel ${name} ${extendsClause} {
         ${this.emitter.emitModelProperties(model)}
-      }`
+      }\n\n`
     );
   }
 
@@ -107,21 +96,11 @@ export class HttpLowLevelEmitter extends TypeEmitter {
 
   modelPropertyLiteral(property: ModelProperty): EmitEntityOrString {
     const name = property.name === "_" ? "statusCode" : property.name;
-    const doc = getDoc(this.emitter.getProgram(), property);
-    let docString = "";
-
-    if (doc) {
-      docString = `
-      /**
-       * ${doc}
-       */
-      `;
-    }
 
     return this.emitter.result.rawCode(
-      code`${docString}${name}${property.optional ? "?" : ""}: ${this.emitter.emitTypeReference(
-        property.type
-      )}`
+      code`${this.emitDecorators(property)}${name}${
+        property.optional ? "?" : ""
+      }: ${this.emitter.emitTypeReference(property.type)}`
     );
   }
 
