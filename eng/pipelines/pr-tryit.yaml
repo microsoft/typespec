@@ -52,3 +52,4 @@ jobs:
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented
+        continueOnError: true # Setting this in case this starts working again
