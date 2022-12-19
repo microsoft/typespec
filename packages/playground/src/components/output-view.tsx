@@ -3,10 +3,10 @@ import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import { css } from "@emotion/react";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui/dist/swagger-ui.css";
-import { BrowserHost } from "../browser-host";
-import { ErrorTab } from "./error-tab";
-import { OpenAPIOutput } from "./openapi-output";
-import { OutputTabs, Tab } from "./output-tabs";
+import { BrowserHost } from "../browser-host.js";
+import { ErrorTab } from "./error-tab.js";
+import { OpenAPIOutput } from "./openapi-output.js";
+import { OutputTabs, Tab } from "./output-tabs.js";
 
 export interface OutputViewProps {
   host: BrowserHost;

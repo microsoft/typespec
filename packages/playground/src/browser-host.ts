@@ -4,8 +4,8 @@ import {
   getSourceFileKindFromExt,
   resolvePath,
 } from "@cadl-lang/compiler";
-import { importShim } from "./core";
-import { PlaygroundManifest } from "./manifest";
+import { importShim } from "./core.js";
+import { PlaygroundManifest } from "./manifest.js";
 
 export interface BrowserHost extends CompilerHost {
   unlink(path: string): Promise<void>;

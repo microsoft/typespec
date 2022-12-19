@@ -13,7 +13,7 @@ import watch from "node-watch";
 import os from "os";
 import { resolve } from "path";
 import prompts from "prompts";
-import url from "url";
+import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { loadCadlConfigForPath } from "../../config/index.js";
 import { initCadlProject } from "../../init/index.js";
@@ -299,14 +299,14 @@ function compileInput(
   if (compilerOptions.watchForChanges) {
     runCompile();
     return new Promise((resolve, reject) => {
-      const watcher = watch(
+      const watcher = (watch as any)(
         path,
         {
           recursive: true,
-          filter: (f) =>
+          filter: (f: string) =>
             [".js", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
         },
-        (e, name) => {
+        (e: any, name: string) => {
           runCompile();
         }
       );
@@ -566,7 +566,7 @@ async function uninstallVSExtension() {
  */
 async function printInfo(host: CompilerHost) {
   const cwd = process.cwd();
-  console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
+  console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
   const config = await loadCadlConfigForPath(host, cwd);
   const jsyaml = await import("js-yaml");
