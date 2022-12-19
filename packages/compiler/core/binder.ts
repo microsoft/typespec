@@ -448,10 +448,8 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
-    if (scope.kind !== SyntaxKind.InterfaceStatement) {
-      declareSymbol(statement, SymbolFlags.Operation);
-      mutate(statement).locals = createSymbolTable();
-    }
+    declareSymbol(statement, SymbolFlags.Operation);
+    mutate(statement).locals = createSymbolTable();
   }
 
   function bindDecoratorDeclarationStatement(node: DecoratorDeclarationStatementNode) {
