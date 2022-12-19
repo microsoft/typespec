@@ -6,6 +6,7 @@ import {
   EnumMember,
   formatCadl,
   Interface,
+  isVoidType,
   Model,
   ModelProperty,
   NoTarget,
@@ -145,13 +146,30 @@ export class HttpLowLevelEmitter extends TypeEmitter {
   }
 
   operationParameters(operation: Operation, parameters: Model): EmitEntityOrString {
+    const [httpOperation] = getHttpOperation(this.emitter.getProgram(), operation);
     const cb = new CodeBuilder();
-    for (const prop of parameters.properties.values()) {
+    for (const parameter of httpOperation.parameters.parameters) {
+      cb.push(code`${this.emitter.emitModelProperty(parameter.param)}, `);
+    }
+
+    if (httpOperation.parameters.body) {
+      cb.push(this.#emitContentTypeProperty(httpOperation.parameters.body.contentTypes));
+      cb.push(",");
       cb.push(
-        code`${prop.name}${prop.optional ? "?" : ""}: ${this.emitter.emitTypeReference(prop.type)},`
+        code`@body ${
+          httpOperation.parameters.body.parameter?.name ?? "body"
+        }: ${this.emitter.emitTypeReference(httpOperation.parameters.body.type)}`
       );
     }
     return cb;
+  }
+
+  #emitContentTypeProperty(contentTypes: string[]) {
+    if (contentTypes.length === 0) {
+      contentTypes = ["application/json"];
+    }
+    const types = contentTypes.map((x) => `"${x}"`).join(" | ");
+    return `@header contentType: ${types}`;
   }
 
   #operationSignature(operation: Operation) {
@@ -161,7 +179,30 @@ export class HttpLowLevelEmitter extends TypeEmitter {
   }
 
   operationReturnType(operation: Operation, returnType: Type): EmitEntityOrString {
-    return this.emitter.emitTypeReference(returnType);
+    if (isVoidType(returnType)) {
+      return "void";
+    }
+    const [httpOperation] = getHttpOperation(this.emitter.getProgram(), operation);
+
+    return httpOperation.responses
+      .flatMap((statusCodeResponse) => {
+        return statusCodeResponse.responses.map((contentTypeResponse) => {
+          let body: string | CodeBuilder = "";
+          if (contentTypeResponse.body) {
+            body = code`${this.#emitContentTypeProperty(
+              contentTypeResponse.body.contentTypes
+            )}, @body body: ${this.emitter.emitTypeReference(contentTypeResponse.body.type)}`;
+          }
+          return `{
+            @statusCode _: ${statusCodeResponse.statusCode}
+            ${Object.values(contentTypeResponse.headers ?? [])
+              .map((x) => code`${this.emitter.emitModelProperty(x)}`)
+              .join(", ")}
+            ${body}
+          }`;
+        });
+      })
+      .join(" | ");
   }
 
   interfaceDeclaration(iface: Interface, name: string): EmitEntityOrString {
