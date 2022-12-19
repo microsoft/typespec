@@ -155,12 +155,12 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
       esModule: true,
     },
     plugins: [
-      virtual({
+      (virtual as any)({
         "entry.js": content,
       }),
-      commonjs(),
-      json(),
-      nodeResolve({ preferBuiltins: true, browser: true }),
+      (commonjs as any)(),
+      (json as any)(),
+      (nodeResolve as any)({ preferBuiltins: true, browser: true }),
     ],
     external: (id) => {
       return (

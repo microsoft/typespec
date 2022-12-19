@@ -10,7 +10,7 @@ export function createJSONSchemaValidator<T>(
   schema: JSONSchemaType<T>,
   options: JSONSchemaValidatorOptions = {}
 ): JSONSchemaValidator {
-  const ajv = new Ajv({
+  const ajv = new (Ajv as any)({
     strict: true,
     coerceTypes: options.coerceTypes,
   });

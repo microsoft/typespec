@@ -51,7 +51,7 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.38.4"
+    "@cadl-lang/compiler": "~0.38.5"
   },
   "dependencies": {
     "prettier": "~2.7.1",
@@ -66,7 +66,7 @@
     "@types/prettier": "2.6.0",
     "@types/react": "~18.0.5",
     "@types/react-dom": "~18.0.1",
-    "@cadl-lang/compiler": "~0.38.4",
+    "@cadl-lang/compiler": "~0.38.5",
     "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@babel/core": "^7.0.0",
     "eslint": "^8.12.0",

@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
-import { SamplesDropdown } from "./samples-dropdown";
+import { SamplesDropdown } from "./samples-dropdown.js";
 
 export interface EditorCommandBarProps {
   saveCode: () => Promise<void> | void;

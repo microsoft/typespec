@@ -38,7 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.38.4",
+    "@cadl-lang/compiler": "~0.38.5",
     "@rollup/plugin-virtual": "~3.0.1",
     "@rollup/plugin-commonjs": "~23.0.2",
     "@rollup/plugin-json": "~5.0.1",
