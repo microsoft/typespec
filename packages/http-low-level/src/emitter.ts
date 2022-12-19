@@ -194,7 +194,9 @@ export class HttpLowLevelEmitter extends TypeEmitter {
             )}, @body body: ${this.emitter.emitTypeReference(contentTypeResponse.body.type)}`;
           }
           return `{
-            @statusCode _: ${statusCodeResponse.statusCode}
+            @statusCode _: ${
+              statusCodeResponse.statusCode === "*" ? `"*"` : statusCodeResponse.statusCode
+            },
             ${Object.values(contentTypeResponse.headers ?? [])
               .map((x) => code`${this.emitter.emitModelProperty(x)}`)
               .join(", ")}
