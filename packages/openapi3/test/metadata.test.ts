@@ -2,6 +2,29 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("can make properties optional", async () => {
+    const res = await openApiFor(`
+      model Widget { 
+        name: string; 
+        specs: WidgetSpecs;
+      }
+      model WidgetSpecs {
+        color: string;
+        weight: float64;
+      }
+      @post op create(...Widget): void;
+      @patch op update(...Widget): void;
+  `);
+
+    const requestSchema = res.paths["/"].patch.requestBody.content["application/json"].schema;
+    deepStrictEqual(requestSchema, { $ref: "#/components/schemas/WidgetUpdate" });
+
+    deepStrictEqual(res.components.schemas.Widget.required, ["name", "specs"]);
+    deepStrictEqual(res.components.schemas.WidgetUpdate.required, undefined);
+    deepStrictEqual(res.components.schemas.WidgetSpecs.required, ["color", "weight"]);
+    deepStrictEqual(res.components.schemas.WidgetSpecsUpdate.required, undefined);
+  });
+
   it("can share readonly properties", async () => {
     const res = await openApiFor(`
       model M {

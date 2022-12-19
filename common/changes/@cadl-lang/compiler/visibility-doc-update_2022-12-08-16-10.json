@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Improve visibility decorator documentation",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

@@ -74,7 +74,9 @@ export function isTemplateInstance(
 /**
  * Resolve if the type is a template type declaration(Non initialized template type).
  */
-export function isTemplateDeclaration(type: TemplatedType): boolean {
+export function isTemplateDeclaration(
+  type: TemplatedType
+): type is TemplatedType & { node: TemplateDeclarationNode } {
   if (type.node === undefined) {
     return false;
   }
