@@ -10,19 +10,19 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   id-token: write
   contents: write
+  pull-requests: write
 
 jobs:
   # Create PR
-  pr_commented:
-    name: Format comment
-    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/cadleng format') }}
+  pr_created:
+    name: Provide try it comments
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const prNumber = ${{ github.event.issue.number }};
+            const prNumber = ${{ github.event.pull_request.number }};
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
