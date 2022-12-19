@@ -13,9 +13,8 @@ permissions:
 
 jobs:
   # Create PR
-  pr_commented:
-    name: Format comment
-    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/cadleng format') }}
+  pr_created:
+    name: Provide try it comments
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v5
