@@ -1,15 +1,14 @@
+# IMPORTANT: DO NOT CHECKOUT
 name: Make try it comment
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  id-token: write
-  contents: write
   pull-requests: write
 
 jobs:
