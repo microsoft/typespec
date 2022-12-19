@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 15 Dec 2022 02:21:08 GMT and should not be manually modified.
+This log was last generated on Fri, 16 Dec 2022 22:02:45 GMT and should not be manually modified.
+
+## 0.38.5
+Fri, 16 Dec 2022 22:02:45 GMT
+
+### Patches
+
+- emitter not found validation in emitter options is a warning
 
 ## 0.38.4
 Thu, 15 Dec 2022 02:21:08 GMT
