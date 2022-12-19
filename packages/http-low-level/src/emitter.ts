@@ -6,7 +6,6 @@ import {
   EnumMember,
   formatCadl,
   Interface,
-  isVoidType,
   Model,
   ModelProperty,
   NoTarget,
@@ -179,9 +178,6 @@ export class HttpLowLevelEmitter extends TypeEmitter {
   }
 
   operationReturnType(operation: Operation, returnType: Type): EmitEntityOrString {
-    if (isVoidType(returnType)) {
-      return "void";
-    }
     const [httpOperation] = getHttpOperation(this.emitter.getProgram(), operation);
 
     return httpOperation.responses
