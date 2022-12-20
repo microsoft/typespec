@@ -32,3 +32,4 @@ spec.emu.html
 
 # Auto generated reference docs.
 docs/**/reference/
+packages/website/versioned_docs/**/reference/
