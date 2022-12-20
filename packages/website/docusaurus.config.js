@@ -5,12 +5,15 @@
 const lightCodeTheme = require("./themes/prism/atom-one-light.js");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const { resolve } = require("path");
-const { readFileSync } = require("fs");
+
+function getMajorMinorVersion(pkgJsonPath) {
+  const version = require(pkgJsonPath).version;
+  const [major, minor] = version.split(".");
+  return `${major}.${minor}.x`;
+}
 
 function getLatestVersion() {
-  const version = JSON.parse(readFileSync("../compiler/package.json").toString()).version;
-  const [major, minor] = version.split(".");
-  return `Latest (${major}.${minor}.x)`;
+  return `Latest (${getMajorMinorVersion("../compiler/package.json")})`;
 }
 
 /** @type {import('@docusaurus/types').Config} */
