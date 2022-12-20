@@ -438,7 +438,7 @@ export function createBinder(program: Program): Binder {
       let current: CadlScriptNode | NamespaceStatementNode = statement;
       while (current.kind !== SyntaxKind.CadlScript) {
         (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
-        current = current.parent as CadlScriptNode | NamespaceStatementNode;
+        current = current.parent!;
       }
     }
   }

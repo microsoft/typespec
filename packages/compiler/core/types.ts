@@ -825,6 +825,7 @@ export type ScopeNode =
 export interface ImportStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ImportStatement;
   readonly path: StringLiteralNode;
+  readonly parent?: CadlScriptNode;
 }
 
 export interface IdentifierNode extends BaseNode {
@@ -843,6 +844,7 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   readonly targetType: TypeReferenceNode;
   readonly arguments: readonly Expression[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface DirectiveExpressionNode extends BaseNode {
@@ -910,11 +912,13 @@ export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface UsingStatementNode extends BaseNode {
   readonly kind: SyntaxKind.UsingStatement;
   readonly name: IdentifierNode | MemberExpressionNode;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface OperationSignatureDeclarationNode extends BaseNode {
@@ -936,6 +940,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   readonly kind: SyntaxKind.OperationStatement;
   readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -944,12 +949,14 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -957,12 +964,14 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   readonly operations: readonly OperationStatementNode[];
   readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface UnionVariantNode extends BaseNode {
@@ -970,12 +979,14 @@ export interface UnionVariantNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: UnionStatementNode;
 }
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface EnumMemberNode extends BaseNode {
@@ -983,6 +994,7 @@ export interface EnumMemberNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: EnumStatementNode;
 }
 
 export interface EnumSpreadMemberNode extends BaseNode {
@@ -993,6 +1005,7 @@ export interface EnumSpreadMemberNode extends BaseNode {
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
   readonly value: Expression;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface InvalidStatementNode extends BaseNode {
@@ -1025,11 +1038,13 @@ export interface ModelPropertyNode extends BaseNode {
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
   readonly default?: Expression;
+  readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
 export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
+  readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
@@ -1096,6 +1111,7 @@ export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseN
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
+  readonly parent?: TemplateableNode;
 }
 
 export const enum ModifierFlags {
@@ -1125,6 +1141,7 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
    * Additional parameters
    */
   readonly parameters: FunctionParameterNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface FunctionParameterNode extends BaseNode {
@@ -1156,6 +1173,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 // Projection-related Syntax
@@ -1307,6 +1325,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | IdentifierNode;
   readonly to?: ProjectionNode;
   readonly from?: ProjectionNode;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
