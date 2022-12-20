@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Internal: package with newest vsce",
+      "type": "none"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
