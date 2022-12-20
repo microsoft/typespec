@@ -94,12 +94,14 @@ import {
   SyntaxKind,
   TemplateableNode,
   TemplateDeclarationNode,
+  TemplatedTypeBase,
   TemplateParameter,
   TemplateParameterDeclarationNode,
   Tuple,
   TupleExpressionNode,
   Type,
   TypeInstantiationMap,
+  TypeMapper,
   TypeOrReturnRecord,
   TypeReferenceNode,
   Union,
@@ -863,7 +865,14 @@ export function createChecker(program: Program): Checker {
 
     if (sym.flags & SymbolFlags.LateBound) {
       compilerAssert(sym.type, "Expected late bound symbol to have type");
-      return sym.type;
+      if (
+        "templateParameters" in sym.declarations[0] &&
+        sym.declarations[0].templateParameters.length > 0
+      ) {
+        mapper = (sym.type as TemplatedTypeBase).templateMapper;
+      } else {
+        return sym.type;
+      }
     }
 
     const symbolLinks = getSymbolLinks(sym);
@@ -908,8 +917,7 @@ export function createChecker(program: Program): Checker {
         }
       } else {
         // declaration is templated, lets instantiate.
-
-        if (!symbolLinks.declaredType) {
+        if (!symbolLinks.declaredType && !(sym.flags & SymbolFlags.LateBound)) {
           // we haven't checked the declared type yet, so do so.
           sym.flags & SymbolFlags.Model
             ? checkModelStatement(decl as ModelStatementNode, mapper)
@@ -930,7 +938,13 @@ export function createChecker(program: Program): Checker {
           args,
           templateParameters
         );
-        baseType = getOrInstantiateTemplate(decl, params, instantiationArgs, instantiateTemplates);
+        baseType = getOrInstantiateTemplate(
+          decl,
+          params,
+          instantiationArgs,
+          mapper,
+          instantiateTemplates
+        );
       }
     } else {
       // some other kind of reference
@@ -966,6 +980,7 @@ export function createChecker(program: Program): Checker {
     templateNode: TemplateableNode,
     params: TemplateParameter[],
     args: Type[],
+    parentMapper: TypeMapper | undefined,
     instantiateTempalates = true
   ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol);
@@ -974,20 +989,26 @@ export function createChecker(program: Program): Checker {
       if (isErrorType(type)) {
         return errorType;
       } else {
-        compilerAssert(
-          false,
-          `Unexpected checker error. symbolLinks.instantiations was not defined for ${
-            SyntaxKind[templateNode.kind]
-          }`
-        );
+        // compilerAssert(
+        //   false,
+        //   `Unexpected checker error. symbolLinks.instantiations was not defined for ${
+        //     SyntaxKind[templateNode.kind]
+        //   }`
+        // );
       }
     }
-    const cached = symbolLinks.instantiations.get(args);
+    const cached = symbolLinks.instantiations?.get(args);
     if (cached) {
       return cached;
     }
     if (instantiateTempalates) {
-      return instantiateTemplate(symbolLinks.instantiations, templateNode, params, args);
+      return instantiateTemplate(
+        symbolLinks.instantiations,
+        templateNode,
+        params,
+        args,
+        parentMapper
+      );
     } else {
       return errorType;
     }
@@ -1002,15 +1023,16 @@ export function createChecker(program: Program): Checker {
    * are ever in scope at once.
    */
   function instantiateTemplate(
-    instantiations: TypeInstantiationMap,
+    instantiations: TypeInstantiationMap | undefined,
     templateNode: TemplateableNode,
     params: TemplateParameter[],
-    args: Type[]
+    args: Type[],
+    parentMapper: TypeMapper | undefined
   ): Type {
-    const mapper = createTypeMapper(params, args);
+    const mapper = createTypeMapper(params, args, parentMapper);
     const type = getTypeForNode(templateNode, mapper);
-    if (!instantiations.get(args)) {
-      instantiations.set(args, type);
+    if (!instantiations?.get(args)) {
+      instantiations?.set(args, type);
     }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
@@ -1275,7 +1297,7 @@ export function createChecker(program: Program): Checker {
     const arrayType = getStdType("Array");
     const arrayNode: ModelStatementNode = arrayType.node as any;
     const param: TemplateParameter = getTypeForNode(arrayNode.templateParameters[0]) as any;
-    return getOrInstantiateTemplate(arrayNode, [param], [elementType]) as Model;
+    return getOrInstantiateTemplate(arrayNode, [param], [elementType], undefined) as Model;
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
@@ -2315,7 +2337,7 @@ export function createChecker(program: Program): Checker {
         break;
       case "Interface":
         for (const member of type.operations.values()) {
-          lateBindMember(member, SymbolFlags.InterfaceMember);
+          lateBindMember(member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
         }
         break;
       case "Union":
@@ -4531,13 +4553,12 @@ function addDerivedModels(models: Set<Model>, possiblyDerivedModels: ReadonlySet
   }
 }
 
-interface TypeMapper {
-  getMappedType(type: TemplateParameter): Type;
-  args: readonly Type[];
-}
-
-function createTypeMapper(parameters: TemplateParameter[], args: Type[]): TypeMapper {
-  const map = new Map<TemplateParameter, Type>();
+function createTypeMapper(
+  parameters: TemplateParameter[],
+  args: Type[],
+  parentMapper?: TypeMapper
+): TypeMapper {
+  const map = new Map<TemplateParameter, Type>(parentMapper?.map ?? []);
 
   for (const [index, param] of parameters.entries()) {
     map.set(param, args[index]);
@@ -4548,6 +4569,7 @@ function createTypeMapper(parameters: TemplateParameter[], args: Type[]): TypeMa
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
     },
+    map,
   };
 }
 
@@ -4767,6 +4789,7 @@ function finishTypeForProgramAndChecker<T extends Type>(
       !(typeDef as any).templateArguments,
       "Mapper provided but template arguments already set."
     );
+    (typeDef as any).templateMapper = mapper;
     (typeDef as any).templateArguments = mapper.args;
   }
 
