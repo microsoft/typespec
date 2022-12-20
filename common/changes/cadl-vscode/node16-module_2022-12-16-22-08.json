@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Internal: Update TS module resolution to node16",
+      "type": "none"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

@@ -5,7 +5,7 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@cadl-lang/compiler/testing";
-import { LintRule } from "../types";
+import { LintRule } from "../types.js";
 
 export interface RuleTester {
   expect(code: string): RuleTestExpect;
