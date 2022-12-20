@@ -48,7 +48,7 @@
   ],
   "dependencies": {
     "@cadl-lang/compiler": "~0.38.5",
-    "prettier": "~2.7.1"
+    "prettier": "~2.8.1"
   },
   "devDependencies": {
     "@cadl-lang/compiler": "~0.38.5",
