@@ -27,6 +27,7 @@ packages/compiler/test/formatter/**/*.cadl
 packages/samples/local-cadl/test.cadl
 packages/website/build/
 packages/website/versioned_sidebars/
+packages/website/versions.json
 
 spec.emu.html
 
