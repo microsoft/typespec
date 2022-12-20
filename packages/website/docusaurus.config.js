@@ -43,6 +43,11 @@ const config = {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           path: "../../docs",
+          versions: {
+            current: {
+              label: `Next 🚧`,
+            },
+          },
         },
 
         blog: {
@@ -74,6 +79,10 @@ const config = {
             label: "Specification",
           },
           { to: "/playground", label: "Playground", position: "left" },
+          {
+            type: "docsVersionDropdown",
+            position: "right",
+          },
           {
             href: "https://github.com/Microsoft/cadl",
             position: "right",
