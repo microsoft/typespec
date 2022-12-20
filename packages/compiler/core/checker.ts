@@ -405,7 +405,7 @@ export function createChecker(program: Program): Checker {
     const usedUsing = new Set<Sym>();
 
     for (const using of file.usings) {
-      const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
+      const parentNs = using.parent!;
       const sym = resolveTypeReferenceSym(using.name, undefined);
       if (!sym) {
         continue;
@@ -629,7 +629,7 @@ export function createChecker(program: Program): Checker {
     node: TemplateParameterDeclarationNode,
     mapper: TypeMapper | undefined
   ): Type {
-    const parentNode = node.parent! as TemplateableNode;
+    const parentNode = node.parent!;
     const links = getSymbolLinks(node.symbol);
 
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
@@ -1465,9 +1465,10 @@ export function createChecker(program: Program): Checker {
 
     operationType.parameters.namespace = namespace;
 
-    if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
+    const parent = node.parent!;
+    if (parent.kind === SyntaxKind.InterfaceStatement) {
       if (
-        shouldCreateTypeForTemplate(node.parent!, mapper) &&
+        shouldCreateTypeForTemplate(parent, mapper) &&
         shouldCreateTypeForTemplate(node, mapper)
       ) {
         finishType(operationType, mapper);
