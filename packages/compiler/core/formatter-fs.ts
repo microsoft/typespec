@@ -3,6 +3,7 @@ import { globby } from "globby";
 import prettier from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormatCadl, formatCadl } from "./formatter.js";
+import { normalizePath } from "./path-utils.js";
 
 export interface CadlFormatOptions {
   exclude?: string[];
@@ -77,6 +78,10 @@ export async function checkFormatCadlFile(filename: string): Promise<boolean> {
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {
-  const patterns = [...include, "!**/node_modules", ...ignore.map((x) => `!${x}`)];
+  const patterns = [
+    ...include.map(normalizePath),
+    "!**/node_modules",
+    ...ignore.map((x) => `!${normalizePath(x)}`),
+  ];
   return globby(patterns);
 }
