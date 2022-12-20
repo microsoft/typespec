@@ -2037,8 +2037,8 @@ export function createChecker(program: Program): Checker {
       case "Interface":
       case "Union":
         if (aliasType.templateArguments) {
-          lateBindMemberContainer(aliasType);
           // this is an alias for some instantiation, so late-bind the instantiation
+          lateBindMemberContainer(aliasType);
           return aliasType.symbol!;
         }
       // fallthrough
@@ -2390,9 +2390,6 @@ export function createChecker(program: Program): Checker {
         }
         break;
     }
-
-    // TODO: PR check if we prefer this alternative to dup
-    // program.reportDuplicateSymbols(getOrCreateAugmentedSymbolTable(containerSym.members!));
 
     function resolveAndCopyMembers(node: TypeReferenceNode) {
       let ref = resolveTypeReferenceSym(node, undefined);
