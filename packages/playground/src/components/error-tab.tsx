@@ -1,7 +1,7 @@
 import type { Diagnostic } from "@cadl-lang/compiler";
 import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
-import { DiagnosticList } from "./diagnostic-list";
+import { DiagnosticList } from "./diagnostic-list.js";
 
 export interface ErrorTabProps {
   readonly internalCompilerError?: any;
