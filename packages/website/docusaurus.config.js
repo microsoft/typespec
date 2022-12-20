@@ -16,6 +16,24 @@ function getLatestVersion() {
   return `Latest (${getMajorMinorVersion("../compiler/package.json")})`;
 }
 
+/** @returns {Record<string, import('@docusaurus/plugin-content-docs').VersionOptions>} */
+function getVersionLabels() {
+  const labels = {
+    current: {
+      label: `Next 🚧`,
+    },
+  };
+
+  // Workaround because docusaurus validate this version exists but it doesn't during the bumping of version as we delete it to override
+  const isBumpingVersion = process.argv.includes("docs:version");
+  if (!isBumpingVersion) {
+    labels.latest = {
+      label: getLatestVersion(),
+    };
+  }
+  return labels;
+}
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Cadl",
@@ -53,14 +71,7 @@ const config = {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           path: "../../docs",
-          versions: {
-            current: {
-              label: `Next 🚧`,
-            },
-            latest: {
-              label: getLatestVersion(),
-            },
-          },
+          versions: getVersionLabels(),
         },
 
         blog: {
