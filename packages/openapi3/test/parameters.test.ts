@@ -28,18 +28,18 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(
-        @query({name: "$select", format: "csv"}) selects: string[],
-        @query({name: "$order", format: "multi"}) orders: string[],
+        @query({name: "$select"}) selects: string[],
+        @query({name: "$order", format: "csv"}) orders: string[],
       ): void;
       `
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "query");
     strictEqual(res.paths["/"].get.parameters[0].name, "$select");
-    strictEqual(res.paths["/"].get.parameters[0].style, "simple");
+    strictEqual(res.paths["/"].get.parameters[0].style, "form");
+    strictEqual(res.paths["/"].get.parameters[0].explode, true);
     strictEqual(res.paths["/"].get.parameters[1].in, "query");
     strictEqual(res.paths["/"].get.parameters[1].name, "$order");
-    strictEqual(res.paths["/"].get.parameters[1].style, "form");
-    strictEqual(res.paths["/"].get.parameters[1].explode, true);
+    strictEqual(res.paths["/"].get.parameters[1].style, "simple");
   });
 
   it("create an header param", async () => {
@@ -66,7 +66,7 @@ describe("openapi3: parameters", () => {
   it("create an header param of array type", async () => {
     const res = await openApiFor(
       `
-      op test(@header({name: "foo-bar", format: "csv"}) foos: string[]): void;
+      op test(@header("foo-bar") foos: string[]): void;
       `
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "header");
