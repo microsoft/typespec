@@ -291,27 +291,15 @@ describe("rest: http decorators", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("emit diagnostics when path name is not a string or of type PathOptions", async () => {
+    it("emit diagnostics when path name is not a string", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@path(123) MyPath: string): string;
-          op test2(@path({name: 123}) MyPath: string): string;
-          op test3(@path({format: 123}) MyPath: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
           message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
-        },
-        {
-          code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string'",
-        },
-        {
-          code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string'",
         },
       ]);
     });
