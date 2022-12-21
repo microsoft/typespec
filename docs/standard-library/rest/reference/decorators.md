@@ -70,9 +70,9 @@ dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerNameOrOptions?
 
 #### Parameters
 
-| Name                | Type               | Description              |
-| ------------------- | ------------------ | ------------------------ | ------------------------------------------------------------------ |
-| headerNameOrOptions | `union Cadl.string | Cadl.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
+| Name                | Type                                           | Description                                                        |
+| ------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| headerNameOrOptions | `union Cadl.string \| Cadl.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
 ### `@query` {#@Cadl.Http.query}
 
@@ -88,9 +88,9 @@ dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryNameOrOptions?: 
 
 #### Parameters
 
-| Name               | Type               | Description             |
-| ------------------ | ------------------ | ----------------------- | ------------------------------------------------------------------------------- |
-| queryNameOrOptions | `union Cadl.string | Cadl.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+| Name               | Type                                          | Description                                                                     |
+| ------------------ | --------------------------------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `union Cadl.string \| Cadl.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 ### `@path` {#@Cadl.Http.path}
 
@@ -282,9 +282,9 @@ dec Cadl.Http.useAuth(target: Cadl.Reflection.Namespace, auth: Cadl.object | Cad
 
 #### Parameters
 
-| Name | Type               | Description           |
-| ---- | ------------------ | --------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union Cadl.object | Cadl.Reflection.Union | Cadl.object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+| Name | Type                                                          | Description                                                                                                                                                    |
+| ---- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `union Cadl.object \| Cadl.Reflection.Union \| Cadl.object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
 ### `@includeInapplicableMetadataInPayload` {#@Cadl.Http.includeInapplicableMetadataInPayload}
 
@@ -382,9 +382,9 @@ dec Cadl.Rest.actionSeparator(target: Cadl.object | Cadl.Reflection.ModelPropert
 
 #### Parameters
 
-| Name      | Type     | Description |
-| --------- | -------- | ----------- | --- | ---------------------------------------------------------------- |
-| seperator | `union / | :           | /:` | Seperator seperating the action segment from the rest of the url |
+| Name      | Type                 | Description                                                      |
+| --------- | -------------------- | ---------------------------------------------------------------- |
+| seperator | `union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
 
 ### `@segmentSeparator` {#@Cadl.Rest.segmentSeparator}
 
