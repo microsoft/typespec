@@ -61,7 +61,7 @@ op download(): {@body image: bytes};
 Specify this property is to be sent or received as an http header.
 
 ```cadl
-dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerName?: Cadl.string)
+dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerNameOrOptions?: Cadl.string | Cadl.Http.HeaderOptions)
 ```
 
 #### Target
@@ -70,16 +70,16 @@ dec Cadl.Http.header(target: Cadl.Reflection.ModelProperty, headerName?: Cadl.st
 
 #### Parameters
 
-| Name       | Type                 | Description                                      |
-| ---------- | -------------------- | ------------------------------------------------ |
-| headerName | `scalar Cadl.string` | Optional name of the header when sent over http. |
+| Name                | Type               | Description              |
+| ------------------- | ------------------ | ------------------------ | ------------------------------------------------------------------ |
+| headerNameOrOptions | `union Cadl.string | Cadl.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
 ### `@query` {#@Cadl.Http.query}
 
 Specify this property is to be sent as a query parameter.
 
 ```cadl
-dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryKey?: Cadl.string)
+dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryNameOrOptions?: Cadl.string | Cadl.Http.QueryOptions)
 ```
 
 #### Target
@@ -88,9 +88,9 @@ dec Cadl.Http.query(target: Cadl.Reflection.ModelProperty, queryKey?: Cadl.strin
 
 #### Parameters
 
-| Name     | Type                 | Description                                          |
-| -------- | -------------------- | ---------------------------------------------------- |
-| queryKey | `scalar Cadl.string` | Optional name of the query when included in the url. |
+| Name               | Type               | Description             |
+| ------------------ | ------------------ | ----------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `union Cadl.string | Cadl.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 ### `@path` {#@Cadl.Http.path}
 
@@ -108,7 +108,7 @@ dec Cadl.Http.path(target: Cadl.Reflection.ModelProperty, paramName?: Cadl.strin
 
 | Name      | Type                 | Description                                         |
 | --------- | -------------------- | --------------------------------------------------- |
-| paramName | `scalar Cadl.string` | Optional name of the parmaeter in the url template. |
+| paramName | `scalar Cadl.string` | Optional name of the parameter in the url template. |
 
 ### `@get` {#@Cadl.Http.get}
 
