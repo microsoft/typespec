@@ -741,8 +741,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = parameter.name;
     ph.in = parameter.type;
-    ph.style = parameter.format;
-    ph.explode = parameter.explode;
+    if (parameter.type === "query") {
+      if (parameter.format === "csv") {
+        ph.style = "simple";
+      } else if (parameter.format === "multi") {
+        ph.style = "form";
+        ph.explode = true;
+      }
+    } else if (parameter.type === "header") {
+      if (parameter.format === "csv") {
+        ph.style = "simple";
+      }
+    }
     Object.assign(ph, getOpenAPIParameterBase(parameter.param, visibility));
   }
 
