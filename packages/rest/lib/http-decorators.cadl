@@ -11,14 +11,9 @@ model HeaderOptions {
    */
   name?: string;
   /**
-   * How the parameter value will be serialized
+   * Determines the format of the array if type array is used.
    */
-  format?: "simple";
-  /**
-   * Whether parameter values of type `object` generate separate parameters for key-value pair of the map.
-   * For other types of parameters this property has no effect.
-   */
-  explode?: boolean;
+  format?: "csv";
 }
 
 /**
@@ -30,7 +25,7 @@ model HeaderOptions {
  *
  * ```cadl
  * op read(@header accept: string): {@header("E-Tag") eTag: string};
- * op create(@header({name: "X-Color", explode: true}) color: Color): void;
+ * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
  * ```
  */
 extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
@@ -44,14 +39,9 @@ model QueryOptions {
    */
   name?: string;
   /**
-   * How the parameter value will be serialized
+   * Determines the format of the array if type array is used.
    */
-  format?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
-  /**
-   * Whether parameter values of type `array` or `object` generate separate parameters for each value of the array or key-value pair of the map.
-   * For other types of parameters this property has no effect.
-   */
-  explode?: boolean;
+  format?: "multi" | "csv";
 }
 
 /**
@@ -63,45 +53,24 @@ model QueryOptions {
  *
  * ```cadl
  * op read(@query select: string, @query("order-by") orderBy: string): void;
- * op list(@query({name: "id", format: "form", explode: false}) ids: string[]): void;
+ * op list(@query({name: "id", format: "multi"}) ids: string[]): void;
  * ```
  */
 extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptions);
 
 /**
- * Path parameter options.
- */
-model PathOptions {
-  /**
-   * Name of the path parameter in the url template.
-   */
-  name?: string;
-  /**
-   * How the parameter value will be serialized
-   */
-  format?: "simple" | "label" | "matrix";
-  /**
-   * Whether parameter values of type `array` or `object` generate separate parameters for each value of the array or key-value pair of the map.
-   * For other types of parameters this property has no effect.
-   */
-  explode?: boolean;
-}
-
-/**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
- * @param paramNameOrOptions Optional name of the parameter in the url template or path parameter options.
+ * @param paramName Optional name of the parameter in the url template.
  *
  * @example
  *
  * ```cadl
  * @route("/read/{explicit}/things/{implicit}")
  * op read(@path explicit: string, implicit: string): void;
- * @route("/list/{id}")
- * op list(@path({name: "id", format: "label"}) ids: string[]): void;
  * ```
  */
-extern dec path(target: ModelProperty, paramNameOrOptions?: string | PathOptions);
+extern dec path(target: ModelProperty, paramName?: string);
 
 /**
  * Explicitly specify that this property is to be set as the body

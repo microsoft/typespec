@@ -71,7 +71,7 @@ describe("rest: http decorators", () => {
       const diagnostics = await runner.diagnose(`
           op test(@header(123) MyHeader: string): string;
           op test2(@header({ name: 123 }) MyHeader: string): string;
-          op test3(@header({ explode: "true" }) MyHeader: string): string;
+          op test3(@header({ format: "invalid" }) MyHeader: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
@@ -111,16 +111,22 @@ describe("rest: http decorators", () => {
     });
 
     it("override header with HeaderOptions", async () => {
-      const { MyHeader } = await runner.compile(`
-          op test(@test @header({name: "x-my-header", explode: true}) MyHeader: string[]): string;
+      const { MyHeader, SingleString } = await runner.compile(`
+          @get op test(@test @header({name: "x-my-header"}) MyHeader: string[]): string;
+          @put op test2(@test @header({name: "x-single-string"}) SingleString: string): string;
         `);
 
       deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
         type: "header",
         name: "x-my-header",
-        explode: true,
+        // format: "csv",
+      });
+      deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
+        type: "header",
+        name: "x-single-string",
       });
       strictEqual(getHeaderFieldName(runner.program, MyHeader), "x-my-header");
+      strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
     });
   });
 
@@ -151,7 +157,6 @@ describe("rest: http decorators", () => {
           op test(@query(123) MyQuery: string): string;
           op test2(@query({name: 123}) MyQuery: string): string;
           op test3(@query({format: "invalid"}) MyQuery: string): string;
-          op test4(@query({explode: 123}) MyQuery: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
@@ -159,11 +164,6 @@ describe("rest: http decorators", () => {
           code: "invalid-argument",
           message:
             "Argument '123' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
-        },
-        {
-          code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
@@ -196,16 +196,16 @@ describe("rest: http decorators", () => {
     });
 
     it("override query with QueryOptions", async () => {
-      const { select } = await runner.compile(`
-          op test(@test @query({name: "$select", format: "pipeDelimited"}) select: string[]): string;
+      const { selects } = await runner.compile(`
+          op test(@test @query({name: "$select", format: "multi"}) selects: string[]): string;
         `);
 
-      deepStrictEqual(getQueryParamOptions(runner.program, select), {
+      deepStrictEqual(getQueryParamOptions(runner.program, selects), {
         type: "query",
         name: "$select",
-        format: "pipeDelimited",
+        format: "multi",
       });
-      strictEqual(getQueryParamName(runner.program, select), "$select");
+      strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });
 
@@ -301,18 +301,17 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'Cadl.string | Cadl.Http.PathOptions'",
+          message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.PathOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.PathOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string'",
         },
       ]);
     });
@@ -331,18 +330,9 @@ describe("rest: http decorators", () => {
           op test(@test @path("$select") select: string): string;
         `);
 
-      strictEqual(getPathParamName(runner.program, select), "$select");
-    });
-
-    it("override path with PathOptions", async () => {
-      const { select } = await runner.compile(`
-          op test(@test @path({name: "$select", format: "simple"}) select: string[]): string;
-        `);
-
       deepStrictEqual(getPathParamOptions(runner.program, select), {
         type: "path",
         name: "$select",
-        format: "simple",
       });
       strictEqual(getPathParamName(runner.program, select), "$select");
     });

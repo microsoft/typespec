@@ -188,22 +188,18 @@ export interface RouteResolutionOptions extends RouteOptions {
 export interface HeaderFieldOptions {
   type: "header";
   name: string;
-  format?: "simple";
-  explode?: boolean;
+  format?: "csv";
 }
 
 export interface QueryParameterOptions {
   type: "query";
   name: string;
-  format?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
-  explode?: boolean;
+  format?: "multi" | "csv";
 }
 
 export interface PathParameterOptions {
   type: "path";
   name: string;
-  format?: "simple" | "label" | "matrix";
-  explode?: boolean;
 }
 
 export type HttpOperationParameter = (

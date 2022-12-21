@@ -54,16 +54,13 @@ export function $header(
       }
       const format = headerNameOrOptions.properties.get("format")?.type;
       if (format?.kind === "String") {
-        if (format.value === "simple") {
+        if (format.value === "csv") {
           options.format = format.value;
         }
       }
-      const explode = headerNameOrOptions.properties.get("explode")?.type;
-      if (explode?.kind === "Boolean") {
-        options.explode = explode.value;
-      }
     }
   }
+  // TODO default to csv if using array type
   context.program.stateMap(headerFieldsKey).set(entity, options);
 }
 
@@ -99,21 +96,13 @@ export function $query(
       }
       const format = queryNameOrOptions.properties.get("format")?.type;
       if (format?.kind === "String") {
-        if (
-          format.value === "form" ||
-          format.value === "spaceDelimited" ||
-          format.value === "pipeDelimited" ||
-          format.value === "deepObject"
-        ) {
+        if (format.value === "multi" || format.value === "csv") {
           options.format = format.value;
         }
       }
-      const explode = queryNameOrOptions.properties.get("explode")?.type;
-      if (explode?.kind === "Boolean") {
-        options.explode = explode.value;
-      }
     }
   }
+  // TODO default to multi if using array type
   context.program.stateMap(queryFieldsKey).set(entity, options);
 }
 
@@ -130,35 +119,11 @@ export function isQueryParam(program: Program, entity: Type) {
 }
 
 const pathFieldsKey = createStateSymbol("path");
-export function $path(
-  context: DecoratorContext,
-  entity: ModelProperty,
-  paramNameOrOptions?: string | Model
-) {
+export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
   const options: PathParameterOptions = {
     type: "path",
-    name: entity.name,
+    name: paramName ?? entity.name,
   };
-  if (paramNameOrOptions) {
-    if (typeof paramNameOrOptions === "string") {
-      options.name = paramNameOrOptions;
-    } else {
-      const name = paramNameOrOptions.properties.get("name")?.type;
-      if (name?.kind === "String") {
-        options.name = name.value;
-      }
-      const format = paramNameOrOptions.properties.get("format")?.type;
-      if (format?.kind === "String") {
-        if (format.value === "simple" || format.value === "label" || format.value === "matrix") {
-          options.format = format.value;
-        }
-      }
-      const explode = paramNameOrOptions.properties.get("explode")?.type;
-      if (explode?.kind === "Boolean") {
-        options.explode = explode.value;
-      }
-    }
-  }
   context.program.stateMap(pathFieldsKey).set(entity, options);
 }
 
