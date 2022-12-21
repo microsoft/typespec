@@ -1,0 +1,67 @@
+{
+  "name": "@cadl-lang/ref-doc",
+  "version": "0.1.0",
+  "author": "Microsoft Corporation",
+  "description": "Cadl library for generating cadl docs",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/cadl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/cadl/issues"
+  },
+  "keywords": [
+    "cadl"
+  ],
+  "type": "module",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/index.d.ts"
+      ]
+    }
+  },
+  "cadlMain": "dist/src/index.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "echo 'no tests'",
+    "test-official": "echo 'no tests'",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts"
+  },
+  "files": [
+    "lib/*.cadl",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "dependencies": {
+    "@cadl-lang/compiler": "~0.38.5",
+    "prettier": "~2.8.1"
+  },
+  "devDependencies": {
+    "@cadl-lang/compiler": "~0.38.5",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@types/mocha": "~10.0.0",
+    "@types/node": "~18.11.9",
+    "c8": "~7.12.0",
+    "eslint": "^8.12.0",
+    "mocha": "~10.1.0",
+    "mocha-junit-reporter": "~2.2.0",
+    "mocha-multi-reporters": "~1.5.1",
+    "rimraf": "~3.0.2",
+    "typescript": "~4.9.3",
+    "@types/prettier": "2.6.0"
+  }
+}

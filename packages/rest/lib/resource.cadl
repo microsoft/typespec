@@ -33,6 +33,11 @@ model ResourceCollectionParameters<TResource extends object> {
   ...ParentKeysOf<TResource>;
 }
 
+/**
+ * Represent the resource GET operation.
+ * @template TResource The resource model.
+ * @template TError The error response.
+ */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
 interface ResourceRead<TResource extends object, TError> {

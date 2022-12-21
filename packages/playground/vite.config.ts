@@ -1,5 +1,5 @@
 import { visualizer } from "rollup-plugin-visualizer";
-import { definePlaygroundViteConfig } from "./src/build-utils";
+import { definePlaygroundViteConfig } from "./src/build-utils/index.js";
 
 const config = definePlaygroundViteConfig({
   defaultEmitter: "@cadl-lang/openapi3",
@@ -13,7 +13,7 @@ const config = definePlaygroundViteConfig({
   samples: {
     "API versioning": "samples/versioning.cadl",
     "Discriminated unions": "samples/unions.cadl",
-    "Http service": "samples/http.cadl",
+    "HTTP service": "samples/http.cadl",
     "REST framework": "samples/rest.cadl",
   },
   enableSwaggerUI: true,

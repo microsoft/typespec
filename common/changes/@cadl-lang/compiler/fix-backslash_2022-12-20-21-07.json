@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix `cadl format` works with windows backslash paths",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

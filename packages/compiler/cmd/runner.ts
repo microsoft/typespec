@@ -1,6 +1,6 @@
 import { access, readFile, realpath, stat } from "fs/promises";
 import { join, resolve } from "path";
-import url from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
 
 /**
@@ -18,7 +18,7 @@ export async function runScript(relativePath: string, backupPath: string): Promi
     if (!(await checkFileExists(script)) && backupPath) {
       script = join(packageRoot, backupPath);
     }
-    const scriptUrl = url.pathToFileURL(script).toString();
+    const scriptUrl = pathToFileURL(script).toString();
     await import(scriptUrl);
   } else {
     throw new Error(
@@ -64,5 +64,5 @@ async function resolvePackageRoot(): Promise<string> {
 }
 
 async function getThisPackageRoot() {
-  return resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
+  return resolve(await realpath(fileURLToPath(import.meta.url)), "../../..");
 }

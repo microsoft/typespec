@@ -118,9 +118,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     description: "Create a project representing a generic Rest API",
     libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
     config: {
-      emitters: {
-        "@cadl-lang/openapi3": true,
-      },
+      emit: ["@cadl-lang/openapi3"],
     },
   },
 };

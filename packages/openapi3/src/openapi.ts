@@ -1075,7 +1075,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         continue;
       }
 
-      if (!prop.optional) {
+      if (!metadataInfo.isOptional(prop, visibility)) {
         if (!modelSchema.required) {
           modelSchema.required = [];
         }

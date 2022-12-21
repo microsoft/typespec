@@ -15,8 +15,9 @@ export const CadlLanguageConfiguration = {
     { open: "{", close: "}" },
     { open: "[", close: "]" },
     { open: "(", close: ")" },
+    // NOTE: autoclose for double quotes may interfere with typing """
+    { open: '"', close: '"' },
     { open: "/**", close: " */", notIn: ["string"] },
-    // NOTE: quotes omitted here intentionally for now as they interfere with typing """
   ],
   surroundingPairs: [
     { open: "{", close: "}" },

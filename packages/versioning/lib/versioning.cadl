@@ -6,20 +6,18 @@ using Cadl.Versioning;
 #suppress "projections-are-experimental"
 projection op#v {
   to(version) {
-    if addedAfter(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
-    } else if removedOnOrBefore(self, version) {
-      return never;
-    } else if hasDifferentNameAtVersion(self, version) {
+    };
+    if hasDifferentNameAtVersion(self, version) {
       self::rename(getNameAtVersion(self, version));
     };
   }
   from(version) {
-    if addedAfter(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
-    } else if removedOnOrBefore(self, version) {
-      return never;
-    } else if hasDifferentNameAtVersion(self, version) {
+    };
+    if hasDifferentNameAtVersion(self, version) {
       self::rename(self::projectionBase::name);
     };
   }
@@ -28,28 +26,20 @@ projection op#v {
 #suppress "projections-are-experimental"
 projection interface#v {
   to(version) {
-    if addedAfter(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
-    } else if removedOnOrBefore(self, version) {
-      return never;
-    } else {
-      if hasDifferentNameAtVersion(self, version) {
-        self::rename(getNameAtVersion(self, version));
-      };
-
-      self::operations::forEach((operation) => {
-        if addedAfter(operation, version) {
-          self::deleteOperation(operation::name);
-        } else if removedOnOrBefore(operation, version) {
-          self::deleteOperation(operation::name);
-        };
-      });
     };
+    if hasDifferentNameAtVersion(self, version) {
+      self::rename(getNameAtVersion(self, version));
+    };
+    self::operations::forEach((operation) => {
+      if !existsAtVersion(operation, version) {
+        self::deleteOperation(operation::name);
+      };
+    });
   }
   from(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -57,9 +47,7 @@ projection interface#v {
       };
 
       self::projectionBase::operations::forEach((operation) => {
-        if addedAfter(operation, version) {
-          self::addOperation(operation::name, operation::parameters, operation::returnType);
-        } else if removedOnOrBefore(operation, version) {
+        if !existsAtVersion(operation, version) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
         };
       });
@@ -70,9 +58,7 @@ projection interface#v {
 #suppress "projections-are-experimental"
 projection union#v {
   to(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -80,9 +66,7 @@ projection union#v {
       };
 
       self::variants::forEach((variant) => {
-        if addedAfter(variant, version) {
-          self::deleteVariant(variant::name);
-        } else if removedOnOrBefore(variant, version) {
+        if !existsAtVersion(variant, version) {
           self::deleteVariant(variant::name);
         } else if hasDifferentNameAtVersion(variant, version) {
           self::renameVariant(variant::name, getNameAtVersion(variant, version));
@@ -91,9 +75,7 @@ projection union#v {
     };
   }
   from(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -101,9 +83,7 @@ projection union#v {
       };
 
       self::projectionBase::variants::forEach((variant) => {
-        if addedAfter(variant, version) {
-          self::addVariant(variant::name, variant::type);
-        } else if removedOnOrBefore(variant, version) {
+        if !existsAtVersion(variant, version) {
           self::addVariant(variant::name, variant::type);
         } else if hasDifferentNameAtVersion(variant, version) {
           self::renameVariant(getNameAtVersion(variant, version), variant::name);
@@ -116,9 +96,7 @@ projection union#v {
 #suppress "projections-are-experimental"
 projection model#v {
   to(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -126,11 +104,7 @@ projection model#v {
       };
 
       self::properties::forEach((p) => {
-        if addedAfter(p, version) {
-          self::deleteProperty(p::name);
-        };
-
-        if removedOnOrBefore(p, version) {
+        if !existsAtVersion(p, version) {
           self::deleteProperty(p::name);
         };
 
@@ -145,9 +119,7 @@ projection model#v {
     };
   }
   from(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -155,11 +127,7 @@ projection model#v {
       };
 
       self::projectionBase::properties::forEach((p) => {
-        if addedAfter(p, version) {
-          self::addProperty(p::name, p::type);
-        };
-
-        if removedOnOrBefore(p, version) {
+        if !existsAtVersion(p, version) {
           self::addProperty(p::name, p::type);
         };
 
@@ -178,9 +146,7 @@ projection model#v {
 #suppress "projections-are-experimental"
 projection enum#v {
   to(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -188,11 +154,7 @@ projection enum#v {
       };
 
       self::members::forEach((m) => {
-        if addedAfter(m, version) {
-          self::deleteMember(m::name);
-        };
-
-        if removedOnOrBefore(m, version) {
+        if !existsAtVersion(m, version) {
           self::deleteMember(m::name);
         };
 
@@ -203,9 +165,7 @@ projection enum#v {
     };
   }
   from(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
+    if !existsAtVersion(self, version) {
       return never;
     } else {
       if hasDifferentNameAtVersion(self, version) {
@@ -213,11 +173,7 @@ projection enum#v {
       };
 
       self::projectionBase::members::forEach((m) => {
-        if addedAfter(m, version, self::projectionBase) {
-          self::addMember(m::name, m::type);
-        };
-
-        if removedOnOrBefore(m, version, self::projectionBase) {
+        if !existsAtVersion(m, version, self::projectionBase) {
           self::addMember(m::name, m::type);
         };
 
