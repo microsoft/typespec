@@ -29,7 +29,7 @@ Authentication can be configured using the `@useAuth` decorator on the service n
 
 ```cadl
 // Use EITHER Auth1 or Auth2
-@useAuth([Auth1 Auth2])
+@useAuth(Auth1 | Auth2)
 ```
 
 - A union of tuple security scheme. This means EITHER of the security groups schemes can be used to authenticate this service
