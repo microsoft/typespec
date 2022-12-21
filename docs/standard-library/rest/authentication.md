@@ -22,7 +22,7 @@ Authentication can be configured using the `@useAuth` decorator on the service n
 
 ```cadl
 // Use BOTH Auth1 or Auth2
-@useAuth([Auth1 Auth2])
+@useAuth([Auth1, Auth2])
 ```
 
 - A union of security scheme. This means EITHER of the security schemes can be used to authenticate this service
@@ -36,7 +36,7 @@ Authentication can be configured using the `@useAuth` decorator on the service n
 
 ```cadl
 // Use EITHER (Auth1 AND Auth2) OR Auth3
-@useAuth([Auth1 Auth2] | Auth3)
+@useAuth([Auth1, Auth2] | Auth3)
 ```
 
 ## Available security schemes
