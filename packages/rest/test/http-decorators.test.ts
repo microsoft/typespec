@@ -112,15 +112,19 @@ describe("rest: http decorators", () => {
 
     it("override header with HeaderOptions", async () => {
       const { MyHeader, SingleString } = await runner.compile(`
-          @get op test(@test @header({name: "x-my-header"}) MyHeader: string[]): string;
+          @get op test(@test @header("x-my-header") MyHeader: string[]): string;
           @put op test2(@test @header({name: "x-single-string"}) SingleString: string): string;
         `);
 
-      deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
-        type: "header",
-        name: "x-my-header",
-        // format: "csv",
-      });
+      deepStrictEqual(
+        getHeaderFieldOptions(runner.program, MyHeader),
+        {
+          type: "header",
+          name: "x-my-header",
+          format: "csv",
+        },
+        "default format for array type is csv"
+      );
       deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
         type: "header",
         name: "x-single-string",
@@ -196,15 +200,26 @@ describe("rest: http decorators", () => {
     });
 
     it("override query with QueryOptions", async () => {
-      const { selects } = await runner.compile(`
-          op test(@test @query({name: "$select", format: "multi"}) selects: string[]): string;
+      const { foo, selects } = await runner.compile(`
+          op test(@test @query foo: string[]): string;
+          @put op test2(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
         `);
 
+      deepStrictEqual(
+        getQueryParamOptions(runner.program, foo),
+        {
+          type: "query",
+          name: "foo",
+          format: "multi",
+        },
+        "default format is multi for array type"
+      );
       deepStrictEqual(getQueryParamOptions(runner.program, selects), {
         type: "query",
         name: "$select",
-        format: "multi",
+        format: "csv",
       });
+      strictEqual(getQueryParamName(runner.program, foo), "foo");
       strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });

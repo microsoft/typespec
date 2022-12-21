@@ -60,7 +60,13 @@ export function $header(
       }
     }
   }
-  // TODO default to csv if using array type
+  if (
+    entity.type.kind === "Model" &&
+    entity.type.name === "Array" &&
+    options.format === undefined
+  ) {
+    options.format = "csv";
+  }
   context.program.stateMap(headerFieldsKey).set(entity, options);
 }
 
@@ -102,7 +108,13 @@ export function $query(
       }
     }
   }
-  // TODO default to multi if using array type
+  if (
+    entity.type.kind === "Model" &&
+    entity.type.name === "Array" &&
+    options.format === undefined
+  ) {
+    options.format = "multi";
+  }
   context.program.stateMap(queryFieldsKey).set(entity, options);
 }
 
