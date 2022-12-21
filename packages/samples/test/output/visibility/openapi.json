@@ -21,6 +21,8 @@
           {
             "name": "fieldMask",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
