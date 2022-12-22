@@ -744,6 +744,27 @@ export type TemplateableNode =
   | OperationStatementNode
   | UnionStatementNode;
 
+/**
+ * Node types that can have referencable members
+ */
+export type MemberContainerNode =
+  | ModelStatementNode
+  | ModelExpressionNode
+  | InterfaceStatementNode
+  | EnumStatementNode
+  | UnionStatementNode;
+
+export type MemberNode =
+  | ModelPropertyNode
+  | EnumMemberNode
+  | OperationStatementNode
+  | UnionVariantNode;
+
+/**
+ * Type that can be used as members of a container type.
+ */
+export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant;
+
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {
