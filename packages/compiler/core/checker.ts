@@ -3157,6 +3157,8 @@ export function createChecker(program: Program): Checker {
 
     linkType(links, interfaceType, mapper);
 
+    const ownMembers = checkInterfaceMembers(node, mapper, interfaceType);
+
     for (const extendsNode of node.extends) {
       const extendsType = getTypeForNode(extendsNode, mapper);
       if (extendsType.kind !== "Interface") {
@@ -3177,13 +3179,18 @@ export function createChecker(program: Program): Checker {
           );
         }
         const newMember = cloneType(member, { interface: interfaceType });
-        linkIndirectMember(node, newMember, mapper);
+        // Don't link it it is overritten
+        if (!ownMembers.has(member.name)) {
+          linkIndirectMember(node, newMember, mapper);
+        }
 
         interfaceType.operations.set(newMember.name, newMember);
       }
     }
 
-    checkInterfaceMembers(node, mapper, interfaceType);
+    for (const [key, value] of ownMembers) {
+      interfaceType.operations.set(key, value);
+    }
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(interfaceType, mapper);
@@ -3200,7 +3207,7 @@ export function createChecker(program: Program): Checker {
     node: InterfaceStatementNode,
     mapper: TypeMapper | undefined,
     interfaceType: Interface
-  ) {
+  ): Map<string, Operation> {
     const ownMembers = new Map<string, Operation>();
 
     for (const opNode of node.operations) {
@@ -3217,9 +3224,9 @@ export function createChecker(program: Program): Checker {
           continue;
         }
         ownMembers.set(opType.name, opType);
-        interfaceType.operations.set(opType.name, opType);
       }
     }
+    return ownMembers;
   }
 
   function checkUnion(node: UnionStatementNode, mapper: TypeMapper | undefined) {
