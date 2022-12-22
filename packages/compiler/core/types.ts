@@ -761,6 +761,8 @@ export type MemberNode =
   | OperationStatementNode
   | UnionVariantNode;
 
+export type MemberContainerType = Model | Enum | Interface | Union;
+
 /**
  * Type that can be used as members of a container type.
  */

@@ -51,6 +51,7 @@ import {
   LiteralType,
   MarshalledValue,
   MemberContainerNode,
+  MemberContainerType,
   MemberExpressionNode,
   MemberNode,
   MemberType,
@@ -540,7 +541,11 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkMember(node: MemberNode, mapper: TypeMapper | undefined, containerType: Type) {
+  function checkMember(
+    node: MemberNode,
+    mapper: TypeMapper | undefined,
+    containerType: MemberContainerType
+  ) {
     switch (node.kind) {
       case SyntaxKind.ModelProperty:
         return checkModelProperty(node, mapper);
@@ -998,7 +1003,11 @@ export function createChecker(program: Program): Checker {
           if (type) {
             baseType = type;
           } else {
-            baseType = checkMember(sym.declarations[0] as MemberNode, mapper, memberContainer)!;
+            baseType = checkMember(
+              sym.declarations[0] as MemberNode,
+              mapper,
+              memberContainer as MemberContainerType
+            )!;
           }
         } else {
           // don't have a cached type for this symbol, so go grab it and cache it
