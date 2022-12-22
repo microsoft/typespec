@@ -1,12 +1,21 @@
 import { ok, strictEqual } from "assert";
-import { Interface, Model, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { isTemplateDeclaration } from "../../core/type-utils.js";
+import { Interface, Model, Operation, Type } from "../../core/types.js";
+import {
+  BasicTestRunner,
+  createTestHost,
+  createTestRunner,
+  expectDiagnostics,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;
+  let runner: BasicTestRunner;
 
   beforeEach(async () => {
     testHost = await createTestHost();
+    runner = await createTestRunner(testHost);
   });
 
   it("works", async () => {
@@ -249,5 +258,85 @@ describe("compiler: interfaces", () => {
     );
     await testHost.compile("./");
     strictEqual(calls, 0);
+  });
+
+  describe.only("templated operations", () => {
+    it("can instantiate template operation inside non-templated interface", async () => {
+      const { Foo, bar } = (await runner.compile(`
+      @test interface Foo {
+        @test bar<T>(): T;
+      }
+
+      alias Bar = Foo.bar<int32>;
+      `)) as {
+        Foo: Interface;
+        bar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(isTemplateDeclaration(Foo.operations.get("bar")!));
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
+
+    it("can instantiate template operation inside templated interface", async () => {
+      const { Foo, bar } = (await runner.compile(`
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      alias MyFoo = Foo<string>;
+      alias Bar = MyFoo.bar<int32>;
+      `)) as {
+        Foo: Interface;
+        bar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(
+        isTemplateDeclaration(Foo.operations.get("bar")!),
+        "Operation inside MyFoo interface is still a template"
+      );
+
+      const input = bar.parameters.properties.get("input")!.type;
+      strictEqual(input.kind, "Scalar" as const);
+      strictEqual(input.name, "string");
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
+
+    it("can extend an inteface with templated operations", async () => {
+      const { Foo, bar } = (await runner.compile(`
+      interface Base<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      @test interface Foo extends Base<string> {
+      }
+
+      alias Bar = Foo.bar<int32>;
+      `)) as {
+        Foo: Interface;
+        bar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(
+        isTemplateDeclaration(Foo.operations.get("bar")!),
+        "Operation inside MyFoo interface is still a template"
+      );
+
+      const input = bar.parameters.properties.get("input")!.type;
+      strictEqual(input.kind, "Scalar" as const);
+      strictEqual(input.name, "string");
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
   });
 });

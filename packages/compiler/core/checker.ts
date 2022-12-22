@@ -926,34 +926,13 @@ export function createChecker(program: Program): Checker {
         if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
         } else {
-          baseType =
-            sym.flags & SymbolFlags.Model
-              ? checkModelStatement(decl as ModelStatementNode, mapper)
-              : sym.flags & SymbolFlags.Scalar
-              ? checkScalar(decl as ScalarStatementNode, mapper)
-              : sym.flags & SymbolFlags.Alias
-              ? checkAlias(decl as AliasStatementNode, mapper)
-              : sym.flags & SymbolFlags.Interface
-              ? checkInterface(decl as InterfaceStatementNode, mapper)
-              : sym.flags & SymbolFlags.Operation
-              ? checkOperation(decl as OperationStatementNode, mapper)
-              : checkUnion(decl as UnionStatementNode, mapper);
+          baseType = checkDeclaredType(decl, sym, mapper);
         }
       } else {
         // declaration is templated, lets instantiate.
         if (!symbolLinks.declaredType && !(sym.flags & SymbolFlags.LateBound)) {
           // we haven't checked the declared type yet, so do so.
-          sym.flags & SymbolFlags.Model
-            ? checkModelStatement(decl as ModelStatementNode, mapper)
-            : sym.flags & SymbolFlags.Scalar
-            ? checkScalar(decl as ScalarStatementNode, mapper)
-            : sym.flags & SymbolFlags.Alias
-            ? checkAlias(decl as AliasStatementNode, mapper)
-            : sym.flags & SymbolFlags.Interface
-            ? checkInterface(decl as InterfaceStatementNode, mapper)
-            : sym.flags & SymbolFlags.Operation
-            ? checkOperation(decl as OperationStatementNode, mapper)
-            : checkUnion(decl as UnionStatementNode, mapper);
+          checkDeclaredType(decl, sym, mapper);
         }
 
         const templateParameters = decl.templateParameters;
@@ -1000,6 +979,21 @@ export function createChecker(program: Program): Checker {
     }
 
     return baseType;
+  }
+
+  function checkDeclaredType(decl: TemplateableNode, sym: Sym, mapper: TypeMapper | undefined) {
+    // TODO check, mapper should just be forced undefined here no?
+    return sym.flags & SymbolFlags.Model
+      ? checkModelStatement(decl as ModelStatementNode, mapper)
+      : sym.flags & SymbolFlags.Scalar
+      ? checkScalar(decl as ScalarStatementNode, mapper)
+      : sym.flags & SymbolFlags.Alias
+      ? checkAlias(decl as AliasStatementNode, mapper)
+      : sym.flags & SymbolFlags.Interface
+      ? checkInterface(decl as InterfaceStatementNode, mapper)
+      : sym.flags & SymbolFlags.Operation
+      ? checkOperation(decl as OperationStatementNode, mapper)
+      : checkUnion(decl as UnionStatementNode, mapper);
   }
 
   function getOrInstantiateTemplate(
@@ -1473,6 +1467,10 @@ export function createChecker(program: Program): Checker {
         // we're not instantiating this operation and we've already checked it
         return links.declaredType as Operation;
       }
+    }
+    // If we are instantating operation inside of interface
+    if (isTemplatedNode(node) && mapper !== undefined && parentInterface) {
+      mapper = { ...mapper, partial: true };
     }
 
     const namespace = getParentNamespaceType(node);
@@ -2413,7 +2411,7 @@ export function createChecker(program: Program): Checker {
         break;
       case SyntaxKind.InterfaceStatement:
         for (const member of node.operations.values()) {
-          bindMember(member.id.sv, member, SymbolFlags.InterfaceMember);
+          bindMember(member.id.sv, member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
         }
         break;
       case SyntaxKind.UnionStatement:
@@ -4797,6 +4795,7 @@ function createTypeMapper(
   }
 
   return {
+    partial: false,
     args,
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
