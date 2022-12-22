@@ -34,6 +34,7 @@ const sidebars = {
         "introduction/introduction",
         "introduction/installation",
         "introduction/usage",
+        "introduction/style-guide",
         "introduction/formatter",
         {
           type: "category",

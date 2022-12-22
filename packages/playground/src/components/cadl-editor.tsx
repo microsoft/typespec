@@ -1,6 +1,6 @@
 import { editor } from "monaco-editor";
 import { FunctionComponent } from "react";
-import { Editor, EditorCommand, useMonacoModel } from "./editor";
+import { Editor, EditorCommand, useMonacoModel } from "./editor.js";
 
 export interface CadlEditorProps {
   model: editor.IModel;

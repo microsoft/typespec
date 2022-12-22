@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok } from "assert";
 import { readFile } from "fs/promises";
 import { createRequire } from "module";
-import path, { dirname, resolve } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
@@ -981,7 +981,7 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
 
 async function createOnigLib(): Promise<IOnigLib> {
   const require = createRequire(import.meta.url);
-  const onigWasm = await readFile(`${path.dirname(require.resolve("vscode-oniguruma"))}/onig.wasm`);
+  const onigWasm = await readFile(`${dirname(require.resolve("vscode-oniguruma"))}/onig.wasm`);
 
   await loadWASM(onigWasm.buffer);
 

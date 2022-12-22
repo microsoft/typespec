@@ -6,6 +6,7 @@
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "module": "CommonJS",
+    "moduleResolution": "Node",
     "skipLibCheck": true,
     "types": ["node", "mocha"]
   },
