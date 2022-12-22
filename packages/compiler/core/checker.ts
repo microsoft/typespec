@@ -104,7 +104,7 @@ import {
   SyntaxKind,
   TemplateableNode,
   TemplateDeclarationNode,
-  TemplatedTypeBase,
+  TemplatedType,
   TemplateParameter,
   TemplateParameterDeclarationNode,
   Tuple,
@@ -911,7 +911,6 @@ export function createChecker(program: Program): Checker {
         "templateParameters" in sym.declarations[0] &&
         sym.declarations[0].templateParameters.length > 0
       ) {
-        mapper = (sym.type as TemplatedTypeBase).templateMapper;
       } else {
         return sym.type;
       }
@@ -947,11 +946,7 @@ export function createChecker(program: Program): Checker {
           baseType = checkDeclaredType(decl, sym, mapper);
         }
       } else {
-        // declaration is templated, lets instantiate.
-        if (!symbolLinks.declaredType && !(sym.flags & SymbolFlags.LateBound)) {
-          // we haven't checked the declared type yet, so do so.
-          checkDeclaredType(decl, sym, mapper);
-        }
+        const declaredType = getOrCheckDeclaredType(decl, sym, mapper);
 
         const templateParameters = decl.templateParameters;
         const [params, instantiationArgs] = checkTemplateInstantiationArgs(
@@ -963,7 +958,7 @@ export function createChecker(program: Program): Checker {
           decl,
           params,
           instantiationArgs,
-          mapper,
+          declaredType.templateMapper,
           instantiateTemplates
         );
       }
@@ -1013,7 +1008,29 @@ export function createChecker(program: Program): Checker {
     return baseType;
   }
 
-  function checkDeclaredType(decl: TemplateableNode, sym: Sym, mapper: TypeMapper | undefined) {
+  function getOrCheckDeclaredType(
+    decl: TemplateableNode,
+    sym: Sym,
+    mapper: TypeMapper | undefined
+  ): TemplatedType {
+    const symbolLinks = getSymbolLinks(sym);
+    if (symbolLinks.declaredType) {
+      return symbolLinks.declaredType as TemplatedType;
+    }
+
+    if (sym.flags & SymbolFlags.LateBound) {
+      compilerAssert(sym.type, "Expected late bound symbol to have type");
+      return sym.type as TemplatedType;
+    }
+
+    return checkDeclaredType(decl, sym, mapper) as TemplatedType;
+  }
+
+  function checkDeclaredType(
+    decl: TemplateableNode,
+    sym: Sym,
+    mapper: TypeMapper | undefined
+  ): Type {
     // TODO check, mapper should just be forced undefined here no?
     return sym.flags & SymbolFlags.Model
       ? checkModelStatement(decl as ModelStatementNode, mapper)
@@ -1489,7 +1506,6 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     parentInterface?: Interface
   ): Operation | ErrorType {
-    // Operations defined in interfaces aren't bound to symbols
     const links =
       node.parent?.kind === SyntaxKind.InterfaceStatement
         ? getMemberSymbolLinks(node)

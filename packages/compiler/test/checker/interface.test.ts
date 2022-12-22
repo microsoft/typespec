@@ -309,19 +309,19 @@ describe("compiler: interfaces", () => {
       strictEqual(returnType.name, "int32");
     });
 
-    it("can extend an inteface with templated operations", async () => {
-      const { Foo, bar } = (await runner.compile(`
+    it("can extend an interface with templated operations", async () => {
+      const { Foo, myBar: bar } = (await runner.compile(`
       interface Base<A> {
-        @test bar<B>(input: A): B;
+        bar<B>(input: A): B;
       }
 
       @test interface Foo extends Base<string> {
       }
 
-      alias Bar = Foo.bar<int32>;
+      @test op myBar is Foo.bar<int32>;
       `)) as {
         Foo: Interface;
-        bar: Operation;
+        myBar: Operation;
       };
 
       strictEqual(Foo.operations.size, 1);
