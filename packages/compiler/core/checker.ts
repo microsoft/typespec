@@ -7,7 +7,13 @@ import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
-import { getParentTemplateNode, isNeverType, isUnknownType, isVoidType } from "./type-utils.js";
+import {
+  getParentTemplateNode,
+  isNeverType,
+  isTemplateInstance,
+  isUnknownType,
+  isVoidType,
+} from "./type-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -1730,8 +1736,10 @@ export function createChecker(program: Program): Checker {
         }
         if (isTemplatedNode(base.declarations[0])) {
           const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
-          lateBindMemberContainer(type);
-          lateBindMembers(type, base);
+          if (isTemplateInstance(type)) {
+            lateBindMemberContainer(type);
+            lateBindMembers(type, base);
+          }
         }
         addCompletions(base.exports ?? base.members);
       }
@@ -1965,7 +1973,9 @@ export function createChecker(program: Program): Checker {
             base.flags & SymbolFlags.LateBound
               ? base.type!
               : getTypeForNode(base.declarations[0], mapper);
-          lateBindMembers(type, base);
+          if (isTemplateInstance(type)) {
+            lateBindMembers(type, base);
+          }
         }
         const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
         if (!sym) {
@@ -2037,7 +2047,7 @@ export function createChecker(program: Program): Checker {
       case "Model":
       case "Interface":
       case "Union":
-        if (aliasType.templateArguments) {
+        if (isTemplateInstance(aliasType)) {
           // this is an alias for some instantiation, so late-bind the instantiation
           lateBindMemberContainer(aliasType);
           return aliasType.symbol!;
@@ -2164,7 +2174,7 @@ export function createChecker(program: Program): Checker {
           sourceProperty: prop,
           model: type,
         });
-        linkComputedMember(node, newProp, mapper);
+        linkIndirectMember(node, newProp, mapper);
         type.properties.set(prop.name, newProp);
       }
     }
@@ -2192,7 +2202,7 @@ export function createChecker(program: Program): Checker {
     checkModelProperties(node, type.properties, type, mapper);
 
     for (const prop of walkPropertiesInherited(type)) {
-      const table = augmentedSymbolTables.get(node.symbol.members!) ?? node.symbol.members!;
+      const table = getOrCreateAugmentedSymbolTable(node.symbol.members!);
       const sym = table.get(prop.name);
       if (sym) {
         mutate(sym).type = prop;
@@ -2283,7 +2293,7 @@ export function createChecker(program: Program): Checker {
         const newProperties = checkSpreadProperty(prop.target, parentModel, mapper);
 
         for (const newProp of newProperties) {
-          linkComputedMember(node, newProp, mapper);
+          linkIndirectMember(node, newProp, mapper);
           checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
           defineProperty(properties, newProp, prop);
         }
@@ -2643,12 +2653,12 @@ export function createChecker(program: Program): Checker {
   }
 
   /**
-   * Link a computed model property to its model member symbols.
+   * Link an indirect model property(included via spread or model is) to its model member symbols.
    * @param containerNode Model Node
    * @param member New Property
    * @param mapper Type Mapper.
    */
-  function linkComputedMember(
+  function linkIndirectMember(
     containerNode: MemberContainerNode,
     member: MemberType,
     mapper: TypeMapper | undefined
@@ -3068,7 +3078,7 @@ export function createChecker(program: Program): Checker {
         } else {
           const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
           for (const memberType of members) {
-            linkComputedMember(node, memberType, mapper);
+            linkIndirectMember(node, memberType, mapper);
             enumType.members.set(memberType.name, memberType);
           }
         }

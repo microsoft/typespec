@@ -997,7 +997,6 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface UnionVariantNode extends BaseNode {
   readonly kind: SyntaxKind.UnionVariant;
-  readonly parent?: UnionStatementNode;
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
