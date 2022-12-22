@@ -34,12 +34,13 @@ describe("compiler: references", () => {
         y: string;
       }
 
+      // Define a reference before the type is declared to make sure type is resolved completely.
+      @test model Foo { x: Bar.x, y: Bar.y }
+
       @test model Bar {
         x: string;
         ... Spreadable;
       }
-
-      @test model Foo { x: Bar.x, y: Bar.y }
       `
       );
 
@@ -319,11 +320,13 @@ describe("compiler: references", () => {
       enum Base {
         x, y
       }
+
+      // Define a reference before the type is declared to make sure type is resolved completely.
+      @test op Bar(arg: Foo.x): void;
+
       @test enum Foo {
         ...Base, z
       };
-
-      @test op Bar(arg: Foo.x): void;
 
       `
       );
@@ -507,6 +510,30 @@ describe("compiler: references", () => {
       };
 
       strictEqual(operation, Bar.properties.get("prop")!.type);
+    });
+
+    it("can reference interface members included via extends", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      interface Base {
+        y(): void;
+      }
+
+      @test interface Bar extends Base {
+        x(): void;
+      }
+
+      @test model Foo { y: Bar.y }
+      `
+      );
+
+      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
+        Foo: Model;
+        Bar: Interface;
+      };
+
+      strictEqual(Foo.properties.get("y")!.type, Bar.operations.get("y"));
     });
 
     describe("reference other members", () => {
