@@ -553,6 +553,7 @@ export const enum SymbolFlags {
    * Symbols whose members will be late bound (and stored on the type)
    */
   MemberContainer = Model | Enum | Union | Interface,
+  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
 }
 
 /**
@@ -759,6 +760,8 @@ export type MemberNode =
   | EnumMemberNode
   | OperationStatementNode
   | UnionVariantNode;
+
+export type MemberContainerType = Model | Enum | Interface | Union;
 
 /**
  * Type that can be used as members of a container type.
