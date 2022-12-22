@@ -51,6 +51,7 @@ import {
   LiteralType,
   MarshalledValue,
   MemberContainerNode,
+  MemberContainerType,
   MemberExpressionNode,
   MemberNode,
   MemberType,
@@ -542,6 +543,23 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function checkMember(
+    node: MemberNode,
+    mapper: TypeMapper | undefined,
+    containerType: MemberContainerType
+  ) {
+    switch (node.kind) {
+      case SyntaxKind.ModelProperty:
+        return checkModelProperty(node, mapper);
+      case SyntaxKind.EnumMember:
+        return checkEnumMember(node, mapper, containerType as Enum);
+      case SyntaxKind.OperationStatement:
+        return checkOperation(node, mapper, containerType as Interface);
+      case SyntaxKind.UnionVariant:
+        return checkUnionVariant(node, mapper);
+    }
+  }
+
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -972,9 +990,23 @@ export function createChecker(program: Program): Checker {
       } else if (symbolLinks.declaredType) {
         baseType = symbolLinks.declaredType;
       } else {
-        // don't have a cached type for this symbol, so go grab it and cache it
-        baseType = getTypeForNode(sym.declarations[0], mapper);
-        symbolLinks.type = baseType;
+        if (sym.flags & SymbolFlags.Member) {
+          const memberContainer = getTypeForNode(sym.parent!.declarations[0], mapper);
+          const type = symbolLinks.declaredType ?? symbolLinks.type;
+          if (type) {
+            baseType = type;
+          } else {
+            baseType = checkMember(
+              sym.declarations[0] as MemberNode,
+              mapper,
+              memberContainer as MemberContainerType
+            )!;
+          }
+        } else {
+          // don't have a cached type for this symbol, so go grab it and cache it
+          baseType = getTypeForNode(sym.declarations[0], mapper);
+          symbolLinks.type = baseType;
+        }
       }
     }
 
@@ -1529,7 +1561,11 @@ export function createChecker(program: Program): Checker {
     }
 
     if (links) {
-      linkType(links, operationType, mapper);
+      if (parentInterface) {
+        linkMemberType(links, operationType, mapper);
+      } else {
+        linkType(links, operationType, mapper);
+      }
     }
 
     return operationType;
@@ -2413,6 +2449,11 @@ export function createChecker(program: Program): Checker {
         for (const member of node.operations.values()) {
           bindMember(member.id.sv, member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
         }
+        if (node.extends) {
+          for (const ext of node.extends) {
+            resolveAndCopyMembers(ext);
+          }
+        }
         break;
       case SyntaxKind.UnionStatement:
         for (const variant of node.options.values()) {
@@ -3136,6 +3177,8 @@ export function createChecker(program: Program): Checker {
 
     linkType(links, interfaceType, mapper);
 
+    const ownMembers = checkInterfaceMembers(node, mapper, interfaceType);
+
     for (const extendsNode of node.extends) {
       const extendsType = getTypeForNode(extendsNode, mapper);
       if (extendsType.kind !== "Interface") {
@@ -3145,25 +3188,29 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
-      for (const newMember of extendsType.operations.values()) {
-        if (interfaceType.operations.has(newMember.name)) {
+      for (const member of extendsType.operations.values()) {
+        if (interfaceType.operations.has(member.name)) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "extends-interface-duplicate",
-              format: { name: newMember.name },
+              format: { name: member.name },
               target: extendsNode,
             })
           );
         }
+        const newMember = cloneType(member, { interface: interfaceType });
+        // Don't link it it is overritten
+        if (!ownMembers.has(member.name)) {
+          linkIndirectMember(node, newMember, mapper);
+        }
 
-        interfaceType.operations.set(
-          newMember.name,
-          cloneType(newMember, { interface: interfaceType })
-        );
+        interfaceType.operations.set(newMember.name, newMember);
       }
     }
 
-    checkInterfaceMembers(node, mapper, interfaceType);
+    for (const [key, value] of ownMembers) {
+      interfaceType.operations.set(key, value);
+    }
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(interfaceType, mapper);
@@ -3180,7 +3227,7 @@ export function createChecker(program: Program): Checker {
     node: InterfaceStatementNode,
     mapper: TypeMapper | undefined,
     interfaceType: Interface
-  ) {
+  ): Map<string, Operation> {
     const ownMembers = new Map<string, Operation>();
 
     for (const opNode of node.operations) {
@@ -3197,9 +3244,9 @@ export function createChecker(program: Program): Checker {
           continue;
         }
         ownMembers.set(opType.name, opType);
-        interfaceType.operations.set(opType.name, opType);
       }
     }
+    return ownMembers;
   }
 
   function checkUnion(node: UnionStatementNode, mapper: TypeMapper | undefined) {
@@ -3321,14 +3368,11 @@ export function createChecker(program: Program): Checker {
     parentEnum?: Enum
   ): EnumMember {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
-    if (parentEnum === undefined) {
-      const resolvedEnum = getTypeForNode(node.parent!, mapper) as Enum;
-      return resolvedEnum.members.get(name)!;
-    }
     const links = getMemberSymbolLinks(node);
     if (links?.type) {
       return links.type as EnumMember;
     }
+    compilerAssert(parentEnum, "Enum member should already have been checked.");
     const value = node.value ? node.value.value : undefined;
 
     const member: EnumMember = createType({
