@@ -452,6 +452,12 @@ const diagnostics = {
       default: `Overload must be in the same interface or namespace.`,
     },
   },
+  shadow: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+    },
+  },
 
   /**
    * Configuration

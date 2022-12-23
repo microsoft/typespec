@@ -338,5 +338,18 @@ describe("compiler: interfaces", () => {
       strictEqual(returnType.kind, "Scalar" as const);
       strictEqual(returnType.name, "int32");
     });
+
+    it("emit warning if shadowing parent templated type", async () => {
+      const diagnostics = await runner.diagnose(`
+      interface Base<A> {
+        bar<A>(input: A): A;
+      }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "shadow",
+        message: `Shadowing parent template parmaeter with the same name "A"`,
+      });
+    });
   });
 });

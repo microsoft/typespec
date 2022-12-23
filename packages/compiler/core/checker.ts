@@ -674,10 +674,22 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): Type {
     const parentNode = node.parent!;
+    const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
 
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
+      if (grandParentNode) {
+        if (grandParentNode.locals?.has(node.id.sv)) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "shadow",
+              format: { name: node.id.sv },
+              target: node,
+            })
+          );
+        }
+      }
       const index = parentNode.templateParameters.findIndex((v) => v === node);
       type = links.declaredType = createAndFinishType({
         kind: "TemplateParameter",
