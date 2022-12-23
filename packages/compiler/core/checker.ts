@@ -3261,16 +3261,6 @@ export function createChecker(program: Program): Checker {
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, mapper, interfaceType);
       if (opType.kind === "Operation") {
-        if (ownMembers.has(opType.name)) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "interface-duplicate",
-              format: { name: opType.name },
-              target: opNode,
-            })
-          );
-          continue;
-        }
         ownMembers.set(opType.name, opType);
       }
     }

@@ -62,10 +62,16 @@ describe("compiler: interfaces", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnostics(diagnostics, {
-      code: "interface-duplicate",
-      message: "Interface already has a member named bar",
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "duplicate-symbol",
+        message: `Duplicate name: "bar"`,
+      },
+      {
+        code: "duplicate-symbol",
+        message: `Duplicate name: "bar"`,
+      },
+    ]);
   });
 
   it("can be templated", async () => {
@@ -260,7 +266,7 @@ describe("compiler: interfaces", () => {
     strictEqual(calls, 0);
   });
 
-  describe.only("templated operations", () => {
+  describe("templated operations", () => {
     it("can instantiate template operation inside non-templated interface", async () => {
       const { Foo, bar } = (await runner.compile(`
       @test interface Foo {

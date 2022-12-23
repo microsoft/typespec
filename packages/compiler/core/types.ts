@@ -63,11 +63,6 @@ export interface TemplatedTypeBase {
   templateNode?: Node;
 }
 
-export interface TemplateArguments {
-  partial: boolean;
-  map: Map<TemplateParameter, Type>;
-}
-
 export type Type =
   | Model
   | ModelProperty
