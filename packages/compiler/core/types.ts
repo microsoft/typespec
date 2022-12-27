@@ -59,6 +59,9 @@ export interface TypeMapper {
 
 export interface TemplatedTypeBase {
   templateMapper?: TypeMapper;
+  /**
+   * @deprecated use templateMapper instead.
+   */
   templateArguments?: Type[];
   templateNode?: Node;
 }

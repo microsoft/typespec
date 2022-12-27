@@ -955,10 +955,10 @@ export function createChecker(program: Program): Checker {
         if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
         } else {
-          baseType = checkDeclaredType(decl, sym, mapper);
+          baseType = checkDeclaredType(sym, decl, mapper);
         }
       } else {
-        const declaredType = getOrCheckDeclaredType(decl, sym, mapper);
+        const declaredType = getOrCheckDeclaredType(sym, decl, mapper);
 
         const templateParameters = decl.templateParameters;
         const [params, instantiationArgs] = checkTemplateInstantiationArgs(
@@ -1020,9 +1020,16 @@ export function createChecker(program: Program): Checker {
     return baseType;
   }
 
+  /**
+   * Get or check the declared type of a templatable node.
+   * @param node Declaration node
+   * @param sym Node Symbol
+   * @param mapper Type mapper for template resolution
+   * @returns The declared type for the given node.
+   */
   function getOrCheckDeclaredType(
-    decl: TemplateableNode,
     sym: Sym,
+    decl: TemplateableNode,
     mapper: TypeMapper | undefined
   ): TemplatedType {
     const symbolLinks = getSymbolLinks(sym);
@@ -1035,26 +1042,32 @@ export function createChecker(program: Program): Checker {
       return sym.type as TemplatedType;
     }
 
-    return checkDeclaredType(decl, sym, mapper) as TemplatedType;
+    return checkDeclaredType(sym, decl, mapper) as TemplatedType;
   }
 
+  /**
+   * Check the declared type of a templatable node.
+   * @param node Declaration node
+   * @param sym Node Symbol
+   * @param mapper Type mapper for template resolution
+   * @returns The declared type for the given node.
+   */
   function checkDeclaredType(
-    decl: TemplateableNode,
     sym: Sym,
+    node: TemplateableNode,
     mapper: TypeMapper | undefined
   ): Type {
-    // TODO check, mapper should just be forced undefined here no?
     return sym.flags & SymbolFlags.Model
-      ? checkModelStatement(decl as ModelStatementNode, mapper)
+      ? checkModelStatement(node as ModelStatementNode, mapper)
       : sym.flags & SymbolFlags.Scalar
-      ? checkScalar(decl as ScalarStatementNode, mapper)
+      ? checkScalar(node as ScalarStatementNode, mapper)
       : sym.flags & SymbolFlags.Alias
-      ? checkAlias(decl as AliasStatementNode, mapper)
+      ? checkAlias(node as AliasStatementNode, mapper)
       : sym.flags & SymbolFlags.Interface
-      ? checkInterface(decl as InterfaceStatementNode, mapper)
+      ? checkInterface(node as InterfaceStatementNode, mapper)
       : sym.flags & SymbolFlags.Operation
-      ? checkOperation(decl as OperationStatementNode, mapper)
-      : checkUnion(decl as UnionStatementNode, mapper);
+      ? checkOperation(node as OperationStatementNode, mapper)
+      : checkUnion(node as UnionStatementNode, mapper);
   }
 
   function getOrInstantiateTemplate(
