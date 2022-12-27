@@ -2446,10 +2446,22 @@ export function createChecker(program: Program): Checker {
     function resolveAndCopyMembers(node: TypeReferenceNode) {
       let ref = resolveTypeReferenceSym(node, undefined);
       if (ref && ref.flags & SymbolFlags.Alias) {
-        ref = getAliasedSymbol(ref, undefined);
+        ref = resolveAliasedSymbol(ref);
       }
       if (ref && ref.members) {
         copyMembers(ref.members);
+      }
+    }
+
+    function resolveAliasedSymbol(ref: Sym): Sym | undefined {
+      const node = ref.declarations[0] as AliasStatementNode;
+      switch (node.value.kind) {
+        case SyntaxKind.MemberExpression:
+        case SyntaxKind.TypeReference:
+        case SyntaxKind.Identifier:
+          return resolveTypeReferenceSym(node.value, undefined);
+        default:
+          return undefined;
       }
     }
 

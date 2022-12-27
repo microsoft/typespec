@@ -360,14 +360,20 @@ describe("compiler: references", () => {
       strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
     });
 
-    it("can reference enum resolved in a namespace decorator", async () => {
+    describe("reference in namespace decorator", () => {
       let taggedValue: Model | undefined;
-      testHost.addJsFile("collect.js", {
-        $collect: (_: any, t: any, value: any) => (taggedValue = value),
+
+      beforeEach(() => {
+        taggedValue = undefined;
+        testHost.addJsFile("collect.js", {
+          $collect: (_: any, t: any, value: any) => (taggedValue = value),
+        });
       });
-      testHost.addCadlFile(
-        "main.cadl",
-        `
+
+      it("can reference enum resolved in a namespace decorator", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
           import "./collect.js";
           @test enum MyEnum { a, b }
 
@@ -392,15 +398,45 @@ describe("compiler: references", () => {
           @collect(Template<My>)
           namespace Test { }
       `
-      );
+        );
 
-      const { MyEnum } = (await testHost.compile("./main.cadl")) as { MyEnum: Enum };
+        const { MyEnum } = (await testHost.compile("./main.cadl")) as { MyEnum: Enum };
 
-      ok(taggedValue);
-      const t = taggedValue.properties.get("t")?.type;
-      strictEqual(t?.kind, "Model" as const);
-      strictEqual(t.properties.get("type")?.type.kind, "EnumMember" as const);
-      strictEqual(t.properties.get("type")?.type, MyEnum.members.get("b"));
+        ok(taggedValue);
+        const t = taggedValue.properties.get("t")?.type;
+        strictEqual(t?.kind, "Model" as const);
+        strictEqual(t.properties.get("type")?.type.kind, "EnumMember" as const);
+        strictEqual(t.properties.get("type")?.type, MyEnum.members.get("b"));
+      });
+
+      it("alias don't conflict", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+        import "./collect.js";
+        
+        @collect(Foo.a)
+        namespace MyService;
+
+        interface Base<TResource extends object> {}
+        
+        alias ViaAlias = Base<{}>;
+        
+        interface MyInterface extends ViaAlias {}
+        
+        @test enum Foo {
+          a,
+        }
+        
+      `
+        );
+
+        const { Foo } = (await testHost.compile("./main.cadl")) as {
+          Foo: Enum;
+        };
+
+        strictEqual(taggedValue, Foo.members.get("a"));
+      });
     });
   });
 
