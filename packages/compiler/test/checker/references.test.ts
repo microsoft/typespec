@@ -77,6 +77,26 @@ describe("compiler: references", () => {
         resolveTarget: (target: Model) => target.properties.get("y"),
       }));
 
+    describe("spread property via alias of alias", () =>
+      itCanReference({
+        code: `
+          model Spreadable {
+            y: string;
+          }
+    
+          alias SpreadAlias1 = Spreadable;
+          alias SpreadAlias2 = SpreadAlias1;
+          alias SpreadAlias3 = SpreadAlias2;
+    
+          @test("target") model MyModel {
+            x: string;
+            ... SpreadAlias3;
+          }
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
     describe("spread property from a templated model", () =>
       itCanReference({
         code: `
