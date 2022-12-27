@@ -310,6 +310,13 @@ Trigger a workflow that will format the code, commit and push.
 
 # Cadl website
 
+## Run locally
+
+Go to `packages/website` and run the command:
+```
+npm start
+```
+
 ## Publish website to github.io
 
 The website on github.io should be published when releasing new packages.
