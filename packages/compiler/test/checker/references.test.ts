@@ -418,11 +418,12 @@ describe("compiler: references", () => {
         @collect(Foo.a)
         namespace MyService;
 
-        interface Base<TResource extends object> {}
+        interface Base<TResource> {}
         
-        alias ViaAlias = Base<{}>;
+        alias ViaAlias<T> = Base<T>;
+        alias ViaAlias2 = ViaAlias<string>;
         
-        interface MyInterface extends ViaAlias {}
+        interface MyInterface extends ViaAlias2 {}
         
         @test enum Foo {
           a,

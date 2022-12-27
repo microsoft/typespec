@@ -2459,7 +2459,11 @@ export function createChecker(program: Program): Checker {
         case SyntaxKind.MemberExpression:
         case SyntaxKind.TypeReference:
         case SyntaxKind.Identifier:
-          return resolveTypeReferenceSym(node.value, undefined);
+          const resolvedSym = resolveTypeReferenceSym(node.value, undefined);
+          if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
+            return resolveAliasedSymbol(resolvedSym);
+          }
+          return resolvedSym;
         default:
           return undefined;
       }
