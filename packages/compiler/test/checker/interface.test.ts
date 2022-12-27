@@ -62,16 +62,10 @@ describe("compiler: interfaces", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnostics(diagnostics, [
-      {
-        code: "duplicate-symbol",
-        message: `Duplicate name: "bar"`,
-      },
-      {
-        code: "duplicate-symbol",
-        message: `Duplicate name: "bar"`,
-      },
-    ]);
+    expectDiagnostics(diagnostics, {
+      code: "interface-duplicate",
+      message: "Interface already has a member named bar",
+    });
   });
 
   it("can be templated", async () => {
@@ -313,6 +307,28 @@ describe("compiler: interfaces", () => {
       const returnType = bar.returnType;
       strictEqual(returnType.kind, "Scalar" as const);
       strictEqual(returnType.name, "int32");
+    });
+
+    it("cache templated operations", async () => {
+      const { Index } = (await runner.compile(`
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      alias MyFoo = Foo<string>;
+      @test model Index {
+        a: MyFoo.bar<string>;
+        b: MyFoo.bar<string>;
+      }
+      `)) as {
+        Index: Model;
+      };
+      const a = Index.properties.get("a");
+      const b = Index.properties.get("b");
+      ok(a);
+      ok(b);
+
+      strictEqual(a.type, b.type);
     });
 
     it("can extend an interface with templated operations", async () => {

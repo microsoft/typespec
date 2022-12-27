@@ -448,7 +448,9 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
-    declareSymbol(statement, SymbolFlags.Operation);
+    if (scope.kind !== SyntaxKind.InterfaceStatement) {
+      declareSymbol(statement, SymbolFlags.Operation);
+    }
     mutate(statement).locals = createSymbolTable();
   }
 

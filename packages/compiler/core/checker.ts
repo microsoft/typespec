@@ -1064,18 +1064,28 @@ export function createChecker(program: Program): Checker {
     parentMapper: TypeMapper | undefined,
     instantiateTempalates = true
   ): Type {
-    const symbolLinks = getSymbolLinks(templateNode.symbol);
+    const symbolLinks =
+      templateNode.kind === SyntaxKind.OperationStatement &&
+      templateNode.parent?.kind === SyntaxKind.InterfaceStatement
+        ? getMemberSymbolLinks(templateNode as MemberNode)
+        : getSymbolLinks(templateNode.symbol);
+
+    compilerAssert(
+      symbolLinks,
+      `Unexpected checker error. symbolLinks was not defined for ${SyntaxKind[templateNode.kind]}`
+    );
+
     if (symbolLinks.instantiations === undefined) {
       const type = getTypeForNode(templateNode);
       if (isErrorType(type)) {
         return errorType;
       } else {
-        // compilerAssert(
-        //   false,
-        //   `Unexpected checker error. symbolLinks.instantiations was not defined for ${
-        //     SyntaxKind[templateNode.kind]
-        //   }`
-        // );
+        compilerAssert(
+          false,
+          `Unexpected checker error. symbolLinks.instantiations was not defined for ${
+            SyntaxKind[templateNode.kind]
+          }`
+        );
       }
     }
     const cached = symbolLinks.instantiations?.get(args);
@@ -1104,7 +1114,7 @@ export function createChecker(program: Program): Checker {
    * are ever in scope at once.
    */
   function instantiateTemplate(
-    instantiations: TypeInstantiationMap | undefined,
+    instantiations: TypeInstantiationMap,
     templateNode: TemplateableNode,
     params: TemplateParameter[],
     args: Type[],
@@ -1112,8 +1122,8 @@ export function createChecker(program: Program): Checker {
   ): Type {
     const mapper = createTypeMapper(params, args, parentMapper);
     const type = getTypeForNode(templateNode, mapper);
-    if (!instantiations?.get(args)) {
-      instantiations?.set(args, type);
+    if (!instantiations.get(args)) {
+      instantiations.set(args, type);
     }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
@@ -1589,11 +1599,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (links) {
-      if (parentInterface) {
-        linkMemberType(links, operationType, mapper);
-      } else {
-        linkType(links, operationType, mapper);
-      }
+      linkType(links, operationType, mapper);
     }
 
     return operationType;
@@ -3261,6 +3267,16 @@ export function createChecker(program: Program): Checker {
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, mapper, interfaceType);
       if (opType.kind === "Operation") {
+        if (ownMembers.has(opType.name)) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "interface-duplicate",
+              format: { name: opType.name },
+              target: opNode,
+            })
+          );
+          continue;
+        }
         ownMembers.set(opType.name, opType);
       }
     }
