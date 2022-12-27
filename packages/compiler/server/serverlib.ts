@@ -319,7 +319,6 @@ export function createServer(host: ServerHost): Server {
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
-        allCommitCharacters: [".", ",", ";", "("],
       },
       semanticTokensProvider: {
         full: true,
@@ -892,7 +891,7 @@ export function createServer(host: ServerHost): Server {
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-              await addImportCompletion(program, document, completions, node);
+              await addImportCompletion({ program, document, params, file }, completions, node);
             }
             break;
         }
@@ -981,10 +980,29 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  interface ImportCompletionContext {
+    program: Program;
+    document: TextDocument;
+    params: CompletionParams;
+    file: CadlScriptNode;
+  }
+
+  async function addImportCompletion(
+    context: ImportCompletionContext,
+    completions: CompletionList,
+    node: StringLiteralNode
+  ) {
+    if (node.value.startsWith("./") || node.value.startsWith("../")) {
+      await addRelativePathCompletion(context, completions, node);
+    } else if (!node.value.startsWith(".")) {
+      await addLibraryImportCompletion(context, completions, node);
+    }
+  }
+
   async function addLibraryImportCompletion(
-    program: Program,
-    document: TextDocument,
-    completions: CompletionList
+    { program, document, file, params }: ImportCompletionContext,
+    completions: CompletionList,
+    node: StringLiteralNode
   ) {
     const documentPath = await getPath(document);
     const projectRoot = await findProjectRoot(compilerHost, documentPath);
@@ -1011,9 +1029,13 @@ export function createServer(host: ServerHost): Server {
           program.reportDiagnostic
         );
         if (libPackageJson.cadlMain !== undefined) {
+          const range = {
+            start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
+            end: file.file.getLineAndCharacterOfPosition(node.end - 1),
+          };
           completions.items.push({
+            textEdit: TextEdit.replace(range, dependency),
             label: dependency,
-            commitCharacters: [],
             kind: CompletionItemKind.Module,
           });
         }
@@ -1021,22 +1043,8 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function addImportCompletion(
-    program: Program,
-    document: TextDocument,
-    completions: CompletionList,
-    node: StringLiteralNode
-  ) {
-    if (node.value.startsWith("./") || node.value.startsWith("../")) {
-      await addRelativePathCompletion(program, document, completions, node);
-    } else if (!node.value.startsWith(".")) {
-      await addLibraryImportCompletion(program, document, completions);
-    }
-  }
-
   async function addRelativePathCompletion(
-    program: Program,
-    document: TextDocument,
+    { program, document }: ImportCompletionContext,
     completions: CompletionList,
     node: StringLiteralNode
   ) {
