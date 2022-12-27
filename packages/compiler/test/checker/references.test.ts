@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { Enum, Interface, Model, Operation, UnionVariant } from "../../core/types.js";
+import { Enum, Interface, Model, Operation, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: references", () => {
@@ -7,358 +7,244 @@ describe("compiler: references", () => {
   beforeEach(async () => {
     testHost = await createTestHost();
   });
+
+  function itCanReference({
+    code,
+    ref,
+    resolveTarget,
+  }: {
+    code: string;
+    ref: string;
+    resolveTarget?: (target: any) => Type | undefined;
+  }) {
+    async function runTest(code: string) {
+      testHost.addCadlFile("main.cadl", code);
+      const { RefContainer, target } = (await testHost.compile("./main.cadl")) as {
+        RefContainer: Model;
+        target: any;
+      };
+      const expectedTarget = resolveTarget ? resolveTarget(target) : target;
+      strictEqual(RefContainer.properties.get("y")!.type, expectedTarget);
+    }
+    const refCode = `
+      @test model RefContainer { y: ${ref} }
+    `;
+    it("reference before declaration", () => runTest(`${refCode}\n${code}`));
+
+    it("reference after declaration", () => runTest(`${code}\n${refCode}`));
+  }
+
   describe("model properties", () => {
-    it("can reference model properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      @test model Bar {
-        x: string;
-      }
-      @test model Foo { y: Bar.x }
-      `
-      );
+    describe("simple property", () =>
+      itCanReference({
+        code: `
+      model MyModel {
+        @test("target") x: string;
+      }`,
+        ref: "MyModel.x",
+      }));
 
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
-    });
+    describe("spread property", () =>
+      itCanReference({
+        code: `
+          model Spreadable {
+            y: string;
+          }
+    
+          @test("target") model MyModel {
+            x: string;
+            ... Spreadable;
+          }`,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
 
-    it("can reference spread model properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      model Spreadable {
-        y: string;
-      }
+    describe("spread property via alias", () =>
+      itCanReference({
+        code: `
+          model Spreadable {
+            y: string;
+          }
+    
+          alias SpreadAlias = Spreadable;
+    
+          @test("target") model MyModel {
+            x: string;
+            ... SpreadAlias;
+          }
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
 
-      // Define a reference before the type is declared to make sure type is resolved completely.
-      @test model Foo { x: Bar.x, y: Bar.y }
+    describe("spread property from a templated model", () =>
+      itCanReference({
+        code: `
+          model Spreadable<T> {
+            y: T;
+          }
+    
+    
+          @test("target") model MyModel {
+            x: string;
+            ... Spreadable<string>;
+          }
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
 
-      @test model Bar {
-        x: string;
-        ... Spreadable;
-      }
-      `
-      );
+    describe("spread property from a template parameter", () =>
+      itCanReference({
+        code: `
+          model B {
+            b: string;
+          }
+    
+          @test("target") model Spreadable<T> {
+            a: string;
+            ...T;
+          }
+    
+          alias Spread = Spreadable<B>;
+        `,
+        ref: "Spread.b",
+        resolveTarget: (target: Model) => target.properties.get("b"),
+      }));
 
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
+    describe("property from `model is`", () =>
+      itCanReference({
+        code: `
+          model Base {
+            y: string;
+          }
+    
+          @test("target") model MyModel is Base {
+            x: string;
+          }`,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
 
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("y"));
-    });
+    describe("inherited property", () =>
+      itCanReference({
+        code: `
+          // Here the base model property is what ends up being referenced.
+          @test("target") model Base {
+            y: string;
+          }
+    
+          model MyModel extends Base {
+            x: string;
+          }`,
+        ref: "MyModel.y",
+        resolveTarget: (base: Model) => base.properties.get("y"),
+      }));
 
-    it("can reference spread model properties via alias", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      model Spreadable {
-        y: string;
-      }
+    describe("property from template instance alias", () =>
+      itCanReference({
+        code: `
+          @test("target") model Template<T> {
+            y: T;
+          }
+    
+          alias MyModel = Template<string>;
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
 
-      alias SpreadAlias = Spreadable;
+    describe("spread property from template instance alias", () =>
+      itCanReference({
+        code: `
+          model Base<T> {
+            y: T
+          }
 
-      @test model Bar {
-        x: string;
-        ... SpreadAlias;
-      }
+          @test("target") model Template<T> {
+            ...Base<T>
+          }
+    
+          alias MyModel = Template<string>;
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
 
-      @test model Foo { x: Bar.x, y: Bar.y }
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("y"));
-    });
-
-    it("can reference spread templated model properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      model Spreadable<T> {
-        y: T;
-      }
-
-      @test model Bar {
-        x: string;
-        ... Spreadable<string>;
-      }
-
-      @test model Foo { x: Bar.x, y: Bar.y }
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("y"));
-    });
-
-    it("can reference spread template properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      model B {
-        b: string;
-      }
-
-      @test model Spreadable<T> {
-        a: string;
-        ...T;
-      }
-
-      alias Spread = Spreadable<B>;
-      @test model Foo { b: Spread.b }
-      `
-      );
-
-      const { Foo, Spreadable } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Spreadable: Model;
-      };
-
-      strictEqual(Foo.properties.get("b")!.type, Spreadable.properties.get("b"));
-    });
-
-    it("can reference model is properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      model Base {
-        y: string;
-      }
-
-      @test model Bar is Base {
-        x: string;
-      }
-
-      @test model Foo { x: Bar.x, y: Bar.y }
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("y"));
-    });
-
-    it("can reference inherited model properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      @test model Base {
-        y: string;
-      }
-
-      @test model Bar extends Base {
-        x: string;
-      }
-
-      @test model Foo { x: Bar.x, y: Bar.y }
-      `
-      );
-
-      const { Foo, Bar, Base } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-        Base: Model;
-      };
-
-      strictEqual(Foo.properties.get("x")!.type, Bar.properties.get("x"));
-      strictEqual(Foo.properties.get("y")!.type, Base.properties.get("y"));
-    });
-
-    it("can reference properties from declaration aliases", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      @test model Bar {
-        x: string;
-      }
-
-      alias BarAlias = Bar;
-
-      @test model Foo {
-        y: BarAlias.x,
-      }
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
-    });
-
-    it("can reference properties from instantiated aliases", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-        @test model Bar<T> {
-          x: T;
-        }
-  
-        alias BarT = Bar<string>;
-  
-        @test model Foo {
-          y: BarT.x,
-        }
-        `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
-    });
-
-    it("can reference spread property from instantiated aliases", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-        model Base<T> {
-          x: T
-        }
-
-        @test model Bar<T> {
-          ...Base<T>
-        }
-  
-        alias BarT = Bar<string>;
-  
-        @test model Foo {
-          y: BarT.x,
-        }
-        `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Model;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
-    });
-
-    it("can reference another model property defined before", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
+    describe("sibling property", () => {
+      it("can reference sibling property defined before", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
       @test model Foo {
         a: string;
         b: Foo.a;
       }
       `
-      );
+        );
 
-      const { Foo } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-      };
-      strictEqual(Foo.properties.get("b")!.type, Foo.properties.get("a"));
-    });
+        const { Foo } = (await testHost.compile("./main.cadl")) as {
+          Foo: Model;
+        };
+        strictEqual(Foo.properties.get("b")!.type, Foo.properties.get("a"));
+      });
 
-    it("can reference another model property defined after", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
+      it("can reference sibling property defined after", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
       @test model Foo {
         a: Foo.b;
         b: string;
       }
       `
-      );
+        );
 
-      const { Foo } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-      };
-      strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
+        const { Foo } = (await testHost.compile("./main.cadl")) as {
+          Foo: Model;
+        };
+        strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
+      });
     });
   });
+
   describe("enum members", () => {
-    it("can reference enum members", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      @test enum Foo {
-        x, y, z
-      };
+    describe("simple enum member", () =>
+      itCanReference({
+        code: `
+          enum MyEnum {
+            @test("target") x, y, z
+          }
+        `,
+        ref: "MyEnum.x",
+      }));
 
-      @test op Bar(arg: Foo.x): void;
+    describe("spread member", () =>
+      itCanReference({
+        code: `
+          enum Spreadable {
+            x, y
+          }
+    
+          @test("target") enum MyEnum {
+            ... Spreadable,
+            z
+          }`,
+        ref: "MyEnum.y",
+        resolveTarget: (target: Enum) => target.members.get("y"),
+      }));
 
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Enum;
-        Bar: Operation;
-      };
-
-      strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
-    });
-
-    it("can reference spread enum members", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-
-      enum Base {
-        x, y
-      }
-
-      // Define a reference before the type is declared to make sure type is resolved completely.
-      @test op Bar(arg: Foo.x): void;
-
-      @test enum Foo {
-        ...Base, z
-      };
-
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Enum;
-        Bar: Operation;
-      };
-
-      strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
-    });
-
-    it("can reference aliased enum members", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      @test enum Foo {
-        x, y, z
-      };
-
-      alias FooAlias = Foo;
-      @test op Bar(arg: FooAlias.x): void;
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Enum;
-        Bar: Operation;
-      };
-
-      strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
-    });
+    describe("alias enum, member", () =>
+      itCanReference({
+        code: `
+          enum MyEnum {
+            x, @test("target") y
+          }
+    
+          alias MyEnumAlias = MyEnum;
+        `,
+        ref: "MyEnumAlias.y",
+      }));
 
     describe("reference in namespace decorator", () => {
       let taggedValue: Model | undefined;
@@ -442,138 +328,91 @@ describe("compiler: references", () => {
   });
 
   describe("union variants", () => {
-    it("can reference union variants", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      union Foo {
-        @test("x") x: string
-      }
+    describe("simple variant", () =>
+      itCanReference({
+        code: `
+          union MyUnion {
+            @test("target") x: string;
+          }
+        `,
+        ref: "MyUnion.x",
+      }));
 
-      @test model Bar { prop: Foo.x };
-      `
-      );
+    describe("variant in alias union", () =>
+      itCanReference({
+        code: `
+          union MyUnion {
+            @test("target") x: string;
+          }
 
-      const { x, Bar } = (await testHost.compile("./main.cadl")) as {
-        x: UnionVariant;
-        Bar: Model;
-      };
+          alias MyUnionAlias = MyUnion;
+        `,
+        ref: "MyUnionAlias.x",
+      }));
 
-      strictEqual(x, Bar.properties.get("prop")!.type);
-    });
+    describe("variant in template union instance", () =>
+      itCanReference({
+        code: `
+          union MyUnion<T> {
+            @test("target") x: T;
+          }
 
-    it("can reference templated union variants", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      union Foo<T> {
-        @test("x") x: T
-      }
+          alias MyUnionT = MyUnion<string>;
 
-      alias FooT = Foo<string>;
-
-      @test model Bar { prop: FooT.x };
-      `
-      );
-
-      const { x, Bar } = (await testHost.compile("./main.cadl")) as {
-        x: UnionVariant;
-        Bar: Model;
-      };
-
-      strictEqual(x, Bar.properties.get("prop")!.type);
-    });
+        `,
+        ref: "MyUnionT.x",
+      }));
   });
+
   describe("interface members", () => {
-    it("can reference interface members", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      interface Foo {
-        @test operation(): void;
-      };
+    describe("simple member", () =>
+      itCanReference({
+        code: `
+          interface MyInterface {
+            @test("target") operation(): void;
+          }
+        `,
+        ref: "MyInterface.operation",
+      }));
 
-      @test model Bar { prop: Foo.operation };
-      `
-      );
+    describe("member of alias interface", () =>
+      itCanReference({
+        code: `
+          interface MyInterface {
+            @test("target") operation(): void;
+          }
+          alias MyInterfaceAlias  = MyInterface;
+        `,
+        ref: "MyInterfaceAlias.operation",
+      }));
 
-      const { operation, Bar } = (await testHost.compile("./main.cadl")) as {
-        operation: Operation;
-        Bar: Model;
-      };
+    describe("member of templated interface instance", () =>
+      itCanReference({
+        code: `
+          interface MyInterface<T> {
+            @test("target") operation(): T;
+          }
+          alias MyInterfaceT  = MyInterface<string>;
+        `,
+        ref: "MyInterfaceT.operation",
+      }));
 
-      strictEqual(operation, Bar.properties.get("prop")!.type);
-    });
+    describe("member from `interface extends`", () =>
+      itCanReference({
+        code: `
+          interface Base {
+            operation(): void;
+          }
+    
+          @test("target") interface MyInterface extends Base {
+            x(): void;
+          }
+        `,
+        ref: "MyInterface.operation",
+        resolveTarget: (target: Interface) => target.operations.get("operation"),
+      }));
 
-    it("can reference aliased interface members", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      interface Foo {
-        @test operation(): void;
-      };
-
-      alias AliasFoo = Foo;
-
-      @test model Bar { prop: AliasFoo.operation };
-      `
-      );
-
-      const { operation, Bar } = (await testHost.compile("./main.cadl")) as {
-        operation: Operation;
-        Bar: Model;
-      };
-
-      strictEqual(operation, Bar.properties.get("prop")!.type);
-    });
-
-    it("can reference instantiated interface members", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      interface Foo<T> {
-        @test operation(): T;
-      };
-
-      alias AliasFoo = Foo<string>;
-
-      @test model Bar { prop: AliasFoo.operation };
-      `
-      );
-
-      const { operation, Bar } = (await testHost.compile("./main.cadl")) as {
-        operation: Operation;
-        Bar: Model;
-      };
-
-      strictEqual(operation, Bar.properties.get("prop")!.type);
-    });
-
-    it("can reference interface members included via extends", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-      interface Base {
-        y(): void;
-      }
-
-      @test interface Bar extends Base {
-        x(): void;
-      }
-
-      @test model Foo { y: Bar.y }
-      `
-      );
-
-      const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-        Foo: Model;
-        Bar: Interface;
-      };
-
-      strictEqual(Foo.properties.get("y")!.type, Bar.operations.get("y"));
-    });
-
-    describe("reference other members", () => {
+    describe("reference sibling members", () => {
       let linkedValue: Operation | undefined;
       beforeEach(() => {
         testHost.addJsFile("./test-link.js", {
