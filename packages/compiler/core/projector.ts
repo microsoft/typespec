@@ -3,7 +3,6 @@ import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
   getParentTemplateNode,
-  getTypeName,
   isNeverType,
   isProjectedProgram,
   isTemplateInstance,
@@ -291,7 +290,7 @@ export function createProjector(
     projectedTypes.set(model, projectedModel);
 
     for (const [key, prop] of model.properties) {
-      const projectedProp = projectModelProperty(prop, projectedModel);
+      const projectedProp = projectType(prop);
       if (projectedProp.kind === "ModelProperty") {
         properties.set(key, projectedProp);
       }
@@ -356,11 +355,7 @@ export function createProjector(
     return !parentTemplate || isTemplateInstance(type);
   }
 
-  function projectModelProperty(prop: ModelProperty, projectedModel?: Model): Type {
-    if (prop.model && projectedModel === undefined) {
-      return projectViaParent(prop, prop.model);
-    }
-
+  function projectModelProperty(prop: ModelProperty): Type {
     const projectedType = projectType(prop.type);
     const projectedDecs = projectDecorators(prop.decorators);
 
@@ -369,8 +364,8 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    if (projectedModel) {
-      projectedProp.model = projectedModel;
+    if (prop.model) {
+      projectedProp.model = projectType(prop.model) as Model;
     }
 
     if (prop.sourceProperty) {
@@ -437,7 +432,7 @@ export function createProjector(
     });
 
     for (const [key, variant] of union.variants) {
-      const projectedVariant = projectUnionVariant(variant, union);
+      const projectedVariant = projectType(variant);
       if (projectedVariant.kind === "UnionVariant" && projectedVariant.type !== neverType) {
         variants.set(key, projectedVariant);
       }
@@ -450,10 +445,7 @@ export function createProjector(
     return applyProjection(union, projectedUnion);
   }
 
-  function projectUnionVariant(variant: UnionVariant, projectingUnion?: Union) {
-    if (projectingUnion === undefined) {
-      return projectViaParent(variant, variant.union);
-    }
+  function projectUnionVariant(variant: UnionVariant) {
     const projectedType = projectType(variant.type);
     const projectedDecs = projectDecorators(variant.decorators);
 
@@ -640,18 +632,5 @@ export function createProjector(
 
     projectedTypes.set(type, clone);
     return clone;
-  }
-
-  /**
-   * Project the given type by projecting the parent type first.
-   * @param type Type to project.
-   * @param parentType Parent type that should be projected first.
-   * @returns Projected type
-   */
-  function projectViaParent(type: Type, parentType: Type): Type {
-    projectType(parentType);
-    const projectedProp = projectedTypes.get(type);
-    compilerAssert(projectedProp, `Type "${getTypeName(type)}" should have been projected by now.`);
-    return projectedProp;
   }
 }
