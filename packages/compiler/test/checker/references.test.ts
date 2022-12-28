@@ -29,7 +29,7 @@ describe("compiler: references", () => {
     const refCode = `
       @test model RefContainer { y: ${ref} }
     `;
-    it("reference before declaration", () => runTest(`${refCode}\n${code}`));
+    it.only("reference before declaration", () => runTest(`${refCode}\n${code}`));
 
     it("reference after declaration", () => runTest(`${code}\n${refCode}`));
   }
@@ -417,7 +417,7 @@ describe("compiler: references", () => {
         ref: "MyInterfaceT.operation",
       }));
 
-    describe("member from `interface extends`", () =>
+    describe.only("member from `interface extends`", () =>
       itCanReference({
         code: `
           interface Base {

@@ -1541,16 +1541,19 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     parentInterface?: Interface
   ): Operation | ErrorType {
-    const links =
-      node.parent?.kind === SyntaxKind.InterfaceStatement
-        ? getMemberSymbolLinks(node)
-        : getSymbolLinks(node.symbol);
+    const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
+    const links = inInterface ? getMemberSymbolLinks(node) : getSymbolLinks(node.symbol);
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
         return links.declaredType as Operation;
       }
     }
+
+    if (mapper === undefined && inInterface) {
+      compilerAssert(parentInterface, "Operation in interface should already have been checked.");
+    }
+
     // If we are instantating operation inside of interface
     if (isTemplatedNode(node) && mapper !== undefined && parentInterface) {
       mapper = { ...mapper, partial: true };
