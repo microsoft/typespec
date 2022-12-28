@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix: `resolveUsages` shouldn't include base model",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
