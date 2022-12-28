@@ -16,6 +16,7 @@ List of known targets.
   - `xml`: Configure XML representation of data
 - Language:
   - `csharp`: Configure C# generated code
+  - `java`: Configure Java generated code
   - `python`: Configure python generated code
   - `javascript`: Configure javascript generated code
   - `swift` : Configure swift generated code
