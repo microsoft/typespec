@@ -72,6 +72,8 @@ model CertificateAttributes {
 
   @projectedName("json", "exp")
   expires: int32;
+  
+  @projectedName("client", "CreatedAt")
   created: int32;
   updated: int32;
 }
@@ -109,7 +111,7 @@ model CertificateAttributes {
 interface Attributes {
   notBefore: number;
   expires: number;
-  created: number;
+  createdAt: number;
   updated: number;
 }
 ```
@@ -127,7 +129,8 @@ class CertificateAttributes
   [JsonProperty("exp")]
   public int Expires {get; set;}
 
-  public int Created {get; set;}
+  [JsonProperty("created")]
+  public int CreatedAt {get; set;}
 
   public int Updated {get; set;}
 }
