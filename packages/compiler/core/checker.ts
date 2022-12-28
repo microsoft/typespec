@@ -945,17 +945,6 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    if (sym.flags & SymbolFlags.LateBound) {
-      compilerAssert(sym.type, "Expected late bound symbol to have type");
-      if (
-        "templateParameters" in sym.declarations[0] &&
-        sym.declarations[0].templateParameters.length > 0
-      ) {
-      } else {
-        return sym.type;
-      }
-    }
-
     const symbolLinks = getSymbolLinks(sym);
     let baseType;
     const args = checkTypeReferenceArgs(node, mapper);
@@ -969,7 +958,7 @@ export function createChecker(program: Program): Checker {
         SymbolFlags.Union)
     ) {
       const decl = sym.declarations[0] as TemplateableNode;
-      if (decl.templateParameters.length === 0) {
+      if (!isTemplatedNode(decl)) {
         if (args.length > 0) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -980,7 +969,10 @@ export function createChecker(program: Program): Checker {
           );
         }
 
-        if (symbolLinks.declaredType) {
+        if (sym.flags & SymbolFlags.LateBound) {
+          compilerAssert(sym.type, "Expected late bound symbol to have type");
+          return sym.type;
+        } else if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
         } else if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(sym, mapper);
@@ -1006,7 +998,6 @@ export function createChecker(program: Program): Checker {
       }
     } else {
       // some other kind of reference
-
       if (args.length > 0) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -1016,7 +1007,11 @@ export function createChecker(program: Program): Checker {
           })
         );
       }
-      if (sym.flags & SymbolFlags.TemplateParameter) {
+
+      if (sym.flags & SymbolFlags.LateBound) {
+        compilerAssert(sym.type, "Expected late bound symbol to have type");
+        return sym.type;
+      } else if (sym.flags & SymbolFlags.TemplateParameter) {
         baseType = checkTemplateParameterDeclaration(
           sym.declarations[0] as TemplateParameterDeclarationNode,
           mapper
@@ -2634,7 +2629,12 @@ export function createChecker(program: Program): Checker {
         // don't bind anything for union expressions
         return;
       }
-      const sym = createSymbol(member.node, member.name, kind | SymbolFlags.LateBound);
+      const sym = createSymbol(
+        member.node,
+        member.name,
+        kind | SymbolFlags.LateBound,
+        containerSym
+      );
       mutate(sym).type = member;
       compilerAssert(containerSym.members, "containerSym.members is undefined");
       containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members);
@@ -5239,7 +5239,7 @@ function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLi
   return type.value as any;
 }
 
-function isTemplatedNode(node: Node): boolean {
+function isTemplatedNode(node: Node): node is TemplateableNode {
   return "templateParameters" in node && node.templateParameters.length > 0;
 }
 

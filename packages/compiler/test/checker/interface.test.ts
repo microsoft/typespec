@@ -373,5 +373,22 @@ describe("compiler: interfaces", () => {
         message: `Shadowing parent template parmaeter with the same name "A"`,
       });
     });
+
+    it("emit diagnostic if trying to instantiate non templated operation", async () => {
+      const diagnostics = await runner.diagnose(`
+      interface Base<A> {
+        bar(input: A): void;
+      }
+
+      alias MyBase = Base<string>;
+
+      op myBar is MyBase.bar<int32>;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-args",
+        message: `Can't pass template arguments to non-templated type`,
+      });
+    });
   });
 });
