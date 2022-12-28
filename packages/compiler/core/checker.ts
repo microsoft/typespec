@@ -543,11 +543,39 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  /**
+   * Check a member symbol.
+   * @param sym Symbol binding a member node.
+   * @param mapper Type mapper.
+   * @returns Checked type for the given member symbol.
+   */
+  function checkMemberSym(sym: Sym, mapper: TypeMapper | undefined): Type {
+    const symbolLinks = getSymbolLinks(sym);
+    const memberContainer = getTypeForNode(sym.parent!.declarations[0], mapper);
+    const type = symbolLinks.declaredType ?? symbolLinks.type;
+    if (type) {
+      return type;
+    } else {
+      return checkMember(
+        sym.declarations[0] as MemberNode,
+        mapper,
+        memberContainer as MemberContainerType
+      )!;
+    }
+  }
+
+  /**
+   * Check a member node
+   * @param node Member node to check
+   * @param mapper Type mapper
+   * @param containerType Member node container type(Interface, Model, Union, etc.)
+   * @returns Checked member
+   */
   function checkMember(
     node: MemberNode,
     mapper: TypeMapper | undefined,
     containerType: MemberContainerType
-  ) {
+  ): Type {
     switch (node.kind) {
       case SyntaxKind.ModelProperty:
         return checkModelProperty(node, mapper);
@@ -954,6 +982,8 @@ export function createChecker(program: Program): Checker {
 
         if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
+        } else if (sym.flags & SymbolFlags.Member) {
+          baseType = checkMemberSym(sym, mapper);
         } else {
           baseType = checkDeclaredType(sym, decl, mapper);
         }
@@ -998,17 +1028,7 @@ export function createChecker(program: Program): Checker {
         baseType = symbolLinks.declaredType;
       } else {
         if (sym.flags & SymbolFlags.Member) {
-          const memberContainer = getTypeForNode(sym.parent!.declarations[0], mapper);
-          const type = symbolLinks.declaredType ?? symbolLinks.type;
-          if (type) {
-            baseType = type;
-          } else {
-            baseType = checkMember(
-              sym.declarations[0] as MemberNode,
-              mapper,
-              memberContainer as MemberContainerType
-            )!;
-          }
+          baseType = checkMemberSym(sym, mapper);
         } else {
           // don't have a cached type for this symbol, so go grab it and cache it
           baseType = getTypeForNode(sym.declarations[0], mapper);
