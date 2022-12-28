@@ -117,7 +117,7 @@ specifiers:
   vscode-languageserver: ~8.0.2
   vscode-languageserver-textdocument: ~1.0.1
   vscode-oniguruma: ~1.6.1
-  vscode-textmate: ~7.0.3
+  vscode-textmate: ~8.0.0
   yargs: ~17.6.2
 
 dependencies:
@@ -237,7 +237,7 @@ dependencies:
   vscode-languageserver: 8.0.2
   vscode-languageserver-textdocument: 1.0.8
   vscode-oniguruma: 1.6.2
-  vscode-textmate: 7.0.4
+  vscode-textmate: 8.0.0
   yargs: 17.6.2
 
 packages:
@@ -13366,8 +13366,8 @@ packages:
     resolution: {integrity: sha512-KH8+KKov5eS/9WhofZR8M8dMHWN2gTxjMsG4jd04YhpbPR91fUj7rYQ2/XjeHCJWbg7X++ApRIU9NUwM2vTvLA==}
     dev: false
 
-  /vscode-textmate/7.0.4:
-    resolution: {integrity: sha512-9hJp0xL7HW1Q5OgGe03NACo7yiCTMEk3WU/rtKXUbncLtdg6rVVNJnHwD88UhbIYU2KoxY0Dih0x+kIsmUKn2A==}
+  /vscode-textmate/8.0.0:
+    resolution: {integrity: sha512-AFbieoL7a5LMqcnOF04ji+rpXadgOXnZsxQr//r83kLPr7biP7am3g9zbaZIaBGwBRWeSvoMD4mgPdX3e4NWBg==}
     dev: false
 
   /vscode-uri/3.0.7:
@@ -13967,7 +13967,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-6OTLqGwPBh3uAvhZWxAnNR41anoTgKouL5onRUoH2XS4h1blSXzKc7/sRb35VMLRtUGyiJCSQ2G1ShhLB40DEA==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-u3LfftlK0A6nTGnQWJVWQsNbP/xY0aswwod6Al+dwogdN6KESuiJ4a9Y1+PJCo5ExSSL+z2LEPE97hyleXPRHA==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -14005,7 +14005,7 @@ packages:
       vscode-languageserver: 8.0.2
       vscode-languageserver-textdocument: 1.0.8
       vscode-oniguruma: 1.6.2
-      vscode-textmate: 7.0.4
+      vscode-textmate: 8.0.0
       yargs: 17.6.2
     transitivePeerDependencies:
       - '@volar/vue-language-plugin-pug'
