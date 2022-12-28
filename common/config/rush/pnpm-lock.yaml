@@ -57,7 +57,6 @@ specifiers:
   '@types/swagger-ui': ~3.52.0
   '@types/swagger-ui-react': ^4.11.0
   '@types/vscode': ~1.53.0
-  '@types/watch': ~1.0.3
   '@types/yargs': ~17.0.2
   '@typescript-eslint/eslint-plugin': ^5.30.7
   '@typescript-eslint/parser': ^5.30.7
@@ -68,6 +67,7 @@ specifiers:
   autorest: ~3.3.2
   c8: ~7.12.0
   change-case: ~4.1.2
+  chokidar: ~3.5.3
   cross-env: ~7.0.3
   cspell: ~6.14.3
   debounce: ~1.2.1
@@ -118,7 +118,6 @@ specifiers:
   vscode-languageserver-textdocument: ~1.0.1
   vscode-oniguruma: ~1.6.1
   vscode-textmate: ~7.0.3
-  watch: ~1.0.2
   yargs: ~17.6.2
 
 dependencies:
@@ -178,7 +177,6 @@ dependencies:
   '@types/swagger-ui': 3.52.0
   '@types/swagger-ui-react': 4.11.0
   '@types/vscode': 1.53.0
-  '@types/watch': 1.0.3
   '@types/yargs': 17.0.13
   '@typescript-eslint/eslint-plugin': 5.44.0_2b655d483910950f74362abe0eded25d
   '@typescript-eslint/parser': 5.44.0_eslint@8.28.0+typescript@4.9.3
@@ -189,6 +187,7 @@ dependencies:
   autorest: 3.3.2
   c8: 7.12.0
   change-case: 4.1.2
+  chokidar: 3.5.3
   cross-env: 7.0.3
   cspell: 6.14.3
   debounce: 1.2.1
@@ -239,7 +238,6 @@ dependencies:
   vscode-languageserver-textdocument: 1.0.7
   vscode-oniguruma: 1.6.2
   vscode-textmate: 7.0.3
-  watch: 1.0.2
   yargs: 17.6.2
 
 packages:
@@ -14124,7 +14122,7 @@ packages:
     dev: false
 
   file:projects/internal-build-utils.tgz:
-    resolution: {integrity: sha512-w400v0Mf9toryfYRMk/AODGT0SjqC1HIA88KxhQRkYLZSi3xnNG7QOxD8sF0aTN2nm5VaF8eaPmRUHgWL65dFg==, tarball: file:projects/internal-build-utils.tgz}
+    resolution: {integrity: sha512-AuoNyH0tlfYGipnYP9ZAIWG7fA8A7NwzrSryKCZlQUUbU1ewH3b3cntF1e1kA5SNoU8U9FC49S+FaYTvO7rHpg==, tarball: file:projects/internal-build-utils.tgz}
     name: '@rush-temp/internal-build-utils'
     version: 0.0.0
     dependencies:
@@ -14133,6 +14131,7 @@ packages:
       '@types/watch': 1.0.3
       '@types/yargs': 17.0.13
       c8: 7.12.0
+      chokidar: 3.5.3
       cspell: 6.14.3
       eslint: 8.28.0
       mocha: 10.1.0
