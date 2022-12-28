@@ -2513,10 +2513,26 @@ export function createChecker(program: Program): Checker {
     function resolveAndCopyMembers(node: TypeReferenceNode) {
       let ref = resolveTypeReferenceSym(node, undefined);
       if (ref && ref.flags & SymbolFlags.Alias) {
-        ref = getAliasedSymbol(ref, undefined);
+        ref = resolveAliasedSymbol(ref);
       }
       if (ref && ref.members) {
         copyMembers(ref.members);
+      }
+    }
+
+    function resolveAliasedSymbol(ref: Sym): Sym | undefined {
+      const node = ref.declarations[0] as AliasStatementNode;
+      switch (node.value.kind) {
+        case SyntaxKind.MemberExpression:
+        case SyntaxKind.TypeReference:
+        case SyntaxKind.Identifier:
+          const resolvedSym = resolveTypeReferenceSym(node.value, undefined);
+          if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
+            return resolveAliasedSymbol(resolvedSym);
+          }
+          return resolvedSym;
+        default:
+          return undefined;
       }
     }
 
