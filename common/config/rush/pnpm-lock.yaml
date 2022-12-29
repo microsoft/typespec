@@ -80,7 +80,7 @@ specifiers:
   eslint-plugin-unicorn: ^42.0.0
   globby: ~13.1.1
   grammarkdown: ~3.2.0
-  js-yaml: ~4.1.0
+  js-yaml: ^4.1.0
   lzutf8: 0.6.2
   mdx-mermaid: 1.3.2
   mermaid: ~9.1.6
@@ -14010,7 +14010,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-6OTLqGwPBh3uAvhZWxAnNR41anoTgKouL5onRUoH2XS4h1blSXzKc7/sRb35VMLRtUGyiJCSQ2G1ShhLB40DEA==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-oe587yYxz2oKcfnpAI4VidsikNYCTKHHGGkpbrtH096uJIIAKFftQwlzN4/ZxyYDkHaZ9eVhxFMayG9gaj6gNg==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -14223,14 +14223,16 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-crrrRWJWVq8QCouKPNWn2LO43tqXTOgy7vBwaDnn2wFQkq2sZW2TuIst1jbPg3eJR0w7xLMICxIOBx/k6CgLWA==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-6fsBPpmCam3wq+rePOMCn/jymRa5aiYgiTU7moQGigwhpvFNmfV6RN57bnlevTYvvgpQGtZe4JQV4AnE4amx0Q==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
+      '@types/js-yaml': 4.0.5
       '@types/mocha': 10.0.0
       '@types/node': 18.11.9
       c8: 7.12.0
       eslint: 8.28.0
+      js-yaml: 4.1.0
       mocha: 10.1.0
       mocha-junit-reporter: 2.2.0_mocha@10.1.0
       mocha-multi-reporters: 1.5.1_mocha@10.1.0
