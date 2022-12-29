@@ -124,10 +124,10 @@ function findFileTypeFromFilename(filename: string | undefined): FileType {
     return defaultFileType;
   }
   switch (getAnyExtensionFromPath(filename)) {
-    case "yaml":
-    case "yml":
+    case ".yaml":
+    case ".yml":
       return "yaml";
-    case "json":
+    case ".json":
       return "json";
     default:
       return defaultFileType;
@@ -428,7 +428,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
         await emitFile(program, {
           path: resolveOutputFile(service, multipleService, version),
-          content: prettierOutput(serializeDocument(root, options.fileType)),
+          content: serializeDocument(root, options.fileType),
           newLine: options.newLine,
         });
       }
@@ -1436,7 +1436,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
   switch (fileType) {
     case "json":
-      return JSON.stringify(root, null, 2);
+      return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
       return yaml.dump(root);
   }

@@ -5,49 +5,6 @@ import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3Document } from "../src/types.js";
 import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
 
-describe("openapi3: output file", () => {
-  async function rawOpenApiFor(code: string, options: OpenAPI3EmitterOptions): Promise<string> {
-    const runner = await createOpenAPITestRunner();
-
-    const outPath = resolvePath("/openapi.json");
-
-    const diagnostics = await runner.diagnose(code, {
-      noEmit: false,
-      emit: ["@cadl-lang/openapi3"],
-      options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
-    });
-
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
-
-    return runner.fs.get(outPath)!;
-  }
-
-  // Content of an empty spec
-  const expectedEmptySpec = [
-    "{",
-    `  "openapi": "3.0.0",`,
-    `  "info": {`,
-    `    "title": "(title)",`,
-    `    "version": "0000-00-00"`,
-    `  },`,
-    `  "tags": [],`,
-    `  "paths": {},`,
-    `  "components": {}`,
-    "}",
-    "",
-  ];
-
-  it("emit LF line endings by default", async () => {
-    const output = await rawOpenApiFor("", {});
-    strictEqual(output, expectedEmptySpec.join("\n"));
-  });
-
-  it("emit CRLF when configured", async () => {
-    const output = await rawOpenApiFor("", { "new-line": "crlf" });
-    strictEqual(output, expectedEmptySpec.join("\r\n"));
-  });
-});
-
 describe("openapi3: types included", () => {
   async function openapiWithOptions(
     code: string,
