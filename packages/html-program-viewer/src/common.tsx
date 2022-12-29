@@ -43,7 +43,7 @@ export const Literal: FunctionComponent<{ children: any }> = ({ children }) => (
   <div css={{ color: "#5da713", display: "inline" }}>{children}</div>
 );
 
-export const KeyValueSection: FunctionComponent<{ children: ReactElement[] }> = ({ children }) => {
+export const KeyValueSection: FunctionComponent<{ children: ReactElement | ReactElement[] }> = ({ children }) => {
   return (
     <ul
       css={{

@@ -2,6 +2,7 @@ import {
   Enum,
   EnumMember,
   getNamespaceFullName,
+  getTypeName,
   Interface,
   Model,
   ModelProperty,
@@ -11,14 +12,15 @@ import {
   Scalar,
   Type,
   Union,
+  UnionVariant,
 } from "@cadl-lang/compiler";
 import { css } from "@emotion/react";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
-import { Item, KeyValueSection, Literal } from "./common.js";
+import { KeyValueSection, Literal } from "./common.js";
 import { inspect } from "./inspect.js";
-import { TypeUIBaseProperty, TypeUIBase } from "./type-ui-base.js";
-import { getIdForType } from "./utils.js";
+import { TypeUIBase, TypeUIBaseProperty } from "./type-ui-base.js";
+import { getIdForType, isNamedUnion } from "./utils.js";
 
 function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -51,7 +53,7 @@ export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ p
   return (
     <ProgramContext.Provider value={program}>
       <div css={ProgramViewerStyles}>
-        <ul css={{ paddingLeft: 10 }}>
+        <ul css={{ padding: "0 0 0 10px", margin: 0 }}>
           {namespaces.map((namespace) => (
             <li key={getNamespaceFullName(namespace)}>
               <NamespaceUI type={namespace} />
@@ -167,6 +169,8 @@ const TypeUI: FunctionComponent<TypeUIProps> = ({ type }) => {
       return <ModelPropertyUI type={type} />;
     case "Union":
       return <UnionUI type={type} />;
+    case "UnionVariant":
+      return <UnionVariantUI type={type} />;
     case "Enum":
       return <EnumUI type={type} />;
     case "EnumMember":
@@ -177,7 +181,7 @@ const TypeUI: FunctionComponent<TypeUIProps> = ({ type }) => {
 };
 
 const NamespaceUI: FunctionComponent<{ type: Namespace }> = ({ type }) => {
-  const name = getNamespaceFullName(type) || "<root>";
+  const name = getNamespaceFullName(type) || "(global)";
 
   return (
     <NamedTypeUI
@@ -296,69 +300,93 @@ const EnumMemberUI: FunctionComponent<{ type: EnumMember }> = ({ type }) => {
 };
 
 const UnionUI: FunctionComponent<{ type: Union }> = ({ type }) => {
-  return (
-    <Item title={type.name ?? "<unamed union>"} id={getIdForType(type)}>
-      <TypeData type={type} />
-
-      <UnionOptions type={type} />
-    </Item>
-  );
-};
-
-const UnionOptions: FunctionComponent<{ type: Union }> = ({ type }) => {
-  if (type.variants.size === 0) {
-    return <div></div>;
+  if (!isNamedUnion(type)) {
+    return <></>;
   }
   return (
-    <KeyValueSection>
-      {[...type.variants.entries()].map(([k, variant]) => (
-        <li key={variant.name?.toString() ?? k.toString()}>
-          <TypeReference type={variant.type} />
-        </li>
-      ))}
-    </KeyValueSection>
+    <NamedTypeUI
+      type={type}
+      properties={{
+        expression: "skip",
+        options: "skip",
+        variants: "nested",
+      }}
+    />
   );
 };
 
+const UnionVariantUI: FunctionComponent<{ type: UnionVariant }> = ({ type }) => {
+  if (typeof type.name === "symbol") {
+    return <></>;
+  }
+  return (
+    <NamedTypeUI
+      type={type as UnionVariant & { name: string }}
+      properties={{
+        union: "skip",
+        type: "ref",
+      }}
+    />
+  );
+};
+
+const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
+  const id = getIdForType(type);
+  const href = `#${id}`;
+  return (
+    <a
+      css={{
+        color: "#268bd2",
+        textDecoration: "none",
+
+        "&:hover": {
+          textDecoration: "underline",
+        },
+      }}
+      href={href}
+      title={type.kind + ": " + id}
+    >
+      {getTypeName(type)}
+    </a>
+  );
+};
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   switch (type.kind) {
     case "Namespace":
     case "Operation":
     case "Interface":
     case "Enum":
-    case "Model":
+    case "ModelProperty":
     case "Scalar":
-      const id = getIdForType(type);
-      const href = `#${id}`;
-      return (
-        <a
-          css={{
-            color: "#268bd2",
-            textDecoration: "none",
-
-            "&:hover": {
-              textDecoration: "underline",
-            },
-          }}
-          href={href}
-          title={type.kind + ": " + id}
-        >
-          {type.name}
-        </a>
-      );
+      return <NamedTypeRef type={type} />;
+    case "Model":
+      if (type.name === "") {
+        return (
+          <KeyValueSection>
+            <TypeUI type={type} />
+          </KeyValueSection>
+        );
+      } else {
+        return <NamedTypeRef type={type} />;
+      }
     case "Union":
-      return (
-        <>
-          {[...type.variants.values()].map((variant, i) => {
-            return (
-              <span key={i}>
-                <TypeReference type={variant.type} />
-                {i < type.variants.size - 1 ? " | " : ""}
-              </span>
-            );
-          })}
-        </>
-      );
+      if (isNamedUnion(type)) {
+        return <NamedTypeRef type={type} />;
+      } else {
+        return (
+          <>
+            {[...type.variants.values()].map((variant, i) => {
+              return (
+                <span key={i}>
+                  <TypeReference type={variant.type} />
+                  {i < type.variants.size - 1 ? " | " : ""}
+                </span>
+              );
+            })}
+          </>
+        );
+      }
+
     case "TemplateParameter":
       return <span>Template Param: {type.node.id.sv}</span>;
     case "String":
