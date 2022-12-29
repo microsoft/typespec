@@ -52,7 +52,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "~4.1.0"
   },
   "peerDependencies": {
     "@cadl-lang/versioning": "~0.38.0",
