@@ -57,7 +57,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
   const newIssue = useCallback(async () => {
     await saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
-    const url = `https://github.com/microsoft/cadl/issues/new?body=${bodyPayload}`;
+    const url = `${PlaygroundManifest.links.newIssue}?body=${bodyPayload}`;
     window.open(url, "_blank");
   }, [saveCode, cadlModel]);
 
@@ -175,7 +175,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
       }}
     >
       <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
-        <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} />
+        <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} documentationUrl={PlaygroundManifest.links.documentation} />
         <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
       </div>
       <div
