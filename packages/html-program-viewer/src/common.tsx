@@ -1,42 +1,12 @@
 import { css } from "@emotion/react";
-import { FunctionComponent, PropsWithChildren } from "react";
+import { FunctionComponent, PropsWithChildren, ReactElement } from "react";
+import { Colors } from "./constants.js";
 
-export interface SectionProps {
+export interface ItemProps {
   title: string;
   id?: string;
   hide?: boolean;
 }
-
-const SectionDivStyles = css({
-  border: "1px solid #c5c5c5",
-});
-
-const SectionTitleStyles = css({
-  borderBottom: "1px solid #c5c5c5",
-  backgroundColor: "#4875ca",
-  color: "#f5f5f5",
-  padding: "2px 5px",
-});
-
-const SectionContentStyles = css({
-  padding: "1rem",
-});
-export const Section: FunctionComponent<PropsWithChildren<SectionProps>> = ({
-  id,
-  title,
-  hide,
-  children,
-}) => {
-  if (hide) {
-    return <div></div>;
-  }
-  return (
-    <div css={SectionDivStyles} id={id}>
-      <div css={SectionTitleStyles}>{title}</div>
-      <div css={SectionContentStyles}>{children}</div>
-    </div>
-  );
-};
 
 const ItemStyles = css({
   border: "1px solid #c5c5c5",
@@ -52,7 +22,7 @@ const ItemContentStyles = css({
   padding: "1rem",
 });
 
-export const Item: FunctionComponent<PropsWithChildren<SectionProps>> = ({
+export const Item: FunctionComponent<PropsWithChildren<ItemProps>> = ({
   id,
   title,
   hide,
@@ -72,3 +42,18 @@ export const Item: FunctionComponent<PropsWithChildren<SectionProps>> = ({
 export const Literal: FunctionComponent<{ children: any }> = ({ children }) => (
   <div css={{ color: "#5da713", display: "inline" }}>{children}</div>
 );
+
+export const KeyValueSection: FunctionComponent<{ children: ReactElement[] }> = ({ children }) => {
+  return (
+    <ul
+      css={{
+        margin: 0,
+        padding: "0 0 0 16px",
+        borderLeft: `1px dashed ${Colors.indentationGuide}`,
+        overflow: "auto",
+      }}
+    >
+      {children}
+    </ul>
+  );
+};
