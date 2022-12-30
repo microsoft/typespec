@@ -32,7 +32,7 @@ function useCadlLibrary(name: string): CadlLibrary<any> | undefined {
 
   useEffect(() => {
     setLib(undefined);
-    import(name)
+    import(/* @vite-ignore */ name)
       .then((module) => {
         if (module.$lib === undefined) {
           // eslint-disable-next-line no-console

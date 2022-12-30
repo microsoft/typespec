@@ -1,15 +1,19 @@
-import type { DiagnosticTarget, NoTarget, Program } from "@cadl-lang/compiler";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
-import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { useRecoilValue } from "recoil";
+import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importCadlCompiler } from "../core.js";
-import { emittersOptionsState, selectedEmitterState } from "../state.js";
+import { getMarkerLocation } from "../services.js";
+import {
+  CompilationState,
+  compilationState,
+  emittersOptionsState,
+  selectedEmitterState,
+} from "../state.js";
 import { CadlEditor } from "./cadl-editor.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.jsx";
@@ -18,27 +22,33 @@ import { OutputView } from "./output-view.js";
 
 export interface PlaygroundProps {
   host: BrowserHost;
+  cadlContent?: string;
+  onSave?: (value: string) => void;
 }
 
-export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
-  const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
-  const [outputFiles, setOutputFiles] = useState<string[]>([]);
-  const [program, setProgram] = useState<Program>();
-  const [internalCompilerError, setInternalCompilerError] = useState<any>();
+export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
+  <FluentProvider theme={webLightTheme}>
+    <Playground {...props} />
+  </FluentProvider>
+);
 
+export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
+  <RecoilRoot>
+    <PlaygroundInternal {...props} />
+  </RecoilRoot>
+);
+
+const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, cadlContent, onSave }) => {
+  const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
+  const setCompilationStatus = useSetRecoilState(compilationState);
   const emittersOptions = useRecoilValue(emittersOptionsState);
   const selectedEmitter = useRecoilValue(selectedEmitterState);
+
   useEffect(() => {
-    if (window.location.search.length > 0) {
-      const parsed = new URLSearchParams(window.location.search);
-      const compressed = parsed.get("c");
-      if (compressed) {
-        const content = lzutf8.decompress(compressed, { inputEncoding: "Base64" });
-        cadlModel.setValue(content);
-        void doCompile(content);
-      }
-    }
-  }, []);
+    const newContent = cadlContent ?? "";
+    cadlModel.setValue(newContent);
+    void doCompile(newContent);
+  }, [cadlContent]);
 
   useEffect(() => {
     cadlModel.onDidChangeContent(debounce(() => doCompile(cadlModel.getValue()), 200));
@@ -57,10 +67,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
   );
 
   const saveCode = useCallback(async () => {
-    const compressed = lzutf8.compress(cadlModel.getValue(), { outputEncoding: "Base64" });
-    history.pushState(null, "", window.location.pathname + "?c=" + encodeURIComponent(compressed));
-    await navigator.clipboard.writeText(window.location.toString());
-  }, [cadlModel]);
+    if (onSave) {
+      onSave(cadlModel.getValue());
+    }
+  }, [cadlModel, onSave]);
 
   const newIssue = useCallback(async () => {
     await saveCode();
@@ -69,39 +79,13 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
     window.open(url, "_blank");
   }, [saveCode, cadlModel]);
 
-  async function emptyOutputDir() {
-    // empty output directory
-    const dirs = await host.readDir("./cadl-output");
-    for (const file of dirs) {
-      const path = "./cadl-output/" + file;
-      const uri = Uri.parse(host.pathToFileURL(path));
-      const model = editor.getModel(uri);
-      if (model) {
-        model.dispose();
-      }
-      await host.unlink(path);
-    }
-  }
-
   async function doCompile(content: string) {
-    await host.writeFile("main.cadl", content);
-    await emptyOutputDir();
     const cadlCompiler = await importCadlCompiler();
-    try {
-      const program = await cadlCompiler.compile(host, "main.cadl", {
-        outputDir: "cadl-output",
-        emit: [selectedEmitter],
-        options: {
-          ...emittersOptions,
-          [selectedEmitter]: {
-            ...emittersOptions[selectedEmitter],
-            "emitter-output-dir": "cadl-output",
-          },
-        },
-      });
-      setInternalCompilerError(undefined);
-      setProgram(program);
-      const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
+
+    const state = await compile(host, content, selectedEmitter, emittersOptions);
+    setCompilationStatus(state);
+    if ("program" in state) {
+      const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
         ...getMarkerLocation(cadlCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
@@ -109,58 +93,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
       }));
 
       editor.setModelMarkers(cadlModel, "owner", markers ?? []);
-
-      const outputFiles = await findOutputFiles();
-
-      setOutputFiles(outputFiles);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Internal compiler error", error);
+    } else {
       editor.setModelMarkers(cadlModel, "owner", []);
-      setProgram(undefined);
-      setInternalCompilerError(error);
     }
-  }
-
-  async function findOutputFiles(): Promise<string[]> {
-    const files: string[] = [];
-
-    async function addFiles(dir: string) {
-      const items = await host.readDir("./cadl-output" + dir);
-      for (const item of items) {
-        const itemPath = `${dir}/${item}`;
-        if ((await host.stat("./cadl-output" + itemPath)).isDirectory()) {
-          await addFiles(itemPath);
-        } else {
-          files.push(dir === "" ? item : `${dir}/${item}`);
-        }
-      }
-    }
-    await addFiles("");
-    return files;
-  }
-
-  function getMarkerLocation(
-    cadlCompiler: typeof import("@cadl-lang/compiler"),
-    target: DiagnosticTarget | typeof NoTarget
-  ): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
-    const loc = cadlCompiler.getSourceLocation(target);
-    if (loc === undefined || loc.file.path !== "/test/main.cadl") {
-      return {
-        startLineNumber: 1,
-        startColumn: 1,
-        endLineNumber: 1,
-        endColumn: 1,
-      };
-    }
-    const start = loc.file.getLineAndCharacterOfPosition(loc.pos);
-    const end = loc.file.getLineAndCharacterOfPosition(loc.end);
-    return {
-      startLineNumber: start.line + 1,
-      startColumn: start.character + 1,
-      endLineNumber: end.line + 1,
-      endColumn: end.character + 1,
-    };
   }
 
   const cadlEditorCommands = useMemo(
@@ -172,41 +107,97 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
   );
 
   return (
-    <FluentProvider theme={webLightTheme}>
+    <div
+      css={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gridTemplateRows: "1fr auto",
+        gridTemplateAreas: '"cadleditor output"\n    "footer footer"',
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
+      }}
+    >
+      <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
+        <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} />
+        <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
+      </div>
       <div
         css={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gridTemplateRows: "1fr auto",
-          gridTemplateAreas: '"cadleditor output"\n    "footer footer"',
-          width: "100vw",
-          height: "100vh",
+          gridArea: "output",
           overflow: "hidden",
-          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
+          display: "flex",
+          flexDirection: "column",
+          borderLeft: "1px solid #c5c5c5",
         }}
       >
-        <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
-          <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} />
-          <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
-        </div>
-        <div
-          css={{
-            gridArea: "output",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            borderLeft: "1px solid #c5c5c5",
-          }}
-        >
-          <OutputView
-            host={host}
-            program={program}
-            outputFiles={outputFiles}
-            internalCompilerError={internalCompilerError}
-          />
-        </div>
-        <Footer />
+        <OutputView />
       </div>
-    </FluentProvider>
+      <Footer />
+    </div>
   );
 };
+
+const outputDir = "./cadl-output";
+
+async function compile(
+  host: BrowserHost,
+  content: string,
+  selectedEmitter: string,
+  emittersOptions: Record<string, Record<string, unknown>>
+): Promise<CompilationState> {
+  await host.writeFile("main.cadl", content);
+  await emptyOutputDir(host);
+  try {
+    const cadlCompiler = await importCadlCompiler();
+    const program = await cadlCompiler.compile(host, "main.cadl", {
+      outputDir: "cadl-output",
+      emit: [selectedEmitter],
+      options: {
+        ...emittersOptions,
+        [selectedEmitter]: {
+          ...emittersOptions[selectedEmitter],
+          "emitter-output-dir": "cadl-output",
+        },
+      },
+    });
+    const outputFiles = await findOutputFiles(host);
+    return { program, outputFiles };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Internal compiler error", error);
+    return { internalCompilerError: error };
+  }
+}
+async function findOutputFiles(host: BrowserHost): Promise<string[]> {
+  const files: string[] = [];
+
+  async function addFiles(dir: string) {
+    const items = await host.readDir(outputDir + dir);
+    for (const item of items) {
+      const itemPath = `${dir}/${item}`;
+      if ((await host.stat(outputDir + itemPath)).isDirectory()) {
+        await addFiles(itemPath);
+      } else {
+        files.push(dir === "" ? item : `${dir}/${item}`);
+      }
+    }
+  }
+  await addFiles("");
+  return files;
+}
+
+async function emptyOutputDir(host: BrowserHost) {
+  // empty output directory
+  const dirs = await host.readDir("./cadl-output");
+  for (const file of dirs) {
+    const path = "./cadl-output/" + file;
+    const uri = Uri.parse(host.pathToFileURL(path));
+    const model = editor.getModel(uri);
+    if (model) {
+      model.dispose();
+    }
+    await host.rm(path, { recursive: true });
+  }
+}
