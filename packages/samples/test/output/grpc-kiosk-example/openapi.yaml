@@ -1,0 +1,429 @@
+openapi: 3.0.0
+info:
+  title: Grpc Kiosk sample
+  version: '0000-00-00'
+tags:
+  - name: Display
+paths:
+  /v1/kiosks:
+    post:
+      tags:
+        - Display
+      operationId: Display_createKiosk
+      description: Create a kiosk. This enrolls the kiosk for sign display.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: &ref_0
+                  value: '#/components/schemas/Kiosk'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: &ref_1
+                  value: '#/components/schemas/RpcStatus'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: *ref_0
+    get:
+      tags:
+        - Display
+      operationId: Display_listKiosks
+      description: List active kiosks.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  value: '#/components/schemas/ListKiosksResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+  /v1/kiosks/{id}:
+    get:
+      tags:
+        - Display
+      operationId: Display_getKiosk
+      description: Get a kiosk.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_0
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+    delete:
+      tags:
+        - Display
+      operationId: Display_deleteKiosk
+      description: Delete a kiosk.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+  /v1/signs:
+    post:
+      tags:
+        - Display
+      operationId: Display_createSign
+      description: Create a sign. This enrolls the sign for sign display.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: &ref_2
+                  value: '#/components/schemas/Sign'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: *ref_2
+    get:
+      tags:
+        - Display
+      operationId: Display_listSigns
+      description: List active signs.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  value: '#/components/schemas/ListSignsResponse'
+  /v1/signs/{id}:
+    get:
+      tags:
+        - Display
+      operationId: Display_getSign
+      description: Get a sign.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_2
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+    delete:
+      tags:
+        - Display
+      operationId: Display_deleteSign
+      description: Delete a sign.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+  /v1/signs/{sign_id}:
+    post:
+      tags:
+        - Display
+      operationId: Display_setSignIdForKioskIds
+      description: Set a sign for display on one or more kiosks.
+      parameters:
+        - $ref: '#/components/parameters/SetSignIdForKioskIdsRequest.sign_id'
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int32
+              x-cadl-name: int32[]
+  /v1/kiosks/{kiosk_id}/sign:
+    get:
+      tags:
+        - Display
+      operationId: Display_getSignIdForKioskId
+      description: Get the sign that should be displayed on a kiosk.
+      parameters:
+        - name: kiosk_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  value: '#/components/schemas/GetSignIdResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: *ref_1
+components:
+  parameters:
+    SetSignIdForKioskIdsRequest.sign_id:
+      name: sign_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  schemas:
+    Kiosk:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: unique id
+        name:
+          type: string
+          description: name of device hardware
+        size:
+          allOf:
+            - $ref:
+                value: '#/components/schemas/ScreenSize'
+          description: screen size
+        location:
+          allOf:
+            - $ref:
+                value: '#/components/schemas/LatLng'
+          description: kiosk location
+        create_time:
+          $ref:
+            value: '#/components/schemas/Timestamp'
+      description: Describes a hardware device that can display signs.
+      required:
+        - name
+        - size
+        - location
+    RpcStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref:
+              value: '#/components/schemas/ProtobufAny'
+          x-cadl-name: ProtobufAny[]
+      description: An unexpected error response.
+    ListKiosksResponse:
+      type: object
+      properties:
+        kiosks:
+          type: array
+          items:
+            $ref: *ref_0
+          x-cadl-name: Kiosk[]
+      description: A successful response.
+    Sign:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: unique id
+        name:
+          type: string
+          description: name of sign
+        text:
+          type: string
+          description: text to display
+        image:
+          type: string
+          format: byte
+          description: image to display
+      description: |-
+        Describes a digital sign.
+        Signs can include text, images, or both.
+      required:
+        - name
+        - text
+        - image
+    ListSignsResponse:
+      type: object
+      properties:
+        signs:
+          type: array
+          items:
+            $ref: *ref_2
+          x-cadl-name: Sign[]
+      description: A successful response.
+    GetSignIdResponse:
+      type: object
+      properties:
+        sign_id:
+          type: integer
+          format: int32
+      description: A successful response.
+    ScreenSize:
+      type: object
+      properties:
+        width:
+          type: integer
+          format: int32
+        height:
+          type: integer
+          format: int32
+      description: Represents the size of a screen in pixels.
+      required:
+        - width
+        - height
+    SetSignIdForKioskIdsRequest:
+      type: object
+      properties:
+        kiosk_ids:
+          type: array
+          items:
+            type: integer
+            format: int32
+          x-cadl-name: int32[]
+        sign_id:
+          type: integer
+          format: int32
+      required:
+        - kiosk_ids
+        - sign_id
+    GetSignIdForKioskIdRequest:
+      type: object
+      properties:
+        kiosk_id:
+          type: integer
+          format: int32
+      required:
+        - kiosk_id
+    LatLng:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+      description: >-
+        An object that represents a latitude/longitude pair. This is expressed
+        as a
+
+        pair of doubles to represent degrees latitude and degrees longitude.
+        Unless
+
+        specified otherwise, this must conform to the
+
+        <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
+
+        standard</a>. Values must be within normalized ranges.
+      required:
+        - latitude
+        - longitude
+    Timestamp:
+      type: object
+      properties:
+        seconds:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32
+      description: A timestamp
+      required:
+        - seconds
+        - nanos
+    ProtobufAny:
+      type: object
+      properties:
+        typeUrl:
+          type: string
+        value:
+          type: string

@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Nullable sample
+  version: '0000-00-00'
+tags: []
+paths:
+  /test:
+    get:
+      operationId: NullableMethods_read
+      parameters:
+        - name: someParam
+          in: query
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  value: '#/components/schemas/HasNullables'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              allOf:
+                - $ref: &ref_0
+                    value: '#/components/schemas/AnotherModel'
+              nullable: true
+              x-cadl-name: AnotherModel | null
+components:
+  schemas:
+    AnotherModel:
+      type: object
+      properties:
+        num:
+          type: integer
+          format: int32
+      required:
+        - num
+    HasNullables:
+      type: object
+      properties:
+        str:
+          type: string
+        when:
+          type: string
+          format: time
+        strOrNull:
+          type: string
+          nullable: true
+          x-cadl-name: string | null
+        modelOrNull:
+          type: object
+          allOf:
+            - $ref: *ref_0
+          nullable: true
+          x-cadl-name: AnotherModel | null
+        literalsOrNull:
+          type: string
+          enum:
+            - one
+            - two
+          nullable: true
+          x-cadl-name: one | two | null
+        manyNullsOneString:
+          type: string
+          nullable: true
+          x-cadl-name: null | null | string | null
+        manyNullsSomeValues:
+          type: number
+          enum:
+            - 42
+            - 100
+          nullable: true
+          x-cadl-name: null | 42 | null | 100 | null
+        arr:
+          type: array
+          items:
+            type: string
+          x-cadl-name: string[] | null
+          nullable: true
+      required:
+        - str
+        - when
+        - strOrNull
+        - modelOrNull
+        - literalsOrNull
+        - manyNullsOneString
+        - manyNullsSomeValues
+        - arr
