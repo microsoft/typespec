@@ -1,13 +1,15 @@
 import type { DiagnosticTarget, NoTarget, Program } from "@cadl-lang/compiler";
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import { useRecoilValue } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importCadlCompiler } from "../core.js";
-import { PlaygroundManifest } from "../manifest.js";
+import { emittersOptionsState, selectedEmitterState } from "../state.js";
 import { CadlEditor } from "./cadl-editor.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.jsx";
@@ -24,6 +26,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
   const [program, setProgram] = useState<Program>();
   const [internalCompilerError, setInternalCompilerError] = useState<any>();
 
+  const emittersOptions = useRecoilValue(emittersOptionsState);
+  const selectedEmitter = useRecoilValue(selectedEmitterState);
   useEffect(() => {
     if (window.location.search.length > 0) {
       const parsed = new URLSearchParams(window.location.search);
@@ -39,6 +43,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
   useEffect(() => {
     cadlModel.onDidChangeContent(debounce(() => doCompile(cadlModel.getValue()), 200));
   }, [cadlModel]);
+
+  useEffect(() => {
+    void doCompile(cadlModel.getValue());
+  }, [selectedEmitter, emittersOptions]);
 
   const updateCadl = useCallback(
     (value: string) => {
@@ -82,9 +90,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
     try {
       const program = await cadlCompiler.compile(host, "main.cadl", {
         outputDir: "cadl-output",
-        emit: [PlaygroundManifest.defaultEmitter],
+        emit: [selectedEmitter],
         options: {
-          [PlaygroundManifest.defaultEmitter]: {
+          ...emittersOptions,
+          [selectedEmitter]: {
+            ...emittersOptions[selectedEmitter],
             "emitter-output-dir": "cadl-output",
           },
         },
@@ -162,39 +172,41 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
   );
 
   return (
-    <div
-      css={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"cadleditor output"\n    "footer footer"',
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-      }}
-    >
-      <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
-        <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} />
-        <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
-      </div>
+    <FluentProvider theme={webLightTheme}>
       <div
         css={{
-          gridArea: "output",
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gridTemplateRows: "1fr auto",
+          gridTemplateAreas: '"cadleditor output"\n    "footer footer"',
+          width: "100vw",
+          height: "100vh",
           overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          borderLeft: "1px solid #c5c5c5",
+          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
         }}
       >
-        <OutputView
-          host={host}
-          program={program}
-          outputFiles={outputFiles}
-          internalCompilerError={internalCompilerError}
-        />
+        <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
+          <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} />
+          <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
+        </div>
+        <div
+          css={{
+            gridArea: "output",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            borderLeft: "1px solid #c5c5c5",
+          }}
+        >
+          <OutputView
+            host={host}
+            program={program}
+            outputFiles={outputFiles}
+            internalCompilerError={internalCompilerError}
+          />
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </FluentProvider>
   );
 };

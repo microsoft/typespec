@@ -1,11 +1,13 @@
 import { Diagnostic, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import { css } from "@emotion/react";
+import { Settings16Filled } from "@fluentui/react-icons";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui/dist/swagger-ui.css";
 import { BrowserHost } from "../browser-host.js";
 import { ErrorTab } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
+import { OutputSettings } from "./output-settings.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
 
 export interface OutputViewProps {
@@ -58,6 +60,22 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         ),
         align: "right",
       },
+      {
+        id: "settings",
+        name: (
+          <div
+            css={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+            }}
+          >
+            <Settings16Filled />
+          </div>
+        ),
+        align: "right",
+      },
     ];
   }, [props.outputFiles, diagnostics, props.internalCompilerError]);
   const handleTabSelection = useCallback((tabId: string) => {
@@ -65,6 +83,8 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
       setViewSelection({ type: "type-graph" });
     } else if (tabId === "errors") {
       setViewSelection({ type: "errors" });
+    } else if (tabId === "settings") {
+      setViewSelection({ type: "settings" });
     } else {
       void loadOutputFile(tabId);
     }
@@ -108,6 +128,8 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
           diagnostics={program?.diagnostics}
         />
       );
+    case "settings":
+      return <OutputSettings />;
     default:
       return (
         <div
@@ -125,7 +147,8 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
 type ViewSelection =
   | { type: "file"; filename: string; content: string }
   | { type: "type-graph" }
-  | { type: "errors" };
+  | { type: "errors" }
+  | { type: "settings" };
 
 const ErrorTabLabel: FunctionComponent<{
   internalCompilerError?: any;

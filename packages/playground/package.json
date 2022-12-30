@@ -60,7 +60,10 @@
     "lzutf8": "0.6.2",
     "debounce": "~1.2.1",
     "swagger-ui": "~4.15.5",
-    "swagger-ui-react": "~4.15.5"
+    "swagger-ui-react": "~4.15.5",
+    "@fluentui/react-components": "~9.7.4",
+    "@fluentui/react-icons": "~2.0.190",
+    "recoil": "~0.7.6"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
