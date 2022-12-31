@@ -26,9 +26,13 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         </Tooltip>
         <SamplesDropdown onSelectSample={updateCadl as any} />
+        <Link href="https://microsoft.github.io/cadl" target="_blank">
+          Docs
+        </Link>
+        <div css={{ flex: "1" }}></div>
         <Tooltip content="Save" relationship="description" withArrow>
           <ToolbarButton
-            appearance="primary"
+            appearance="subtle"
             aria-label="File Bug Report"
             icon={<Bug16Regular />}
             onClick={newIssue as any}
@@ -36,11 +40,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             File bug
           </ToolbarButton>
         </Tooltip>
-        <label>
-          <Link href="https://microsoft.github.io/cadl" target="_blank">
-            Docs
-          </Link>
-        </label>
       </Toolbar>
     </div>
   );
