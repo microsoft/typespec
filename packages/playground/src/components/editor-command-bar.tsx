@@ -30,7 +30,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
         <Tooltip content="Save" relationship="description" withArrow>
           <ToolbarButton
             appearance="primary"
-            aria-label="Save"
+            aria-label="File Bug Report"
             icon={<Bug16Regular />}
             onClick={newIssue as any}
           />
