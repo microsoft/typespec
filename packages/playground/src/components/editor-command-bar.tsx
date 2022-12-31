@@ -1,4 +1,3 @@
-import { css } from "@emotion/react";
 import { Link, Tooltip } from "@fluentui/react-components";
 import { Toolbar, ToolbarButton } from "@fluentui/react-components/unstable";
 import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
@@ -33,11 +32,13 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             aria-label="File Bug Report"
             icon={<Bug16Regular />}
             onClick={newIssue as any}
-          />
+          >
+            File bug
+          </ToolbarButton>
         </Tooltip>
         <label>
           <Link href="https://microsoft.github.io/cadl" target="_blank">
-            Show Cadl Docs
+            Docs
           </Link>
         </label>
       </Toolbar>
