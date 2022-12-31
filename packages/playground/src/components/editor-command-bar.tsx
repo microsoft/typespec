@@ -1,4 +1,7 @@
 import { css } from "@emotion/react";
+import { Link, Tooltip } from "@fluentui/react-components";
+import { Toolbar, ToolbarButton } from "@fluentui/react-components/unstable";
+import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
 import { SamplesDropdown } from "./samples-dropdown.js";
 
@@ -14,25 +17,30 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
 }) => {
   return (
     <div css={{ borderBottom: "1px solid #f5f5f5" }}>
-      <label css={CommandItemStyles}>
-        <button onClick={saveCode as any}>Share</button>
-      </label>
-      <label css={CommandItemStyles}>
-        {"Load a sample: "}
+      <Toolbar>
+        <Tooltip content="Save" relationship="description" withArrow>
+          <ToolbarButton
+            appearance="primary"
+            aria-label="Save"
+            icon={<Save16Regular />}
+            onClick={saveCode as any}
+          />
+        </Tooltip>
         <SamplesDropdown onSelectSample={updateCadl as any} />
-      </label>
-      <label css={CommandItemStyles}>
-        <button onClick={newIssue as any}>Open Issue</button>
-      </label>
-      <label>
-        <a href="https://microsoft.github.io/cadl" target="_blank">
-          Show Cadl Docs
-        </a>
-      </label>
+        <Tooltip content="Save" relationship="description" withArrow>
+          <ToolbarButton
+            appearance="primary"
+            aria-label="Save"
+            icon={<Bug16Regular />}
+            onClick={newIssue as any}
+          />
+        </Tooltip>
+        <label>
+          <Link href="https://microsoft.github.io/cadl" target="_blank">
+            Show Cadl Docs
+          </Link>
+        </label>
+      </Toolbar>
     </div>
   );
 };
-
-const CommandItemStyles = css({
-  padding: "0 2px",
-});
