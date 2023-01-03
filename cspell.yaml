@@ -14,11 +14,14 @@ words:
   - cadleditor
   - cadleng
   - Contoso
+  - createsorreplacesresource
+  - createsorupdatesresource
   - CRUDL
   - dogfood
   - eastus
   - ecmarkup
   - esbuild
+  - fluentui
   - globby
   - inmemory
   - instanceid
@@ -45,6 +48,7 @@ words:
   - rpaas
   - rushx
   - safeint
+  - segmentof
   - strs
   - TRYIT
   - TSES
@@ -60,16 +64,13 @@ words:
   - vswhere
   - westus
   - xplat
-  - segmentof
-  - createsorreplacesresource
-  - createsorupdatesresource
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/dist-dev/**"
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
-  - "packages/website/build/**"
+  - packages/website/build/**
   - common/scripts/*
 enableFiletypes:
   - cadl

@@ -1,10 +1,11 @@
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "./browser-host.js";
-import { Playground } from "./components/playground.js";
+import { StyledPlayground } from "./components/playground.js";
 import { attachServices } from "./services.js";
+import { getCadlContentFromQueryParam, saveCadlContentInQueryParameter } from "./state-storage.js";
 
 import "./style.css";
 
@@ -20,8 +21,12 @@ import "./style.css";
 const host = await createBrowserHost();
 await attachServices(host);
 
+const initialContent = getCadlContentFromQueryParam("c");
 const App: FunctionComponent = () => {
-  return <Playground host={host} />;
+  const save = useCallback((content: string) => {
+    void saveCadlContentInQueryParameter("c", content);
+  }, []);
+  return <StyledPlayground host={host} cadlContent={initialContent} onSave={save} />;
 };
 
 const root = createRoot(document.getElementById("root")!);
