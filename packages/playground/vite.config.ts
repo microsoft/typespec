@@ -18,6 +18,10 @@ const config = definePlaygroundViteConfig({
     "REST framework": "samples/rest.cadl",
   },
   enableSwaggerUI: true,
+  links: {
+    newIssue: `https://github.com/microsoft/cadl/issues/new`,
+    documentation: "https://microsoft.github.io/cadl",
+  },
 });
 
 config.plugins!.push(

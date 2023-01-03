@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix: Projecting model property with type referencing sibling",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

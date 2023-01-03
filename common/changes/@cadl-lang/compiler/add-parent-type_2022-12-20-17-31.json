@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Api: Provide more accurate `parent` type for Nodes",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

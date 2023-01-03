@@ -29,7 +29,6 @@ export const OutputEditor: FunctionComponent<{ filename: string; value: string }
   }
   const options: editor.IStandaloneEditorConstructionOptions = {
     readOnly: true,
-    tabSize: 2,
     automaticLayout: true,
     minimap: {
       enabled: false,

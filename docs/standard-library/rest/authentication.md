@@ -22,21 +22,21 @@ Authentication can be configured using the `@useAuth` decorator on the service n
 
 ```cadl
 // Use BOTH Auth1 or Auth2
-@useAuth([Auth1 Auth2])
+@useAuth([Auth1, Auth2])
 ```
 
 - A union of security scheme. This means EITHER of the security schemes can be used to authenticate this service
 
 ```cadl
 // Use EITHER Auth1 or Auth2
-@useAuth([Auth1 Auth2])
+@useAuth(Auth1 | Auth2)
 ```
 
 - A union of tuple security scheme. This means EITHER of the security groups schemes can be used to authenticate this service
 
 ```cadl
 // Use EITHER (Auth1 AND Auth2) OR Auth3
-@useAuth([Auth1 Auth2] | Auth3)
+@useAuth([Auth1, Auth2] | Auth3)
 ```
 
 ## Available security schemes
@@ -80,7 +80,7 @@ GET /something?api_key=abcdef12345
 ```
 
 ```cadl
-@useAuth(ApiKeyAuth<"query", "api_key">)
+@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api_key">)
 ```
 
 or as a request header
@@ -91,7 +91,7 @@ X-API-Key: abcdef12345
 ```
 
 ```cadl
-@useAuth(ApiKeyAuth<"header", "X-API-KEY">)
+@useAuth(ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">)
 ```
 
 or as a cookie
@@ -102,7 +102,7 @@ Cookie: X-API-KEY=abcdef12345
 ```
 
 ```cadl
-@useAuth(ApiKeyAuth<"cookie", "X-API-KEY">)
+@useAuth(ApiKeyAuth<ApiKeyLocation.cookie, "X-API-KEY">)
 ```
 
 ### `OAuth2Auth<TFlows extends OAuth2Flow[]>`
