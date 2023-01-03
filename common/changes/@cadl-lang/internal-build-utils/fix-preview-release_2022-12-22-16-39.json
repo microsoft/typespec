@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Update preview release script to work with pinned versions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}
