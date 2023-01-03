@@ -108,7 +108,6 @@ function navigateReferencedTypes(
       callback(type);
       navigateIterable(type.properties, callback, visited);
       navigateIterable(type.derivedModels, callback, visited);
-      type.baseModel && navigateReferencedTypes(type.baseModel, callback, visited);
       type.indexer?.value && navigateReferencedTypes(type.indexer.value, callback, visited);
       break;
     case "ModelProperty":

@@ -6,7 +6,11 @@ import {
   CompletionList,
   MarkupKind,
 } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
+import {
+  createTestServerHost,
+  extractCursor,
+  extractSquiggles,
+} from "../../testing/test-server-host.js";
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
@@ -35,159 +39,181 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
-  it("completes imports", async () => {
-    const completions = await complete(` import "┆ `, undefined, {
-      "test/package.json": JSON.stringify({
-        dependencies: {
-          "@cadl-lang/library1": "~0.1.0",
-          "non-cadl-library": "~0.1.0",
+  describe("library imports", () => {
+    async function testCompleteLibrary(code: string) {
+      const { source, pos, end } = extractSquiggles(code);
+      const completions = await complete(source, undefined, {
+        "test/package.json": JSON.stringify({
+          dependencies: {
+            "@cadl-lang/library1": "~0.1.0",
+            "non-cadl-library": "~0.1.0",
+          },
+          peerDependencies: {
+            "@cadl-lang/library2": "~0.1.0",
+          },
+        }),
+        "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
+          cadlMain: "./foo.js",
+        }),
+        "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
+        "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
+          cadlMain: "./foo.js",
+        }),
+      });
+
+      const expectedRange = {
+        start: { character: pos, line: 0 },
+        end: {
+          character: end - 1 /** End is offset by one because there is the cursor charchater */,
+          line: 0,
         },
-        peerDependencies: {
-          "@cadl-lang/library2": "~0.1.0",
-        },
-      }),
-      "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
-        cadlMain: "./foo.js",
-      }),
-      "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
-      "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
-        cadlMain: "./foo.js",
-      }),
-    });
-    check(
-      completions,
-      [
+      };
+      check(
+        completions,
+        [
+          {
+            label: "@cadl-lang/library1",
+            textEdit: {
+              newText: "@cadl-lang/library1",
+              range: expectedRange,
+            },
+            kind: CompletionItemKind.Module,
+          },
+          {
+            label: "@cadl-lang/library2",
+            kind: CompletionItemKind.Module,
+            textEdit: {
+              newText: "@cadl-lang/library2",
+              range: expectedRange,
+            },
+          },
+        ],
         {
-          label: "@cadl-lang/library1",
-          commitCharacters: [],
-          kind: CompletionItemKind.Module,
-        },
-        {
-          label: "@cadl-lang/library2",
-          commitCharacters: [],
-          kind: CompletionItemKind.Module,
-        },
-      ],
-      {
+          allowAdditionalCompletions: false,
+        }
+      );
+    }
+    it(`complete at start of "`, () => testCompleteLibrary(` import "~~~┆~~~"`));
+    it("complete after some text in import", () => testCompleteLibrary(` import "~~~@cadl┆~~~"`));
+    it("complete in middle of import", () => testCompleteLibrary(` import "~~~@cadl┆libr~~~"`));
+
+    it("doesn't include imports when there is no project package.json", async () => {
+      const completions = await complete(` import "┆ `);
+
+      check(completions, [], {
         allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("complete import for relative path", async () => {
-    const completions = await complete(` import "./┆ `, undefined, {
-      "test/bar.cadl": "",
-      "test/foo.cadl": "",
-      "test/foo/test.cadl": "",
+      });
     });
-    check(
-      completions,
-      [
-        {
-          label: "bar.cadl",
-          commitCharacters: [],
-          kind: CompletionItemKind.File,
-        },
-        {
-          label: "foo.cadl",
-          commitCharacters: [],
-          kind: CompletionItemKind.File,
-        },
-        {
-          label: "foo",
-          commitCharacters: [],
-          kind: CompletionItemKind.Folder,
-        },
-      ],
-      {
+
+    it("completes imports without any dependencies", async () => {
+      const completions = await complete(` import "┆ `, undefined, {
+        "test/package.json": JSON.stringify({}),
+      });
+
+      check(completions, [], {
         allowAdditionalCompletions: false,
-      }
-    );
+      });
+    });
   });
 
-  it("complete import for relative path excludes node_modules", async () => {
-    const completions = await complete(` import "./┆ `, undefined, {
-      "test/node_modules/test.cadl": "",
-      "test/main/test.cadl": "",
-      "test/node_modules/foo/test.cadl": "",
-    });
-    check(
-      completions,
-      [
+  describe("relative path import", () => {
+    it("complete import for relative path", async () => {
+      const completions = await complete(` import "./┆ `, undefined, {
+        "test/bar.cadl": "",
+        "test/foo.cadl": "",
+        "test/foo/test.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            label: "bar.cadl",
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          },
+          {
+            label: "foo.cadl",
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          },
+          {
+            label: "foo",
+            commitCharacters: [],
+            kind: CompletionItemKind.Folder,
+          },
+        ],
         {
-          commitCharacters: [],
-          kind: 19,
-          label: "main",
-        },
-      ],
-      {
-        allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("complete import for relative path after node_modules folder", async () => {
-    const completions = await complete(` import "./node_modules/┆ `, undefined, {
-      "test/node_modules/foo.cadl": "",
+          allowAdditionalCompletions: false,
+        }
+      );
     });
-    check(
-      completions,
-      [
+
+    it("complete import for relative path excludes node_modules", async () => {
+      const completions = await complete(` import "./┆ `, undefined, {
+        "test/node_modules/test.cadl": "",
+        "test/main/test.cadl": "",
+        "test/node_modules/foo/test.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            commitCharacters: [],
+            kind: 19,
+            label: "main",
+          },
+        ],
         {
-          commitCharacters: [],
-          kind: 17,
-          label: "foo.cadl",
-        },
-      ],
-      {
-        allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("import './folder/|' --> don't complete 'folder' complete what's in folder", async () => {
-    const completions = await complete(` import "./bar/┆ `, undefined, {
-      "test/bar/foo.cadl": "",
+          allowAdditionalCompletions: false,
+        }
+      );
     });
-    check(
-      completions,
-      [
+
+    it("complete import for relative path after node_modules folder", async () => {
+      const completions = await complete(` import "./node_modules/┆ `, undefined, {
+        "test/node_modules/foo.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            commitCharacters: [],
+            kind: 17,
+            label: "foo.cadl",
+          },
+        ],
         {
-          commitCharacters: [],
-          kind: 17,
-          label: "foo.cadl",
-        },
-      ],
-      {
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("import './folder/|' --> don't complete 'folder' complete what's in folder", async () => {
+      const completions = await complete(` import "./bar/┆ `, undefined, {
+        "test/bar/foo.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            commitCharacters: [],
+            kind: 17,
+            label: "foo.cadl",
+          },
+        ],
+        {
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("complete import for relative path excludes the file evaluated", async () => {
+      const completions = await complete(` import "./┆ `, undefined, {
+        "test/test.cadl": "",
+      });
+      check(completions, [], {
         allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("complete import for relative path excludes the file evaluated", async () => {
-    const completions = await complete(` import "./┆ `, undefined, {
-      "test/test.cadl": "",
-    });
-    check(completions, [], {
-      allowAdditionalCompletions: false,
-    });
-  });
-
-  it("doesn't include imports when there is no project package.json", async () => {
-    const completions = await complete(` import "┆ `);
-
-    check(completions, [], {
-      allowAdditionalCompletions: false,
-    });
-  });
-
-  it("completes imports without any dependencies", async () => {
-    const completions = await complete(` import "┆ `, undefined, {
-      "test/package.json": JSON.stringify({}),
-    });
-
-    check(completions, [], {
-      allowAdditionalCompletions: false,
+      });
     });
   });
 

@@ -1,8 +1,5 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionItemTag,
   CompletionList,
   CompletionParams,
   DefinitionParams,
@@ -63,12 +60,8 @@ import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
-  getAnyExtensionFromPath,
-  getBaseFileName,
   getDirectoryPath,
-  hasTrailingDirectorySeparator,
   joinPaths,
-  resolvePath,
 } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
 import {
@@ -87,26 +80,17 @@ import {
   DecoratorExpressionNode,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
-  DocContent,
   IdentifierNode,
   Node,
   SourceFile,
   StringLiteralNode,
-  SymbolFlags,
   SyntaxKind,
   TextRange,
-  Type,
 } from "../core/types.js";
-import {
-  doIO,
-  findProjectRoot,
-  getNormalizedRealPath,
-  getSourceFileKindFromExt,
-  loadFile,
-} from "../core/util.js";
-import { getDoc, isDeprecated } from "../lib/decorators.js";
+import { doIO, getNormalizedRealPath, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import { resolveCompletion } from "./completion.js";
 import { getSymbolStructure } from "./symbol-structure.js";
-import { getTypeSignature } from "./type-signature.js";
+import { getParameterDocumentation, getTypeDetails } from "./type-details.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -202,13 +186,6 @@ interface CachedError {
   version?: undefined;
 }
 
-interface KeywordArea {
-  root?: boolean;
-  namespace?: boolean;
-  model?: boolean;
-  identifier?: boolean;
-}
-
 const serverOptions: CompilerOptions = {
   noEmit: true,
   designTimeBuild: true,
@@ -217,38 +194,6 @@ const serverOptions: CompilerOptions = {
     docs: true,
   },
 };
-
-const keywords = [
-  // Root only
-  ["import", { root: true }],
-
-  // Root and namespace
-  ["using", { root: true, namespace: true }],
-  ["model", { root: true, namespace: true }],
-  ["scalar", { root: true, namespace: true }],
-  ["namespace", { root: true, namespace: true }],
-  ["interface", { root: true, namespace: true }],
-  ["union", { root: true, namespace: true }],
-  ["enum", { root: true, namespace: true }],
-  ["alias", { root: true, namespace: true }],
-  ["op", { root: true, namespace: true }],
-  ["dec", { root: true, namespace: true }],
-  ["fn", { root: true, namespace: true }],
-
-  // On model `model Foo <keyword> ...`
-  ["extends", { model: true }],
-  ["is", { model: true }],
-
-  // On identifier`
-  ["true", { identifier: true }],
-  ["false", { identifier: true }],
-  ["unknown", { identifier: true }],
-  ["void", { identifier: true }],
-  ["never", { identifier: true }],
-
-  // Modifiers
-  ["extern", { root: true, namespace: true }],
-] as const;
 
 export function createServer(host: ServerHost): Server {
   // Remember original URL when we convert it to a local path so that we can
@@ -319,7 +264,6 @@ export function createServer(host: ServerHost): Server {
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
-        allCommitCharacters: [".", ",", ";", "("],
       },
       semanticTokensProvider: {
         full: true,
@@ -648,87 +592,6 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  /**
-   * Get the detailed documentation of a type.
-   * @param program The program
-   */
-  function getTypeDetails(
-    program: Program,
-    type: Type,
-    options = {
-      includeSignature: true,
-      includeParameterTags: true,
-    }
-  ): string {
-    // BUG: https://github.com/microsoft/cadl/issues/1348
-    // We've already resolved to a Type and lost the alias node so we don't show doc comments on aliases or alias signatures, currently.
-
-    if (type.kind === "Intrinsic") {
-      return "";
-    }
-    const lines = [];
-    if (options.includeSignature) {
-      lines.push(getTypeSignature(type));
-    }
-    const doc = getTypeDocumentation(program, type);
-    if (doc) {
-      lines.push(doc);
-    }
-    for (const doc of type?.node?.docs ?? []) {
-      for (const tag of doc.tags) {
-        if (tag.tagName.sv === "param" && !options.includeParameterTags) {
-          continue;
-        }
-        lines.push(
-          //prettier-ignore
-          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`
-        );
-      }
-    }
-    return lines.join("\n\n");
-  }
-
-  function getTypeDocumentation(program: Program, type: Type) {
-    const docs: string[] = [];
-
-    // Add /** ... */ developer docs
-    for (const d of type?.node?.docs ?? []) {
-      docs.push(getDocContent(d.content));
-    }
-
-    // Add @doc(...) API docs
-    const apiDocs = getDoc(program, type);
-    if (apiDocs) {
-      docs.push(apiDocs);
-    }
-
-    return docs.join("\n\n");
-  }
-
-  function getParameterDocumentation(program: Program, type: Type): Map<string, string> {
-    const map = new Map<string, string>();
-    for (const d of type?.node?.docs ?? []) {
-      for (const tag of d.tags) {
-        if (tag.kind === SyntaxKind.DocParamTag) {
-          map.set(tag.paramName.sv, getDocContent(tag.content));
-        }
-      }
-    }
-    return map;
-  }
-
-  function getDocContent(content: readonly DocContent[]) {
-    const docs = [];
-    for (const node of content) {
-      compilerAssert(
-        node.kind === SyntaxKind.DocText,
-        "No other doc content node kinds exist yet. Update this code appropriately when more are added."
-      );
-      docs.push(node.text);
-    }
-    return docs.join("");
-  }
-
   async function getHover(params: HoverParams): Promise<Hover> {
     const docString = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
@@ -872,7 +735,6 @@ export function createServer(host: ServerHost): Server {
 
     return getLocations(sym?.declarations);
   }
-
   async function complete(params: CompletionParams): Promise<CompletionList> {
     const completions: CompletionList = {
       isIncomplete: false,
@@ -880,25 +742,17 @@ export function createServer(host: ServerHost): Server {
     };
     await compile(params.textDocument, async (program, document, file) => {
       const node = getCompletionNodeAtPosition(file, document.offsetAt(params.position));
-      if (node === undefined) {
-        addKeywordCompletion("root", completions);
-      } else {
-        switch (node.kind) {
-          case SyntaxKind.NamespaceStatement:
-            addKeywordCompletion("namespace", completions);
-            break;
-          case SyntaxKind.Identifier:
-            addIdentifierCompletion(program, node, completions);
-            break;
-          case SyntaxKind.StringLiteral:
-            if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-              await addImportCompletion(program, document, completions, node);
-            }
-            break;
-        }
-      }
-    });
 
+      await resolveCompletion(
+        {
+          program,
+          file,
+          completions,
+          params,
+        },
+        node
+      );
+    });
     return completions;
   }
 
@@ -969,183 +823,6 @@ export function createServer(host: ServerHost): Server {
       });
     }
     return references;
-  }
-
-  function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
-    const filteredKeywords = keywords.filter(([_, x]) => area in x);
-    for (const [keyword] of filteredKeywords) {
-      completions.items.push({
-        label: keyword,
-        kind: CompletionItemKind.Keyword,
-      });
-    }
-  }
-
-  async function addLibraryImportCompletion(
-    program: Program,
-    document: TextDocument,
-    completions: CompletionList
-  ) {
-    const documentPath = await getPath(document);
-    const projectRoot = await findProjectRoot(compilerHost, documentPath);
-    if (projectRoot !== undefined) {
-      const [packagejson] = await loadFile(
-        compilerHost,
-        resolvePath(projectRoot, "package.json"),
-        JSON.parse,
-        program.reportDiagnostic
-      );
-      let dependencies: string[] = [];
-      if (packagejson.dependencies !== undefined) {
-        dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
-      }
-      if (packagejson.peerDependencies !== undefined) {
-        dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
-      }
-      for (const dependency of dependencies) {
-        const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
-        const [libPackageJson] = await loadFile(
-          compilerHost,
-          resolvePath(nodeProjectRoot, "package.json"),
-          JSON.parse,
-          program.reportDiagnostic
-        );
-        if (libPackageJson.cadlMain !== undefined) {
-          completions.items.push({
-            label: dependency,
-            commitCharacters: [],
-            kind: CompletionItemKind.Module,
-          });
-        }
-      }
-    }
-  }
-
-  async function addImportCompletion(
-    program: Program,
-    document: TextDocument,
-    completions: CompletionList,
-    node: StringLiteralNode
-  ) {
-    if (node.value.startsWith("./") || node.value.startsWith("../")) {
-      await addRelativePathCompletion(program, document, completions, node);
-    } else if (!node.value.startsWith(".")) {
-      await addLibraryImportCompletion(program, document, completions);
-    }
-  }
-
-  async function addRelativePathCompletion(
-    program: Program,
-    document: TextDocument,
-    completions: CompletionList,
-    node: StringLiteralNode
-  ) {
-    const documentPath = await getPath(document);
-    const documentFile = getBaseFileName(documentPath);
-    const documentDir = getDirectoryPath(documentPath);
-    const nodevalueDir = hasTrailingDirectorySeparator(node.value)
-      ? node.value
-      : getDirectoryPath(node.value);
-    const mainCadl = resolvePath(documentDir, nodevalueDir);
-    const files = (await program.host.readDir(mainCadl)).filter(
-      (x) => x !== documentFile && x !== "node_modules"
-    );
-    for (const file of files) {
-      const extension = getAnyExtensionFromPath(file);
-      switch (extension) {
-        case ".cadl":
-        case ".js":
-        case ".mjs":
-          completions.items.push({
-            label: file,
-            commitCharacters: [],
-            kind: CompletionItemKind.File,
-          });
-          break;
-        case "":
-          completions.items.push({
-            label: file,
-            commitCharacters: [],
-            kind: CompletionItemKind.Folder,
-          });
-          break;
-      }
-    }
-  }
-
-  /**
-   * Add completion options for an identifier.
-   */
-  function addIdentifierCompletion(
-    program: Program,
-    node: IdentifierNode,
-    completions: CompletionList
-  ) {
-    const result = program.checker.resolveCompletions(node);
-    if (result.size === 0) {
-      return;
-    }
-    for (const [key, { sym, label }] of result) {
-      let kind: CompletionItemKind;
-      let deprecated = false;
-      const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-      if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
-        kind = CompletionItemKind.Function;
-      } else if (
-        sym.flags & SymbolFlags.Namespace &&
-        sym.declarations[0].kind !== SyntaxKind.NamespaceStatement
-      ) {
-        kind = CompletionItemKind.Module;
-      } else {
-        kind = getCompletionItemKind(program, type);
-        deprecated = isDeprecated(program, type);
-      }
-      const documentation = getTypeDetails(program, type);
-      const item: CompletionItem = {
-        label: label ?? key,
-        documentation: documentation
-          ? {
-              kind: MarkupKind.Markdown,
-              value: documentation,
-            }
-          : undefined,
-        kind,
-        insertText: key,
-      };
-      if (deprecated) {
-        item.tags = [CompletionItemTag.Deprecated];
-      }
-      completions.items.push(item);
-    }
-
-    if (node.parent?.kind === SyntaxKind.TypeReference) {
-      addKeywordCompletion("identifier", completions);
-    }
-  }
-
-  function getCompletionItemKind(program: Program, target: Type): CompletionItemKind {
-    switch (target.node?.kind) {
-      case SyntaxKind.EnumStatement:
-      case SyntaxKind.UnionStatement:
-        return CompletionItemKind.Enum;
-      case SyntaxKind.EnumMember:
-      case SyntaxKind.UnionVariant:
-        return CompletionItemKind.EnumMember;
-      case SyntaxKind.AliasStatement:
-        return CompletionItemKind.Variable;
-      case SyntaxKind.ModelStatement:
-        return CompletionItemKind.Class;
-      case SyntaxKind.ScalarStatement:
-        return CompletionItemKind.Unit;
-      case SyntaxKind.ModelProperty:
-        return CompletionItemKind.Field;
-      case SyntaxKind.OperationStatement:
-        return CompletionItemKind.Method;
-      case SyntaxKind.NamespaceStatement:
-        return CompletionItemKind.Module;
-      default:
-        return CompletionItemKind.Struct;
-    }
   }
 
   async function getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]> {
