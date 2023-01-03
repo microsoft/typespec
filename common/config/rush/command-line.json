@@ -62,6 +62,12 @@
     },
     {
       "commandKind": "global",
+      "name": "update-latest-docs",
+      "summary": "(CUSTOM) Copy the current docs to the latest.",
+      "shellCommand": "node eng/scripts/npm-run.js update-latest-docs"
+    },
+    {
+      "commandKind": "global",
       "name": "cspell",
       "summary": "(CUSTOM) Check spelling.",
       "shellCommand": "node eng/scripts/cspell.js"
