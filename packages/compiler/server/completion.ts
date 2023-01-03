@@ -3,9 +3,13 @@ import {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
+<<<<<<< HEAD
   CompletionParams,
   MarkupKind,
   TextEdit,
+=======
+  MarkupKind,
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
 } from "vscode-languageserver";
 import {
   CadlScriptNode,
@@ -28,6 +32,7 @@ import { findProjectRoot, loadFile } from "../core/util.js";
 import { isDeprecated } from "../lib/decorators.js";
 import { getTypeDetails } from "./type-details.js";
 
+<<<<<<< HEAD
 export type CompletionContext = {
   program: Program;
   params: CompletionParams;
@@ -43,6 +48,14 @@ export async function resolveCompletion(
     isIncomplete: false,
     items: [],
   };
+=======
+export async function resolveCompletions(
+  program: Program,
+  file: CadlScriptNode,
+  completions: CompletionList,
+  node: Node | undefined
+) {
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
   if (node === undefined) {
     addKeywordCompletion("root", completions);
   } else {
@@ -51,16 +64,27 @@ export async function resolveCompletion(
         addKeywordCompletion("namespace", completions);
         break;
       case SyntaxKind.Identifier:
+<<<<<<< HEAD
         addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
         if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
           await addImportCompletion(context, node);
+=======
+        addIdentifierCompletion(program, node, completions);
+        break;
+      case SyntaxKind.StringLiteral:
+        if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
+          await addImportCompletion(program, file, completions, node);
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
         }
         break;
     }
   }
+<<<<<<< HEAD
   return completions;
+=======
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
 }
 
 interface KeywordArea {
@@ -112,6 +136,7 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
+<<<<<<< HEAD
 async function addImportCompletion(context: CompletionContext, node: StringLiteralNode) {
   if (node.value.startsWith("./") || node.value.startsWith("../")) {
     await addRelativePathCompletion(context, node);
@@ -123,6 +148,12 @@ async function addImportCompletion(context: CompletionContext, node: StringLiter
 async function addLibraryImportCompletion(
   { program, file, completions }: CompletionContext,
   node: StringLiteralNode
+=======
+async function addLibraryImportCompletion(
+  program: Program,
+  file: CadlScriptNode,
+  completions: CompletionList
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
 ) {
   const documentPath = file.file.path;
   const projectRoot = await findProjectRoot(program.host, documentPath);
@@ -149,6 +180,7 @@ async function addLibraryImportCompletion(
         program.reportDiagnostic
       );
       if (libPackageJson.cadlMain !== undefined) {
+<<<<<<< HEAD
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),
@@ -156,6 +188,11 @@ async function addLibraryImportCompletion(
         completions.items.push({
           textEdit: TextEdit.replace(range, dependency),
           label: dependency,
+=======
+        completions.items.push({
+          label: dependency,
+          commitCharacters: [],
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
           kind: CompletionItemKind.Module,
         });
       }
@@ -163,8 +200,28 @@ async function addLibraryImportCompletion(
   }
 }
 
+<<<<<<< HEAD
 async function addRelativePathCompletion(
   { program, completions, file }: CompletionContext,
+=======
+async function addImportCompletion(
+  program: Program,
+  file: CadlScriptNode,
+  completions: CompletionList,
+  node: StringLiteralNode
+) {
+  if (node.value.startsWith("./") || node.value.startsWith("../")) {
+    await addRelativePathCompletion(program, file, completions, node);
+  } else if (!node.value.startsWith(".")) {
+    await addLibraryImportCompletion(program, file, completions);
+  }
+}
+
+async function addRelativePathCompletion(
+  program: Program,
+  file: CadlScriptNode,
+  completions: CompletionList,
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
   node: StringLiteralNode
 ) {
   const documentPath = file.file.path;
@@ -204,8 +261,14 @@ async function addRelativePathCompletion(
  * Add completion options for an identifier.
  */
 function addIdentifierCompletion(
+<<<<<<< HEAD
   { program, completions }: CompletionContext,
   node: IdentifierNode
+=======
+  program: Program,
+  node: IdentifierNode,
+  completions: CompletionList
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
 ) {
   const result = program.checker.resolveCompletions(node);
   if (result.size === 0) {

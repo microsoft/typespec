@@ -88,7 +88,12 @@ import {
   TextRange,
 } from "../core/types.js";
 import { doIO, getNormalizedRealPath, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+<<<<<<< HEAD
 import { resolveCompletion } from "./completion.js";
+=======
+import { getDoc } from "../lib/decorators.js";
+import { resolveCompletions } from "./completion.js";
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
 import { getSymbolStructure } from "./symbol-structure.js";
 import { getParameterDocumentation, getTypeDetails } from "./type-details.js";
 
@@ -742,6 +747,11 @@ export function createServer(host: ServerHost): Server {
     };
     await compile(params.textDocument, async (program, document, file) => {
       const node = getCompletionNodeAtPosition(file, document.offsetAt(params.position));
+<<<<<<< HEAD
+=======
+      await resolveCompletions(program, file, completions, node);
+    });
+>>>>>>> 3486c6f96a3680736ad1aad3f7b1e833068a78bd
 
       await resolveCompletion(
         {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Internal: Refactor organization of completions logic for language server",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
