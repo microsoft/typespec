@@ -364,10 +364,6 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    if (prop.model) {
-      projectedProp.model = projectType(prop.model) as Model;
-    }
-
     if (prop.sourceProperty) {
       const sourceProperty = projectType(prop.sourceProperty) as ModelProperty;
       projectedProp.sourceProperty = sourceProperty;
@@ -375,6 +371,9 @@ export function createProjector(
 
     if (shouldFinishType(prop)) {
       finishTypeForProgram(projectedProgram, projectedProp);
+    }
+    if (prop.model) {
+      projectedProp.model = projectType(prop.model) as Model;
     }
     return projectedProp;
   }
