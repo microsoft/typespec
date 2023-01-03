@@ -171,4 +171,63 @@ describe("compiler: checker: augment decorators", () => {
     it("operation in interface", () =>
       expectTarget(`interface Foo { @test("target") list(): void }`, "Foo.list"));
   });
+
+  describe("augment location", () => {
+    async function expectAugmentTarget(code: string) {
+      let customName: string | undefined;
+      let runOnTarget: Type | undefined;
+
+      testHost.addJsFile("test.js", {
+        $customName(_: any, t: Type, n: string) {
+          runOnTarget = t;
+          customName = n;
+        },
+      });
+
+      testHost.addCadlFile(
+        "test.cadl",
+        `
+      import "./test.js";
+
+      ${code}
+      `
+      );
+
+      const { target } = await testHost.compile("test.cadl");
+      strictEqual(runOnTarget?.kind, target.kind);
+      strictEqual(runOnTarget, target);
+      strictEqual(customName, "FooCustom");
+    }
+
+    it("augment type in another namespace", async () => {
+      await expectAugmentTarget(`
+        namespace Lib {
+          @test("target") model Foo {}
+        }
+
+        namespace MyService {
+          @@customName(Lib.Foo, "FooCustom")
+        }
+      `);
+    });
+
+    it("augment type in another file checked before", async () => {
+      testHost.addCadlFile("lib.cadl", `@test("target") model Foo {} `);
+
+      await expectAugmentTarget(`
+        import "./lib.cadl";
+        @@customName(Foo, "FooCustom")
+      `);
+    });
+
+    it("augment type in another file checked after", async () => {
+      testHost.addCadlFile("lib.cadl", `@@customName(Foo, "FooCustom") `);
+
+      await expectAugmentTarget(`
+        import "./lib.cadl";
+
+        @test("target") model Foo {}
+      `);
+    });
+  });
 });

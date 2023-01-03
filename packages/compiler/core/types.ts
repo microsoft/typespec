@@ -553,6 +553,7 @@ export const enum SymbolFlags {
    * Symbols whose members will be late bound (and stored on the type)
    */
   MemberContainer = Model | Enum | Union | Interface,
+  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
 }
 
 /**
@@ -743,6 +744,29 @@ export type TemplateableNode =
   | InterfaceStatementNode
   | OperationStatementNode
   | UnionStatementNode;
+
+/**
+ * Node types that can have referencable members
+ */
+export type MemberContainerNode =
+  | ModelStatementNode
+  | ModelExpressionNode
+  | InterfaceStatementNode
+  | EnumStatementNode
+  | UnionStatementNode;
+
+export type MemberNode =
+  | ModelPropertyNode
+  | EnumMemberNode
+  | OperationStatementNode
+  | UnionVariantNode;
+
+export type MemberContainerType = Model | Enum | Interface | Union;
+
+/**
+ * Type that can be used as members of a container type.
+ */
+export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant;
 
 export type Comment = LineComment | BlockComment;
 
