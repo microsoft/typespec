@@ -1438,7 +1438,7 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return yaml.dump(root);
+      return yaml.dump(root, { noRefs: true });
   }
 }
 
