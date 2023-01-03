@@ -20,10 +20,15 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
   return <Editor model={props.model} commands={props.commands} options={options}></Editor>;
 };
 
-export const OutputEditor: FunctionComponent<{ value: string }> = ({ value }) => {
+export const OutputEditor: FunctionComponent<{ filename: string; value: string }> = ({
+  filename,
+  value,
+}) => {
+  if (filename === "") {
+    return null;
+  }
   const options: editor.IStandaloneEditorConstructionOptions = {
     readOnly: true,
-    language: "json",
     automaticLayout: true,
     minimap: {
       enabled: false,
