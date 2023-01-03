@@ -189,13 +189,6 @@ interface CachedError {
   version?: undefined;
 }
 
-interface KeywordArea {
-  root?: boolean;
-  namespace?: boolean;
-  model?: boolean;
-  identifier?: boolean;
-}
-
 const serverOptions: CompilerOptions = {
   noEmit: true,
   designTimeBuild: true,
