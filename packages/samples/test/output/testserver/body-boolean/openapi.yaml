@@ -23,7 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Error'
     put:
       operationId: bool_putTrue
@@ -37,7 +37,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -64,7 +65,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Error'
     put:
       operationId: bool_putFalse
       description: Set Boolean value false
@@ -81,7 +83,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -106,7 +109,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Error'
   /bool/invalid:
     get:
       operationId: bool_getInvalid
@@ -124,7 +128,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Error'
 components:
   schemas:
     Error:

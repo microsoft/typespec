@@ -18,21 +18,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Shelf'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/RpcStatus'
       requestBody:
         description: The shelf to create.
         content:
           application/json:
             schema:
-              $ref: *ref_0
+              $ref:
+                value: '#/components/schemas/Shelf'
     get:
       tags:
         - LibraryService
@@ -41,10 +42,8 @@ paths:
         Lists shelves. The order is unspecified but deterministic. Newly created
         shelves will not necessarily be added to the end of this list.
       parameters:
-        - &ref_3
-          $ref: '#/components/parameters/ListRequestBase.page_size'
-        - &ref_4
-          $ref: '#/components/parameters/ListRequestBase.page_token'
+        - $ref: '#/components/parameters/ListRequestBase.page_size'
+        - $ref: '#/components/parameters/ListRequestBase.page_token'
       responses:
         '200':
           description: The request has succeeded.
@@ -58,7 +57,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
   /v1/shelves/{name}:
     get:
       tags:
@@ -73,13 +73,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Shelf'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
     delete:
       tags:
         - LibraryService
@@ -97,7 +99,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
   /v1/shelves/{name}:merge:
     post:
       tags:
@@ -124,19 +127,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Shelf'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
       requestBody:
         description: The name of the shelf we're removing books from and deleting.
         content:
           application/json:
             schema:
-              $ref: &ref_5
+              $ref:
                 value: '#/components/schemas/shelf_name'
   /v1/shelves/{name}/books:
     post:
@@ -152,20 +157,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/Book'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
       requestBody:
         description: The book to create.
         content:
           application/json:
             schema:
-              $ref: *ref_2
+              $ref:
+                value: '#/components/schemas/Book'
     get:
       tags:
         - LibraryService
@@ -179,8 +186,8 @@ paths:
         Returns NOT_FOUND if the shelf does not exist.
       parameters:
         - $ref: '#/components/parameters/ListBooksRequest.name'
-        - *ref_3
-        - *ref_4
+        - $ref: '#/components/parameters/ListRequestBase.page_size'
+        - $ref: '#/components/parameters/ListRequestBase.page_token'
       responses:
         '200':
           description: The request has succeeded.
@@ -194,7 +201,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
   /v1/shelves/shelf_name/books/{name}:
     get:
       tags:
@@ -209,13 +217,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Book'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
     delete:
       tags:
         - LibraryService
@@ -233,7 +243,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
 components:
   parameters:
     GetShelfRequest:
@@ -322,7 +333,8 @@ components:
       properties:
         name:
           allOf:
-            - $ref: *ref_5
+            - $ref:
+                value: '#/components/schemas/shelf_name'
           description: |-
             The resource name of the shelf.
             Shelf names have the form `shelves/{shelf_id}`.
@@ -354,7 +366,8 @@ components:
         shelves:
           type: array
           items:
-            $ref: *ref_0
+            $ref:
+              value: '#/components/schemas/Shelf'
           x-cadl-name: Shelf[]
           description: The list of shelves.
         next_page_token:
@@ -384,7 +397,7 @@ components:
       properties:
         name:
           allOf:
-            - $ref: &ref_6
+            - $ref:
                 value: '#/components/schemas/book_name'
           description: |-
             The resource name of the book.
@@ -408,7 +421,8 @@ components:
         books:
           type: array
           items:
-            $ref: *ref_2
+            $ref:
+              value: '#/components/schemas/Book'
           x-cadl-name: Book[]
           description: The list of books.
         next_page_token:
@@ -432,7 +446,8 @@ components:
       properties:
         body:
           allOf:
-            - $ref: *ref_0
+            - $ref:
+                value: '#/components/schemas/Shelf'
           description: The shelf to create.
       description: Request message for LibraryService.CreateShelf.
       required:
@@ -476,7 +491,8 @@ components:
       properties:
         other_shelf_name:
           allOf:
-            - $ref: *ref_5
+            - $ref:
+                value: '#/components/schemas/shelf_name'
           description: The name of the shelf we're removing books from and deleting.
       description: |-
         Describes the shelf being removed (other_shelf_name) and updated
@@ -488,7 +504,8 @@ components:
       properties:
         book:
           allOf:
-            - $ref: *ref_2
+            - $ref:
+                value: '#/components/schemas/Book'
           description: The book to create.
       description: Request message for LibraryService.CreateBook.
       required:
@@ -516,11 +533,13 @@ components:
       properties:
         name:
           allOf:
-            - $ref: *ref_6
+            - $ref:
+                value: '#/components/schemas/book_name'
           description: The name of the book to update.
         book:
           allOf:
-            - $ref: *ref_2
+            - $ref:
+                value: '#/components/schemas/Book'
           description: The book to update with. The name must match or be empty.
       description: Request message for LibraryService.UpdateBook.
       required:
@@ -531,11 +550,13 @@ components:
       properties:
         name:
           allOf:
-            - $ref: *ref_6
+            - $ref:
+                value: '#/components/schemas/book_name'
           description: The name of the book to move.
         other_shelf_name:
           allOf:
-            - $ref: *ref_5
+            - $ref:
+                value: '#/components/schemas/shelf_name'
           description: The name of the destination shelf.
       description: |-
         Describes what book to move (name) and what shelf we're moving it

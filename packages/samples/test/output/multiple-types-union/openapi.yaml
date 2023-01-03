@@ -56,7 +56,7 @@ components:
         - type
         - nextWalkTime
       allOf:
-        - $ref: &ref_0
+        - $ref:
             value: '#/components/schemas/PetBase'
     Cat:
       type: object
@@ -72,4 +72,5 @@ components:
         - type
         - catnipDose
       allOf:
-        - $ref: *ref_0
+        - $ref:
+            value: '#/components/schemas/PetBase'

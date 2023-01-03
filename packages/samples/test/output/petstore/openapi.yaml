@@ -14,8 +14,7 @@ paths:
       operationId: Pets_delete
       description: Delete a pet.
       parameters:
-        - &ref_0
-          $ref: '#/components/parameters/PetId'
+        - $ref: '#/components/parameters/PetId'
       responses:
         '200':
           description: The request has succeeded.
@@ -24,20 +23,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/Error'
     get:
       operationId: Pets_read
       description: Returns a pet. Supports eTags.
       parameters:
-        - *ref_0
+        - $ref: '#/components/parameters/PetId'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/Pet'
         '304':
           description: >-
@@ -46,13 +45,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Error'
   /pets:
     get:
       operationId: Pets_list
@@ -76,7 +77,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Error'
     post:
       operationId: Pets_create
       parameters: []
@@ -86,18 +88,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_1
+              $ref:
+                value: '#/components/schemas/Pet'
   /pets/{petId}/toys:
     get:
       operationId: ListPetToysResponse_list
@@ -125,7 +130,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Error'
 components:
   parameters:
     PetId:
@@ -154,7 +160,8 @@ components:
         items:
           type: array
           items:
-            $ref: *ref_1
+            $ref:
+              value: '#/components/schemas/Pet'
           x-cadl-name: Pet[]
         nextLink:
           type: string

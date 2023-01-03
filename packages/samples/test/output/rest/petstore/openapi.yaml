@@ -21,14 +21,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/PetStoreError'
     patch:
       operationId: Pets_update
@@ -46,13 +46,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
@@ -77,7 +79,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /pets:
     post:
       operationId: Pets_create
@@ -89,19 +92,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Pet'
         '201':
           description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
@@ -125,7 +131,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /pets/{petId}/checkups/{checkupId}:
     patch:
       operationId: PetCheckups_CreateOrUpdate
@@ -149,25 +156,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/Checkup'
         '201':
           description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Checkup'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: &ref_5
+              $ref:
                 value: '#/components/schemas/CheckupUpdate'
   /pets/{petId}/checkups:
     get:
@@ -186,14 +195,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_6
+                $ref:
                   value: '#/components/schemas/CheckupCollectionWithNextLink'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /pets/{petId}/insurance:
     get:
       operationId: PetInsurance_Get
@@ -211,14 +221,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_3
+                $ref:
                   value: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
     patch:
       operationId: PetInsurance_Update
       description: Updates the singleton resource.
@@ -235,18 +246,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_3
+                $ref:
+                  value: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: &ref_4
+              $ref:
                 value: '#/components/schemas/InsuranceUpdate'
   /pets/{petId}/toys/{toyId}:
     get:
@@ -271,14 +284,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_8
+                $ref:
                   value: '#/components/schemas/Toy'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /pets/{petId}/toys:
     get:
       operationId: Toys_list
@@ -307,7 +321,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /pets/{petId}/toys/{toyId}/insurance:
     get:
       operationId: ToyInsurance_Get
@@ -331,13 +346,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_3
+                $ref:
+                  value: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
     patch:
       operationId: ToyInsurance_Update
       description: Updates the singleton resource.
@@ -360,18 +377,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_3
+                $ref:
+                  value: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_4
+              $ref:
+                value: '#/components/schemas/InsuranceUpdate'
   /checkups/{checkupId}:
     patch:
       operationId: Checkups_createOrUpdate
@@ -389,24 +409,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Checkup'
         '201':
           description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Checkup'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_5
+              $ref:
+                value: '#/components/schemas/CheckupUpdate'
   /checkups:
     get:
       operationId: Checkups_list
@@ -418,13 +442,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_6
+                $ref:
+                  value: '#/components/schemas/CheckupCollectionWithNextLink'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /owners/{ownerId}:
     get:
       operationId: Owners_get
@@ -442,14 +468,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_7
+                $ref:
                   value: '#/components/schemas/Owner'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
     patch:
       operationId: Owners_update
       description: Updates an existing instance of the resource.
@@ -466,13 +493,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_7
+                $ref:
+                  value: '#/components/schemas/Owner'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
@@ -497,7 +526,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /owners:
     post:
       operationId: Owners_create
@@ -509,19 +539,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_7
+                $ref:
+                  value: '#/components/schemas/Owner'
         '201':
           description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref: *ref_7
+                $ref:
+                  value: '#/components/schemas/Owner'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
@@ -545,7 +578,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /owners/{ownerId}/checkups/{checkupId}:
     patch:
       operationId: OwnerCheckups_CreateOrUpdate
@@ -569,24 +603,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Checkup'
         '201':
           description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Checkup'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_5
+              $ref:
+                value: '#/components/schemas/CheckupUpdate'
   /owners/{ownerId}/checkups:
     get:
       operationId: OwnerCheckups_List
@@ -604,13 +642,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_6
+                $ref:
+                  value: '#/components/schemas/CheckupCollectionWithNextLink'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
   /owners/{ownerId}/insurance:
     get:
       operationId: OwnerInsurance_Get
@@ -628,13 +668,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_3
+                $ref:
+                  value: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
     patch:
       operationId: OwnerInsurance_Update
       description: Updates the singleton resource.
@@ -651,18 +693,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_3
+                $ref:
+                  value: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_4
+              $ref:
+                value: '#/components/schemas/InsuranceUpdate'
 components:
   schemas:
     Pet:
@@ -741,7 +786,8 @@ components:
         value:
           type: array
           items:
-            $ref: *ref_0
+            $ref:
+              value: '#/components/schemas/Pet'
           x-cadl-name: Pet[]
           description: The items on this page
         nextLink:
@@ -780,7 +826,8 @@ components:
         value:
           type: array
           items:
-            $ref: *ref_2
+            $ref:
+              value: '#/components/schemas/Checkup'
           x-cadl-name: Checkup[]
           description: The items on this page
         nextLink:
@@ -839,7 +886,8 @@ components:
         value:
           type: array
           items:
-            $ref: *ref_8
+            $ref:
+              value: '#/components/schemas/Toy'
           x-cadl-name: Toy[]
           description: The items on this page
         nextLink:
@@ -892,7 +940,8 @@ components:
         value:
           type: array
           items:
-            $ref: *ref_7
+            $ref:
+              value: '#/components/schemas/Owner'
           x-cadl-name: Owner[]
           description: The items on this page
         nextLink:

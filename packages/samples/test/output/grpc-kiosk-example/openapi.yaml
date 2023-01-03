@@ -18,20 +18,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Kiosk'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/RpcStatus'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_0
+              $ref:
+                value: '#/components/schemas/Kiosk'
     get:
       tags:
         - Display
@@ -51,7 +52,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
   /v1/kiosks/{id}:
     get:
       tags:
@@ -71,13 +73,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Kiosk'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
     delete:
       tags:
         - Display
@@ -100,7 +104,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
   /v1/signs:
     post:
       tags:
@@ -114,19 +119,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/Sign'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_2
+              $ref:
+                value: '#/components/schemas/Sign'
     get:
       tags:
         - Display
@@ -160,13 +167,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/Sign'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
     delete:
       tags:
         - Display
@@ -189,7 +198,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
   /v1/signs/{sign_id}:
     post:
       tags:
@@ -208,7 +218,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
       requestBody:
         content:
           application/json:
@@ -244,7 +255,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/RpcStatus'
 components:
   parameters:
     SetSignIdForKioskIdsRequest.sign_id:
@@ -304,7 +316,8 @@ components:
         kiosks:
           type: array
           items:
-            $ref: *ref_0
+            $ref:
+              value: '#/components/schemas/Kiosk'
           x-cadl-name: Kiosk[]
       description: A successful response.
     Sign:
@@ -337,7 +350,8 @@ components:
         signs:
           type: array
           items:
-            $ref: *ref_2
+            $ref:
+              value: '#/components/schemas/Sign'
           x-cadl-name: Sign[]
       description: A successful response.
     GetSignIdResponse:

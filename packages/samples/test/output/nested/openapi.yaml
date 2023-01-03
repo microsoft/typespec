@@ -56,10 +56,11 @@ paths:
               type: object
               properties:
                 thing:
-                  $ref: &ref_0
+                  $ref:
                     value: '#/components/schemas/SubA.Thing'
                 thing2:
-                  $ref: *ref_0
+                  $ref:
+                    value: '#/components/schemas/SubA.Thing'
               required:
                 - thing
                 - thing2

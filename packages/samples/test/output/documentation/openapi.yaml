@@ -14,14 +14,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Resp'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/Error'
   /foo/ModelDocDescriptions:
     get:
@@ -33,7 +33,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/RespWithDocs'
         default:
           description: An unexpected error response.
@@ -52,7 +52,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Resp'
         '404':
           description: The server cannot find the requested resource.
           content:
@@ -65,7 +66,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/Error'
   /foo/NotFoundDefaultDocs:
     get:
       operationId: Foo_withDefaultDescNotFound
@@ -76,7 +78,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/RespWithDocs'
         '404':
           description: The server cannot find the requested resource.
           content:
@@ -89,7 +92,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/Error'
 components:
   schemas:
     Resp:

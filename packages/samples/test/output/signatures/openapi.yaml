@@ -20,14 +20,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/CodeSignAccount'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/ErrorDetails'
   /codeSignAccounts:
     post:
@@ -40,18 +40,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/CodeSignAccount'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/ErrorDetails'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_0
+              $ref:
+                value: '#/components/schemas/CodeSignAccount'
   /accountProfiles/{name}:
     get:
       operationId: AccountProfiles_get
@@ -68,14 +71,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/AccountProfile'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/ErrorDetails'
   /accountProfiles:
     post:
       operationId: AccountProfiles_create
@@ -87,18 +91,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_2
+                $ref:
+                  value: '#/components/schemas/AccountProfile'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: *ref_1
+                $ref:
+                  value: '#/components/schemas/ErrorDetails'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_2
+              $ref:
+                value: '#/components/schemas/AccountProfile'
 components:
   schemas:
     CodeSignAccount:

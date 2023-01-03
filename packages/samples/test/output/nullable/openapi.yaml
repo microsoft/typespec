@@ -28,7 +28,7 @@ paths:
             schema:
               type: object
               allOf:
-                - $ref: &ref_0
+                - $ref:
                     value: '#/components/schemas/AnotherModel'
               nullable: true
               x-cadl-name: AnotherModel | null
@@ -57,7 +57,8 @@ components:
         modelOrNull:
           type: object
           allOf:
-            - $ref: *ref_0
+            - $ref:
+                value: '#/components/schemas/AnotherModel'
           nullable: true
           x-cadl-name: AnotherModel | null
         literalsOrNull:

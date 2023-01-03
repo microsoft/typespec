@@ -29,7 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Thing'
     put:
       operationId: Operations_putThing
@@ -41,12 +41,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: *ref_0
+                $ref:
+                  value: '#/components/schemas/Thing'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_0
+              $ref:
+                value: '#/components/schemas/Thing'
 components:
   parameters:
     NameParameter:

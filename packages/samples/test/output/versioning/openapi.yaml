@@ -8,21 +8,20 @@ paths:
     get:
       operationId: MyService_getPet
       parameters:
-        - &ref_0
-          $ref: '#/components/parameters/ApiVersionParam'
+        - $ref: '#/components/parameters/ApiVersionParam'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/PetBase'
   /walkDog:
     post:
       operationId: MyService_walkDog
       parameters:
-        - *ref_0
+        - $ref: '#/components/parameters/ApiVersionParam'
       responses:
         '200':
           description: The request has succeeded.
@@ -92,7 +91,8 @@ components:
         - nextWalkTime
         - commandList
       allOf:
-        - $ref: *ref_1
+        - $ref:
+            value: '#/components/schemas/PetBase'
     Cat:
       type: object
       properties:
@@ -107,7 +107,8 @@ components:
         - type
         - catnipDose
       allOf:
-        - $ref: *ref_1
+        - $ref:
+            value: '#/components/schemas/PetBase'
     Library.PetToy:
       type: object
       properties:

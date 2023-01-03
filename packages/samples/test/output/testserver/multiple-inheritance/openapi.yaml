@@ -15,7 +15,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/Horse'
         default:
           description: Unexpected error
@@ -44,7 +44,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: *ref_0
+              $ref:
+                value: '#/components/schemas/Horse'
   /multipleInheritance/pet:
     get:
       operationId: MultipleInheritance_getPet
@@ -56,7 +57,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_1
+                $ref:
                   value: '#/components/schemas/Pet'
         default:
           description: Unexpected error
@@ -85,7 +86,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: *ref_1
+              $ref:
+                value: '#/components/schemas/Pet'
   /multipleInheritance/feline:
     get:
       operationId: MultipleInheritance_getFeline
@@ -97,7 +99,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_2
+                $ref:
                   value: '#/components/schemas/Feline'
         default:
           description: Unexpected error
@@ -126,7 +128,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: *ref_2
+              $ref:
+                value: '#/components/schemas/Feline'
   /multipleInheritance/cat:
     get:
       operationId: MultipleInheritance_getCat
@@ -140,7 +143,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_3
+                $ref:
                   value: '#/components/schemas/Cat'
         default:
           description: Unexpected error
@@ -171,7 +174,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: *ref_3
+              $ref:
+                value: '#/components/schemas/Cat'
   /multipleInheritance/kitten:
     get:
       operationId: MultipleInheritance_getKitten
@@ -185,7 +189,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_4
+                $ref:
                   value: '#/components/schemas/Kitten'
         default:
           description: Unexpected error
@@ -216,7 +220,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: *ref_4
+              $ref:
+                value: '#/components/schemas/Kitten'
 components:
   schemas:
     Horse:
@@ -227,7 +232,8 @@ components:
       required:
         - isAShowHorse
       allOf:
-        - $ref: *ref_1
+        - $ref:
+            value: '#/components/schemas/Pet'
     Pet:
       type: object
       properties:
@@ -246,7 +252,8 @@ components:
         - meows
         - hisses
       allOf:
-        - $ref: *ref_1
+        - $ref:
+            value: '#/components/schemas/Pet'
     Cat:
       type: object
       properties:
@@ -255,7 +262,8 @@ components:
       required:
         - likesMilk
       allOf:
-        - $ref: *ref_2
+        - $ref:
+            value: '#/components/schemas/Feline'
     Kitten:
       type: object
       properties:
@@ -264,7 +272,8 @@ components:
       required:
         - eatsMiceYet
       allOf:
-        - $ref: *ref_3
+        - $ref:
+            value: '#/components/schemas/Cat'
     ErrorResponse:
       type: object
       properties:

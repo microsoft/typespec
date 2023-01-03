@@ -14,13 +14,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: &ref_0
+                $ref:
                   value: '#/components/schemas/HasBytes'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: *ref_0
+              $ref:
+                value: '#/components/schemas/HasBytes'
   /test/textPlain:
     post:
       operationId: BytesMethod_textPlain
