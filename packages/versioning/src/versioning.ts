@@ -4,8 +4,10 @@ import {
   Enum,
   EnumMember,
   getNamespaceFullName,
+  ModelProperty,
   Namespace,
   ObjectType,
+  Operation,
   Program,
   ProjectionApplication,
   reportDeprecated,
@@ -85,7 +87,12 @@ export function getTypeChangedFrom(p: Program, t: Type): Map<Version, Type> | un
   return p.stateMap(typeChangedFromKey).get(t) as Map<Version, Type>;
 }
 
-export function $typeChangedFrom(context: DecoratorContext, t: Type, v: EnumMember, oldType: any) {
+export function $typeChangedFrom(
+  context: DecoratorContext,
+  prop: ModelProperty,
+  v: EnumMember,
+  oldType: any
+) {
   const { program } = context;
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -94,11 +101,11 @@ export function $typeChangedFrom(context: DecoratorContext, t: Type, v: EnumMemb
   }
 
   // retrieve statemap to update or create a new one
-  let record = getTypeChangedFrom(program, t) ?? new Map<Version, any>();
+  let record = getTypeChangedFrom(program, prop) ?? new Map<Version, any>();
   record.set(version, oldType);
   // ensure the map is sorted by version
   record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
-  program.stateMap(typeChangedFromKey).set(t, record);
+  program.stateMap(typeChangedFromKey).set(prop, record);
 }
 
 /**
@@ -113,7 +120,7 @@ export function getReturnTypeChangedFrom(p: Program, t: Type): Map<Version, Type
 
 export function $returnTypeChangedFrom(
   context: DecoratorContext,
-  t: Type,
+  op: Operation,
   v: EnumMember,
   oldReturnType: any
 ) {
@@ -125,11 +132,11 @@ export function $returnTypeChangedFrom(
   }
 
   // retrieve statemap to update or create a new one
-  let record = getReturnTypeChangedFrom(program, t) ?? new Map<Version, any>();
+  let record = getReturnTypeChangedFrom(program, op) ?? new Map<Version, any>();
   record.set(version, oldReturnType);
   // ensure the map is sorted by version
   record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
-  program.stateMap(returnTypeChangedFromKey).set(t, record);
+  program.stateMap(returnTypeChangedFromKey).set(op, record);
 }
 
 interface RenamedFrom {
