@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
-import { execSync } from "child_process";
 import { lstat, readdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import stripJsonComments from "strip-json-comments";
-import { PRERELEASE_TYPE } from "./constants.js";
 
 interface RushChangeFile {
   packageName: string;
@@ -54,7 +52,7 @@ async function getChangeCountPerPackage(workspaceRoot: string) {
       // Count all changes that are not "none"
       changeCounts[change.packageName] = 0;
     }
-    changeCounts[change.packageName] += change.changes.filter((x) => x.type !== "none").length;
+    changeCounts[change.packageName] += change.changes.length;
   }
 
   return changeCounts;
@@ -93,7 +91,10 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
       for (const [name, currentVersion] of Object.entries(currentDeps)) {
         const updatedPackage = updatedPackages[name];
         if (updatedPackage) {
-          dependencies[name] = `~${updatedPackage.newVersion}`;
+          // Loose dependency accept anything above the last release. This make sure that preview release of only one package need to be bumped without needing all the other as well.
+          dependencies[name] = `>=${updatedPackage.oldVersion}`;
+          // change to this line to have strict dependency for preview versions
+          // dependencies[name] = `~${updatedPackage.newVersion}`;
         } else {
           dependencies[name] = currentVersion;
         }
@@ -105,6 +106,15 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
   return clone;
 }
 
+function bumpVersion(version: string, changeCount: number) {
+  if (changeCount === 0) {
+    return version;
+  }
+  const [major, minor] = version.split(".").map((x) => parseInt(x, 10));
+  console.log(`Bumping version ${version} to ${major}.${minor + 1}.0-dev.${changeCount}`);
+  return `${major}.${minor + 1}.0-dev.${changeCount}`;
+}
+
 async function addPrereleaseNumber(
   changeCounts: Record<string, number>,
   packages: Record<string, { path: string; version: string }>
@@ -114,10 +124,7 @@ async function addPrereleaseNumber(
     const changeCount = changeCounts[packageName] ?? 0;
     const packageJsonPath = join(packageInfo.path, "package.json");
     const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
-    const newVersion =
-      changeCount === 0
-        ? packageInfo.version // Use existing version. Bug in rush --partial-prerelease not working
-        : `${packageJsonContent.version}.${changeCount}`;
+    const newVersion = bumpVersion(packageInfo.version, changeCount);
 
     console.log(`Setting version for ${packageName} to '${newVersion}'`);
     updatedManifests[packageName] = {
@@ -149,16 +156,6 @@ export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
   console.log("Packages", packages);
 
   // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
-  console.log("Bumping versions with rush publish");
-  for (const workspaceRoot of workspaceRoots) {
-    execSync(
-      `npx @microsoft/rush publish --apply --partial-prerelease --prerelease-name="${PRERELEASE_TYPE}"`,
-      {
-        cwd: workspaceRoot,
-      }
-    );
-  }
-
   console.log("Adding prerelease number");
   await addPrereleaseNumber(changeCounts, packages);
 }

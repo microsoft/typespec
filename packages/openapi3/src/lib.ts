@@ -21,7 +21,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   additionalProperties: false,
   properties: {
     "output-file": { type: "string", nullable: true },
-    "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
+    "new-line": { type: "string", enum: ["crlf", "lf"], default: "lf", nullable: true },
     "omit-unreachable-types": { type: "boolean", nullable: true },
   },
   required: [],

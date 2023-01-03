@@ -1,5 +1,11 @@
-import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
+import {
+  CadlLanguageConfiguration,
+  DiagnosticTarget,
+  NoTarget,
+  ServerHost,
+} from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
+import { editor } from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -21,6 +27,7 @@ function getIndentAction(
       return monaco.languages.IndentAction.Outdent;
   }
 }
+
 function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration {
   return {
     ...(CadlLanguageConfiguration as any),
@@ -40,7 +47,7 @@ function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration 
 }
 
 export async function attachServices(host: BrowserHost) {
-  monaco.languages.register({ id: "cadl" });
+  monaco.languages.register({ id: "cadl", extensions: [".cadl"] });
   monaco.languages.setLanguageConfiguration("cadl", getCadlLanguageConfiguration());
 
   const serverHost: ServerHost = {
@@ -328,4 +335,27 @@ export async function attachServices(host: BrowserHost) {
     },
     releaseDocumentSemanticTokens() {},
   });
+}
+
+export function getMarkerLocation(
+  cadlCompiler: typeof import("@cadl-lang/compiler"),
+  target: DiagnosticTarget | typeof NoTarget
+): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
+  const loc = cadlCompiler.getSourceLocation(target);
+  if (loc === undefined || loc.file.path !== "/test/main.cadl") {
+    return {
+      startLineNumber: 1,
+      startColumn: 1,
+      endLineNumber: 1,
+      endColumn: 1,
+    };
+  }
+  const start = loc.file.getLineAndCharacterOfPosition(loc.pos);
+  const end = loc.file.getLineAndCharacterOfPosition(loc.end);
+  return {
+    startLineNumber: start.line + 1,
+    startColumn: start.character + 1,
+    endLineNumber: end.line + 1,
+    endColumn: end.character + 1,
+  };
 }
