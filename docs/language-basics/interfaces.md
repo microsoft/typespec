@@ -79,7 +79,7 @@ op myWrite is MyReadWrite.write<int32>;
 :::caution
 Any uninstantiated, templated operation defined in an interface will be excluded from the list of service operations.
 
-This applies as well if using `extends` on a templated interface that has only some templated operation.
+This also applies when using `extends` on an interface that contains templated operations with unfilled template arguments.
 
 ```cadl
 interface ReadWrite<T> {
