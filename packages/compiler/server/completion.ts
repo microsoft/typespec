@@ -3,7 +3,9 @@ import {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
+  CompletionParams,
   MarkupKind,
+  TextEdit,
 } from "vscode-languageserver";
 import {
   CadlScriptNode,
@@ -26,12 +28,21 @@ import { findProjectRoot, loadFile } from "../core/util.js";
 import { isDeprecated } from "../lib/decorators.js";
 import { getTypeDetails } from "./type-details.js";
 
-export async function resolveCompletions(
-  program: Program,
-  file: CadlScriptNode,
-  completions: CompletionList,
+export type CompletionContext = {
+  program: Program;
+  params: CompletionParams;
+  file: CadlScriptNode;
+  completions: CompletionList;
+};
+
+export async function resolveCompletion(
+  context: CompletionContext,
   node: Node | undefined
-) {
+): Promise<CompletionList> {
+  const completions: CompletionList = {
+    isIncomplete: false,
+    items: [],
+  };
   if (node === undefined) {
     addKeywordCompletion("root", completions);
   } else {
@@ -40,15 +51,16 @@ export async function resolveCompletions(
         addKeywordCompletion("namespace", completions);
         break;
       case SyntaxKind.Identifier:
-        addIdentifierCompletion(program, node, completions);
+        addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
         if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-          await addImportCompletion(program, file, completions, node);
+          await addImportCompletion(context, node);
         }
         break;
     }
   }
+  return completions;
 }
 
 interface KeywordArea {
@@ -101,9 +113,8 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
 }
 
 async function addLibraryImportCompletion(
-  program: Program,
-  file: CadlScriptNode,
-  completions: CompletionList
+  { program, file, completions }: CompletionContext,
+  node: StringLiteralNode
 ) {
   const documentPath = file.file.path;
   const projectRoot = await findProjectRoot(program.host, documentPath);
@@ -130,9 +141,13 @@ async function addLibraryImportCompletion(
         program.reportDiagnostic
       );
       if (libPackageJson.cadlMain !== undefined) {
+        const range = {
+          start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
+          end: file.file.getLineAndCharacterOfPosition(node.end - 1),
+        };
         completions.items.push({
+          textEdit: TextEdit.replace(range, dependency),
           label: dependency,
-          commitCharacters: [],
           kind: CompletionItemKind.Module,
         });
       }
@@ -140,23 +155,16 @@ async function addLibraryImportCompletion(
   }
 }
 
-async function addImportCompletion(
-  program: Program,
-  file: CadlScriptNode,
-  completions: CompletionList,
-  node: StringLiteralNode
-) {
+async function addImportCompletion(context: CompletionContext, node: StringLiteralNode) {
   if (node.value.startsWith("./") || node.value.startsWith("../")) {
-    await addRelativePathCompletion(program, file, completions, node);
+    await addRelativePathCompletion(context, node);
   } else if (!node.value.startsWith(".")) {
-    await addLibraryImportCompletion(program, file, completions);
+    await addLibraryImportCompletion(context, node);
   }
 }
 
 async function addRelativePathCompletion(
-  program: Program,
-  file: CadlScriptNode,
-  completions: CompletionList,
+  { program, completions, file }: CompletionContext,
   node: StringLiteralNode
 ) {
   const documentPath = file.file.path;
@@ -196,9 +204,8 @@ async function addRelativePathCompletion(
  * Add completion options for an identifier.
  */
 function addIdentifierCompletion(
-  program: Program,
-  node: IdentifierNode,
-  completions: CompletionList
+  { program, completions }: CompletionContext,
+  node: IdentifierNode
 ) {
   const result = program.checker.resolveCompletions(node);
   if (result.size === 0) {
