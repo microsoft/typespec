@@ -226,6 +226,12 @@ export function createProjectionMembers(checker: Checker): {
       returnType(base) {
         return base.returnType;
       },
+      changeReturnType(base) {
+        return createFunctionType((newType: Type) => {
+          base.returnType = newType;
+          return voidType;
+        });
+      },
     },
     Interface: {
       ...createBaseMembers(),

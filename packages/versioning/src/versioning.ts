@@ -21,6 +21,7 @@ const versionDependencyKey = createStateSymbol("versionDependency");
 const renamedFromKey = createStateSymbol("renamedFrom");
 const madeOptionalKey = createStateSymbol("madeOptional");
 const typeChangedFromKey = createStateSymbol("typeChangedFrom");
+const returnTypeChangedFromKey = createStateSymbol("returnTypeChangedFrom");
 
 export const namespace = "Cadl.Versioning";
 
@@ -98,6 +99,37 @@ export function $typeChangedFrom(context: DecoratorContext, t: Type, v: EnumMemb
   // ensure the map is sorted by version
   record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
   program.stateMap(typeChangedFromKey).set(t, record);
+}
+
+/**
+ * Returns the mapping of versions to old return type values, if applicable
+ * @param p Cadl program
+ * @param t type to query
+ * @returns Map of versions to old types, if any
+ */
+export function getReturnTypeChangedFrom(p: Program, t: Type): Map<Version, Type> | undefined {
+  return p.stateMap(returnTypeChangedFromKey).get(t) as Map<Version, Type>;
+}
+
+export function $returnTypeChangedFrom(
+  context: DecoratorContext,
+  t: Type,
+  v: EnumMember,
+  oldReturnType: any
+) {
+  const { program } = context;
+
+  const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
+  if (!version) {
+    return;
+  }
+
+  // retrieve statemap to update or create a new one
+  let record = getReturnTypeChangedFrom(program, t) ?? new Map<Version, any>();
+  record.set(version, oldReturnType);
+  // ensure the map is sorted by version
+  record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
+  program.stateMap(returnTypeChangedFromKey).set(t, record);
 }
 
 interface RenamedFrom {
@@ -204,6 +236,22 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
 export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): any {
   const target = toVersion(p, t, v);
   const map = getTypeChangedFrom(p, t);
+  if (!map || !target) return "";
+
+  for (const [key, val] of map) {
+    if (target.index < key.index) {
+      return val;
+    }
+  }
+  return "";
+}
+
+/**
+ * @returns get old type if applicable.
+ */
+export function getReturnTypeBeforeVersion(p: Program, t: Type, v: ObjectType): any {
+  const target = toVersion(p, t, v);
+  const map = getReturnTypeChangedFrom(p, t);
   if (!map || !target) return "";
 
   for (const [key, val] of map) {
@@ -737,6 +785,10 @@ export function madeOptionalAfter(p: Program, type: Type, version: ObjectType): 
 
 export function hasOldTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
   return getTypeBeforeVersion(p, type, version) !== "";
+}
+
+export function hasOldReturnTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
+  return getReturnTypeBeforeVersion(p, type, version) !== "";
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
