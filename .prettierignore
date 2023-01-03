@@ -26,8 +26,11 @@ packages/compiler/test/formatter/**/*.cadl
 # That is an example with error and can't be formatted
 packages/samples/local-cadl/test.cadl
 packages/website/build/
+packages/website/versioned_sidebars/
+packages/website/versions.json
 
 spec.emu.html
 
 # Auto generated reference docs.
 docs/**/reference/
+packages/website/versioned_docs/**/reference/
