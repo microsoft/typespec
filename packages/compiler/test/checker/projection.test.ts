@@ -362,6 +362,46 @@ describe("compiler: projections", () => {
       strictEqual(resultNested2.properties.size, 2);
     });
 
+    it("runs decorator on property before model", async () => {
+      const collection: Type[] = [];
+      testHost.addJsFile("./ref.js", {
+        $ref: (_: DecoratorContext, target: Type) => collection.push(target),
+      });
+
+      const code = `
+      import "./ref.js";
+      
+      @test model Bar {
+        b: Foo.b;
+      }
+
+      @ref
+      @test model Foo {
+        @ref
+        b: string;
+      }
+      #suppress "projections-are-experimental"
+      projection model#test {to {}}`;
+      await testProjection(code);
+
+      strictEqual(collection.length, 4);
+      strictEqual(collection[2].kind, "ModelProperty");
+      strictEqual(collection[3].kind, "Model");
+    });
+
+    it("project property with type referencing sibling", async () => {
+      const code = `
+      @test model Foo {
+        a: Foo.b;
+        b: string;
+      }
+      #suppress "projections-are-experimental"
+      projection model#test {to {}}`;
+      const result = (await testProjection(code)) as Model;
+      ok(result.projectionBase);
+      strictEqual(result.properties.get("a")?.type, result.properties.get("b"));
+    });
+
     it("can recursively apply projections to nested models", async () => {
       const code = `
         @test model Foo {
