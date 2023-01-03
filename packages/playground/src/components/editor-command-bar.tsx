@@ -5,15 +5,24 @@ import { FunctionComponent } from "react";
 import { SamplesDropdown } from "./samples-dropdown.js";
 
 export interface EditorCommandBarProps {
+  documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   updateCadl: (value: string) => Promise<void> | void;
   newIssue: () => Promise<void> | void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
+  documentationUrl,
   saveCode,
   updateCadl,
   newIssue,
 }) => {
+  const documentation = documentationUrl ? (
+    <label>
+      <Link href={documentationUrl} target="_blank">
+        Docs
+      </Link>
+    </label>
+  ) : undefined;
   return (
     <div css={{ borderBottom: "1px solid #f5f5f5" }}>
       <Toolbar>
@@ -26,9 +35,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         </Tooltip>
         <SamplesDropdown onSelectSample={updateCadl as any} />
-        <Link href="https://microsoft.github.io/cadl" target="_blank">
-          Docs
-        </Link>
+        {documentation}
         <div css={{ flex: "1" }}></div>
         <Tooltip content="Save" relationship="description" withArrow>
           <ToolbarButton
