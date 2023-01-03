@@ -112,14 +112,6 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
-async function addImportCompletion(context: CompletionContext, node: StringLiteralNode) {
-  if (node.value.startsWith("./") || node.value.startsWith("../")) {
-    await addRelativePathCompletion(context, node);
-  } else if (!node.value.startsWith(".")) {
-    await addLibraryImportCompletion(context, node);
-  }
-}
-
 async function addLibraryImportCompletion(
   { program, file, completions }: CompletionContext,
   node: StringLiteralNode
@@ -160,6 +152,14 @@ async function addLibraryImportCompletion(
         });
       }
     }
+  }
+}
+
+async function addImportCompletion(context: CompletionContext, node: StringLiteralNode) {
+  if (node.value.startsWith("./") || node.value.startsWith("../")) {
+    await addRelativePathCompletion(context, node);
+  } else if (!node.value.startsWith(".")) {
+    await addLibraryImportCompletion(context, node);
   }
 }
 
