@@ -40,7 +40,7 @@ function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration 
 }
 
 export async function attachServices(host: BrowserHost) {
-  monaco.languages.register({ id: "cadl" });
+  monaco.languages.register({ id: "cadl", extensions: [".cadl"] });
   monaco.languages.setLanguageConfiguration("cadl", getCadlLanguageConfiguration());
 
   const serverHost: ServerHost = {
