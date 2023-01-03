@@ -7,6 +7,7 @@ import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importCadlCompiler } from "../core.js";
+import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
 import {
   CompilationState,
