@@ -63,7 +63,7 @@ interface ReadWrite<T> {
 
 ## Interface operation templates
 
-Operations defined inside of interface can also be templated. ([see templates](./templates.md) for details on templates.)
+Operations defined inside of an interface can also be templated. ([see templates](./templates.md) for details on templates.)
 
 ```cadl
 interface ReadWrite<T> {
