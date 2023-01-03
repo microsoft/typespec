@@ -92,14 +92,14 @@ describe("compiler: helpers: usage resolver", () => {
     deepStrictEqual(usages, { inputs: [], outputs: ["Foo", "Bar"] });
   });
 
-  it("track model referenced via base model in returnType", async () => {
+  it("doesn't track model referenced via base model in returnType", async () => {
     const usages = await getUsages(`
       model Bar {}
       model Foo extends Bar {}
       op test(): Foo;
     `);
 
-    deepStrictEqual(usages, { inputs: [], outputs: ["Foo", "Bar"] });
+    deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
   });
 
   it("track model referenced via child model in returnType", async () => {
