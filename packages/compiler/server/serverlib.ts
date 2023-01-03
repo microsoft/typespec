@@ -1471,7 +1471,11 @@ export function createServer(host: ServerHost): Server {
         return candidate;
       }
 
-      dir = getDirectoryPath(dir);
+      const parentDir = getDirectoryPath(dir);
+      if (parentDir === dir) {
+        break;
+      }
+      dir = parentDir;
     }
 
     return path;
