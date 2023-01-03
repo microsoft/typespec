@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "comment": "Add more details to the type graph",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/html-program-viewer"
+}
