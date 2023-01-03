@@ -247,7 +247,7 @@ export function createEmitterContext(program: Program): EmitContext {
           }
 
           function scopeChain(scope: Scope | null) {
-            let chain = [];
+            const chain = [];
             while (scope) {
               chain.unshift(scope);
               scope = scope.parentScope;

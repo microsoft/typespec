@@ -1,11 +1,18 @@
 import { createCadlLibrary, JSONSchemaType } from "@cadl-lang/compiler";
 
-export interface HttpLowLevelOptions {}
+export interface HttpLowLevelOptions {
+  "ignore-docs"?: boolean;
+}
 
 const EmitterOptionsSchema: JSONSchemaType<HttpLowLevelOptions> = {
   type: "object",
   additionalProperties: false,
-  properties: {},
+  properties: {
+    "ignore-docs": {
+      type: "boolean",
+      nullable: true,
+    },
+  },
   required: [],
 };
 

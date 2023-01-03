@@ -21,6 +21,7 @@ import {
 import { getHttpOperation } from "@cadl-lang/rest/http";
 
 import {
+  AssetEmitter,
   code,
   CodeBuilder,
   Context,
@@ -33,9 +34,16 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "./emitter-framework/index.js";
-export async function $onEmit(context: EmitContext) {
+import { HttpLowLevelOptions } from "./lib.js";
+
+export async function $onEmit(context: EmitContext<HttpLowLevelOptions>) {
   const emitterContext = createEmitterContext(context.program);
-  const emitter = emitterContext.createAssetEmitter(SingleFileEmitter, {});
+  const cls = class extends SingleFileEmitter {
+    constructor(emitter: AssetEmitter) {
+      super(emitter, context.options);
+    }
+  };
+  const emitter = emitterContext.createAssetEmitter(cls);
   emitter.emitProgram();
   await emitter.writeOutput();
 }
@@ -45,6 +53,33 @@ export function isArrayType(m: Model) {
 }
 
 export class HttpLowLevelEmitter extends TypeEmitter {
+  omitDecorators: Set<string>;
+  operationOmitDecorators: Set<any>;
+  constructor(emitter: AssetEmitter, options: HttpLowLevelOptions) {
+    super(emitter);
+    this.omitDecorators = new Set([
+      "friendlyName",
+      "withOptionalProperties",
+      "withUpdateableProperties",
+    ]);
+
+    if (options["ignore-docs"]) {
+      this.omitDecorators.add("doc");
+      this.omitDecorators.add("summary");
+    }
+
+    this.operationOmitDecorators = new Set([
+      ...this.omitDecorators,
+      "autoRoute",
+      "route",
+      "get",
+      "post",
+      "patch",
+      "put",
+      "delete",
+    ]);
+  }
+
   // type literals
   booleanLiteral(boolean: BooleanLiteral): EmitEntityOrString {
     return JSON.stringify(boolean.value);
@@ -114,21 +149,16 @@ export class HttpLowLevelEmitter extends TypeEmitter {
   operationDecorators(operation: Operation) {
     const [httpOperation] = getHttpOperation(this.emitter.getProgram(), operation);
     return [
-      this.emitDecorators(operation, [
-        "autoRoute",
-        "route",
-        "get",
-        "post",
-        "patch",
-        "put",
-        "delete",
-      ]),
+      this.emitDecorators(operation, this.operationOmitDecorators),
       `@${httpOperation.verb}`,
       `@route("${httpOperation.path}")`,
     ].join("\n");
   }
 
-  emitDecorators(type: Type & { decorators: DecoratorApplication[] }, exclude: string[] = []) {
+  emitDecorators(
+    type: Type & { decorators: DecoratorApplication[] },
+    exclude: Set<string> = this.omitDecorators
+  ) {
     const exclusion = new Set(exclude);
 
     return type.decorators
