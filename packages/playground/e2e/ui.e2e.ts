@@ -8,7 +8,7 @@ test.describe("playground UI tests", () => {
 
   test("compiled http sample", async ({ page }) => {
     await page.goto(host);
-    const samplesDropDown = page.locator("select.sample-dropdown");
+    const samplesDropDown = page.locator("_react=SamplesDropdown").locator("select");
     await samplesDropDown.selectOption({ label: "HTTP service" });
     const outputContainer = page.locator("_react=OutputContent");
     await expect(outputContainer).toContainText(`"title": "Widget Service"`);
