@@ -175,7 +175,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({ host }) => {
       }}
     >
       <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
-        <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} documentationUrl={PlaygroundManifest.links.documentation} />
+        <EditorCommandBar
+          saveCode={saveCode}
+          newIssue={newIssue}
+          updateCadl={updateCadl}
+          documentationUrl={PlaygroundManifest.links.documentation}
+        />
         <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
       </div>
       <div
