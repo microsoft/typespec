@@ -7,6 +7,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
 
   const markdownPluginOptions: any = {
     entryDocument: "index.md",
+    readme: "none",
   };
 
   app.bootstrap({
