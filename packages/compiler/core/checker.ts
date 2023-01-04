@@ -1094,7 +1094,7 @@ export function createChecker(program: Program): Checker {
   ): Type {
     const symbolLinks =
       templateNode.kind === SyntaxKind.OperationStatement &&
-      templateNode.parent?.kind === SyntaxKind.InterfaceStatement
+      templateNode.parent!.kind === SyntaxKind.InterfaceStatement
         ? getSymbolLinksForMember(templateNode as MemberNode)
         : getSymbolLinks(templateNode.symbol);
 
