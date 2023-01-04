@@ -1060,7 +1060,7 @@ function parseErrorEach(
       );
       expectDiagnostics(astNode.parseDiagnostics, expected, options);
 
-      if (astNode.parseDiagnostics.find((e) => e.severity !== "warning")) {
+      if (astNode.parseDiagnostics.some((e) => e.severity !== "warning")) {
         assert(
           hasParseError(astNode),
           "node claims to have no parse errors, but above were reported."
