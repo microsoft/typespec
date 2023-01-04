@@ -7,21 +7,6 @@ import { extractRefDocs } from "./extractor.js";
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
  */
-export async function generateDocs(main: string, namespaces: string[], outputDir: string) {
-  const program = await compile(NodeHost, main, {
-    parseOptions: { comments: true, docs: true },
-  });
-  const refDoc = extractRefDocs(program, namespaces);
-  const files = renderToDocusaurusMarkdown(refDoc);
-  await mkdir(outputDir, { recursive: true });
-  for (const [name, content] of Object.entries(files)) {
-    await writeFile(joinPaths(outputDir, name), content);
-  }
-}
-
-/**
- * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
- */
 export async function generateLibraryDocs(
   libraryPath: string,
   namespaces: string[],
@@ -40,7 +25,9 @@ export async function generateLibraryDocs(
       await writeFile(joinPaths(outputDir, name), content);
     }
   }
-  await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+  if (pkgJson.main) {
+    await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+  }
 }
 
 async function readPackageJson(libraryPath: string): Promise<NodePackage> {

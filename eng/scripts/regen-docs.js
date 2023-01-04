@@ -5,11 +5,11 @@ import { generateLibraryDocs } from "../../packages/ref-doc/dist/src/index.js";
 import { repoRoot } from "./helpers.js";
 
 // Rest
-// await generateDocs(
-//   join(repoRoot, "packages/rest/lib/rest.cadl"),
-//   ["Cadl.Http", "Cadl.Rest", "Cadl.Rest.Resource"],
-//   join(repoRoot, "docs/standard-library/rest/reference")
-// );
+await generateLibraryDocs(
+  join(repoRoot, "packages/rest"),
+  ["Cadl.Http", "Cadl.Rest", "Cadl.Rest.Resource"],
+  join(repoRoot, "docs/standard-library/rest/reference")
+);
 
 // OpenAPI
 await generateLibraryDocs(
