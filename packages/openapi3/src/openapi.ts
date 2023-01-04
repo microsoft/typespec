@@ -878,6 +878,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForEnum(type);
       case "Tuple":
         return { type: "array", items: {} };
+      case "TemplateParameter":
+        // Note: This should never happen if it does there is a bug in the compiler.
+        reportDiagnostic(program, {
+          code: "invalid-schema",
+          format: { type: `${type.node.id.sv} (template parameter)` },
+          target: type,
+        });
+        return undefined;
     }
 
     reportDiagnostic(program, {

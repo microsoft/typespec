@@ -682,7 +682,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
 
     const id = parseIdentifier();
-    const templateParameters = inInterface ? [] : parseTemplateParameterList();
+    const templateParameters = parseTemplateParameterList();
 
     // Make sure the next token is one that is expected
     const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
