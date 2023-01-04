@@ -431,3 +431,31 @@ export function validateDecoratorUniqueOnNode(
   }
   return true;
 }
+
+export function validateDecoratorNotOnNode(
+  context: DecoratorContext,
+  type: Type,
+  badDecorator: DecoratorFunction,
+  givenDecorator: DecoratorFunction
+) {
+  compilerAssert("decorators" in type, "Type should have decorators");
+  for (const decapp of type.decorators) {
+    if (
+      decapp.decorator === badDecorator &&
+      decapp.node?.kind === SyntaxKind.DecoratorExpression &&
+      decapp.node?.parent === type.node
+    ) {
+      reportDiagnostic(context.program, {
+        code: "decorator-conflict",
+        format: {
+          decoratorName: "@" + badDecorator.name.slice(1),
+          otherDecoratorName: "@" + givenDecorator.name.slice(1),
+        },
+        target: context.decoratorTarget,
+      });
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -1,4 +1,5 @@
 import {
+  validateDecoratorNotOnNode,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
@@ -362,7 +363,7 @@ export function $minValue(
   minValue: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $minValue);
-
+  validateDecoratorNotOnNode(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
   if (!isNumericType(program, getPropertyType(target))) {
@@ -376,7 +377,13 @@ export function $minValue(
     return;
   }
 
-  if (!validateRange(context, minValue, getMaxValue(context.program, target))) {
+  if (
+    !validateRange(
+      context,
+      minValue,
+      getMaxValue(context.program, target) ?? getMaxValueExclusive(context.program, target)
+    )
+  ) {
     return;
   }
   program.stateMap(minValuesKey).set(target, minValue);
@@ -396,7 +403,7 @@ export function $maxValue(
   maxValue: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $maxValue);
-
+  validateDecoratorNotOnNode(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
   if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
@@ -409,7 +416,13 @@ export function $maxValue(
     return;
   }
 
-  if (!validateRange(context, getMinValue(context.program, target), maxValue)) {
+  if (
+    !validateRange(
+      context,
+      getMinValue(context.program, target) ?? getMinValueExclusive(context.program, target),
+      maxValue
+    )
+  ) {
     return;
   }
   program.stateMap(maxValuesKey).set(target, maxValue);
@@ -417,6 +430,85 @@ export function $maxValue(
 
 export function getMaxValue(program: Program, target: Type): number | undefined {
   return program.stateMap(maxValuesKey).get(target);
+}
+
+// -- @minValueExclusive decorator ---------------------
+
+const minValueExclusiveKey = createStateSymbol("minValueExslusive");
+
+export function $minValueExclusive(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  minValueExclusive: number
+) {
+  validateDecoratorUniqueOnNode(context, target, $minValueExclusive);
+  validateDecoratorNotOnNode(context, target, $minValue, $minValueExclusive);
+  const { program } = context;
+
+  if (!isNumericType(program, getPropertyType(target))) {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minValueExclusive", to: "non-numeric type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (
+    !validateRange(
+      context,
+      minValueExclusive,
+      getMaxValue(context.program, target) ?? getMaxValueExclusive(context.program, target)
+    )
+  ) {
+    return;
+  }
+  program.stateMap(minValueExclusiveKey).set(target, minValueExclusive);
+}
+
+export function getMinValueExclusive(program: Program, target: Type): number | undefined {
+  return program.stateMap(minValueExclusiveKey).get(target);
+}
+
+// -- @maxValue decorator ---------------------
+
+const maxValueExclusiveKey = createStateSymbol("maxValueExclusive");
+
+export function $maxValueExclusive(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  maxValueExclusive: number
+) {
+  validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
+  validateDecoratorNotOnNode(context, target, $maxValue, $maxValueExclusive);
+  const { program } = context;
+  if (!isNumericType(program, getPropertyType(target))) {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@maxValue", to: "non-numeric type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (
+    !validateRange(
+      context,
+      getMinValue(context.program, target) ?? getMinValueExclusive(context.program, target),
+      maxValueExclusive
+    )
+  ) {
+    return;
+  }
+  program.stateMap(maxValueExclusiveKey).set(target, maxValueExclusive);
+}
+
+export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
+  return program.stateMap(maxValueExclusiveKey).get(target);
 }
 
 // -- @secret decorator ---------------------

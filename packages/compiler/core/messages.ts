@@ -159,7 +159,13 @@ const diagnostics = {
   "duplicate-decorator": {
     severity: "warning",
     messages: {
-      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same node.`,
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same declaration.`,
+    },
+  },
+  "decorator-conflict": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used with decorator ${"otherDecoratorName"} on the same declaration.`,
     },
   },
   "reserved-identifier": {
