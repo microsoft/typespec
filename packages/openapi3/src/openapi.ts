@@ -388,10 +388,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (version) {
       suffix.push(version);
     }
-    return suffix.length > 0
-      ? options.outputFile.replace(".json", `.${suffix.join(".")}.json`)
-      : options.outputFile;
+    if (suffix.length === 0) {
+      return options.outputFile;
+    }
+
+    const extension = getAnyExtensionFromPath(options.outputFile);
+    const filenameWithoutExtension = options.outputFile.slice(0, -extension.length);
+    return `${filenameWithoutExtension}.${suffix.join(".")}${extension}`;
   }
+
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
