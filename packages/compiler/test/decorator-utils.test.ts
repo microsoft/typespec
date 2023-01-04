@@ -232,10 +232,10 @@ describe("compiler: decorator utils", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "duplicate-conflict",
+          code: "decorator-conflict",
         },
         {
-          code: "duplicate-conflict",
+          code: "decorator-conflict",
         },
       ]);
     });
@@ -250,10 +250,10 @@ describe("compiler: decorator utils", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "duplicate-conflict",
+          code: "decorator-conflict",
         },
         {
-          code: "duplicate-conflict",
+          code: "decorator-conflict",
         },
       ]);
     });
@@ -268,10 +268,10 @@ describe("compiler: decorator utils", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "duplicate-conflict",
+          code: "decorator-conflict",
         },
         {
-          code: "duplicate-conflict",
+          code: "decorator-conflict",
         },
       ]);
     });
