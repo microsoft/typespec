@@ -220,7 +220,19 @@ const diagnostics = {
       default: "A rest parameter cannot be optional.",
     },
   },
-
+  /**
+   * Parser doc comment warnings.
+   * Design goal: Malformed doc comments should only produce warnings, not errors.
+   */
+  "doc-invalid-identifier": {
+    severity: "warning",
+    messages: {
+      default: "Invalid identifier.",
+      tag: "Invalid tag name. Use backticks around code if this was not meant to be a tag.",
+      param: "Invalid parameter name.",
+      templateParam: "Invalid template parameter name.",
+    },
+  },
   /**
    * Checker
    */
