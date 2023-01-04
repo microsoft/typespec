@@ -1,6 +1,18 @@
 import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
+export type FileType = "yaml" | "json";
 export interface OpenAPI3EmitterOptions {
+  /**
+   * If the content should be serialized as YAML or JSON.
+   * @default yaml, it not specified infer from the `output-file` extension
+   */
+
+  "file-type"?: FileType;
+
+  /**
+   * Name of the output file.
+   * @default `openapi.yaml` or `openapi.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   */
   "output-file"?: string;
 
   /**
@@ -20,6 +32,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "file-type": { type: "string", enum: ["yaml", "json"], nullable: true },
     "output-file": { type: "string", nullable: true },
     "new-line": { type: "string", enum: ["crlf", "lf"], default: "lf", nullable: true },
     "omit-unreachable-types": { type: "boolean", nullable: true },

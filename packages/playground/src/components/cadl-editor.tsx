@@ -34,7 +34,7 @@ export const OutputEditor: FunctionComponent<{ filename: string; value: string }
       enabled: false,
     },
   };
-  const model = useMonacoModel("inmemory://output.json", "json");
+  const model = useMonacoModel(filename);
   model.setValue(value);
   return <Editor model={model} options={options}></Editor>;
 };
