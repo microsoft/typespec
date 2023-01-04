@@ -1095,7 +1095,7 @@ export function createChecker(program: Program): Checker {
     const symbolLinks =
       templateNode.kind === SyntaxKind.OperationStatement &&
       templateNode.parent?.kind === SyntaxKind.InterfaceStatement
-        ? getMemberSymbolLinks(templateNode as MemberNode)
+        ? getSymbolLinksForMember(templateNode as MemberNode)
         : getSymbolLinks(templateNode.symbol);
 
     compilerAssert(
@@ -1557,7 +1557,7 @@ export function createChecker(program: Program): Checker {
     parentInterface?: Interface
   ): Operation | ErrorType {
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
-    const links = inInterface ? getMemberSymbolLinks(node) : getSymbolLinks(node.symbol);
+    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol);
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
@@ -2834,7 +2834,7 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
-    const links = getMemberSymbolLinks(prop);
+    const links = getSymbolLinksForMember(prop);
     if (links && links.declaredType && mapper === undefined) {
       return links.declaredType as ModelProperty;
     }
@@ -3054,7 +3054,7 @@ export function createChecker(program: Program): Checker {
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
-    const sym = isMemberNode(node) ? getMemberSymbol(node) ?? node.symbol : node.symbol;
+    const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
     const decoratorNodes = [
       ...node.decorators,
@@ -3399,7 +3399,7 @@ export function createChecker(program: Program): Checker {
     variantNode: UnionVariantNode,
     mapper: TypeMapper | undefined
   ): UnionVariant {
-    const links = getMemberSymbolLinks(variantNode);
+    const links = getSymbolLinksForMember(variantNode);
     if (links && links.declaredType && mapper === undefined) {
       // we're not instantiating this union variant and we've already checked it
       return links.declaredType as UnionVariant;
@@ -3437,14 +3437,14 @@ export function createChecker(program: Program): Checker {
     );
   }
 
-  function getMemberSymbol(node: MemberNode): Sym | undefined {
+  function getSymbolForMember(node: MemberNode): Sym | undefined {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const parentSym = node.parent?.symbol;
     return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
   }
 
-  function getMemberSymbolLinks(node: MemberNode): SymbolLinks | undefined {
-    const sym = getMemberSymbol(node);
+  function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {
+    const sym = getSymbolForMember(node);
     return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym) : undefined) : undefined;
   }
 
@@ -3454,7 +3454,7 @@ export function createChecker(program: Program): Checker {
     parentEnum?: Enum
   ): EnumMember {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
-    const links = getMemberSymbolLinks(node);
+    const links = getSymbolLinksForMember(node);
     if (links?.type) {
       return links.type as EnumMember;
     }
