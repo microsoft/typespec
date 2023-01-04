@@ -50,7 +50,18 @@ export interface DecoratedType {
  */
 export type TemplatedType = Model | Operation | Interface | Union;
 
+export interface TypeMapper {
+  partial: boolean;
+  getMappedType(type: TemplateParameter): Type;
+  args: readonly Type[];
+  /** @internal */ map: Map<TemplateParameter, Type>;
+}
+
 export interface TemplatedTypeBase {
+  templateMapper?: TypeMapper;
+  /**
+   * @deprecated use templateMapper instead.
+   */
   templateArguments?: Type[];
   templateNode?: Node;
 }

@@ -238,8 +238,8 @@ export async function createTestHost(config: TestHostConfig = {}): Promise<TestH
   return testHost;
 }
 
-export async function createTestRunner(): Promise<BasicTestRunner> {
-  const testHost = await createTestHost();
+export async function createTestRunner(host?: TestHost): Promise<BasicTestRunner> {
+  const testHost = host ?? (await createTestHost());
   return createTestWrapper(testHost);
 }
 

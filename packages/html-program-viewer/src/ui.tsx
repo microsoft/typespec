@@ -98,6 +98,7 @@ const omittedProps = [
   "namespace",
   "templateNode",
   "templateArguments",
+  "templateMapper",
   "instantiationParameters",
   "decorators",
   "projectionBase",

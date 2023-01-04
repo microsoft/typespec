@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Feature: Add templated operation inside of interface",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

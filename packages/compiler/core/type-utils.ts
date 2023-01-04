@@ -66,8 +66,7 @@ export function isTemplateInstance(
 ): type is TemplatedType & { templateArguments: Type[] } {
   const maybeTemplateType = type as TemplatedType;
   return (
-    maybeTemplateType.templateArguments !== undefined &&
-    maybeTemplateType.templateArguments.length > 0
+    maybeTemplateType.templateMapper !== undefined && !maybeTemplateType.templateMapper.partial
   );
 }
 
