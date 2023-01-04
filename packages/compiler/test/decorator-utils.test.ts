@@ -3,6 +3,7 @@ import {
   cadlTypeToJson,
   CadlValue,
   DecoratorContext,
+  validateDecoratorNotOnNode,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import { Type } from "../core/types.js";
@@ -161,11 +162,11 @@ describe("compiler: decorator utils", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "duplicate-decorator",
-          message: "Decorator @tag cannot be used twice on the same node.",
+          message: "Decorator @tag cannot be used twice on the same declaration.",
         },
         {
           code: "duplicate-decorator",
-          message: "Decorator @tag cannot be used twice on the same node.",
+          message: "Decorator @tag cannot be used twice on the same declaration.",
         },
       ]);
     });
@@ -199,6 +200,80 @@ describe("compiler: decorator utils", () => {
       `);
 
       expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("validateDecoratorNotOnNode", () => {
+    let runner: BasicTestRunner;
+
+    beforeEach(async () => {
+      const host = await createTestHost();
+      runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
+
+      function $red(context: DecoratorContext, target: Type) {
+        validateDecoratorNotOnNode(context, target, $blue, $red);
+      }
+      function $blue(context: DecoratorContext, target: Type) {
+        validateDecoratorNotOnNode(context, target, $red, $blue);
+      }
+      // add test decorators
+      host.addJsFile("lib.js", {
+        $red,
+        $blue,
+      });
+    });
+
+    it("emit diagnostics if using the decorator has a conflict", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        @blue
+        model Foo {}
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-conflict",
+        },
+        {
+          code: "duplicate-conflict",
+        },
+      ]);
+    });
+
+    it("emit diagnostics if using the decorator has a conflict with model is", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        model Bar {}
+        @blue
+        model Foo is Bar;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-conflict",
+        },
+        {
+          code: "duplicate-conflict",
+        },
+      ]);
+    });
+
+    it("should emit diagnostic if decorator conflict is created via augment decorator", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        model Foo {}
+
+        @@blue(Foo)
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-conflict",
+        },
+        {
+          code: "duplicate-conflict",
+        },
+      ]);
     });
   });
 });

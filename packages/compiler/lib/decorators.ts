@@ -472,7 +472,7 @@ export function getMinValueExclusive(program: Program, target: Type): number | u
   return program.stateMap(minValueExclusiveKey).get(target);
 }
 
-// -- @maxValue decorator ---------------------
+// -- @maxValueExclusive decorator ---------------------
 
 const maxValueExclusiveKey = createStateSymbol("maxValueExclusive");
 

@@ -440,11 +440,7 @@ export function validateDecoratorNotOnNode(
 ) {
   compilerAssert("decorators" in type, "Type should have decorators");
   for (const decapp of type.decorators) {
-    if (
-      decapp.decorator === badDecorator &&
-      decapp.node?.kind === SyntaxKind.DecoratorExpression &&
-      decapp.node?.parent === type.node
-    ) {
+    if (decapp.decorator === badDecorator) {
       reportDiagnostic(context.program, {
         code: "decorator-conflict",
         format: {
