@@ -20,16 +20,21 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
   return <Editor model={props.model} commands={props.commands} options={options}></Editor>;
 };
 
-export const OutputEditor: FunctionComponent<{ value: string }> = ({ value }) => {
+export const OutputEditor: FunctionComponent<{ filename: string; value: string }> = ({
+  filename,
+  value,
+}) => {
+  if (filename === "") {
+    return null;
+  }
   const options: editor.IStandaloneEditorConstructionOptions = {
     readOnly: true,
-    language: "json",
     automaticLayout: true,
     minimap: {
       enabled: false,
     },
   };
-  const model = useMonacoModel("inmemory://output.json", "json");
+  const model = useMonacoModel(filename);
   model.setValue(value);
   return <Editor model={model} options={options}></Editor>;
 };

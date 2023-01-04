@@ -1,3 +1,4 @@
+import { Select } from "@fluentui/react-components/unstable";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { PlaygroundManifest } from "../manifest.js";
 export interface SamplesDropdownProps {
@@ -28,11 +29,11 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({ onSel
     [onSelectSample]
   );
   return (
-    <select className="sample-dropdown" onChange={handleSelected} value={selected}>
+    <Select className="sample-dropdown" onChange={handleSelected} value={selected}>
       <option value="" disabled>
         Select sample...
       </option>
       {options}
-    </select>
+    </Select>
   );
 };

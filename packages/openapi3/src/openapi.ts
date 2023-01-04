@@ -7,6 +7,7 @@ import {
   Enum,
   EnumMember,
   getAllTags,
+  getAnyExtensionFromPath,
   getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
@@ -88,8 +89,9 @@ import {
   Visibility,
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
+import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
@@ -105,8 +107,8 @@ import {
   OpenAPI3ServerVariable,
 } from "./types.js";
 
+const defaultFileType: FileType = "yaml";
 const defaultOptions = {
-  "output-file": "openapi.json",
   "new-line": "lf",
   "omit-unreachable-types": false,
 } as const;
@@ -117,19 +119,39 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   await emitter.emitOpenAPI();
 }
 
+function findFileTypeFromFilename(filename: string | undefined): FileType {
+  if (filename === undefined) {
+    return defaultFileType;
+  }
+  switch (getAnyExtensionFromPath(filename)) {
+    case ".yaml":
+    case ".yml":
+      return "yaml";
+    case ".json":
+      return "json";
+    default:
+      return defaultFileType;
+  }
+}
 export function resolveOptions(
   context: EmitContext<OpenAPI3EmitterOptions>
 ): ResolvedOpenAPI3EmitterOptions {
   const resolvedOptions = { ...defaultOptions, ...context.options };
 
+  const fileType =
+    resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
+
+  const outputFile = resolvedOptions["output-file"] ?? `openapi.${fileType}`;
   return {
+    fileType,
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
-    outputFile: resolvePath(context.emitterOutputDir, resolvedOptions["output-file"]),
+    outputFile: resolvePath(context.emitterOutputDir, outputFile),
   };
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
+  fileType: FileType;
   outputFile: string;
   newLine: NewLine;
   omitUnreachableTypes: boolean;
@@ -406,7 +428,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
         await emitFile(program, {
           path: resolveOutputFile(service, multipleService, version),
-          content: prettierOutput(JSON.stringify(root, null, 2)),
+          content: serializeDocument(root, options.fileType),
           newLine: options.newLine,
         });
       }
@@ -1409,6 +1431,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         const _assertNever: never = auth;
         compilerAssert(false, "Unreachable");
     }
+  }
+}
+
+function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  switch (fileType) {
+    case "json":
+      return prettierOutput(JSON.stringify(root, null, 2));
+    case "yaml":
+      return yaml.dump(root, { noRefs: true });
   }
 }
 

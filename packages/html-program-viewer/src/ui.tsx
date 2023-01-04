@@ -2,20 +2,25 @@ import {
   Enum,
   EnumMember,
   getNamespaceFullName,
+  getTypeName,
   Interface,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
+  Scalar,
   Type,
   Union,
+  UnionVariant,
 } from "@cadl-lang/compiler";
 import { css } from "@emotion/react";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
-import { Item, Literal } from "./common.js";
+import { KeyValueSection, Literal } from "./common.js";
 import { inspect } from "./inspect.js";
+import { TypeUIBase, TypeUIBaseProperty } from "./type-ui-base.js";
+import { getIdForType, isNamedUnion } from "./utils.js";
 
 function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -35,11 +40,6 @@ export interface CadlProgramViewerProps {
 const ProgramViewerStyles = css({
   fontFamily: "monospace",
   backgroundColor: "#f3f3f3",
-  ul: {
-    margin: 0,
-    paddingLeft: "20px",
-    overflow: "auto",
-  },
   li: {
     margin: 0,
     listStyle: "none",
@@ -53,65 +53,15 @@ export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ p
   return (
     <ProgramContext.Provider value={program}>
       <div css={ProgramViewerStyles}>
-        <ul>
+        <ul css={{ padding: "0 0 0 10px", margin: 0 }}>
           {namespaces.map((namespace) => (
             <li key={getNamespaceFullName(namespace)}>
-              <Namespace type={namespace} />
+              <NamespaceUI type={namespace} />
             </li>
           ))}
         </ul>
       </div>
     </ProgramContext.Provider>
-  );
-};
-
-export interface TypeUIProperty {
-  name: string;
-  value: any;
-  description?: string;
-}
-export interface TypeUIProps {
-  type: Type;
-  name: string;
-  /**
-   * Alternate id
-   * @default getIdForType(type)
-   */
-  id?: string;
-  properties: TypeUIProperty[];
-}
-
-const TypeTypeStyles = css({
-  display: "inline",
-  color: "#7a3e9d",
-  marginRight: "5px",
-});
-
-const TypeNameStyles = css({
-  display: "inline",
-  color: "#333333",
-});
-export const TypeUI: FunctionComponent<TypeUIProps> = (props) => {
-  const program = useContext(ProgramContext);
-  const id = props.id ?? getIdForType(program, props.type);
-  const properties = props.properties.map((prop) => {
-    return (
-      <li key={prop.name}>
-        <span css={{ color: "#9c5d27" }} title={prop.description}>
-          {prop.name}
-        </span>
-        : <span>{prop.value}</span>
-      </li>
-    );
-  });
-  return (
-    <div>
-      <div id={id}>
-        <span css={TypeTypeStyles}>{props.type.kind}</span>
-        <span css={TypeNameStyles}>{props.name}</span>
-      </div>
-      <ul>{properties}</ul>
-    </div>
   );
 };
 
@@ -131,213 +81,312 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
     }
   }
   return (
-    <ul>
+    <KeyValueSection>
       {[...props.items.entries()].map(([k, v]) => (
         <li key={k}>{props.render(v)}</li>
       ))}
-    </ul>
+    </KeyValueSection>
   );
 };
 
-const Namespace: FunctionComponent<{ type: Namespace }> = ({ type }) => {
-  const program = useContext(ProgramContext);
-  const name = getNamespaceFullName(type) || "<root>";
-
-  const properties = [
-    {
-      name: "enums",
-      value: <ItemList items={type.enums} render={(x) => <Enum type={x} />} />,
-    },
-    {
-      name: "models",
-      value: <ItemList items={type.models} render={(x) => <Model type={x} />} />,
-    },
-    {
-      name: "interfaces",
-      value: <ItemList items={type.interfaces} render={(x) => <Interface type={x} />} />,
-    },
-    {
-      name: "operations",
-      value: <ItemList items={type.operations} render={(x) => <Operation type={x} />} />,
-    },
-    {
-      name: "unions",
-      value: <ItemList items={type.unions} render={(x) => <Union type={x} />} />,
-    },
-  ];
-  return <TypeUI type={type} name={name} properties={properties} />;
+type NamedType = Type & { name: string };
+const omittedProps = [
+  "kind",
+  "name",
+  "node",
+  "symbol",
+  "namespace",
+  "templateNode",
+  "templateArguments",
+  "instantiationParameters",
+  "decorators",
+  "projectionBase",
+  "projectionsByName",
+  "projectionSource",
+  "projector",
+  "projections",
+] as const;
+const omittedPropsSet = new Set(omittedProps);
+type OmittedProps = typeof omittedProps[number];
+type NamedTypeUIProps<T extends NamedType> = {
+  type: T;
+  properties: Record<Exclude<keyof T, OmittedProps>, "skip" | "ref" | "nested" | "value">;
+  name?: string;
 };
 
-const Interface: FunctionComponent<{ type: Interface }> = ({ type }) => {
-  const properties = [
-    {
-      name: "operations",
-      value: <ItemList items={type.operations} render={(x) => <Operation type={x} />} />,
-    },
-    getDataProperty(type),
-  ];
-  return <TypeUI type={type} name={type.name} properties={properties} />;
+const NamedTypeUI = <T extends NamedType>({ type, name, properties }: NamedTypeUIProps<T>) => {
+  name ??= type.name;
+  const propsUI: TypeUIBaseProperty[] = Object.entries(type)
+    .map(([key, value]) => {
+      if (omittedPropsSet.has(key as any)) {
+        return undefined;
+      }
+      const action = (properties as any)[key] as "skip" | "ref" | "nested";
+      if (action === "skip") {
+        return undefined;
+      }
+
+      const render = (x: any) =>
+        action === "ref" ? <TypeReference type={value} /> : <TypeUI type={x} />;
+      let valueUI;
+      if (value === undefined) {
+        valueUI = value;
+      } else if (value.kind) {
+        valueUI = render(value);
+      } else if (value instanceof Map || Array.isArray(value)) {
+        valueUI = <ItemList items={value} render={render} />;
+      } else {
+        valueUI = value;
+      }
+      return {
+        name: key,
+        value: valueUI,
+      } satisfies TypeUIBaseProperty;
+    })
+    .filter((x): x is TypeUIBaseProperty => Boolean(x));
+  return (
+    <TypeUIBase type={type} name={name} properties={propsUI.concat([getDataProperty(type)])} />
+  );
 };
 
-const Operation: FunctionComponent<{ type: Operation }> = ({ type }) => {
-  const properties = [
-    {
-      name: "parameters",
-      value: <Model type={type.parameters} />,
-    },
-    {
-      name: "returnType",
-      value: <TypeReference type={type.returnType} />,
-    },
-    getDataProperty(type),
-  ];
-  return <TypeUI type={type} name={type.name} properties={properties} />;
+interface TypeUIProps {
+  type: Type;
+}
+
+const TypeUI: FunctionComponent<TypeUIProps> = ({ type }) => {
+  switch (type.kind) {
+    case "Namespace":
+      return <NamespaceUI type={type} />;
+    case "Interface":
+      return <InterfaceUI type={type} />;
+    case "Operation":
+      return <OperationUI type={type} />;
+    case "Model":
+      return <ModelUI type={type} />;
+    case "Scalar":
+      return <ScalarUI type={type} />;
+    case "ModelProperty":
+      return <ModelPropertyUI type={type} />;
+    case "Union":
+      return <UnionUI type={type} />;
+    case "UnionVariant":
+      return <UnionVariantUI type={type} />;
+    case "Enum":
+      return <EnumUI type={type} />;
+    case "EnumMember":
+      return <EnumMemberUI type={type} />;
+    default:
+      return null;
+  }
 };
 
-function getDataProperty(type: Type): TypeUIProperty {
+const NamespaceUI: FunctionComponent<{ type: Namespace }> = ({ type }) => {
+  const name = getNamespaceFullName(type) || "(global)";
+
+  return (
+    <NamedTypeUI
+      name={name}
+      type={type}
+      properties={{
+        namespaces: "skip",
+        models: "nested",
+        scalars: "nested",
+        interfaces: "nested",
+        operations: "nested",
+        unions: "nested",
+        enums: "nested",
+        decoratorDeclarations: "nested",
+        functionDeclarations: "nested",
+      }}
+    />
+  );
+};
+
+const InterfaceUI: FunctionComponent<{ type: Interface }> = ({ type }) => {
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        operations: "nested",
+      }}
+    />
+  );
+};
+
+const OperationUI: FunctionComponent<{ type: Operation }> = ({ type }) => {
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        interface: "skip",
+        parameters: "nested",
+        returnType: "ref",
+      }}
+    />
+  );
+};
+
+function getDataProperty(type: Type): TypeUIBaseProperty {
   return {
     name: "data",
     description: "in program.stateMap()",
     value: <TypeData type={type} />,
   };
 }
-const Model: FunctionComponent<{ type: Model }> = ({ type }) => {
-  const program = useContext(ProgramContext);
-  const id = getIdForType(program, type);
-  const properties = [
-    {
-      name: "properties",
-      value: <ItemList items={type.properties} render={(x) => <ModelProperty type={x} />} />,
-    },
-    getDataProperty(type),
-  ];
-  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
-};
 
-const ModelProperty: FunctionComponent<{ type: ModelProperty }> = ({ type }) => {
-  const program = useContext(ProgramContext);
-  const id = getIdForType(program, type);
-  const properties = [
-    {
-      name: "type",
-      value: <TypeReference type={type.type} />,
-    },
-    {
-      name: "optional",
-      value: type.optional,
-    },
-    getDataProperty(type),
-  ];
-  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
-};
-
-const Enum: FunctionComponent<{ type: Enum }> = ({ type }) => {
-  const program = useContext(ProgramContext);
-  const id = getIdForType(program, type);
-  const properties = [
-    {
-      name: "members",
-      value: <ItemList items={type.members} render={(x) => <EnumMember type={x} />} />,
-    },
-    getDataProperty(type),
-  ];
-  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
-};
-
-const EnumMember: FunctionComponent<{ type: EnumMember }> = ({ type }) => {
-  const program = useContext(ProgramContext);
-  const id = getIdForType(program, type);
-  const properties = [
-    {
-      name: "value",
-      value: type.value,
-    },
-    getDataProperty(type),
-  ];
-  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
-};
-
-const Union: FunctionComponent<{ type: Union }> = ({ type }) => {
-  const program = useContext(ProgramContext);
-
+const ModelUI: FunctionComponent<{ type: Model }> = ({ type }) => {
   return (
-    <Item title={type.name ?? "<unamed union>"} id={getIdForType(program, type)}>
-      <TypeData type={type} />
-
-      <UnionOptions type={type} />
-    </Item>
+    <NamedTypeUI
+      type={type}
+      properties={{
+        indexer: "skip",
+        baseModel: "ref",
+        derivedModels: "ref",
+        properties: "nested",
+      }}
+    />
   );
 };
 
-const UnionOptions: FunctionComponent<{ type: Union }> = ({ type }) => {
-  if (type.variants.size === 0) {
-    return <div></div>;
-  }
+const ScalarUI: FunctionComponent<{ type: Scalar }> = ({ type }) => {
   return (
-    <ul>
-      {[...type.variants.entries()].map(([k, variant]) => (
-        <li key={variant.name?.toString() ?? k.toString()}>
-          <TypeReference type={variant.type} />
-        </li>
-      ))}
-    </ul>
+    <NamedTypeUI
+      type={type}
+      properties={{
+        baseScalar: "ref",
+        derivedScalars: "ref",
+      }}
+    />
   );
 };
 
-function getIdForType(program: Program, type: Type) {
-  switch (type.kind) {
-    case "Namespace":
-      return getNamespaceFullName(type);
-    case "Model":
-    case "Enum":
-    case "Union":
-    case "Operation":
-    case "Interface":
-      return type.namespace ? `${getNamespaceFullName(type.namespace)}.${type.name}` : type.name;
-    default:
-      return undefined;
-  }
-}
+const ModelPropertyUI: FunctionComponent<{ type: ModelProperty }> = ({ type }) => {
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        model: "skip",
+        type: "ref",
+        optional: "value",
+        sourceProperty: "ref",
+        default: "value",
+      }}
+    />
+  );
+};
 
+const EnumUI: FunctionComponent<{ type: Enum }> = ({ type }) => {
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        members: "nested",
+      }}
+    />
+  );
+};
+
+const EnumMemberUI: FunctionComponent<{ type: EnumMember }> = ({ type }) => {
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        enum: "skip",
+        sourceMember: "ref",
+        value: "value",
+      }}
+    />
+  );
+};
+
+const UnionUI: FunctionComponent<{ type: Union }> = ({ type }) => {
+  if (!isNamedUnion(type)) {
+    return <></>;
+  }
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        expression: "skip",
+        options: "skip",
+        variants: "nested",
+      }}
+    />
+  );
+};
+
+const UnionVariantUI: FunctionComponent<{ type: UnionVariant }> = ({ type }) => {
+  if (typeof type.name === "symbol") {
+    return <></>;
+  }
+  return (
+    <NamedTypeUI
+      type={type as UnionVariant & { name: string }}
+      properties={{
+        union: "skip",
+        type: "ref",
+      }}
+    />
+  );
+};
+
+const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
+  const id = getIdForType(type);
+  const href = `#${id}`;
+  return (
+    <a
+      css={{
+        color: "#268bd2",
+        textDecoration: "none",
+
+        "&:hover": {
+          textDecoration: "underline",
+        },
+      }}
+      href={href}
+      title={type.kind + ": " + id}
+    >
+      {getTypeName(type)}
+    </a>
+  );
+};
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
-  const program = useContext(ProgramContext);
   switch (type.kind) {
     case "Namespace":
     case "Operation":
     case "Interface":
     case "Enum":
+    case "ModelProperty":
+    case "Scalar":
+      return <NamedTypeRef type={type} />;
     case "Model":
-      const id = getIdForType(program, type);
-      const href = `#${id}`;
-      return (
-        <a
-          css={{
-            color: "#268bd2",
-            textDecoration: "none",
-
-            "&:hover": {
-              textDecoration: "underline",
-            },
-          }}
-          href={href}
-          title={type.kind + ": " + id}
-        >
-          {type.name}
-        </a>
-      );
+      if (type.name === "") {
+        return (
+          <KeyValueSection>
+            <TypeUI type={type} />
+          </KeyValueSection>
+        );
+      } else {
+        return <NamedTypeRef type={type} />;
+      }
     case "Union":
-      return (
-        <>
-          {type.options.map((x, i) => {
-            return (
-              <span key={i}>
-                <TypeReference type={x} />
-                {i < type.options.length - 1 ? " | " : ""}
-              </span>
-            );
-          })}
-        </>
-      );
+      if (isNamedUnion(type)) {
+        return <NamedTypeRef type={type} />;
+      } else {
+        return (
+          <>
+            {[...type.variants.values()].map((variant, i) => {
+              return (
+                <span key={i}>
+                  <TypeReference type={variant.type} />
+                  {i < type.variants.size - 1 ? " | " : ""}
+                </span>
+              );
+            })}
+          </>
+        );
+      }
+
     case "TemplateParameter":
       return <span>Template Param: {type.node.id.sv}</span>;
     case "String":
@@ -359,13 +408,13 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
     return null;
   }
   return (
-    <ul>
+    <KeyValueSection>
       {entries.map(([k, v], i) => (
         <div css={{ display: "flex" }} key={i}>
           <div css={{ color: "#333", marginRight: "5px" }}>{k.toString()}:</div>{" "}
           <div>{inspect(v)}</div>
         </div>
       ))}
-    </ul>
+    </KeyValueSection>
   );
 };

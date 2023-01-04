@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix issue with using server lib at the root of filesystem",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
