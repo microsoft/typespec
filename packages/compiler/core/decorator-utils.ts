@@ -1,6 +1,6 @@
 import { getPropertyType } from "../lib/decorators.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
-import { compilerAssert, SyntaxKind } from "./index.js";
+import { compilerAssert, Interface, Model, SyntaxKind } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -432,6 +432,16 @@ export function validateDecoratorUniqueOnNode(
   return true;
 }
 
+/**
+ * Validate that a given decorator is not on a type or any of its base types.
+ * Useful to check for decorator usage that conflicts with another decorator.
+ * @param context Decorator context
+ * @param type The type to check
+ * @param badDecorator The decorator we don't want present
+ * @param givenDecorator The decorator that is the reason why we don't want the bad decorator present
+ * @param includeHeritage Whether to check base types for the bad decorator too
+ * @returns Whether the decorator application is valid
+ */
 export function validateDecoratorNotOnNode(
   context: DecoratorContext,
   type: Type,
@@ -439,7 +449,15 @@ export function validateDecoratorNotOnNode(
   givenDecorator: DecoratorFunction
 ) {
   compilerAssert("decorators" in type, "Type should have decorators");
-  for (const decapp of type.decorators) {
+  const decAppsToCheck = [];
+
+  let base: Type | undefined = type;
+  while (base) {
+    decAppsToCheck.push(...(base as Interface | Model).decorators);
+    base = getHeritage(base);
+  }
+
+  for (const decapp of decAppsToCheck) {
     if (decapp.decorator === badDecorator) {
       reportDiagnostic(context.program, {
         code: "decorator-conflict",
@@ -454,4 +472,14 @@ export function validateDecoratorNotOnNode(
   }
 
   return true;
+
+  function getHeritage(type: Type): Type | undefined {
+    if (type.kind === "Model") {
+      return type.baseModel;
+    } else if (type.kind === "Scalar") {
+      return type.baseScalar;
+    } else {
+      return undefined;
+    }
+  }
 }

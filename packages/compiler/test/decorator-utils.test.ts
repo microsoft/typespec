@@ -258,6 +258,36 @@ describe("compiler: decorator utils", () => {
       ]);
     });
 
+    it("emit diagnostics if using the decorator has a conflict with model extends", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        model Bar {}
+        @blue
+        model Foo extends Bar {};
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+      ]);
+    });
+
+    it("emit diagnostics if using the decorator has a conflict with scalar extends", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        scalar foo extends int32;
+        @blue
+        scalar bar extends foo;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+      ]);
+    });
+
     it("should emit diagnostic if decorator conflict is created via augment decorator", async () => {
       const diagnostics = await runner.diagnose(`
         @red
