@@ -38,10 +38,6 @@ Optional description.
 
 [HttpAuthBase](http.HttpAuthBase.md).[description](http.HttpAuthBase.md#description)
 
-#### Defined in
-
-[http/types.ts:46](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L46)
-
 ___
 
 ### id
@@ -54,26 +50,14 @@ Id of the authentication scheme.
 
 [HttpAuthBase](http.HttpAuthBase.md).[id](http.HttpAuthBase.md#id)
 
-#### Defined in
-
-[http/types.ts:41](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L41)
-
 ___
 
 ### scheme
 
 • **scheme**: ``"basic"``
 
-#### Defined in
-
-[http/types.ts:59](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L59)
-
 ___
 
 ### type
 
 • **type**: ``"http"``
-
-#### Defined in
-
-[http/types.ts:58](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L58)

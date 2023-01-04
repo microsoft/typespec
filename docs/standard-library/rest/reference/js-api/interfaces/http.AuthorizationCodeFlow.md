@@ -22,19 +22,11 @@ Authorization Code flow
 
 • **authorizationUrl**: `string`
 
-#### Defined in
-
-[http/types.ts:128](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L128)
-
 ___
 
 ### refreshUrl
 
 • `Optional` **refreshUrl**: `string`
-
-#### Defined in
-
-[http/types.ts:130](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L130)
 
 ___
 
@@ -42,26 +34,14 @@ ___
 
 • **scopes**: [`OAuth2Scope`](http.OAuth2Scope.md)[]
 
-#### Defined in
-
-[http/types.ts:131](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L131)
-
 ___
 
 ### tokenUrl
 
 • **tokenUrl**: `string`
 
-#### Defined in
-
-[http/types.ts:129](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L129)
-
 ___
 
 ### type
 
 • **type**: ``"authorizationCode"``
-
-#### Defined in
-
-[http/types.ts:127](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L127)

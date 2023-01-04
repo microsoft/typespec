@@ -42,19 +42,11 @@ Optional description.
 
 [HttpAuthBase](http.HttpAuthBase.md).[description](http.HttpAuthBase.md#description)
 
-#### Defined in
-
-[http/types.ts:46](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L46)
-
 ___
 
 ### flows
 
 • **flows**: `TFlows`
-
-#### Defined in
-
-[http/types.ts:112](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L112)
 
 ___
 
@@ -68,16 +60,8 @@ Id of the authentication scheme.
 
 [HttpAuthBase](http.HttpAuthBase.md).[id](http.HttpAuthBase.md#id)
 
-#### Defined in
-
-[http/types.ts:41](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L41)
-
 ___
 
 ### type
 
 • **type**: ``"oauth2"``
-
-#### Defined in
-
-[http/types.ts:111](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L111)

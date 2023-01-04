@@ -17,16 +17,8 @@
 
 • `Optional` **excludeFromOperationParams**: `boolean`
 
-#### Defined in
-
-[http/types.ts:173](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L173)
-
 ___
 
 ### routeParamString
 
 • `Optional` **routeParamString**: `string`
-
-#### Defined in
-
-[http/types.ts:172](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L172)

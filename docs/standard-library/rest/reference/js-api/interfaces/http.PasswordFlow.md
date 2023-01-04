@@ -21,19 +21,11 @@ Resource Owner Password flow
 
 • **authorizationUrl**: `string`
 
-#### Defined in
-
-[http/types.ts:149](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L149)
-
 ___
 
 ### refreshUrl
 
 • `Optional` **refreshUrl**: `string`
-
-#### Defined in
-
-[http/types.ts:150](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L150)
 
 ___
 
@@ -41,16 +33,8 @@ ___
 
 • **scopes**: [`OAuth2Scope`](http.OAuth2Scope.md)[]
 
-#### Defined in
-
-[http/types.ts:151](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L151)
-
 ___
 
 ### type
 
 • **type**: ``"password"``
-
-#### Defined in
-
-[http/types.ts:148](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L148)

@@ -39,10 +39,6 @@ same set of properties when non-payload properties are excluded.
 
 `Type`
 
-#### Defined in
-
-[http/metadata.ts:314](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L314)
-
 ___
 
 ### isEmptied
@@ -69,10 +65,6 @@ itself is also removed.
 
 `boolean`
 
-#### Defined in
-
-[http/metadata.ts:288](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L288)
-
 ___
 
 ### isOptional
@@ -92,10 +84,6 @@ response payload for the given visibility.
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/metadata.ts:308](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L308)
 
 ___
 
@@ -118,10 +106,6 @@ filtered out by the given visibility.
 
 `boolean`
 
-#### Defined in
-
-[http/metadata.ts:302](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L302)
-
 ___
 
 ### isTransformed
@@ -142,7 +126,3 @@ metadata properties.
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/metadata.ts:295](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L295)

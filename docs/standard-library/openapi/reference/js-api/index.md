@@ -40,19 +40,11 @@ Documentation
 
 Ƭ **ExtensionKey**: \`x-${string}\`
 
-#### Defined in
-
-[types.ts:1](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/types.ts#L1)
-
 ## Variables
 
 ### namespace
 
 • `Const` **namespace**: ``"OpenAPI"``
-
-#### Defined in
-
-[decorators.ts:14](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L14)
 
 ## Functions
 
@@ -70,10 +62,6 @@ Documentation
 #### Returns
 
 `void`
-
-#### Defined in
-
-[decorators.ts:84](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L84)
 
 ___
 
@@ -93,10 +81,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[decorators.ts:36](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L36)
 
 ___
 
@@ -123,10 +107,6 @@ description A short description of the target documentation.
 
 `void`
 
-#### Defined in
-
-[decorators.ts:110](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L110)
-
 ___
 
 ### $operationId
@@ -147,10 +127,6 @@ Set a specific operation ID.
 
 `void`
 
-#### Defined in
-
-[decorators.ts:23](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L23)
-
 ___
 
 ### checkDuplicateTypeName
@@ -170,10 +146,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[helpers.ts:67](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/helpers.ts#L67)
-
 ___
 
 ### getExtensions
@@ -191,10 +163,6 @@ ___
 
 `ReadonlyMap`<[`ExtensionKey`](index.md#extensionkey), `any`\>
 
-#### Defined in
-
-[decorators.ts:70](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L70)
-
 ___
 
 ### getExternalDocs
@@ -211,10 +179,6 @@ ___
 #### Returns
 
 [`ExternalDocs`](interfaces/ExternalDocs.md) \| `undefined`
-
-#### Defined in
-
-[decorators.ts:123](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L123)
 
 ___
 
@@ -244,10 +208,6 @@ namespace using the provided `TypeNameOptions`.
 
 `string`
 
-#### Defined in
-
-[helpers.ts:55](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/helpers.ts#L55)
-
 ___
 
 ### getOperationId
@@ -271,10 +231,6 @@ decorator or `undefined`
 
 operationId set via the
 
-#### Defined in
-
-[decorators.ts:30](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L30)
-
 ___
 
 ### getParameterKey
@@ -297,10 +253,6 @@ Gets the key that is used to define a parameter in OpenAPI.
 
 `string`
 
-#### Defined in
-
-[helpers.ts:87](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/helpers.ts#L87)
-
 ___
 
 ### isDefaultResponse
@@ -321,10 +273,6 @@ Check if the given model has been mark as a default response.
 `boolean`
 
 boolean.
-
-#### Defined in
-
-[decorators.ts:95](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L95)
 
 ___
 
@@ -349,10 +297,6 @@ designate a read-only property.
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[helpers.ts:154](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/helpers.ts#L154)
 
 ___
 
@@ -382,10 +326,6 @@ was specified use that value
 
 Operation ID in this format `<name>` or `<group>_<name>`
 
-#### Defined in
-
-[helpers.ts:125](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/helpers.ts#L125)
-
 ___
 
 ### setExtension
@@ -404,10 +344,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[decorators.ts:57](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/decorators.ts#L57)
 
 ___
 
@@ -435,7 +371,3 @@ decorator, or chosen by default in simple cases.
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[helpers.ts:28](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/openapi/src/helpers.ts#L28)

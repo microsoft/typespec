@@ -21,7 +21,3 @@
 ### autoRouteOptions
 
 • `Optional` **autoRouteOptions**: [`AutoRouteOptions`](http.AutoRouteOptions.md)
-
-#### Defined in
-
-[http/types.ts:181](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L181)

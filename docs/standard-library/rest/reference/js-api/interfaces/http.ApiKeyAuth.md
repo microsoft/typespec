@@ -58,10 +58,6 @@ Optional description.
 
 [HttpAuthBase](http.HttpAuthBase.md).[description](http.HttpAuthBase.md#description)
 
-#### Defined in
-
-[http/types.ts:46](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L46)
-
 ___
 
 ### id
@@ -74,19 +70,11 @@ Id of the authentication scheme.
 
 [HttpAuthBase](http.HttpAuthBase.md).[id](http.HttpAuthBase.md#id)
 
-#### Defined in
-
-[http/types.ts:41](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L41)
-
 ___
 
 ### in
 
 • **in**: `TLocation`
-
-#### Defined in
-
-[http/types.ts:100](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L100)
 
 ___
 
@@ -94,16 +82,8 @@ ___
 
 • **name**: `TName`
 
-#### Defined in
-
-[http/types.ts:101](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L101)
-
 ___
 
 ### type
 
 • **type**: ``"apiKey"``
-
-#### Defined in
-
-[http/types.ts:99](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L99)

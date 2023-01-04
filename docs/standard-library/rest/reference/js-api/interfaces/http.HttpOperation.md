@@ -26,10 +26,6 @@
 
 Parent type being the interface, namespace or global namespace.
 
-#### Defined in
-
-[http/types.ts:250](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L250)
-
 ___
 
 ### operation
@@ -37,10 +33,6 @@ ___
 • **operation**: `Operation`
 
 Operation type reference.
-
-#### Defined in
-
-[http/types.ts:265](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L265)
 
 ___
 
@@ -50,10 +42,6 @@ ___
 
 Overload this operation
 
-#### Defined in
-
-[http/types.ts:270](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L270)
-
 ___
 
 ### overloads
@@ -61,10 +49,6 @@ ___
 • `Optional` **overloads**: [`HttpOperation`](http.HttpOperation.md)[]
 
 List of operations that overloads this one.
-
-#### Defined in
-
-[http/types.ts:275](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L275)
 
 ___
 
@@ -74,10 +58,6 @@ ___
 
 Parameters.
 
-#### Defined in
-
-[http/types.ts:255](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L255)
-
 ___
 
 ### path
@@ -85,10 +65,6 @@ ___
 • **path**: `string`
 
 Route path
-
-#### Defined in
-
-[http/types.ts:235](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L235)
 
 ___
 
@@ -98,10 +74,6 @@ ___
 
 Path segments
 
-#### Defined in
-
-[http/types.ts:240](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L240)
-
 ___
 
 ### responses
@@ -110,10 +82,6 @@ ___
 
 Responses.
 
-#### Defined in
-
-[http/types.ts:260](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L260)
-
 ___
 
 ### verb
@@ -121,7 +89,3 @@ ___
 • **verb**: [`HttpVerb`](../modules/http.md#httpverb)
 
 Route verb.
-
-#### Defined in
-
-[http/types.ts:245](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L245)

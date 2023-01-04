@@ -21,19 +21,11 @@ Client credentials flow
 
 • `Optional` **refreshUrl**: `string`
 
-#### Defined in
-
-[http/types.ts:160](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L160)
-
 ___
 
 ### scopes
 
 • **scopes**: [`OAuth2Scope`](http.OAuth2Scope.md)[]
-
-#### Defined in
-
-[http/types.ts:161](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L161)
 
 ___
 
@@ -41,16 +33,8 @@ ___
 
 • **tokenUrl**: `string`
 
-#### Defined in
-
-[http/types.ts:159](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L159)
-
 ___
 
 ### type
 
 • **type**: ``"clientCredentials"``
-
-#### Defined in
-
-[http/types.ts:158](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L158)

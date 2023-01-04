@@ -33,7 +33,3 @@ creating a separate schema schema for Visibility.Read.
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/metadata.ts:327](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L327)

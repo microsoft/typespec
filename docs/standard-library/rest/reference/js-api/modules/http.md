@@ -118,19 +118,11 @@
 
 Ƭ **HttpAuth**: [`BasicAuth`](../interfaces/http.BasicAuth.md) \| [`BearerAuth`](../interfaces/http.BearerAuth.md) \| [`ApiKeyAuth`](../interfaces/http.ApiKeyAuth.md)<`ApiKeyLocation`, `string`\> \| [`Oauth2Auth`](../interfaces/http.Oauth2Auth.md)<[`OAuth2Flow`](http.md#oauth2flow)[]\>
 
-#### Defined in
-
-[http/types.ts:31](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L31)
-
 ___
 
 ### HttpVerb
 
 Ƭ **HttpVerb**: ``"get"`` \| ``"put"`` \| ``"post"`` \| ``"patch"`` \| ``"delete"`` \| ``"head"``
-
-#### Defined in
-
-[http/types.ts:15](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L15)
 
 ___
 
@@ -138,29 +130,17 @@ ___
 
 Ƭ **OAuth2Flow**: [`AuthorizationCodeFlow`](../interfaces/http.AuthorizationCodeFlow.md) \| [`ImplicitFlow`](../interfaces/http.ImplicitFlow.md) \| [`PasswordFlow`](../interfaces/http.PasswordFlow.md) \| [`ClientCredentialsFlow`](../interfaces/http.ClientCredentialsFlow.md)
 
-#### Defined in
-
-[http/types.ts:115](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L115)
-
 ___
 
 ### OAuth2FlowType
 
 Ƭ **OAuth2FlowType**: [`OAuth2Flow`](http.md#oauth2flow)[``"type"``]
 
-#### Defined in
-
-[http/types.ts:121](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L121)
-
 ___
 
 ### OperationContainer
 
 Ƭ **OperationContainer**: `Namespace` \| `Interface`
-
-#### Defined in
-
-[http/types.ts:169](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L169)
 
 ___
 
@@ -172,29 +152,17 @@ ___
 
 use `HttpOperation`. To remove in November 2022 release.
 
-#### Defined in
-
-[http/types.ts:13](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L13)
-
 ___
 
 ### StatusCode
 
 Ƭ **StatusCode**: \`${number}\` \| ``"*"``
 
-#### Defined in
-
-[http/types.ts:284](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L284)
-
 ## Variables
 
 ### namespace
 
 • `Const` **namespace**: ``"Cadl.Http"``
-
-#### Defined in
-
-[http/index.ts:1](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/index.ts#L1)
 
 ## Functions
 
@@ -213,10 +181,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:79](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L79)
-
 ___
 
 ### $delete
@@ -233,10 +197,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:245](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L245)
 
 ___
 
@@ -255,10 +215,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:229](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L229)
-
 ___
 
 ### $head
@@ -275,10 +231,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:249](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L249)
 
 ___
 
@@ -297,10 +249,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:35](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L35)
 
 ___
 
@@ -328,10 +276,6 @@ isApplicableMetadata
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:600](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L600)
-
 ___
 
 ### $patch
@@ -348,10 +292,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:241](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L241)
 
 ___
 
@@ -371,10 +311,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:66](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L66)
-
 ___
 
 ### $plainData
@@ -391,10 +327,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:304](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L304)
 
 ___
 
@@ -413,10 +345,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:237](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L237)
-
 ___
 
 ### $put
@@ -433,10 +361,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:233](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L233)
 
 ___
 
@@ -455,10 +379,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:51](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L51)
 
 ___
 
@@ -487,10 +407,6 @@ it will be used as a prefix to the route URI of the operation.
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:509](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L509)
-
 ___
 
 ### $routeReset
@@ -509,10 +425,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:519](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L519)
 
 ___
 
@@ -540,10 +452,6 @@ Parameters to interpolate in the server url.
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:267](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L267)
-
 ___
 
 ### $statusCode
@@ -560,10 +468,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:88](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L88)
 
 ___
 
@@ -583,10 +487,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:338](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L338)
-
 ___
 
 ### createMetadataInfo
@@ -603,10 +503,6 @@ ___
 #### Returns
 
 [`MetadataInfo`](../interfaces/http.MetadataInfo.md)
-
-#### Defined in
-
-[http/metadata.ts:330](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L330)
 
 ___
 
@@ -631,10 +527,6 @@ properties recursively.
 
 `Set`<`ModelProperty`\>
 
-#### Defined in
-
-[http/metadata.ts:137](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L137)
-
 ___
 
 ### getAllHttpServices
@@ -653,10 +545,6 @@ Returns all the services defined.
 #### Returns
 
 [[`HttpService`](../interfaces/http.HttpService.md)[], readonly `Diagnostic`[]]
-
-#### Defined in
-
-[http/operations.ts:67](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L67)
 
 ___
 
@@ -679,10 +567,6 @@ use `getAllHttpServices` or `resolveHttpOperations` manually
 
 [[`HttpOperation`](../interfaces/http.HttpOperation.md)[], readonly `Diagnostic`[]]
 
-#### Defined in
-
-[http/operations.ts:113](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L113)
-
 ___
 
 ### getAuthentication
@@ -699,10 +583,6 @@ ___
 #### Returns
 
 [`ServiceAuthentication`](../interfaces/http.ServiceAuthentication.md) \| `undefined`
-
-#### Defined in
-
-[http/decorators.ts:476](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L476)
 
 ___
 
@@ -728,10 +608,6 @@ Model property
 
 List of contnet types and any diagnostics if there was an issue.
 
-#### Defined in
-
-[http/content-types.ts:21](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/content-types.ts#L21)
-
 ___
 
 ### getHeaderFieldName
@@ -748,10 +624,6 @@ ___
 #### Returns
 
 `string`
-
-#### Defined in
-
-[http/decorators.ts:42](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L42)
 
 ___
 
@@ -773,10 +645,6 @@ Return the Http Operation details for a given Cadl operation.
 
 [[`HttpOperation`](../interfaces/http.HttpOperation.md), readonly `Diagnostic`[]]
 
-#### Defined in
-
-[http/operations.ts:35](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L35)
-
 ___
 
 ### getHttpService
@@ -794,10 +662,6 @@ ___
 #### Returns
 
 [[`HttpService`](../interfaces/http.HttpService.md), readonly `Diagnostic`[]]
-
-#### Defined in
-
-[http/operations.ts:85](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L85)
 
 ___
 
@@ -818,10 +682,6 @@ ___
 
 [[`HttpOperationParameters`](../interfaces/http.HttpOperationParameters.md), readonly `Diagnostic`[]]
 
-#### Defined in
-
-[http/parameters.ts:29](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/parameters.ts#L29)
-
 ___
 
 ### getOperationVerb
@@ -838,10 +698,6 @@ ___
 #### Returns
 
 [`HttpVerb`](http.md#httpverb) \| `undefined`
-
-#### Defined in
-
-[http/decorators.ts:225](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L225)
 
 ___
 
@@ -860,10 +716,6 @@ ___
 
 `string`
 
-#### Defined in
-
-[http/decorators.ts:70](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L70)
-
 ___
 
 ### getQueryParamName
@@ -880,10 +732,6 @@ ___
 #### Returns
 
 `string`
-
-#### Defined in
-
-[http/decorators.ts:58](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L58)
 
 ___
 
@@ -908,10 +756,6 @@ Determines the visibility to use for a request with the given verb.
 
 [`Visibility`](../enums/http.Visibility.md)
 
-#### Defined in
-
-[http/metadata.ts:114](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L114)
-
 ___
 
 ### getResponsesForOperation
@@ -931,10 +775,6 @@ Get the responses for a given operation.
 
 [[`HttpOperationResponse`](../interfaces/http.HttpOperationResponse.md)[], readonly `Diagnostic`[]]
 
-#### Defined in
-
-[http/responses.ts:33](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/responses.ts#L33)
-
 ___
 
 ### getRouteOptionsForNamespace
@@ -951,10 +791,6 @@ ___
 #### Returns
 
 [`RouteOptions`](../interfaces/http.RouteOptions.md) \| `undefined`
-
-#### Defined in
-
-[http/decorators.ts:541](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L541)
 
 ___
 
@@ -973,10 +809,6 @@ ___
 
 [`RoutePath`](../interfaces/http.RoutePath.md) \| `undefined`
 
-#### Defined in
-
-[http/decorators.ts:574](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L574)
-
 ___
 
 ### getServers
@@ -994,10 +826,6 @@ ___
 
 [`HttpServer`](../interfaces/http.HttpServer.md)[] \| `undefined`
 
-#### Defined in
-
-[http/decorators.ts:300](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L300)
-
 ___
 
 ### getStatusCodeDescription
@@ -1013,10 +841,6 @@ ___
 #### Returns
 
 `undefined` \| ``"The request has succeeded."`` \| ``"The request has succeeded and a new resource has been created as a result."`` \| ``"The request has been accepted for processing, but processing has not yet completed."`` \| ``"There is no content to send for this request, but the headers may be useful. "`` \| ``"The URL of the requested resource has been changed permanently. The new URL is given in the response."`` \| ``"The client has made a conditional request and the resource has not been modified."`` \| ``"The server could not understand the request due to invalid syntax."`` \| ``"Access is unauthorized."`` \| ``"Access is forbidden"`` \| ``"The server cannot find the requested resource."`` \| ``"The request conflicts with the current state of the server."`` \| ``"Precondition failed."`` \| ``"Service unavailable."`` \| ``"Informational"`` \| ``"Successful"`` \| ``"Redirection"`` \| ``"Client Error"`` \| ``"Server Error"``
-
-#### Defined in
-
-[http/decorators.ts:156](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L156)
 
 ___
 
@@ -1034,10 +858,6 @@ ___
 #### Returns
 
 `string`[]
-
-#### Defined in
-
-[http/decorators.ts:151](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L151)
 
 ___
 
@@ -1068,10 +888,6 @@ Examples:
 
 `string`
 
-#### Defined in
-
-[http/metadata.ts:91](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L91)
-
 ___
 
 ### includeInapplicableMetadataInPayload
@@ -1096,10 +912,6 @@ inapplicable metadata.
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/decorators.ts:625](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L625)
 
 ___
 
@@ -1129,10 +941,6 @@ given visibility.
 
 `boolean`
 
-#### Defined in
-
-[http/metadata.ts:219](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L219)
-
 ___
 
 ### isApplicableMetadataOrBody
@@ -1155,10 +963,6 @@ applicable with the given visibility.
 
 `boolean`
 
-#### Defined in
-
-[http/metadata.ts:232](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L232)
-
 ___
 
 ### isBody
@@ -1175,10 +979,6 @@ ___
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/decorators.ts:83](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L83)
 
 ___
 
@@ -1201,10 +1001,6 @@ Check if the given model property is the content type header.
 
 True if the model property is marked as a header and has the name `content-type`(case insensitive.)
 
-#### Defined in
-
-[http/content-types.ts:11](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/content-types.ts#L11)
-
 ___
 
 ### isHeader
@@ -1221,10 +1017,6 @@ ___
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/decorators.ts:46](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L46)
 
 ___
 
@@ -1246,10 +1038,6 @@ metadata if it is marked `@header`, `@query`, `@path`, or `@statusCode`.
 
 `boolean`
 
-#### Defined in
-
-[http/metadata.ts:193](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L193)
-
 ___
 
 ### isOverloadSameEndpoint
@@ -1265,10 +1053,6 @@ ___
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/operations.ts:179](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L179)
 
 ___
 
@@ -1287,10 +1071,6 @@ ___
 
 `boolean`
 
-#### Defined in
-
-[http/decorators.ts:74](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L74)
-
 ___
 
 ### isQueryParam
@@ -1308,10 +1088,6 @@ ___
 
 `boolean`
 
-#### Defined in
-
-[http/decorators.ts:62](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L62)
-
 ___
 
 ### isStatusCode
@@ -1328,10 +1104,6 @@ ___
 #### Returns
 
 `boolean`
-
-#### Defined in
-
-[http/decorators.ts:147](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L147)
 
 ___
 
@@ -1353,10 +1125,6 @@ Determines if the given property is visible with the given visibility.
 
 `boolean`
 
-#### Defined in
-
-[http/metadata.ts:205](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L205)
-
 ___
 
 ### listHttpOperationsIn
@@ -1377,10 +1145,6 @@ Get all the Http Operation in the given container.
 
 [[`HttpOperation`](../interfaces/http.HttpOperation.md)[], readonly `Diagnostic`[]]
 
-#### Defined in
-
-[http/operations.ts:50](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L50)
-
 ___
 
 ### reportIfNoRoutes
@@ -1397,10 +1161,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/operations.ts:121](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L121)
 
 ___
 
@@ -1420,10 +1180,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:350](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L350)
-
 ___
 
 ### setRouteOptionsForNamespace
@@ -1441,10 +1197,6 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/decorators.ts:533](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L533)
 
 ___
 
@@ -1464,10 +1216,6 @@ ___
 
 `void`
 
-#### Defined in
-
-[http/decorators.ts:128](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/decorators.ts#L128)
-
 ___
 
 ### validateRouteUnique
@@ -1485,7 +1233,3 @@ ___
 #### Returns
 
 `void`
-
-#### Defined in
-
-[http/operations.ts:130](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/operations.ts#L130)

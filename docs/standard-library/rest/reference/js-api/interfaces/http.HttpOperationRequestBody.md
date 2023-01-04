@@ -36,10 +36,6 @@ Content types.
 
 [HttpOperationBody](http.HttpOperationBody.md).[contentTypes](http.HttpOperationBody.md#contenttypes)
 
-#### Defined in
-
-[http/types.ts:301](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L301)
-
 ___
 
 ### parameter
@@ -47,10 +43,6 @@ ___
 • `Optional` **parameter**: `ModelProperty`
 
 If the body was explicitly set as a property. Correspond to the property with `@body`
-
-#### Defined in
-
-[http/types.ts:203](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L203)
 
 ___
 
@@ -63,7 +55,3 @@ Type of the operation body.
 #### Inherited from
 
 [HttpOperationBody](http.HttpOperationBody.md).[type](http.HttpOperationBody.md#type)
-
-#### Defined in
-
-[http/types.ts:306](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L306)

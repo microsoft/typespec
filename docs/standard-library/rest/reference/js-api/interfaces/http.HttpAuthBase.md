@@ -31,10 +31,6 @@
 
 Optional description.
 
-#### Defined in
-
-[http/types.ts:46](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L46)
-
 ___
 
 ### id
@@ -42,7 +38,3 @@ ___
 • **id**: `string`
 
 Id of the authentication scheme.
-
-#### Defined in
-
-[http/types.ts:41](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/types.ts#L41)

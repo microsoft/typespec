@@ -15,6 +15,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     entryPointStrategy: "packages",
     githubPages: false,
     readme: false,
+    disableSources: true,
     ...markdownPluginOptions,
   });
   const project = app.convert();

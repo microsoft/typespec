@@ -25,29 +25,17 @@ REST API.
 
 • **All** = ``31``
 
-#### Defined in
-
-[http/metadata.ts:36](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L36)
-
 ___
 
 ### Create
 
 • **Create** = ``2``
 
-#### Defined in
-
-[http/metadata.ts:31](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L31)
-
 ___
 
 ### Delete
 
 • **Delete** = ``8``
-
-#### Defined in
-
-[http/metadata.ts:33](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L33)
 
 ___
 
@@ -58,19 +46,11 @@ ___
 Additional flag to indicate when something is nested in a collection
 and therefore no metadata is applicable.
 
-#### Defined in
-
-[http/metadata.ts:42](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L42)
-
 ___
 
 ### Query
 
 • **Query** = ``16``
-
-#### Defined in
-
-[http/metadata.ts:34](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L34)
 
 ___
 
@@ -78,16 +58,8 @@ ___
 
 • **Read** = ``1``
 
-#### Defined in
-
-[http/metadata.ts:30](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L30)
-
 ___
 
 ### Update
 
 • **Update** = ``4``
-
-#### Defined in
-
-[http/metadata.ts:32](https://github.com/timotheeguerin/cadl/blob/920bc86d/packages/rest/src/http/metadata.ts#L32)
