@@ -1648,15 +1648,20 @@ export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
 } & TypeListeners;
 
-export type DiagnosticReport<
+export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default"
 > = {
   code: C;
   messageId?: M;
-  target: DiagnosticTarget | typeof NoTarget;
 } & DiagnosticFormat<T, C, M>;
+
+export type DiagnosticReport<
+  T extends { [code: string]: DiagnosticMessages },
+  C extends keyof T,
+  M extends keyof T[C] = "default"
+> = DiagnosticReportWithoutTarget<T, C, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },

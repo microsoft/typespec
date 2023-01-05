@@ -817,6 +817,75 @@ describe("compiler: parser", () => {
       ],
       { docs: true }
     );
+
+    parseErrorEach(
+      [
+        [
+          "/** @42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /tag/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @ */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /tag/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @template 42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /template parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @template */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /template parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @param 42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: / (?<!template )parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @param */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: / (?<!template )parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+      ],
+      {
+        docs: true,
+        strict: true,
+      }
+    );
   });
 
   describe("conflict marker", () => {
@@ -991,16 +1060,18 @@ function parseErrorEach(
       );
       expectDiagnostics(astNode.parseDiagnostics, expected, options);
 
-      assert(
-        hasParseError(astNode),
-        "node claims to have no parse errors, but above were reported."
-      );
+      if (astNode.parseDiagnostics.some((e) => e.severity !== "warning")) {
+        assert(
+          hasParseError(astNode),
+          "node claims to have no parse errors, but above were reported."
+        );
 
-      assert(
-        !astNode.printable ||
-          !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
-        "parse tree with errors other than missing punctuation should not be printable"
-      );
+        assert(
+          !astNode.printable ||
+            !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
+          "parse tree with errors other than missing punctuation should not be printable"
+        );
+      }
 
       checkInvariants(astNode);
     });
