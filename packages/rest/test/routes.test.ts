@@ -599,11 +599,11 @@ describe("rest: routes", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "duplicate-decorator",
-          message: "Decorator @route cannot be used twice on the same node.",
+          message: "Decorator @route cannot be used twice on the same declaration.",
         },
         {
           code: "duplicate-decorator",
-          message: "Decorator @route cannot be used twice on the same node.",
+          message: "Decorator @route cannot be used twice on the same declaration.",
         },
       ]);
     });
@@ -619,11 +619,11 @@ describe("rest: routes", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "duplicate-decorator",
-          message: "Decorator @route cannot be used twice on the same node.",
+          message: "Decorator @route cannot be used twice on the same declaration.",
         },
         {
           code: "duplicate-decorator",
-          message: "Decorator @route cannot be used twice on the same node.",
+          message: "Decorator @route cannot be used twice on the same declaration.",
         },
       ]);
     });

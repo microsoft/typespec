@@ -122,5 +122,6 @@ describe("compiler: type cloning", () => {
     const clone = testHost.program.checker.cloneType(test.type);
     strictEqual(clone.templateArguments?.length, 2);
     deepStrictEqual(test.type.templateArguments, clone.templateArguments);
+    deepStrictEqual(test.type.templateMapper, clone.templateMapper);
   });
 });
