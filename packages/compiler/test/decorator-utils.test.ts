@@ -3,7 +3,7 @@ import {
   cadlTypeToJson,
   CadlValue,
   DecoratorContext,
-  validateDecoratorNotOnNode,
+  validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import { Type } from "../core/types.js";
@@ -203,7 +203,7 @@ describe("compiler: decorator utils", () => {
     });
   });
 
-  describe("validateDecoratorNotOnNode", () => {
+  describe("validateDecoratorNotOnType", () => {
     let runner: BasicTestRunner;
 
     beforeEach(async () => {
@@ -211,10 +211,10 @@ describe("compiler: decorator utils", () => {
       runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
 
       function $red(context: DecoratorContext, target: Type) {
-        validateDecoratorNotOnNode(context, target, $blue, $red);
+        validateDecoratorNotOnType(context, target, $blue, $red);
       }
       function $blue(context: DecoratorContext, target: Type) {
-        validateDecoratorNotOnNode(context, target, $red, $blue);
+        validateDecoratorNotOnType(context, target, $red, $blue);
       }
       // add test decorators
       host.addJsFile("lib.js", {

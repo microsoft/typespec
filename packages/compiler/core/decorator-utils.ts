@@ -442,7 +442,7 @@ export function validateDecoratorUniqueOnNode(
  * @param includeHeritage Whether to check base types for the bad decorator too
  * @returns Whether the decorator application is valid
  */
-export function validateDecoratorNotOnNode(
+export function validateDecoratorNotOnType(
   context: DecoratorContext,
   type: Type,
   badDecorator: DecoratorFunction,

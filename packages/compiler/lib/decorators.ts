@@ -1,5 +1,5 @@
 import {
-  validateDecoratorNotOnNode,
+  validateDecoratorNotOnType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
@@ -363,7 +363,7 @@ export function $minValue(
   minValue: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $minValue);
-  validateDecoratorNotOnNode(context, target, $minValueExclusive, $minValue);
+  validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
   if (!isNumericType(program, getPropertyType(target))) {
@@ -403,7 +403,7 @@ export function $maxValue(
   maxValue: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $maxValue);
-  validateDecoratorNotOnNode(context, target, $maxValueExclusive, $maxValue);
+  validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
   if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
@@ -442,7 +442,7 @@ export function $minValueExclusive(
   minValueExclusive: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $minValueExclusive);
-  validateDecoratorNotOnNode(context, target, $minValue, $minValueExclusive);
+  validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
   const { program } = context;
 
   if (!isNumericType(program, getPropertyType(target))) {
@@ -482,7 +482,7 @@ export function $maxValueExclusive(
   maxValueExclusive: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
-  validateDecoratorNotOnNode(context, target, $maxValue, $maxValueExclusive);
+  validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
   if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
