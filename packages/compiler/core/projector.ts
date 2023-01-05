@@ -389,13 +389,14 @@ export function createProjector(
       returnType,
     });
 
-    if (op.interface) {
-      projectedOp.interface = projectedInterfaceScope();
-    } else if (op.namespace) {
+    if (op.namespace) {
       projectedOp.namespace = projectedNamespaceScope();
     }
 
     finishTypeForProgram(projectedProgram, projectedOp);
+    if (op.interface) {
+      projectedOp.interface = projectType(op.interface) as Interface;
+    }
     return applyProjection(op, projectedOp);
   }
 
@@ -561,25 +562,6 @@ export function createProjector(
     return projectType(ns) as Namespace;
   }
 
-  function interfaceScope(): Interface | undefined {
-    for (let i = scope.length - 1; i >= 0; i--) {
-      if ("interface" in scope[i]) {
-        return (scope[i] as any).interface;
-      }
-    }
-
-    return undefined;
-  }
-
-  function projectedInterfaceScope(): Interface | undefined {
-    const iface = interfaceScope();
-    if (!iface) return iface;
-    if (!projectedTypes.has(iface)) {
-      throw new Error(`Interface "${iface.name}" should have been projected already`);
-    }
-    return projectType(iface) as Interface;
-  }
-
   function applyProjection(baseType: Type, projectedType: Type): Type {
     const inScopeProjections = getInScopeProjections();
     for (const projectionApplication of inScopeProjections) {
@@ -604,9 +586,6 @@ export function createProjector(
     const scopeProps: any = {};
     if ("namespace" in type && type.namespace !== undefined) {
       scopeProps.namespace = projectedNamespaceScope();
-    }
-    if ("interface" in type && type.interface !== undefined) {
-      scopeProps.interface = projectedInterfaceScope();
     }
 
     const clone = checker.createType({

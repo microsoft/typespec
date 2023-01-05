@@ -7,7 +7,7 @@ import { BasicTestRunner, TestHost } from "../../testing/types.js";
 /**
  * This test suite checks that projected types are reconstructed just fine.
  */
-describe.only("compiler: projector: Identity", () => {
+describe("compiler: projector: Identity", () => {
   let host: TestHost;
   let runner: BasicTestRunner;
 
@@ -241,6 +241,24 @@ describe.only("compiler: projector: Identity", () => {
           ["Enum", "Foo"],
         ],
       });
+
+      describeDecoratorOrder({
+        name: "with spread members",
+        code: `
+          @track enum Foo {
+            ...Spreadable;
+          }
+    
+          enum Spreadable {
+            @track one,
+          }`,
+        ref: "Foo.one",
+        expectedTypes: [
+          ["EnumMember", "Foo.one"],
+          ["Enum", "Foo"],
+          ["EnumMember", "Spreadable.one"],
+        ],
+      });
     });
   });
 
@@ -266,7 +284,7 @@ describe.only("compiler: projector: Identity", () => {
           }`,
         ref: "Foo.one",
         expectedTypes: [
-          ["Operation", "Foo.one"],
+          ["Operation", "one"],
           ["Interface", "Foo"],
         ],
       });
