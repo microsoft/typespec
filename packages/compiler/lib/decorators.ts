@@ -434,7 +434,7 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 // -- @minValueExclusive decorator ---------------------
 
-const minValueExclusiveKey = createStateSymbol("minValueExslusive");
+const minValueExclusiveKey = createStateSymbol("minValueExclusive");
 
 export function $minValueExclusive(
   context: DecoratorContext,
