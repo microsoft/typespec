@@ -12,7 +12,7 @@ projection op#v {
     if hasDifferentNameAtVersion(self, version) {
       self::rename(getNameAtVersion(self, version));
     };
-    if hasOldReturnTypeAtVersion(self, version) {
+    if hasDifferentReturnTypeAtVersion(self, version) {
       self::changeReturnType(getReturnTypeBeforeVersion(self, version));
     };
   }
@@ -39,7 +39,7 @@ projection interface#v {
       if !existsAtVersion(operation, version) {
         self::deleteOperation(operation::name);
       };
-      if hasOldReturnTypeAtVersion(operation, version) {
+      if hasDifferentReturnTypeAtVersion(operation, version) {
         operation::changeReturnType(getReturnTypeBeforeVersion(operation, version));
       };
     });
@@ -122,7 +122,7 @@ projection model#v {
           p::setOptional(false);
         };
 
-        if hasOldTypeAtVersion(p, version) {
+        if hasDifferentTypeAtVersion(p, version) {
           self::changePropertyType(p::name, getTypeBeforeVersion(p, version));
         };
       });
@@ -149,7 +149,7 @@ projection model#v {
           p::setOptional(true);
         };
 
-        if hasOldTypeAtVersion(p, version) {
+        if hasDifferentTypeAtVersion(p, version) {
           self::changePropertyType(p::name, p::type);
         };
       });

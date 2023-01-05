@@ -240,17 +240,17 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
 /**
  * @returns get old type if applicable.
  */
-export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): any {
+export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): Type | undefined {
   const target = toVersion(p, t, v);
   const map = getTypeChangedFrom(p, t);
-  if (!map || !target) return "";
+  if (!map || !target) return undefined;
 
   for (const [key, val] of map) {
     if (target.index < key.index) {
       return val;
     }
   }
-  return "";
+  return undefined;
 }
 
 /**
@@ -790,11 +790,15 @@ export function madeOptionalAfter(p: Program, type: Type, version: ObjectType): 
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function hasOldTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
-  return getTypeBeforeVersion(p, type, version) !== "";
+export function hasDifferentTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
+  return getTypeBeforeVersion(p, type, version) !== undefined;
 }
 
-export function hasOldReturnTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
+export function hasDifferentReturnTypeAtVersion(
+  p: Program,
+  type: Type,
+  version: ObjectType
+): boolean {
   return getReturnTypeBeforeVersion(p, type, version) !== "";
 }
 
