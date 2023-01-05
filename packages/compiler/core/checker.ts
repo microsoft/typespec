@@ -2472,100 +2472,108 @@ export function createChecker(program: Program): Checker {
   }
 
   function bindAllMembers(node: Node) {
+    const bound = new Set<Sym>();
     if (node.symbol) {
       bindMembers(node, node.symbol);
     }
     visitChildren(node, (child) => {
       bindAllMembers(child);
     });
-  }
 
-  function bindMembers(node: Node, containerSym: Sym) {
-    let containerMembers: Mutable<SymbolTable>;
-
-    switch (node.kind) {
-      case SyntaxKind.ModelStatement:
-        if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
-          resolveAndCopyMembers(node.extends);
-        }
-        if (node.is && node.is.kind === SyntaxKind.TypeReference) {
-          resolveAndCopyMembers(node.is);
-        }
-        for (const prop of node.properties) {
-          if (prop.kind === SyntaxKind.ModelSpreadProperty) {
-            resolveAndCopyMembers(prop.target);
-          } else {
-            const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
-            bindMember(name, prop, SymbolFlags.ModelProperty);
-          }
-        }
-        break;
-      case SyntaxKind.EnumStatement:
-        for (const member of node.members.values()) {
-          if (member.kind === SyntaxKind.EnumSpreadMember) {
-            resolveAndCopyMembers(member.target);
-          } else {
-            const name = member.id.kind === SyntaxKind.Identifier ? member.id.sv : member.id.value;
-            bindMember(name, member, SymbolFlags.EnumMember);
-          }
-        }
-        break;
-      case SyntaxKind.InterfaceStatement:
-        for (const member of node.operations.values()) {
-          bindMember(member.id.sv, member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
-        }
-        if (node.extends) {
-          for (const ext of node.extends) {
-            resolveAndCopyMembers(ext);
-          }
-        }
-        break;
-      case SyntaxKind.UnionStatement:
-        for (const variant of node.options.values()) {
-          const name = variant.id.kind === SyntaxKind.Identifier ? variant.id.sv : variant.id.value;
-          bindMember(name, variant, SymbolFlags.UnionVariant);
-        }
-        break;
-    }
-
-    function resolveAndCopyMembers(node: TypeReferenceNode) {
-      let ref = resolveTypeReferenceSym(node, undefined);
-      if (ref && ref.flags & SymbolFlags.Alias) {
-        ref = resolveAliasedSymbol(ref);
+    function bindMembers(node: Node, containerSym: Sym) {
+      if (bound.has(containerSym)) {
+        return;
       }
-      if (ref && ref.members) {
-        copyMembers(ref.members);
-      }
-    }
+      bound.add(containerSym);
+      let containerMembers: Mutable<SymbolTable>;
 
-    function resolveAliasedSymbol(ref: Sym): Sym | undefined {
-      const node = ref.declarations[0] as AliasStatementNode;
-      switch (node.value.kind) {
-        case SyntaxKind.MemberExpression:
-        case SyntaxKind.TypeReference:
-        case SyntaxKind.Identifier:
-          const resolvedSym = resolveTypeReferenceSym(node.value, undefined);
-          if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
-            return resolveAliasedSymbol(resolvedSym);
+      switch (node.kind) {
+        case SyntaxKind.ModelStatement:
+          if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
+            resolveAndCopyMembers(node.extends);
           }
-          return resolvedSym;
-        default:
-          return undefined;
+          if (node.is && node.is.kind === SyntaxKind.TypeReference) {
+            resolveAndCopyMembers(node.is);
+          }
+          for (const prop of node.properties) {
+            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
+              resolveAndCopyMembers(prop.target);
+            } else {
+              const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+              bindMember(name, prop, SymbolFlags.ModelProperty);
+            }
+          }
+          break;
+        case SyntaxKind.EnumStatement:
+          for (const member of node.members.values()) {
+            if (member.kind === SyntaxKind.EnumSpreadMember) {
+              resolveAndCopyMembers(member.target);
+            } else {
+              const name =
+                member.id.kind === SyntaxKind.Identifier ? member.id.sv : member.id.value;
+              bindMember(name, member, SymbolFlags.EnumMember);
+            }
+          }
+          break;
+        case SyntaxKind.InterfaceStatement:
+          for (const member of node.operations.values()) {
+            bindMember(member.id.sv, member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
+          }
+          if (node.extends) {
+            for (const ext of node.extends) {
+              resolveAndCopyMembers(ext);
+            }
+          }
+          break;
+        case SyntaxKind.UnionStatement:
+          for (const variant of node.options.values()) {
+            const name =
+              variant.id.kind === SyntaxKind.Identifier ? variant.id.sv : variant.id.value;
+            bindMember(name, variant, SymbolFlags.UnionVariant);
+          }
+          break;
       }
-    }
 
-    function copyMembers(table: SymbolTable) {
-      const members = augmentedSymbolTables.get(table) ?? table;
-      for (const member of members.values()) {
-        bindMember(member.name, member.declarations[0], member.flags);
+      function resolveAndCopyMembers(node: TypeReferenceNode) {
+        let ref = resolveTypeReferenceSym(node, undefined);
+        if (ref && ref.flags & SymbolFlags.Alias) {
+          ref = resolveAliasedSymbol(ref);
+        }
+        if (ref && ref.members) {
+          bindMembers(ref.declarations[0], ref);
+          copyMembers(ref.members);
+        }
       }
-    }
 
-    function bindMember(name: string, node: Node, kind: SymbolFlags) {
-      const sym = createSymbol(node, name, kind, containerSym);
-      compilerAssert(containerSym.members, "containerSym.members is undefined");
-      containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members);
-      containerMembers.set(name, sym);
+      function resolveAliasedSymbol(ref: Sym): Sym | undefined {
+        const node = ref.declarations[0] as AliasStatementNode;
+        switch (node.value.kind) {
+          case SyntaxKind.MemberExpression:
+          case SyntaxKind.TypeReference:
+          case SyntaxKind.Identifier:
+            const resolvedSym = resolveTypeReferenceSym(node.value, undefined);
+            if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
+              return resolveAliasedSymbol(resolvedSym);
+            }
+            return resolvedSym;
+          default:
+            return undefined;
+        }
+      }
+
+      function copyMembers(table: SymbolTable) {
+        const members = augmentedSymbolTables.get(table) ?? table;
+        for (const member of members.values()) {
+          bindMember(member.name, member.declarations[0], member.flags);
+        }
+      }
+
+      function bindMember(name: string, node: Node, kind: SymbolFlags) {
+        const sym = createSymbol(node, name, kind, containerSym);
+        compilerAssert(containerSym.members, "containerSym.members is undefined");
+        containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members);
+        containerMembers.set(name, sym);
+      }
     }
   }
 
