@@ -453,9 +453,8 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    const parentUnion = projectType(variant.union) as Union;
-    projectedVariant.union = parentUnion;
     finishTypeForProgram(projectedProgram, projectedVariant);
+    projectedVariant.union = projectType(variant.union) as Union;
     return projectedVariant;
   }
 
@@ -498,9 +497,8 @@ export function createProjector(
     const projectedMember = shallowClone(e, {
       decorators,
     });
-    const parentEnum = projectType(e.enum) as Enum;
-    projectedMember.enum = parentEnum;
     finishTypeForProgram(projectedProgram, projectedMember);
+    projectedMember.enum = projectType(e.enum) as Enum;
     return projectedMember;
   }
 
