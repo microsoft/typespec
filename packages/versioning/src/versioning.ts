@@ -4,6 +4,7 @@ import {
   Enum,
   EnumMember,
   getNamespaceFullName,
+  ModelProperty,
   Namespace,
   ObjectType,
   Program,
@@ -94,10 +95,20 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
   program.stateMap(renamedFromKey).set(t, record);
 }
 
-export function $madeOptional(context: DecoratorContext, t: Type, v: EnumMember) {
+export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: EnumMember) {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
+    return;
+  }
+  if (!t.optional) {
+    reportDiagnostic(context.program, {
+      code: "made-optional-not-optional",
+      format: {
+        name: t.name,
+      },
+      target: t,
+    });
     return;
   }
   program.stateMap(madeOptionalKey).set(t, version);
