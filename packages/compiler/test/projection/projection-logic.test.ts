@@ -19,7 +19,7 @@ import {
 import { getDoc } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
-describe("compiler: projections", () => {
+describe("compiler: projections: logic", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
