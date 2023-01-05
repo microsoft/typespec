@@ -16,9 +16,11 @@ import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueExclusive,
   getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
   getPropertyType,
@@ -1244,9 +1246,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.minimum = minValue;
     }
 
+    const minValueExclusive = getMinValueExclusive(program, cadlType);
+    if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
+      newTarget.exclusiveMinimum = minValueExclusive;
+    }
+
     const maxValue = getMaxValue(program, cadlType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
+    }
+
+    const maxValueExclusive = getMaxValueExclusive(program, cadlType);
+    if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
+      newTarget.exclusiveMaximum = maxValueExclusive;
     }
 
     const minItems = getMinItems(program, cadlType);
