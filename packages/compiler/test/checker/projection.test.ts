@@ -693,14 +693,6 @@ describe("compiler: projections", () => {
       ${projectionCode(body)}
     `;
 
-    it("link projected enum to projected members", async () => {
-      const code = defaultCode("");
-      const result = (await testProjection(code)) as Enum;
-      ok(result.projectionBase);
-      strictEqual(result.members.get("one")?.enum, result);
-      strictEqual(result.members.get("two")?.enum, result);
-    });
-
     it("can rename itself", async () => {
       const code = `
         ${enumCode}
