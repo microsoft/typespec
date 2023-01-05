@@ -173,19 +173,19 @@ extern dec minItems(target: unknown[] | ModelProperty, value: integer);
 extern dec maxItems(target: unknown[] | ModelProperty, value: integer);
 
 /**
- * Specific the minimum value this numeric type should be.
+ * Specify the minimum value this numeric type should be.
  * @param value Minimum value
  *
  * @example
  * ```cadl
- * @maxValue(18)
+ * @minValue(18)
  * scalar Age is int32;
  * ```
  */
 extern dec minValue(target: numeric | ModelProperty, value: numeric);
 
 /**
- * Specific the maximum value this numeric type should be.
+ * Specify the maximum value this numeric type should be.
  * @param value Maximum value
  *
  * @example
@@ -195,6 +195,32 @@ extern dec minValue(target: numeric | ModelProperty, value: numeric);
  * ```
  */
 extern dec maxValue(target: numeric | ModelProperty, value: numeric);
+
+/**
+ * Specify the minimum value this numeric type should be, exclusive of the given
+ * value.
+ * @param value Minimum value
+ *
+ * @example
+ * ```cadl
+ * @minValueExclusive(0)
+ * scalar distance is float64;
+ * ```
+ */
+extern dec minValueExclusive(target: numeric | ModelProperty, value: numeric);
+
+/**
+ * Specify the maximum value this numeric type should be, exclusive of the given
+ * value.
+ * @param value Maximum value
+ *
+ * @example
+ * ```cadl
+ * @maxValueExclusive(50)
+ * scalar distance is float64;
+ * ```
+ */
+extern dec maxValueExclusive(target: numeric | ModelProperty, value: numeric);
 
 /**
  * Mark this string as a secret value that should be treated carefully to avoid exposure
