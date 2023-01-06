@@ -13,6 +13,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   };
 
   app.bootstrap({
+    name: "JS Api",
     entryPoints: [libraryPath],
     entryPointStrategy: "packages",
     githubPages: false,
