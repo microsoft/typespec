@@ -13,6 +13,7 @@ import {
   Availability,
   findVersionedNamespace,
   getAvailabilityMap,
+  getMadeOptionalOn,
   getVersionDependencies,
   getVersions,
   Version,
@@ -51,6 +52,9 @@ export function $onValidate(program: Program) {
 
           // Validate model property -> type have correct versioning
           validateReference(program, prop, prop.type);
+
+          // Validate model property type is correct when madeOptional
+          validateMadeOptional(program, prop);
         }
       },
       union: (union) => {
@@ -143,6 +147,26 @@ function isSubNamespace(parent: Namespace, child: Namespace): boolean {
   }
 
   return false;
+}
+
+function validateMadeOptional(program: Program, target: Type) {
+  if (target.kind === "ModelProperty") {
+    const madeOptionalOn = getMadeOptionalOn(program, target);
+    if (!madeOptionalOn) {
+      return;
+    }
+    // if the @madeOptional decorator is on a property it MUST be optional
+    if (!target.optional) {
+      reportDiagnostic(program, {
+        code: "made-optional-not-optional",
+        format: {
+          name: target.name,
+        },
+        target: target,
+      });
+      return;
+    }
+  }
 }
 
 interface IncompatibleVersionValidateOptions {

@@ -247,6 +247,19 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("emit diagnostic when property marked @madeOptional but is required", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          @madeOptional(Versions.v2)
+          name: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/made-optional-not-optional",
+        message: "Property 'name' marked with @madeOptional but is required. Should be 'name?'",
+      });
+    });
   });
 
   describe("model template arguments", () => {

@@ -57,6 +57,12 @@ const libDef = {
         versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' removed in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
       },
     },
+    "made-optional-not-optional": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
+      },
+    },
   },
 } as const;
 export const { reportDiagnostic, createStateSymbol } = createCadlLibrary(libDef);
