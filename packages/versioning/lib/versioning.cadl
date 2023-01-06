@@ -12,6 +12,9 @@ projection op#v {
     if hasDifferentNameAtVersion(self, version) {
       self::rename(getNameAtVersion(self, version));
     };
+    if hasDifferentReturnTypeAtVersion(self, version) {
+      self::changeReturnType(getReturnTypeBeforeVersion(self, version));
+    };
   }
   from(version) {
     if !existsAtVersion(self, version) {
@@ -35,6 +38,9 @@ projection interface#v {
     self::operations::forEach((operation) => {
       if !existsAtVersion(operation, version) {
         self::deleteOperation(operation::name);
+      };
+      if hasDifferentReturnTypeAtVersion(operation, version) {
+        operation::changeReturnType(getReturnTypeBeforeVersion(operation, version));
       };
     });
   }
@@ -115,6 +121,10 @@ projection model#v {
         if madeOptionalAfter(p, version) {
           p::setOptional(false);
         };
+
+        if hasDifferentTypeAtVersion(p, version) {
+          self::changePropertyType(p::name, getTypeBeforeVersion(p, version));
+        };
       });
     };
   }
@@ -137,6 +147,10 @@ projection model#v {
 
         if madeOptionalAfter(p, version) {
           p::setOptional(true);
+        };
+
+        if hasDifferentTypeAtVersion(p, version) {
+          self::changePropertyType(p::name, p::type);
         };
       });
     };
