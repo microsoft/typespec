@@ -193,4 +193,4 @@ obj/
 .npmrc
 
 
-docs/**/js-docs/
+docs/**/js-api/
