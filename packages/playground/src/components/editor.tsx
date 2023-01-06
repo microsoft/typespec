@@ -28,6 +28,12 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, command
     }
   }, []);
 
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.setModel(model);
+    }
+  }, [model]);
+
   return (
     <div
       className="monaco-editor-container"
