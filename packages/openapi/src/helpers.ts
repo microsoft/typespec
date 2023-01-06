@@ -115,12 +115,12 @@ export function getParameterKey(
 /**
  * Resolve the OpenAPI operation ID for the given operation using the following logic:
  * - If @operationId was specified use that value
- * - If operation is defined at the root or under the service namespace return <operation.name>
- * - Otherwise(operation is under another namespace or interface) return <namespace/interface.name>_<operation.name>
+ * - If operation is defined at the root or under the service namespace return `<operation.name>`
+ * - Otherwise(operation is under another namespace or interface) return `<namespace/interface.name>_<operation.name>`
  *
  * @param program Cadl Program
  * @param operation Operation
- * @returns Operation ID in this format <name> or <group>_<name>
+ * @returns Operation ID in this format `<name>` or `<group>_<name>`
  */
 export function resolveOperationId(program: Program, operation: Operation) {
   const explicitOperationId = getOperationId(program, operation);
