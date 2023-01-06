@@ -191,3 +191,6 @@ obj/
 *.zip
 
 .npmrc
+
+
+docs/**/js-docs/
