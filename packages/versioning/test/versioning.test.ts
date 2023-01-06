@@ -7,6 +7,7 @@ import {
   Operation,
   ProjectionApplication,
   projectProgram,
+  Scalar,
   Type,
   Union,
 } from "@cadl-lang/compiler";
@@ -279,6 +280,27 @@ describe("compiler: versioning", () => {
       );
     });
 
+    it("can change property types", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `
+        model Test {
+          @typeChangedFrom(Versions.v2, string)
+          @typeChangedFrom(Versions.v3, zonedDateTime)
+          changed: MyDate;
+        }
+        
+        model MyDate {}
+        `
+      );
+
+      ok((v1.properties.get("changed")!.type as Scalar).name === "string");
+      ok((v2.properties.get("changed")!.type as Scalar).name === "zonedDateTime");
+      ok((v3.properties.get("changed")!.type as Model).name === "MyDate");
+    });
+
     async function versionedModel(versions: string[], model: string) {
       const { Test } = (await runner.compile(`
       @versioned(Versions)
@@ -511,6 +533,24 @@ describe("compiler: versioning", () => {
       assertHasVariants(v2.returnType as Union, ["a", "b"]);
     });
 
+    it("can change return types", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedOperation(
+        ["v1", "v2", "v3"],
+        `
+        @returnTypeChangedFrom(Versions.v2, string)
+        @returnTypeChangedFrom(Versions.v3, zonedDateTime)  
+        op Test(): MyDate;
+
+        model MyDate {};
+        `
+      );
+      ok((v1.returnType as Scalar).name === "string");
+      ok((v2.returnType as Scalar).name === "zonedDateTime");
+      ok((v3.returnType as Model).name === "MyDate");
+    });
+
     async function versionedOperation(versions: string[], operation: string) {
       const { Test } = (await runner.compile(`
         @versioned(Versions)
@@ -636,6 +676,26 @@ describe("compiler: versioning", () => {
         ],
         source
       );
+    });
+
+    it("can change return types of members", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedInterface(
+        ["v1", "v2", "v3"],
+        `
+        interface Test {
+          @returnTypeChangedFrom(Versions.v2, string)
+          @returnTypeChangedFrom(Versions.v3, zonedDateTime)  
+          op foo(): MyDate;  
+        }
+
+        model MyDate {};
+        `
+      );
+      ok((v1.operations.get("foo")!.returnType as Scalar).name === "string");
+      ok((v2.operations.get("foo")!.returnType as Scalar).name === "zonedDateTime");
+      ok((v3.operations.get("foo")!.returnType as Model).name === "MyDate");
     });
 
     it("can version parameters", async () => {
