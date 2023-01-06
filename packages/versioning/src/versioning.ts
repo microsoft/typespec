@@ -101,16 +101,6 @@ export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: En
   if (!version) {
     return;
   }
-  if (!t.optional) {
-    reportDiagnostic(context.program, {
-      code: "made-optional-not-optional",
-      format: {
-        name: t.name,
-      },
-      target: t,
-    });
-    return;
-  }
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
