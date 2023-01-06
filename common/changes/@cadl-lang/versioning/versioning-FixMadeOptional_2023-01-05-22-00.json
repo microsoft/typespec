@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Ensure properties marked '@madeOptional' are actually optional.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
