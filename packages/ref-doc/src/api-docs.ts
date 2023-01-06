@@ -1,3 +1,5 @@
+import { joinPaths } from "@cadl-lang/compiler";
+import { writeFile } from "fs/promises";
 import { Application } from "typedoc";
 import { load } from "typedoc-plugin-markdown";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
@@ -26,4 +28,15 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   }
 
   await app.generateDocs(project, outputDir);
+
+  await writeFile(
+    joinPaths(outputDir, "_category_.json"),
+    JSON.stringify({
+      label: "JS Api",
+      link: {
+        type: "doc",
+        id: "index",
+      },
+    })
+  );
 }

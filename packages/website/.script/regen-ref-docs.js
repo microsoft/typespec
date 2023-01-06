@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // @ts-check
-import { join } from "path";
-import { generateLibraryDocs } from "../../packages/ref-doc/dist/src/index.js";
-import { repoRoot } from "./helpers.js";
+import { generateLibraryDocs } from "@cadl-lang/ref-doc";
+import { dirname, join, resolve } from "path";
+import { fileURLToPath } from "url";
+
+export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 // Rest
 await generateLibraryDocs(
