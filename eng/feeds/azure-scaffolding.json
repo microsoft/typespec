@@ -10,6 +10,17 @@
     ],
     "config": {
       "emit": ["@azure-tools/cadl-autorest"]
+    },
+    "files": [
+      { "path": "./data-plane/main.cadl", "destination": "main.cadl" },
+      { "path": "./data-plane/client.cadl", "destination": "client.cadl" }
+    ],
+    "inputs": {
+      "RPName": { "description": "Please provide RP name", "initialValue": "Microsoft.Contoso" },
+      "APIVersion": {
+        "description": "Please provide initial API version",
+        "initialValue": "2023-01-01-preview"
+      }
     }
   },
   "azure-arm": {

@@ -1,0 +1,22 @@
+
+import "@cadl-lang/rest";
+import "@cadl-lang/versioning";
+import "@azure-tools/cadl-azure-core";
+
+using Cadl.Http;
+using Cadl.Rest;
+using Cadl.Versioning;
+using Azure.Core;
+
+@service({
+  title: "{{RPname}} service",
+})
+@versioned({{RPname}}.Versions)
+@versionedDependency(
+  [[{{RPname}}.Versions.v{{APIVersion}}, Azure.Core.Versions.v1_0_Preview_1]]
+)
+namespace {{RPname}}
+
+enum Versions {
+  v{{APIVersion}}: "{{APIVersion}}",
+}
