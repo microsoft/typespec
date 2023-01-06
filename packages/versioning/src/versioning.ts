@@ -4,6 +4,7 @@ import {
   Enum,
   EnumMember,
   getNamespaceFullName,
+  ModelProperty,
   Namespace,
   ObjectType,
   Program,
@@ -94,7 +95,7 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
   program.stateMap(renamedFromKey).set(t, record);
 }
 
-export function $madeOptional(context: DecoratorContext, t: Type, v: EnumMember) {
+export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: EnumMember) {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
