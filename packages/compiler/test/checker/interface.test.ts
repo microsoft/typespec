@@ -1,12 +1,21 @@
 import { ok, strictEqual } from "assert";
-import { Interface, Model, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { isTemplateDeclaration } from "../../core/type-utils.js";
+import { Interface, Model, Operation, Type } from "../../core/types.js";
+import {
+  BasicTestRunner,
+  createTestHost,
+  createTestRunner,
+  expectDiagnostics,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;
+  let runner: BasicTestRunner;
 
   beforeEach(async () => {
     testHost = await createTestHost();
+    runner = await createTestRunner(testHost);
   });
 
   it("works", async () => {
@@ -249,5 +258,137 @@ describe("compiler: interfaces", () => {
     );
     await testHost.compile("./");
     strictEqual(calls, 0);
+  });
+
+  describe("templated operations", () => {
+    it("can instantiate template operation inside non-templated interface", async () => {
+      const { Foo, bar } = (await runner.compile(`
+      @test interface Foo {
+        @test bar<T>(): T;
+      }
+
+      alias Bar = Foo.bar<int32>;
+      `)) as {
+        Foo: Interface;
+        bar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(isTemplateDeclaration(Foo.operations.get("bar")!));
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
+
+    it("can instantiate template operation inside templated interface", async () => {
+      const { Foo, bar } = (await runner.compile(`
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      alias MyFoo = Foo<string>;
+      alias Bar = MyFoo.bar<int32>;
+      `)) as {
+        Foo: Interface;
+        bar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(
+        isTemplateDeclaration(Foo.operations.get("bar")!),
+        "Operation inside MyFoo interface is still a template"
+      );
+
+      const input = bar.parameters.properties.get("input")!.type;
+      strictEqual(input.kind, "Scalar" as const);
+      strictEqual(input.name, "string");
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
+
+    it("cache templated operations", async () => {
+      const { Index } = (await runner.compile(`
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      alias MyFoo = Foo<string>;
+      @test model Index {
+        a: MyFoo.bar<string>;
+        b: MyFoo.bar<string>;
+      }
+      `)) as {
+        Index: Model;
+      };
+      const a = Index.properties.get("a");
+      const b = Index.properties.get("b");
+      ok(a);
+      ok(b);
+
+      strictEqual(a.type, b.type);
+    });
+
+    it("can extend an interface with templated operations", async () => {
+      const { Foo, myBar: bar } = (await runner.compile(`
+      interface Base<A> {
+        bar<B>(input: A): B;
+      }
+
+      @test interface Foo extends Base<string> {
+      }
+
+      @test op myBar is Foo.bar<int32>;
+      `)) as {
+        Foo: Interface;
+        myBar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(
+        isTemplateDeclaration(Foo.operations.get("bar")!),
+        "Operation inside MyFoo interface is still a template"
+      );
+
+      const input = bar.parameters.properties.get("input")!.type;
+      strictEqual(input.kind, "Scalar" as const);
+      strictEqual(input.name, "string");
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
+
+    it("emit warning if shadowing parent templated type", async () => {
+      const diagnostics = await runner.diagnose(`
+      interface Base<A> {
+        bar<A>(input: A): A;
+      }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "shadow",
+        message: `Shadowing parent template parmaeter with the same name "A"`,
+      });
+    });
+
+    it("emit diagnostic if trying to instantiate non templated operation", async () => {
+      const diagnostics = await runner.diagnose(`
+      interface Base<A> {
+        bar(input: A): void;
+      }
+
+      alias MyBase = Base<string>;
+
+      op myBar is MyBase.bar<int32>;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-args",
+        message: `Can't pass template arguments to non-templated type`,
+      });
+    });
   });
 });
