@@ -31,3 +31,6 @@ spec.emu.html
 
 # Auto generated reference docs.
 docs/**/reference/
+
+# Cadl init template
+eng/feeds/

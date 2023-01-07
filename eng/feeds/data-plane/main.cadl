@@ -1,4 +1,3 @@
-
 import "@cadl-lang/rest";
 import "@cadl-lang/versioning";
 import "@azure-tools/cadl-azure-core";
@@ -9,14 +8,14 @@ using Cadl.Versioning;
 using Azure.Core;
 
 @service({
-  title: "{{RPname}} service",
+  title: "{{parameters.RPName}} service",
 })
-@versioned({{RPname}}.Versions)
+@versioned({{parameters.RPName}}.Versions)
 @versionedDependency(
-  [[{{RPname}}.Versions.v{{APIVersion}}, Azure.Core.Versions.v1_0_Preview_1]]
+  [[{{parameters.RPName}}.Versions.{{#normalizeVersion}}v{{parameters.APIVersion}}{{/normalizeVersion}}, Azure.Core.Versions.v1_0_Preview_1]]
 )
-namespace {{RPname}}
+namespace {{parameters.RPName}};
 
 enum Versions {
-  v{{APIVersion}}: "{{APIVersion}}",
+  {{#normalizeVersion}}v{{parameters.APIVersion}}{{/normalizeVersion}}: "{{parameters.APIVersion}}",
 }

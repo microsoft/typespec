@@ -6,7 +6,7 @@ import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
 import { NodePackage } from "../core/module-resolver.js";
-import { getBaseFileName, joinPaths } from "../core/path-utils.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
@@ -19,9 +19,14 @@ interface ScaffoldingConfig extends InitTemplate {
   templateUri: string;
 
   /**
-   * Directory where the project should be initialized.
+   * Directory full path where the project should be initialized.
    */
   directory: string;
+
+  /**
+   * folder name where the project should be initialized.
+   */
+  folderName: string;
 
   /**
    * Name of the project.
@@ -37,7 +42,18 @@ interface ScaffoldingConfig extends InitTemplate {
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
+
+  /**
+   * NormalizeVersion function replaces `-` with `_`.
+   */
+  normalizeVersion: any;
 }
+
+const normalizeVersion = function () {
+  return function (text: string, render: any): string {
+    return render(text).replace(/-/g, "_");
+  };
+};
 
 export async function initCadlProject(
   host: CompilerHost,
@@ -67,7 +83,9 @@ export async function initCadlProject(
     libraries,
     name,
     directory,
+    folderName,
     parameters,
+    normalizeVersion,
   };
   await scaffoldNewProject(host, scaffoldingConfig);
 }
@@ -260,10 +278,8 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
-  const template = await readUrlOrPath(
-    host,
-    resolveRelativeUrlOrPath(config.templateUri, file.path)
-  );
+  const baseDir = getDirectoryPath(config.templateUri);
+  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
   const content = Mustache.render(template.text, config);
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }

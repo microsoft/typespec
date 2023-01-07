@@ -8,17 +8,30 @@
       "@azure-tools/cadl-autorest",
       "@azure-tools/cadl-azure-core"
     ],
-    "config": {
-      "emit": ["@azure-tools/cadl-autorest"]
-    },
+    "config": {},
     "files": [
-      { "path": "./data-plane/main.cadl", "destination": "main.cadl" },
-      { "path": "./data-plane/client.cadl", "destination": "client.cadl" }
+      {
+        "path": "./data-plane/main.cadl",
+        "destination": "main.cadl"
+      },
+      {
+        "path": "./data-plane/client.cadl",
+        "destination": "client.cadl"
+      },
+      {
+        "path": "./data-plane/cadl-project.yaml",
+        "destination": "cadl-project.yaml"
+      }
     ],
     "inputs": {
-      "RPName": { "description": "Please provide RP name", "initialValue": "Microsoft.Contoso" },
+      "RPName": {
+        "description": "Please provide RP name",
+        "type": "text",
+        "initialValue": "Microsoft.Contoso"
+      },
       "APIVersion": {
         "description": "Please provide initial API version",
+        "type": "text",
         "initialValue": "2023-01-01-preview"
       }
     }
