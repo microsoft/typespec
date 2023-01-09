@@ -24,11 +24,6 @@ interface ScaffoldingConfig extends InitTemplate {
   directory: string;
 
   /**
-   * folder name where the project should be initialized.
-   */
-  folderName: string;
-
-  /**
    * Name of the project.
    */
   name: string;
@@ -83,7 +78,6 @@ export async function initCadlProject(
     libraries,
     name,
     directory,
-    folderName,
     parameters,
     normalizeVersion,
   };
