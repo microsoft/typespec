@@ -11,6 +11,7 @@ extern dec added(target: unknown, version: EnumMember);
 extern dec removed(target: unknown, version: EnumMember);
 extern dec renamedFrom(target: unknown, version: EnumMember, oldName?: string);
 extern dec madeOptional(target: unknown, version: EnumMember);
+extern dec typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown);
 
 extern fn existsAtVersion(target: unknown, version: EnumMember): boolean;
 extern fn hasDifferentNameAtVersion(target: unknown, version: EnumMember): boolean;

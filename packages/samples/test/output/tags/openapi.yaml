@@ -1,0 +1,115 @@
+openapi: 3.0.0
+info:
+  title: Tags sample
+  version: '0000-00-00'
+tags:
+  - name: foo
+  - name: tag1
+  - name: tag2
+  - name: tag3
+  - name: outer
+  - name: inner
+  - name: moreInner
+  - name: innerOp
+paths:
+  /foo/{id}:
+    get:
+      tags:
+        - foo
+        - tag1
+      operationId: Foo_read
+      description: includes namespace tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+    post:
+      tags:
+        - foo
+        - tag1
+        - tag2
+      operationId: Foo_create
+      description: includes namespace tag and two operations tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+  /bar:
+    get:
+      operationId: Bar_list
+      description: no tags
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref:
+                    value: '#/components/schemas/Resp'
+                x-cadl-name: Resp[]
+  /bar/{id}:
+    post:
+      tags:
+        - tag3
+      operationId: Bar_create
+      description: one operation tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+  /nested/{id}:
+    post:
+      tags:
+        - outer
+        - inner
+        - moreInner
+        - innerOp
+      operationId: NestedMoreInner_createOther
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
+components:
+  schemas:
+    Resp:
+      type: object
+      properties:
+        out:
+          type: string
+      required:
+        - out

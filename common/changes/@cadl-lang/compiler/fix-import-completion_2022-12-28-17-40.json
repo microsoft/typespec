@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "[Language Server] Fix: Completion of library imports replace import correctly\"",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

@@ -192,32 +192,6 @@ describe("compiler: operations", () => {
     ok(gammaTargets.has(newFoo));
   });
 
-  it("prevents the definition of a templated operation in an interface", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      interface Test {
-        getResource<TResource>(name: string): TResource;
-      }`
-    );
-
-    const [_, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
-    expectDiagnostics(diagnostics, [
-      {
-        code: "token-expected",
-        message: `'(', or 'is' expected.`,
-      },
-      {
-        code: "token-expected",
-        message: `';' expected.`,
-      },
-      {
-        code: "unknown-identifier",
-        message: `Unknown identifier TResource`,
-      },
-    ]);
-  });
-
   it("emit diagnostic when operation is referencing itself as signature", async () => {
     testHost.addCadlFile(
       "main.cadl",

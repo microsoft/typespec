@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix issue with referencing spread properties or enum member depending on the order of declaration",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

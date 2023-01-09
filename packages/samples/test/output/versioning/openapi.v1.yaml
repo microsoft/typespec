@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Pet Store Service
+  version: v1
+tags: []
+paths:
+  /:
+    get:
+      operationId: MyService_getPet
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionParam'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  value: '#/components/schemas/PetBase'
+  /walkCat:
+    post:
+      operationId: MyService_walkCat
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionParam'
+      responses:
+        '200':
+          description: The request has succeeded.
+components:
+  parameters:
+    ApiVersionParam:
+      name: api-version
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - v1
+          - v2
+  schemas:
+    PetBase:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator property for PetBase.
+        name:
+          type: string
+        favoriteToys:
+          type: array
+          items:
+            $ref:
+              value: '#/components/schemas/Library.PetToy'
+          x-cadl-name: Library.PetToy[]
+      discriminator:
+        propertyName: type
+        mapping:
+          dog:
+            value: '#/components/schemas/Dog'
+      required:
+        - name
+        - favoriteToys
+    ApiVersionParam:
+      type: object
+      properties: {}
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2
+    Dog:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - dog
+        nextWalkTime:
+          type: string
+          format: date-time
+        walkerName:
+          type: string
+      required:
+        - type
+        - nextWalkTime
+        - walkerName
+      allOf:
+        - $ref:
+            value: '#/components/schemas/PetBase'
+    Library.PetToy:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name

@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: Polymorphism sample
+  version: '0000-00-00'
+tags: []
+paths:
+  /Pets:
+    get:
+      operationId: root_read
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  value: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: Discriminator property for Pet.
+        name:
+          type: string
+        weight:
+          type: number
+          format: float
+      discriminator:
+        propertyName: kind
+        mapping:
+          cat:
+            value: '#/components/schemas/Cat'
+          dog:
+            value: '#/components/schemas/Dog'
+      required:
+        - name
+    Cat:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - cat
+        meow:
+          type: integer
+          format: int32
+      required:
+        - kind
+        - meow
+      allOf:
+        - $ref:
+            value: '#/components/schemas/Pet'
+    Dog:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - dog
+        bark:
+          type: string
+      required:
+        - kind
+        - bark
+      allOf:
+        - $ref:
+            value: '#/components/schemas/Pet'
