@@ -1,4 +1,4 @@
-import { getDeprecated, getIndexer } from "../lib/decorators.js";
+import { Discriminator, getDeprecated, getDiscriminator, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -2422,6 +2422,36 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function findDiscriminator(program: Program, model?: Model): Discriminator | undefined {
+    if (!model) {
+      return undefined;
+    }
+    const discriminator = getDiscriminator(program, model);
+    if (discriminator) {
+      return discriminator;
+    } else {
+      return findDiscriminator(program, model.baseModel);
+    }
+  }
+
+  function isDiscriminator(prop: ModelProperty): boolean {
+    const discriminator = findDiscriminator(program, prop.model);
+    return discriminator?.propertyName === prop.name;
+  }
+
+  function isPropertyAssignableTo(
+    source: ModelProperty,
+    target: ModelProperty,
+    diagnosticTarget: DiagnosticTarget
+  ): boolean {
+    const isDiscrim = isDiscriminator(source);
+    let [isAssignable, _] = isTypeAssignableTo(source.type, target.type, diagnosticTarget);
+    if (!isAssignable && isDiscrim) {
+      isAssignable = source.type.kind === target.type.kind;
+    }
+    return isAssignable;
+  }
+
   function defineProperty(
     properties: Map<string, ModelProperty>,
     newProp: ModelProperty,
@@ -2440,12 +2470,12 @@ export function createChecker(program: Program): Checker {
 
     const overriddenProp = getOverriddenProperty(newProp);
     if (overriddenProp) {
-      const [isAssignable, _] = isTypeAssignableTo(newProp.type, overriddenProp.type, newProp);
+      const isAssignable = isPropertyAssignableTo(newProp, overriddenProp, newProp);
       const parentScalar = overriddenProp.type.kind === "Scalar";
       const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
 
-      if (!parentScalar) {
+      if (!parentScalar && !isDiscriminator(newProp)) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "override-property-intrinsic",
@@ -4511,6 +4541,7 @@ export function createChecker(program: Program): Checker {
    * @param source Source type
    * @param target Target type
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   * @param discriminator Discriminator property, if any
    */
   function isTypeAssignableTo(
     source: Type,
