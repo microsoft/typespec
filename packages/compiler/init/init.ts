@@ -278,7 +278,7 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
-  const baseDir = getDirectoryPath(config.templateUri);
+  const baseDir = getDirectoryPath(config.templateUri) + "/";
   const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
   const content = Mustache.render(template.text, config);
   return host.writeFile(joinPaths(config.directory, file.destination), content);
