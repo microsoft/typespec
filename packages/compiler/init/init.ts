@@ -24,6 +24,11 @@ interface ScaffoldingConfig extends InitTemplate {
   directory: string;
 
   /**
+   * folder name where the project should be initialized.
+   */
+  folderName: string;
+
+  /**
    * Name of the project.
    */
   name: string;
@@ -42,11 +47,33 @@ interface ScaffoldingConfig extends InitTemplate {
    * NormalizeVersion function replaces `-` with `_`.
    */
   normalizeVersion: () => (text: string, render: any) => string;
+
+  /**
+   * toLowerCase function for template replacement
+   */
+  toLowerCase: () => (text: string, render: any) => string;
+
+  /**
+   * Normalize package name for langauges other than C#. It replaces `.` with `-` and toLowerCase
+   */
+  normalizePackageName: () => (text: string, render: any) => string;
 }
 
 const normalizeVersion = function () {
   return function (text: string, render: any): string {
     return render(text).replaceAll("-", "_");
+  };
+};
+
+const toLowerCase = function () {
+  return function (text: string, render: any): string {
+    return render(text).toLowerCase();
+  };
+};
+
+const normalizePackageName = function () {
+  return function (text: string, render: any): string {
+    return render(text).replaceAll(".", "-").toLowerCase();
   };
 };
 
@@ -83,8 +110,11 @@ export async function initCadlProject(
     libraries,
     name,
     directory,
+    folderName,
     parameters,
     normalizeVersion,
+    toLowerCase,
+    normalizePackageName,
   };
   await scaffoldNewProject(host, scaffoldingConfig);
 }
@@ -280,6 +310,9 @@ async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: In
   const baseDir = getDirectoryPath(config.templateUri) + "/";
   const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
   const content = Mustache.render(template.text, config);
+  const destinationFilePath = joinPaths(config.directory, file.destination);
+  // create folders in case they don't exist
+  await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 

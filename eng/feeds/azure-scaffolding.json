@@ -2,12 +2,7 @@
   "azure-core": {
     "title": "Azure Data Plane Service",
     "description": "Create a project representing an Azure service Data Plane API",
-    "libraries": [
-      "@cadl-lang/rest",
-      "@cadl-lang/versioning",
-      "@azure-tools/cadl-autorest",
-      "@azure-tools/cadl-azure-core"
-    ],
+    "libraries": ["@azure-tools/cadl-autorest"],
     "config": {},
     "files": [
       {
@@ -21,18 +16,33 @@
       {
         "path": "./data-plane/cadl-project.yaml",
         "destination": "cadl-project.yaml"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_GetWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_ListWidgetsSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_ListWidgetsSample.json"
       }
     ],
     "inputs": {
-      "RPName": {
-        "description": "Please provide RP name",
+      "ServiceNamespace": {
+        "description": "Please provide service namespace in Pascal case:",
         "type": "text",
-        "initialValue": "Microsoft.Contoso"
-      },
-      "APIVersion": {
-        "description": "Please provide initial API version",
-        "type": "text",
-        "initialValue": "2023-01-01-preview"
+        "initialValue": "Azure.Contoso"
       }
     }
   },
