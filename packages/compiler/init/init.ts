@@ -41,12 +41,12 @@ interface ScaffoldingConfig extends InitTemplate {
   /**
    * NormalizeVersion function replaces `-` with `_`.
    */
-  normalizeVersion: any;
+  normalizeVersion: () => (text: string, render: any) => string;
 }
 
 const normalizeVersion = function () {
   return function (text: string, render: any): string {
-    return render(text).replace(/-/g, "_");
+    return render(text).replaceAll("-", "_");
   };
 };
 
