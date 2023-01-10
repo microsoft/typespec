@@ -3,6 +3,7 @@
     "title": "Azure Data Plane Service",
     "description": "Create a project representing an Azure service Data Plane API",
     "libraries": ["@azure-tools/cadl-autorest"],
+    "skipCompilerPackage": true,
     "config": {},
     "files": [
       {

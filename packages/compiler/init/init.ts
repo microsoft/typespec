@@ -39,6 +39,12 @@ interface ScaffoldingConfig extends InitTemplate {
   libraries: string[];
 
   /**
+   * A flag to indicate not adding @cadl-lang/compiler package to package.json.
+   * Other libraries may already brought in the dependency such as Azure template.
+   */
+  skipCompilerPackage: boolean;
+
+  /**
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
@@ -110,6 +116,7 @@ export async function initCadlProject(
     libraries,
     name,
     directory,
+    skipCompilerPackage: template.skipCompilerPackage ?? false,
     folderName,
     parameters,
     normalizeVersion,
@@ -254,9 +261,11 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
-  const dependencies: Record<string, string> = {
-    "@cadl-lang/compiler": "latest",
-  };
+  const dependencies: Record<string, string> = {};
+
+  if (!config.skipCompilerPackage) {
+    dependencies["@cadl-lang/compiler"] = "latest";
+  }
 
   for (const library of config.libraries) {
     dependencies[library] = "latest";
