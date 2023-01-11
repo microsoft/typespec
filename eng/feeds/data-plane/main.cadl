@@ -28,8 +28,20 @@ model Widget {
   @visibility("read")
   name: string;
 
-  @doc("The ID of the widget's manufacturer.")
+  @doc("The ID of the manufacturer.")
   manufacturerId: string;
+
+  @doc("The faked shared model.")
+  sharedModel?: FakedSharedModel;
+}
+
+@doc("Faked shared model")
+model FakedSharedModel {
+  @doc("The tag.")
+  tag: string;
+
+  @doc("The created date.")
+  createdDate: zonedDateTime;
 }
 
 interface Widgets {
@@ -51,7 +63,7 @@ interface Widgets {
   listWidgets is ResourceList<
     Widget,
     {
-      parameters: StandardListQueryParameters & SelectQueryParameter;
+      parameters: StandardListQueryParameters;
     }
   >;
 }
