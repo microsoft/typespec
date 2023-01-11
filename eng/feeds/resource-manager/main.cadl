@@ -1,0 +1,68 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/versioning";
+import "@azure-tools/cadl-providerhub";
+import "@azure-tools/cadl-azure-core";
+import "@azure-tools/cadl-azure-resource-manager";
+
+using Cadl.Http;
+using Cadl.Rest;
+using Cadl.Versioning;
+using Azure.Core;
+using Azure.ResourceManager;
+
+@armProviderNamespace
+@service({
+  title: "{{parameters.ServiceNamespace}} service",
+})
+
+@versioned({{parameters.ServiceNamespace}}.Versions)
+@versionedDependency(
+  [[{{parameters.ServiceNamespace}}.Versions.v2022_11_01_Preview, Azure.Core.Versions.v1_0_Preview_1]]
+)
+namespace {{parameters.ServiceNamespace}};
+
+enum Versions {
+  v2022_11_01_Preview: "2022-11-01-preview",
+}
+
+// Following interface brings in the standard ARM Operations
+interface Operations extends Azure.ResourceManager.Operations {};
+
+@doc("A ContosoProviderHub resource")
+model Employee is TrackedResource<EmployeeProperties> {
+  @doc("Name of employee")
+  @format("^[a-zA-Z0-9-]{3,24}$")
+  @key("employeeName")
+  @path
+  @segment("employees")
+  name: string;
+}
+
+@doc("Employee properties")
+model EmployeeProperties {
+  @doc("Age of employee")
+  age?: int32;
+
+  @doc("City of employee")
+  city?: string;
+
+  @doc("Profile of employee")
+  @format("base64Url")
+  profile?: bytes;
+
+  @visibility("read")
+  @doc("The status of the last operation.")
+  provisioningState?: ProvisioningState;
+}
+
+@armResourceOperations
+interface Employees extends ResourceOperations<Employee, EmployeeProperties> {}
+
+@lroStatus
+enum ProvisioningState {
+  ...ResourceProvisioningState,
+  Provisioning,
+  Updating,
+  Deleting,
+  Accepted,
+}
