@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Add type Model to Cadl.Reflection",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
