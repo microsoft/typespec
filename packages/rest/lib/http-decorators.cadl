@@ -3,35 +3,65 @@ namespace Cadl.Http;
 using Cadl.Reflection;
 
 /**
+ * Header options.
+ */
+model HeaderOptions {
+  /**
+   * Name of the header when sent over http.
+   */
+  name?: string;
+  /**
+   * Determines the format of the array if type array is used.
+   */
+  format?: "csv";
+}
+
+/**
  * Specify this property is to be sent or received as an http header.
  *
- * @param headerName Optional name of the header when sent over http.
+ * @param headerNameOrOptions Optional name of the header when sent over http or header options.
  *
  * @example
  *
  * ```cadl
  * op read(@header accept: string): {@header("E-Tag") eTag: string};
+ * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
  * ```
  */
-extern dec header(target: ModelProperty, headerName?: string);
+extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
+
+/**
+ * Query parameter options.
+ */
+model QueryOptions {
+  /**
+   * Name of the query when included in the url.
+   */
+  name?: string;
+  /**
+   * Determines the format of the array if type array is used.
+   */
+  format?: "multi" | "csv";
+}
 
 /**
  * Specify this property is to be sent as a query parameter.
  *
- * @param queryKey Optional name of the query when included in the url.
+ * @param queryNameOrOptions Optional name of the query when included in the url or query parameter options.
  *
  * @example
  *
  * ```cadl
  * op read(@query select: string, @query("order-by") orderBy: string): void;
+ * op list(@query({name: "id", format: "multi"}) ids: string[]): void;
  * ```
  */
-extern dec query(target: ModelProperty, queryKey?: string);
+extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptions);
 
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
- * @param paramName Optional name of the parmaeter in the url template.
+ * @param paramName Optional name of the parameter in the url template.
  *
  * @example
  *
