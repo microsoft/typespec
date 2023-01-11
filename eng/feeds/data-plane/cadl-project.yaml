@@ -34,5 +34,5 @@ options:
       name: "@azure-rest/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}-rest"
       description: "{{parameters.ServiceNamespace}} Service"
   "@azure-tools/cadl-java":
-    emitter-output-dir: "{java-sdk-folder}/sdk/{service-directory-name}/azure-{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
+    emitter-output-dir: "{java-sdk-folder}/sdk/{service-directory-name}/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
     namespace: com.{{#toLowerCase}}{{parameters.ServiceNamespace}}{{/toLowerCase}}

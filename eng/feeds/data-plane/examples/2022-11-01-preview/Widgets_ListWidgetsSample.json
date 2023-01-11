@@ -5,9 +5,6 @@
     "top": 8,
     "skip": 15,
     "maxpagesize": 27,
-    "select": [
-      "type1"
-    ],
     "api-version": "2022-11-01-preview"
   },
   "responses": {
