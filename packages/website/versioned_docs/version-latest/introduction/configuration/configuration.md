@@ -112,7 +112,7 @@ parameters:
   base-dir:
     default: "{cwd}"
 
-outout-dir: {base-dir}/output
+output-dir: {base-dir}/output
 ```
 
 The parameter can then be specified with `--arg` in this format `--arg "<parameter-name>=<value>"`
@@ -138,7 +138,7 @@ environment-variables:
   BASE_DIR:
     default: "{cwd}"
 
-outout-dir: {env.BASE_DIR}/output
+output-dir: {env.BASE_DIR}/output
 ```
 
 #### Emitter options
