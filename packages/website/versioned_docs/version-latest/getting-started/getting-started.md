@@ -25,10 +25,7 @@ A definition for a service is the namespace that contains all the operations for
 Here's an example that uses these to define a Pet Store service:
 
 ```cadl
-@service({
-  title: "Pet Store Service",
-  version: "2021-03-25",
-})
+@service({title: "Pet Store Service", version: "2021-03-25")
 @server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
 namespace PetStore;

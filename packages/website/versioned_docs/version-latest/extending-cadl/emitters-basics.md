@@ -83,17 +83,9 @@ Generally speaking, emitter options and decorators can solve the same problems: 
 
 The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for `outputFilename` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
-## Emitting Cadl types to assets on disk
+## Querying the program
 
-One of the main tasks of an emitter is finding types to emit. There are three main approaches:
-
-1. The [emitter framework](./emitter-framework.md), which makes it relatively easy to emit all your Cadl types (or a subset, if you wish).
-1. The Semantic Walker, which lets you easily run code for every type in the program
-1. Custom traversal, which gives you a lot more flexibility than either of the previous approaches at the cost of some complexity.
-
-### Emitter Framework
-
-The emitter framework provides handles a lot of hard problems for you while providing an easy-to-use API to convert your Cadl into source code or other object graphs. Visit the [emitter framework](./emitter-framework.md) page to learn more.
+One of the main tasks of an emitter is finding types to emit. There are two main approaches: using the Semantic Walker, which lets you easily run code for every type in the program, and doing a custom traversal, which gives you a lot more flexibility.
 
 ### Semantic Walker
 
@@ -157,7 +149,7 @@ function emitModel(model: Model) {
 
 Sometimes you might want to get access to a known Cadl type in the type graph, for example a model that you have defined in your library.
 
-A helper is provided on the program to do that.
+An helper is provided on the program to do that.
 
 ```ts
 program.resolveTypeReference(reference: string): Type | undefined;
