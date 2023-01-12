@@ -136,7 +136,6 @@ function validateVersionedNamespaceUsage(
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
       const targetVersionedNamespace = findVersionedNamespace(program, target);
-
       if (
         targetVersionedNamespace !== undefined &&
         !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&

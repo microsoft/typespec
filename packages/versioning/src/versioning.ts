@@ -413,24 +413,29 @@ export function getUseDependencies(
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
   const result = new Map<Namespace, Map<Version, Version> | Version>();
   if (target.kind === "Namespace") {
-    const data = program.stateMap(useDependencyNamespaceKey).get(target) as Version[];
-    if (!data) {
-      if (!searchEnum) {
-        return undefined;
+    let current: Namespace | undefined = target;
+    while (current) {
+      const data = program.stateMap(useDependencyNamespaceKey).get(current) as Version[];
+      if (!data) {
+        // See if the namspace has a version enum
+        if (searchEnum) {
+          const versions = getVersion(program, current)?.getVersions();
+          if (versions?.length) {
+            const enumDeps = getUseDependencies(program, versions[0].enumMember.enum);
+            if (enumDeps) {
+              return enumDeps;
+            }
+          }
+        }
+        current = current.namespace;
+      } else {
+        for (const v of data) {
+          result.set(v.namespace, v);
+        }
+        return result;
       }
-      const versionMap = getVersion(program, target);
-      if (!versionMap) {
-        return undefined;
-      }
-      const versions = versionMap.getVersions();
-      if (!versions.length) {
-        return undefined;
-      }
-      return getUseDependencies(program, versions[0].enumMember.enum);
     }
-    for (const v of data) {
-      result.set(v.namespace, v);
-    }
+    return undefined;
   } else if (target.kind === "Enum") {
     const data = program.stateMap(useDependencyEnumKey).get(target) as Map<EnumMember, Version>;
     if (!data) {
@@ -539,19 +544,13 @@ export function $versionedDependency(
 
 function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
   let current: Namespace | undefined = namespace;
-
   while (current) {
-    // TODO: Remove versionDependencyKey when this deprecated decorator is removed.
-    const data =
-      program.stateMap(useDependencyNamespaceKey).get(current) ??
-      program.stateMap(useDependencyEnumKey).get(current) ??
-      program.stateMap(versionDependencyKey).get(current);
-    if (data !== undefined) {
+    const data = program.stateMap(versionDependencyKey).get(current);
+    if (data) {
       return data;
     }
     current = current.namespace;
   }
-
   return undefined;
 }
 
@@ -559,8 +558,6 @@ export function getVersionDependencies(
   program: Program,
   namespace: Namespace
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
-  // TODO: Remove this when @versionedDependency is removed and update all references to
-  // use getUseDependencies directly
   const useDeps = getUseDependencies(program, namespace);
   if (useDeps) {
     return useDeps;
@@ -712,11 +709,8 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
   return versions;
 }
 
-export function getVersionsForEnum(
-  program: Program,
-  version: EnumMember
-): [Namespace, VersionMap] | [] {
-  const namespace = version.enum.namespace;
+export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
+  const namespace = en.namespace;
 
   if (namespace === undefined) {
     return [];
@@ -922,7 +916,11 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
-  const [, versions] = getVersionsForEnum(program, member);
+  const parentEnum = member.enum;
+  if (!parentEnum) {
+    return undefined;
+  }
+  const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);
 }
 
