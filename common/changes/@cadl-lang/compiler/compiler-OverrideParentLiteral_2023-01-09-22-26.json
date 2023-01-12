@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Allow override of discriminator propery literals.",
+      "comment": "Allow override of discriminator property literals.",
       "type": "none"
     }
   ],
