@@ -8,8 +8,11 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
   getAuthentication,
   getHeaderFieldName,
+  getHeaderFieldOptions,
   getPathParamName,
+  getPathParamOptions,
   getQueryParamName,
+  getQueryParamOptions,
   getServers,
   includeInapplicableMetadataInPayload,
   isBody,
@@ -64,15 +67,30 @@ describe("rest: http decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when header name is not a string", async () => {
+    it("emit diagnostics when header name is not a string or of type HeaderOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@header(123) MyHeader: string): string;
+          op test2(@header({ name: 123 }) MyHeader: string): string;
+          op test3(@header({ format: "invalid" }) MyHeader: string): string;
         `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument",
+          message:
+            "Argument '123' is not assignable to parameter of type 'Cadl.string | Cadl.Http.HeaderOptions'",
+        },
+        {
+          code: "invalid-argument",
+          message:
+            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.HeaderOptions'",
+        },
+        {
+          code: "invalid-argument",
+          message:
+            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.HeaderOptions'",
+        },
+      ]);
     });
 
     it("generate header name from property name", async () => {
@@ -90,6 +108,29 @@ describe("rest: http decorators", () => {
         `);
 
       strictEqual(getHeaderFieldName(runner.program, MyHeader), "x-my-header");
+    });
+
+    it("override header with HeaderOptions", async () => {
+      const { MyHeader, SingleString } = await runner.compile(`
+          @get op test(@test @header("x-my-header") MyHeader: string[]): string;
+          @put op test2(@test @header({name: "x-single-string"}) SingleString: string): string;
+        `);
+
+      deepStrictEqual(
+        getHeaderFieldOptions(runner.program, MyHeader),
+        {
+          type: "header",
+          name: "x-my-header",
+          format: "csv",
+        },
+        "default format for array type is csv"
+      );
+      deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
+        type: "header",
+        name: "x-single-string",
+      });
+      strictEqual(getHeaderFieldName(runner.program, MyHeader), "x-my-header");
+      strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
     });
   });
 
@@ -115,15 +156,30 @@ describe("rest: http decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when query name is not a string", async () => {
+    it("emit diagnostics when query name is not a string or of type QueryOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@query(123) MyQuery: string): string;
+          op test2(@query({name: 123}) MyQuery: string): string;
+          op test3(@query({format: "invalid"}) MyQuery: string): string;
         `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument",
+          message:
+            "Argument '123' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
+        },
+        {
+          code: "invalid-argument",
+          message:
+            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
+        },
+        {
+          code: "invalid-argument",
+          message:
+            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
+        },
+      ]);
     });
 
     it("generate query name from property name", async () => {
@@ -141,6 +197,30 @@ describe("rest: http decorators", () => {
         `);
 
       strictEqual(getQueryParamName(runner.program, select), "$select");
+    });
+
+    it("override query with QueryOptions", async () => {
+      const { foo, selects } = await runner.compile(`
+          op test(@test @query foo: string[]): string;
+          @put op test2(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
+        `);
+
+      deepStrictEqual(
+        getQueryParamOptions(runner.program, foo),
+        {
+          type: "query",
+          name: "foo",
+          format: "multi",
+        },
+        "default format is multi for array type"
+      );
+      deepStrictEqual(getQueryParamOptions(runner.program, selects), {
+        type: "query",
+        name: "$select",
+        format: "csv",
+      });
+      strictEqual(getQueryParamName(runner.program, foo), "foo");
+      strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });
 
@@ -231,10 +311,12 @@ describe("rest: http decorators", () => {
           op test(@path(123) MyPath: string): string;
         `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument",
+          message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        },
+      ]);
     });
 
     it("generate path name from property name", async () => {
@@ -251,6 +333,10 @@ describe("rest: http decorators", () => {
           op test(@test @path("$select") select: string): string;
         `);
 
+      deepStrictEqual(getPathParamOptions(runner.program, select), {
+        type: "path",
+        name: "$select",
+      });
       strictEqual(getPathParamName(runner.program, select), "$select");
     });
   });
