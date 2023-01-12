@@ -88,11 +88,6 @@ export async function initCadlProject(
   directory: string,
   templatesUrl?: string
 ) {
-  if (templatesUrl?.toLowerCase() === "azure") {
-    templatesUrl =
-      "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/azure-scaffolding.json";
-  }
-
   if (!(await confirmDirectoryEmpty(directory))) {
     return;
   }
