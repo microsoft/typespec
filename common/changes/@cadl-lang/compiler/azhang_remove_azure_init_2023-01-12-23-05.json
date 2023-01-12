@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "undo `azure` alias for cadl init. Will continue to rely on URL.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
