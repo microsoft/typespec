@@ -1,1 +1,0 @@
-Cadl based ProviderHub ASP.NET user service code project is not initialized via `cadl init`. Please see documentation on [Get Started section](https://azure.github.io/cadl-azure/docs/next/getstarted/providerhub/step01-create-userrp-project)
