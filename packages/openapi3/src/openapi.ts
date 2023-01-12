@@ -16,9 +16,11 @@ import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueExclusive,
   getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
   getPropertyType,
@@ -388,10 +390,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (version) {
       suffix.push(version);
     }
-    return suffix.length > 0
-      ? options.outputFile.replace(".json", `.${suffix.join(".")}.json`)
-      : options.outputFile;
+    if (suffix.length === 0) {
+      return options.outputFile;
+    }
+
+    const extension = getAnyExtensionFromPath(options.outputFile);
+    const filenameWithoutExtension = options.outputFile.slice(0, -extension.length);
+    return `${filenameWithoutExtension}.${suffix.join(".")}${extension}`;
   }
+
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
@@ -874,6 +881,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForEnum(type);
       case "Tuple":
         return { type: "array", items: {} };
+      case "TemplateParameter":
+        // Note: This should never happen if it does there is a bug in the compiler.
+        reportDiagnostic(program, {
+          code: "invalid-schema",
+          format: { type: `${type.node.id.sv} (template parameter)` },
+          target: type,
+        });
+        return undefined;
     }
 
     reportDiagnostic(program, {
@@ -1232,9 +1247,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.minimum = minValue;
     }
 
+    const minValueExclusive = getMinValueExclusive(program, cadlType);
+    if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
+      newTarget.exclusiveMinimum = minValueExclusive;
+    }
+
     const maxValue = getMaxValue(program, cadlType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
+    }
+
+    const maxValueExclusive = getMaxValueExclusive(program, cadlType);
+    if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
+      newTarget.exclusiveMaximum = maxValueExclusive;
     }
 
     const minItems = getMinItems(program, cadlType);

@@ -2,14 +2,49 @@
   "azure-core": {
     "title": "Azure Data Plane Service",
     "description": "Create a project representing an Azure service Data Plane API",
-    "libraries": [
-      "@cadl-lang/rest",
-      "@cadl-lang/versioning",
-      "@azure-tools/cadl-autorest",
-      "@azure-tools/cadl-azure-core"
+    "libraries": ["@azure-tools/cadl-autorest"],
+    "skipCompilerPackage": true,
+    "config": {},
+    "files": [
+      {
+        "path": "./data-plane/main.cadl",
+        "destination": "main.cadl"
+      },
+      {
+        "path": "./data-plane/client.cadl",
+        "destination": "client.cadl"
+      },
+      {
+        "path": "./data-plane/cadl-project.yaml",
+        "destination": "cadl-project.yaml"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_GetWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_ListWidgetsSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_ListWidgetsSample.json"
+      }
     ],
-    "config": {
-      "emit": ["@azure-tools/cadl-autorest"]
+    "inputs": {
+      "ServiceNamespace": {
+        "description": "Please provide service namespace in Pascal case:",
+        "type": "text",
+        "initialValue": "Azure.Contoso"
+      }
     }
   },
   "azure-arm": {

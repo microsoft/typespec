@@ -159,7 +159,13 @@ const diagnostics = {
   "duplicate-decorator": {
     severity: "warning",
     messages: {
-      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same node.`,
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same declaration.`,
+    },
+  },
+  "decorator-conflict": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used with decorator ${"otherDecoratorName"} on the same declaration.`,
     },
   },
   "reserved-identifier": {
@@ -220,7 +226,19 @@ const diagnostics = {
       default: "A rest parameter cannot be optional.",
     },
   },
-
+  /**
+   * Parser doc comment warnings.
+   * Design goal: Malformed doc comments should only produce warnings, not errors.
+   */
+  "doc-invalid-identifier": {
+    severity: "warning",
+    messages: {
+      default: "Invalid identifier.",
+      tag: "Invalid tag name. Use backticks around code if this was not meant to be a tag.",
+      param: "Invalid parameter name.",
+      templateParam: "Invalid template parameter name.",
+    },
+  },
   /**
    * Checker
    */
@@ -450,6 +468,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: `Overload must be in the same interface or namespace.`,
+    },
+  },
+  shadow: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
     },
   },
 

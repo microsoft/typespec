@@ -23,7 +23,7 @@ import {
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   Diagnostic,
-  DiagnosticReport,
+  DiagnosticReportWithoutTarget,
   DirectiveArgument,
   DirectiveExpressionNode,
   DocContent,
@@ -682,7 +682,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
 
     const id = parseIdentifier();
-    const templateParameters = inInterface ? [] : parseTemplateParameterList();
+    const templateParameters = parseTemplateParameterList();
 
     // Make sure the next token is one that is expected
     const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
@@ -2167,7 +2167,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.EndOfFile:
           break loop;
         case Token.At:
-          tags.push(parseDocTag());
+          const tag = parseDocTag();
+          tags.push(tag);
           break;
         default:
           content.push(...parseDocContent());
@@ -2241,12 +2242,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseDocTag(): DocTag {
     const pos = tokenPos();
     parseExpected(Token.At);
-    const tagName = parseIdentifier();
+    const tagName = parseDocIdentifier("tag");
     switch (tagName.sv) {
       case "param":
-        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocParamTag);
+        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocParamTag, "param");
       case "template":
-        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocTemplateTag);
+        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocTemplateTag, "templateParam");
       case "return":
       case "returns":
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocReturnsTag);
@@ -2258,9 +2259,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseDocParamLikeTag(
     pos: number,
     tagName: IdentifierNode,
-    kind: ParamLikeTag["kind"]
+    kind: ParamLikeTag["kind"],
+    messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
   ): ParamLikeTag {
-    const name = parseDocIdentifier();
+    const name = parseDocIdentifier(messageId);
     const content = parseDocContent();
     return {
       kind,
@@ -2269,11 +2271,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       content,
       ...finishNode(pos),
     };
-  }
-
-  function parseDocIdentifier() {
-    while (parseOptional(Token.Whitespace));
-    return parseIdentifier();
   }
 
   function parseDocSimpleTag(
@@ -2286,6 +2283,33 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       kind,
       tagName,
       content,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseDocIdentifier(
+    messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
+  ): IdentifierNode {
+    // We don't allow whitespace between @ and tag name, but allow
+    // whitespace before all other identifiers.
+    if (messageId !== "tag") {
+      while (parseOptional(Token.Whitespace));
+    }
+
+    const pos = tokenPos();
+    let sv: string;
+
+    if (token() === Token.Identifier) {
+      sv = tokenValue();
+      nextDocToken();
+    } else {
+      sv = "";
+      warning({ code: "doc-invalid-identifier", messageId });
+    }
+
+    return {
+      kind: SyntaxKind.Identifier,
+      sv,
       ...finishNode(pos),
     };
   }
@@ -2575,8 +2599,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     C extends keyof CompilerDiagnostics,
     M extends keyof CompilerDiagnostics[C] = "default"
   >(
-    report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target"> & {
-      target?: TextRange & { realPos?: number };
+    report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
+      target?: Partial<TextRange> & { realPos?: number };
       printable?: boolean;
     }
   ) {
@@ -2607,7 +2631,38 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target: location,
     } as any);
 
-    assert(diagnostic.severity === "error", "This function assumes it's reporting an error.");
+    assert(
+      diagnostic.severity === "error",
+      "This function is for reporting errors. Use warning() for warnings."
+    );
+
+    parseDiagnostics.push(diagnostic);
+  }
+
+  function warning<
+    C extends keyof CompilerDiagnostics,
+    M extends keyof CompilerDiagnostics[C] = "default"
+  >(
+    report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
+      target?: Partial<TextRange>;
+    }
+  ) {
+    const location = {
+      file: scanner.file,
+      pos: report.target?.pos ?? tokenPos(),
+      end: report.target?.end ?? tokenEnd(),
+    };
+
+    const diagnostic = createDiagnostic({
+      ...report,
+      target: location,
+    } as any);
+
+    assert(
+      diagnostic.severity === "warning",
+      "This function is for reporting warnings only. Use error() for errors."
+    );
+
     parseDiagnostics.push(diagnostic);
   }
 

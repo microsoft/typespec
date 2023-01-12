@@ -40,6 +40,12 @@ export interface InitTemplate {
   inputs?: Record<string, InitTemplateInput>;
 
   /**
+   * A flag to indicate not adding @cadl-lang/compiler package to package.json.
+   * Other libraries may already brought in the dependency such as Azure template.
+   */
+  skipCompilerPackage?: boolean;
+
+  /**
    * List of files to copy.
    */
   files?: InitTemplateFile[];
@@ -52,6 +58,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     title: { type: "string" },
     description: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
+    skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...CadlConfigJsonSchema },
     inputs: {
       type: "object",

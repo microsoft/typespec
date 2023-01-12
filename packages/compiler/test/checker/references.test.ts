@@ -44,7 +44,7 @@ describe("compiler: references", () => {
         ref: "MyModel.x",
       }));
 
-    describe("spread property", () =>
+    describe("spread property from model defined before", () =>
       itCanReference({
         code: `
           model Spreadable {
@@ -54,6 +54,21 @@ describe("compiler: references", () => {
           @test("target") model MyModel {
             x: string;
             ... Spreadable;
+          }`,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("spread property from model defined after", () =>
+      itCanReference({
+        code: `
+          @test("target") model MyModel {
+            x: string;
+            ... Spreadable;
+          }
+          
+          model Spreadable {
+            y: string;
           }`,
         ref: "MyModel.y",
         resolveTarget: (target: Model) => target.properties.get("y"),

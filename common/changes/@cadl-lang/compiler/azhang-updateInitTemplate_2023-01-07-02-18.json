@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Updating cadl init logic to support Azure templates.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

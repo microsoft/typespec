@@ -52,7 +52,7 @@
       "commandKind": "global",
       "name": "regen-docs",
       "summary": "(CUSTOM) Regenerate the reference docs.",
-      "shellCommand": "node eng/scripts/regen-docs.js"
+      "shellCommand": "node eng/scripts/npm-run.js regen-ref-docs"
     },
     {
       "commandKind": "global",

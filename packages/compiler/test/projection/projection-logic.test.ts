@@ -8,7 +8,6 @@ import {
   EnumMember,
   Interface,
   Model,
-  ModelProperty,
   Namespace,
   NumericLiteral,
   Operation,
@@ -20,7 +19,7 @@ import {
 import { getDoc } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
-describe("compiler: projections", () => {
+describe("compiler: projections: logic", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -213,70 +212,6 @@ describe("compiler: projections", () => {
   });
 
   describe("models", () => {
-    it("link projected model to projected properties", async () => {
-      const code = `
-      @test model Foo {
-        name: string;
-      }
-      #suppress "projections-are-experimental"
-      projection model#test {to {}}`;
-      const result = (await testProjection(code)) as Model;
-      ok(result.projectionBase);
-      strictEqual(result.properties.get("name")?.model, result);
-    });
-
-    it("link projected property with sourceProperty", async () => {
-      const code = `
-      @test model Foo {
-        ...Bar
-      }
-
-      model Bar {
-        name: string;
-      }
-
-      #suppress "projections-are-experimental"
-      projection Foo#test {to {}}`;
-      const Foo = (await testProjection(code)) as Model;
-      ok(Foo.projectionBase);
-      const sourceProperty = Foo.properties.get("name")?.sourceProperty;
-      ok(sourceProperty);
-      strictEqual(sourceProperty, Foo.namespace!.models.get("Bar")?.properties.get("name"));
-      strictEqual(sourceProperty.model, Foo.namespace!.models.get("Bar"));
-    });
-
-    it("project all properties first", async () => {
-      const keySym = Symbol("key");
-      testHost.addJsFile("lib.js", {
-        $tagProp({ program }: DecoratorContext, t: ModelProperty) {
-          program.stateSet(keySym).add(t);
-        },
-        $tagModel({ program }: DecoratorContext, t: Model) {
-          for (const prop of t.properties.values()) {
-            ok(
-              program.stateSet(keySym).has(prop),
-              `Prop ${prop.name} should have run @key decorator by this time.`
-            );
-          }
-        },
-      });
-
-      const code = `
-      import "./lib.js";
-
-      @test @tagModel model Foo {
-        ...Bar;
-      }
-
-      model Bar {
-        @tagProp name: string;
-      }
-
-      #suppress "projections-are-experimental"
-      projection Foo#test {to {}}`;
-      await testProjection(code);
-    });
-
     it("works for versioning", async () => {
       const addedOnKey = Symbol("addedOn");
       const removedOnKey = Symbol("removedOn");
@@ -360,46 +295,6 @@ describe("compiler: projections", () => {
       strictEqual(result2.properties.size, 4);
       const resultNested2 = result2.properties.get("e")!.type as Model;
       strictEqual(resultNested2.properties.size, 2);
-    });
-
-    it("runs decorator on property before model", async () => {
-      const collection: Type[] = [];
-      testHost.addJsFile("./ref.js", {
-        $ref: (_: DecoratorContext, target: Type) => collection.push(target),
-      });
-
-      const code = `
-      import "./ref.js";
-      
-      @test model Bar {
-        b: Foo.b;
-      }
-
-      @ref
-      @test model Foo {
-        @ref
-        b: string;
-      }
-      #suppress "projections-are-experimental"
-      projection model#test {to {}}`;
-      await testProjection(code);
-
-      strictEqual(collection.length, 4);
-      strictEqual(collection[2].kind, "ModelProperty");
-      strictEqual(collection[3].kind, "Model");
-    });
-
-    it("project property with type referencing sibling", async () => {
-      const code = `
-      @test model Foo {
-        a: Foo.b;
-        b: string;
-      }
-      #suppress "projections-are-experimental"
-      projection model#test {to {}}`;
-      const result = (await testProjection(code)) as Model;
-      ok(result.projectionBase);
-      strictEqual(result.properties.get("a")?.type, result.properties.get("b"));
     });
 
     it("can recursively apply projections to nested models", async () => {
@@ -617,18 +512,6 @@ describe("compiler: projections", () => {
       strictEqual((variant.type as Model).name, typeName);
     }
 
-    it("link projected model to projected properties", async () => {
-      const code = `
-      @test union Foo {
-        one: {};
-      }
-      #suppress "projections-are-experimental"
-      projection model#test {to {}}`;
-      const result = (await testProjection(code)) as Union;
-      ok(result.projectionBase);
-      strictEqual(result.variants.get("one")?.union, result);
-    });
-
     it("can rename itself", async () => {
       const code = `
        ${unionCode}
@@ -645,6 +528,7 @@ describe("compiler: projections", () => {
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.unions.get("Bar"), result);
     });
+
     it("can rename variants", async () => {
       const code = defaultCode(`
         self::variants::forEach((v) => {
@@ -755,18 +639,6 @@ describe("compiler: projections", () => {
       ${projectionCode(body)}
     `;
 
-    it("link projected interfaces to its projected operations", async () => {
-      const code = `
-      @test interface Foo {
-        op test(): string;
-      }
-      #suppress "projections-are-experimental"
-      projection interface#test {to {}}`;
-      const result = (await testProjection(code)) as Interface;
-      ok(result.projectionBase);
-      strictEqual(result.operations.get("test")?.interface, result);
-    });
-
     it("can rename itself", async () => {
       const code = `
         ${interfaceCode}
@@ -820,14 +692,6 @@ describe("compiler: projections", () => {
       ${enumCode}
       ${projectionCode(body)}
     `;
-
-    it("link projected enum to projected members", async () => {
-      const code = defaultCode("");
-      const result = (await testProjection(code)) as Enum;
-      ok(result.projectionBase);
-      strictEqual(result.members.get("one")?.enum, result);
-      strictEqual(result.members.get("two")?.enum, result);
-    });
 
     it("can rename itself", async () => {
       const code = `
