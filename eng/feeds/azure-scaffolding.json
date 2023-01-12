@@ -50,10 +50,7 @@
   "azure-arm": {
     "title": "Azure Resource Manager Service",
     "description": "Create a project representing an Azure service ARM API",
-    "libraries": [
-      "@azure-tools/cadl-autorest",
-      "@azure-tools/cadl-azure-resource-manager"
-    ],
+    "libraries": ["@azure-tools/cadl-autorest", "@azure-tools/cadl-azure-resource-manager"],
     "skipCompilerPackage": true,
     "config": {
       "emit": ["@azure-tools/cadl-autorest"]
@@ -72,25 +69,16 @@
         "destination": "cadl-project.yaml"
       },
       {
-        "path": "./resource-manager/examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json",
-        "destination": "examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json"
-      },
-      {
-        "path": "./resource-manager/examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json",
-        "destination": "examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json"
-      },
-      {
-        "path": "./resource-manager/examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json",
-        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json"
-      },
-      {
-        "path": "./resource-manager/examples/2022-11-01-preview/Widgets_GetWidgetSample.json",
-        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetSample.json"
-      },
-      {
-        "path": "./resource-manager/examples/2022-11-01-preview/Widgets_ListWidgetsSample.json",
-        "destination": "examples/2022-11-01-preview/Widgets_ListWidgetsSample.json"
+        "path": "./resource-manager/examples/2022-11-01-preview/readme.md",
+        "destination": "examples/2022-11-01-preview/readme.md"
       }
-    ]
+    ],
+    "inputs": {
+      "ServiceNamespace": {
+        "description": "Please provide service namespace in Pascal case:",
+        "type": "text",
+        "initialValue": "Azure.ResourceManager.Contoso"
+      }
+    }
   }
 }

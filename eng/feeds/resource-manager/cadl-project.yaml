@@ -1,4 +1,10 @@
 parameters:
+  python-sdk-folder:
+    default: "{cwd}/azure-sdk-for-python/"
+  java-sdk-folder:
+    default: "{cwd}/azure-sdk-for-java/"
+  js-sdk-folder:
+    default: "{cwd}/azure-sdk-for-js/"
   service-directory-name:
     default: "{{folderName}}"
 emit:

@@ -1,6 +1,5 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/versioning";
-import "@azure-tools/cadl-providerhub";
 import "@azure-tools/cadl-azure-core";
 import "@azure-tools/cadl-azure-resource-manager";
 
@@ -17,7 +16,12 @@ using Azure.ResourceManager;
 
 @versioned({{parameters.ServiceNamespace}}.Versions)
 @versionedDependency(
-  [[{{parameters.ServiceNamespace}}.Versions.v2022_11_01_Preview, Azure.Core.Versions.v1_0_Preview_1]]
+  [
+    [
+      {{parameters.ServiceNamespace}}.Versions.v2022_11_01_Preview,
+      Azure.ResourceManager.Versions.v1_0_Preview_1
+    ]
+  ]
 )
 namespace {{parameters.ServiceNamespace}};
 
