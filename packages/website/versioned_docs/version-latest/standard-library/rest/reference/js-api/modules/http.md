@@ -18,10 +18,17 @@
 - [BearerAuth](../interfaces/http.BearerAuth.md)
 - [ClientCredentialsFlow](../interfaces/http.ClientCredentialsFlow.md)
 - [FilteredRouteParam](../interfaces/http.FilteredRouteParam.md)
+<<<<<<< HEAD
 - [HeaderFieldOptions](../interfaces/http.HeaderFieldOptions.md)
 - [HttpAuthBase](../interfaces/http.HttpAuthBase.md)
 - [HttpOperation](../interfaces/http.HttpOperation.md)
 - [HttpOperationBody](../interfaces/http.HttpOperationBody.md)
+=======
+- [HttpAuthBase](../interfaces/http.HttpAuthBase.md)
+- [HttpOperation](../interfaces/http.HttpOperation.md)
+- [HttpOperationBody](../interfaces/http.HttpOperationBody.md)
+- [HttpOperationParameter](../interfaces/http.HttpOperationParameter.md)
+>>>>>>> 41b26405 (update docs)
 - [HttpOperationParameters](../interfaces/http.HttpOperationParameters.md)
 - [HttpOperationRequestBody](../interfaces/http.HttpOperationRequestBody.md)
 - [HttpOperationResponse](../interfaces/http.HttpOperationResponse.md)
@@ -34,8 +41,11 @@
 - [OAuth2Scope](../interfaces/http.OAuth2Scope.md)
 - [Oauth2Auth](../interfaces/http.Oauth2Auth.md)
 - [PasswordFlow](../interfaces/http.PasswordFlow.md)
+<<<<<<< HEAD
 - [PathParameterOptions](../interfaces/http.PathParameterOptions.md)
 - [QueryParameterOptions](../interfaces/http.QueryParameterOptions.md)
+=======
+>>>>>>> 41b26405 (update docs)
 - [RouteOptions](../interfaces/http.RouteOptions.md)
 - [RoutePath](../interfaces/http.RoutePath.md)
 - [RouteResolutionOptions](../interfaces/http.RouteResolutionOptions.md)
@@ -44,7 +54,10 @@
 ### Type Aliases
 
 - [HttpAuth](http.md#httpauth)
+<<<<<<< HEAD
 - [HttpOperationParameter](http.md#httpoperationparameter)
+=======
+>>>>>>> 41b26405 (update docs)
 - [HttpVerb](http.md#httpverb)
 - [OAuth2Flow](http.md#oauth2flow)
 - [OAuth2FlowType](http.md#oauth2flowtype)
@@ -82,15 +95,22 @@
 - [getAuthentication](http.md#getauthentication)
 - [getContentTypes](http.md#getcontenttypes)
 - [getHeaderFieldName](http.md#getheaderfieldname)
+<<<<<<< HEAD
 - [getHeaderFieldOptions](http.md#getheaderfieldoptions)
+=======
+>>>>>>> 41b26405 (update docs)
 - [getHttpOperation](http.md#gethttpoperation)
 - [getHttpService](http.md#gethttpservice)
 - [getOperationParameters](http.md#getoperationparameters)
 - [getOperationVerb](http.md#getoperationverb)
 - [getPathParamName](http.md#getpathparamname)
+<<<<<<< HEAD
 - [getPathParamOptions](http.md#getpathparamoptions)
 - [getQueryParamName](http.md#getqueryparamname)
 - [getQueryParamOptions](http.md#getqueryparamoptions)
+=======
+- [getQueryParamName](http.md#getqueryparamname)
+>>>>>>> 41b26405 (update docs)
 - [getRequestVisibility](http.md#getrequestvisibility)
 - [getResponsesForOperation](http.md#getresponsesforoperation)
 - [getRouteOptionsForNamespace](http.md#getrouteoptionsfornamespace)
@@ -126,12 +146,15 @@
 
 ___
 
+<<<<<<< HEAD
 ### HttpOperationParameter
 
 Ƭ **HttpOperationParameter**: [`HeaderFieldOptions`](../interfaces/http.HeaderFieldOptions.md) \| [`QueryParameterOptions`](../interfaces/http.QueryParameterOptions.md) \| [`PathParameterOptions`](../interfaces/http.PathParameterOptions.md) & { `param`: `ModelProperty`  }
 
 ___
 
+=======
+>>>>>>> 41b26405 (update docs)
 ### HttpVerb
 
 Ƭ **HttpVerb**: ``"get"`` \| ``"put"`` \| ``"post"`` \| ``"patch"`` \| ``"delete"`` \| ``"head"``
@@ -248,7 +271,11 @@ ___
 
 ### $header
 
+<<<<<<< HEAD
 ▸ **$header**(`context`, `entity`, `headerNameOrOptions?`): `void`
+=======
+▸ **$header**(`context`, `entity`, `headerName?`): `void`
+>>>>>>> 41b26405 (update docs)
 
 #### Parameters
 
@@ -256,7 +283,11 @@ ___
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
+<<<<<<< HEAD
 | `headerNameOrOptions?` | `string` \| `Model` |
+=======
+| `headerName?` | `string` |
+>>>>>>> 41b26405 (update docs)
 
 #### Returns
 
@@ -378,7 +409,11 @@ ___
 
 ### $query
 
+<<<<<<< HEAD
 ▸ **$query**(`context`, `entity`, `queryNameOrOptions?`): `void`
+=======
+▸ **$query**(`context`, `entity`, `queryKey?`): `void`
+>>>>>>> 41b26405 (update docs)
 
 #### Parameters
 
@@ -386,7 +421,11 @@ ___
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
+<<<<<<< HEAD
 | `queryNameOrOptions?` | `string` \| `Model` |
+=======
+| `queryKey?` | `string` |
+>>>>>>> 41b26405 (update docs)
 
 #### Returns
 
@@ -639,6 +678,7 @@ ___
 
 ___
 
+<<<<<<< HEAD
 ### getHeaderFieldOptions
 
 ▸ **getHeaderFieldOptions**(`program`, `entity`): [`HeaderFieldOptions`](../interfaces/http.HeaderFieldOptions.md)
@@ -656,6 +696,8 @@ ___
 
 ___
 
+=======
+>>>>>>> 41b26405 (update docs)
 ### getHttpOperation
 
 ▸ **getHttpOperation**(`program`, `operation`, `options?`): [[`HttpOperation`](../interfaces/http.HttpOperation.md), readonly `Diagnostic`[]]
@@ -747,6 +789,7 @@ ___
 
 ___
 
+<<<<<<< HEAD
 ### getPathParamOptions
 
 ▸ **getPathParamOptions**(`program`, `entity`): [`PathParameterOptions`](../interfaces/http.PathParameterOptions.md)
@@ -764,6 +807,8 @@ ___
 
 ___
 
+=======
+>>>>>>> 41b26405 (update docs)
 ### getQueryParamName
 
 ▸ **getQueryParamName**(`program`, `entity`): `string`
@@ -781,6 +826,7 @@ ___
 
 ___
 
+<<<<<<< HEAD
 ### getQueryParamOptions
 
 ▸ **getQueryParamOptions**(`program`, `entity`): [`QueryParameterOptions`](../interfaces/http.QueryParameterOptions.md)
@@ -798,6 +844,8 @@ ___
 
 ___
 
+=======
+>>>>>>> 41b26405 (update docs)
 ### getRequestVisibility
 
 ▸ **getRequestVisibility**(`verb`): [`Visibility`](../enums/http.Visibility.md)
