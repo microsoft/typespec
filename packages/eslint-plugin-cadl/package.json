@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/eslint-plugin",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of Cadl libraries",
   "homepage": "https://github.com/Microsoft/cadl",

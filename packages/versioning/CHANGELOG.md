@@ -1,6 +1,16 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Updates
+
+- Exporting addedOnVersions and removedOnVersions accessors.
+- Added `@returnTypeChangedFrom` decorator.
+- Fix issues with @added and @removed. Deprecate addedAfter and removedOnOrBefore. Added existsAtVersion.
+- Ensure properties marked '@madeOptional' are actually optional.
 
 ## 0.38.0
 Wed, 07 Dec 2022 17:21:52 GMT

@@ -16,6 +16,7 @@ List of known targets.
   - `xml`: Configure XML representation of data
 - Language:
   - `csharp`: Configure C# generated code
+  - `java`: Configure Java generated code
   - `python`: Configure python generated code
   - `javascript`: Configure javascript generated code
   - `swift` : Configure swift generated code
@@ -71,6 +72,8 @@ model CertificateAttributes {
 
   @projectedName("json", "exp")
   expires: int32;
+
+  @projectedName("client", "createdAt")
   created: int32;
   updated: int32;
 }
@@ -108,7 +111,7 @@ model CertificateAttributes {
 interface Attributes {
   notBefore: number;
   expires: number;
-  created: number;
+  createdAt: number;
   updated: number;
 }
 ```
@@ -126,7 +129,8 @@ class CertificateAttributes
   [JsonProperty("exp")]
   public int Expires {get; set;}
 
-  public int Created {get; set;}
+  [JsonProperty("created")]
+  public int CreatedAt {get; set;}
 
   public int Updated {get; set;}
 }
