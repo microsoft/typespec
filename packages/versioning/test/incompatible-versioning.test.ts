@@ -453,24 +453,6 @@ describe("versioning: validate incompatible references", () => {
 });
 
 describe("versioning (deprecated): validate incompatible references (@versionedDependency)", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    const host = await createVersioningTestHost();
-    runner = createTestWrapper(host, {
-      wrapper: (code) => `
-      import "@cadl-lang/versioning";
-
-      using Cadl.Versioning;
-      
-      @versioned(Versions)
-      namespace TestService {
-        enum Versions {v1, v2, v3, v4}
-        ${code}
-      }`,
-    });
-  });
-
   describe("with @versionedDependency", () => {
     let runner: BasicTestRunner;
 
