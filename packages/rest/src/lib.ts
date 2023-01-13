@@ -127,7 +127,7 @@ const libDefinition = {
       severity: "warning",
       messages: {
         default:
-          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
+          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @service.",
       },
     },
     "invalid-type-for-auth": {
