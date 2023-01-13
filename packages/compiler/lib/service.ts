@@ -1,5 +1,5 @@
 import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { getNamespaceFullName, getTypeName, reportDeprecated } from "../core/index.js";
+import { getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
@@ -126,29 +126,3 @@ export function $serviceVersion(context: DecoratorContext, target: Type, version
 
   addService(context.program, target, { version });
 }
-
-// #region deprecated
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceNamespace(program: Program): Namespace {
-  return listServices(program)[0]?.type ?? program.getGlobalNamespaceType();
-}
-
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceTitle(program: Program): string {
-  return listServices(program)[0]?.title ?? `(title)`;
-}
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceVersion(program: Program): string {
-  return listServices(program)[0]?.version ?? `0000-00-00`;
-}
-
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceNamespaceString(program: Program): string | undefined {
-  return getNamespaceFullName(getServiceNamespace(program));
-}
-
-/** @deprecated use @see addService */
-export function setServiceNamespace(program: Program, namespace: Namespace): void {
-  addService(program, namespace);
-}
-// #endregion
