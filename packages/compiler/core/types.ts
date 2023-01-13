@@ -1785,7 +1785,7 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
   options: TOptions;
 
   /**
-   * Get an asset emitter to write emitted output to disk using the AssetEmitter.
+   * Get an asset emitter to write emitted output to disk using a TypeEmitter
    *
    * @param TypeEmitterClass The TypeEmitter to construct your emitted output
    */
