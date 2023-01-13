@@ -43,6 +43,14 @@ model Body<T>
 model Cadl.Http.LocationHeader
 ```
 
+### `HeaderOptions` {#Cadl.Http.HeaderOptions}
+
+Header options.
+
+```cadl
+model Cadl.Http.HeaderOptions
+```
+
 ### `OkResponse` {#Cadl.Http.OkResponse}
 
 ```cadl
@@ -123,6 +131,14 @@ model PlainData<T>
 | Name | Description |
 | ---- | ----------- |
 | T    |             |
+
+### `QueryOptions` {#Cadl.Http.QueryOptions}
+
+Query parameter options.
+
+```cadl
+model Cadl.Http.QueryOptions
+```
 
 ### `BasicAuth` {#Cadl.Http.BasicAuth}
 

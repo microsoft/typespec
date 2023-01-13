@@ -1,6 +1,19 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Patches
+
+- Emit style & explode per encoding options
+- Generate recursive update schemas with optional properties for resource update operation
+
+### Updates
+
+- Add support for emitting exclusiveMinimum and exclusiveMaximum based on the corresponding decorators
+- **Breaking Change** Add yaml serialization for openapi output. Default has been changed to yaml. Use `file-type: json` or `output-file: myfile.json` to use json
 
 ## 0.38.0
 Wed, 07 Dec 2022 17:21:52 GMT

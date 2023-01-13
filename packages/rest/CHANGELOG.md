@@ -1,6 +1,14 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Wed, 14 Dec 2022 20:34:58 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Patches
+
+- Support query/header/path encoding options
+- Generate recursive update schemas with optional properties for resource update operation
 
 ## 0.38.1
 Wed, 14 Dec 2022 20:34:58 GMT

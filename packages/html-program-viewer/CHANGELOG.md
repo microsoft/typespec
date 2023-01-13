@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/html-program-viewer
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Updates
+
+- Add more details to the type graph
 
 ## 0.38.0
 Wed, 07 Dec 2022 17:21:52 GMT
