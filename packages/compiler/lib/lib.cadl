@@ -128,9 +128,6 @@ model Record<T> {}
 @format("url")
 scalar url extends string;
 
-@deprecated("Use url instead")
-scalar uri extends url;
-
 @deprecated("Map is deprecated, use Record<T> instead")
 model Map<K, V> is Record<V>;
 
