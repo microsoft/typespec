@@ -1,4 +1,5 @@
 import { EmitterOptions } from "../config/types.js";
+import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
@@ -756,6 +757,9 @@ export async function compile(
       program,
       emitterOutputDir: emitter.emitterOutputDir,
       options: emitter.options,
+      getAssetEmitter(TypeEmitterClass) {
+        return createAssetEmitter(program, TypeEmitterClass);
+      },
     };
     try {
       await emitter.emitFunction(context);
