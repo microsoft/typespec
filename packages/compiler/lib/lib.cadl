@@ -128,9 +128,6 @@ model Record<T> {}
 @format("url")
 scalar url extends string;
 
-@deprecated("Map is deprecated, use Record<T> instead")
-model Map<K, V> is Record<V>;
-
 @doc("The template for adding optional properties.")
 @withOptionalProperties
 model OptionalProperties<T> {
