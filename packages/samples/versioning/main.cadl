@@ -5,7 +5,6 @@ import "./library.cadl";
 using Cadl.Versioning;
 using Cadl.Rest;
 
-@versionedDependency([[Versions.v1, Library.Versions.v1_0], [Versions.v2, Library.Versions.v1_1]])
 @service({
   title: "Pet Store Service",
 })
@@ -14,7 +13,10 @@ namespace VersionedApi;
 using Cadl.Http;
 
 enum Versions {
+  @useDependency(Library.Versions.v1_0)
   v1,
+
+  @useDependency(Library.Versions.v1_1)
   v2,
 }
 
