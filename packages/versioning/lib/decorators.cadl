@@ -9,7 +9,7 @@ extern dec versionedDependency(target: Namespace, mapping: EnumMember | [EnumMem
 
 extern dec added(target: unknown, version: EnumMember);
 extern dec removed(target: unknown, version: EnumMember);
-extern dec renamedFrom(target: unknown, version: EnumMember, oldName?: string);
+extern dec renamedFrom(target: unknown, version: EnumMember, oldName: string);
 extern dec madeOptional(target: unknown, version: EnumMember);
 extern dec typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown);
 
