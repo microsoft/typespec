@@ -33,13 +33,143 @@ import {
 
 export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
 
+/**
+ * Implement emitter logic by extending this class and passing it to
+ * `emitContext.createAssetEmitter`. This class should not be constructed
+ * directly.
+ *
+ * TypeEmitters serve two primary purposes:
+ *
+ * 1. Handle emitting TypeSpec types into other languages
+ * 2. Set emitter context
+ *
+ * The generic type parameter `T` is the type you expect to produce for each TypeSpec type.
+ * In the case of generating source code for a programming language, this is probably `string`
+ * (in which case, consider using the `CodeTypeEmitter`) but might also be an AST node. If you
+ * are emitting JSON or similar, `T` would likely be `object`.
+ *
+ * ## Emitting types
+ *
+ * Emitting TypeSpec types into other languages is accomplished by implementing
+ * the AssetEmitter method that corresponds with the TypeSpec type you are
+ * emitting. For example, to emit a TypeSpec model declaration, implement the
+ * `modelDeclaration` method.
+ *
+ * TypeSpec types that have both declaration and literal forms like models or
+ * unions will have separate methods. For example, models have both
+ * `modelDeclaration` and `modelLiteral` methods that can be implemented
+ * separately.
+ *
+ * Also, types which can be instantiated like models or operations have a
+ * separate method for the instantiated type. For example, models have a
+ * `modelInstantiation` method that gets called with such types. Generally these
+ * will be treated either as if they were declarations or literals depending on
+ * preference, but may also be treated specially.
+ *
+ * ## Emitter results
+ * There are three kinds of results your methods might return - declarations,
+ * raw code, or nothing.
+ *
+ * ### Declarations
+ *
+ * Create declarations by calling `this.emitter.result.declaration` passing it a
+ * name and the emit output for the declaration. Note that you must have scope
+ * in your context or you will get an error. If you want all declarations to be
+ * emitted to the same source file, you can create a single scope in
+ * `programContext` via something like:
+ *
+ * ```typescript
+ * programContext(program: Program): Context {
+ *   const sourceFile = this.emitter.createSourceFile("test.txt");
+ *   return {
+ *     scope: sourceFile.globalScope,
+ *   };
+ * }
+ * ```
+ *
+ * ### Raw Code
+ *
+ * Create raw code, or emitter output that doesn't contribute to a declaration,
+ * by calling `this.emitter.result.rawCode` passing it a value. Returning just a
+ * value is considered raw code and so you often don't need to call this
+ * directly.
+ *
+ * ### No Emit
+ *
+ * When a type doesn't contribute anything to the emitted output, return
+ * `this.emitter.result.none()`.
+ *
+ * ## Context
+ *
+ * The TypeEmitter will often want to keep track of what context a type is found
+ * in. There are two kinds of context - lexical context, and reference context.
+ *
+ * * Lexical context is context that applies to the type and every type
+ *   contained inside of it. For example, lexical context for a model will apply
+ *   to the model, its properties, and any nested model literals.
+ * * Reference context is context that applies to types contained inside of the
+ *   type and referenced anywhere inside of it. For example, reference context
+ *   set on a model will apply to the model, its properties, any nested model
+ *   literals, and any type referenced inside anywhere inside the model and any
+ *   of the referenced types' references.
+ *
+ * In both cases, context is an object. It strongly recommended that the context
+ * object either contain only primitive types, or else only reference immutable
+ * objects.
+ *
+ * Set lexical by implementing the `*Context` methods of the TypeEmitter and
+ * returning the context, for example `modelDeclarationContext` sets the context
+ * for model declarations and the types contained inside of it.
+ *
+ * Set reference context by implementing the `*ReferenceContext` methods of the
+ * TypeEmitter and returning the context. Note that not all types have reference
+ * context methods, because not all types can actually reference anything.
+ *
+ * When a context method returns some context, it is merged with the current
+ * context. It is not possible to remove previous context, but it can be
+ * overridden with `undefined`.
+ *
+ * When emitting types with context, the same type might be emitted multiple
+ * times if we come across that type with different contexts. For example, if we
+ * have a TypeSpec program like
+ *
+ * ```cadl
+ * model Pet { }
+ * model Person {
+ *   pet: Pet;
+ * }
+ * ```
+ *
+ * And we set reference context for the Person model, Pet will be emitted twice,
+ * once without context and once with the reference context.
+ */
 export class TypeEmitter<T> {
+  /**
+   * @private
+   *
+   * Constructs a TypeEmitter. Do not use this constructor directly, instead
+   * call `createAssetEmitter` on the emitter context object.
+   * @param emitter The asset emitter
+   */
   constructor(protected emitter: AssetEmitter<T>) {}
 
-  programContext(program: Program) {
+  /**
+   * Context shared by the entire program. In cases where you are emitting to a
+   * single file, use this method to establish your main source file and set the
+   * `scope` property to that source file's `globalScope`.
+   * @param program
+   * @returns Context
+   */
+  programContext(program: Program): Context {
     return {};
   }
 
+  /**
+   * Emit a namespace
+   *
+   * @param namespace
+   * @returns Emitter output
+   */
   namespace(namespace: Namespace): EmitterOutput<T> {
     for (const ns of namespace.namespaces.values()) {
       this.emitter.emitType(ns);
@@ -75,14 +205,32 @@ export class TypeEmitter<T> {
     return this.emitter.result.none();
   }
 
+  /**
+   * Set lexical context for a namespace
+   *
+   * @param namespace
+   * @returns
+   */
   namespaceContext(namespace: Namespace): Context {
     return {};
   }
 
+  /**
+   * Set reference context for a namespace.
+   *
+   * @param namespace
+   * @returns
+   */
   namespaceReferenceContext(namespace: Namespace): Context {
     return {};
   }
 
+  /**
+   * Emit a model literal (e.g. as created by `{}` syntax in TypeSpec).
+   *
+   * @param model
+   * @returns
+   */
   modelLiteral(model: Model): EmitterOutput<T> {
     if (model.baseModel) {
       this.emitter.emitType(model.baseModel);
@@ -92,14 +240,31 @@ export class TypeEmitter<T> {
     return this.emitter.result.none();
   }
 
+  /**
+   * Set lexical context for a model literal.
+   * @param model
+   * @returns
+   */
   modelLiteralContext(model: Model): Context {
     return {};
   }
 
+  /**
+   * Set reference context for a model literal.
+   * @param model
+   * @returns
+   */
   modelLiteralReferenceContext(model: Model) {
     return {};
   }
 
+  /**
+   * Emit a model declaration (e.g. as created by `model Foo { }` syntax in
+   * TypeSpec).
+   *
+   * @param model
+   * @returns
+   */
   modelDeclaration(model: Model, name: string): EmitterOutput<T> {
     if (model.baseModel) {
       this.emitter.emitType(model.baseModel);
@@ -108,14 +273,36 @@ export class TypeEmitter<T> {
     return this.emitter.result.none();
   }
 
+  /**
+   * Set lexical context for a model declaration.
+   *
+   * @param model
+   * @param name the model's declaration name as retrieved from the
+   * `declarationName` method.
+   * @returns
+   */
   modelDeclarationContext(model: Model, name: string): Context {
     return {};
   }
 
+  /**
+   * Set reference context for a model declaration.
+   * @param model
+   * @returns
+   */
   modelDeclarationReferenceContext(model: Model): Context {
     return {};
   }
 
+  /**
+   * Emit a model instantiation (e.g. as created by `Foo<string>` syntax in
+   * TypeSpec).
+   *
+   * @param model
+   * @param name The name of the instantiation as retrieved from the
+   * `declarationName` method.
+   * @returns
+   */
   modelInstantiation(model: Model, name: string): EmitterOutput<T> {
     if (model.baseModel) {
       this.emitter.emitType(model.baseModel);
@@ -124,14 +311,31 @@ export class TypeEmitter<T> {
     return this.emitter.result.none();
   }
 
-  modelInstantiationContext(model: Model, name: string): Context {
+  /**
+   * Set lexical context for a model instantiation.
+   * @param model
+   * @returns
+   */
+  modelInstantiationContext(model: Model): Context {
     return {};
   }
 
-  modelInstantiationReferenceContext(model: Model, name: string): Context {
+  /**
+   * Set reference context for a model declaration.
+   * @param model
+   * @returns
+   */
+  modelInstantiationReferenceContext(model: Model): Context {
     return {};
   }
 
+  /**
+   * Emit a model's properties. Unless overridden, this method will emit each of
+   * the model's properties and return a no emit result.
+   *
+   * @param model
+   * @returns
+   */
   modelProperties(model: Model): EmitterOutput<T> {
     for (const prop of model.properties.values()) {
       this.emitter.emitModelProperty(prop);
@@ -139,19 +343,46 @@ export class TypeEmitter<T> {
     return this.emitter.result.none();
   }
 
+  /**
+   * Emit a property of a model.
+   *
+   * @param property
+   * @returns
+   */
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<T> {
     this.emitter.emitTypeReference(property.type);
     return this.emitter.result.none();
   }
 
+  /**
+   * Set lexical context for a property of a model.
+   *
+   * @param property
+   * @returns
+   */
   modelPropertyLiteralContext(property: ModelProperty): Context {
     return {};
   }
 
+  /**
+   * Set reference context for a property of a model.
+   *
+   * @param property
+   * @returns
+   */
   modelPropertyLiteralReferenceContext(property: ModelProperty): Context {
     return {};
   }
 
+  /**
+   * Emit a model property reference (e.g. as created by the `SomeModel.prop`
+   * syntax in TypeSpec). By default, this will emit the type of the referenced
+   * property and return that result. In other words, the emit will look as if
+   * `SomeModel.prop` were replaced with the type of `prop`.
+   *
+   * @param property
+   * @returns
+   */
   modelPropertyReference(property: ModelProperty): EmitterOutput<T> {
     return this.emitter.emitTypeReference(property.type);
   }
@@ -433,29 +664,15 @@ export class TypeEmitter<T> {
 
     return declarationType.name + parameterNames.join("");
   }
-
-  /**
-   * Coerces an emit entity to a value. If the emit entity has a value (i.e. is
-   * a declaration or code), and that value is not a placeholder, return the value.
-   * Otherwise, return null.
-   *
-   * @param entity The entity to get the value from
-   * @returns Either the value, or null if there is no value
-   */
-  emitValue(entity: EmitEntity<T>): T | null {
-    switch (entity.kind) {
-      case "declaration":
-      case "code":
-        if (entity.value instanceof Placeholder) {
-          return null;
-        }
-        return entity.value;
-      default:
-        return null;
-    }
-  }
 }
 
+/**
+ * A subclass of `TypeEmitter<string>` that makes working with strings a bit easier.
+ * In particular, when emitting members of a type (`modelProperties`, `enumMembers`, etc.),
+ * instead of returning no result, it returns the value of each of the members concatenated
+ * by commas. It will also construct references by concatenating namespace elements together
+ * with `.` which should work nicely in many object oriented languages.
+ */
 export class CodeTypeEmitter extends TypeEmitter<string> {
   modelProperties(model: Model): EmitterOutput<string> {
     const builder = new StringBuilder();
