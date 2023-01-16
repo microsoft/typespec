@@ -2122,7 +2122,7 @@ export function createChecker(program: Program): Checker {
           createDiagnostic({
             code: "invalid-ref",
             messageId: "node",
-            format: { id: node.id.sv, nodeName: "template reference" },
+            format: { id: node.id.sv, nodeName: "templateParameterConstraint" },
             target: node,
           });
           return undefined;
@@ -2133,7 +2133,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-ref",
               messageId: "underContainer",
-              format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+              format: { kind: getMemberKindName(constraintSym.declarations[0]), id: node.id.sv },
               target: node,
             })
           );
