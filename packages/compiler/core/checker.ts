@@ -2117,7 +2117,10 @@ export function createChecker(program: Program): Checker {
         base.declarations[0].constraint?.kind === SyntaxKind.TypeReference &&
         base.declarations[0].constraint.target.kind === SyntaxKind.Identifier
       ) {
-        const constraintSym = resolveIdentifier(base.declarations[0].constraint.target, mapper);
+        const constraintSym = resolveTypeReferenceSym(
+          base.declarations[0].constraint.target,
+          mapper
+        );
         if (!constraintSym) {
           createDiagnostic({
             code: "invalid-ref",

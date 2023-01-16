@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "fix failure of referencing property of template paraemter. ",
+      "comment": "fix failure of referencing property of template parameter. ",
       "type": "none"
     }
   ],
