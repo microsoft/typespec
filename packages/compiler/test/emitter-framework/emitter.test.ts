@@ -456,8 +456,8 @@ it("handles circular references", async () => {
   await emitCadl(
     TestEmitter,
     `
-    model Bar { bprop: Foo };
-    model Foo { fprop: Bar };
+    model Bar { bProp: Foo };
+    model Foo { fProp: Bar };
   `,
     {
       modelDeclaration: 2,
