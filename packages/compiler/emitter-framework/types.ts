@@ -20,6 +20,7 @@ export interface AssetEmitter<T> {
    * @returns The current emitter context
    */
   getContext(): Context;
+  getOptions(): Record<string, unknown>;
   getProgram(): Program;
   emitTypeReference(type: Type): EmitEntity<T>;
   emitDeclarationName(type: CadlDeclaration): string;

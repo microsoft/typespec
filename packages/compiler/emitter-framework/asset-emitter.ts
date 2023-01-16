@@ -30,7 +30,8 @@ type EndingWith<Names, Name extends string> = Names extends `${infer _X}${Name}`
 
 export function createAssetEmitter<T>(
   program: Program,
-  TypeEmitterClass: typeof TypeEmitter<T>
+  TypeEmitterClass: typeof TypeEmitter<T>,
+  options: Record<string, unknown> = {}
 ): AssetEmitter<T> {
   const sourceFiles: SourceFile<T>[] = [];
 
@@ -107,6 +108,13 @@ export function createAssetEmitter<T>(
         ...context.lexicalContext,
         ...context.referenceContext,
       };
+    },
+
+    /**
+     * Return the emitter options
+     */
+    getOptions() {
+      return options;
     },
 
     /**

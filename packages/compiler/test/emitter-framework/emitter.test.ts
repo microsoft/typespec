@@ -529,6 +529,22 @@ it("handles multiple circular references", async () => {
   );
 });
 
+it("can get options", async () => {
+  let called = false;
+  class TestEmitter extends CodeTypeEmitter {
+    programContext(program: Program) {
+      called = true;
+      assert.strictEqual(this.emitter.getOptions().doThing, "yes");
+      return {};
+    }
+  }
+
+  const host = await getHostForCadlFile(`model Foo { }`);
+  const assetEmitter = createAssetEmitter(host.program, TestEmitter, { doThing: "yes" });
+  assetEmitter.emitProgram();
+  assert(called, "program context should be called");
+});
+
 describe("Object emitter", () => {
   class TestEmitter extends TypeEmitter<object> {
     programContext(program: Program): Context {
