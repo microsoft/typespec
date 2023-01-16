@@ -5,7 +5,6 @@ import {
   Interface,
   Model,
   ModelProperty,
-  navigateProgram,
   Operation,
   Program,
   Type,
@@ -376,12 +375,16 @@ describe("typescript emitter", () => {
       }
     }
     const emitter = createAssetEmitter(host.program, NamespacedEmitter);
-
     emitter.emitProgram();
-
     await emitter.writeOutput();
-
-    console.log(host.fs.get("Z:/test/output.ts"));
+    const contents = (await host.compilerHost.readFile("output.ts")).text;
+    assert.match(contents, /namespace B/);
+    assert.match(contents, /namespace R/);
+    assert.match(contents, /namespace H/);
+    assert.match(contents, /namespace I/);
+    assert.match(contents, /namespace D/);
+    assert.match(contents, /B\.Basic/);
+    assert.match(contents, /B\.Basic/);
   });
 
   it("handles circular references", async () => {
@@ -398,19 +401,11 @@ describe("typescript emitter", () => {
       }
     }
     const emitter: AssetEmitter<string> = createAssetEmitter(host.program, SingleFileEmitter);
-
-    navigateProgram(program, {
-      model(m) {
-        if (m.namespace?.name === "Cadl") {
-          return;
-        }
-        emitter.emitType(m);
-      },
-    });
-
+    emitter.emitProgram();
     await emitter.writeOutput();
-
-    console.log(host.fs.get("Z:/test/output.ts"));
+    const contents = (await host.compilerHost.readFile("output.ts")).text;
+    assert.match(contents, /prop: Foo/);
+    assert.match(contents, /prop: Baz/);
   });
 });
 
@@ -628,7 +623,7 @@ describe("Object emitter", () => {
     const assetEmitter = createAssetEmitter(host.program, TestEmitter);
     assetEmitter.emitProgram();
     await assetEmitter.writeOutput();
-    const contents = JSON.parse(host.fs.get("Z:/test/test.json")!);
+    const contents = JSON.parse((await host.compilerHost.readFile("test.json")!).text);
     assert.strictEqual(contents.declarations.length, 2);
   });
 });

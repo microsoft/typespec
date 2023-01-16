@@ -1,5 +1,5 @@
-import { EmitEntity } from "../types.js";
 import { Placeholder } from "../placeholder.js";
+import { EmitEntity } from "../types.js";
 
 export class StringBuilder extends Placeholder<string> {
   public segments: (string | Placeholder<string>)[] = [];
@@ -65,21 +65,13 @@ export class StringBuilder extends Placeholder<string> {
   }
 
   #shouldConcatLiteral() {
-    return (
-      this.segments.length > 0 &&
-      typeof this.segments[this.segments.length - 1] === "string"
-    );
+    return this.segments.length > 0 && typeof this.segments[this.segments.length - 1] === "string";
   }
 }
 
 export function code(
   parts: TemplateStringsArray,
-  ...substitutions: (
-    | EmitEntity<string>
-    | string
-    | Placeholder<string>
-    | StringBuilder
-  )[]
+  ...substitutions: (EmitEntity<string> | string | Placeholder<string> | StringBuilder)[]
 ): StringBuilder | string {
   const builder = new StringBuilder();
 

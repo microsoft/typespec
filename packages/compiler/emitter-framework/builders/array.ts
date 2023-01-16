@@ -19,7 +19,6 @@ export class ArrayBuilder<T> extends Array {
         } else if (v.kind === "code" || v.kind === "declaration") {
           toPush = v.value;
         } else {
-          console.log("DIE")
           throw "Circular";
         }
       } else {
@@ -28,7 +27,7 @@ export class ArrayBuilder<T> extends Array {
 
       if (toPush instanceof Placeholder) {
         console.log("pushing placeholder");
-        toPush.onValue(v => this.#setPlaceholderValue(toPush as Placeholder<T>, v));
+        toPush.onValue((v) => this.#setPlaceholderValue(toPush as Placeholder<T>, v));
       }
 
       super.push(toPush);
