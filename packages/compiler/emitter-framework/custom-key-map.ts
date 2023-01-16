@@ -43,7 +43,7 @@ export class CustomKeyMap<K extends readonly any[], V> {
           return knownKeys.get(o);
         }
 
-        let key = count;
+        const key = count;
         count++;
         knownKeys.set(o, key);
         return key;

@@ -248,6 +248,7 @@ export function createAssetEmitter<T>(
           // the target declaration is finished being emitted.
           compilerAssert(ref.kind !== "circular", "TypeEmitter `reference` returned circular emit");
 
+          // this could presumably be allowed if we want.
           compilerAssert(
             ref.kind === "none" || !(ref.value instanceof Placeholder),
             "TypeEmitter's `reference` method cannot return a placeholder."

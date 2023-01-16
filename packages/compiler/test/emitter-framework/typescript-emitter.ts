@@ -97,7 +97,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       extendsClause = "";
     }
 
-    let comment = getDoc(this.emitter.getProgram(), model);
+    const comment = getDoc(this.emitter.getProgram(), model);
     let commentCode = "";
 
     if (comment) {

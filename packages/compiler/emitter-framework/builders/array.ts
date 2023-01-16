@@ -1,3 +1,4 @@
+import { compilerAssert } from "../../core/index.js";
 import { Placeholder } from "../placeholder.js";
 import { EmitEntity, EmitterResult } from "../types.js";
 
@@ -14,19 +15,18 @@ export class ArrayBuilder<T> extends Array {
     for (const v of values) {
       let toPush: Placeholder<T> | T | null;
       if (v instanceof EmitterResult) {
+        compilerAssert(v.kind !== "circular", "Can't push a circular emit result.");
+
         if (v.kind === "none") {
           toPush = null;
-        } else if (v.kind === "code" || v.kind === "declaration") {
-          toPush = v.value;
         } else {
-          throw "Circular";
+          toPush = v.value;
         }
       } else {
         toPush = v;
       }
 
       if (toPush instanceof Placeholder) {
-        console.log("pushing placeholder");
         toPush.onValue((v) => this.#setPlaceholderValue(toPush as Placeholder<T>, v));
       }
 

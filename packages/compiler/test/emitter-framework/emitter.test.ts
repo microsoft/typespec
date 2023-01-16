@@ -392,7 +392,6 @@ describe("typescript emitter", () => {
       model Foo { prop: Baz }
       model Baz { prop: Foo }
     `);
-    const program = host.program;
 
     class SingleFileEmitter extends TypeScriptInterfaceEmitter {
       programContext() {

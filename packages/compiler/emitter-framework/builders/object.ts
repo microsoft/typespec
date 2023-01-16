@@ -2,9 +2,11 @@ import { compilerAssert } from "../../core/index.js";
 import { Placeholder } from "../placeholder.js";
 import { EmitEntity, EmitterResult } from "../types.js";
 
+// eslint is confused by merging generic interface and classes
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface ObjectBuilder<T> extends Record<string, any> {}
 export class ObjectBuilder<T> {
-  constructor(initializer: {} = {}) {
+  constructor(initializer: Record<string, unknown> = {}) {
     for (const [key, value] of Object.entries(initializer)) {
       this.set(key, value as any);
     }
