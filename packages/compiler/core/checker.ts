@@ -3071,7 +3071,7 @@ export function createChecker(program: Program): Checker {
     for (const decNode of decoratorNodes) {
       const decorator = checkDecorator(targetType, decNode, mapper);
       if (decorator) {
-        decorators.unshift(decorator);
+        decorators.push(decorator);
       }
     }
 
