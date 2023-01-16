@@ -33,8 +33,8 @@
   "devDependencies": {
     "@cadl-lang/ref-doc": "^0.1.0",
     "@cadl-lang/spec": "0.1.0",
-    "@cadl-lang/rest": "~0.38.1",
-    "@cadl-lang/openapi": "~0.38.0",
+    "@cadl-lang/rest": "~0.39.0",
+    "@cadl-lang/openapi": "~0.39.0",
     "@docusaurus/module-type-aliases": "^2.2.0",
     "@docusaurus/types": "^2.2.0",
     "@tsconfig/docusaurus": "^1.0.5",

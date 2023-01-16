@@ -1,6 +1,34 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 16 Dec 2022 22:02:45 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Updates
+
+- Api: Provide more accurate `parent` type for Nodes
+- Add IDE completion and signature help for augment decorators
+- Fix `(anonymous model).paramName` showing in operation signatures in IDE
+- Add double quote to autoClosingPairs
+- Only warn when an invalid identifier is used in a doc comment
+- Add @minValueExclusive and @maxValueExclusive decorators.
+- Feature: Templated operation inside of interfaces
+- Feature: Add templated operation inside of interface
+- Fix: Alias cause types to be resolved before some binding
+- Fix `cadl format` works with windows backslash paths
+- [Language Server] Fix: Completion of library imports replace import correctly"
+- Fix issue with using server lib at the root of filesystem
+- Fix: Projecting model property with type referencing sibling
+- Fix: Issue with referencing spread members
+- Internal: Update resolution of member symbols to have more ahead of time resolution
+- Internal: Update TS module resolution to node16
+- Type graph navigation navigate decorators
+- Internal: Refactor organization of completions logic for language server
+- Fix issue with referencing spread properties or enum member depending on the order of declaration
+- Fix: `resolveUsages` shouldn't include base model
+- Added `changeReturnType` projection method for operations.
+- Improve visibility decorator documentation
 
 ## 0.38.5
 Fri, 16 Dec 2022 22:02:45 GMT

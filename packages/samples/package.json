@@ -32,15 +32,15 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/versioning": "~0.38.0",
-    "@cadl-lang/compiler": "~0.38.5",
-    "@cadl-lang/rest": "~0.38.1",
-    "@cadl-lang/openapi": "~0.38.0",
-    "@cadl-lang/openapi3": "~0.38.0",
-    "@cadl-lang/html-program-viewer": "~0.38.0"
+    "@cadl-lang/versioning": "~0.39.0",
+    "@cadl-lang/compiler": "~0.39.0",
+    "@cadl-lang/rest": "~0.39.0",
+    "@cadl-lang/openapi": "~0.39.0",
+    "@cadl-lang/openapi3": "~0.39.0",
+    "@cadl-lang/html-program-viewer": "~0.39.0"
   },
   "devDependencies": {
-    "@cadl-lang/internal-build-utils": "~0.3.2",
+    "@cadl-lang/internal-build-utils": "~0.3.3",
     "@types/mkdirp": "~1.0.1",
     "autorest": "~3.3.2",
     "mkdirp": "~1.0.4"

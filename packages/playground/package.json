@@ -41,12 +41,12 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/versioning": "~0.38.0",
-    "@cadl-lang/compiler": "~0.38.5",
-    "@cadl-lang/rest": "~0.38.1",
-    "@cadl-lang/openapi3": "~0.38.0",
-    "@cadl-lang/openapi": "~0.38.0",
-    "@cadl-lang/html-program-viewer": "~0.38.0",
+    "@cadl-lang/versioning": "~0.39.0",
+    "@cadl-lang/compiler": "~0.39.0",
+    "@cadl-lang/rest": "~0.39.0",
+    "@cadl-lang/openapi3": "~0.39.0",
+    "@cadl-lang/openapi": "~0.39.0",
+    "@cadl-lang/html-program-viewer": "~0.39.0",
     "@emotion/react": "^11.10.4",
     "@vitejs/plugin-react": "~2.2.0",
     "es-module-shims": "~1.6.2",

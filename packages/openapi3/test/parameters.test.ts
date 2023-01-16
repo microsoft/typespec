@@ -24,6 +24,24 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[0].name, "$select");
   });
 
+  it("create a query param of array type", async () => {
+    const res = await openApiFor(
+      `
+      op test(
+        @query({name: "$select"}) selects: string[],
+        @query({name: "$order", format: "csv"}) orders: string[],
+      ): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "query");
+    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
+    strictEqual(res.paths["/"].get.parameters[0].style, "form");
+    strictEqual(res.paths["/"].get.parameters[0].explode, true);
+    strictEqual(res.paths["/"].get.parameters[1].in, "query");
+    strictEqual(res.paths["/"].get.parameters[1].name, "$order");
+    strictEqual(res.paths["/"].get.parameters[1].style, "simple");
+  });
+
   it("create an header param", async () => {
     const res = await openApiFor(
       `
@@ -43,6 +61,17 @@ describe("openapi3: parameters", () => {
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "header");
     strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
+  });
+
+  it("create an header param of array type", async () => {
+    const res = await openApiFor(
+      `
+      op test(@header("foo-bar") foo: string[]): void;
+      `
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "header");
+    strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
+    strictEqual(res.paths["/"].get.parameters[0].style, "simple");
   });
 
   // Regression test for https://github.com/microsoft/cadl/issues/414
