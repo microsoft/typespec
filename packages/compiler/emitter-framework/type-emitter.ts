@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  compilerAssert,
   Enum,
   EnumMember,
   Interface,
@@ -628,9 +629,10 @@ export class TypeEmitter<T> {
   }
 
   declarationName(declarationType: CadlDeclaration): string {
-    if (!declarationType.name) {
-      throw new Error("Can't emit a declaration that doesn't have a name");
-    }
+    compilerAssert(
+      declarationType.name !== undefined,
+      "Can't emit a declaration that doesn't have a name."
+    );
 
     if (declarationType.kind === "Enum") {
       return declarationType.name;
@@ -656,8 +658,9 @@ export class TypeEmitter<T> {
         case "Union":
           return this.emitter.emitDeclarationName(t);
         default:
-          throw new Error(
-            `Can't get a name for non-declaration type ${t.kind} used to instantiate a model template`
+          compilerAssert(
+            false,
+            `Can't get a declaration name for non-declaration type ${t.kind} used to instantiate a template.`
           );
       }
     });

@@ -1,3 +1,4 @@
+import { compilerAssert } from "../../core/index.js";
 import { Placeholder } from "../placeholder.js";
 import { EmitEntity, EmitterResult } from "../types.js";
 
@@ -11,13 +12,13 @@ export class ObjectBuilder<T> {
   set(key: string, v: EmitEntity<T> | Placeholder<T> | T) {
     let value = v;
     if (v instanceof EmitterResult) {
+      compilerAssert(v.kind !== "circular", "Can't set a circular emit result.");
+
       if (v.kind === "none") {
         this[key] = null;
         return;
-      } else if (v.kind === "code" || v.kind === "declaration") {
-        value = v.value;
       } else {
-        throw "Circular";
+        value = v.value;
       }
     }
 

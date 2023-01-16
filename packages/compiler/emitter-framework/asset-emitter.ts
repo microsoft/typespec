@@ -1,4 +1,11 @@
-import { IntrinsicType, isTemplateDeclaration, Namespace, Program, Type } from "../core/index.js";
+import {
+  compilerAssert,
+  IntrinsicType,
+  isTemplateDeclaration,
+  Namespace,
+  Program,
+  Type,
+} from "../core/index.js";
 import { CustomKeyMap } from "./custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
 import { TypeEmitter } from "./type-emitter.js";
@@ -114,12 +121,10 @@ export function createAssetEmitter<T>(
     result: {
       declaration(name, value) {
         const scope = currentScope();
-        if (!scope) {
-          throw new Error(
-            "There is no current scope for this declaration, ensure the current context has a scope."
-          );
-        }
-
+        compilerAssert(
+          scope,
+          "Emit context must have a scope set in order to create declarations. Consider setting scope to a new source file's global scope in the `programContext` method of `TypeEmitter`."
+        );
         return new Declaration(name, scope, value);
       },
       rawCode(value) {
@@ -208,12 +213,10 @@ export function createAssetEmitter<T>(
         }
 
         const scope = currentScope();
-        if (!scope) {
-          throw new Error(
-            "Can't generate a type reference without a current scope, ensure the current context has a scope"
-          );
-        }
-
+        compilerAssert(
+          scope,
+          "Emit context must have a scope set in order to create references to declarations."
+        );
         const targetScope = entity.scope;
         const targetChain = scopeChain(targetScope);
         const currentChain = scopeChain(scope);
@@ -241,13 +244,14 @@ export function createAssetEmitter<T>(
         }
 
         if (placeholder) {
-          if (ref.kind === "circular") {
-            throw new Error("Reference to a circular reference.");
-          }
+          // this should never happen as this function shouldn't be called until
+          // the target declaration is finished being emitted.
+          compilerAssert(ref.kind !== "circular", "TypeEmitter `reference` returned circular emit");
 
-          if (ref.kind !== "none" && ref.value instanceof Placeholder) {
-            throw new Error("Reference cannot return a placeholder");
-          }
+          compilerAssert(
+            ref.kind === "none" || !(ref.value instanceof Placeholder),
+            "TypeEmitter's `reference` method cannot return a placeholder."
+          );
 
           switch (ref.kind) {
             case "code":
@@ -436,9 +440,7 @@ export function createAssetEmitter<T>(
       }
 
       typeToEmitEntity.set(emitEntityKey, new CircularEmit(emitEntityKey));
-      if (!typeEmitter[method]) {
-        throw new Error("Type emitter doesn't have method " + method);
-      }
+      compilerAssert(typeEmitter[method], `TypeEmitter doesn't have a method named ${method}.`);
       entity = liftToRawCode((typeEmitter[method] as any)(...args));
     });
 
@@ -543,9 +545,11 @@ export function createAssetEmitter<T>(
       const lexicalKey = key + "Context";
       const referenceKey = typeEmitterKey(contextChainEntry) + "ReferenceContext";
 
-      if (!(typeEmitter as any)[lexicalKey]) {
-        throw new Error("Type emitter doesn't have key " + lexicalKey);
-      }
+      compilerAssert(
+        (typeEmitter as any)[lexicalKey],
+        `TypeEmitter doesn't have a method named ${lexicalKey}`
+      );
+
       const newContext = (typeEmitter as any)[lexicalKey](contextChainEntry);
       const newReferenceContext = keyHasReferenceContext(key)
         ? (typeEmitter as any)[referenceKey](contextChainEntry)
@@ -650,7 +654,7 @@ export function createAssetEmitter<T>(
       case "Intrinsic":
         return "intrinsic";
       default:
-        throw new Error("Unknown type: " + type.kind);
+        compilerAssert(false, `Encountered type ${type.kind} which we don't know how to emit.`);
     }
   }
   function currentScope() {
