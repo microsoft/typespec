@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/internal-build-utils",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "Microsoft Corporation",
   "description": "Internal library to Cadl providing helpers to build.",
   "homepage": "https://github.com/Azure/cadl",

@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/compiler",
-  "version": "0.38.5",
+  "version": "0.39.0",
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -98,7 +98,7 @@
     "@types/prompts": "~2.4.1",
     "@types/yargs": "~17.0.2",
     "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/internal-build-utils": "~0.3.2",
+    "@cadl-lang/internal-build-utils": "~0.3.3",
     "eslint": "^8.12.0",
     "grammarkdown": "~3.2.0",
     "mocha": "~10.1.0",
