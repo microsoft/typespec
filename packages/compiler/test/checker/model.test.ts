@@ -743,6 +743,24 @@ describe("compiler: models", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("emit no error when references property of template parameter", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model Discriminated {
+          kind: string;
+        };
+        
+        model OpenAiList<T extends Discriminated> {
+          broken: T.kind;
+          works: Discriminated.kind;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("resolve recursive template types", async () => {
       testHost.addCadlFile(
         "main.cadl",

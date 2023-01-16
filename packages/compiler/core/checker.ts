@@ -2111,6 +2111,35 @@ export function createChecker(program: Program): Checker {
           return undefined;
         }
         return sym;
+      } else if (
+        base.flags & SymbolFlags.TemplateParameter &&
+        base.declarations[0].kind === SyntaxKind.TemplateParameterDeclaration &&
+        base.declarations[0].constraint?.kind === SyntaxKind.TypeReference &&
+        base.declarations[0].constraint.target.kind === SyntaxKind.Identifier
+      ) {
+        const constraintSym = resolveIdentifier(base.declarations[0].constraint.target, mapper);
+        if (!constraintSym) {
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "node",
+            format: { id: node.id.sv, nodeName: "template reference" },
+            target: node,
+          });
+          return undefined;
+        }
+        const sym = resolveIdentifierInTable(node.id, constraintSym.members!, resolveDecorator);
+        if (!sym) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "underContainer",
+              format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+              target: node,
+            })
+          );
+          return undefined;
+        }
+        return sym;
       } else {
         reportCheckerDiagnostic(
           createDiagnostic({
