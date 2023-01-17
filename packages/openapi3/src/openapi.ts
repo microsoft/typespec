@@ -1467,7 +1467,7 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
       return yaml.dump(root, {
         noRefs: true,
         replacer: function (key, value) {
-          return key === "$ref" && value instanceof Ref ? value.value! : value;
+          return value instanceof Ref ? value.toJSON() : value;
         },
       });
   }
