@@ -821,7 +821,7 @@ export function createChecker(program: Program): Checker {
     const oldDiagnosticHook = onCheckerDiagnostic;
     const diagnostics: Diagnostic[] = [];
     onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
-    const type = checkTypeReference(node, undefined, false);
+    const type = checkTypeReference(node, undefined, true);
     onCheckerDiagnostic = oldDiagnosticHook;
     return [type === errorType ? undefined : type, diagnostics];
   }
