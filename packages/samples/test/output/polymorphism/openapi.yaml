@@ -14,8 +14,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Pet'
 components:
   schemas:
     Pet:
@@ -52,8 +51,7 @@ components:
         - kind
         - meow
       allOf:
-        - $ref:
-            value: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/Pet'
     Dog:
       type: object
       properties:
@@ -67,5 +65,4 @@ components:
         - kind
         - bark
       allOf:
-        - $ref:
-            value: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/Pet'

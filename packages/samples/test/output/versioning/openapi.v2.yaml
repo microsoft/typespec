@@ -15,8 +15,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetBase'
+                $ref: '#/components/schemas/PetBase'
   /walkDog:
     post:
       operationId: MyService_walkDog
@@ -48,8 +47,7 @@ components:
         favoriteToys:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/Library.PetToy'
+            $ref: '#/components/schemas/Library.PetToy'
           x-cadl-name: Library.PetToy[]
       discriminator:
         propertyName: type
@@ -91,8 +89,7 @@ components:
         - nextWalkTime
         - commandList
       allOf:
-        - $ref:
-            value: '#/components/schemas/PetBase'
+        - $ref: '#/components/schemas/PetBase'
     Cat:
       type: object
       properties:
@@ -107,8 +104,7 @@ components:
         - type
         - catnipDose
       allOf:
-        - $ref:
-            value: '#/components/schemas/PetBase'
+        - $ref: '#/components/schemas/PetBase'
     Library.PetToy:
       type: object
       properties:
