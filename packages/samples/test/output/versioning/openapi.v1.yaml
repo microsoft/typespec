@@ -52,8 +52,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          dog:
-            value: '#/components/schemas/Dog'
+          dog: '#/components/schemas/Dog'
       required:
         - name
         - favoriteToys

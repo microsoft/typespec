@@ -52,10 +52,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          dog:
-            value: '#/components/schemas/Dog'
-          cat:
-            value: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
+          cat: '#/components/schemas/Cat'
       required:
         - name
         - favoriteToys

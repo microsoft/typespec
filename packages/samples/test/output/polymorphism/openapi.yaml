@@ -31,10 +31,8 @@ components:
       discriminator:
         propertyName: kind
         mapping:
-          cat:
-            value: '#/components/schemas/Cat'
-          dog:
-            value: '#/components/schemas/Dog'
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
       required:
         - name
     Cat:
