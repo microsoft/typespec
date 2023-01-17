@@ -320,6 +320,7 @@ export enum TokenFlags {
   Unterminated = 1 << 2,
   NonAscii = 1 << 3,
   DocComment = 1 << 4,
+  Backticked = 1 << 5,
 }
 
 export function isTrivia(token: Token) {
@@ -551,6 +552,9 @@ export function createScanner(
           return lookAhead(1) === CharCode.Equals
             ? next(Token.ExclamationEquals, 2)
             : next(Token.Exclamation);
+
+        case CharCode.Backtick:
+          return scanEscapedIdentifier();
 
         default:
           if (isLowercaseAsciiLetter(ch)) {
@@ -869,8 +873,20 @@ export function createScanner(
   }
 
   function getIdentifierTokenValue(): string {
-    const text = getTokenText();
-    return tokenFlags & TokenFlags.NonAscii ? text.normalize("NFC") : text;
+    const text =
+      tokenFlags & TokenFlags.Backticked
+        ? input.substring(tokenPosition + 1, position - 1)
+        : getTokenText();
+
+    if (tokenFlags & TokenFlags.Escaped) {
+      // TODO
+    }
+
+    if (tokenFlags & TokenFlags.NonAscii) {
+      return text.normalize("NFC");
+    }
+
+    return text;
   }
 
   function unindentAndUnescapeTripleQuotedString(start: number, end: number): string {
@@ -1090,6 +1106,30 @@ export function createScanner(
     }
 
     return (token = Token.Identifier);
+  }
+
+  function scanEscapedIdentifier(): Token.Identifier {
+    position++; // consume '`'
+
+    tokenFlags |= TokenFlags.Backticked;
+
+    loop: for (; !eof(); position++) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
+        case CharCode.Backslash:
+          position++;
+          tokenFlags |= TokenFlags.Escaped;
+          continue;
+        case CharCode.Backtick:
+          position++;
+          return (token = Token.Identifier);
+        case CharCode.CarriageReturn:
+        case CharCode.LineFeed:
+          break loop;
+      }
+    }
+
+    return unterminated(Token.Identifier);
   }
 
   function scanNonAsciiIdentifier(startCodePoint: number): Token.Identifier {

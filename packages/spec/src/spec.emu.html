@@ -51,6 +51,7 @@ Keyword :
 
 Identifier :
     IdentifierName but not Keyword
+    ``` IdentifierChars ```
 
 IdentifierName :
     IdentifierStart
@@ -58,6 +59,14 @@ IdentifierName :
 
 IdentifierStart :
     IdentifierContinue but not DecimalDigit
+
+IdentifierChars:
+    IdentifierChar IdentifierChars?
+
+IdentifierChar :
+    SourceCharacter but not one of ``` or `\` or LineTerminator
+    `\` ```
+    `\` `\`
 
 ///
 // This is a profile of UAX31.R2 Immutable Identifiers:
