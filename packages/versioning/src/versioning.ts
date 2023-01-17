@@ -151,6 +151,13 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
     return;
   }
 
+  if (oldName === "") {
+    reportDiagnostic(program, {
+      code: "invalid-renamed-from-value",
+      target: t,
+    });
+  }
+
   // retrieve statemap to update or create a new one
   const record = getRenamedFrom(program, t) ?? [];
   record.push({ version: version, oldName: oldName });

@@ -45,6 +45,12 @@ const libDef = {
         default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @versionedDependency.`,
       },
     },
+    "invalid-renamed-from-value": {
+      severity: "error",
+      messages: {
+        default: "@renamedFrom.oldName cannot be empty string.",
+      },
+    },
     "incompatible-versioned-reference": {
       severity: "error",
       messages: {
