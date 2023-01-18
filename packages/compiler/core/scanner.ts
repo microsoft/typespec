@@ -554,7 +554,7 @@ export function createScanner(
             : next(Token.Exclamation);
 
         case CharCode.Backtick:
-          return scanEscapedIdentifier();
+          return scanBacktickedIdentifier();
 
         default:
           if (isLowercaseAsciiLetter(ch)) {
@@ -873,14 +873,17 @@ export function createScanner(
   }
 
   function getIdentifierTokenValue(): string {
-    const text =
-      tokenFlags & TokenFlags.Backticked
-        ? input.substring(tokenPosition + 1, position - 1)
-        : getTokenText();
+    const start = tokenFlags & TokenFlags.Backticked ? tokenPosition + 1 : tokenPosition;
+    const end =
+      tokenFlags & TokenFlags.Backticked && !(tokenFlags & TokenFlags.Unterminated)
+        ? position - 1
+        : position;
 
     if (tokenFlags & TokenFlags.Escaped) {
-      // TODO
+      return unescapeBacktickedString(start, end);
     }
+
+    const text = input.substring(start, end);
 
     if (tokenFlags & TokenFlags.NonAscii) {
       return text.normalize("NFC");
@@ -1002,7 +1005,11 @@ export function createScanner(
     return pos;
   }
 
-  function unescapeString(start: number, end: number): string {
+  function unescapeBacktickedString(start: number, end: number): string {
+    return unescapeString(start, end, unescapeBacktickedOne);
+  }
+
+  function unescapeString(start: number, end: number, unescapeOneFunc = unescapeOne): string {
     let result = "";
     let pos = start;
 
@@ -1019,7 +1026,7 @@ export function createScanner(
       }
 
       result += input.substring(start, pos);
-      result += unescapeOne(pos);
+      result += unescapeOneFunc(pos);
       pos += 2;
       start = pos;
     }
@@ -1041,6 +1048,19 @@ export function createScanner(
         return '"';
       case CharCode.Backslash:
         return "\\";
+      default:
+        error({ code: "invalid-escape-sequence" });
+        return String.fromCharCode(ch);
+    }
+  }
+
+  function unescapeBacktickedOne(pos: number): string {
+    const ch = input.charCodeAt(pos + 1);
+    switch (ch) {
+      case CharCode.Backslash:
+        return "\\";
+      case CharCode.Backtick:
+        return "`";
       default:
         error({ code: "invalid-escape-sequence" });
         return String.fromCharCode(ch);
@@ -1108,7 +1128,7 @@ export function createScanner(
     return (token = Token.Identifier);
   }
 
-  function scanEscapedIdentifier(): Token.Identifier {
+  function scanBacktickedIdentifier(): Token.Identifier {
     position++; // consume '`'
 
     tokenFlags |= TokenFlags.Backticked;
@@ -1128,6 +1148,8 @@ export function createScanner(
           break loop;
       }
     }
+
+    // TODO: nonAsciiCharacter
 
     return unterminated(Token.Identifier);
   }

@@ -1068,6 +1068,7 @@ export interface TupleExpressionNode extends BaseNode {
 
 export interface ModelPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelProperty;
+  // TODO remove StringLiteralNode
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];

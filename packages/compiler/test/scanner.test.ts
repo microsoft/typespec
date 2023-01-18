@@ -299,6 +299,11 @@ describe("compiler: scanner", () => {
     ]);
   });
 
+  it("scans backticked identifiers", () => {
+    const all = tokens("`a` `x`\n `aa aa` \r\n `aa\\`xx` `\\\\x` `aaaa\\nxx`");
+    verify(all, []);
+  });
+
   // https://github.com/microsoft/cadl/issues/168
   it("scan file ending with multi-line comment", () => {
     const multiLineComment = "/* foo\n*bar\n*/";

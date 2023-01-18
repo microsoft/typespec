@@ -51,7 +51,7 @@ Keyword :
 
 Identifier :
     IdentifierName but not Keyword
-    ``` IdentifierChars ```
+    ``` BacktickedIdentifierChars ```
 
 IdentifierName :
     IdentifierStart
@@ -59,14 +59,6 @@ IdentifierName :
 
 IdentifierStart :
     IdentifierContinue but not DecimalDigit
-
-IdentifierChars:
-    IdentifierChar IdentifierChars?
-
-IdentifierChar :
-    SourceCharacter but not one of ``` or `\` or LineTerminator
-    `\` ```
-    `\` `\`
 
 ///
 // This is a profile of UAX31.R2 Immutable Identifiers:
@@ -92,6 +84,14 @@ IdentifierContinue :
     `$`
     `_`
     > any assigned Unicode code point other than U+FFFD greater than U+007F that does not have any of the following property values: General_Category=Surrogate, Control or Private_Use, Noncharacter_Code_Point=True, or Pattern_White_Space=True
+
+BacktickedIdentifierChars:
+    BacktickedIdentifierChar BacktickedIdentifierChars?
+
+BacktickedIdentifierChar :
+    SourceCharacter but not one of ``` or `\` or LineTerminator
+    `\` ```
+    `\` `\`
 
 AsciiLetter : one of
     `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M` `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
