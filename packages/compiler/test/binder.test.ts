@@ -136,13 +136,7 @@ describe("compiler: binder", () => {
         model A { }
       }
 
-      model B<Foo, Bar> {
-        "foo-bar": Foo;
-      }
-
-      model \`model\`<\`import\`> {
-        \`op\`: \`import\`;
-      }
+      model B<Foo, Bar> { }
     `;
     const script = bindCadl(code);
     strictEqual(script.namespaces.length, 1);
