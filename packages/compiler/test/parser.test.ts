@@ -691,8 +691,10 @@ describe("compiler: parser", () => {
     describe("projection expressions", () => {
       const exprs = [
         `x || y`,
+        `x > 10 || y < 20`,
         `x || y || z`,
         `x && y`,
+        `x > 10 && y < 20`,
         `x && y && z`,
         `x && y || z && q`,
         `x || y && z || q`,

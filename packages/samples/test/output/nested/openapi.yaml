@@ -19,8 +19,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/SubA.SubSubA.Thing'
+              $ref: '#/components/schemas/SubA.SubSubA.Thing'
   /sub/b:
     post:
       operationId: SubB_doSomething
@@ -36,8 +35,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/SubB.Thing'
+              $ref: '#/components/schemas/SubB.Thing'
   /:
     post:
       operationId: SubC_anotherOp
@@ -56,11 +54,9 @@ paths:
               type: object
               properties:
                 thing:
-                  $ref:
-                    value: '#/components/schemas/SubA.Thing'
+                  $ref: '#/components/schemas/SubA.Thing'
                 thing2:
-                  $ref:
-                    value: '#/components/schemas/SubA.Thing'
+                  $ref: '#/components/schemas/SubA.Thing'
               required:
                 - thing
                 - thing2

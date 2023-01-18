@@ -26,8 +26,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -42,8 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -72,8 +70,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -88,8 +85,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -121,8 +117,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -139,8 +134,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -173,8 +167,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -192,8 +185,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -221,8 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -237,8 +228,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
@@ -258,15 +248,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Colors'
+                $ref: '#/components/schemas/Colors'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -281,14 +269,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/Colors'
+              $ref: '#/components/schemas/Colors'
   /string/enum/constant:
     get:
       tags:
@@ -302,15 +288,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Colors'
+                $ref: '#/components/schemas/Colors'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - String Operations
@@ -325,14 +309,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/Colors'
+              $ref: '#/components/schemas/Colors'
 components:
   schemas:
     Error:

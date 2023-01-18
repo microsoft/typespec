@@ -20,16 +20,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/HasNullables'
+                $ref: '#/components/schemas/HasNullables'
       requestBody:
         content:
           application/json:
             schema:
               type: object
               allOf:
-                - $ref:
-                    value: '#/components/schemas/AnotherModel'
+                - $ref: '#/components/schemas/AnotherModel'
               nullable: true
               x-cadl-name: AnotherModel | null
 components:
@@ -57,8 +55,7 @@ components:
         modelOrNull:
           type: object
           allOf:
-            - $ref:
-                value: '#/components/schemas/AnotherModel'
+            - $ref: '#/components/schemas/AnotherModel'
           nullable: true
           x-cadl-name: AnotherModel | null
         literalsOrNull:

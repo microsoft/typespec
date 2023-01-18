@@ -15,8 +15,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Pet'
 components:
   parameters:
     ApiVersionParam:
@@ -28,10 +27,8 @@ components:
   schemas:
     Pet:
       anyOf:
-        - $ref:
-            value: '#/components/schemas/Cat'
-        - $ref:
-            value: '#/components/schemas/Dog'
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
     ApiVersionParam:
       type: object
       properties: {}
@@ -56,8 +53,7 @@ components:
         - type
         - nextWalkTime
       allOf:
-        - $ref:
-            value: '#/components/schemas/PetBase'
+        - $ref: '#/components/schemas/PetBase'
     Cat:
       type: object
       properties:
@@ -72,5 +68,4 @@ components:
         - type
         - catnipDose
       allOf:
-        - $ref:
-            value: '#/components/schemas/PetBase'
+        - $ref: '#/components/schemas/PetBase'
