@@ -67,7 +67,7 @@ const libDef = {
       severity: "error",
       messages: {
         default:
-          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned.",
+          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned. For versioned namespaces, put the useDependency decorator on the version enum members.",
       },
     },
     "made-optional-not-optional": {

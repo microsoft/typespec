@@ -446,7 +446,11 @@ export function getUseDependencies(
       for (const [enumVer, value] of resolved) {
         const targetNamespace = value.enumMember.enum.namespace;
         if (!targetNamespace) {
-          // FIXME: Log diagnostic here???
+          reportDiagnostic(program, {
+            code: "version-not-found",
+            target: value.enumMember.enum,
+            format: { version: value.enumMember.name, enumName: value.enumMember.enum.name },
+          });
           return undefined;
         }
         let subMap = result.get(targetNamespace) as Map<Version, Version>;

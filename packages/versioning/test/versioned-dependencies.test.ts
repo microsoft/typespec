@@ -146,7 +146,29 @@ describe("versioning: reference versioned library", () => {
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-namespace-use-dependency",
         message:
-          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned.",
+          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned. For versioned namespaces, put the useDependency decorator on the version enum members.",
+      });
+    });
+
+    it("emit diagnostic if @useDependency is used on an enum that isn't in the namespace.", async () => {
+      const diagnostics = await runner.diagnose(`
+        enum TestServiceVersions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1,
+          @useDependency(VersionedLib.Versions.l2)
+          v2,
+        }
+
+        @versioned(TestServiceVersions)
+        namespace TestService {
+          @added(TestServiceVersions.v2)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/version-not-found",
+        message:
+          "The provided version 'v2' from 'TestServiceVersions' is not declared as a version enum. Use '@versioned(TestServiceVersions)' on the containing namespace.",
       });
     });
   });
