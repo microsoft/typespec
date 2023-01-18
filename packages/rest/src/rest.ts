@@ -7,7 +7,6 @@ import {
   Namespace,
   Operation,
   Program,
-  reportDeprecated,
   Scalar,
   setCadlNamespace,
   Type,
@@ -94,35 +93,6 @@ export function $segmentOf(context: DecoratorContext, entity: Operation, resourc
 
 export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
-}
-
-const segmentSeparatorsKey = createStateSymbol("segmentSeparators");
-
-/**
- * `@segmentSeparator` defines the separator string that is inserted between the target's
- * `@segment` and the preceding route path in auto-generated routes.
- *
- * The first argument should be a string that will be inserted into the operation route before the
- * target's `@segment` value.  Can be a string of any length.  Defaults to `/`.
- *
- * `@segmentSeparator` can only be applied to model properties, operation parameters, or operations.
- */
-export function $segmentSeparator(
-  context: DecoratorContext,
-  entity: Model | ModelProperty | Operation,
-  separator: string
-) {
-  reportDeprecated(
-    context.program,
-    `@Cadl.Rest.segmentSeparator is deprecated use @Cadl.Rest.actionSeparator instead.`,
-    context.decoratorTarget
-  );
-
-  context.program.stateMap(segmentSeparatorsKey).set(entity, separator);
-}
-
-export function getSegmentSeparator(program: Program, entity: Type): string | undefined {
-  return program.stateMap(segmentSeparatorsKey).get(entity);
 }
 
 const actionSeparatorKey = createStateSymbol("actionSeparator");
@@ -334,10 +304,7 @@ export function $collectionAction(
   const action = makeActionName(entity, name);
   context.call($actionSegment, entity, action);
 
-  const segmentSeparator = getSegmentSeparator(context.program, entity);
-  context.program
-    .stateMap(collectionActionsKey)
-    .set(entity, `${segment}${segmentSeparator}${action}`);
+  context.program.stateMap(collectionActionsKey).set(entity, `${segment}/${action}`);
 }
 
 export function getCollectionAction(
