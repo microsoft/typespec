@@ -300,22 +300,31 @@ describe("compiler: scanner", () => {
   });
 
   it("scans backticked identifiers", () => {
-    const all = tokens("`a` `2020-01-01`\n `aa aa` \r\n `aa\\`xx` `\\\\x` `3.14`");
+    const all = tokens(
+      "`a` `01-01`\n`aa x`\r\n`1+1=2` `1!=2` `x\\`x` `\\\\x`\u{2028}`3.14`\u{2029}`import`"
+    );
     verify(all, [
       [Token.Identifier, "`a`", { pos: 0, value: "a", line: 0, character: 0 }],
       [Token.Whitespace, " ", { pos: 3, value: " ", line: 0, character: 3 }],
-      [Token.Identifier, "`2020-01-01`", { pos: 4, value: "2020-01-01", line: 0, character: 4 }],
-      [Token.NewLine, "\n", { pos: 16, value: "\n", line: 0, character: 16 }],
-      [Token.Whitespace, " ", { pos: 17, value: " ", line: 1, character: 0 }],
-      [Token.Identifier, "`aa aa`", { pos: 18, value: "aa aa", line: 1, character: 1 }],
-      [Token.Whitespace, " ", { pos: 25, value: " ", line: 1, character: 8 }],
-      [Token.NewLine, "\r\n", { pos: 26, value: "\r\n", line: 1, character: 9 }],
-      [Token.Whitespace, " ", { pos: 28, value: " ", line: 2, character: 0 }],
-      [Token.Identifier, "`aa\\`xx`", { pos: 29, value: "aa`xx", line: 2, character: 1 }],
-      [Token.Whitespace, " ", { pos: 37, value: " ", line: 2, character: 9 }],
-      [Token.Identifier, "`\\\\x`", { pos: 38, value: "\\x", line: 2, character: 10 }],
-      [Token.Whitespace, " ", { pos: 43, value: " ", line: 2, character: 15 }],
-      [Token.Identifier, "`3.14`", { pos: 44, value: "3.14", line: 2, character: 16 }],
+      [Token.Identifier, "`01-01`", { pos: 4, value: "01-01", line: 0, character: 4 }],
+      [Token.NewLine, "\n", { pos: 11, value: "\n", line: 0, character: 11 }],
+
+      [Token.Identifier, "`aa x`", { pos: 12, value: "aa x", line: 1, character: 0 }],
+      [Token.NewLine, "\r\n", { pos: 18, value: "\r\n", line: 1, character: 6 }],
+      [Token.Identifier, "`1+1=2`", { pos: 20, value: "1+1=2", line: 2, character: 0 }],
+      [Token.Whitespace, " ", { pos: 27, value: " ", line: 2, character: 7 }],
+
+      [Token.Identifier, "`1!=2`", { pos: 28, value: "1!=2", line: 2, character: 8 }],
+      [Token.Whitespace, " ", { pos: 34, value: " ", line: 2, character: 14 }],
+      [Token.Identifier, "`x\\`x`", { pos: 35, value: "x`x", line: 2, character: 15 }],
+      [Token.Whitespace, " ", { pos: 41, value: " ", line: 2, character: 21 }],
+
+      [Token.Identifier, "`\\\\x`", { pos: 42, value: "\\x", line: 2, character: 22 }],
+      [Token.Whitespace, "\u{2028}", { pos: 47, value: "\u{2028}", line: 2, character: 27 }],
+      [Token.Identifier, "`3.14`", { pos: 48, value: "3.14", line: 2, character: 28 }],
+      [Token.Whitespace, "\u{2029}", { pos: 54, value: "\u{2029}", line: 2, character: 34 }],
+
+      [Token.Identifier, "`import`", { pos: 55, value: "import", line: 2, character: 35 }],
     ]);
   });
 
