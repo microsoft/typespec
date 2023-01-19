@@ -241,10 +241,19 @@ describe("rest: routes", () => {
       @get
       @route(":action")
       op colonRoute(): {};
+
+      @get
+      @autoRoute
+      @action("actionTwo")
+      @actionSeparator(":")
+      op separatorRoute(): {};
       `
     );
 
-    deepStrictEqual(routes, [{ verb: "get", path: "/:action", params: [] }]);
+    deepStrictEqual(routes, [
+      { verb: "get", path: "/:action", params: [] },
+      { verb: "get", path: "/:actionTwo", params: [] },
+    ]);
   });
 
   it("generates action route fragments when @action is applied", async () => {
