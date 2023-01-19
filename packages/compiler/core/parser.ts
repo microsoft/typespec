@@ -643,7 +643,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier("property");
 
     parseExpected(Token.Colon);
 
@@ -837,7 +837,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier("property");
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
@@ -926,8 +926,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
-    const id =
-      token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("enumMember");
+    const id = parseIdentifier("enumMember");
 
     let value: StringLiteralNode | NumericLiteralNode | undefined;
     if (parseOptional(Token.Colon)) {
@@ -1356,7 +1355,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): IdentifierNode {
     if (recoverFromKeyword && isKeyword(token())) {
       error({ code: "reserved-identifier" });
-    } else if (token() !== Token.Identifier) {
+    } else if (token() !== Token.Identifier && token() !== Token.StringLiteral) {
+      // For backward-compatibility, we allow string literals to be used as identifiers, but convert to an identifier node.
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
       error({ code: "token-expected", messageId: message ?? "identifier" });
@@ -2000,7 +2000,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier("property");
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);

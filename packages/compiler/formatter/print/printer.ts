@@ -1,6 +1,7 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
+import { isIdentifierContinue, isIdentifierStart } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
-import { createScanner, Token } from "../../core/scanner.js";
+import { Keywords } from "../../core/scanner.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -17,6 +18,7 @@ import {
   EnumStatementNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  IdentifierNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -985,12 +987,7 @@ export function printModelProperty(
       tryInline: true,
     }
   );
-  let id: Doc;
-  if (node.id.kind === SyntaxKind.StringLiteral && isStringSafeToUnquote(node.id, options)) {
-    id = node.id.value;
-  } else {
-    id = path.call(print, "id");
-  }
+  const id = needBacktick(node.id) ? `\`${node.id.sv}\`` : node.id.sv;
   return [
     multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
@@ -1002,22 +999,19 @@ export function printModelProperty(
   ];
 }
 
-function isStringSafeToUnquote(id: StringLiteralNode, options: CadlPrettierOptions): boolean {
-  const unquotedRawText = getRawText(id, options).slice(1, -1);
-  if (id.value !== unquotedRawText) {
-    return false;
+function needBacktick(id: IdentifierNode) {
+  if (Keywords.has(id.sv)) {
+    return true;
   }
-  let hasError = false;
-  const scanner = createScanner(id.value, (d) => (hasError = true));
-  if (scanner.scan() !== Token.Identifier) {
-    return false;
+  if (!isIdentifierStart(id.sv.charCodeAt(0))) {
+    return true;
   }
-
-  if (scanner.scan() !== Token.EndOfFile) {
-    return false;
+  for (let i = 1; i < id.sv.length; i++) {
+    if (!isIdentifierContinue(id.sv.charCodeAt(i))) {
+      return true;
+    }
   }
-
-  return !hasError;
+  return false;
 }
 
 function isModelExpressionInBlock(

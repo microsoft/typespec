@@ -2499,7 +2499,7 @@ export function createChecker(program: Program): Checker {
             if (prop.kind === SyntaxKind.ModelSpreadProperty) {
               resolveAndCopyMembers(prop.target);
             } else {
-              const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+              const name = prop.id.sv;
               bindMember(name, prop, SymbolFlags.ModelProperty);
             }
           }
@@ -2509,8 +2509,7 @@ export function createChecker(program: Program): Checker {
             if (member.kind === SyntaxKind.EnumSpreadMember) {
               resolveAndCopyMembers(member.target);
             } else {
-              const name =
-                member.id.kind === SyntaxKind.Identifier ? member.id.sv : member.id.value;
+              const name = member.id.sv;
               bindMember(name, member, SymbolFlags.EnumMember);
             }
           }
@@ -2527,8 +2526,7 @@ export function createChecker(program: Program): Checker {
           break;
         case SyntaxKind.UnionStatement:
           for (const variant of node.options.values()) {
-            const name =
-              variant.id.kind === SyntaxKind.Identifier ? variant.id.sv : variant.id.value;
+            const name = variant.id.sv;
             bindMember(name, variant, SymbolFlags.UnionVariant);
           }
           break;
@@ -2847,7 +2845,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as ModelProperty;
     }
 
-    const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+    const name = prop.id.sv;
 
     const valueType = getTypeForNode(prop.value, mapper);
     const defaultValue = prop.default && checkDefault(prop.default, valueType);
@@ -3413,8 +3411,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as UnionVariant;
     }
 
-    const name =
-      variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
+    const name = variantNode.id.sv;
     const type = getTypeForNode(variantNode.value, mapper);
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
@@ -3446,7 +3443,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function getSymbolForMember(node: MemberNode): Sym | undefined {
-    const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
+    const name = node.id.sv;
     const parentSym = node.parent?.symbol;
     return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
   }
@@ -3461,7 +3458,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     parentEnum?: Enum
   ): EnumMember {
-    const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
+    const name = node.id.sv;
     const links = getSymbolLinksForMember(node);
     if (links?.type) {
       return links.type as EnumMember;
@@ -3974,7 +3971,7 @@ export function createChecker(program: Program): Checker {
 
     return createType({
       kind: "ModelProperty",
-      name: node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value,
+      name: node.id.sv,
       node: node,
       decorators: [],
       optional: node.optional,

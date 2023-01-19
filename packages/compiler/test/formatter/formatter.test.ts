@@ -288,7 +288,26 @@ model Foo {
       });
     });
 
-    it("remove unnecessary quotes", () => {
+    it("remove unnecessary backticks", () => {
+      assertFormat({
+        code: `
+model Foo {
+  \`abc\`: string;
+  \`import\`: boolean;
+  \`this-needs-backticks\`: int32;
+}
+`,
+        expected: `
+model Foo {
+  abc: string;
+  \`import\`: boolean;
+  \`this-needs-backticks\`: int32;
+}
+`,
+      });
+    });
+
+    it("format quoted string to identifier or backticked identifier when necessary", () => {
       assertFormat({
         code: `
 model Foo {
@@ -299,7 +318,7 @@ model Foo {
         expected: `
 model Foo {
   abc: string;
-  "this-needs-quotes": int32;
+  \`this-needs-quotes\`: int32;
 }
 `,
       });

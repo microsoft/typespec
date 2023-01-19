@@ -1011,7 +1011,8 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface UnionVariantNode extends BaseNode {
   readonly kind: SyntaxKind.UnionVariant;
-  readonly id: IdentifierNode | StringLiteralNode;
+  // TODO: Remove StringLiteralNode
+  readonly id: IdentifierNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: UnionStatementNode;
@@ -1026,7 +1027,7 @@ export interface EnumStatementNode extends BaseNode, DeclarationNode {
 
 export interface EnumMemberNode extends BaseNode {
   readonly kind: SyntaxKind.EnumMember;
-  readonly id: IdentifierNode | StringLiteralNode;
+  readonly id: IdentifierNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: EnumStatementNode;
@@ -1068,8 +1069,7 @@ export interface TupleExpressionNode extends BaseNode {
 
 export interface ModelPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelProperty;
-  // TODO remove StringLiteralNode
-  readonly id: IdentifierNode | StringLiteralNode;
+  readonly id: IdentifierNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
@@ -1305,7 +1305,7 @@ export interface ProjectionTupleExpressionNode extends BaseNode {
 
 export interface ProjectionModelPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelProperty;
-  readonly id: IdentifierNode | StringLiteralNode;
+  readonly id: IdentifierNode;
   readonly value: ProjectionExpression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
