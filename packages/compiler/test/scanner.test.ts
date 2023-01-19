@@ -300,8 +300,23 @@ describe("compiler: scanner", () => {
   });
 
   it("scans backticked identifiers", () => {
-    const all = tokens("`a` `x`\n `aa aa` \r\n `aa\\`xx` `\\\\x` `aaaa\\nxx`");
-    verify(all, []);
+    const all = tokens("`a` `2020-01-01`\n `aa aa` \r\n `aa\\`xx` `\\\\x` `3.14`");
+    verify(all, [
+      [Token.Identifier, "`a`", { pos: 0, value: "a", line: 0, character: 0 }],
+      [Token.Whitespace, " ", { pos: 3, value: " ", line: 0, character: 3 }],
+      [Token.Identifier, "`2020-01-01`", { pos: 4, value: "2020-01-01", line: 0, character: 4 }],
+      [Token.NewLine, "\n", { pos: 16, value: "\n", line: 0, character: 16 }],
+      [Token.Whitespace, " ", { pos: 17, value: " ", line: 1, character: 0 }],
+      [Token.Identifier, "`aa aa`", { pos: 18, value: "aa aa", line: 1, character: 1 }],
+      [Token.Whitespace, " ", { pos: 25, value: " ", line: 1, character: 8 }],
+      [Token.NewLine, "\r\n", { pos: 26, value: "\r\n", line: 1, character: 9 }],
+      [Token.Whitespace, " ", { pos: 28, value: " ", line: 2, character: 0 }],
+      [Token.Identifier, "`aa\\`xx`", { pos: 29, value: "aa`xx", line: 2, character: 1 }],
+      [Token.Whitespace, " ", { pos: 37, value: " ", line: 2, character: 9 }],
+      [Token.Identifier, "`\\\\x`", { pos: 38, value: "\\x", line: 2, character: 10 }],
+      [Token.Whitespace, " ", { pos: 43, value: " ", line: 2, character: 15 }],
+      [Token.Identifier, "`3.14`", { pos: 44, value: "3.14", line: 2, character: 16 }],
+    ]);
   });
 
   // https://github.com/microsoft/cadl/issues/168
