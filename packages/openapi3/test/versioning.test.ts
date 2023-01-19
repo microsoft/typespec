@@ -8,10 +8,15 @@ describe("openapi3: versioning", () => {
     const { v1, v2, v3 } = await openApiFor(
       `
       @versioned(Versions)
-      @versionedDependency([[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
       @service({title: "My Service", version: "hi"})
       namespace MyService {
-        enum Versions {"v1", "v2", "v3"}
+        enum Versions {
+          @useDependency(MyLibrary.Versions.A)
+          "v1",
+          @useDependency(MyLibrary.Versions.B)
+          "v2",
+          @useDependency(MyLibrary.Versions.C)
+          "v3"}
         model Test {
           prop1: string;
           @added(Versions.v2) prop2: string;
@@ -125,7 +130,7 @@ describe("openapi3: versioning", () => {
     }
     @armNamespace
     @service({title: "Widgets 'r' Us"})
-    @versionedDependency(Contoso.Library.Versions.v1)
+    @useDependency(Contoso.Library.Versions.v1)
     namespace Contoso.WidgetService {
       model Widget {
         @key
@@ -157,7 +162,7 @@ describe("openapi3: versioning", () => {
       }
       
       @service({title: "Service"})
-      @versionedDependency(Library.Versions.v1)
+      @useDependency(Library.Versions.v1)
       namespace Service {
         model Widget {
           details?: WidgetDetails;

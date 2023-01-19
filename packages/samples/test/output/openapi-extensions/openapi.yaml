@@ -14,8 +14,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Foo'
+                $ref: '#/components/schemas/Foo'
 components:
   schemas:
     Foo:
@@ -51,8 +50,7 @@ components:
           enum:
             - 12
         other:
-          $ref:
-            value: '#/components/schemas/NestedConfig'
+          $ref: '#/components/schemas/NestedConfig'
       required:
         - name
         - age
