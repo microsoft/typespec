@@ -667,6 +667,113 @@ describe("rest: routes", () => {
     });
   });
 
+  describe("use of @route with @autoRoute", () => {
+    it("can override library operation route in service", async () => {
+      const routes = await getRoutesFor(`
+        namespace Lib {
+          @route("one")
+          op action(): void;
+        }
+
+        namespace Test {
+          op my is Lib.action;
+          @route("my")
+          op my2 is Lib.action;
+        }
+      `);
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/one" },
+        { verb: "get", path: "/my" },
+      ]);
+    });
+
+    it("can override library interface route in service", async () => {
+      const routes = await getRoutesFor(`
+        namespace Lib {
+          @route("one")
+          interface Ops {
+            action(): void;
+          }
+        }
+
+        namespace Test {
+          interface Mys extends Lib.Ops {
+          }
+
+          @route("my") interface Mys2 extends Lib.Ops {}
+
+          op my is Lib.Ops.action;
+        }
+      `);
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/" },
+        { verb: "get", path: "/my" },
+        { verb: "get", path: "/" },
+      ]);
+    });
+
+    it("prepends @route in service when library operation uses @autoRoute", async () => {
+      const routes = await getRoutesFor(`
+        namespace Lib {
+          @autoRoute
+          op action(@path @segment("pets") id: string): void;
+        }
+
+        namespace Test {
+          op my is Lib.action;
+          @route("my")
+          op my2 is Lib.action;
+        }
+      `);
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/pets/{id}" },
+        { verb: "get", path: "/my/pets/{id}" },
+      ]);
+    });
+
+    it("prepends @route in service when library interface operation uses @autoRoute", async () => {
+      const routes = await getRoutesFor(`
+        namespace Lib {
+          interface Ops {
+            @autoRoute
+            action(@path @segment("pets") id: string): void;  
+          }
+        }
+
+        namespace Test {
+          interface Mys extends Lib.Ops {}
+          @route("my")
+          interface Mys2 extends Lib.Ops {};
+        }
+      `);
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/pets/{id}" },
+        { verb: "get", path: "/my/pets/{id}" },
+      ]);
+    });
+
+    it("prepends @route in service when library interface uses @autoRoute", async () => {
+      const routes = await getRoutesFor(`
+        namespace Lib {
+          @autoRoute
+          interface Ops {
+            action(@path @segment("pets") id: string): void;  
+          }
+        }
+
+        namespace Test {
+          interface Mys extends Lib.Ops {}
+          @route("my")
+          interface Mys2 extends Lib.Ops {};
+        }
+      `);
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/{id}" },
+        { verb: "get", path: "/my/{id}" },
+      ]);
+    });
+  });
+
   it("allows customization of path parameters in generated routes", async () => {
     const routes = await getRoutesFor(
       `
