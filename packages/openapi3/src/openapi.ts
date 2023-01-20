@@ -571,7 +571,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header | undefined {
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
@@ -744,8 +744,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getOpenAPIParameterBase(
     param: ModelProperty,
     visibility: Visibility
-  ): OpenAPI3ParameterBase {
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type, visibility));
+  ): OpenAPI3ParameterBase | undefined {
+    const typeSchema = getSchemaForType(param.type, visibility);
+    if (!typeSchema) {
+      return undefined;
+    }
+    const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -831,10 +835,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     while (pendingSchemas.size > 0) {
       for (const [type, group] of pendingSchemas) {
         for (const [visibility, pending] of group) {
-          processedSchemas.getOrAdd(type, visibility, () => ({
-            ...pending,
-            schema: getSchemaForType(type, visibility),
-          }));
+          const schemaVal = getSchemaForType(type, visibility);
+          if (schemaVal) {
+            processedSchemas.getOrAdd(type, visibility, () => ({
+              ...pending,
+              schema: schemaVal,
+            }));
+          }
         }
         pendingSchemas.delete(type);
       }
@@ -862,7 +869,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForType(type: Type, visibility: Visibility) {
+  function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
     const builtinType = mapCadlTypeToOpenAPI(type, visibility);
     if (builtinType !== undefined) return builtinType;
 
@@ -871,6 +878,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "ModelProperty":
+        return getSchemaForType(type.type, visibility);
       case "Scalar":
         return getSchemaForScalar(type);
       case "Union":
@@ -1145,10 +1154,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // Take the base model schema but carry across the documentation property
       // that we set before
       const baseSchema = getSchemaForType(model.baseModel, visibility);
-      modelSchema = {
-        ...baseSchema,
-        description: modelSchema.description,
-      };
+      if (baseSchema) {
+        modelSchema = {
+          ...baseSchema,
+          properties: baseSchema.properties ?? {},
+          description: modelSchema.description,
+        };
+      }
     } else if (model.baseModel) {
       modelSchema.allOf = [getSchemaOrRef(model.baseModel, visibility)];
     }
