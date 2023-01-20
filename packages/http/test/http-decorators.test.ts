@@ -242,6 +242,21 @@ describe("http: decorators", () => {
       ]);
     });
 
+    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", { shared: true }) op test(): string;
+        @route("/test", { shared: true }) op test2(): string;
+        @route("/test") op test3(): string;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@cadl-lang/rest/duplicate-operation",
+          message: `Duplicate operation "test3" routed at "get /test".`,
+        },
+      ]);
+    });
+
     it("do not emit diagnostics when duplicated shared routes are applied", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test", {shared: true}) op test(): string;
