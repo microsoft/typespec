@@ -9,14 +9,14 @@ jobs:
 
     strategy:
       matrix:
-        "Linux - Node 16.x":
-          pool: azsdk-pool-mms-ubuntu-2004-general
-          nodeVersion: "16.x"
+#         "Linux - Node 16.x":
+#           pool: azsdk-pool-mms-ubuntu-2004-general
+#           nodeVersion: "16.x"
 
-        "Windows - Node 16.x":
-          imageName: windows-2022
-          pool: "Azure Pipelines"
-          nodeVersion: "16.x"
+#         "Windows - Node 16.x":
+#           imageName: windows-2022
+#           pool: "Azure Pipelines"
+#           nodeVersion: "16.x"
 
         "Linux - Node 18.x":
           pool: azsdk-pool-mms-ubuntu-2004-general
