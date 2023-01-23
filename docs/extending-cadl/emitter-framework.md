@@ -43,7 +43,7 @@ export async function $onEmit(context: EmitContext) {
 
 ### `TypeEmitter<T>`
 
-This is the base class for writing logic to convert Cadl types into assets in your target language. Every Cadl type has at least one method on this base class, and many have multiple methods. For example, for Models have both `ModelDeclaration` and `ModelLiteral` methods to handle `model Pet { }` declarations and `{ anonymous: boolean }` literals respectively.
+This is the base class for writing logic to convert Cadl types into assets in your target language. Every Cadl type has at least one method on this base class, and many have multiple methods. For example, models have both `ModelDeclaration` and `ModelLiteral` methods to handle `model Pet { }` declarations and `{ anonymous: boolean }` literals respectively.
 
 To support emitting all Cadl types, you should expect to implement all of these methods. But if you don't want to support emitting all Cadl types, you can either throw or just not implement the method, in which case the type will not be emitted.
 
