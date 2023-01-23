@@ -639,7 +639,7 @@ export class TypeEmitter<T> {
     }
 
     // for operations inside interfaces, we don't want to do the fancy thing because it will make
-    // operations inside instantiated interfaces will get get weird names
+    // operations inside instantiated interfaces get weird names
     if (declarationType.kind === "Operation" && declarationType.interface) {
       return declarationType.name;
     }
