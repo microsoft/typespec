@@ -4579,10 +4579,7 @@ export function createChecker(program: Program): Checker {
   function isRelatedToScalar(source: Type, target: Scalar): boolean | undefined {
     switch (source.kind) {
       case "Number":
-        return (
-          areScalarsRelated(target, getStdType("numeric")) &&
-          isNumericLiteralRelatedTo(source, target.name as any)
-        );
+        return isNumericLiteralRelatedTo(source, target);
       case "String":
         return areScalarsRelated(target, getStdType("string"));
       case "Boolean":
@@ -4631,30 +4628,29 @@ export function createChecker(program: Program): Checker {
     return undefined;
   }
 
-  function isNumericLiteralRelatedTo(
-    source: NumericLiteral,
-    targetIntrinsicType:
-      | "int64"
-      | "int32"
-      | "int16"
-      | "int8"
-      | "uint64"
-      | "uint32"
-      | "uint16"
-      | "uint8"
-      | "safeint"
-      | "float32"
-      | "float64"
-      | "numeric"
-      | "integer"
-      | "float"
-  ) {
-    if (targetIntrinsicType === "numeric") return true;
-    const isInt = Number.isInteger(source.value);
-    if (targetIntrinsicType === "integer") return isInt;
-    if (targetIntrinsicType === "float") return true;
+  function isNumericLiteralRelatedTo(source: NumericLiteral, target: Scalar) {
+    // if the target does not derive from numeric, then it can't be assigned a numeric literal
+    if (!areScalarsRelated(target, getStdType("numeric"))) {
+      return false;
+    }
 
-    const [low, high, options] = numericRanges[targetIntrinsicType];
+    // With respect to literal assignability a custom numeric scalar is
+    // equivalent to its nearest Cadl.* base. Adjust target accordingly.
+    while (!target.namespace || !isCadlNamespace(target.namespace)) {
+      compilerAssert(
+        target.baseScalar,
+        "Should not be possible to be derived from Cadl.numeric and not have a base when not in Cadl namespace."
+      );
+      target = target.baseScalar;
+    }
+
+    if (target.name === "numeric") return true;
+    const isInt = Number.isInteger(source.value);
+    if (target.name === "integer") return isInt;
+    if (target.name === "float") return true;
+
+    if (!(target.name in numericRanges)) return false;
+    const [low, high, options] = numericRanges[target.name];
     return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
@@ -4870,7 +4866,10 @@ function isErrorType(type: Type): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
-const numericRanges = {
+const numericRanges: Record<
+  string,
+  [min: number | bigint, max: number | bigint, options: { int: boolean }]
+> = {
   int64: [BigInt("-9223372036854775807"), BigInt("9223372036854775808"), { int: true }],
   int32: [-2147483648, 2147483647, { int: true }],
   int16: [-32768, 32767, { int: true }],
@@ -4882,7 +4881,7 @@ const numericRanges = {
   safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
   float32: [-3.4e38, 3.4e38, { int: false }],
   float64: [Number.MIN_VALUE, Number.MAX_VALUE, { int: false }],
-} as const;
+};
 
 /**
  * Find all named models that could have been the source of the given
