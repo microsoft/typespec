@@ -198,7 +198,7 @@ interface PendingSchema {
  * has been produced.
  */
 interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema;
+  schema: OpenAPI3Schema | undefined;
 }
 
 function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
@@ -835,13 +835,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     while (pendingSchemas.size > 0) {
       for (const [type, group] of pendingSchemas) {
         for (const [visibility, pending] of group) {
-          const schemaVal = getSchemaForType(type, visibility);
-          if (schemaVal) {
-            processedSchemas.getOrAdd(type, visibility, () => ({
-              ...pending,
-              schema: schemaVal,
-            }));
-          }
+          processedSchemas.getOrAdd(type, visibility, () => ({
+            ...pending,
+            schema: getSchemaForType(type, visibility),
+          }));
         }
         pendingSchemas.delete(type);
       }
@@ -858,7 +855,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        root.components!.schemas![name] = processed.schema;
+        if (processed.schema) {
+          root.components!.schemas![name] = processed.schema;
+        }
       }
     }
   }
@@ -1154,13 +1153,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // Take the base model schema but carry across the documentation property
       // that we set before
       const baseSchema = getSchemaForType(model.baseModel, visibility);
-      if (baseSchema) {
-        modelSchema = {
-          ...baseSchema,
-          properties: baseSchema.properties ?? {},
-          description: modelSchema.description,
-        };
-      }
+      modelSchema = {
+        ...(baseSchema as any),
+        description: modelSchema.description,
+      };
     } else if (model.baseModel) {
       modelSchema.allOf = [getSchemaOrRef(model.baseModel, visibility)];
     }
