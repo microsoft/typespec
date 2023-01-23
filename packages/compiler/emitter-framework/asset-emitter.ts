@@ -693,7 +693,7 @@ function isDeclaration(type: Type): type is CadlDeclaration | Namespace {
  * An interner takes an object and returns either that same object, or a
  * previously seen object that has the identical shape.
  *
- * This implementation EXTREMELY non-optimal (O(n*m) where n = number of unique
+ * This implementation is EXTREMELY non-optimal (O(n*m) where n = number of unique
  * state objects and m = the number of properties a state object contains). This
  * will very quickly be a bottleneck. That said, the common case is no state at
  * all, and also this is essentially implementing records and tuples, so could
