@@ -10,8 +10,10 @@
  */
 [
   {
-    "definitionName": "individualVersion",
-    "policyName": "cadl"
+    "definitionName": "lockStepVersion",
+    "policyName": "cadl",
+    "version": "0.39.0",
+    "nextBump": "minor"
   }
   // {
   //   /**

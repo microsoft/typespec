@@ -8,10 +8,10 @@ test.describe("playground UI tests", () => {
 
   test("compiled http sample", async ({ page }) => {
     await page.goto(host);
-    const samplesDropDown = page.locator("select.sample-dropdown");
-    await samplesDropDown.selectOption({ label: "Http service" });
+    const samplesDropDown = page.locator("_react=SamplesDropdown").locator("select");
+    await samplesDropDown.selectOption({ label: "HTTP service" });
     const outputContainer = page.locator("_react=OutputContent");
-    await expect(outputContainer).toContainText(`"title": "Widget Service"`);
+    await expect(outputContainer).toContainText(`title: Widget Service`);
   });
 
   test("shared link works", async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe("playground UI tests", () => {
     // cspell:disable-next-line
     await page.goto(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`);
     const outputContainer = page.locator("_react=OutputContent");
-    await expect(outputContainer).toContainText(`"operationId": "sharedCode"`);
+    await expect(outputContainer).toContainText(`operationId: sharedCode`);
   });
 
   test("save code with ctrl/cmd+S", async ({ page }) => {

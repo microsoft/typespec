@@ -131,7 +131,11 @@ function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | un
 }
 
 function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {
-  return `${getNamespacePrefix(iface.namespace, options)}${iface.name}`;
+  let interfaceName = iface.name;
+  if (iface.templateArguments && iface.templateArguments.length > 0) {
+    interfaceName += `<${iface.templateArguments.map((x) => getTypeName(x, options)).join(", ")}>`;
+  }
+  return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {

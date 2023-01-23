@@ -50,7 +50,18 @@ export interface DecoratedType {
  */
 export type TemplatedType = Model | Operation | Interface | Union;
 
+export interface TypeMapper {
+  partial: boolean;
+  getMappedType(type: TemplateParameter): Type;
+  args: readonly Type[];
+  /** @internal */ map: Map<TemplateParameter, Type>;
+}
+
 export interface TemplatedTypeBase {
+  templateMapper?: TypeMapper;
+  /**
+   * @deprecated use templateMapper instead.
+   */
   templateArguments?: Type[];
   templateNode?: Node;
 }
@@ -77,51 +88,6 @@ export type Type =
   | FunctionParameter
   | ObjectType
   | Projection;
-
-/** @deprecated Use `Model` instead. */
-export type ModelType = Model;
-
-/** @deprecated Use `ModelProperty` instead. */
-export type ModelTypeProperty = ModelProperty;
-
-/** @deprecated Use `Interface` instead. */
-export type InterfaceType = Interface;
-
-/** @deprecated Use `Enum` instead. */
-export type EnumType = Enum;
-
-/** @deprecated Use `EnumMember` instead. */
-export type EnumMemberType = EnumMember;
-
-/** @deprecated Use `TemplateParameter` instead.` */
-export type TemplateParameterType = TemplateParameter;
-
-/** @deprecated Use `Namespace` instead. */
-export type NamespaceType = Namespace;
-
-/** @deprecated Use `Operation` instead. */
-export type OperationType = Operation;
-
-/** @deprecated Use `StringLiteral` instead. */
-export type StringLiteralType = StringLiteral;
-
-/** @deprecated Use `BooleanLiteral` instead. */
-export type BooleanLiteralType = BooleanLiteral;
-
-/** @deprecated Use `NumericLiteral` instead. */
-export type NumericLiteralType = NumericLiteral;
-
-/** @deprecated Use `Tuple` instead. */
-export type TupleType = Tuple;
-
-/** @deprecated Use `Union` instead. */
-export type UnionType = Union;
-
-/** @deprecated Use `UnionVariant` instead. */
-export type UnionTypeVariant = UnionVariant;
-
-/** @deprecated Use `Projection` instead. */
-export type ProjectionType = Projection;
 
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
@@ -206,7 +172,7 @@ export type IntrinsicScalarName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
-  | "uri";
+  | "url";
 
 export type NeverIndexer = { key: NeverType; value: undefined };
 export type ModelIndexer = {
@@ -551,6 +517,7 @@ export const enum SymbolFlags {
    * Symbols whose members will be late bound (and stored on the type)
    */
   MemberContainer = Model | Enum | Union | Interface,
+  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
 }
 
 /**
@@ -742,6 +709,29 @@ export type TemplateableNode =
   | OperationStatementNode
   | UnionStatementNode;
 
+/**
+ * Node types that can have referencable members
+ */
+export type MemberContainerNode =
+  | ModelStatementNode
+  | ModelExpressionNode
+  | InterfaceStatementNode
+  | EnumStatementNode
+  | UnionStatementNode;
+
+export type MemberNode =
+  | ModelPropertyNode
+  | EnumMemberNode
+  | OperationStatementNode
+  | UnionVariantNode;
+
+export type MemberContainerType = Model | Enum | Interface | Union;
+
+/**
+ * Type that can be used as members of a container type.
+ */
+export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant;
+
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {
@@ -823,6 +813,7 @@ export type ScopeNode =
 export interface ImportStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ImportStatement;
   readonly path: StringLiteralNode;
+  readonly parent?: CadlScriptNode;
 }
 
 export interface IdentifierNode extends BaseNode {
@@ -841,6 +832,7 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   readonly targetType: TypeReferenceNode;
   readonly arguments: readonly Expression[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface DirectiveExpressionNode extends BaseNode {
@@ -908,11 +900,13 @@ export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface UsingStatementNode extends BaseNode {
   readonly kind: SyntaxKind.UsingStatement;
   readonly name: IdentifierNode | MemberExpressionNode;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface OperationSignatureDeclarationNode extends BaseNode {
@@ -934,6 +928,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   readonly kind: SyntaxKind.OperationStatement;
   readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -942,12 +937,14 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -955,12 +952,14 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   readonly operations: readonly OperationStatementNode[];
   readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface UnionVariantNode extends BaseNode {
@@ -968,12 +967,14 @@ export interface UnionVariantNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: UnionStatementNode;
 }
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface EnumMemberNode extends BaseNode {
@@ -981,6 +982,7 @@ export interface EnumMemberNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: EnumStatementNode;
 }
 
 export interface EnumSpreadMemberNode extends BaseNode {
@@ -991,6 +993,7 @@ export interface EnumSpreadMemberNode extends BaseNode {
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
   readonly value: Expression;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface InvalidStatementNode extends BaseNode {
@@ -1023,11 +1026,13 @@ export interface ModelPropertyNode extends BaseNode {
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
   readonly default?: Expression;
+  readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
 export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
+  readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
@@ -1094,6 +1099,7 @@ export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseN
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
+  readonly parent?: TemplateableNode;
 }
 
 export const enum ModifierFlags {
@@ -1123,6 +1129,7 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
    * Additional parameters
    */
   readonly parameters: FunctionParameterNode[];
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface FunctionParameterNode extends BaseNode {
@@ -1154,6 +1161,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 // Projection-related Syntax
@@ -1305,6 +1313,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | IdentifierNode;
   readonly to?: ProjectionNode;
   readonly from?: ProjectionNode;
+  readonly parent?: CadlScriptNode | NamespaceStatementNode;
 }
 
 export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
@@ -1592,15 +1601,20 @@ export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
 } & TypeListeners;
 
-export type DiagnosticReport<
+export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default"
 > = {
   code: C;
   messageId?: M;
-  target: DiagnosticTarget | typeof NoTarget;
 } & DiagnosticFormat<T, C, M>;
+
+export type DiagnosticReport<
+  T extends { [code: string]: DiagnosticMessages },
+  C extends keyof T,
+  M extends keyof T[C] = "default"
+> = DiagnosticReportWithoutTarget<T, C, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },

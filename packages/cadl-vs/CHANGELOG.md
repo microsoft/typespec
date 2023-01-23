@@ -1,6 +1,16 @@
 # Change Log - cadl-vs
 
-This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+_Version update only_
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+_Version update only_
 
 ## 0.9.0
 Sat, 12 Nov 2022 00:14:04 GMT

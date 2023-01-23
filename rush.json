@@ -4,7 +4,7 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.83.4",
+  "rushVersion": "5.88.0",
   "pnpmVersion": "6.32.9",
   "ensureConsistentVersions": true,
   /**
@@ -52,7 +52,7 @@
       "packageName": "@cadl-lang/compiler",
       "projectFolder": "packages/compiler",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "cadl"
     },
     {
       "packageName": "@cadl-lang/samples",
@@ -74,7 +74,7 @@
       "packageName": "cadl-vscode",
       "projectFolder": "packages/cadl-vscode",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "cadl"
     },
     {
       // VS package not in @scope purely for symmetry with VSCode package
@@ -82,13 +82,67 @@
       "packageName": "cadl-vs",
       "projectFolder": "packages/cadl-vs",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "cadl"
     },
     {
       "packageName": "@cadl-lang/prettier-plugin-cadl",
       "projectFolder": "packages/prettier-plugin-cadl",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/rest",
+      "projectFolder": "packages/rest",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/openapi",
+      "projectFolder": "packages/openapi",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/lint",
+      "projectFolder": "packages/lint",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/migrate",
+      "projectFolder": "packages/migrate",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/library-linter",
+      "projectFolder": "packages/library-linter",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/eslint-plugin",
+      "projectFolder": "packages/eslint-plugin-cadl",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "projectFolder": "packages/openapi3",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "projectFolder": "packages/html-program-viewer",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
+      "packageName": "@cadl-lang/versioning",
+      "projectFolder": "packages/versioning",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
     },
     {
       "packageName": "@cadl-lang/eslint-config-cadl",
@@ -108,60 +162,7 @@
       "reviewCategory": "production",
       "shouldPublish": false
     },
-    {
-      "packageName": "@cadl-lang/rest",
-      "projectFolder": "packages/rest",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/openapi",
-      "projectFolder": "packages/openapi",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/lint",
-      "projectFolder": "packages/lint",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/migrate",
-      "projectFolder": "packages/migrate",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/library-linter",
-      "projectFolder": "packages/library-linter",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/eslint-plugin",
-      "projectFolder": "packages/eslint-plugin-cadl",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/openapi3",
-      "projectFolder": "packages/openapi3",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/html-program-viewer",
-      "projectFolder": "packages/html-program-viewer",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@cadl-lang/versioning",
-      "projectFolder": "packages/versioning",
-      "reviewCategory": "production",
-      "shouldPublish": true
-    },
+
     {
       "packageName": "@cadl-lang/playground",
       "projectFolder": "packages/playground",
@@ -183,6 +184,12 @@
     {
       "packageName": "@cadl-lang/protobuf",
       "projectFolder": "packages/protobuf",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/ref-doc",
+      "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
     }

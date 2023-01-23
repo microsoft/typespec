@@ -1,57 +1,23 @@
-import { statSync } from "fs";
-import { dirname, resolve } from "path";
-import watch from "watch";
+import chokidar from "chokidar";
+import { resolve } from "path";
 import { clearScreen, logWithTime } from "./common.js";
 
-export function runWatch(dir: string, build: any, options: any) {
+export function runWatch(pattern: string, build: any, options?: any) {
   let lastBuildTime: Date;
-  dir = resolve(dir);
+  pattern = resolve(pattern);
 
-  // We need to wait for directory to be created before watching it. This deals
-  // with races between watchers where one watcher must create a directory
-  // before another can watch it.
-  //
-  // For example, we can't watch for tmlanguage.js changes if the source watcher
-  // hasn't even created the directory in which tmlanguage.js will be written.
-  try {
-    statSync(dir);
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
-      waitForDirectoryCreation();
-      return;
-    }
-    throw err;
-  }
-
-  // Directory already exists: we can start watching right away.
   start();
-
-  function waitForDirectoryCreation() {
-    let dirCreated = false;
-    const parentDir = dirname(dir);
-    logWithTime(`Waiting for ${dir} to be created.`);
-
-    watch.createMonitor(parentDir, "created" as any, (monitor) => {
-      monitor.on("created", (file) => {
-        if (!dirCreated && file === dir) {
-          dirCreated = true; // defend against duplicate events.
-          monitor.stop();
-          start();
-        }
-      });
-    });
-  }
 
   function start() {
     // build once up-front
     runBuild();
 
+    const watcher = chokidar.watch(pattern, { interval: 0.2, ...options });
+
     // then build again on any change
-    watch.createMonitor(dir, { interval: 0.2, ...options }, (monitor) => {
-      monitor.on("created", (file) => runBuild(`${file} created`));
-      monitor.on("removed", (file) => runBuild(`${file} removed`));
-      monitor.on("changed", (file) => runBuild(`${file} changed`, monitor.files[file]?.mtime));
-    });
+    watcher.on("add", (file) => runBuild(`${file} created`));
+    watcher.on("removed", (file) => runBuild(`${file} removed`));
+    watcher.on("change", (file, stats) => runBuild(`${file} changed`, stats?.mtime));
   }
 
   function runBuild(changeDescription?: string, changeTime?: Date) {

@@ -2,6 +2,30 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.39.0",
+      "tag": "cadl-vs_v0.39.0",
+      "date": "Fri, 13 Jan 2023 00:05:26 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.2` to `~0.3.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.0",
+      "tag": "cadl-vs_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.1` to `~0.3.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.0",
       "tag": "cadl-vs_v0.9.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",

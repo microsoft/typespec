@@ -438,7 +438,7 @@ export function createBinder(program: Program): Binder {
       let current: CadlScriptNode | NamespaceStatementNode = statement;
       while (current.kind !== SyntaxKind.CadlScript) {
         (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
-        current = current.parent as CadlScriptNode | NamespaceStatementNode;
+        current = current.parent!;
       }
     }
   }
@@ -450,8 +450,8 @@ export function createBinder(program: Program): Binder {
   function bindOperationStatement(statement: OperationStatementNode) {
     if (scope.kind !== SyntaxKind.InterfaceStatement) {
       declareSymbol(statement, SymbolFlags.Operation);
-      mutate(statement).locals = createSymbolTable();
     }
+    mutate(statement).locals = createSymbolTable();
   }
 
   function bindDecoratorDeclarationStatement(node: DecoratorDeclarationStatementNode) {

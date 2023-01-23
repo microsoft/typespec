@@ -16,13 +16,17 @@ import {
   Type,
   Union,
   validateDecoratorTarget,
+  validateDecoratorUniqueOnNode,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import { extractParamsFromPath } from "../utils.js";
 import {
   AuthenticationOption,
+  HeaderFieldOptions,
   HttpAuth,
   HttpVerb,
+  PathParameterOptions,
+  QueryParameterOptions,
   RouteOptions,
   RoutePath,
   ServiceAuthentication,
@@ -31,15 +35,47 @@ import {
 export const namespace = "Cadl.Http";
 
 const headerFieldsKey = createStateSymbol("header");
-export function $header(context: DecoratorContext, entity: ModelProperty, headerName?: string) {
-  if (!headerName) {
-    headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+export function $header(
+  context: DecoratorContext,
+  entity: ModelProperty,
+  headerNameOrOptions?: string | Model
+) {
+  const options: HeaderFieldOptions = {
+    type: "header",
+    name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
+  };
+  if (headerNameOrOptions) {
+    if (typeof headerNameOrOptions === "string") {
+      options.name = headerNameOrOptions;
+    } else {
+      const name = headerNameOrOptions.properties.get("name")?.type;
+      if (name?.kind === "String") {
+        options.name = name.value;
+      }
+      const format = headerNameOrOptions.properties.get("format")?.type;
+      if (format?.kind === "String") {
+        if (format.value === "csv") {
+          options.format = format.value;
+        }
+      }
+    }
   }
-  context.program.stateMap(headerFieldsKey).set(entity, headerName);
+  if (
+    entity.type.kind === "Model" &&
+    entity.type.name === "Array" &&
+    options.format === undefined
+  ) {
+    options.format = "csv";
+  }
+  context.program.stateMap(headerFieldsKey).set(entity, options);
+}
+
+export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
+  return program.stateMap(headerFieldsKey).get(entity);
 }
 
 export function getHeaderFieldName(program: Program, entity: Type): string {
-  return program.stateMap(headerFieldsKey).get(entity);
+  return getHeaderFieldOptions(program, entity)?.name;
 }
 
 export function isHeader(program: Program, entity: Type) {
@@ -47,27 +83,68 @@ export function isHeader(program: Program, entity: Type) {
 }
 
 const queryFieldsKey = createStateSymbol("query");
-export function $query(context: DecoratorContext, entity: ModelProperty, queryKey?: string) {
-  if (!queryKey && entity.kind === "ModelProperty") {
-    queryKey = entity.name;
+export function $query(
+  context: DecoratorContext,
+  entity: ModelProperty,
+  queryNameOrOptions?: string | Model
+) {
+  const options: QueryParameterOptions = {
+    type: "query",
+    name: entity.name,
+  };
+  if (queryNameOrOptions) {
+    if (typeof queryNameOrOptions === "string") {
+      options.name = queryNameOrOptions;
+    } else {
+      const name = queryNameOrOptions.properties.get("name")?.type;
+      if (name?.kind === "String") {
+        options.name = name.value;
+      }
+      const format = queryNameOrOptions.properties.get("format")?.type;
+      if (format?.kind === "String") {
+        if (format.value === "multi" || format.value === "csv") {
+          options.format = format.value;
+        }
+      }
+    }
   }
-  context.program.stateMap(queryFieldsKey).set(entity, queryKey);
+  if (
+    entity.type.kind === "Model" &&
+    entity.type.name === "Array" &&
+    options.format === undefined
+  ) {
+    options.format = "multi";
+  }
+  context.program.stateMap(queryFieldsKey).set(entity, options);
+}
+
+export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
+  return program.stateMap(queryFieldsKey).get(entity);
 }
 
 export function getQueryParamName(program: Program, entity: Type): string {
-  return program.stateMap(queryFieldsKey).get(entity);
+  return getQueryParamOptions(program, entity)?.name;
 }
 
 export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).has(entity);
 }
+
 const pathFieldsKey = createStateSymbol("path");
 export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
-  context.program.stateMap(pathFieldsKey).set(entity, paramName ?? entity.name);
+  const options: PathParameterOptions = {
+    type: "path",
+    name: paramName ?? entity.name,
+  };
+  context.program.stateMap(pathFieldsKey).set(entity, options);
+}
+
+export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
+  return program.stateMap(pathFieldsKey).get(entity);
 }
 
 export function getPathParamName(program: Program, entity: Type): string {
-  return program.stateMap(pathFieldsKey).get(entity);
+  return getPathParamOptions(program, entity)?.name;
 }
 
 export function isPathParam(program: Program, entity: Type) {
@@ -506,6 +583,8 @@ function extractSharedValue(context: DecoratorContext, parameters?: Model): bool
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
 export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
+  validateDecoratorUniqueOnNode(context, entity, $route);
+
   setRoute(context, entity, {
     path,
     isReset: false,
@@ -553,13 +632,7 @@ function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   const state = context.program.stateMap(routesKey);
 
   if (state.has(entity)) {
-    if (entity.kind === "Operation" || entity.kind === "Interface") {
-      reportDiagnostic(context.program, {
-        code: "duplicate-route-decorator",
-        messageId: entity.kind === "Operation" ? "operation" : "interface",
-        target: entity,
-      });
-    } else {
+    if (entity.kind === "Namespace") {
       const existingValue: RoutePath = state.get(entity);
       if (existingValue.path !== details.path) {
         reportDiagnostic(context.program, {

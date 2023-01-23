@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/compiler",
-  "version": "0.37.0",
+  "version": "0.39.0",
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -78,7 +78,7 @@
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
     "mustache": "~4.2.0",
-    "prettier": "~2.7.1",
+    "prettier": "~2.8.1",
     "node-fetch": "3.2.8",
     "prompts": "~2.4.1",
     "vscode-languageserver": "~8.0.2",
@@ -97,8 +97,8 @@
     "@types/prettier": "2.6.0",
     "@types/prompts": "~2.4.1",
     "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.4.1",
-    "@cadl-lang/internal-build-utils": "~0.3.1",
+    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@cadl-lang/internal-build-utils": "~0.3.3",
     "eslint": "^8.12.0",
     "grammarkdown": "~3.2.0",
     "mocha": "~10.1.0",
@@ -108,9 +108,9 @@
     "prettier-plugin-organize-imports": "~3.2.0",
     "source-map-support": "~0.5.19",
     "rimraf": "~3.0.2",
-    "tmlanguage-generator": "~0.3.1",
+    "tmlanguage-generator": "~0.3.2",
     "typescript": "~4.9.3",
     "vscode-oniguruma": "~1.6.1",
-    "vscode-textmate": "~7.0.3"
+    "vscode-textmate": "~8.0.0"
   }
 }

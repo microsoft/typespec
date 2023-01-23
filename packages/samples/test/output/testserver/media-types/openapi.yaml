@@ -1,0 +1,78 @@
+openapi: 3.0.0
+info:
+  title: sample
+  version: '0000-00-00'
+tags: []
+paths:
+  /mediatypes/analyze:
+    post:
+      operationId: AnalyzeBody
+      description: Analyze body, that could be different media types.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        description: Input parameter.
+        content:
+          application/pdf:
+            schema:
+              $ref: '#/components/schemas/SourcePath'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourcePath'
+          image/jpeg:
+            schema:
+              $ref: '#/components/schemas/SourcePath'
+          image/png:
+            schema:
+              $ref: '#/components/schemas/SourcePath'
+          image/tiff:
+            schema:
+              $ref: '#/components/schemas/SourcePath'
+  /mediatypes/contentTypeWithEncoding:
+    post:
+      operationId: contentTypeWithEncoding
+      description: >-
+        Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for
+        input does not matter
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        description: Input parameter.
+        content:
+          text/plain:
+            schema:
+              $ref: '#/components/schemas/SourcePath'
+components:
+  schemas:
+    SourcePath:
+      type: object
+      properties:
+        source:
+          type: string
+          description: File source path.
+          minLength: 0
+          maxLength: 2048
+      description: Uri or local path to source data.
+      required:
+        - source
+    Input:
+      type: object
+      properties:
+        input:
+          allOf:
+            - $ref: '#/components/schemas/SourcePath'
+          description: Input parameter.
+      required:
+        - input

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Convert Ref objects to ref string in OpenAPI YAML output",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

@@ -2,6 +2,252 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.39.0",
+      "tag": "@cadl-lang/compiler_v0.39.0",
+      "date": "Fri, 13 Jan 2023 00:05:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Api: Provide more accurate `parent` type for Nodes"
+          },
+          {
+            "comment": "Add IDE completion and signature help for augment decorators"
+          },
+          {
+            "comment": "Fix `(anonymous model).paramName` showing in operation signatures in IDE"
+          },
+          {
+            "comment": "Add double quote to autoClosingPairs"
+          },
+          {
+            "comment": "Only warn when an invalid identifier is used in a doc comment"
+          },
+          {
+            "comment": "Add @minValueExclusive and @maxValueExclusive decorators."
+          },
+          {
+            "comment": "Feature: Templated operation inside of interfaces"
+          },
+          {
+            "comment": "Feature: Add templated operation inside of interface"
+          },
+          {
+            "comment": "Fix: Alias cause types to be resolved before some binding"
+          },
+          {
+            "comment": "Fix `cadl format` works with windows backslash paths"
+          },
+          {
+            "comment": "[Language Server] Fix: Completion of library imports replace import correctly\""
+          },
+          {
+            "comment": "Fix issue with using server lib at the root of filesystem"
+          },
+          {
+            "comment": "Fix: Projecting model property with type referencing sibling"
+          },
+          {
+            "comment": "Fix: Issue with referencing spread members"
+          },
+          {
+            "comment": "Internal: Update resolution of member symbols to have more ahead of time resolution"
+          },
+          {
+            "comment": "Internal: Update TS module resolution to node16"
+          },
+          {
+            "comment": "Type graph navigation navigate decorators"
+          },
+          {
+            "comment": "Internal: Refactor organization of completions logic for language server"
+          },
+          {
+            "comment": "Fix issue with referencing spread properties or enum member depending on the order of declaration"
+          },
+          {
+            "comment": "Fix: `resolveUsages` shouldn't include base model"
+          },
+          {
+            "comment": "Added `changeReturnType` projection method for operations."
+          },
+          {
+            "comment": "Improve visibility decorator documentation"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.2` to `~0.3.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.5",
+      "tag": "@cadl-lang/compiler_v0.38.5",
+      "date": "Fri, 16 Dec 2022 22:02:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "emitter not found validation in emitter options is a warning"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.4",
+      "tag": "@cadl-lang/compiler_v0.38.4",
+      "date": "Thu, 15 Dec 2022 02:21:08 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `--arg` wasn't being picked up"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.3",
+      "tag": "@cadl-lang/compiler_v0.38.3",
+      "date": "Fri, 09 Dec 2022 22:03:04 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `constants` not available in `fs/promise`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.2",
+      "tag": "@cadl-lang/compiler_v0.38.2",
+      "date": "Fri, 09 Dec 2022 20:43:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Revert breaking change to global cli usage"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.1",
+      "tag": "@cadl-lang/compiler_v0.38.1",
+      "date": "Thu, 08 Dec 2022 22:04:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: `scalar` can be used inside of namespace block"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.38.0",
+      "tag": "@cadl-lang/compiler_v0.38.0",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Allow subtypes to override parent properties if the derived property type is a subtype of the parent property."
+          },
+          {
+            "comment": "Add opt-in support for parsing JSDoc-like developer documentation"
+          },
+          {
+            "comment": "Show developer docs in IDE features"
+          },
+          {
+            "comment": "Doc: Add Doc comments to built-in types and decorators"
+          },
+          {
+            "comment": "**Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI"
+          },
+          {
+            "comment": "Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function "
+          },
+          {
+            "comment": "Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node"
+          },
+          {
+            "comment": "Add variable interpolation functionality in the cadl-project.yaml"
+          },
+          {
+            "comment": "Add built-in `emitter-output-dir` options for all emitter."
+          },
+          {
+            "comment": "**Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter."
+          },
+          {
+            "comment": "Fix typing and export format command"
+          },
+          {
+            "comment": "**Api Breaking** Multiple `@service` per specs are now allowed."
+          },
+          {
+            "comment": "Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name"
+          },
+          {
+            "comment": "**Breaking** Add new `scalar` type and updated all intrinsic types to be a scalar type. `model MyString is string` changes to `scalar MyString extends string`"
+          },
+          {
+            "comment": "`LanguageServer` Feature: Add signature help for decorators"
+          },
+          {
+            "comment": "`Testing` Simplification of the testing framework"
+          },
+          {
+            "comment": "`cadl init` Initialize the package.json with `type: module`"
+          },
+          {
+            "comment": "**Deprecation** Renamed `url` to `uri`. Old `uri` is deprecated"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix member completion on aliases"
+          },
+          {
+            "comment": "Improve error recovery in the presence of merge conflict markers"
+          },
+          {
+            "comment": "Fix reportDiagnostics error from emitters"
+          },
+          {
+            "comment": "Fix: Should still instantiate template with invalid args but using constrain value"
+          },
+          {
+            "comment": "Fix: Issue with diagnostic location when target was the operation parmeters"
+          },
+          {
+            "comment": "Fix: miscOptions handling"
+          },
+          {
+            "comment": "**Fix** Handle no service in services deprecated apis"
+          },
+          {
+            "comment": "Fix: Validate `@service` decorator is targetting a namespace"
+          },
+          {
+            "comment": "Fix: Cascading error when template is used with invalid arguments"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.1` to `~0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.1` to `~0.3.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.37.0",
       "tag": "@cadl-lang/compiler_v0.37.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",

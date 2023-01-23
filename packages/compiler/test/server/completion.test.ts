@@ -6,7 +6,11 @@ import {
   CompletionList,
   MarkupKind,
 } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
+import {
+  createTestServerHost,
+  extractCursor,
+  extractSquiggles,
+} from "../../testing/test-server-host.js";
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
@@ -35,159 +39,181 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
-  it("completes imports", async () => {
-    const completions = await complete(` import "┆ `, undefined, {
-      "test/package.json": JSON.stringify({
-        dependencies: {
-          "@cadl-lang/library1": "~0.1.0",
-          "non-cadl-library": "~0.1.0",
+  describe("library imports", () => {
+    async function testCompleteLibrary(code: string) {
+      const { source, pos, end } = extractSquiggles(code);
+      const completions = await complete(source, undefined, {
+        "test/package.json": JSON.stringify({
+          dependencies: {
+            "@cadl-lang/library1": "~0.1.0",
+            "non-cadl-library": "~0.1.0",
+          },
+          peerDependencies: {
+            "@cadl-lang/library2": "~0.1.0",
+          },
+        }),
+        "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
+          cadlMain: "./foo.js",
+        }),
+        "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
+        "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
+          cadlMain: "./foo.js",
+        }),
+      });
+
+      const expectedRange = {
+        start: { character: pos, line: 0 },
+        end: {
+          character: end - 1 /** End is offset by one because there is the cursor charchater */,
+          line: 0,
         },
-        peerDependencies: {
-          "@cadl-lang/library2": "~0.1.0",
-        },
-      }),
-      "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
-        cadlMain: "./foo.js",
-      }),
-      "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
-      "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
-        cadlMain: "./foo.js",
-      }),
-    });
-    check(
-      completions,
-      [
+      };
+      check(
+        completions,
+        [
+          {
+            label: "@cadl-lang/library1",
+            textEdit: {
+              newText: "@cadl-lang/library1",
+              range: expectedRange,
+            },
+            kind: CompletionItemKind.Module,
+          },
+          {
+            label: "@cadl-lang/library2",
+            kind: CompletionItemKind.Module,
+            textEdit: {
+              newText: "@cadl-lang/library2",
+              range: expectedRange,
+            },
+          },
+        ],
         {
-          label: "@cadl-lang/library1",
-          commitCharacters: [],
-          kind: CompletionItemKind.Module,
-        },
-        {
-          label: "@cadl-lang/library2",
-          commitCharacters: [],
-          kind: CompletionItemKind.Module,
-        },
-      ],
-      {
+          allowAdditionalCompletions: false,
+        }
+      );
+    }
+    it(`complete at start of "`, () => testCompleteLibrary(` import "~~~┆~~~"`));
+    it("complete after some text in import", () => testCompleteLibrary(` import "~~~@cadl┆~~~"`));
+    it("complete in middle of import", () => testCompleteLibrary(` import "~~~@cadl┆libr~~~"`));
+
+    it("doesn't include imports when there is no project package.json", async () => {
+      const completions = await complete(` import "┆ `);
+
+      check(completions, [], {
         allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("complete import for relative path", async () => {
-    const completions = await complete(` import "./┆ `, undefined, {
-      "test/bar.cadl": "",
-      "test/foo.cadl": "",
-      "test/foo/test.cadl": "",
+      });
     });
-    check(
-      completions,
-      [
-        {
-          label: "bar.cadl",
-          commitCharacters: [],
-          kind: CompletionItemKind.File,
-        },
-        {
-          label: "foo.cadl",
-          commitCharacters: [],
-          kind: CompletionItemKind.File,
-        },
-        {
-          label: "foo",
-          commitCharacters: [],
-          kind: CompletionItemKind.Folder,
-        },
-      ],
-      {
+
+    it("completes imports without any dependencies", async () => {
+      const completions = await complete(` import "┆ `, undefined, {
+        "test/package.json": JSON.stringify({}),
+      });
+
+      check(completions, [], {
         allowAdditionalCompletions: false,
-      }
-    );
+      });
+    });
   });
 
-  it("complete import for relative path excludes node_modules", async () => {
-    const completions = await complete(` import "./┆ `, undefined, {
-      "test/node_modules/test.cadl": "",
-      "test/main/test.cadl": "",
-      "test/node_modules/foo/test.cadl": "",
-    });
-    check(
-      completions,
-      [
+  describe("relative path import", () => {
+    it("complete import for relative path", async () => {
+      const completions = await complete(` import "./┆ `, undefined, {
+        "test/bar.cadl": "",
+        "test/foo.cadl": "",
+        "test/foo/test.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            label: "bar.cadl",
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          },
+          {
+            label: "foo.cadl",
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          },
+          {
+            label: "foo",
+            commitCharacters: [],
+            kind: CompletionItemKind.Folder,
+          },
+        ],
         {
-          commitCharacters: [],
-          kind: 19,
-          label: "main",
-        },
-      ],
-      {
-        allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("complete import for relative path after node_modules folder", async () => {
-    const completions = await complete(` import "./node_modules/┆ `, undefined, {
-      "test/node_modules/foo.cadl": "",
+          allowAdditionalCompletions: false,
+        }
+      );
     });
-    check(
-      completions,
-      [
+
+    it("complete import for relative path excludes node_modules", async () => {
+      const completions = await complete(` import "./┆ `, undefined, {
+        "test/node_modules/test.cadl": "",
+        "test/main/test.cadl": "",
+        "test/node_modules/foo/test.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            commitCharacters: [],
+            kind: 19,
+            label: "main",
+          },
+        ],
         {
-          commitCharacters: [],
-          kind: 17,
-          label: "foo.cadl",
-        },
-      ],
-      {
-        allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("import './folder/|' --> don't complete 'folder' complete what's in folder", async () => {
-    const completions = await complete(` import "./bar/┆ `, undefined, {
-      "test/bar/foo.cadl": "",
+          allowAdditionalCompletions: false,
+        }
+      );
     });
-    check(
-      completions,
-      [
+
+    it("complete import for relative path after node_modules folder", async () => {
+      const completions = await complete(` import "./node_modules/┆ `, undefined, {
+        "test/node_modules/foo.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            commitCharacters: [],
+            kind: 17,
+            label: "foo.cadl",
+          },
+        ],
         {
-          commitCharacters: [],
-          kind: 17,
-          label: "foo.cadl",
-        },
-      ],
-      {
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("import './folder/|' --> don't complete 'folder' complete what's in folder", async () => {
+      const completions = await complete(` import "./bar/┆ `, undefined, {
+        "test/bar/foo.cadl": "",
+      });
+      check(
+        completions,
+        [
+          {
+            commitCharacters: [],
+            kind: 17,
+            label: "foo.cadl",
+          },
+        ],
+        {
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("complete import for relative path excludes the file evaluated", async () => {
+      const completions = await complete(` import "./┆ `, undefined, {
+        "test/test.cadl": "",
+      });
+      check(completions, [], {
         allowAdditionalCompletions: false,
-      }
-    );
-  });
-
-  it("complete import for relative path excludes the file evaluated", async () => {
-    const completions = await complete(` import "./┆ `, undefined, {
-      "test/test.cadl": "",
-    });
-    check(completions, [], {
-      allowAdditionalCompletions: false,
-    });
-  });
-
-  it("doesn't include imports when there is no project package.json", async () => {
-    const completions = await complete(` import "┆ `);
-
-    check(completions, [], {
-      allowAdditionalCompletions: false,
-    });
-  });
-
-  it("completes imports without any dependencies", async () => {
-    const completions = await complete(` import "┆ `, undefined, {
-      "test/package.json": JSON.stringify({}),
-    });
-
-    check(completions, [], {
-      allowAdditionalCompletions: false,
+      });
     });
   });
 
@@ -206,7 +232,27 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes augment decorators", async () => {
+    const completions = await complete(
+      `
+      @@┆
+      `
+    );
+    check(completions, [
+      {
+        label: "doc",
+        insertText: "doc",
+        kind: CompletionItemKind.Function,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
         },
       },
     ]);
@@ -245,7 +291,7 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value:
-            "```cadl\ndec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
         },
       },
     ]);
@@ -346,7 +392,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nenummember Fruit.Orange\n```",
+            value: "(enum member)\n```cadl\nFruit.Orange\n```",
           },
         },
         {
@@ -355,7 +401,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nenummember Fruit.Banana\n```",
+            value: "(enum member)\n```cadl\nFruit.Banana\n```",
           },
         },
       ],
@@ -388,13 +434,19 @@ describe("compiler: server: completion", () => {
           label: "orange",
           insertText: "orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Orange\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.orange: Orange\n```",
+          },
         },
         {
           label: "banana",
           insertText: "banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Banana\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(union variant)\n```cadl\nFruit.banana: Banana\n```",
+          },
         },
       ],
       {
@@ -420,7 +472,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation N.test\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop N.test(): void\n```" },
         },
       ],
       {
@@ -433,7 +485,7 @@ describe("compiler: server: completion", () => {
     const completions = await complete(
       `
        interface I {
-        test(): void;
+        test(param: string): void;
        }
       
        @myDec(I.┆
@@ -447,7 +499,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation test\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```cadl\nop I.test(param: Cadl.string): void\n```",
+          },
         },
       ],
       {
@@ -473,7 +528,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Field,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodelproperty M.test\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```cadl\nM.test: Cadl.string\n```",
+          },
         },
       ],
       {
@@ -498,7 +556,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Struct,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```cadl\ntemplateparameter Param\n```",
+          value: "(template parameter)\n```cadl\nParam\n```",
         },
       },
     ]);
@@ -639,6 +697,137 @@ describe("compiler: server: completion", () => {
     );
   });
 
+  it("shows doc comment documentation", async () => {
+    const completions = await complete(
+      `
+      namespace N {
+        /**
+         * Just an example.
+         *
+         * @param value The value.
+         *
+         * @example
+         * \`\`\`cadl
+         * @hello
+         * model M {}
+         * \`\`\`
+         */
+        extern dec hello(value: string);
+      }
+      @N.┆
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "hello",
+          insertText: "hello",
+          kind: CompletionItemKind.Function,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value:
+              "```cadl\ndec N.hello(value: Cadl.string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```cadl\n@hello\nmodel M {}\n```",
+          },
+        },
+      ],
+      { fullDocs: true }
+    );
+  });
+
+  it("completes aliased interface operations", async () => {
+    const completions = await complete(
+      `
+      interface Foo {
+        op Bar(): string;
+      }
+
+      alias FooAlias= Foo;
+      alias A = FooAlias.┆`
+    );
+    check(completions, [
+      {
+        label: "Bar",
+        insertText: "Bar",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: "markdown",
+          value: "```cadl\nop Foo.Bar(): Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        bar: string;
+      }
+
+      alias FooAlias = Foo;
+      alias A = FooAlias.┆`
+    );
+    check(completions, [
+      {
+        label: "bar",
+        insertText: "bar",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```cadl\nFoo.bar: Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased instantiated interface operations", async () => {
+    const completions = await complete(
+      `
+      interface Foo<T> {
+        op Bar(): T;
+      }
+
+      alias FooOfString = Foo<string>;
+      alias A = FooOfString.┆`
+    );
+    check(completions, [
+      {
+        label: "Bar",
+        insertText: "Bar",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: "markdown",
+          value: "```cadl\nop Foo<Cadl.string>.Bar(): Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes aliased instantiated model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo<T> {
+        bar: T;
+      }
+
+      alias FooOfString = Foo<string>;
+      alias A = FooOfString.┆`
+    );
+    check(completions, [
+      {
+        label: "bar",
+        insertText: "bar",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```cadl\nFoo<Cadl.string>.bar: Cadl.string\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes deprecated type", async () => {
     const completions = await complete(
       `
@@ -665,8 +854,17 @@ describe("compiler: server: completion", () => {
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],
-    options = { allowAdditionalCompletions: true }
+    options?: {
+      allowAdditionalCompletions?: boolean;
+      fullDocs?: boolean;
+    }
   ) {
+    options = {
+      allowAdditionalCompletions: true,
+      fullDocs: false,
+      ...options,
+    };
+
     ok(!list.isIncomplete, "list should not be incomplete.");
 
     const expectedMap = new Map(expectedItems.map((i) => [i.label, i]));
@@ -681,6 +879,23 @@ describe("compiler: server: completion", () => {
 
     for (const expected of expectedItems) {
       const actual = actualMap.get(expected.label);
+
+      // Unless given the fullDocs option, tests only give their expectation for the first
+      // markdown paragraph.
+      if (
+        !options.fullDocs &&
+        typeof actual?.documentation === "object" &&
+        actual.documentation.value.indexOf("\n\n") > 0
+      ) {
+        actual.documentation = {
+          kind: MarkupKind.Markdown,
+          value: actual.documentation.value.substring(
+            0,
+            actual.documentation.value.indexOf("\n\n")
+          ),
+        };
+      }
+
       ok(actual, `Expected completion item not found: '${expected.label}'.`);
       deepStrictEqual(actual, expected);
       actualMap.delete(actual.label);

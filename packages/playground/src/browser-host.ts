@@ -4,12 +4,10 @@ import {
   getSourceFileKindFromExt,
   resolvePath,
 } from "@cadl-lang/compiler";
-import { importShim } from "./core";
-import { PlaygroundManifest } from "./manifest";
+import { importShim } from "./core.js";
+import { PlaygroundManifest } from "./manifest.js";
 
-export interface BrowserHost extends CompilerHost {
-  unlink(path: string): Promise<void>;
-}
+export interface BrowserHost extends CompilerHost {}
 
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   return resolvePath("/test", path, ...paths);
@@ -76,7 +74,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
       path = resolveVirtualPath(path);
 
       for (const key of virtualFs.keys()) {
-        if (key.startsWith(`${path}/`)) {
+        if (key === path || key.startsWith(`${path}/`)) {
           virtualFs.delete(key);
         }
       }
@@ -138,11 +136,6 @@ export async function createBrowserHost(): Promise<BrowserHost> {
     },
 
     getSourceFileKind: getSourceFileKindFromExt,
-
-    async unlink(path) {
-      path = resolveVirtualPath(path);
-      virtualFs.delete(path);
-    },
 
     logSink: console,
     mkdirp: async (path: string) => path,

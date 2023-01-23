@@ -144,6 +144,23 @@ describe("compiler: parser", () => {
       ["model bar<a, b> = a | b;", [/'{' expected/]],
     ]);
   });
+
+  describe("scalar statements", () => {
+    parseEach([
+      "scalar uuid extends string;",
+      `@foo()
+      scalar uuid extends string;`,
+      `namespace Foo { 
+        scalar uuid extends string;}
+        `,
+    ]);
+
+    parseErrorEach([
+      ["scalar uuid extends string { }", [/Statement expected./]],
+      ["scalar uuid is string;", [/Statement expected./]],
+    ]);
+  });
+
   describe("interface statements", () => {
     parseEach([
       "interface Foo { }",
@@ -674,8 +691,10 @@ describe("compiler: parser", () => {
     describe("projection expressions", () => {
       const exprs = [
         `x || y`,
+        `x > 10 || y < 20`,
         `x || y || z`,
         `x && y`,
+        `x > 10 && y < 20`,
         `x && y && z`,
         `x && y || z && q`,
         `x || y && z || q`,
@@ -799,6 +818,75 @@ describe("compiler: parser", () => {
         ],
       ],
       { docs: true }
+    );
+
+    parseErrorEach(
+      [
+        [
+          "/** @42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /tag/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @ */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /tag/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @template 42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /template parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @template */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /template parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @param 42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: / (?<!template )parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @param */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: / (?<!template )parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+      ],
+      {
+        docs: true,
+        strict: true,
+      }
     );
   });
 
@@ -974,16 +1062,18 @@ function parseErrorEach(
       );
       expectDiagnostics(astNode.parseDiagnostics, expected, options);
 
-      assert(
-        hasParseError(astNode),
-        "node claims to have no parse errors, but above were reported."
-      );
+      if (astNode.parseDiagnostics.some((e) => e.severity !== "warning")) {
+        assert(
+          hasParseError(astNode),
+          "node claims to have no parse errors, but above were reported."
+        );
 
-      assert(
-        !astNode.printable ||
-          !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
-        "parse tree with errors other than missing punctuation should not be printable"
-      );
+        assert(
+          !astNode.printable ||
+            !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
+          "parse tree with errors other than missing punctuation should not be printable"
+        );
+      }
 
       checkInvariants(astNode);
     });

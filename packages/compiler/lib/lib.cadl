@@ -123,13 +123,10 @@ model Array<T> {}
 model Record<T> {}
 
 /**
- * Represent a URI string.
+ * Represent a URI string as described by https://url.spec.whatwg.org/#relative-url-string.
  */
-@format("uri")
-scalar uri extends string;
-
-@deprecated("Map is deprecated, use Record<T> instead")
-model Map<K, V> is Record<V>;
+@format("url")
+scalar url extends string;
 
 @doc("The template for adding optional properties.")
 @withOptionalProperties

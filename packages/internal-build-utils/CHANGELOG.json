@@ -2,6 +2,38 @@
   "name": "@cadl-lang/internal-build-utils",
   "entries": [
     {
+      "version": "0.3.3",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.3",
+      "date": "Fri, 13 Jan 2023 00:05:26 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update preview release script to work with pinned versions"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.2",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.2",
+      "date": "Wed, 07 Dec 2022 17:21:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Mark watch options as optional"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@cadl-lang/internal-build-utils_v0.3.1",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",

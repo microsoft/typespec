@@ -136,6 +136,14 @@ reviewed, checked-in versions. If your PR would change the generated output,
 run this command to regenerate any samples and check those files in with
 your PR. Carefully review whether the changes are intentional.
 
+## Regenerate Reference Docs
+
+```bash
+rush regen-docs
+```
+
+PR validation will ensure that reference docs are up to date.
+
 # Using VS Code
 
 ## Recommended extensions
@@ -301,6 +309,14 @@ Trigger a workflow that will format the code, commit and push.
 ```
 
 # Cadl website
+
+## Run locally
+
+Go to `packages/website` and run the command:
+
+```
+npm start
+```
 
 ## Publish website to github.io
 

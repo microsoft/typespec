@@ -48,7 +48,7 @@ export async function getCompilerOptions(
     warnAsError: args["warn-as-error"] ?? config.warnAsError,
     trace: args.trace ?? config.trace,
     emit: args.emit ?? config.emit,
-    options: resolveEmitteroptions(config, cliOptions),
+    options: resolveEmitterOptions(config, cliOptions),
   };
   const cliOutputDir = pathArg ? resolvePath(cwd, pathArg) : undefined;
 
@@ -109,6 +109,7 @@ function resolveCliOptions(
         options.miscOptions = {};
       }
       options.miscOptions[key] = optionParts[1];
+      continue;
     } else if (optionKeyParts.length > 2) {
       throw new Error(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
@@ -124,7 +125,7 @@ function resolveCliOptions(
   return options;
 }
 
-function resolveEmitteroptions(
+function resolveEmitterOptions(
   config: CadlConfig,
   cliOptions: Record<string | "miscOptions", Record<string, unknown>>
 ): Record<string, EmitterOptions> {
@@ -133,6 +134,9 @@ function resolveEmitteroptions(
   );
 
   for (const [emitterName, cliOptionOverride] of Object.entries(cliOptions)) {
+    if (emitterName === "miscOptions") {
+      continue;
+    }
     configuredEmitters[emitterName] = {
       ...(configuredEmitters[emitterName] ?? {}),
       ...cliOptionOverride,

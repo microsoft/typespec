@@ -185,11 +185,30 @@ export interface RouteResolutionOptions extends RouteOptions {
   listOptions?: ListOperationOptions;
 }
 
-export interface HttpOperationParameter {
-  type: "query" | "path" | "header";
+export interface HeaderFieldOptions {
+  type: "header";
   name: string;
-  param: ModelProperty;
+  format?: "csv";
 }
+
+export interface QueryParameterOptions {
+  type: "query";
+  name: string;
+  format?: "multi" | "csv";
+}
+
+export interface PathParameterOptions {
+  type: "path";
+  name: string;
+}
+
+export type HttpOperationParameter = (
+  | HeaderFieldOptions
+  | QueryParameterOptions
+  | PathParameterOptions
+) & {
+  param: ModelProperty;
+};
 
 /**
  * Represent the body information for an http request.

@@ -242,11 +242,10 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
-      #suppress "deprecated"
       @get
       @autoRoute
-      @segment("actionTwo")
-      @segmentSeparator(":")
+      @action("actionTwo")
+      @actionSeparator(":")
       op separatorRoute(): {};
       `
     );
@@ -596,10 +595,16 @@ describe("rest: routes", () => {
         @route("/test")
         op get(): string;
     `);
-      expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
-        message: "@route was defined twice on this operation.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same declaration.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same declaration.",
+        },
+      ]);
     });
 
     it("emit diagnostic if specifying route twice on interface", async () => {
@@ -610,10 +615,16 @@ describe("rest: routes", () => {
           get(): string
         }
     `);
-      expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
-        message: "@route was defined twice on this interface.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same declaration.",
+        },
+        {
+          code: "duplicate-decorator",
+          message: "Decorator @route cannot be used twice on the same declaration.",
+        },
+      ]);
     });
 
     it("emit diagnostic if namespace have route but different values", async () => {
@@ -693,42 +704,16 @@ describe("rest: routes", () => {
       namespace Things {
         @action
         @actionSeparator(":")
-        @put op customAction1(
+        @put op customAction(
           @segment("things")
           @path thingId: string
-        ): string;
-
-        #suppress "deprecated"
-        @action
-        @segmentSeparator(":")
-        @put op customAction2(
-          @segment("things")
-          @path thingId: string
-        ): string;
-
-        @get op getAccount(
-          @segment("subscriptions")
-          @path subscriptionId: string;
-
-          // Is it useful for ARM modelling?
-          #suppress "deprecated"
-          @path
-          @segment("accounts")
-          @segmentSeparator("Microsoft.Accounts/")
-          accountName: string;
         ): string;
       }
       `
     );
 
     deepStrictEqual(routes, [
-      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
-      { verb: "put", path: "/things/{thingId}:customAction2", params: ["thingId"] },
-      {
-        verb: "get",
-        path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
-        params: ["subscriptionId", "accountName"],
-      },
+      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
     ]);
   });
 

@@ -7,6 +7,7 @@ import {
   Enum,
   EnumMember,
   getAllTags,
+  getAnyExtensionFromPath,
   getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
@@ -15,9 +16,11 @@ import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueExclusive,
   getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
   getPropertyType,
@@ -88,8 +91,9 @@ import {
   Visibility,
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
+import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
@@ -105,8 +109,8 @@ import {
   OpenAPI3ServerVariable,
 } from "./types.js";
 
+const defaultFileType: FileType = "yaml";
 const defaultOptions = {
-  "output-file": "openapi.json",
   "new-line": "lf",
   "omit-unreachable-types": false,
 } as const;
@@ -117,19 +121,39 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   await emitter.emitOpenAPI();
 }
 
+function findFileTypeFromFilename(filename: string | undefined): FileType {
+  if (filename === undefined) {
+    return defaultFileType;
+  }
+  switch (getAnyExtensionFromPath(filename)) {
+    case ".yaml":
+    case ".yml":
+      return "yaml";
+    case ".json":
+      return "json";
+    default:
+      return defaultFileType;
+  }
+}
 export function resolveOptions(
   context: EmitContext<OpenAPI3EmitterOptions>
 ): ResolvedOpenAPI3EmitterOptions {
   const resolvedOptions = { ...defaultOptions, ...context.options };
 
+  const fileType =
+    resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
+
+  const outputFile = resolvedOptions["output-file"] ?? `openapi.${fileType}`;
   return {
+    fileType,
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
-    outputFile: resolvePath(context.emitterOutputDir, resolvedOptions["output-file"]),
+    outputFile: resolvePath(context.emitterOutputDir, outputFile),
   };
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
+  fileType: FileType;
   outputFile: string;
   newLine: NewLine;
   omitUnreachableTypes: boolean;
@@ -339,13 +363,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const originalProgram = program;
       const versions = buildVersionProjections(program, service.type);
       for (const record of versions) {
-        if (record.version) {
-          record.projections.push({
-            projectionName: "atVersion",
-            arguments: [record.version],
-          });
-        }
-
         const projectedProgram = (program = projectProgram(originalProgram, [
           ...commonProjections,
           ...record.projections,
@@ -373,10 +390,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (version) {
       suffix.push(version);
     }
-    return suffix.length > 0
-      ? options.outputFile.replace(".json", `.${suffix.join(".")}.json`)
-      : options.outputFile;
+    if (suffix.length === 0) {
+      return options.outputFile;
+    }
+
+    const extension = getAnyExtensionFromPath(options.outputFile);
+    const filenameWithoutExtension = options.outputFile.slice(0, -extension.length);
+    return `${filenameWithoutExtension}.${suffix.join(".")}${extension}`;
   }
+
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
@@ -413,7 +435,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
         await emitFile(program, {
           path: resolveOutputFile(service, multipleService, version),
-          content: prettierOutput(JSON.stringify(root, null, 2)),
+          content: serializeDocument(root, options.fileType),
           newLine: options.newLine,
         });
       }
@@ -668,26 +690,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const parameter of parameters) {
-      const { type, param } = parameter;
-      if (params.has(param)) {
-        currentEndpoint.parameters.push(params.get(param));
+    for (const httpOpParam of parameters) {
+      if (params.has(httpOpParam.param)) {
+        currentEndpoint.parameters.push(params.get(httpOpParam.param));
         continue;
       }
-
-      switch (type) {
-        case "path":
-          emitParameter(parameter, visibility);
-          break;
-        case "query":
-          emitParameter(parameter, visibility);
-          break;
-        case "header":
-          if (!isContentTypeHeader(program, param)) {
-            emitParameter(parameter, visibility);
-          }
-          break;
+      if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
+        continue;
       }
+      emitParameter(httpOpParam, visibility);
     }
   }
 
@@ -759,6 +770,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = parameter.name;
     ph.in = parameter.type;
+    if (parameter.type === "query") {
+      if (parameter.format === "csv") {
+        ph.style = "simple";
+      } else if (parameter.format === "multi") {
+        ph.style = "form";
+        ph.explode = true;
+      }
+    } else if (parameter.type === "header") {
+      if (parameter.format === "csv") {
+        ph.style = "simple";
+      }
+    }
     Object.assign(ph, getOpenAPIParameterBase(parameter.param, visibility));
   }
 
@@ -858,6 +881,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForEnum(type);
       case "Tuple":
         return { type: "array", items: {} };
+      case "TemplateParameter":
+        // Note: This should never happen if it does there is a bug in the compiler.
+        reportDiagnostic(program, {
+          code: "invalid-schema",
+          format: { type: `${type.node.id.sv} (template parameter)` },
+          target: type,
+        });
+        return undefined;
     }
 
     reportDiagnostic(program, {
@@ -1091,7 +1122,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         continue;
       }
 
-      if (!prop.optional) {
+      if (!metadataInfo.isOptional(prop, visibility)) {
         if (!modelSchema.required) {
           modelSchema.required = [];
         }
@@ -1216,9 +1247,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.minimum = minValue;
     }
 
+    const minValueExclusive = getMinValueExclusive(program, cadlType);
+    if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
+      newTarget.exclusiveMinimum = minValueExclusive;
+    }
+
     const maxValue = getMaxValue(program, cadlType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
+    }
+
+    const maxValueExclusive = getMaxValueExclusive(program, cadlType);
+    if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
+      newTarget.exclusiveMaximum = maxValueExclusive;
     }
 
     const minItems = getMinItems(program, cadlType);
@@ -1345,7 +1386,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "uri":
+      case "url":
         return { type: "string", format: "uri" };
       case "integer":
       case "numeric":
@@ -1414,6 +1455,20 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         const _assertNever: never = auth;
         compilerAssert(false, "Unreachable");
     }
+  }
+}
+
+function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  switch (fileType) {
+    case "json":
+      return prettierOutput(JSON.stringify(root, null, 2));
+    case "yaml":
+      return yaml.dump(root, {
+        noRefs: true,
+        replacer: function (key, value) {
+          return value instanceof Ref ? value.toJSON() : value;
+        },
+      });
   }
 }
 

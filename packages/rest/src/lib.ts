@@ -82,8 +82,6 @@ const libDefinition = {
     "duplicate-route-decorator": {
       severity: "error",
       messages: {
-        operation: "@route was defined twice on this operation.",
-        interface: "@route was defined twice on this interface.",
         namespace: "@route was defined twice on this namespace and has different values.",
       },
     },
@@ -129,7 +127,7 @@ const libDefinition = {
       severity: "warning",
       messages: {
         default:
-          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
+          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @service.",
       },
     },
     "invalid-type-for-auth": {

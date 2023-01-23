@@ -540,11 +540,47 @@ export type OpenAPI3ParameterBase = Extensions & {
   schema: OpenAPI3Schema;
 };
 
-export type OpenAPI3ParameterType = "header" | "query" | "path";
-export type OpenAPI3Parameter = OpenAPI3ParameterBase & {
-  in: OpenAPI3ParameterType;
+export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
+  /** Name of the parameter. */
   name: string;
+  in: "query";
+  /**
+   * Describes how the parameter value will be serialized depending on the type of the parameter value.
+   *
+   * Default value for query parameters is form.
+   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   */
+  style?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
 };
+export type OpenAPI3PathParameter = OpenAPI3ParameterBase & {
+  /** Name of the parameter. */
+  name: string;
+  in: "path";
+  /**
+   * Describes how the parameter value will be serialized depending on the type of the parameter value.
+   *
+   * Default value for path parameters is simple.
+   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   */
+  style?: "simple" | "label" | "matrix";
+};
+export type OpenAPI3HeaderParameter = OpenAPI3ParameterBase & {
+  /** Name of the parameter. */
+  name: string;
+  in: "header";
+  /**
+   * Describes how the parameter value will be serialized depending on the type of the parameter value.
+   *
+   * Default value for header parameters is simple.
+   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   */
+  style?: "simple";
+};
+export type OpenAPI3Parameter =
+  | OpenAPI3HeaderParameter
+  | OpenAPI3QueryParameter
+  | OpenAPI3PathParameter;
+export type OpenAPI3ParameterType = OpenAPI3Parameter["in"];
 
 /**
  * The Header Object follows the structure of the Parameter Object with the following changes:

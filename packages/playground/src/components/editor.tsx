@@ -28,6 +28,12 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, command
     }
   }, []);
 
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.setModel(model);
+    }
+  }, [model]);
+
   return (
     <div
       className="monaco-editor-container"
@@ -37,7 +43,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, command
   );
 };
 
-export function useMonacoModel(uri: string, language: string): editor.IModel {
+export function useMonacoModel(uri: string, language?: string): editor.IModel {
   return useMemo(() => {
     const monacoUri = Uri.parse(uri);
     return editor.getModel(monacoUri) ?? editor.createModel("", language, monacoUri);

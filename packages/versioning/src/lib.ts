@@ -42,7 +42,13 @@ const libDef = {
     "using-versioned-library": {
       severity: "error",
       messages: {
-        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @versionedDependency.`,
+        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @useDependency.`,
+      },
+    },
+    "invalid-renamed-from-value": {
+      severity: "error",
+      messages: {
+        default: "@renamedFrom.oldName cannot be empty string.",
       },
     },
     "incompatible-versioned-reference": {
@@ -54,7 +60,20 @@ const libDef = {
         removedBefore: paramMessage`'${"sourceName"}' was removed on version '${"sourceRemovedOn"}' but referencing type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
         dependentRemovedBefore: paramMessage`'${"sourceName"}' was removed on version '${"sourceRemovedOn"}' but contains type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
         versionedDependencyAddedAfter: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
-        versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
+        versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' removed in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
+      },
+    },
+    "incompatible-versioned-namespace-use-dependency": {
+      severity: "error",
+      messages: {
+        default:
+          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned. For versioned namespaces, put the useDependency decorator on the version enum members.",
+      },
+    },
+    "made-optional-not-optional": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
       },
     },
   },

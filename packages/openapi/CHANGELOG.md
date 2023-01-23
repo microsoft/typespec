@@ -1,6 +1,25 @@
 # Change Log - @cadl-lang/openapi
 
-This log was last generated on Sat, 12 Nov 2022 00:14:04 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+_Version update only_
+
+## 0.38.0
+Wed, 07 Dec 2022 17:21:52 GMT
+
+### Minor changes
+
+- Internal: update to use new `getTypeName` and `getNamespaceString` helper
+- Add support for multiple services
+- Uptake changes to compiler api with new `scalar` type
+
+### Patches
+
+- Add cadl docs on decorators
+- Update dependencies
 
 ## 0.14.0
 Sat, 12 Nov 2022 00:14:04 GMT
@@ -54,6 +73,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 ### Minor changes
 
 - Uptake changes to decorator context
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.9.0
 Fri, 06 May 2022 17:19:57 GMT

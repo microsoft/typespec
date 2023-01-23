@@ -1,34 +1,22 @@
-import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 
 export interface SwaggerUIProps {
   spec: string;
 }
 
 export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
-  const uiRef = useRef(null);
-  const uiInstance = useRef<any>(null);
   const [swaggerUI, setSwaggerUILib] = useState<
-    { createSwaggerUI: typeof import("swagger-ui") } | undefined
+    { swaggerUIComp: typeof import("swagger-ui-react").default } | undefined
   >(undefined);
   useEffect(() => {
-    void import("swagger-ui").then((lib) => {
-      setSwaggerUILib({ createSwaggerUI: lib.default });
+    void import("swagger-ui-react").then((lib) => {
+      setSwaggerUILib({ swaggerUIComp: lib.default as any });
     });
   }, [setSwaggerUILib]);
 
-  useEffect(() => {
-    if (swaggerUI === undefined) {
-      return;
-    }
-    if (uiInstance.current === null) {
-      uiInstance.current = swaggerUI.createSwaggerUI({
-        domNode: uiRef.current,
-        spec: {},
-      });
-    }
-    uiInstance.current.specActions.updateSpec(props.spec);
-  }, [uiRef.current, swaggerUI, props.spec]);
-
+  if (swaggerUI === undefined) {
+    return null;
+  }
   return (
     <div
       css={{
@@ -36,7 +24,8 @@ export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
         height: "100%",
         overflow: "auto",
       }}
-      ref={uiRef}
-    ></div>
+    >
+      <swaggerUI.swaggerUIComp spec={props.spec} />
+    </div>
   );
 };

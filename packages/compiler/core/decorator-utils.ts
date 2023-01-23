@@ -1,9 +1,11 @@
 import { getPropertyType } from "../lib/decorators.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
+import { compilerAssert, Interface, Model, SyntaxKind } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
   DecoratorContext,
+  DecoratorFunction,
   Diagnostic,
   DiagnosticTarget,
   IntrinsicScalarName,
@@ -402,5 +404,82 @@ function cadlTypeToJsonInternal(
               target,
             });
       return [undefined, [diagnostic]];
+  }
+}
+
+export function validateDecoratorUniqueOnNode(
+  context: DecoratorContext,
+  type: Type,
+  decorator: DecoratorFunction
+) {
+  compilerAssert("decorators" in type, "Type should have decorators");
+
+  const sameDecorators = type.decorators.filter(
+    (x) =>
+      x.decorator === decorator &&
+      x.node?.kind === SyntaxKind.DecoratorExpression &&
+      x.node?.parent === type.node
+  );
+
+  if (sameDecorators.length > 1) {
+    reportDiagnostic(context.program, {
+      code: "duplicate-decorator",
+      format: { decoratorName: "@" + decorator.name.slice(1) },
+      target: context.decoratorTarget,
+    });
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Validate that a given decorator is not on a type or any of its base types.
+ * Useful to check for decorator usage that conflicts with another decorator.
+ * @param context Decorator context
+ * @param type The type to check
+ * @param badDecorator The decorator we don't want present
+ * @param givenDecorator The decorator that is the reason why we don't want the bad decorator present
+ * @param includeHeritage Whether to check base types for the bad decorator too
+ * @returns Whether the decorator application is valid
+ */
+export function validateDecoratorNotOnType(
+  context: DecoratorContext,
+  type: Type,
+  badDecorator: DecoratorFunction,
+  givenDecorator: DecoratorFunction
+) {
+  compilerAssert("decorators" in type, "Type should have decorators");
+  const decAppsToCheck = [];
+
+  let base: Type | undefined = type;
+  while (base) {
+    decAppsToCheck.push(...(base as Interface | Model).decorators);
+    base = getHeritage(base);
+  }
+
+  for (const decapp of decAppsToCheck) {
+    if (decapp.decorator === badDecorator) {
+      reportDiagnostic(context.program, {
+        code: "decorator-conflict",
+        format: {
+          decoratorName: "@" + badDecorator.name.slice(1),
+          otherDecoratorName: "@" + givenDecorator.name.slice(1),
+        },
+        target: context.decoratorTarget,
+      });
+      return false;
+    }
+  }
+
+  return true;
+
+  function getHeritage(type: Type): Type | undefined {
+    if (type.kind === "Model") {
+      return type.baseModel;
+    } else if (type.kind === "Scalar") {
+      return type.baseScalar;
+    } else {
+      return undefined;
+    }
   }
 }

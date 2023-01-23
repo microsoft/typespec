@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

@@ -6,7 +6,7 @@ import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
 import { NodePackage } from "../core/module-resolver.js";
-import { getBaseFileName, joinPaths } from "../core/path-utils.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
@@ -19,9 +19,14 @@ interface ScaffoldingConfig extends InitTemplate {
   templateUri: string;
 
   /**
-   * Directory where the project should be initialized.
+   * Directory full path where the project should be initialized.
    */
   directory: string;
+
+  /**
+   * folder name where the project should be initialized.
+   */
+  folderName: string;
 
   /**
    * Name of the project.
@@ -34,10 +39,49 @@ interface ScaffoldingConfig extends InitTemplate {
   libraries: string[];
 
   /**
+   * A flag to indicate not adding @cadl-lang/compiler package to package.json.
+   * Other libraries may already brought in the dependency such as Azure template.
+   */
+  skipCompilerPackage: boolean;
+
+  /**
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
+
+  /**
+   * NormalizeVersion function replaces `-` with `_`.
+   */
+  normalizeVersion: () => (text: string, render: any) => string;
+
+  /**
+   * toLowerCase function for template replacement
+   */
+  toLowerCase: () => (text: string, render: any) => string;
+
+  /**
+   * Normalize package name for langauges other than C#. It replaces `.` with `-` and toLowerCase
+   */
+  normalizePackageName: () => (text: string, render: any) => string;
 }
+
+const normalizeVersion = function () {
+  return function (text: string, render: any): string {
+    return render(text).replaceAll("-", "_");
+  };
+};
+
+const toLowerCase = function () {
+  return function (text: string, render: any): string {
+    return render(text).toLowerCase();
+  };
+};
+
+const normalizePackageName = function () {
+  return function (text: string, render: any): string {
+    return render(text).replaceAll(".", "-").toLowerCase();
+  };
+};
 
 export async function initCadlProject(
   host: CompilerHost,
@@ -67,7 +111,12 @@ export async function initCadlProject(
     libraries,
     name,
     directory,
+    skipCompilerPackage: template.skipCompilerPackage ?? false,
+    folderName,
     parameters,
+    normalizeVersion,
+    toLowerCase,
+    normalizePackageName,
   };
   await scaffoldNewProject(host, scaffoldingConfig);
 }
@@ -118,9 +167,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     description: "Create a project representing a generic Rest API",
     libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
     config: {
-      emitters: {
-        "@cadl-lang/openapi3": true,
-      },
+      emit: ["@cadl-lang/openapi3"],
     },
   },
 };
@@ -209,9 +256,11 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
-  const dependencies: Record<string, string> = {
-    "@cadl-lang/compiler": "latest",
-  };
+  const dependencies: Record<string, string> = {};
+
+  if (!config.skipCompilerPackage) {
+    dependencies["@cadl-lang/compiler"] = "latest";
+  }
 
   for (const library of config.libraries) {
     dependencies[library] = "latest";
@@ -262,11 +311,12 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
-  const template = await readUrlOrPath(
-    host,
-    resolveRelativeUrlOrPath(config.templateUri, file.path)
-  );
+  const baseDir = getDirectoryPath(config.templateUri) + "/";
+  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
   const content = Mustache.render(template.text, config);
+  const destinationFilePath = joinPaths(config.directory, file.destination);
+  // create folders in case they don't exist
+  await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 

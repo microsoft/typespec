@@ -34,6 +34,15 @@ describe("compiler: cli", () => {
       });
     });
 
+    it("--option without an emitter are moved to miscOptions", async () => {
+      const options = await resolveCompilerOptions({
+        options: [`test-debug=true`],
+      });
+
+      deepStrictEqual(options?.miscOptions, { "test-debug": "true" });
+      deepStrictEqual(options?.options, {});
+    });
+
     context("config file with emitters", () => {
       beforeEach(() => {
         host.addCadlFile(
