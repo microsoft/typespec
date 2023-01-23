@@ -1386,7 +1386,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "uri":
       case "url":
         return { type: "string", format: "uri" };
       case "integer":
