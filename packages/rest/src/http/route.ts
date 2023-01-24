@@ -126,12 +126,12 @@ export function resolvePathAndParameters(
   },
   readonly Diagnostic[]
 ] {
-  let segments: string[] = [];
+  let segments = getOperationRouteSegments(program, operation, overloadBase);
   let parameters: HttpOperationParameters;
   const diagnostics = createDiagnosticCollector();
   if (isAutoRoute(program, operation)) {
-    let parentOptions;
-    [segments, parentOptions] = getParentSegments(program, operation);
+    const [parentSegments, parentOptions] = getParentSegments(program, operation);
+    segments = parentSegments.length ? parentSegments : segments;
     parameters = diagnostics.pipe(getOperationParameters(program, operation));
 
     // The operation exists within an @autoRoute scope, generate the path.  This
@@ -141,7 +141,6 @@ export function resolvePathAndParameters(
       ...options,
     });
   } else {
-    segments = getOperationRouteSegments(program, operation, overloadBase);
     const declaredPathParams = segments.flatMap(extractParamsFromPath);
     parameters = diagnostics.pipe(
       getOperationParameters(program, operation, overloadBase, declaredPathParams)
