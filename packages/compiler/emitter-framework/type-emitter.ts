@@ -19,7 +19,7 @@ import {
   Union,
   UnionVariant,
 } from "../core/index.js";
-import { code, StringBuilder } from "./builders/string.js";
+import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import {
   AssetEmitter,
