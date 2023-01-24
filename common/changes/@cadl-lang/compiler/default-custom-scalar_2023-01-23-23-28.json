@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix giving a default value to custom numeric scalar",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
