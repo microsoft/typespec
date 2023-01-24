@@ -64,7 +64,7 @@ describe("compiler: scalars", () => {
       strictEqual(p.default.value, 42);
     });
 
-    it("allows boolean scalar to have a default value", async () => {
+    it("allows custom boolean scalar to have a default value", async () => {
       const { S, M } = await runner.compile(`
       @test scalar S extends boolean;
       @test model M { p?: S = true; }
