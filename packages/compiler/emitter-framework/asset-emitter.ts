@@ -99,10 +99,6 @@ export function createAssetEmitter<T>(
   let incomingReferenceContext: Record<string, string> | null = null;
   const interner = createInterner();
   const assetEmitter: AssetEmitter<T> = {
-    /**
-     * this
-     * @returns this
-     */
     getContext() {
       return {
         ...context.lexicalContext,
@@ -110,18 +106,10 @@ export function createAssetEmitter<T>(
       };
     },
 
-    /**
-     * Return the emitter options
-     */
     getOptions() {
       return options;
     },
 
-    /**
-     * Get the program associated with this AssetEmitter.
-     *
-     * @returns The program associated with this AssetEmitter.
-     */
     getProgram() {
       return program;
     },
