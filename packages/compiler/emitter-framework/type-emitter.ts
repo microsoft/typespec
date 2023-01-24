@@ -144,7 +144,7 @@ export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
  * And we set reference context for the Person model, Pet will be emitted twice,
  * once without context and once with the reference context.
  */
-export abstract class TypeEmitter<T> {
+export class TypeEmitter<T> {
   /**
    * @private
    *
