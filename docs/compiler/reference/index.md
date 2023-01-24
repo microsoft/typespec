@@ -10,13 +10,13 @@ toc_max_heading_level: 3
 ### Decorators
 
 - [`@format`](./decorators.md#@format)
-- [`@deprecated`](./decorators.md#@deprecated)
 - [`@doc`](./decorators.md#@doc)
 - [`@withUpdateableProperties`](./decorators.md#@withUpdateableProperties)
 - [`@withoutOmittedProperties`](./decorators.md#@withoutOmittedProperties)
 - [`@withoutDefaultValues`](./decorators.md#@withoutDefaultValues)
 - [`@withDefaultKeyVisibility`](./decorators.md#@withDefaultKeyVisibility)
 - [`@summary`](./decorators.md#@summary)
+- [`@deprecated`](./decorators.md#@deprecated)
 - [`@service`](./decorators.md#@service)
 - [`@error`](./decorators.md#@error)
 - [`@pattern`](./decorators.md#@pattern)
@@ -46,7 +46,6 @@ toc_max_heading_level: 3
 - [`object`](./data-types.md#object)
 - [`Array`](./data-types.md#Array)
 - [`Record`](./data-types.md#Record)
-- [`Map`](./data-types.md#Map)
 - [`OptionalProperties`](./data-types.md#OptionalProperties)
 - [`UpdateableProperties`](./data-types.md#UpdateableProperties)
 - [`OmitProperties`](./data-types.md#OmitProperties)

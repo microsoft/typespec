@@ -44,19 +44,6 @@ model Record<T>
 | ---- | ----------- |
 | T    |             |
 
-### `Map` {#Map}
-
-```cadl
-model Map<K, V>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| K    |             |
-| V    |             |
-
 ### `OptionalProperties` {#OptionalProperties}
 
 ```cadl

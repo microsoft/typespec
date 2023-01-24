@@ -27,24 +27,6 @@ dec format(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, for
 | ------ | -------------------- | ------------ |
 | format | `scalar Cadl.string` | format name. |
 
-### `@deprecated` {#@deprecated}
-
-Mark this type as deprecated
-
-```cadl
-dec deprecated(target: unknown, message: Cadl.string)
-```
-
-#### Target
-
-`(intrinsic) unknown`
-
-#### Parameters
-
-| Name    | Type                 | Description          |
-| ------- | -------------------- | -------------------- |
-| message | `scalar Cadl.string` | Deprecation message. |
-
 ### `@doc` {#@doc}
 
 Attach a documentation string.
@@ -143,6 +125,24 @@ dec summary(target: unknown, summary: Cadl.string)
 | Name    | Type                 | Description     |
 | ------- | -------------------- | --------------- |
 | summary | `scalar Cadl.string` | Summary string. |
+
+### `@deprecated` {#@deprecated}
+
+Mark this type as deprecated
+
+```cadl
+dec deprecated(target: unknown, message: Cadl.string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+
+| Name    | Type                 | Description          |
+| ------- | -------------------- | -------------------- |
+| message | `scalar Cadl.string` | Deprecation message. |
 
 ### `@service` {#@service}
 
