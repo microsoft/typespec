@@ -15,15 +15,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Basic'
+                $ref: '#/components/schemas/Basic'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putValid
       description: 'Please put {id: 2, name: ''abc'', color: ''Magenta''}'
@@ -36,14 +34,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/Basic'
+              $ref: '#/components/schemas/Basic'
   /complex/primitive/integer:
     get:
       operationId: Complex_getInt
@@ -55,15 +51,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/IntWrapper'
+                $ref: '#/components/schemas/IntWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putInt
       description: Put complex types with integer properties
@@ -76,14 +70,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/IntWrapper'
+              $ref: '#/components/schemas/IntWrapper'
   /complex/primitive/long:
     get:
       operationId: Complex_getLong
@@ -95,15 +87,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/LongWrapper'
+                $ref: '#/components/schemas/LongWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putLong
       description: Put complex types with long properties
@@ -116,14 +106,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/LongWrapper'
+              $ref: '#/components/schemas/LongWrapper'
   /complex/primitive/float:
     get:
       operationId: Complex_getFloat
@@ -135,15 +123,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/FloatWrapper'
+                $ref: '#/components/schemas/FloatWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putFloat
       description: Put complex types with float properties
@@ -156,14 +142,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/FloatWrapper'
+              $ref: '#/components/schemas/FloatWrapper'
   /complex/primitive/double:
     get:
       operationId: Complex_getDouble
@@ -175,15 +159,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/DoubleWrapper'
+                $ref: '#/components/schemas/DoubleWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putDouble
       description: Put complex types with double properties
@@ -196,14 +178,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/DoubleWrapper'
+              $ref: '#/components/schemas/DoubleWrapper'
   /complex/primitive/bool:
     get:
       operationId: Complex_getBool
@@ -215,15 +195,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/BooleanWrapper'
+                $ref: '#/components/schemas/BooleanWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putBool
       description: Put complex types with bool properties
@@ -236,14 +214,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/BooleanWrapper'
+              $ref: '#/components/schemas/BooleanWrapper'
   /complex/primitive/string:
     get:
       operationId: Complex_getString
@@ -255,15 +231,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/StringWrapper'
+                $ref: '#/components/schemas/StringWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putString
       description: Put complex types with string properties
@@ -276,14 +250,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/StringWrapper'
+              $ref: '#/components/schemas/StringWrapper'
   /complex/primitive/date:
     get:
       operationId: Complex_getPlainDate
@@ -295,15 +267,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PlainDateWrapper'
+                $ref: '#/components/schemas/PlainDateWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putPlainDate
       description: Put complex types with date properties
@@ -316,14 +286,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/PlainDateWrapper'
+              $ref: '#/components/schemas/PlainDateWrapper'
   /complex/primitive/datetime:
     get:
       operationId: Complex_getZonedDateTime
@@ -335,15 +303,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/DateTimeWrapper'
+                $ref: '#/components/schemas/DateTimeWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putZonedDateTime
       description: Put complex types with DateTime properties
@@ -356,14 +322,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/DateTimeWrapper'
+              $ref: '#/components/schemas/DateTimeWrapper'
   /complex/primitive/duration:
     get:
       operationId: Complex_getZonedDuration
@@ -375,15 +339,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/DurationWrapper'
+                $ref: '#/components/schemas/DurationWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putZonedDuration
       description: Put complex types with Duration properties
@@ -396,14 +358,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/DurationWrapper'
+              $ref: '#/components/schemas/DurationWrapper'
   /complex/primitive/bytes:
     get:
       operationId: Complex_getBytes
@@ -415,15 +375,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/BytesWrapper'
+                $ref: '#/components/schemas/BytesWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putBytes
       description: Put complex types with bytes properties
@@ -436,14 +394,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/BytesWrapper'
+              $ref: '#/components/schemas/BytesWrapper'
   /complex/array/valid:
     get:
       operationId: Complex_getArray
@@ -455,15 +411,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ArrayWrapper'
+                $ref: '#/components/schemas/ArrayWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putArray
       description: Put complex types with array properties
@@ -476,14 +430,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/ArrayWrapper'
+              $ref: '#/components/schemas/ArrayWrapper'
   /complex/dictionary/typed/valid:
     get:
       operationId: Dictionary_getDictionary
@@ -495,15 +447,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/DictionaryWrapper'
+                $ref: '#/components/schemas/DictionaryWrapper'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Dictionary_putArray
       description: Put complex types with dictionary property
@@ -516,14 +466,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/DictionaryWrapper'
+              $ref: '#/components/schemas/DictionaryWrapper'
 components:
   schemas:
     Basic:
@@ -541,8 +489,7 @@ components:
             Name property with a very long description that does not fit on a
             single line and a line break.
         color:
-          $ref:
-            value: '#/components/schemas/CMYKColors'
+          $ref: '#/components/schemas/CMYKColors'
       required:
         - id
         - name

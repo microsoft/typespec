@@ -28,8 +28,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePersonRead'
   /hello:
     post:
       operationId: Hello_create
@@ -40,14 +39,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePersonRead'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/WritablePersonCreate'
+              $ref: '#/components/schemas/WritablePersonCreate'
     put:
       operationId: Hello_update
       parameters: []
@@ -57,14 +54,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePersonRead'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/WriteableOptionalPerson'
+              $ref: '#/components/schemas/WriteableOptionalPerson'
     get:
       operationId: Hello_list
       parameters: []
@@ -79,8 +74,7 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref:
-                        value: '#/components/schemas/PersonReadItem'
+                      $ref: '#/components/schemas/PersonReadItem'
                     x-cadl-name: Person[]
                 required:
                   - items
@@ -94,14 +88,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePersonRead'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/PersonUpdate'
+              $ref: '#/components/schemas/PersonUpdate'
 components:
   schemas:
     ReadablePersonRead:
@@ -119,8 +111,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeReadItem'
+            $ref: '#/components/schemas/PersonRelativeReadItem'
           x-cadl-name: PersonRelative[]
       required:
         - id
@@ -143,8 +134,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelative'
           x-cadl-name: PersonRelative[]
       required:
         - id
@@ -164,8 +154,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeCreateItem'
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
           x-cadl-name: PersonRelative[]
       required:
         - secret
@@ -184,8 +173,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelative'
           x-cadl-name: PersonRelative[]
       required:
         - secret
@@ -204,8 +192,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelative'
           x-cadl-name: PersonRelative[]
     PersonReadItem:
       type: object
@@ -222,8 +209,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeReadItem'
+            $ref: '#/components/schemas/PersonRelativeReadItem'
           x-cadl-name: PersonRelative[]
       required:
         - id
@@ -241,8 +227,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeUpdateItem'
+            $ref: '#/components/schemas/PersonRelativeUpdateItem'
           x-cadl-name: PersonRelative[]
     Person:
       type: object
@@ -261,8 +246,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelative'
           x-cadl-name: PersonRelative[]
       required:
         - id
@@ -283,8 +267,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeCreateItem'
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
           x-cadl-name: PersonRelative[]
       required:
         - secret
@@ -301,8 +284,7 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeUpdateItem'
+            $ref: '#/components/schemas/PersonRelativeUpdateItem'
           x-cadl-name: PersonRelative[]
       required:
         - name
@@ -312,8 +294,7 @@ components:
       type: object
       properties:
         person:
-          $ref:
-            value: '#/components/schemas/Person'
+          $ref: '#/components/schemas/Person'
         relationship:
           type: string
       required:
@@ -323,8 +304,7 @@ components:
       type: object
       properties:
         person:
-          $ref:
-            value: '#/components/schemas/PersonReadItem'
+          $ref: '#/components/schemas/PersonReadItem'
         relationship:
           type: string
       required:
@@ -334,8 +314,7 @@ components:
       type: object
       properties:
         person:
-          $ref:
-            value: '#/components/schemas/PersonCreateItem'
+          $ref: '#/components/schemas/PersonCreateItem'
         relationship:
           type: string
       required:
@@ -345,8 +324,7 @@ components:
       type: object
       properties:
         person:
-          $ref:
-            value: '#/components/schemas/PersonUpdateItem'
+          $ref: '#/components/schemas/PersonUpdateItem'
         relationship:
           type: string
       required:
@@ -369,6 +347,5 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelative'
           x-cadl-name: PersonRelative[]

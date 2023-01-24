@@ -242,11 +242,10 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
-      #suppress "deprecated"
       @get
       @autoRoute
-      @segment("actionTwo")
-      @segmentSeparator(":")
+      @action("actionTwo")
+      @actionSeparator(":")
       op separatorRoute(): {};
       `
     );
@@ -705,42 +704,16 @@ describe("rest: routes", () => {
       namespace Things {
         @action
         @actionSeparator(":")
-        @put op customAction1(
+        @put op customAction(
           @segment("things")
           @path thingId: string
-        ): string;
-
-        #suppress "deprecated"
-        @action
-        @segmentSeparator(":")
-        @put op customAction2(
-          @segment("things")
-          @path thingId: string
-        ): string;
-
-        @get op getAccount(
-          @segment("subscriptions")
-          @path subscriptionId: string;
-
-          // Is it useful for ARM modelling?
-          #suppress "deprecated"
-          @path
-          @segment("accounts")
-          @segmentSeparator("Microsoft.Accounts/")
-          accountName: string;
         ): string;
       }
       `
     );
 
     deepStrictEqual(routes, [
-      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
-      { verb: "put", path: "/things/{thingId}:customAction2", params: ["thingId"] },
-      {
-        verb: "get",
-        path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
-        params: ["subscriptionId", "accountName"],
-      },
+      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
     ]);
   });
 

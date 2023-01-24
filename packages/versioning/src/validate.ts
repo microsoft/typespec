@@ -14,25 +14,24 @@ import {
   findVersionedNamespace,
   getAvailabilityMap,
   getMadeOptionalOn,
+  getUseDependencies,
   getVersionDependencies,
   getVersions,
   Version,
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
-  const namespaceDependencies = new Map();
+  const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
+
   function addDependency(source: Namespace | undefined, target: Type | undefined) {
-    if (target === undefined || !("namespace" in target) || target.namespace === undefined) {
+    if (!target || !("namespace" in target) || !target.namespace) {
       return;
     }
-    let set = namespaceDependencies.get(source);
-    if (set === undefined) {
-      set = new Set();
-      namespaceDependencies.set(source, set);
-    }
+    const set = namespaceDependencies.get(source) ?? new Set<Namespace>();
     if (target.namespace !== source) {
       set.add(target.namespace);
     }
+    namespaceDependencies.set(source, set);
   }
 
   navigateProgram(
@@ -85,7 +84,13 @@ export function $onValidate(program: Program) {
 
         for (const [dependencyNs, value] of dependencies.entries()) {
           if (versionedNamespace) {
-            if (!(value instanceof Map)) {
+            const usingUseDependency = getUseDependencies(program, namespace, false) !== undefined;
+            if (usingUseDependency) {
+              reportDiagnostic(program, {
+                code: "incompatible-versioned-namespace-use-dependency",
+                target: namespace,
+              });
+            } else if (!(value instanceof Map)) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-record-not-mapping",
                 format: { dependency: getNamespaceFullName(dependencyNs) },
@@ -103,6 +108,25 @@ export function $onValidate(program: Program) {
           }
         }
       },
+      enum: (en) => {
+        // construct the list of tuples in the old format if version
+        // information is placed in the Version enum members
+        const useDependencies = getUseDependencies(program, en);
+        if (!useDependencies) {
+          return;
+        }
+        for (const [depNs, deps] of useDependencies) {
+          const set = new Set<Namespace>();
+          if (deps instanceof Map) {
+            for (const val of deps.values()) {
+              set.add(val.namespace);
+            }
+          } else {
+            set.add(deps.namespace);
+          }
+          namespaceDependencies.set(depNs, set);
+        }
+      },
     },
     { includeTemplateDeclaration: true }
   );
@@ -117,7 +141,6 @@ function validateVersionedNamespaceUsage(
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
       const targetVersionedNamespace = findVersionedNamespace(program, target);
-
       if (
         targetVersionedNamespace !== undefined &&
         !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
@@ -239,9 +262,8 @@ function validateTargetVersionCompatible(
   if (!targetAvailability || !targetNamespace) return;
 
   if (sourceNamespace !== targetNamespace) {
-    const versionMap = getVersionDependencies(program, (source as any).namespace)?.get(
-      targetNamespace
-    );
+    const dependencies = getVersionDependencies(program, (source as any).namespace);
+    const versionMap = dependencies?.get(targetNamespace);
     if (versionMap === undefined) return;
 
     targetAvailability = translateAvailability(

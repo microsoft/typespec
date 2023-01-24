@@ -21,24 +21,19 @@ paths:
         content:
           application/pdf:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           image/jpeg:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           image/png:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           image/tiff:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
   /mediatypes/contentTypeWithEncoding:
     post:
       operationId: contentTypeWithEncoding
@@ -58,8 +53,7 @@ paths:
         content:
           text/plain:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
 components:
   schemas:
     SourcePath:
@@ -78,8 +72,7 @@ components:
       properties:
         input:
           allOf:
-            - $ref:
-                value: '#/components/schemas/SourcePath'
+            - $ref: '#/components/schemas/SourcePath'
           description: Input parameter.
       required:
         - input

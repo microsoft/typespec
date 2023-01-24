@@ -14,8 +14,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Pet'
 components:
   schemas:
     Pet:
@@ -32,10 +31,8 @@ components:
       discriminator:
         propertyName: kind
         mapping:
-          cat:
-            value: '#/components/schemas/Cat'
-          dog:
-            value: '#/components/schemas/Dog'
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
       required:
         - name
     Cat:
@@ -52,8 +49,7 @@ components:
         - kind
         - meow
       allOf:
-        - $ref:
-            value: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/Pet'
     Dog:
       type: object
       properties:
@@ -67,5 +63,4 @@ components:
         - kind
         - bark
       allOf:
-        - $ref:
-            value: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/Pet'

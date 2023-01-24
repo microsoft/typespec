@@ -23,8 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     get:
       operationId: Pets_read
       description: Returns a pet. Supports eTags.
@@ -36,8 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Pet'
         '304':
           description: >-
             The client has made a conditional request and the resource has not
@@ -45,15 +43,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
   /pets:
     get:
       operationId: Pets_list
@@ -70,15 +66,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetListResults'
+                $ref: '#/components/schemas/PetListResults'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     post:
       operationId: Pets_create
       parameters: []
@@ -88,21 +82,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Pet'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/Pet'
+              $ref: '#/components/schemas/Pet'
   /pets/{petId}/toys:
     get:
       operationId: ListPetToysResponse_list
@@ -123,15 +114,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ToyListResults'
+                $ref: '#/components/schemas/ToyListResults'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
 components:
   parameters:
     PetId:
@@ -160,8 +149,7 @@ components:
         items:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/Pet'
+            $ref: '#/components/schemas/Pet'
           x-cadl-name: Pet[]
         nextLink:
           type: string
@@ -188,8 +176,7 @@ components:
         items:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/Toy'
+            $ref: '#/components/schemas/Toy'
           x-cadl-name: Toy[]
         nextLink:
           type: string

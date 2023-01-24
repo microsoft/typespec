@@ -63,8 +63,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref:
-                    value: '#/components/schemas/Resp'
+                  $ref: '#/components/schemas/Resp'
                 x-cadl-name: Resp[]
   /bar/{id}:
     post:
