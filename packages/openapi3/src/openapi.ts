@@ -198,7 +198,7 @@ interface PendingSchema {
  * has been produced.
  */
 interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema;
+  schema: OpenAPI3Schema | undefined;
 }
 
 function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
@@ -571,7 +571,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header | undefined {
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
@@ -744,8 +744,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getOpenAPIParameterBase(
     param: ModelProperty,
     visibility: Visibility
-  ): OpenAPI3ParameterBase {
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type, visibility));
+  ): OpenAPI3ParameterBase | undefined {
+    const typeSchema = getSchemaForType(param.type, visibility);
+    if (!typeSchema) {
+      return undefined;
+    }
+    const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -851,7 +855,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        root.components!.schemas![name] = processed.schema;
+        if (processed.schema) {
+          root.components!.schemas![name] = processed.schema;
+        }
       }
     }
   }
@@ -862,7 +868,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForType(type: Type, visibility: Visibility) {
+  function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
     const builtinType = mapCadlTypeToOpenAPI(type, visibility);
     if (builtinType !== undefined) return builtinType;
 
@@ -871,6 +877,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "ModelProperty":
+        return getSchemaForType(type.type, visibility);
       case "Scalar":
         return getSchemaForScalar(type);
       case "Union":
@@ -1146,7 +1154,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // that we set before
       const baseSchema = getSchemaForType(model.baseModel, visibility);
       modelSchema = {
-        ...baseSchema,
+        ...(baseSchema as any),
         description: modelSchema.description,
       };
     } else if (model.baseModel) {

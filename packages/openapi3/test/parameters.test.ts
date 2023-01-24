@@ -42,6 +42,26 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[1].style, "simple");
   });
 
+  it("create a query param that is a model property", async () => {
+    const res = await openApiFor(
+      `
+      op test(@query id: UserContext.id): void;
+      
+      model UserContext {
+        id: string;
+      }
+      `
+    );
+    deepStrictEqual(res.paths["/"].get.parameters[0], {
+      in: "query",
+      name: "id",
+      required: true,
+      schema: {
+        type: "string",
+      },
+    });
+  });
+
   it("create an header param", async () => {
     const res = await openApiFor(
       `
