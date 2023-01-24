@@ -1,4 +1,6 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
+import { TypeEmitter } from "../emitter-framework/index.js";
+import { AssetEmitter } from "../emitter-framework/types.js";
 import { Program } from "./program.js";
 
 // prettier-ignore
@@ -1781,6 +1783,13 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createCadlLibrary
    */
   options: TOptions;
+
+  /**
+   * Get an asset emitter to write emitted output to disk using a TypeEmitter
+   *
+   * @param TypeEmitterClass The TypeEmitter to construct your emitted output
+   */
+  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T>): AssetEmitter<T>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";
