@@ -210,7 +210,6 @@ export abstract class TypeEmitter<T> {
    * Set lexical context for a namespace
    *
    * @param namespace
-   * @returns
    */
   namespaceContext(namespace: Namespace): Context {
     return {};
@@ -220,7 +219,6 @@ export abstract class TypeEmitter<T> {
    * Set reference context for a namespace.
    *
    * @param namespace
-   * @returns
    */
   namespaceReferenceContext(namespace: Namespace): Context {
     return {};
@@ -230,7 +228,6 @@ export abstract class TypeEmitter<T> {
    * Emit a model literal (e.g. as created by `{}` syntax in TypeSpec).
    *
    * @param model
-   * @returns
    */
   modelLiteral(model: Model): EmitterOutput<T> {
     if (model.baseModel) {
@@ -244,7 +241,6 @@ export abstract class TypeEmitter<T> {
   /**
    * Set lexical context for a model literal.
    * @param model
-   * @returns
    */
   modelLiteralContext(model: Model): Context {
     return {};
@@ -253,7 +249,6 @@ export abstract class TypeEmitter<T> {
   /**
    * Set reference context for a model literal.
    * @param model
-   * @returns
    */
   modelLiteralReferenceContext(model: Model) {
     return {};
@@ -264,7 +259,6 @@ export abstract class TypeEmitter<T> {
    * TypeSpec).
    *
    * @param model
-   * @returns
    */
   modelDeclaration(model: Model, name: string): EmitterOutput<T> {
     if (model.baseModel) {
@@ -280,7 +274,6 @@ export abstract class TypeEmitter<T> {
    * @param model
    * @param name the model's declaration name as retrieved from the
    * `declarationName` method.
-   * @returns
    */
   modelDeclarationContext(model: Model, name: string): Context {
     return {};
@@ -289,7 +282,6 @@ export abstract class TypeEmitter<T> {
   /**
    * Set reference context for a model declaration.
    * @param model
-   * @returns
    */
   modelDeclarationReferenceContext(model: Model): Context {
     return {};
@@ -302,7 +294,6 @@ export abstract class TypeEmitter<T> {
    * @param model
    * @param name The name of the instantiation as retrieved from the
    * `declarationName` method.
-   * @returns
    */
   modelInstantiation(model: Model, name: string): EmitterOutput<T> {
     if (model.baseModel) {
@@ -315,7 +306,6 @@ export abstract class TypeEmitter<T> {
   /**
    * Set lexical context for a model instantiation.
    * @param model
-   * @returns
    */
   modelInstantiationContext(model: Model): Context {
     return {};
@@ -324,7 +314,6 @@ export abstract class TypeEmitter<T> {
   /**
    * Set reference context for a model declaration.
    * @param model
-   * @returns
    */
   modelInstantiationReferenceContext(model: Model): Context {
     return {};
@@ -335,7 +324,6 @@ export abstract class TypeEmitter<T> {
    * the model's properties and return a no emit result.
    *
    * @param model
-   * @returns
    */
   modelProperties(model: Model): EmitterOutput<T> {
     for (const prop of model.properties.values()) {
@@ -348,7 +336,6 @@ export abstract class TypeEmitter<T> {
    * Emit a property of a model.
    *
    * @param property
-   * @returns
    */
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<T> {
     this.emitter.emitTypeReference(property.type);
@@ -359,7 +346,6 @@ export abstract class TypeEmitter<T> {
    * Set lexical context for a property of a model.
    *
    * @param property
-   * @returns
    */
   modelPropertyLiteralContext(property: ModelProperty): Context {
     return {};
@@ -369,7 +355,6 @@ export abstract class TypeEmitter<T> {
    * Set reference context for a property of a model.
    *
    * @param property
-   * @returns
    */
   modelPropertyLiteralReferenceContext(property: ModelProperty): Context {
     return {};
@@ -382,7 +367,6 @@ export abstract class TypeEmitter<T> {
    * `SomeModel.prop` were replaced with the type of `prop`.
    *
    * @param property
-   * @returns
    */
   modelPropertyReference(property: ModelProperty): EmitterOutput<T> {
     return this.emitter.emitTypeReference(property.type);
