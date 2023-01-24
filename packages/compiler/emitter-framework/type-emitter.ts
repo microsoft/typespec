@@ -250,7 +250,7 @@ export abstract class TypeEmitter<T> {
    * Set reference context for a model literal.
    * @param model
    */
-  modelLiteralReferenceContext(model: Model) {
+  modelLiteralReferenceContext(model: Model): Context {
     return {};
   }
 
