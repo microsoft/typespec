@@ -9,7 +9,7 @@ It's important that all emitters for REST API handle [automatic visibility](../s
 
 The standard `@cadl-lang/rest` library provides JavaScript API for emitters to interpret API written using its decorators. We'll look at the API that are particularly relevant to these features.
 
-Note that when we say that emitters must handle things consistently, we mean that they must agree on how data is sent and received over the wire. After all, a Cadl _specification_ must be able to serve as a source-of-truth on these details. Nevertheless, emitters are still free to _abstract_ things above this level and to make different choices in doing so. For example, the OpenAPI emitter will sometimes split a single Cadl model into multiple suffixed schemas with names like `UserCreate` and `UserUpdate` while a client SDK emitter may choose to emit a single `User` class that that can be serialized to a request or deserialized from a response with different fields present in different cases. In fact, these features were designed specifcially to allow a Cadl specification to be written in terms of logical entities that emitters could then preserve.
+Note that when we say that emitters must handle things consistently, we mean that they must agree on how data is sent and received over the wire. After all, a Cadl _specification_ must be able to serve as a source-of-truth on these details. Nevertheless, emitters are still free to _abstract_ things above this level and to make different choices in doing so. For example, the OpenAPI emitter will sometimes split a single Cadl model into multiple suffixed schemas with names like `UserCreate` and `UserUpdate` while a client SDK emitter may choose to emit a single `User` class that that can be serialized to a request or deserialized from a response with different fields present in different cases. In fact, these features were designed specifically to allow a Cadl specification to be written in terms of logical entities that emitters could then preserve.
 
 ## Getting started
 
@@ -17,7 +17,7 @@ If you haven't written an emitter before, start with [emitter basics](./emitters
 
 Then look at the [REST metadata emitter sample](https://github.com/microsoft/cadl/tree/main/packages/samples/rest-metadata-emitter). This emitter sample uses all of the API discussed below (and more) to write out a simple textual representation. It deliberately does not split types like the OpenAPI emitter in order to emphasize again that this is not required. Instead, it adds contextual remarks to denote how data depends on context.
 
-However, if your emitter does want to split types as OpenAPI does, then it will still use the same API. Cross-referencing with where the offical [OpenAPI emitter] calls these API can also be instructive.
+However, if your emitter does want to split types as OpenAPI does, then it will still use the same API. Cross-referencing with where the official [OpenAPI emitter] calls these API can also be instructive.
 
 ## Key API
 

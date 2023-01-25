@@ -175,7 +175,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
 
     function getTypeReference(type: Type, visibility: Visibility): string {
       // Use getEffectivePayloadType to recover a named type when a model is
-      // anoymous but consists entirely of properties sourced from a named
+      // anonymous but consists entirely of properties sourced from a named
       // model.
       type = metadataInfo.getEffectivePayloadType(type, visibility);
 
