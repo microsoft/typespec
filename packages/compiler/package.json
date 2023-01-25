@@ -23,7 +23,8 @@
   "exports": {
     ".": "./dist/core/index.js",
     "./testing": "./dist/testing/index.js",
-    "./module-resolver": "./dist/core/module-resolver.js"
+    "./module-resolver": "./dist/core/module-resolver.js",
+    "./emitter-framework": "./dist/emitter-framework/index.js"
   },
   "browser": {
     "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
@@ -111,6 +112,8 @@
     "tmlanguage-generator": "~0.3.2",
     "typescript": "~4.9.3",
     "vscode-oniguruma": "~1.6.1",
-    "vscode-textmate": "~8.0.0"
+    "vscode-textmate": "~8.0.0",
+    "sinon": "~15.0.1",
+    "@types/sinon": "~10.0.13"
   }
 }
