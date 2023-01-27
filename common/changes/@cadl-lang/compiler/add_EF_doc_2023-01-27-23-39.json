@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Exporting EmitterFramework for refdoc generation",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
