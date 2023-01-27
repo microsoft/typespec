@@ -1,3 +1,4 @@
+export * as emitterFramework from "../emitter-framework/index.js";
 export * from "../lib/decorators.js";
 export * as decorators from "../lib/decorators.js";
 export * from "../server/index.js";
