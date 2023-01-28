@@ -1,7 +1,11 @@
+import { join as joinPath } from "path";
 import {
   compilerAssert,
+  EmitContext,
+  emitFile,
   IntrinsicType,
   isTemplateDeclaration,
+  Model,
   Namespace,
   Program,
   Type,
@@ -28,13 +32,18 @@ import {
 
 type EndingWith<Names, Name extends string> = Names extends `${infer _X}${Name}` ? Names : never;
 
-export function createAssetEmitter<T>(
+export function createAssetEmitter<T, TOptions extends object>(
   program: Program,
-  TypeEmitterClass: typeof TypeEmitter<T>,
-  options: Record<string, unknown> = {}
-): AssetEmitter<T> {
+  TypeEmitterClass: typeof TypeEmitter<T, TOptions>,
+  emitContext: EmitContext<TOptions>
+): AssetEmitter<T, TOptions> {
   const sourceFiles: SourceFile<T>[] = [];
 
+  const options = {
+    noEmit: program.compilerOptions.noEmit ?? false,
+    emitterOutputDir: emitContext.emitterOutputDir,
+    ...emitContext.options,
+  };
   const typeId = CustomKeyMap.objectKeyer();
   const contextId = CustomKeyMap.objectKeyer();
 
@@ -98,7 +107,7 @@ export function createAssetEmitter<T>(
   let programContext: ContextState | null = null;
   let incomingReferenceContext: Record<string, string> | null = null;
   const interner = createInterner();
-  const assetEmitter: AssetEmitter<T> = {
+  const assetEmitter: AssetEmitter<T, TOptions> = {
     getContext() {
       return {
         ...context.lexicalContext,
@@ -158,9 +167,10 @@ export function createAssetEmitter<T>(
     },
 
     createSourceFile(path): SourceFile<T> {
+      const basePath = options.emitterOutputDir;
       const sourceFile = {
         globalScope: undefined as any,
-        path,
+        path: joinPath(basePath, path),
         imports: new Map(),
       };
       sourceFile.globalScope = this.createScope(sourceFile, "");
@@ -201,7 +211,7 @@ export function createAssetEmitter<T>(
       }
 
       function invokeReference(
-        assetEmitter: AssetEmitter<T>,
+        assetEmitter: AssetEmitter<T, TOptions>,
         entity: EmitEntity<T>
       ): EmitEntity<T> {
         if (entity.kind !== "declaration") {
@@ -284,7 +294,10 @@ export function createAssetEmitter<T>(
     async writeOutput() {
       for (const file of sourceFiles) {
         const outputFile = typeEmitter.sourceFile(file);
-        await program.host.writeFile(outputFile.path, outputFile.contents);
+        await emitFile(program, {
+          path: outputFile.path,
+          content: outputFile.contents,
+        });
       }
     },
 
@@ -303,6 +316,16 @@ export function createAssetEmitter<T>(
         case "unionInstantiation":
           const declarationName = typeEmitter.declarationName(type as CadlDeclaration);
           args = [declarationName];
+          break;
+
+        case "arrayDeclaration":
+          const arrayDeclName = typeEmitter.declarationName(type as CadlDeclaration);
+          const arrayDeclElement = (type as Model).indexer!.value;
+          args = [arrayDeclName, arrayDeclElement];
+          break;
+        case "arrayLiteral":
+          const arrayLiteralElement = (type as Model).indexer!.value;
+          args = [arrayLiteralElement];
           break;
         case "intrinsic":
           args = [(type as IntrinsicType).name];
@@ -413,14 +436,14 @@ export function createAssetEmitter<T>(
    */
   function invokeTypeEmitter<
     TMethod extends keyof Omit<
-      TypeEmitter<T>,
+      TypeEmitter<T, TOptions>,
       | "sourceFile"
       | "declarationName"
       | "reference"
       | "emitValue"
-      | EndingWith<keyof TypeEmitter<T>, "Context">
+      | EndingWith<keyof TypeEmitter<T, TOptions>, "Context">
     >
-  >(method: TMethod, ...args: Parameters<TypeEmitter<T>[TMethod]>): EmitEntity<T> {
+  >(method: TMethod, ...args: Parameters<TypeEmitter<T, TOptions>[TMethod]>): EmitEntity<T> {
     const type = args[0];
     let entity: EmitEntity<T>;
     let emitEntityKey: [string, Type, ContextState];
@@ -508,7 +531,7 @@ export function createAssetEmitter<T>(
     if (!programContext) {
       programContext = interner.intern({
         lexicalContext: typeEmitter.programContext(program),
-        referenceContext: {},
+        referenceContext: interner.intern({}),
       });
     }
 
@@ -601,12 +624,21 @@ export function createAssetEmitter<T>(
   function typeEmitterKey(type: Type) {
     switch (type.kind) {
       case "Model":
-        if (type.name === "" || type.name === "Array") {
+        if (program.checker.isStdType(type) && type.name === "Array") {
+          // likely an array literal, though could be a bare reference to Array maybe?
+          return "arrayLiteral";
+        }
+
+        if (type.name === "") {
           return "modelLiteral";
         }
 
         if (type.templateMapper) {
           return "modelInstantiation";
+        }
+
+        if (type.indexer && type.indexer.key!.name === "integer") {
+          return "arrayDeclaration";
         }
 
         return "modelDeclaration";
@@ -732,6 +764,6 @@ const noReferenceContext = new Set<string>([
   "intrinsic",
 ]);
 
-function keyHasReferenceContext(key: keyof TypeEmitter<any>): boolean {
+function keyHasReferenceContext(key: keyof TypeEmitter<any, any>): boolean {
   return !noReferenceContext.has(key);
 }

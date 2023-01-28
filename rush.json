@@ -186,6 +186,12 @@
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/json-schema",
+      "projectFolder": "packages/json-schema",
+      "reviewCategory": "production",
+      "shouldPublish": true
     }
   ]
 }
