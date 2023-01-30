@@ -22,7 +22,6 @@ export class SchemaPerFileEmitter extends JsonSchemaEmitter {
 
   #newFileScope(name: string) {
     const sourceFile = this.emitter.createSourceFile(`${name}.json`);
-    console.log(sourceFile);
     return {
       scope: sourceFile.globalScope,
     };

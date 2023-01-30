@@ -10,7 +10,7 @@ describe("emitting models", () => {
     `);
     const Foo = schemas["Foo.json"];
 
-    assert.strictEqual(Foo.$id, "Foo");
+    assert.strictEqual(Foo.$id, "Foo.json");
     assert.strictEqual(Foo.$schema, "https://json-schema.org/draft/2020-12/schema");
     assert.deepStrictEqual(Foo.properties, { x: { type: "string" } });
   });

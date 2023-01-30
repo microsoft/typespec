@@ -17,7 +17,10 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
 
 export async function emitSchema(code: string) {
   const host = await getHostForCadlFile(code);
-  const emitter = createAssetEmitter(host.program, SchemaPerFileEmitter);
+  const emitter = createAssetEmitter(host.program, SchemaPerFileEmitter, {
+    emitterOutputDir: "cadl-output",
+    options: {},
+  } as any);
   emitter.emitProgram();
   await emitter.writeOutput();
   const schemas: Record<string, any> = {};
