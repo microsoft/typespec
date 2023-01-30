@@ -1,0 +1,7 @@
+model Foo {
+  bar: Bar;
+}
+
+model Bar {
+  foo: Foo;
+}
