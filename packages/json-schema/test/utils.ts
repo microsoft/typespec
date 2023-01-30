@@ -1,5 +1,6 @@
 import { createAssetEmitter } from "@cadl-lang/compiler/emitter-framework";
 import { createTestHost } from "@cadl-lang/compiler/testing";
+import yaml from "js-yaml";
 import { SchemaPerFileEmitter } from "../src/schema-per-file-emitter.js";
 
 export async function getHostForCadlFile(contents: string, decorators?: Record<string, any>) {
@@ -15,19 +16,27 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
   return host;
 }
 
-export async function emitSchema(code: string) {
+export async function emitSchema(
+  code: string,
+  options: { "file-type"?: "yaml" | "json" } = { "file-type": "json" }
+) {
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, SchemaPerFileEmitter, {
     emitterOutputDir: "cadl-output",
-    options: {},
+    options,
   } as any);
   emitter.emitProgram();
   await emitter.writeOutput();
   const schemas: Record<string, any> = {};
   const files = await emitter.getProgram().host.readDir("./cadl-output");
+
   for (const file of files) {
     const sf = await emitter.getProgram().host.readFile(`./cadl-output/${file}`);
-    schemas[file] = JSON.parse(sf.text);
+    if (options?.["file-type"] === "yaml") {
+      schemas[file] = yaml.load(sf.text);
+    } else {
+      schemas[file] = JSON.parse(sf.text);
+    }
   }
 
   return schemas;

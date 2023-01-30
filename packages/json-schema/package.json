@@ -60,9 +60,11 @@
     "typescript": "~4.9.3",
     "ajv": "~8.11.2",
     "@cadl-lang/openapi3": "~0.39.0",
-    "@types/relateurl": "~0.2.29"
+    "@types/relateurl": "~0.2.29",
+    "@types/js-yaml": "~4.0.1"
   },
   "dependencies": {
-    "relateurl": "~0.2.7"
+    "relateurl": "~0.2.7",
+    "js-yaml": "~4.1.0"
   }
 }

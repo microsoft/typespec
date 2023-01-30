@@ -24,6 +24,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@cadl-lang/compiler/emitter-framework";
+import yaml from "js-yaml";
 import path from "path";
 import relateurl from "relateurl";
 import { pathToFileURL } from "url";
@@ -192,7 +193,12 @@ export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOpti
   }
 
   sourceFile(sourceFile: SourceFile<object>): EmittedSourceFile {
-    const contents = JSON.stringify(sourceFile.globalScope.declarations[0].value, null, 4);
+    let contents: string;
+    if (this.emitter.getOptions()["file-type"] === "json") {
+      contents = JSON.stringify(sourceFile.globalScope.declarations[0].value, null, 4);
+    } else {
+      contents = yaml.dump(sourceFile.globalScope.declarations[0].value);
+    }
     return {
       contents,
       path: sourceFile.path,

@@ -21,7 +21,8 @@ export class SchemaPerFileEmitter extends JsonSchemaEmitter {
   }
 
   #newFileScope(name: string) {
-    const sourceFile = this.emitter.createSourceFile(`${name}.json`);
+    const extension = this.emitter.getOptions()["file-type"] === "json" ? "json" : "yaml";
+    const sourceFile = this.emitter.createSourceFile(`${name}.${extension}`);
     return {
       scope: sourceFile.globalScope,
     };
