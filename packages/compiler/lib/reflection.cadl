@@ -8,3 +8,4 @@ model Namespace {}
 model Operation {}
 model Union {}
 model UnionVariant {}
+model Model {}
