@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "add Model to Cadl.Reflection for external decorator docs",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
