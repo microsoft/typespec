@@ -5,14 +5,14 @@ title: Creating Cadl Decorators
 
 # Creating Cadl decorators
 
-Cadl decorator are implemented as JavaScript function. Declarating a decorator can be done in 1 or 2 part:
+Cadl decorators are implemented as JavaScript functions. Declaring a decorator can be done in 1 or 2 parts:
 
 1. [(Optional) Declare the decorator signature in cadl](#declaring-a-decorator-signature)
 2. [Implement the decorator in Javascript](#implement-the-decorator-in-js)
 
 ## Declaring a decorator signature
 
-This part is optional but provides great value:
+Declaring a decorator signature in Cadl is optional but provides the following benefits:
 
 - Type checking for the parameters
 - IDE IntelliSense
@@ -20,19 +20,23 @@ This part is optional but provides great value:
 A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS (only choice right now), we must apply the `extern` modifier as well.
 
 ```cadl
-extern dec logType(target: Cadl.Reflection.Type, name: Cadl.Reflection.StringLiteral);
+extern dec logType(target: unknown, name: string);
 ```
 
-## Decorator target
+In the `dec` statement, specify the name of the decorator without the leading "@" and the parameters it accepts.
+The first parameter specifies the decorator "target" as described below. Other parameters are declared with a name and type and may be required or optional.
 
-The first parameter of the decorator represents the cadl type(s) that the decorator can be applied on.
+### Decorator target
 
-You can specify multiple potential target type using an `union expression`
+The first parameter of the decorator represents the Cadl type(s) that the decorator can be applied on.
+Specify `unknown` if the decorator can be applied on any type.
+
+You can specify multiple potential target types using an `union expression`
 
 ```cadl
 using Cadl.Reflection;
 
-extern dec track(target: Model | Enum);
+extern dec track(target: object | Enum);
 ```
 
 ### Optional parameters
@@ -40,15 +44,18 @@ extern dec track(target: Model | Enum);
 A decorator parameter can be marked optional using `?`
 
 ```cadl
-extern dec track(target: Model | Enum, name?: StringLiteral);
+extern dec track(target: object | Enum, name?: string);
 ```
+
+Optional parameters must be specified after all required parameters,
+because the syntax for invoking a decorator only allows positional parameters.
 
 ### Rest parameters
 
 A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
 ```cadl
-extern dec track(target: Model | Enum, ...names: StringLiteral[]);
+extern dec track(target: object | Enum, ...names: string[]);
 ```
 
 ## Implement the decorator in JS
@@ -64,7 +71,7 @@ Decorators can be implemented in JavaScript by prefixing the function name with 
 import type { DecoratorContext, Type } from "@cadl-lang/compiler";
 
 export function $logType(context: DecoratorContext, target: Type, name: string) {
-  console.log(name + ": " + targetType.kind);
+  console.log(name + ": " + target.kind);
 }
 ```
 
@@ -73,7 +80,7 @@ or in pure JS
 ```ts
 // model.js
 export function $logType(context, target, name) {
-  console.log(name + ": " + targetType.kind);
+  console.log(name + ": " + target.kind);
 }
 ```
 
@@ -158,10 +165,10 @@ Decorator signatures are linked to the implementation of the same name in the sa
 
 ```cadl
 import "./lib.js";
-extern dec customName(target: Type, name: StringLiteral);
+extern dec customName(target: Type, name: string);
 
 namespace MyLib {
-  extern dec tableName(target: Type, name: StringLiteral);
+  extern dec tableName(target: Type, name: string);
 }
 ```
 
@@ -180,7 +187,7 @@ setCadlNamespace("MyLib", $tableName);
 
 Potential issues:
 
-- JS function is not prefixed with `$`. For a decorator called `@decorate` the JS function must be called `$decoratate`
+- JS function is not prefixed with `$`. For a decorator called `@decorate` the JS function must be called `$decorate`
 - JS function is not in the same namespace as the the `extern dec`
 - Error is only showing in the IDE? Restart the Cadl server or the IDE.
 
