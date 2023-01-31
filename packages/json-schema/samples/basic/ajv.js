@@ -1,5 +1,4 @@
 import Ajv from "ajv/dist/2020.js";
-import fs from "fs/promises";
 
 const schemas = [];
 const dir = await fs.readdir("./cadl-output/@cadl-lang/json-schema");
@@ -10,4 +9,18 @@ for (const file of dir) {
 const ajv = new Ajv({ schemas });
 const validate = ajv.getSchema("Bar.json");
 
-console.log(validate({}));
+/*
+const schema = new Ajv().compile({
+  allOf: [{ type: "object", properties: { x: { type: "string" } } }],
+});
+console.log(schema([1]));
+
+class Foo extends Array {
+  constructor() {
+    super();
+  }
+}
+const f = new Foo();
+console.log(schema({ length: 1 }));
+
+*/

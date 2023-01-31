@@ -31,5 +31,18 @@ describe("emitting unions", () => {
     assert.deepStrictEqual(Foo.anyOf, [{ $ref: "Bar.json" }, { $ref: "Baz.json" }]);
   });
 
-  it("handles union expressions", () => {});
+  it("handles union expressions", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        x: 1 | "hello";
+      }
+    `);
+
+    const Foo = schemas["Foo.json"];
+
+    assert.deepStrictEqual(Foo.properties.x.anyOf, [
+      { type: "number", enum: [1] },
+      { type: "string", enum: ["hello"] },
+    ]);
+  });
 });

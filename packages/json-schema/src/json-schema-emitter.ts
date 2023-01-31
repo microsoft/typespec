@@ -43,8 +43,33 @@ export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOpti
         $id: this.#getDeclId(),
         type: "object",
         properties: this.emitter.emitModelProperties(model),
+        required: this.#requiredModelProperties(model),
       })
     );
+  }
+
+  modelLiteral(model: Model): EmitterOutput<object> {
+    if (this.emitter.getProgram().checker.isStdType(model) && model.name === "object") {
+      return { type: "object" };
+    }
+
+    return {
+      type: "object",
+      properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model),
+    };
+  }
+
+  #requiredModelProperties(model: Model): string[] | undefined {
+    const reqs = [];
+
+    for (const prop of model.properties.values()) {
+      if (!prop.optional) {
+        reqs.push(prop.name);
+      }
+    }
+
+    return reqs.length > 0 ? reqs : undefined;
   }
 
   modelProperties(model: Model): EmitterOutput<object> {
@@ -106,6 +131,13 @@ export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOpti
         anyOf: this.emitter.emitUnionVariants(union),
       })
     );
+  }
+
+  unionLiteral(union: Union): EmitterOutput<object> {
+    this.emitter.getProgram().resolveTypeReference("Cadl.Foo");
+    return new ObjectBuilder({
+      anyOf: this.emitter.emitUnionVariants(union),
+    });
   }
 
   unionVariants(union: Union): EmitterOutput<object> {
