@@ -15,7 +15,7 @@ Note that when we say that emitters must handle things consistently, we mean tha
 
 If you haven't written an emitter before, start with [emitter basics](./emitters-basics.md).
 
-Then look at the [REST metadata emitter sample](https://github.com/microsoft/cadl/tree/main/packages/samples/rest-metadata-emitter). This emitter sample uses all of the API discussed below (and more) to write out a simple textual representation. It deliberately does not split types like the OpenAPI emitter in order to emphasize again that this is not required. Instead, it adds contextual remarks to denote how data depends on context.
+Then look at the [REST metadata emitter sample](https://github.com/microsoft/cadl/tree/main/packages/samples/rest-metadata-emitter). This emitter sample uses all of the API discussed below to write out a simple textual representation. It deliberately does not split types like the OpenAPI emitter in order to emphasize that this is not required. Instead, it adds contextual remarks to denote how data depends on context.
 
 However, if your emitter does want to split types as OpenAPI does, then it will still use the same API. Cross-referencing with where the official [OpenAPI emitter] calls these API can also be instructive.
 
