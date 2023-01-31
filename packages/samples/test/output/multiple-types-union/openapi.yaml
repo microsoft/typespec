@@ -29,31 +29,6 @@ components:
       anyOf:
         - $ref: '#/components/schemas/Cat'
         - $ref: '#/components/schemas/Dog'
-    ApiVersionParam:
-      type: object
-      properties: {}
-    PetBase:
-      type: object
-      properties:
-        name:
-          type: string
-      required:
-        - name
-    Dog:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - dog
-        nextWalkTime:
-          type: string
-          format: date-time
-      required:
-        - type
-        - nextWalkTime
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
     Cat:
       type: object
       properties:
@@ -69,3 +44,28 @@ components:
         - catnipDose
       allOf:
         - $ref: '#/components/schemas/PetBase'
+    Dog:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - dog
+        nextWalkTime:
+          type: string
+          format: date-time
+      required:
+        - type
+        - nextWalkTime
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
+    PetBase:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+    ApiVersionParam:
+      type: object
+      properties: {}

@@ -56,14 +56,6 @@ components:
       required:
         - name
         - favoriteToys
-    ApiVersionParam:
-      type: object
-      properties: {}
-    Versions:
-      type: string
-      enum:
-        - v1
-        - v2
     Dog:
       type: object
       properties:
@@ -89,3 +81,11 @@ components:
           type: string
       required:
         - name
+    ApiVersionParam:
+      type: object
+      properties: {}
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2

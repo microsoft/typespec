@@ -28,7 +28,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
   /hello:
     post:
       operationId: Hello_create
@@ -39,12 +39,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WritablePersonCreate'
+              $ref: '#/components/schemas/WritablePerson'
     put:
       operationId: Hello_update
       parameters: []
@@ -54,7 +54,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
@@ -88,7 +88,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
@@ -96,7 +96,7 @@ paths:
               $ref: '#/components/schemas/PersonUpdate'
 components:
   schemas:
-    ReadablePersonRead:
+    ReadablePerson:
       type: object
       properties:
         id:
@@ -119,48 +119,6 @@ components:
         - test
         - other
         - relatives
-    ReadablePerson:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        test:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
-      required:
-        - id
-        - name
-        - test
-        - other
-        - relatives
-    WritablePersonCreate:
-      type: object
-      properties:
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonRelativeCreateItem'
-          x-cadl-name: PersonRelative[]
-      required:
-        - secret
-        - name
-        - test
-        - relatives
     WritablePerson:
       type: object
       properties:
@@ -173,7 +131,7 @@ components:
         relatives:
           type: array
           items:
-            $ref: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
           x-cadl-name: PersonRelative[]
       required:
         - secret
@@ -229,6 +187,25 @@ components:
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
           x-cadl-name: PersonRelative[]
+    PersonCreateItem:
+      type: object
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
+          x-cadl-name: PersonRelative[]
+      required:
+        - secret
+        - name
+        - test
+        - relatives
     Person:
       type: object
       properties:
@@ -255,25 +232,6 @@ components:
         - test
         - other
         - relatives
-    PersonCreateItem:
-      type: object
-      properties:
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonRelativeCreateItem'
-          x-cadl-name: PersonRelative[]
-      required:
-        - secret
-        - name
-        - test
-        - relatives
     PersonUpdateItem:
       type: object
       properties:
@@ -290,16 +248,6 @@ components:
         - name
         - other
         - relatives
-    PersonRelative:
-      type: object
-      properties:
-        person:
-          $ref: '#/components/schemas/Person'
-        relationship:
-          type: string
-      required:
-        - person
-        - relationship
     PersonRelativeReadItem:
       type: object
       properties:
@@ -315,6 +263,16 @@ components:
       properties:
         person:
           $ref: '#/components/schemas/PersonCreateItem'
+        relationship:
+          type: string
+      required:
+        - person
+        - relationship
+    PersonRelative:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
         relationship:
           type: string
       required:

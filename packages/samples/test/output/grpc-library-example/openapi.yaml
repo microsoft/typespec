@@ -417,6 +417,19 @@ components:
       description: Response message for LibraryService.ListBooks.
       required:
         - books
+    ProtobufAny:
+      type: object
+      properties:
+        typeUrl:
+          type: string
+        value:
+          type: string
+    book_name:
+      type: string
+      description: |-
+        The name of a book.
+        Book names have the form `shelves/{shelf_id}/books/{book_id}`
+      pattern: shelves/\w+/books/\w+
     CreateShelfRequest:
       type: object
       properties:
@@ -427,13 +440,6 @@ components:
       description: Request message for LibraryService.CreateShelf.
       required:
         - body
-    ProtobufAny:
-      type: object
-      properties:
-        typeUrl:
-          type: string
-        value:
-          type: string
     GetShelfRequest:
       type: object
       properties: {}
@@ -483,12 +489,6 @@ components:
       description: Request message for LibraryService.CreateBook.
       required:
         - book
-    book_name:
-      type: string
-      description: |-
-        The name of a book.
-        Book names have the form `shelves/{shelf_id}/books/{book_id}`
-      pattern: shelves/\w+/books/\w+
     GetBookRequest:
       type: object
       properties: {}
