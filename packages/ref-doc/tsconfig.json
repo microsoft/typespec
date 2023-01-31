@@ -7,7 +7,8 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node"]
+    "types": ["node"],
+    "lib": ["DOM"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

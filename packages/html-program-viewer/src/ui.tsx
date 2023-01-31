@@ -108,7 +108,7 @@ const omittedProps = [
   "projections",
 ] as const;
 const omittedPropsSet = new Set(omittedProps);
-type OmittedProps = typeof omittedProps[number];
+type OmittedProps = (typeof omittedProps)[number];
 type NamedTypeUIProps<T extends NamedType> = {
   type: T;
   properties: Record<Exclude<keyof T, OmittedProps>, "skip" | "ref" | "nested" | "value">;
