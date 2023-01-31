@@ -141,12 +141,22 @@ function _getRushVersion(logger) {
             'using an unexpected syntax.');
     }
 }
+function _getBin(scriptName) {
+    switch (scriptName.toLowerCase()) {
+        case 'install-run-rush-pnpm.js':
+            return 'rush-pnpm';
+        case 'install-run-rushx.js':
+            return 'rushx';
+        default:
+            return 'rush';
+    }
+}
 function _run() {
     const [nodePath /* Ex: /bin/node */, scriptPath /* /repo/common/scripts/install-run-rush.js */, ...packageBinArgs /* [build, --to, myproject] */] = process.argv;
     // Detect if this script was directly invoked, or if the install-run-rushx script was invokved to select the
     // appropriate binary inside the rush package to run
     const scriptName = path__WEBPACK_IMPORTED_MODULE_0__.basename(scriptPath);
-    const bin = scriptName.toLowerCase() === 'install-run-rushx.js' ? 'rushx' : 'rush';
+    const bin = _getBin(scriptName);
     if (!nodePath || !scriptPath) {
         throw new Error('Unexpected exception: could not detect node path or script path');
     }
@@ -173,7 +183,10 @@ function _run() {
     }
     if (!commandFound) {
         console.log(`Usage: ${scriptName} <command> [args...]`);
-        if (scriptName === 'install-run-rush.js') {
+        if (scriptName === 'install-run-rush-pnpm.js') {
+            console.log(`Example: ${scriptName} pnpm-command`);
+        }
+        else if (scriptName === 'install-run-rush.js') {
             console.log(`Example: ${scriptName} build --to myproject`);
         }
         else {
