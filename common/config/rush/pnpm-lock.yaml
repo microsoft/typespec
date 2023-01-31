@@ -15691,13 +15691,15 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-CtsdOz3eInsO1vUhgqW1ErY55UZ0xAYRvW6qTC3UuYC1ofVovNhNWvmFV4MduL9kSK50rYjw6JcGPJWunZtPBg==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-J8rfWGyUAC6FxDqSpObgDxNOvO0nNJZqbBGKaGuM/4TBIyP5GdSA5uZcC78o4pJxmAfHoUB+JpVDpKeySH+Gtw==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
       '@types/mkdirp': 1.0.2
       autorest: 3.3.2
       mkdirp: 1.0.4
+      rimraf: 3.0.2
+      typescript: 4.9.5
     dev: false
 
   file:projects/spec.tgz:

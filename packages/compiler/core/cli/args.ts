@@ -102,7 +102,7 @@ function resolveCliOptions(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
     }
-    const optionKeyParts = optionParts[0].split(".");
+    let optionKeyParts = optionParts[0].split(".");
     if (optionKeyParts.length === 1) {
       const key = optionKeyParts[0];
       if (!("miscOptions" in options)) {
@@ -111,9 +111,11 @@ function resolveCliOptions(
       options.miscOptions[key] = optionParts[1];
       continue;
     } else if (optionKeyParts.length > 2) {
-      throw new Error(
-        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
-      );
+      // support emitter/path/file.js.option=xyz
+      optionKeyParts = [
+        optionKeyParts.slice(0, -1).join("."),
+        optionKeyParts[optionKeyParts.length - 1],
+      ];
     }
     const emitterName = optionKeyParts[0];
     const key = optionKeyParts[1];

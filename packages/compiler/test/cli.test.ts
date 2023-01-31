@@ -95,6 +95,17 @@ describe("compiler: cli", () => {
         );
       });
 
+      it("override emitter-output-dir from cli args using path to emitter with extension", async () => {
+        const options = await resolveCompilerOptions({
+          options: [`path/to/emitter.js.emitter-output-dir={cwd}/relative-to-cwd`],
+        });
+
+        strictEqual(
+          options?.options?.["path/to/emitter.js"]?.["emitter-output-dir"],
+          `${cwd}/relative-to-cwd`
+        );
+      });
+
       describe("arg interpolation", () => {
         it("use default arg value", async () => {
           const options = await resolveCompilerOptions({});
