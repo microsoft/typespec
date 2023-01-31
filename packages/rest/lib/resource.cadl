@@ -17,10 +17,12 @@ model ResourceError {
 
 @doc("Dynamically gathers keys of the model type T.")
 @copyResourceKeyParameters
+@friendlyName("{name}Key", T)
 model KeysOf<T> {}
 
 @doc("Dynamically gathers parent keys of the model type T.")
 @copyResourceKeyParameters("parent")
+@friendlyName("{name}ParentKey", T)
 model ParentKeysOf<T> {}
 
 @doc("Represents operation parameters for resource TResource.")
