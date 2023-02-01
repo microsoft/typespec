@@ -743,22 +743,36 @@ describe("compiler: models", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("emit no error when references property of template parameter", async () => {
+    it("resolve references property of template parameter", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
-        model Discriminated {
+        model A {
           kind: string;
         };
         
-        model OpenAiList<T extends Discriminated> {
-          broken: T.kind;
-          works: Discriminated.kind;
+        model B<T extends A> {
+          b: T.kind;
+          c: A.kind;
         }
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
-      expectDiagnosticEmpty(diagnostics);
+      const { B } = await testHost.compile("main.cadl");
+      strictEqual(((B as Model).properties.get("b")?.type as any).name, "string");
+      strictEqual(((B as Model).properties.get("c")?.type as any).name, "string");
+    });
+
+    it("resolve references property of template parameter with annoymous model as constrint", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model B<T extends {kind:"string"}> {
+          b: T.kind;
+        }
+        `
+      );
+      const { B } = await testHost.compile("main.cadl");
+      strictEqual(((B as Model).properties.get("b")?.type as any).name, "string");
     });
 
     it("resolve recursive template types", async () => {
