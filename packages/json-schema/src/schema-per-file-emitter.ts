@@ -12,6 +12,10 @@ export class SchemaPerFileEmitter extends JsonSchemaEmitter {
     return this.#newFileScope(model.name);
   }
 
+  arrayDeclarationContext(array: Model): Context {
+    return this.#newFileScope(array.name);
+  }
+
   enumDeclarationContext(en: Enum): Context {
     return this.#newFileScope(en.name);
   }

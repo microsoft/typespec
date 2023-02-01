@@ -60,6 +60,25 @@ export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOpti
     };
   }
 
+  arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
+    return this.emitter.result.declaration(
+      name,
+      new ObjectBuilder({
+        $schema: "https://json-schema.org/draft/2020-12/schema",
+        $id: this.#getDeclId(),
+        type: "array",
+        items: this.emitter.emitTypeReference(elementType),
+      })
+    );
+  }
+
+  arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
+    return new ObjectBuilder({
+      type: "array",
+      items: this.emitter.emitTypeReference(elementType),
+    });
+  }
+
   #requiredModelProperties(model: Model): string[] | undefined {
     const reqs = [];
 
