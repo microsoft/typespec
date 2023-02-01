@@ -9,12 +9,7 @@ paths:
       operationId: Pets_get
       description: Gets an instance of the resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -32,12 +27,7 @@ paths:
       operationId: Pets_update
       description: Updates an existing instance of the resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -60,12 +50,7 @@ paths:
       operationId: Pets_delete
       description: Deletes an existing instance of the resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: Resource deleted successfully.
@@ -126,18 +111,8 @@ paths:
       operationId: PetCheckups_CreateOrUpdate
       description: Creates or update a instance of the extension resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: checkupId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -167,12 +142,7 @@ paths:
       operationId: PetCheckups_List
       description: Lists all instances of the extension resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -191,12 +161,7 @@ paths:
       operationId: PetInsurance_Get
       description: Gets the singleton resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -214,12 +179,7 @@ paths:
       operationId: PetInsurance_Update
       description: Updates the singleton resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -243,18 +203,8 @@ paths:
       operationId: Toys_get
       description: Gets an instance of the resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: toyId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.
@@ -272,12 +222,7 @@ paths:
     get:
       operationId: Toys_list
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/ToyParentKey'
         - name: nameFilter
           in: query
           required: true
@@ -301,18 +246,8 @@ paths:
       operationId: ToyInsurance_Get
       description: Gets the singleton resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: toyId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.
@@ -330,18 +265,8 @@ paths:
       operationId: ToyInsurance_Update
       description: Updates the singleton resource.
       parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: toyId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.
@@ -365,12 +290,7 @@ paths:
       operationId: Checkups_createOrUpdate
       description: Creates or update a instance of the resource.
       parameters:
-        - name: checkupId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -418,12 +338,7 @@ paths:
       operationId: Owners_get
       description: Gets an instance of the resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -441,12 +356,7 @@ paths:
       operationId: Owners_update
       description: Updates an existing instance of the resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -469,12 +379,7 @@ paths:
       operationId: Owners_delete
       description: Deletes an existing instance of the resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: Resource deleted successfully.
@@ -535,18 +440,8 @@ paths:
       operationId: OwnerCheckups_CreateOrUpdate
       description: Creates or update a instance of the extension resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: checkupId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/OwnerKey'
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -576,12 +471,7 @@ paths:
       operationId: OwnerCheckups_List
       description: Lists all instances of the extension resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -600,12 +490,7 @@ paths:
       operationId: OwnerInsurance_Get
       description: Gets the singleton resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -623,12 +508,7 @@ paths:
       operationId: OwnerInsurance_Update
       description: Updates the singleton resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -648,6 +528,49 @@ paths:
             schema:
               $ref: '#/components/schemas/InsuranceUpdate'
 components:
+  parameters:
+    PetKey:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    CheckupKey:
+      name: checkupId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    ToyKey.petId:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    ToyKey.toyId:
+      name: toyId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    ToyParentKey:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    OwnerKey:
+      name: ownerId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
   schemas:
     Pet:
       type: object

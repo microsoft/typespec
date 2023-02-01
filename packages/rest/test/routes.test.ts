@@ -242,11 +242,10 @@ describe("rest: routes", () => {
       @route(":action")
       op colonRoute(): {};
 
-      #suppress "deprecated"
       @get
       @autoRoute
-      @segment("actionTwo")
-      @segmentSeparator(":")
+      @action("actionTwo")
+      @actionSeparator(":")
       op separatorRoute(): {};
       `
     );
@@ -668,6 +667,139 @@ describe("rest: routes", () => {
     });
   });
 
+  describe("use of @route with @autoRoute", () => {
+    it("can override library operation route in service", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @route("one")
+          op action(): void;
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          op my is Lib.action;
+          @route("my")
+          op my2 is Lib.action;
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/one");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my");
+    });
+
+    it("can override library interface route in service", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @route("one")
+          interface Ops {
+            action(): void;
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          interface Mys extends Lib.Ops {
+          }
+
+          @route("my") interface Mys2 extends Lib.Ops {}
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my");
+    });
+
+    it("can override library interface route in service without changing library", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @route("one")
+          interface Ops {
+            action(): void;
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          @route("my") interface Mys2 extends Lib.Ops {}
+
+          op op2 is Lib.Ops.action;
+        }
+      `);
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my");
+      strictEqual(ops[1].container.kind, "Interface");
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/");
+      strictEqual(ops[0].container.kind, "Namespace");
+    });
+
+    it("prepends @route in service when library operation uses @autoRoute", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @autoRoute
+          op action(@path @segment("pets") id: string): void;
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          op my is Lib.action;
+          @route("my")
+          op my2 is Lib.action;
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/pets/{id}");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my/pets/{id}");
+    });
+
+    it("prepends @route in service when library interface operation uses @autoRoute", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          interface Ops {
+            @autoRoute
+            action(@path @segment("pets") id: string): void;  
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          interface Mys extends Lib.Ops {}
+          @route("my")
+          interface Mys2 extends Lib.Ops {};
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/pets/{id}");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my/pets/{id}");
+    });
+
+    it("prepends @route in service when library interface uses @autoRoute", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @autoRoute
+          interface Ops {
+            action(@path @segment("pets") id: string): void;  
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          interface Mys extends Lib.Ops {}
+          @route("my")
+          interface Mys2 extends Lib.Ops {};
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/{id}");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my/{id}");
+    });
+  });
+
   it("allows customization of path parameters in generated routes", async () => {
     const routes = await getRoutesFor(
       `
@@ -705,42 +837,16 @@ describe("rest: routes", () => {
       namespace Things {
         @action
         @actionSeparator(":")
-        @put op customAction1(
+        @put op customAction(
           @segment("things")
           @path thingId: string
-        ): string;
-
-        #suppress "deprecated"
-        @action
-        @segmentSeparator(":")
-        @put op customAction2(
-          @segment("things")
-          @path thingId: string
-        ): string;
-
-        @get op getAccount(
-          @segment("subscriptions")
-          @path subscriptionId: string;
-
-          // Is it useful for ARM modelling?
-          #suppress "deprecated"
-          @path
-          @segment("accounts")
-          @segmentSeparator("Microsoft.Accounts/")
-          accountName: string;
         ): string;
       }
       `
     );
 
     deepStrictEqual(routes, [
-      { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
-      { verb: "put", path: "/things/{thingId}:customAction2", params: ["thingId"] },
-      {
-        verb: "get",
-        path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
-        params: ["subscriptionId", "accountName"],
-      },
+      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
     ]);
   });
 

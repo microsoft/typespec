@@ -1,4 +1,4 @@
-import { Model, Namespace, Program, projectProgram } from "@cadl-lang/compiler";
+import { Model, Namespace, Operation, Program, projectProgram } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
@@ -18,9 +18,7 @@ describe("versioning: reference versioned library", () => {
     runner = createTestWrapper(host, {
       wrapper: (code) => `
       import "@cadl-lang/versioning";
-
       using Cadl.Versioning;
-
       @versioned(Versions)
       namespace VersionedLib {
         enum Versions {l1, l2}
@@ -60,6 +58,35 @@ describe("versioning: reference versioned library", () => {
       const Foo = (projector.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(Foo);
+    });
+
+    it("use multiple versioned libraries given version", async () => {
+      const { MyService, Test, getBar } = (await runner.compile(`
+        @versioned(Versions)
+        namespace OtherVersionedLib {
+          enum Versions {
+            m1,
+          }
+          model Bar {};
+        }
+        @useDependency(VersionedLib.Versions.l1, OtherVersionedLib.Versions.m1)
+        @test namespace MyService {
+          @test model Test extends VersionedLib.Foo {}
+          
+          @test op getBar(): OtherVersionedLib.Bar;
+        } 
+    `)) as { MyService: Namespace; Test: Model; getBar: Operation };
+      const versions = buildVersionProjections(runner.program, MyService);
+      strictEqual(versions.length, 1);
+      strictEqual(versions[0].version, undefined);
+      strictEqual(versions[0].projections.length, 1);
+
+      const projector = projectProgram(runner.program, versions[0].projections, Test).projector;
+      const Foo = (projector.projectedTypes.get(Test) as any).baseModel;
+
+      assertFooV1(Foo);
+      ok((getBar.returnType as Model).name === "Bar");
+      ok((getBar.returnType as Model).namespace?.name === "OtherVersionedLib");
     });
 
     it("emit diagnostic if passing anything but an enum member", async () => {
@@ -158,7 +185,6 @@ describe("versioning: reference versioned library", () => {
           @useDependency(VersionedLib.Versions.l2)
           v2,
         }
-
         @versioned(TestServiceVersions)
         namespace TestService {
           @added(TestServiceVersions.v2)
@@ -220,7 +246,6 @@ describe("versioning: reference versioned library", () => {
             foo: T;
           }
         }
-
         @versioned(Versions)
         namespace MyService {
           enum Versions {v1, v2}
@@ -228,7 +253,6 @@ describe("versioning: reference versioned library", () => {
           model Bar {}
           model Test extends NonVersioned.Foo<Bar> {}
         } 
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -240,7 +264,6 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           
           model Foo {}
-
           interface Test {
             test(): Foo;
           }
@@ -256,10 +279,8 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           
           model Foo {}
-
           interface Test extends NonVersioned.Foo<Foo> {}
         }
-
         namespace NonVersioned {
           interface Foo<T> {
             foo(): T | {};
@@ -278,12 +299,10 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           
           model Foo {}
-
           namespace SubNamespace {
             op use(): Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -296,14 +315,12 @@ describe("versioning: reference versioned library", () => {
           
           model Foo {}
         }
-
         @useDependency(Lib.Versions.v1)
         namespace MyService {
           namespace SubNamespace {
             op use(): Lib.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -316,7 +333,6 @@ describe("versioning: reference versioned library", () => {
           
           model Foo {}
         }
-
         @versioned(Versions)
         namespace MyService {
           enum Versions {
@@ -327,7 +343,6 @@ describe("versioning: reference versioned library", () => {
             op use(): Lib.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -337,13 +352,11 @@ describe("versioning: reference versioned library", () => {
         @versioned(Versions)
         namespace MyService {
           enum Versions {m1}
-
           op use(): SubNamespace.Foo;
           namespace SubNamespace {
             model Foo {}
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -353,12 +366,10 @@ describe("versioning: reference versioned library", () => {
         @versioned(Versions)
         namespace Lib {
           enum Versions {v1, v2}
-
           namespace LibSub {
             model Foo {}
           }
         }
-
         @versioned(Versions)
         namespace MyService {
           enum Versions {
@@ -369,7 +380,6 @@ describe("versioning: reference versioned library", () => {
             op use(): Lib.LibSub.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -400,9 +410,7 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
     runner = createTestWrapper(host, {
       wrapper: (code) => `
       import "@cadl-lang/versioning";
-
       using Cadl.Versioning;
-
       @versioned(Versions)
       namespace VersionedLib {
         enum Versions {l1, l2}
@@ -538,12 +546,10 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
           enum Versions {v1, v2}
           
           model Foo {}
-
           namespace SubNamespace {
             op use(): Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -556,7 +562,6 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
           
           model Foo {}
         }
-
         #suppress "deprecated"
         @versionedDependency(Lib.Versions.v1)
         namespace MyService {
@@ -564,7 +569,6 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
             op use(): Lib.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -577,7 +581,6 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
           
           model Foo {}
         }
-
         #suppress "deprecated"
         @versioned(Versions)
         @versionedDependency([[Versions.m1, Lib.Versions.v1]])
@@ -587,7 +590,6 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
             op use(): Lib.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -597,13 +599,11 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
         @versioned(Versions)
         namespace MyService {
           enum Versions {m1}
-
           op use(): SubNamespace.Foo;
           namespace SubNamespace {
             model Foo {}
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -613,12 +613,10 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
         @versioned(Versions)
         namespace Lib {
           enum Versions {v1, v2}
-
           namespace LibSub {
             model Foo {}
           }
         }
-
         #suppress "deprecated"
         @versioned(Versions)
         @versionedDependency([[Versions.m1, Lib.Versions.v1]])
@@ -628,7 +626,6 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
             op use(): Lib.LibSub.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -668,13 +665,11 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
           ...T;
         }
       }
-
       #suppress "deprecated"
       @versioned(Versions)
       @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l2]])
       @test namespace MyService {
         enum Versions {v1, v2}
-
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -701,13 +696,11 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
           ...T;
         }
       }
-
       #suppress "deprecated"
       @versioned(Versions)
       @versionedDependency([[Versions.v1, VersionedLib.Versions.v1], [Versions.v2, VersionedLib.Versions.v2]])
       @test namespace MyService {
         enum Versions {v1, v2}
-
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -732,9 +725,7 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
         @versionedDependency(Lib.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
-
         }
-
         @versioned(Versions)
         namespace Lib {
           enum Versions {
@@ -755,9 +746,7 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
         @versionedDependency(Lib.One.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
-
         }
-
         @versioned(Versions)
         namespace Lib.One {
           enum Versions { v1: "v1" }
@@ -766,7 +755,6 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
         #suppress "deprecated"
         @versionedDependency(Lib.One.Versions.v1)
         namespace Lib.Two { }
-
       `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
@@ -790,11 +778,9 @@ describe("versioning: dependencies", () => {
           ...T;
         }
       }
-
       @versioned(Versions)
       @test namespace MyService {
         enum Versions {v1, v2}
-
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -821,7 +807,6 @@ describe("versioning: dependencies", () => {
           ...T;
         }
       }
-
       @versioned(Versions)
       @test namespace MyService {
         enum Versions {
@@ -830,7 +815,6 @@ describe("versioning: dependencies", () => {
           @useDependency(VersionedLib.Versions.l2)
           v2
         }
-
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -857,7 +841,6 @@ describe("versioning: dependencies", () => {
           ...T;
         }
       }
-
       @versioned(Versions)
       @test namespace MyService {
         enum Versions {
@@ -866,7 +849,6 @@ describe("versioning: dependencies", () => {
           @useDependency(VersionedLib.Versions.v2)
           v2
         }
-
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -890,9 +872,7 @@ describe("versioning: dependencies", () => {
         @useDependency(Lib.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
-
         }
-
         @versioned(Versions)
         namespace Lib {
           enum Versions {
@@ -912,9 +892,7 @@ describe("versioning: dependencies", () => {
         @useDependency(Lib.One.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
-
         }
-
         @versioned(Versions)
         namespace Lib.One {
           enum Versions { v1: "v1" }
@@ -922,7 +900,6 @@ describe("versioning: dependencies", () => {
         
         @useDependency(Lib.One.Versions.v1)
         namespace Lib.Two { }
-
       `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);

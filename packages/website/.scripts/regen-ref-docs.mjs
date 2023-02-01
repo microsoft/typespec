@@ -8,6 +8,13 @@ export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../
 
 // Rest
 await generateLibraryDocs(
+  join(repoRoot, "packages/compiler"),
+  ["Cadl"],
+  join(repoRoot, "docs/compiler/reference")
+);
+
+// Rest
+await generateLibraryDocs(
   join(repoRoot, "packages/rest"),
   ["Cadl.Http", "Cadl.Rest", "Cadl.Rest.Resource"],
   join(repoRoot, "docs/standard-library/rest/reference")

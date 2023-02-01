@@ -27,6 +27,21 @@ namespace Pets {
 }
 ```
 
+If `@route` is applied to an interface, that route is not "portable". It will be applied to that interface but will not carry over if another interface extends it.
+
+```cadl
+// Operations prepended with /pets
+@route("/pets")
+interface PetOps {
+  list(): Pet[]
+}
+
+// Operations will *not* be prepended with /pets
+interface MyPetOps extends PetOps {
+  ...
+}
+```
+
 ### Automatic route generation
 
 Instead of manually specifying routes using the `@route` decorator, you automatically generate
@@ -66,3 +81,24 @@ This will result in the following route for both operations
 ```text
 /tenants/{tenantId}/users/{userName}
 ```
+
+If `@autoRoute` is applied to an interface, it is not "portable". It will be applied to that interface but will not carry over if another interface extends it.
+
+```cadl
+// Operations prepended with /pets
+@autoRoute
+interface PetOps {
+  action(@path @segment("pets") id: string): void;
+}
+
+// Operations will *not* be prepended with /pets
+interface MyPetOps extends PetOps {
+  ...
+}
+```
+
+### Customizing Automatic Route Generation
+
+Instead of manually specifying routes using the `@route` decorator, you automatically generate
+routes from operation parameters by applying the `@autoRoute` decorator to an operation, namespace,
+or interface containing operations.

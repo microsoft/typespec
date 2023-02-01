@@ -12,6 +12,7 @@ const excludedSamples = [
 
   // no actual samples in these dirs
   "node_modules",
+  "dist",
   "scratch",
   "scripts",
   "test",
@@ -20,6 +21,7 @@ const excludedSamples = [
 
 const rootInputPath = resolvePath("../");
 const rootOutputPath = resolvePath("../test/output");
+const restEmitterSamplePath = resolvePath("../rest-metadata-emitter");
 
 main().catch((e) => {
   console.error(e);
@@ -37,12 +39,17 @@ async function main() {
     const outputPath = join(rootOutputPath, folderName);
     mkdirp(outputPath);
 
+    let emitter = "@cadl-lang/openapi3";
+    if (inputPath === restEmitterSamplePath) {
+      emitter = resolvePath("../dist/rest-metadata-emitter/rest-metadata-emitter-sample.js");
+    }
+
     await run(process.execPath, [
       "../../packages/compiler/dist/core/cli/cli.js",
       "compile",
       inputPath,
-      `--option="@cadl-lang/openapi3.emitter-output-dir=${outputPath}"`,
-      `--emit=@cadl-lang/openapi3`,
+      `--option="${emitter}.emitter-output-dir=${outputPath}"`,
+      `--emit=${emitter}`,
       `--warn-as-error`,
       `--debug`,
     ]);

@@ -1,4 +1,6 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
+import { TypeEmitter } from "../emitter-framework/index.js";
+import { AssetEmitter } from "../emitter-framework/types.js";
 import { Program } from "./program.js";
 
 // prettier-ignore
@@ -89,51 +91,6 @@ export type Type =
   | ObjectType
   | Projection;
 
-/** @deprecated Use `Model` instead. */
-export type ModelType = Model;
-
-/** @deprecated Use `ModelProperty` instead. */
-export type ModelTypeProperty = ModelProperty;
-
-/** @deprecated Use `Interface` instead. */
-export type InterfaceType = Interface;
-
-/** @deprecated Use `Enum` instead. */
-export type EnumType = Enum;
-
-/** @deprecated Use `EnumMember` instead. */
-export type EnumMemberType = EnumMember;
-
-/** @deprecated Use `TemplateParameter` instead.` */
-export type TemplateParameterType = TemplateParameter;
-
-/** @deprecated Use `Namespace` instead. */
-export type NamespaceType = Namespace;
-
-/** @deprecated Use `Operation` instead. */
-export type OperationType = Operation;
-
-/** @deprecated Use `StringLiteral` instead. */
-export type StringLiteralType = StringLiteral;
-
-/** @deprecated Use `BooleanLiteral` instead. */
-export type BooleanLiteralType = BooleanLiteral;
-
-/** @deprecated Use `NumericLiteral` instead. */
-export type NumericLiteralType = NumericLiteral;
-
-/** @deprecated Use `Tuple` instead. */
-export type TupleType = Tuple;
-
-/** @deprecated Use `Union` instead. */
-export type UnionType = Union;
-
-/** @deprecated Use `UnionVariant` instead. */
-export type UnionTypeVariant = UnionVariant;
-
-/** @deprecated Use `Projection` instead. */
-export type ProjectionType = Projection;
-
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
 export interface ObjectType extends BaseType {
@@ -217,9 +174,7 @@ export type IntrinsicScalarName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
-  | "url"
-  /** @deprecated */
-  | "uri";
+  | "url";
 
 export type NeverIndexer = { key: NeverType; value: undefined };
 export type ModelIndexer = {
@@ -1828,6 +1783,13 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createCadlLibrary
    */
   options: TOptions;
+
+  /**
+   * Get an asset emitter to write emitted output to disk using a TypeEmitter
+   *
+   * @param TypeEmitterClass The TypeEmitter to construct your emitted output
+   */
+  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T>): AssetEmitter<T>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

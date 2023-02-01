@@ -163,14 +163,8 @@ describe("rest: resources", () => {
         @collectionAction(Thing, "export1")
         op exportThing(): {};
 
-        #suppress "deprecated"
         @post
         @collectionAction(Thing, "export2")
-        @segmentSeparator(":")
-        op exportThingWithColon1(): {};
-
-        @post
-        @collectionAction(Thing, "export3")
         @actionSeparator(":")
         op exportThingWithColon2(): {};
       }
@@ -185,12 +179,7 @@ describe("rest: resources", () => {
       },
       {
         verb: "post",
-        path: "/:things:export2",
-        params: [],
-      },
-      {
-        verb: "post",
-        path: "/things:export3",
+        path: "/things:export2",
         params: [],
       },
     ]);

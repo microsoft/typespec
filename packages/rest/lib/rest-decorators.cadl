@@ -42,11 +42,6 @@ extern dec segmentOf(target: Operation, type: object);
 extern dec actionSeparator(target: object | ModelProperty | Operation, seperator: "/" | ":" | "/:");
 
 /**
- * @deprecated use actionSeperator instead.
- */
-extern dec segmentSeparator(target: object | ModelProperty | Operation, seperator: string);
-
-/**
  * Mark this model as a resource type with a name.
  *
  * @param collectionName type's collection name

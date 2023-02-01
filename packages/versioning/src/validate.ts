@@ -21,20 +21,17 @@ import {
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
-  const namespaceDependencies = new Map();
+  const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
   function addDependency(source: Namespace | undefined, target: Type | undefined) {
-    if (target === undefined || !("namespace" in target) || target.namespace === undefined) {
+    if (!target || !("namespace" in target) || !target.namespace) {
       return;
     }
-    let set = namespaceDependencies.get(source);
-    if (set === undefined) {
-      set = new Set();
-      namespaceDependencies.set(source, set);
-    }
+    const set = namespaceDependencies.get(source) ?? new Set<Namespace>();
     if (target.namespace !== source) {
       set.add(target.namespace);
     }
+    namespaceDependencies.set(source, set);
   }
 
   navigateProgram(
@@ -119,7 +116,15 @@ export function $onValidate(program: Program) {
           return;
         }
         for (const [depNs, deps] of useDependencies) {
-          namespaceDependencies.set(depNs, deps);
+          const set = new Set<Namespace>();
+          if (deps instanceof Map) {
+            for (const val of deps.values()) {
+              set.add(val.namespace);
+            }
+          } else {
+            set.add(deps.namespace);
+          }
+          namespaceDependencies.set(depNs, set);
         }
       },
     },
