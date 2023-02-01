@@ -307,7 +307,6 @@ export function createAssetEmitter<T, TOptions extends object>(
       switch (key) {
         case "scalarDeclaration":
         case "modelDeclaration":
-        case "arrayDeclaration":
         case "modelInstantiation":
         case "operationDeclaration":
         case "interfaceDeclaration":
