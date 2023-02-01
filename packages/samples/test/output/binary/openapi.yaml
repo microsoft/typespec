@@ -20,24 +20,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/HasBytes'
-  /test/textPlain:
-    post:
-      operationId: BytesMethod_textPlain
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            text/plain:
-              schema:
-                type: string
-                format: byte
-      requestBody:
-        content:
-          text/plain:
-            schema:
-              type: string
-              format: byte
   /test/binaryFile:
     post:
       operationId: BytesMethod_genericBinaryFile
@@ -74,6 +56,24 @@ paths:
             schema:
               type: string
               format: binary
+  /test/textPlain:
+    post:
+      operationId: BytesMethod_textPlain
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: byte
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+              format: byte
 components:
   schemas:
     HasBytes:
