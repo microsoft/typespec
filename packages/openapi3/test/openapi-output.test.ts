@@ -36,7 +36,7 @@ describe("openapi3: types included", () => {
     `,
       {}
     );
-    deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced", "NotReferenced"]);
+    deepStrictEqual(Object.keys(output.components!.schemas!), ["NotReferenced", "Referenced"]);
   });
 
   it("emit only referenced types when using omit-unreachable-types", async () => {
