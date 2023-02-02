@@ -14,12 +14,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WritablePersonCreate'
+              $ref: '#/components/schemas/WritablePerson'
     put:
       operationId: Hello_update
       parameters: []
@@ -29,7 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
@@ -93,7 +93,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
 components:
   schemas:
     OptionalPerson:
@@ -266,29 +266,6 @@ components:
         relatives:
           type: array
           items:
-            $ref: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
-      required:
-        - id
-        - name
-        - test
-        - other
-        - relatives
-    ReadablePersonRead:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        test:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
             $ref: '#/components/schemas/PersonRelativeReadItem'
           x-cadl-name: PersonRelative[]
       required:
@@ -298,25 +275,6 @@ components:
         - other
         - relatives
     WritablePerson:
-      type: object
-      properties:
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
-      required:
-        - secret
-        - name
-        - test
-        - relatives
-    WritablePersonCreate:
       type: object
       properties:
         secret:
