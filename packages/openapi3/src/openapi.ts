@@ -1467,6 +1467,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 }
 
 function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
@@ -1487,5 +1488,24 @@ function prettierOutput(output: string) {
 class ErrorTypeFoundError extends Error {
   constructor() {
     super("Error type found in evaluated Cadl output");
+  }
+}
+
+function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
+  return Object.keys(obj)
+    .sort()
+    .reduce((sortedObj: any, key: string) => {
+      sortedObj[key] = obj[key];
+      return sortedObj;
+    }, {});
+}
+
+function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+  doc.paths = sortObjectByKeys(doc.paths);
+  if (doc.components?.schemas) {
+    doc.components.schemas = sortObjectByKeys(doc.components.schemas);
+  }
+  if (doc.components?.parameters) {
+    doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
 }
