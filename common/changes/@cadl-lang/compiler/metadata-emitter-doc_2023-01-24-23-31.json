@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Support --option=path/to/emitter.js.option=value in cli args",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

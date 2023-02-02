@@ -58,6 +58,16 @@ components:
         format: UUID
         pattern: ^[a-zA-Z0-9-]{3,24}$
   schemas:
+    NameParameter:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name parameter
+          format: UUID
+          pattern: ^[a-zA-Z0-9-]{3,24}$
+      required:
+        - name
     Thing:
       type: object
       properties:
@@ -69,13 +79,3 @@ components:
       required:
         - name
         - id
-    NameParameter:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name parameter
-          format: UUID
-          pattern: ^[a-zA-Z0-9-]{3,24}$
-      required:
-        - name

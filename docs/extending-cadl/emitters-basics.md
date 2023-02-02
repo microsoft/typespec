@@ -15,13 +15,13 @@ Cadl emitters are a special kind of Cadl library and so have the same getting st
 
 A Cadl emitter exports a function named `$onEmit` from its main entrypoint. It receives two arguments:
 
-- _program_: The current `Program` instance being compiled
+- _context_: The current context including the current progfam being compiled
 - _options_: Custom configuration options selected for this emitter
 
 For example, the following will write a text file to the output directory:
 
 ```typescript
-import { Program } from "@cadl-lang/compiler";
+import { EmitContext } from "@cadl-lang/compiler";
 import Path from "path";
 
 export async function $onEmit(context: EmitContext) {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "comment": "Prettier format change.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/html-program-viewer"
+}

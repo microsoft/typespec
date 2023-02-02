@@ -2,13 +2,10 @@
   "extends": "../tsconfig.json",
   "references": [{ "path": "../compiler/tsconfig.json" }, { "path": "../rest/tsconfig.json" }],
   "compilerOptions": {
-    "module": "Node16",
-    "moduleResolution": "Node16",
+    "types": [],
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node"],
-    "lib": ["DOM"]
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["rest-metadata-emitter/**/*.ts"]
 }

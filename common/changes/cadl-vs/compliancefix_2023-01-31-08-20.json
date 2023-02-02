@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Explicitly adding NewtonSoft.Json 13.0.2 to address vulnerability",
+      "type": "none"
+    }
+  ],
+  "packageName": "cadl-vs"
+}

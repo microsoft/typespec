@@ -25,10 +25,9 @@ components:
       schema:
         type: string
   schemas:
-    Pet:
-      anyOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Dog'
+    ApiVersionParam:
+      type: object
+      properties: {}
     Cat:
       type: object
       properties:
@@ -59,6 +58,10 @@ components:
         - nextWalkTime
       allOf:
         - $ref: '#/components/schemas/PetBase'
+    Pet:
+      anyOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
     PetBase:
       type: object
       properties:
@@ -66,6 +69,3 @@ components:
           type: string
       required:
         - name
-    ApiVersionParam:
-      type: object
-      properties: {}

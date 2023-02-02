@@ -36,26 +36,9 @@ components:
           - v1
           - v2
   schemas:
-    PetBase:
+    ApiVersionParam:
       type: object
-      properties:
-        type:
-          type: string
-          description: Discriminator property for PetBase.
-        name:
-          type: string
-        favoriteToys:
-          type: array
-          items:
-            $ref: '#/components/schemas/Library.PetToy'
-          x-cadl-name: Library.PetToy[]
-      discriminator:
-        propertyName: type
-        mapping:
-          dog: '#/components/schemas/Dog'
-      required:
-        - name
-        - favoriteToys
+      properties: {}
     Dog:
       type: object
       properties:
@@ -81,9 +64,26 @@ components:
           type: string
       required:
         - name
-    ApiVersionParam:
+    PetBase:
       type: object
-      properties: {}
+      properties:
+        type:
+          type: string
+          description: Discriminator property for PetBase.
+        name:
+          type: string
+        favoriteToys:
+          type: array
+          items:
+            $ref: '#/components/schemas/Library.PetToy'
+          x-cadl-name: Library.PetToy[]
+      discriminator:
+        propertyName: type
+        mapping:
+          dog: '#/components/schemas/Dog'
+      required:
+        - name
+        - favoriteToys
     Versions:
       type: string
       enum:
