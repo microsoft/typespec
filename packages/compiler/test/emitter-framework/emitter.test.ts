@@ -69,7 +69,7 @@ enum MyEnum {
 
 class SingleFileEmitter extends TypeScriptInterfaceEmitter {
   programContext(): Context {
-    const outputFile = this.emitter.createSourceFile("cadl-output/output.ts");
+    const outputFile = this.emitter.createSourceFile("output.ts");
     return { scope: outputFile.globalScope };
   }
 
@@ -138,6 +138,22 @@ describe("typescript emitter", () => {
     assert.match(contents, /z: 12/);
   });
 
+  it("emits array literals", async () => {
+    const contents = await emitCadlToTs(`
+      model MyArray2 is Array<string>;
+
+      model HasArray {
+        x: MyArray2;
+        y: string[];
+        z: (string | int32)[]
+      }
+    `);
+
+    assert.match(contents, /MyArray2 extends Array<string>/);
+    assert.match(contents, /x: MyArray2/);
+    assert.match(contents, /y: string\[\]/);
+    assert.match(contents, /z: \(string \| number\)\[\]/);
+  });
   // todo: what to do with optionals not at the end??
   it("emits operations", async () => {
     const contents = await emitCadlToTs(`
@@ -241,7 +257,10 @@ describe("typescript emitter", () => {
 
   it("emits models to a single file", async () => {
     const host = await getHostForCadlFile(testCode);
-    const emitter = createAssetEmitter(host.program, SingleFileEmitter);
+    const emitter = createAssetEmitter(host.program, SingleFileEmitter, {
+      emitterOutputDir: host.program.compilerOptions.outputDir!,
+      options: {},
+    } as any);
 
     emitter.emitProgram();
     await emitter.writeOutput();
@@ -278,6 +297,10 @@ describe("typescript emitter", () => {
         return this.#declarationContext(en);
       }
 
+      arrayDeclarationContext(array: Model): Context {
+        return this.#declarationContext(array);
+      }
+
       interfaceDeclarationContext(iface: Interface): Context {
         return this.#declarationContext(iface);
       }
@@ -288,12 +311,15 @@ describe("typescript emitter", () => {
 
       #declarationContext(decl: CadlDeclaration) {
         const name = this.emitter.emitDeclarationName(decl);
-        const outputFile = this.emitter.createSourceFile(`cadl-output/${name}.ts`);
+        const outputFile = this.emitter.createSourceFile(`${name}.ts`);
 
         return { scope: outputFile.globalScope };
       }
     }
-    const emitter = createAssetEmitter(host.program, ClassPerFileEmitter);
+    const emitter = createAssetEmitter(host.program, ClassPerFileEmitter, {
+      emitterOutputDir: host.program.compilerOptions.outputDir!,
+      options: {},
+    } as any);
 
     emitter.emitProgram();
 
@@ -374,10 +400,13 @@ describe("typescript emitter", () => {
         }
       }
     }
-    const emitter = createAssetEmitter(host.program, NamespacedEmitter);
+    const emitter = createAssetEmitter(host.program, NamespacedEmitter, {
+      emitterOutputDir: host.program.compilerOptions.outputDir!,
+      options: {},
+    } as any);
     emitter.emitProgram();
     await emitter.writeOutput();
-    const contents = (await host.compilerHost.readFile("output.ts")).text;
+    const contents = (await host.compilerHost.readFile("cadl-output/output.ts")).text;
     assert.match(contents, /namespace B/);
     assert.match(contents, /namespace R/);
     assert.match(contents, /namespace H/);
@@ -399,10 +428,13 @@ describe("typescript emitter", () => {
         return { scope: outputFile.globalScope };
       }
     }
-    const emitter: AssetEmitter<string> = createAssetEmitter(host.program, SingleFileEmitter);
+    const emitter: AssetEmitter<string> = createAssetEmitter(host.program, SingleFileEmitter, {
+      emitterOutputDir: host.program.compilerOptions.outputDir!,
+      options: {},
+    } as any);
     emitter.emitProgram();
     await emitter.writeOutput();
-    const contents = (await host.compilerHost.readFile("output.ts")).text;
+    const contents = (await host.compilerHost.readFile("cadl-output/output.ts")).text;
     assert.match(contents, /prop: Foo/);
     assert.match(contents, /prop: Baz/);
   });
@@ -540,7 +572,10 @@ it("can get options", async () => {
   }
 
   const host = await getHostForCadlFile(`model Foo { }`);
-  const assetEmitter = createAssetEmitter(host.program, TestEmitter, { doThing: "yes" });
+  const assetEmitter = createAssetEmitter(host.program, TestEmitter, {
+    emitterOutputDir: host.program.compilerOptions.outputDir!,
+    options: { doThing: "yes" },
+  } as any);
   assetEmitter.emitProgram();
   assert(called, "program context should be called");
 });
@@ -635,10 +670,13 @@ describe("Object emitter", () => {
       };
       `
     );
-    const assetEmitter = createAssetEmitter(host.program, TestEmitter);
+    const assetEmitter = createAssetEmitter(host.program, TestEmitter, {
+      emitterOutputDir: host.program.compilerOptions.outputDir!,
+      options: {},
+    } as any);
     assetEmitter.emitProgram();
     await assetEmitter.writeOutput();
-    const contents = JSON.parse((await host.compilerHost.readFile("test.json")!).text);
+    const contents = JSON.parse((await host.compilerHost.readFile("cadl-output/test.json")!).text);
     assert.strictEqual(contents.declarations.length, 2);
   });
 });

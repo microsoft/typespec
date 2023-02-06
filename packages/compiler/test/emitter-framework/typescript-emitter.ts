@@ -78,20 +78,13 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
   }
 
   modelLiteral(model: Model): EmitterOutput<string> {
-    if (isArrayType(model)) {
-      return this.emitter.result.rawCode(
-        code`${this.emitter.emitTypeReference(model.indexer!.value!)}[]`
-      );
-    }
-
     return this.emitter.result.rawCode(code`{ ${this.emitter.emitModelProperties(model)}}`);
   }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<string> {
     let extendsClause;
-    if (model.indexer && model.indexer.key!.name === "integer") {
-      extendsClause = code`extends Array<${this.emitter.emitTypeReference(model.indexer!.value!)}>`;
-    } else if (model.baseModel) {
+
+    if (model.baseModel) {
       extendsClause = code`extends ${this.emitter.emitTypeReference(model.baseModel)}`;
     } else {
       extendsClause = "";
@@ -137,6 +130,18 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
         property.type
       )}`
     );
+  }
+
+  arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
+    return this.emitter.result.declaration(
+      name,
+      code`interface ${name} extends Array<${this.emitter.emitTypeReference(elementType)}> { };`
+    );
+  }
+
+  arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
+    // we always parenthesize here as prettier will remove the unneeded parens.
+    return this.emitter.result.rawCode(code`(${this.emitter.emitTypeReference(elementType)})[]`);
   }
 
   operationDeclaration(operation: Operation, name: string): EmitterOutput<string> {
