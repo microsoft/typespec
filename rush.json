@@ -49,6 +49,12 @@
   "telemetryEnabled": false,
   "projects": [
     {
+      "packageName": "typespec",
+      "projectFolder": "packages/typespec",
+      "reviewCategory": "production",
+      "versionPolicyName": "cadl"
+    },
+    {
       "packageName": "@cadl-lang/compiler",
       "projectFolder": "packages/compiler",
       "reviewCategory": "production",
