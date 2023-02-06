@@ -1,0 +1,13 @@
+{
+  "name": "typespec",
+  "version": "0.0.1",
+  "description": "TypeSpec Preview",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo TypeSpec",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
