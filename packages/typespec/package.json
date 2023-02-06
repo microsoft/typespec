@@ -8,6 +8,6 @@
   "main": "index.js",
   "scripts": {
     "build": "echo TypeSpec",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo no test specified."
   }
 }
