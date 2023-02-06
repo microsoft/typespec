@@ -1,10 +1,10 @@
-import { join as joinPath } from "path";
 import {
   compilerAssert,
   EmitContext,
   emitFile,
   IntrinsicType,
   isTemplateDeclaration,
+  joinPaths,
   Model,
   Namespace,
   Program,
@@ -170,7 +170,7 @@ export function createAssetEmitter<T, TOptions extends object>(
       const basePath = options.emitterOutputDir;
       const sourceFile = {
         globalScope: undefined as any,
-        path: joinPath(basePath, path),
+        path: joinPaths(basePath, path),
         imports: new Map(),
       };
       sourceFile.globalScope = this.createScope(sourceFile, "");
