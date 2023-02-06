@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
