@@ -40,7 +40,6 @@ specifiers:
   '@rush-temp/samples': file:./projects/samples.tgz
   '@rush-temp/spec': file:./projects/spec.tgz
   '@rush-temp/tmlanguage-generator': file:./projects/tmlanguage-generator.tgz
-  '@rush-temp/typespec': file:./projects/typespec.tgz
   '@rush-temp/versioning': file:./projects/versioning.tgz
   '@rush-temp/website': file:./projects/website.tgz
   '@rushstack/eslint-patch': '1.1.0 '
@@ -168,7 +167,6 @@ dependencies:
   '@rush-temp/samples': file:projects/samples.tgz
   '@rush-temp/spec': file:projects/spec.tgz
   '@rush-temp/tmlanguage-generator': file:projects/tmlanguage-generator.tgz
-  '@rush-temp/typespec': file:projects/typespec.tgz
   '@rush-temp/versioning': file:projects/versioning.tgz
   '@rush-temp/website': file:projects/website.tgz_@types+react@18.0.27
   '@rushstack/eslint-patch': 1.1.0
@@ -15733,12 +15731,6 @@ packages:
       typescript: 4.9.5
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  file:projects/typespec.tgz:
-    resolution: {integrity: sha512-rUkswI+Wx8nT2Zs2CPGzxPpPonh8oIoQ889sHRYCg131B1/9lhjfzTBZH4DxNp/JVVFNDWoLdJ3IVjaU8r25DQ==, tarball: file:projects/typespec.tgz}
-    name: '@rush-temp/typespec'
-    version: 0.0.0
     dev: false
 
   file:projects/versioning.tgz:
