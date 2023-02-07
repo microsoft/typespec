@@ -241,6 +241,44 @@ describe("compiler: references", () => {
         strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
       });
     });
+
+    describe("property type reference of the property of the template parameter", async () => {
+      it("resolve references property of template parameter", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          model A {
+            kind: string;
+          };
+         
+          model B<T extends A> {
+            b: T.kind;
+            c: A.kind;
+          }
+          @test
+          model C is B<A>;
+          `
+        );
+        const { C } = await testHost.compile("main.cadl");
+        strictEqual(((C as Model).properties.get("b")?.type as any).name, "kind");
+        strictEqual(((C as Model).properties.get("c")?.type as any).name, "kind");
+      });
+
+      it("resolve references property of template parameter with annoymous model as constrint", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          model A<T extends {kind:"string"}> {
+            b: T.kind;
+          }
+          @test
+          model B is A<{kind:"string"}>;
+          `
+        );
+        const { B } = await testHost.compile("main.cadl");
+        strictEqual(((B as Model).properties.get("b")?.type as any).name, "kind");
+      });
+    });
   });
 
   describe("enum members", () => {

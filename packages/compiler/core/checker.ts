@@ -588,6 +588,32 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  /**
+   * get the sym Of a member type
+   * @param type Member type
+   * @returns Checked member
+   */
+  function getMemberTypeSym(type: Type): Sym | undefined {
+    switch (type.kind) {
+      case "ModelProperty":
+        if ("symbol" in type.type) {
+          return type.type.symbol;
+        } else {
+          const sym = createSymbol(type.type.node, "", SymbolFlags.LateBound);
+          mutate(sym).type = type.type;
+          return sym;
+        }
+        break;
+      case "UnionVariant":
+        if ("symbol" in type.type) {
+          return type.type.symbol;
+        } else {
+          return createSymbol(type.type.node, "", SymbolFlags.LateBound);
+        }
+    }
+    return undefined;
+  }
+
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -2114,14 +2140,10 @@ export function createChecker(program: Program): Checker {
       } else if (
         base.flags & SymbolFlags.TemplateParameter &&
         base.declarations[0].kind === SyntaxKind.TemplateParameterDeclaration &&
-        base.declarations[0].constraint?.kind === SyntaxKind.TypeReference &&
-        base.declarations[0].constraint.target.kind === SyntaxKind.Identifier
+        base.declarations[0].constraint
       ) {
-        const constraintSym = resolveTypeReferenceSym(
-          base.declarations[0].constraint.target,
-          mapper
-        );
-        if (!constraintSym) {
+        const baseConstraint = getTypeForNode(base.declarations[0].constraint);
+        if (!baseConstraint) {
           createDiagnostic({
             code: "invalid-ref",
             messageId: "node",
@@ -2130,19 +2152,46 @@ export function createChecker(program: Program): Checker {
           });
           return undefined;
         }
-        const sym = resolveIdentifierInTable(node.id, constraintSym.members!, resolveDecorator);
-        if (!sym) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "underContainer",
-              format: { kind: getMemberKindName(constraintSym.declarations[0]), id: node.id.sv },
-              target: node,
-            })
-          );
-          return undefined;
+        if (!("symbol" in baseConstraint)) {
+          lateBindMemberContainer(baseConstraint);
+          if ("symbol" in baseConstraint && baseConstraint.symbol) {
+            lateBindMembers(baseConstraint, baseConstraint.symbol);
+          }
         }
-        return sym;
+        if (
+          "symbol" in baseConstraint &&
+          baseConstraint.symbol &&
+          "members" in baseConstraint.symbol
+        ) {
+          const sym = resolveIdentifierInTable(
+            node.id,
+            baseConstraint.symbol.members!,
+            resolveDecorator
+          );
+          if (!sym) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "invalid-ref",
+                messageId: "underContainer",
+                format: {
+                  kind: getMemberKindName(base.declarations[0].constraint),
+                  id: node.id.sv,
+                },
+                target: node,
+              })
+            );
+          }
+          return sym
+        }
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "underContainer",
+            format: { kind: getMemberKindName(base.declarations[0].constraint), id: node.id.sv },
+            target: node,
+          })
+        );
+        return undefined;
       } else {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -2527,6 +2576,16 @@ export function createChecker(program: Program): Checker {
           if (node.is && node.is.kind === SyntaxKind.TypeReference) {
             resolveAndCopyMembers(node.is);
           }
+          for (const prop of node.properties) {
+            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
+              resolveAndCopyMembers(prop.target);
+            } else {
+              const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+              bindMember(name, prop, SymbolFlags.ModelProperty);
+            }
+          }
+          break;
+        case SyntaxKind.ModelExpression:
           for (const prop of node.properties) {
             if (prop.kind === SyntaxKind.ModelSpreadProperty) {
               resolveAndCopyMembers(prop.target);
