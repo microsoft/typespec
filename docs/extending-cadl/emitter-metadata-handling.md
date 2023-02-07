@@ -1,5 +1,5 @@
 ---
-id: emitter-metadata-handling.md
+id: emitter-metadata-handling
 title: Handling metadata and visibility in emitters for REST API
 ---
 

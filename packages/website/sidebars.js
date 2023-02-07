@@ -109,6 +109,7 @@ const sidebars = {
         "extending-cadl/linters",
         "extending-cadl/emitters",
         "extending-cadl/emitter-framework",
+        "extending-cadl/emitter-metadata-handling",
         "extending-cadl/writing-scaffolding-template",
       ],
     },

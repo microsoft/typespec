@@ -240,7 +240,7 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
-type StdTypeName = IntrinsicScalarName | "Array" | "Record";
+type StdTypeName = IntrinsicScalarName | "Array" | "Record" | "object";
 type StdTypes = {
   // Models
   Array: Model;
@@ -4945,6 +4945,7 @@ export function createChecker(program: Program): Checker {
     if (type.kind === "Scalar") return stdType === undefined || stdType === type.name;
     if (stdType === "Array" && type === stdTypes["Array"]) return true;
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
+    if (type.kind === "Model") return stdType === undefined || stdType === type.name;
     return false;
   }
 }
