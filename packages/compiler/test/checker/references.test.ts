@@ -242,7 +242,7 @@ describe("compiler: references", () => {
       });
     });
 
-    describe("property type reference of the property of the template parameter", async () => {
+    describe("property type reference of the property of the template parameter", () => {
       it("resolve references property of template parameter", async () => {
         testHost.addCadlFile(
           "main.cadl",
