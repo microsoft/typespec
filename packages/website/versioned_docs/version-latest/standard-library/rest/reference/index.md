@@ -60,7 +60,6 @@ toc_max_heading_level: 3
 - [`@segment`](./decorators.md#@Cadl.Rest.segment)
 - [`@segmentOf`](./decorators.md#@Cadl.Rest.segmentOf)
 - [`@actionSeparator`](./decorators.md#@Cadl.Rest.actionSeparator)
-- [`@segmentSeparator`](./decorators.md#@Cadl.Rest.segmentSeparator)
 - [`@resource`](./decorators.md#@Cadl.Rest.resource)
 - [`@readsResource`](./decorators.md#@Cadl.Rest.readsResource)
 - [`@createsResource`](./decorators.md#@Cadl.Rest.createsResource)

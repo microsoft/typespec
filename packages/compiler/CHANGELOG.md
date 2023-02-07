@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Updates
+
+- Fix giving a default value to custom numeric scalar
+- Feature: add an emitter framework to simplify building emitters
+- Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter
+- Bug: properly parse logical and (`&&`) expressions in projections
+- Support --option=path/to/emitter.js.option=value in cli args
+- Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.
 
 ## 0.39.0
 Fri, 13 Jan 2023 00:05:26 GMT

@@ -28,7 +28,6 @@ JS Api
 - [$actionSeparator](index.md#$actionseparator)
 - [$autoRoute](index.md#$autoroute)
 - [$collectionAction](index.md#$collectionaction)
-- [$consumes](index.md#$consumes)
 - [$copyResourceKeyParameters](index.md#$copyresourcekeyparameters)
 - [$createsOrReplacesResource](index.md#$createsorreplacesresource)
 - [$createsOrUpdatesResource](index.md#$createsorupdatesresource)
@@ -37,28 +36,23 @@ JS Api
 - [$listsResource](index.md#$listsresource)
 - [$onValidate](index.md#$onvalidate)
 - [$parentResource](index.md#$parentresource)
-- [$produces](index.md#$produces)
 - [$readsResource](index.md#$readsresource)
 - [$resource](index.md#$resource)
 - [$resourceLocation](index.md#$resourcelocation)
 - [$resourceTypeForKeyParam](index.md#$resourcetypeforkeyparam)
 - [$segment](index.md#$segment)
 - [$segmentOf](index.md#$segmentof)
-- [$segmentSeparator](index.md#$segmentseparator)
 - [$updatesResource](index.md#$updatesresource)
 - [getAction](index.md#getaction)
 - [getActionSegment](index.md#getactionsegment)
 - [getActionSeparator](index.md#getactionseparator)
 - [getCollectionAction](index.md#getcollectionaction)
-- [getConsumes](index.md#getconsumes)
 - [getParentResource](index.md#getparentresource)
-- [getProduces](index.md#getproduces)
 - [getResourceLocationType](index.md#getresourcelocationtype)
 - [getResourceOperation](index.md#getresourceoperation)
 - [getResourceTypeForKeyParam](index.md#getresourcetypeforkeyparam)
 - [getResourceTypeKey](index.md#getresourcetypekey)
 - [getSegment](index.md#getsegment)
-- [getSegmentSeparator](index.md#getsegmentseparator)
 - [isAutoRoute](index.md#isautoroute)
 - [setResourceOperation](index.md#setresourceoperation)
 - [setResourceTypeKey](index.md#setresourcetypekey)
@@ -171,28 +165,6 @@ ___
 | `entity` | `Operation` |
 | `resourceType` | `Model` |
 | `name?` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $consumes
-
-▸ **$consumes**(`context`, `entity`, `...contentTypes`): `void`
-
-**`Deprecated`**
-
-Use parameters `@header contentType` instead
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | `DecoratorContext` |
-| `entity` | `Namespace` |
-| `...contentTypes` | `string`[] |
 
 #### Returns
 
@@ -350,28 +322,6 @@ the target type to show up in operations of the `Resource*<T>` interfaces define
 
 ___
 
-### $produces
-
-▸ **$produces**(`context`, `entity`, `...contentTypes`): `void`
-
-**`Deprecated`**
-
-Use return type `@header contentType` property instead
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | `DecoratorContext` |
-| `entity` | `Namespace` |
-| `...contentTypes` | `string`[] |
-
-#### Returns
-
-`void`
-
-___
-
 ### $readsResource
 
 ▸ **$readsResource**(`context`, `entity`, `resourceType`): `void`
@@ -495,32 +445,6 @@ ___
 
 ___
 
-### $segmentSeparator
-
-▸ **$segmentSeparator**(`context`, `entity`, `separator`): `void`
-
-`@segmentSeparator` defines the separator string that is inserted between the target's
-`@segment` and the preceding route path in auto-generated routes.
-
-The first argument should be a string that will be inserted into the operation route before the
-target's `@segment` value.  Can be a string of any length.  Defaults to `/`.
-
-`@segmentSeparator` can only be applied to model properties, operation parameters, or operations.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | `DecoratorContext` |
-| `entity` | `Model` \| `ModelProperty` \| `Operation` |
-| `separator` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
 ### $updatesResource
 
 ▸ **$updatesResource**(`context`, `entity`, `resourceType`): `void`
@@ -609,27 +533,6 @@ ___
 
 ___
 
-### getConsumes
-
-▸ **getConsumes**(`program`, `entity`): `string`[]
-
-**`Deprecated`**
-
-Check parameters `@header contentType` instead
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | `Program` |
-| `entity` | `Type` |
-
-#### Returns
-
-`string`[]
-
-___
-
 ### getParentResource
 
 ▸ **getParentResource**(`program`, `resourceType`): `Model` \| `undefined`
@@ -644,27 +547,6 @@ ___
 #### Returns
 
 `Model` \| `undefined`
-
-___
-
-### getProduces
-
-▸ **getProduces**(`program`, `entity`): `string`[]
-
-**`Deprecated`**
-
-Check return type `@header contentType` property instead
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | `Program` |
-| `entity` | `Type` |
-
-#### Returns
-
-`string`[]
 
 ___
 
@@ -739,23 +621,6 @@ ___
 ### getSegment
 
 ▸ **getSegment**(`program`, `entity`): `string` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | `Program` |
-| `entity` | `Type` |
-
-#### Returns
-
-`string` \| `undefined`
-
-___
-
-### getSegmentSeparator
-
-▸ **getSegmentSeparator**(`program`, `entity`): `string` \| `undefined`
 
 #### Parameters
 
