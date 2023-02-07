@@ -588,32 +588,6 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  /**
-   * get the sym Of a member type
-   * @param type Member type
-   * @returns Checked member
-   */
-  function getMemberTypeSym(type: Type): Sym | undefined {
-    switch (type.kind) {
-      case "ModelProperty":
-        if ("symbol" in type.type) {
-          return type.type.symbol;
-        } else {
-          const sym = createSymbol(type.type.node, "", SymbolFlags.LateBound);
-          mutate(sym).type = type.type;
-          return sym;
-        }
-        break;
-      case "UnionVariant":
-        if ("symbol" in type.type) {
-          return type.type.symbol;
-        } else {
-          return createSymbol(type.type.node, "", SymbolFlags.LateBound);
-        }
-    }
-    return undefined;
-  }
-
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -847,7 +821,7 @@ export function createChecker(program: Program): Checker {
     const oldDiagnosticHook = onCheckerDiagnostic;
     const diagnostics: Diagnostic[] = [];
     onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
-    const type = checkTypeReference(node, undefined, true);
+    const type = checkTypeReference(node, undefined, false);
     onCheckerDiagnostic = oldDiagnosticHook;
     return [type === errorType ? undefined : type, diagnostics];
   }
@@ -2181,7 +2155,7 @@ export function createChecker(program: Program): Checker {
               })
             );
           }
-          return sym
+          return sym;
         }
         reportCheckerDiagnostic(
           createDiagnostic({
