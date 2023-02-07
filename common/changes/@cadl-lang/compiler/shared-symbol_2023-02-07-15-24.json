@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix issues with multiple copies of compiler core being loaded.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
