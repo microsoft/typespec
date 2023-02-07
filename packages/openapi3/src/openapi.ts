@@ -417,8 +417,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
       emitParameters();
-      emitUnreferencedSchemas(service.type);
-      emitSchemas();
+      emitSchemas(service.type);
       emitTags();
 
       // Clean up empty entries
@@ -808,40 +807,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitUnreferencedSchemas(namespace: Namespace) {
-    if (options.omitUnreachableTypes) {
-      return;
-    }
-    const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
-
-    const skipSubNamespaces = isGlobalNamespace(program, namespace);
-    navigateTypesInNamespace(
-      namespace,
-      {
-        model: (x) => x.name !== "" && computeSchema(x),
-        scalar: computeSchema,
-        enum: computeSchema,
-        union: (x) => x.name !== undefined && computeSchema(x),
-      },
-      { skipSubNamespaces }
-    );
-  }
-
-  function emitSchemas() {
-    // Process pending schemas. Note that getSchemaForType may pull in new
-    // pending schemas so we iterate until there are no pending schemas
-    // remaining.
+  function emitSchemas(serviceNamespace: Namespace) {
     const processedSchemas = new TwoLevelMap<Type, Visibility, ProcessedSchema>();
-    while (pendingSchemas.size > 0) {
-      for (const [type, group] of pendingSchemas) {
-        for (const [visibility, pending] of group) {
-          processedSchemas.getOrAdd(type, visibility, () => ({
-            ...pending,
-            schema: getSchemaForType(type, visibility),
-          }));
-        }
-        pendingSchemas.delete(type);
-      }
+
+    processSchemas();
+    if (!options.omitUnreachableTypes) {
+      processUnreferencedSchemas();
     }
 
     // Emit the processed schemas. Only now can we compute the names as it
@@ -859,6 +830,43 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           root.components!.schemas![name] = processed.schema;
         }
       }
+    }
+
+    function processSchemas() {
+      // Process pending schemas. Note that getSchemaForType may pull in new
+      // pending schemas so we iterate until there are no pending schemas
+      // remaining.
+      while (pendingSchemas.size > 0) {
+        for (const [type, group] of pendingSchemas) {
+          for (const [visibility, pending] of group) {
+            processedSchemas.getOrAdd(type, visibility, () => ({
+              ...pending,
+              schema: getSchemaForType(type, visibility),
+            }));
+          }
+          pendingSchemas.delete(type);
+        }
+      }
+    }
+
+    function processUnreferencedSchemas() {
+      const addSchema = (type: Type) => {
+        if (!processedSchemas.has(type) && !shouldInline(program, type)) {
+          getSchemaOrRef(type, Visibility.All);
+        }
+      };
+      const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
+      navigateTypesInNamespace(
+        serviceNamespace,
+        {
+          model: addSchema,
+          scalar: addSchema,
+          enum: addSchema,
+          union: addSchema,
+        },
+        { skipSubNamespaces }
+      );
+      processSchemas();
     }
   }
 
@@ -1467,6 +1475,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 }
 
 function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
@@ -1487,5 +1496,24 @@ function prettierOutput(output: string) {
 class ErrorTypeFoundError extends Error {
   constructor() {
     super("Error type found in evaluated Cadl output");
+  }
+}
+
+function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
+  return Object.keys(obj)
+    .sort()
+    .reduce((sortedObj: any, key: string) => {
+      sortedObj[key] = obj[key];
+      return sortedObj;
+    }, {});
+}
+
+function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+  doc.paths = sortObjectByKeys(doc.paths);
+  if (doc.components?.schemas) {
+    doc.components.schemas = sortObjectByKeys(doc.components.schemas);
+  }
+  if (doc.components?.parameters) {
+    doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
 }

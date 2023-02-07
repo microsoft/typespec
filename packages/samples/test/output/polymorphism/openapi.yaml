@@ -17,24 +17,6 @@ paths:
                 $ref: '#/components/schemas/Pet'
 components:
   schemas:
-    Pet:
-      type: object
-      properties:
-        kind:
-          type: string
-          description: Discriminator property for Pet.
-        name:
-          type: string
-        weight:
-          type: number
-          format: float
-      discriminator:
-        propertyName: kind
-        mapping:
-          cat: '#/components/schemas/Cat'
-          dog: '#/components/schemas/Dog'
-      required:
-        - name
     Cat:
       type: object
       properties:
@@ -64,3 +46,21 @@ components:
         - bark
       allOf:
         - $ref: '#/components/schemas/Pet'
+    Pet:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: Discriminator property for Pet.
+        name:
+          type: string
+        weight:
+          type: number
+          format: float
+      discriminator:
+        propertyName: kind
+        mapping:
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
+      required:
+        - name

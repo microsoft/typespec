@@ -38,29 +38,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorWithDocs'
-  /foo/NotFoundWithDocs:
-    get:
-      operationId: Foo_withStatusCodeDocs
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Resp'
-        '404':
-          description: The server cannot find the requested resource.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundWithDocsResp'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /foo/NotFoundDefaultDocs:
     get:
       operationId: Foo_withDefaultDescNotFound
@@ -84,16 +61,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /foo/NotFoundWithDocs:
+    get:
+      operationId: Foo_withStatusCodeDocs
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resp'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundWithDocsResp'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Resp:
-      type: object
-      properties:
-        value:
-          type: integer
-          format: int32
-      required:
-        - value
     Error:
       type: object
       properties:
@@ -102,15 +94,6 @@ components:
           format: int32
       required:
         - code
-    RespWithDocs:
-      type: object
-      properties:
-        value:
-          type: integer
-          format: int32
-      description: Response from @doc
-      required:
-        - value
     ErrorWithDocs:
       type: object
       properties:
@@ -120,6 +103,13 @@ components:
       description: Error from @doc
       required:
         - code
+    NotFoundResp:
+      type: object
+      properties:
+        details:
+          type: string
+      required:
+        - details
     NotFoundWithDocsResp:
       type: object
       properties:
@@ -128,10 +118,20 @@ components:
       description: Not found
       required:
         - details
-    NotFoundResp:
+    Resp:
       type: object
       properties:
-        details:
-          type: string
+        value:
+          type: integer
+          format: int32
       required:
-        - details
+        - value
+    RespWithDocs:
+      type: object
+      properties:
+        value:
+          type: integer
+          format: int32
+      description: Response from @doc
+      required:
+        - value

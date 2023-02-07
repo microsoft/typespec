@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Don't emit extra \"canonical\" model when always impacted by visibility",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}
