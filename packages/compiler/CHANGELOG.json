@@ -2,6 +2,33 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.40.0",
+      "tag": "@cadl-lang/compiler_v0.40.0",
+      "date": "Tue, 07 Feb 2023 21:24:14 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix giving a default value to custom numeric scalar"
+          },
+          {
+            "comment": "Feature: add an emitter framework to simplify building emitters"
+          },
+          {
+            "comment": "Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter"
+          },
+          {
+            "comment": "Bug: properly parse logical and (`&&`) expressions in projections"
+          },
+          {
+            "comment": "Support --option=path/to/emitter.js.option=value in cli args"
+          },
+          {
+            "comment": "Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.39.0",
       "tag": "@cadl-lang/compiler_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",

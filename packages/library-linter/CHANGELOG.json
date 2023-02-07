@@ -2,6 +2,12 @@
   "name": "@cadl-lang/library-linter",
   "entries": [
     {
+      "version": "0.40.0",
+      "tag": "@cadl-lang/library-linter_v0.40.0",
+      "date": "Tue, 07 Feb 2023 21:24:14 GMT",
+      "comments": {}
+    },
+    {
       "version": "0.39.0",
       "tag": "@cadl-lang/library-linter_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",

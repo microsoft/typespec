@@ -2,6 +2,18 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.40.0",
+      "tag": "cadl-vs_v0.40.0",
+      "date": "Tue, 07 Feb 2023 21:24:14 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Explicitly adding NewtonSoft.Json 13.0.2 to address vulnerability"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.39.0",
       "tag": "cadl-vs_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",

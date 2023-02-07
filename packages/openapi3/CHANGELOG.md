@@ -1,6 +1,19 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Feb 2023 21:24:14 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 07 Feb 2023 21:24:14 GMT
+
+### Patches
+
+- Convert Ref objects to ref string in OpenAPI YAML output
+
+### Updates
+
+- Fix issue where operation parameters could not target a ModelProperty.
+- Sort OpenAPI 3 output
+- Don't emit extra "canonical" model when always impacted by visibility
 
 ## 0.39.0
 Fri, 13 Jan 2023 00:05:26 GMT
