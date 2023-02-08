@@ -111,34 +111,8 @@ async function loadConfigFile(
     data = deepClone(defaultConfig) as CadlRawConfig;
   }
 
-  let emit = data.emit;
-  let options = data.options;
-
-  // @deprecated Legacy backward compatibility of emitters option. To remove March Sprint.
-  if (data.emitters) {
-    diagnostics.push(
-      createDiagnostic({
-        code: "deprecated",
-        format: {
-          message:
-            "`emitters` options in cadl-project.yaml is deprecated use `emit` and `options` instead.",
-        },
-        target: NoTarget,
-      })
-    );
-    emit = [];
-    options = {};
-    for (const [name, emitterOptions] of Object.entries(data.emitters)) {
-      if (emitterOptions === true) {
-        emit.push(name);
-        options[name] = {};
-      } else if (emitterOptions === false) {
-      } else {
-        emit.push(name);
-        options[name] = emitterOptions;
-      }
-    }
-  }
+  const emit = data.emit;
+  const options = data.options;
 
   return omitUndefined({
     projectRoot: getDirectoryPath(filename),
