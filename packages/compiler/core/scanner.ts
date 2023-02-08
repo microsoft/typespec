@@ -879,11 +879,10 @@ export function createScanner(
         ? position - 1
         : position;
 
-    if (tokenFlags & TokenFlags.Escaped) {
-      return unescapeString(start, end, true);
-    }
-
-    const text = input.substring(start, end);
+    const text =
+      tokenFlags & TokenFlags.Escaped
+        ? unescapeString(start, end, true)
+        : input.substring(start, end);
 
     if (tokenFlags & TokenFlags.NonAscii) {
       return text.normalize("NFC");
