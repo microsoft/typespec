@@ -20,8 +20,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/HasOptional'
+                $ref: '#/components/schemas/HasOptional'
       requestBody:
         content:
           application/json:
@@ -62,8 +61,7 @@ components:
           default: foo
         optionalEnum:
           allOf:
-            - $ref:
-                value: '#/components/schemas/MyEnum'
+            - $ref: '#/components/schemas/MyEnum'
           default: a
     MyEnum:
       type: string

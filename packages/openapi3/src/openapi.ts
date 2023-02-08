@@ -198,7 +198,7 @@ interface PendingSchema {
  * has been produced.
  */
 interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema;
+  schema: OpenAPI3Schema | undefined;
 }
 
 function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
@@ -417,8 +417,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
       emitParameters();
-      emitUnreferencedSchemas(service.type);
-      emitSchemas();
+      emitSchemas(service.type);
       emitTags();
 
       // Clean up empty entries
@@ -571,7 +570,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header | undefined {
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
@@ -744,8 +743,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getOpenAPIParameterBase(
     param: ModelProperty,
     visibility: Visibility
-  ): OpenAPI3ParameterBase {
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type, visibility));
+  ): OpenAPI3ParameterBase | undefined {
+    const typeSchema = getSchemaForType(param.type, visibility);
+    if (!typeSchema) {
+      return undefined;
+    }
+    const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -804,40 +807,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitUnreferencedSchemas(namespace: Namespace) {
-    if (options.omitUnreachableTypes) {
-      return;
-    }
-    const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
-
-    const skipSubNamespaces = isGlobalNamespace(program, namespace);
-    navigateTypesInNamespace(
-      namespace,
-      {
-        model: (x) => x.name !== "" && computeSchema(x),
-        scalar: computeSchema,
-        enum: computeSchema,
-        union: (x) => x.name !== undefined && computeSchema(x),
-      },
-      { skipSubNamespaces }
-    );
-  }
-
-  function emitSchemas() {
-    // Process pending schemas. Note that getSchemaForType may pull in new
-    // pending schemas so we iterate until there are no pending schemas
-    // remaining.
+  function emitSchemas(serviceNamespace: Namespace) {
     const processedSchemas = new TwoLevelMap<Type, Visibility, ProcessedSchema>();
-    while (pendingSchemas.size > 0) {
-      for (const [type, group] of pendingSchemas) {
-        for (const [visibility, pending] of group) {
-          processedSchemas.getOrAdd(type, visibility, () => ({
-            ...pending,
-            schema: getSchemaForType(type, visibility),
-          }));
-        }
-        pendingSchemas.delete(type);
-      }
+
+    processSchemas();
+    if (!options.omitUnreachableTypes) {
+      processUnreferencedSchemas();
     }
 
     // Emit the processed schemas. Only now can we compute the names as it
@@ -851,8 +826,47 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        root.components!.schemas![name] = processed.schema;
+        if (processed.schema) {
+          root.components!.schemas![name] = processed.schema;
+        }
       }
+    }
+
+    function processSchemas() {
+      // Process pending schemas. Note that getSchemaForType may pull in new
+      // pending schemas so we iterate until there are no pending schemas
+      // remaining.
+      while (pendingSchemas.size > 0) {
+        for (const [type, group] of pendingSchemas) {
+          for (const [visibility, pending] of group) {
+            processedSchemas.getOrAdd(type, visibility, () => ({
+              ...pending,
+              schema: getSchemaForType(type, visibility),
+            }));
+          }
+          pendingSchemas.delete(type);
+        }
+      }
+    }
+
+    function processUnreferencedSchemas() {
+      const addSchema = (type: Type) => {
+        if (!processedSchemas.has(type) && !shouldInline(program, type)) {
+          getSchemaOrRef(type, Visibility.All);
+        }
+      };
+      const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
+      navigateTypesInNamespace(
+        serviceNamespace,
+        {
+          model: addSchema,
+          scalar: addSchema,
+          enum: addSchema,
+          union: addSchema,
+        },
+        { skipSubNamespaces }
+      );
+      processSchemas();
     }
   }
 
@@ -862,7 +876,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForType(type: Type, visibility: Visibility) {
+  function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
     const builtinType = mapCadlTypeToOpenAPI(type, visibility);
     if (builtinType !== undefined) return builtinType;
 
@@ -871,6 +885,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "ModelProperty":
+        return getSchemaForType(type.type, visibility);
       case "Scalar":
         return getSchemaForScalar(type);
       case "Union":
@@ -1146,7 +1162,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // that we set before
       const baseSchema = getSchemaForType(model.baseModel, visibility);
       modelSchema = {
-        ...baseSchema,
+        ...(baseSchema as any),
         description: modelSchema.description,
       };
     } else if (model.baseModel) {
@@ -1386,7 +1402,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "uri":
       case "url":
         return { type: "string", format: "uri" };
       case "integer":
@@ -1460,11 +1475,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 }
 
 function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return yaml.dump(root, { noRefs: true });
+      return yaml.dump(root, {
+        noRefs: true,
+        replacer: function (key, value) {
+          return value instanceof Ref ? value.toJSON() : value;
+        },
+      });
   }
 }
 
@@ -1475,5 +1496,24 @@ function prettierOutput(output: string) {
 class ErrorTypeFoundError extends Error {
   constructor() {
     super("Error type found in evaluated Cadl output");
+  }
+}
+
+function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
+  return Object.keys(obj)
+    .sort()
+    .reduce((sortedObj: any, key: string) => {
+      sortedObj[key] = obj[key];
+      return sortedObj;
+    }, {});
+}
+
+function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+  doc.paths = sortObjectByKeys(doc.paths);
+  if (doc.components?.schemas) {
+    doc.components.schemas = sortObjectByKeys(doc.components.schemas);
+  }
+  if (doc.components?.parameters) {
+    doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
 }

@@ -8,7 +8,7 @@ using Cadl.Versioning;
 @service({
   title: "Pet Store Service",
 })
-@versionedDependency(Library.Versions.v1_0)
+@useDependency(Library.Versions.v1_0)
 namespace VersionedApi;
 using Cadl.Http;
 

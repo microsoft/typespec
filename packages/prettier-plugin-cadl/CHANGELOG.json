@@ -2,6 +2,12 @@
   "name": "@cadl-lang/prettier-plugin-cadl",
   "entries": [
     {
+      "version": "0.40.0",
+      "tag": "@cadl-lang/prettier-plugin-cadl_v0.40.0",
+      "date": "Tue, 07 Feb 2023 21:56:17 GMT",
+      "comments": {}
+    },
+    {
       "version": "0.39.0",
       "tag": "@cadl-lang/prettier-plugin-cadl_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",

@@ -1,0 +1,38 @@
+parameters:
+  python-sdk-folder:
+    default: "{cwd}/azure-sdk-for-python/"
+  java-sdk-folder:
+    default: "{cwd}/azure-sdk-for-java/"
+  js-sdk-folder:
+    default: "{cwd}/azure-sdk-for-js/"
+  csharp-sdk-folder:
+    default: "{cwd}/azure-sdk-for-csharp/"
+  service-directory-name:
+    default: "{{folderName}}"
+emit:
+  - "@azure-tools/cadl-autorest"
+options:
+  "@azure-tools/cadl-autorest":
+    output-file: "{{#toLowerCase}}{{parameters.ServiceNamespace}}{{/toLowerCase}}.json"
+    azure-resource-provider-folder: ../../../../data-plane
+    examples-directory: ./examples
+  "@azure-tools/cadl-python":
+    package-name: "{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
+    emitter-output-dir: "{python-sdk-folder}/sdk/{service-directory-name}/{package-name}"
+    package-mode: dataplane
+  "@azure-tools/cadl-csharp":
+    namespace: "{{parameters.ServiceNamespace}}"
+    clear-output-folder: true
+    model-namespace: false
+    emitter-output-dir: "{csharp-sdk-folder}/sdk/{service-directory-name}/{namespace}/src"
+  "@azure-tools/cadl-typescript":
+    emitter-output-dir: "{js-sdk-folder}/sdk/{service-directory-name}/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}-rest"
+    generateMetadata: true
+    generateTest: true
+    azureSdkForJs: true
+    packageDetails:
+      name: "@azure-rest/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}-rest"
+      description: "{{parameters.ServiceNamespace}} Service"
+  "@azure-tools/cadl-java":
+    emitter-output-dir: "{java-sdk-folder}/sdk/{service-directory-name}/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
+    namespace: com.{{#toLowerCase}}{{parameters.ServiceNamespace}}{{/toLowerCase}}

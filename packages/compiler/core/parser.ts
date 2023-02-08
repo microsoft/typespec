@@ -1679,7 +1679,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "&&",
           left: expr,
-          right: parseIdentifier(),
+          right: parseProjectionEqualityExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {

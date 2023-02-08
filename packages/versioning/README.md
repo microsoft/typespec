@@ -50,7 +50,7 @@ See [`@versionedDependency`](#versioneddependency) decorator for information abo
 Decorators:
 
 - [`@versioned`](#versioned) <!-- no toc -->
-- [`@versionedDependency`](#versioneddependency)
+- [`@useDependency`](#usedependency)
 - [`@added`](#added)
 - [`@removed`](#removed)
 - [`@renamedFrom`](#renamedfrom)
@@ -71,14 +71,14 @@ enum Versions {
 }
 ```
 
-### `@versionedDependency`
+### `@useDependency`
 
 When using elements from another versioned namespace, the consuming namespace **MUST** specify which version of the consumed namespace to use even if the consuming namespace is not versioned itself.
 
-The decorator either takes:
+The decorator can either target:
 
-- a single `enum member` if using the same version or the consuming namespace is not versioned.
-- a mapping of consuming namespace version to consumed namespace version
+- an unversioned namespace.
+- individual enum members of a versioned namespace's version enum.
 
 If we have a library with the following definition:
 
@@ -97,7 +97,7 @@ Pick a specific version to be used for all version of the service.
 
 ```cadl
 @versioned(Versions)
-@versionedDependency(MyLib.Versions.v1_1)
+@useDependency(MyLib.Versions.v1_1)
 namespace MyService1;
 
 enum Version {
@@ -110,7 +110,7 @@ enum Version {
 Service is not versioned, pick which version of `MyLib` should be used.
 
 ```cadl
-@versionedDependency(MyLib.Versions.v1_1)
+@useDependency(MyLib.Versions.v1_1)
 namespace NonVersionedService;
 ```
 
@@ -118,19 +118,16 @@ Select mapping of version to use
 
 ```cadl
 @versioned(Versions)
-@versionedDependency([
-  [Versions.v1, MyLib.Versions.v1_1], // V1 use lib v1_1
-  [Versions.v2, MyLib.Versions.v1_1], // V2 use lib v1_1
-  [Versions.v3, MyLib.Versions.v2],   // V3 use lib v2
-])
 namespace MyService1;
 
 enum Version {
+  @useDependency(MyLib.Versions.v1_1) // V1 use lib v1_1
   v1,
+  @useDependency(MyLib.Versions.v1_1) // V2 use lib v1_1
   v2,
+  @useDependency(MyLib.Versions.v2) // V3 use lib v2
   v3,
 }
-
 ```
 
 ### `@added`

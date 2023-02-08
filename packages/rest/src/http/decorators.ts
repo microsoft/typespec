@@ -631,16 +631,14 @@ function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
 
   const state = context.program.stateMap(routesKey);
 
-  if (state.has(entity)) {
-    if (entity.kind === "Namespace") {
-      const existingValue: RoutePath = state.get(entity);
-      if (existingValue.path !== details.path) {
-        reportDiagnostic(context.program, {
-          code: "duplicate-route-decorator",
-          messageId: "namespace",
-          target: entity,
-        });
-      }
+  if (state.has(entity) && entity.kind === "Namespace") {
+    const existingValue: RoutePath = state.get(entity);
+    if (existingValue.path !== details.path) {
+      reportDiagnostic(context.program, {
+        code: "duplicate-route-decorator",
+        messageId: "namespace",
+        target: entity,
+      });
     }
   } else {
     state.set(entity, details);

@@ -12,6 +12,39 @@ tags:
   - name: moreInner
   - name: innerOp
 paths:
+  /bar:
+    get:
+      operationId: Bar_list
+      description: no tags
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resp'
+                x-cadl-name: Resp[]
+  /bar/{id}:
+    post:
+      tags:
+        - tag3
+      operationId: Bar_create
+      description: one operation tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: >-
+            There is no content to send for this request, but the headers may be
+            useful. 
   /foo/{id}:
     get:
       tags:
@@ -38,40 +71,6 @@ paths:
         - tag2
       operationId: Foo_create
       description: includes namespace tag and two operations tags
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
-  /bar:
-    get:
-      operationId: Bar_list
-      description: no tags
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref:
-                    value: '#/components/schemas/Resp'
-                x-cadl-name: Resp[]
-  /bar/{id}:
-    post:
-      tags:
-        - tag3
-      operationId: Bar_create
-      description: one operation tag
       parameters:
         - name: id
           in: path

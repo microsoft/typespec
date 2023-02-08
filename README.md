@@ -27,7 +27,7 @@ For documentation for Cadl language, see https://microsoft.github.io/cadl.
 
 ### Using Docker
 
-[See docker documentation](./docs/docker.md)
+[See docker documentation](./docker)
 
 ### Using Node & Npm
 

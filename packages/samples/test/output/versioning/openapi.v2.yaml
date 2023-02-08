@@ -15,8 +15,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetBase'
+                $ref: '#/components/schemas/PetBase'
   /walkDog:
     post:
       operationId: MyService_walkDog
@@ -37,38 +36,24 @@ components:
           - v1
           - v2
   schemas:
-    PetBase:
+    ApiVersionParam:
+      type: object
+      properties: {}
+    Cat:
       type: object
       properties:
         type:
           type: string
-          description: Discriminator property for PetBase.
-        name:
-          type: string
-        favoriteToys:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/Library.PetToy'
-          x-cadl-name: Library.PetToy[]
-      discriminator:
-        propertyName: type
-        mapping:
-          dog:
-            value: '#/components/schemas/Dog'
-          cat:
-            value: '#/components/schemas/Cat'
+          enum:
+            - cat
+        catnipDose:
+          type: integer
+          format: int32
       required:
-        - name
-        - favoriteToys
-    ApiVersionParam:
-      type: object
-      properties: {}
-    Versions:
-      type: string
-      enum:
-        - v1
-        - v2
+        - type
+        - catnipDose
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
     Dog:
       type: object
       properties:
@@ -91,24 +76,7 @@ components:
         - nextWalkTime
         - commandList
       allOf:
-        - $ref:
-            value: '#/components/schemas/PetBase'
-    Cat:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - cat
-        catnipDose:
-          type: integer
-          format: int32
-      required:
-        - type
-        - catnipDose
-      allOf:
-        - $ref:
-            value: '#/components/schemas/PetBase'
+        - $ref: '#/components/schemas/PetBase'
     Library.PetToy:
       type: object
       properties:
@@ -119,3 +87,29 @@ components:
       required:
         - name
         - material
+    PetBase:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator property for PetBase.
+        name:
+          type: string
+        favoriteToys:
+          type: array
+          items:
+            $ref: '#/components/schemas/Library.PetToy'
+          x-cadl-name: Library.PetToy[]
+      discriminator:
+        propertyName: type
+        mapping:
+          dog: '#/components/schemas/Dog'
+          cat: '#/components/schemas/Cat'
+      required:
+        - name
+        - favoriteToys
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2

@@ -8,13 +8,7 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol } from "../lib.js";
-import {
-  getActionSegment,
-  getActionSeparator,
-  getSegment,
-  getSegmentSeparator,
-  isAutoRoute,
-} from "../rest.js";
+import { getActionSegment, getActionSeparator, getSegment, isAutoRoute } from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import { getRouteOptionsForNamespace, getRoutePath } from "./decorators.js";
 import { getOperationParameters } from "./parameters.js";
@@ -58,12 +52,7 @@ function addActionFragment(program: Program, target: Type, pathFragments: string
   const defaultSeparator = "/";
   const actionSegment = getActionSegment(program, target);
   if (actionSegment && actionSegment !== "") {
-    // Have to use segmentSeparator as a fallback to avoid breaking changes
-    // However, segmentSeparator does not work in certain cases and should not be used
-    const actionSeparator =
-      getActionSeparator(program, target) ??
-      getSegmentSeparator(program, target) ??
-      defaultSeparator;
+    const actionSeparator = getActionSeparator(program, target) ?? defaultSeparator;
     pathFragments.push(`${actionSeparator}${actionSegment}`);
   }
 }
@@ -74,9 +63,7 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
   const segment = getSegment(program, target);
 
   if (segment && segment !== "") {
-    const defaultSeparator = "/";
-    const separator = getSegmentSeparator(program, target) ?? defaultSeparator;
-    pathFragments.push(`${separator}${segment}`);
+    pathFragments.push(`/${segment}`);
   }
 }
 
@@ -139,12 +126,12 @@ export function resolvePathAndParameters(
   },
   readonly Diagnostic[]
 ] {
-  let segments: string[] = [];
+  let segments = getOperationRouteSegments(program, operation, overloadBase);
   let parameters: HttpOperationParameters;
   const diagnostics = createDiagnosticCollector();
   if (isAutoRoute(program, operation)) {
-    let parentOptions;
-    [segments, parentOptions] = getParentSegments(program, operation);
+    const [parentSegments, parentOptions] = getParentSegments(program, operation);
+    segments = parentSegments.length ? parentSegments : segments;
     parameters = diagnostics.pipe(getOperationParameters(program, operation));
 
     // The operation exists within an @autoRoute scope, generate the path.  This
@@ -154,7 +141,6 @@ export function resolvePathAndParameters(
       ...options,
     });
   } else {
-    segments = getOperationRouteSegments(program, operation, overloadBase);
     const declaredPathParams = segments.flatMap(extractParamsFromPath);
     parameters = diagnostics.pipe(
       getOperationParameters(program, operation, overloadBase, declaredPathParams)

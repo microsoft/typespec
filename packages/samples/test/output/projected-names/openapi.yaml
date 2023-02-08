@@ -19,8 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/WithProjectedNames'
+                $ref: '#/components/schemas/WithProjectedNames'
 components:
   schemas:
     WithProjectedNames:

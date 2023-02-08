@@ -18,21 +18,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Kiosk'
+                $ref: '#/components/schemas/Kiosk'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/Kiosk'
+              $ref: '#/components/schemas/Kiosk'
     get:
       tags:
         - Display
@@ -45,15 +42,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ListKiosksResponse'
+                $ref: '#/components/schemas/ListKiosksResponse'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
   /v1/kiosks/{id}:
     get:
       tags:
@@ -73,15 +68,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Kiosk'
+                $ref: '#/components/schemas/Kiosk'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
     delete:
       tags:
         - Display
@@ -104,8 +97,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
+  /v1/kiosks/{kiosk_id}/sign:
+    get:
+      tags:
+        - Display
+      operationId: Display_getSignIdForKioskId
+      description: Get the sign that should be displayed on a kiosk.
+      parameters:
+        - name: kiosk_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSignIdResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RpcStatus'
   /v1/signs:
     post:
       tags:
@@ -119,21 +137,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Sign'
+                $ref: '#/components/schemas/Sign'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/Sign'
+              $ref: '#/components/schemas/Sign'
     get:
       tags:
         - Display
@@ -146,8 +161,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ListSignsResponse'
+                $ref: '#/components/schemas/ListSignsResponse'
   /v1/signs/{id}:
     get:
       tags:
@@ -167,15 +181,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Sign'
+                $ref: '#/components/schemas/Sign'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
     delete:
       tags:
         - Display
@@ -198,8 +210,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
   /v1/signs/{sign_id}:
     post:
       tags:
@@ -218,8 +229,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
+                $ref: '#/components/schemas/RpcStatus'
       requestBody:
         content:
           application/json:
@@ -229,34 +239,6 @@ paths:
                 type: integer
                 format: int32
               x-cadl-name: int32[]
-  /v1/kiosks/{kiosk_id}/sign:
-    get:
-      tags:
-        - Display
-      operationId: Display_getSignIdForKioskId
-      description: Get the sign that should be displayed on a kiosk.
-      parameters:
-        - name: kiosk_id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/GetSignIdResponse'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/RpcStatus'
 components:
   parameters:
     SetSignIdForKioskIdsRequest.sign_id:
@@ -267,6 +249,21 @@ components:
         type: integer
         format: int32
   schemas:
+    GetSignIdForKioskIdRequest:
+      type: object
+      properties:
+        kiosk_id:
+          type: integer
+          format: int32
+      required:
+        - kiosk_id
+    GetSignIdResponse:
+      type: object
+      properties:
+        sign_id:
+          type: integer
+          format: int32
+      description: A successful response.
     Kiosk:
       type: object
       properties:
@@ -279,22 +276,68 @@ components:
           description: name of device hardware
         size:
           allOf:
-            - $ref:
-                value: '#/components/schemas/ScreenSize'
+            - $ref: '#/components/schemas/ScreenSize'
           description: screen size
         location:
           allOf:
-            - $ref:
-                value: '#/components/schemas/LatLng'
+            - $ref: '#/components/schemas/LatLng'
           description: kiosk location
         create_time:
-          $ref:
-            value: '#/components/schemas/Timestamp'
+          $ref: '#/components/schemas/Timestamp'
       description: Describes a hardware device that can display signs.
       required:
         - name
         - size
         - location
+    LatLng:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+      description: >-
+        An object that represents a latitude/longitude pair. This is expressed
+        as a
+
+        pair of doubles to represent degrees latitude and degrees longitude.
+        Unless
+
+        specified otherwise, this must conform to the
+
+        <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
+
+        standard</a>. Values must be within normalized ranges.
+      required:
+        - latitude
+        - longitude
+    ListKiosksResponse:
+      type: object
+      properties:
+        kiosks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Kiosk'
+          x-cadl-name: Kiosk[]
+      description: A successful response.
+    ListSignsResponse:
+      type: object
+      properties:
+        signs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sign'
+          x-cadl-name: Sign[]
+      description: A successful response.
+    ProtobufAny:
+      type: object
+      properties:
+        typeUrl:
+          type: string
+        value:
+          type: string
     RpcStatus:
       type: object
       properties:
@@ -306,61 +349,9 @@ components:
         details:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/ProtobufAny'
+            $ref: '#/components/schemas/ProtobufAny'
           x-cadl-name: ProtobufAny[]
       description: An unexpected error response.
-    ListKiosksResponse:
-      type: object
-      properties:
-        kiosks:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/Kiosk'
-          x-cadl-name: Kiosk[]
-      description: A successful response.
-    Sign:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-          description: unique id
-        name:
-          type: string
-          description: name of sign
-        text:
-          type: string
-          description: text to display
-        image:
-          type: string
-          format: byte
-          description: image to display
-      description: |-
-        Describes a digital sign.
-        Signs can include text, images, or both.
-      required:
-        - name
-        - text
-        - image
-    ListSignsResponse:
-      type: object
-      properties:
-        signs:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/Sign'
-          x-cadl-name: Sign[]
-      description: A successful response.
-    GetSignIdResponse:
-      type: object
-      properties:
-        sign_id:
-          type: integer
-          format: int32
-      description: A successful response.
     ScreenSize:
       type: object
       properties:
@@ -389,38 +380,30 @@ components:
       required:
         - kiosk_ids
         - sign_id
-    GetSignIdForKioskIdRequest:
+    Sign:
       type: object
       properties:
-        kiosk_id:
+        id:
           type: integer
           format: int32
+          description: unique id
+        name:
+          type: string
+          description: name of sign
+        text:
+          type: string
+          description: text to display
+        image:
+          type: string
+          format: byte
+          description: image to display
+      description: |-
+        Describes a digital sign.
+        Signs can include text, images, or both.
       required:
-        - kiosk_id
-    LatLng:
-      type: object
-      properties:
-        latitude:
-          type: number
-          format: double
-        longitude:
-          type: number
-          format: double
-      description: >-
-        An object that represents a latitude/longitude pair. This is expressed
-        as a
-
-        pair of doubles to represent degrees latitude and degrees longitude.
-        Unless
-
-        specified otherwise, this must conform to the
-
-        <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
-
-        standard</a>. Values must be within normalized ranges.
-      required:
-        - latitude
-        - longitude
+        - name
+        - text
+        - image
     Timestamp:
       type: object
       properties:
@@ -434,10 +417,3 @@ components:
       required:
         - seconds
         - nanos
-    ProtobufAny:
-      type: object
-      properties:
-        typeUrl:
-          type: string
-        value:
-          type: string
