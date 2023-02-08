@@ -264,7 +264,7 @@ describe("compiler: references", () => {
         strictEqual(((C as Model).properties.get("c")?.type as any).name, "kind");
       });
 
-      it("resolve references property of template parameter with annoymous model as constrint", async () => {
+      it("resolve references property of template parameter with anonymous model as constrint", async () => {
         testHost.addCadlFile(
           "main.cadl",
           `
