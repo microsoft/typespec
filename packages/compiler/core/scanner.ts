@@ -880,7 +880,7 @@ export function createScanner(
         : position;
 
     if (tokenFlags & TokenFlags.Escaped) {
-      return unescapeBacktickedString(start, end);
+      return unescapeString(start, end, true);
     }
 
     const text = input.substring(start, end);
@@ -1005,11 +1005,7 @@ export function createScanner(
     return pos;
   }
 
-  function unescapeBacktickedString(start: number, end: number): string {
-    return unescapeString(start, end, unescapeBacktickedOne);
-  }
-
-  function unescapeString(start: number, end: number, unescapeOneFunc = unescapeOne): string {
+  function unescapeString(start: number, end: number, isBackticked: boolean = false): string {
     let result = "";
     let pos = start;
 
@@ -1026,7 +1022,7 @@ export function createScanner(
       }
 
       result += input.substring(start, pos);
-      result += unescapeOneFunc(pos);
+      result += unescapeOne(pos, isBackticked);
       pos += 2;
       start = pos;
     }
@@ -1035,7 +1031,7 @@ export function createScanner(
     return result;
   }
 
-  function unescapeOne(pos: number): string {
+  function unescapeOne(pos: number, isBackticked: boolean = false): string {
     const ch = input.charCodeAt(pos + 1);
     switch (ch) {
       case CharCode.r:
@@ -1048,19 +1044,11 @@ export function createScanner(
         return '"';
       case CharCode.Backslash:
         return "\\";
-      default:
-        error({ code: "invalid-escape-sequence" });
-        return String.fromCharCode(ch);
-    }
-  }
-
-  function unescapeBacktickedOne(pos: number): string {
-    const ch = input.charCodeAt(pos + 1);
-    switch (ch) {
-      case CharCode.Backslash:
-        return "\\";
       case CharCode.Backtick:
-        return "`";
+        if (isBackticked) {
+          return "`";
+        }
+      // eslint-disable-next-line no-fallthrough
       default:
         error({ code: "invalid-escape-sequence" });
         return String.fromCharCode(ch);

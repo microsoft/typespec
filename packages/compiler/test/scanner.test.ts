@@ -301,7 +301,7 @@ describe("compiler: scanner", () => {
 
   it("scans backticked identifiers", () => {
     const all = tokens(
-      "`a` `01-01`\n`aa x`\r\n`1+1=2` `1!=2` `x\\`x` `\\\\x`\u{2028}`3.14`\u{2029}`import`"
+      "`a` `01-01`\n`aa x`\r\n`1+1=2` `1!=2` `x\\`x` `\\\\x`\u{2028}`3.14`\u{2029}`import` `a\\n\\t\\`b`"
     );
     verify(all, [
       [Token.Identifier, "`a`", { pos: 0, value: "a", line: 0, character: 0 }],
@@ -325,6 +325,8 @@ describe("compiler: scanner", () => {
       [Token.Whitespace, "\u{2029}", { pos: 54, value: "\u{2029}", line: 2, character: 34 }],
 
       [Token.Identifier, "`import`", { pos: 55, value: "import", line: 2, character: 35 }],
+      [Token.Whitespace, " ", { pos: 63, value: " ", line: 2, character: 43 }],
+      [Token.Identifier, "`a\\n\\t\\`b`", { pos: 64, value: "a\n\t`b", line: 2, character: 44 }],
     ]);
   });
 
