@@ -643,7 +643,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const id = parseIdentifier("property");
+    const id = parseIdentifier("property", true);
 
     parseExpected(Token.Colon);
 
@@ -837,7 +837,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode {
-    const id = parseIdentifier("property");
+    const id = parseIdentifier("property", true);
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
@@ -926,7 +926,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
-    const id = parseIdentifier("enumMember");
+    const id = parseIdentifier("enumMember", true);
 
     let value: StringLiteralNode | NumericLiteralNode | undefined;
     if (parseOptional(Token.Colon)) {
@@ -1194,7 +1194,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     recoverFromKeyword = true
   ): IdentifierNode | MemberExpressionNode {
     const pos = tokenPos();
-    let base: IdentifierNode | MemberExpressionNode = parseIdentifier(message, recoverFromKeyword);
+    let base: IdentifierNode | MemberExpressionNode = parseIdentifier(
+      message,
+      false,
+      recoverFromKeyword
+    );
     while (parseOptional(Token.Dot)) {
       base = {
         kind: SyntaxKind.MemberExpression,
@@ -1204,7 +1208,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         // parse `@Outer.<missing identifier> model M{}` as having decorator
         // `@Outer.model` applied to invalid statement `M {}` instead of
         // having incomplete decorator `@Outer.` applied to `model M {}`.
-        id: parseIdentifier(undefined, false),
+        id: parseIdentifier(undefined, false, false),
         ...finishNode(pos),
       };
     }
@@ -1351,12 +1355,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseIdentifier(
     message?: keyof CompilerDiagnostics["token-expected"],
+    allowStringLiteral = false, // Allow string literals to be used as identifiers for backward-compatibility, but convert to an identifier node.
     recoverFromKeyword = true
   ): IdentifierNode {
     if (recoverFromKeyword && isKeyword(token())) {
       error({ code: "reserved-identifier" });
-    } else if (token() !== Token.Identifier && token() !== Token.StringLiteral) {
-      // For backward-compatibility, we allow string literals to be used as identifiers, but convert to an identifier node.
+    } else if (
+      token() !== Token.Identifier &&
+      (!allowStringLiteral || token() !== Token.StringLiteral)
+    ) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
       error({ code: "token-expected", messageId: message ?? "identifier" });
@@ -2000,7 +2007,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode {
-    const id = parseIdentifier("property");
+    const id = parseIdentifier("property", true);
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
