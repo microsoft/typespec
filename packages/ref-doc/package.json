@@ -47,11 +47,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.39.0",
+    "@cadl-lang/compiler": "~0.40.0",
     "prettier": "~2.8.1"
   },
   "devDependencies": {
-    "@cadl-lang/compiler": "~0.39.0",
+    "@cadl-lang/compiler": "~0.40.0",
     "@cadl-lang/eslint-config-cadl": "~0.5.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
