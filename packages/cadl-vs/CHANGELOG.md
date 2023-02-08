@@ -1,6 +1,13 @@
 # Change Log - cadl-vs
 
-This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Updates
+
+- Explicitly adding NewtonSoft.Json 13.0.2 to address vulnerability
 
 ## 0.39.0
 Fri, 13 Jan 2023 00:05:26 GMT
