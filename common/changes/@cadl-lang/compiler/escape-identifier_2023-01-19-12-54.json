@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Remove StringLiteral for model property keys and enums",
+      "comment": "Format `StringLiteral` to `Identifier` (backticked when necessary)",
       "type": "none"
     }
   ],
