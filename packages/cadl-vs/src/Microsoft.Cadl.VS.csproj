@@ -1,0 +1,56 @@
+<Project>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <DebugType>Embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>Enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
+    <Version>42.42.42</Version>
+    <!-- Only deploy extension when building inside Visual Studio-->
+    <DeployExtension>false</DeployExtension>
+    <DeployExtension Condition="'$(BuildingInsideVisualStudio)' == 'true'">true</DeployExtension>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TargetVsixContainer>$(MSBuildThisFileDirectory)..\$(AssemblyName).vsix</TargetVsixContainer>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Visible="False" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\LICENSE" Link="LICENSE" />
+    <Content Include="*.pkgdef" />
+    <Content Include="../node_modules/cadl-vscode/dist/cadl.tmLanguage" Link="TextMate/cadl.tmLanguage" />
+    <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Use 17.0.x or latest 16.x if no 17.0.x for compatible API-->
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.31902.203" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="16.3.43" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="16.3.43" ExcludeAssets="Runtime" />
+    <!-- Use latest 17.x for build tools-->
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.3.2093" PrivateAssets="All" />
+    <!-- Align with VS 17.0 version here: https://devblogs.microsoft.com/visualstudio/using-newtonsoft-json-in-a-visual-studio-extension/-->
+    <PackageReference Include="NewtonSoft.JSON" Version="13.0.2" ExcludeAssets="Runtime" />
+  </ItemGroup>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
+  <Target Name="GetPackageVersionForVsixManifest" Returns="$(Version)" />
+  <!-- VS SDK does not currently support building with dotnet build.  -->
+  <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'" AfterTargets="AfterBuild">
+    <Message Importance="High" Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
+  </Target>
+  <!-- Stash debug source directory so deployed debug vsix can use it to find and cadl-server under development in source tree. -->
+  <Target Name="WriteDebugSourceDirectory" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="BeforeBuild">
+    <WriteLinesToFile File="$(IntermediateOutputPath)DebugSourceDirectory.txt" Lines="$(MSBuildThisFileDirectory)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+  </Target>
+  <!-- Helpful for debugging deployment issues to be able to see at minimum verbosity if extension was deployed -->
+  <Target Name="LogVsixDeployment" BeforeTargets="DeployVsixExtensionFiles" Condition="'$(DeployExtension)' == 'true'">
+    <Message Importance="High" Text="$(TargetVsixContainer) -&gt; $(VsixDeploymentPath)" />
+  </Target>
+</Project>

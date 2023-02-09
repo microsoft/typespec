@@ -1789,7 +1789,7 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    *
    * @param TypeEmitterClass The TypeEmitter to construct your emitted output
    */
-  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T>): AssetEmitter<T>;
+  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

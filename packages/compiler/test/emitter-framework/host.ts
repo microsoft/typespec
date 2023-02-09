@@ -43,7 +43,10 @@ export async function emitCadl(
   validateCallCounts = true
 ) {
   const host = await getHostForCadlFile(code);
-  const emitter = createAssetEmitter(host.program, Emitter);
+  const emitter = createAssetEmitter(host.program, Emitter, {
+    emitterOutputDir: "cadl-output",
+    options: {},
+  } as any);
   const spies = emitterSpies(Emitter);
   emitter.emitProgram();
   await emitter.writeOutput();
@@ -54,7 +57,7 @@ export async function emitCadl(
 }
 
 type EmitterSpies = Record<string, SinonSpy>;
-function emitterSpies(emitter: typeof TypeEmitter) {
+function emitterSpies(emitter: typeof TypeEmitter<any, any>) {
   const spies: EmitterSpies = {};
   const methods = Object.getOwnPropertyNames(emitter.prototype);
   for (const key of methods) {

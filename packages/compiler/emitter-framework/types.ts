@@ -11,8 +11,12 @@ import {
   Union,
 } from "../core/index.js";
 import { Placeholder } from "./placeholder.js";
+type AssetEmitterOptions<TOptions extends object> = {
+  noEmit: boolean;
+  emitterOutputDir: string;
+} & TOptions;
 
-export interface AssetEmitter<T> {
+export interface AssetEmitter<T, TOptions extends object = Record<string, unknown>> {
   /**
    * Get the current emitter context as set by the TypeEmitter's various
    * context methods.
@@ -20,7 +24,7 @@ export interface AssetEmitter<T> {
    * @returns The current emitter context
    */
   getContext(): Context;
-  getOptions(): Record<string, unknown>;
+  getOptions(): AssetEmitterOptions<TOptions>;
   getProgram(): Program;
   emitTypeReference(type: Type): EmitEntity<T>;
   emitDeclarationName(type: CadlDeclaration): string;
@@ -35,6 +39,12 @@ export interface AssetEmitter<T> {
   emitEnumMembers(en: Enum): EmitEntity<T>;
   emitUnionVariants(union: Union): EmitEntity<T>;
   emitTupleLiteralValues(tuple: Tuple): EmitEntity<T>;
+
+  /**
+   * Create a source file.
+   *
+   * @param name the path of the file, resolved relative to the emitter's output directory.
+   */
   createSourceFile(name: string): SourceFile<T>;
   createScope(sourceFile: SourceFile<T>, name: string): SourceFileScope<T>;
   createScope(namespace: any, name: string, parentScope: Scope<T>): NamespaceScope<T>;

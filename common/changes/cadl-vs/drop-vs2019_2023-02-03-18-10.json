@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Remove support for Visual Studio 2019",
+      "type": "none"
+    }
+  ],
+  "packageName": "cadl-vs"
+}
