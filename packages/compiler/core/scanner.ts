@@ -1133,10 +1133,12 @@ export function createScanner(
         case CharCode.CarriageReturn:
         case CharCode.LineFeed:
           break loop;
+        default:
+          if (ch > CharCode.MaxAscii) {
+            tokenFlags |= TokenFlags.NonAscii;
+          }
       }
     }
-
-    // TODO: nonAsciiCharacter
 
     return unterminated(Token.Identifier);
   }

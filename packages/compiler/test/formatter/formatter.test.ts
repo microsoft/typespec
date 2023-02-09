@@ -313,12 +313,14 @@ model Foo {
 model Foo {
   "abc": string;
   "this-needs-quotes": int32;
+  "foo bar": int32;
 }
 `,
         expected: `
 model Foo {
   abc: string;
   \`this-needs-quotes\`: int32;
+  \`foo bar\`: int32;
 }
 `,
       });

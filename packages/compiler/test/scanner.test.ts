@@ -330,6 +330,21 @@ describe("compiler: scanner", () => {
     ]);
   });
 
+  it("normalizes non-ASCII characters in backticked identifiers", () => {
+    const all = tokens("`\u{d83d}\u{de0d}` `\u{00f1} is \u{006e}\u{0303}` \u{00f1}");
+    verify(all, [
+      [
+        Token.Identifier,
+        "`\u{d83d}\u{de0d}`",
+        { pos: 0, value: "\u{d83d}\u{de0d}", line: 0, character: 0 },
+      ],
+      [Token.Whitespace, " ", { pos: 4, value: " ", line: 0, character: 4 }],
+      [Token.Identifier, "`ñ is ñ`", { pos: 5, value: "ñ is ñ", line: 0, character: 5 }],
+      [Token.Whitespace, " ", { pos: 14, value: " ", line: 0, character: 14 }],
+      [Token.Identifier, "ñ", { pos: 15, value: "ñ", line: 0, character: 15 }],
+    ]);
+  });
+
   // https://github.com/microsoft/cadl/issues/168
   it("scan file ending with multi-line comment", () => {
     const multiLineComment = "/* foo\n*bar\n*/";
