@@ -12,12 +12,12 @@ using Azure.Core;
 })
 @versioned({{parameters.ServiceNamespace}}.Versions)
 @versionedDependency(
-  [[{{parameters.ServiceNamespace}}.Versions.v2022_11_01_Preview, Azure.Core.Versions.v1_0_Preview_1]]
+  [[{{parameters.ServiceNamespace}}.Versions.`2022-11-01-preview`, Azure.Core.Versions.v1_0_Preview_1]]
 )
 namespace {{parameters.ServiceNamespace}};
 
 enum Versions {
-  v2022_11_01_Preview: "2022-11-01-preview",
+  `2022-11-01-preview`,
 }
 
 @doc("A widget.")
