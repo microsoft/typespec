@@ -1,5 +1,4 @@
 using EnvDTE;
-using Microsoft.Cadl.VisualStudio;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
@@ -8,7 +7,6 @@ using Microsoft.VisualStudio.Workspace;
 using Microsoft.VisualStudio.Workspace.Settings;
 using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -116,22 +114,6 @@ namespace Microsoft.Cadl.VisualStudio
             }
         }
 
-#if VS2019
-        public Task OnServerInitializeFailedAsync(Exception e)
-        {
-            if (e is CadlUserErrorException)
-            {
-                Console.WriteLine("Failed to initialize cadl-server:\r\n\r\n" + e.Message);
-            }
-            else
-            {
-                Debug.Fail("Unexpected error initializing cadl-server:\r\n\r\n" + e);
-            }
-            return Task.CompletedTask;
-        }
-#endif
-
-#if VS2022
         public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState)
         {
             var exception = initializationState.InitializationException;
@@ -149,7 +131,6 @@ namespace Microsoft.Cadl.VisualStudio
                     FailureMessage = "Failed to activate Cadl language server!\r\n" + message
                 });
         }
-#endif
 
         public Task OnServerInitializedAsync()
         {
@@ -183,7 +164,7 @@ namespace Microsoft.Cadl.VisualStudio
             // the source tree.
             var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-            return Path.GetFullPath(Path.Combine(srcDir, "..", "compiler", "cmd", "cadl-server.js"));
+            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "cmd", "cadl-server.js"));
         }
 #endif
 
@@ -194,7 +175,7 @@ namespace Microsoft.Cadl.VisualStudio
             var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
 
 #if DEBUG
-            // Use local build of cadl-server in development (lauched from F5 in VS)
+            // Use local build of cadl-server in development (launched from F5 in VS)
             if (InDevelopmentMode())
             {
                 // NOTE: --no-lazy is not supported as environment variable, so we pass it in command line.

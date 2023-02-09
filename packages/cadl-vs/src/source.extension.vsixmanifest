@@ -3,12 +3,12 @@
   <Metadata>
     <Identity Id="88b9492f-c019-492c-8aeb-f325a7e4cf23" Version="|%CurrentProject%;GetPackageVersionForVsixManifest|" Language="en-US" Publisher="Microsoft" />
     <DisplayName>Cadl Language Support</DisplayName>
-    <Description>Cadl Language Support for Visual Studio 2022</Description>
+    <Description>Cadl Language Support for Visual Studio</Description>
     <MoreInfo>https://github.com/Microsoft/cadl</MoreInfo>
     <License>LICENSE</License>
   </Metadata>
   <Installation>
-    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,18.0)">
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">
       <ProductArchitecture>amd64</ProductArchitecture>
     </InstallationTarget>
   </Installation>
@@ -21,6 +21,6 @@
     <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" Path="|%CurrentProject%|" />
   </Assets>
   <Prerequisites>
-    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,)" DisplayName="Visual Studio core editor" />
   </Prerequisites>
 </PackageManifest>
