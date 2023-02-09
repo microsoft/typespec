@@ -158,7 +158,7 @@ export function printNode(
       return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
-      return node.sv;
+      return printIdentifier(node);
     case SyntaxKind.StringLiteral:
       return printStringLiteral(path as AstPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
@@ -987,7 +987,7 @@ export function printModelProperty(
       tryInline: true,
     }
   );
-  const id = needBacktick(node.id) ? `\`${node.id.sv}\`` : node.id.sv;
+  const id = printIdentifier(node.id);
   return [
     multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
@@ -997,6 +997,10 @@ export function printModelProperty(
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
   ];
+}
+
+function printIdentifier(id: IdentifierNode) {
+  return needBacktick(id) ? `\`${id.sv}\`` : id.sv;
 }
 
 function needBacktick(id: IdentifierNode) {

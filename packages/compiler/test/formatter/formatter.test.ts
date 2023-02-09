@@ -291,7 +291,7 @@ model Foo {
     it("remove unnecessary backticks", () => {
       assertFormat({
         code: `
-model Foo {
+model \`Foo\` {
   \`abc\`: string;
   \`import\`: boolean;
   \`this-needs-backticks\`: int32;
@@ -315,12 +315,20 @@ model Foo {
   "this-needs-quotes": int32;
   "foo bar": int32;
 }
+enum \`2Colors\` {
+  "red color",
+  "green-color",
+}
 `,
         expected: `
 model Foo {
   abc: string;
   \`this-needs-quotes\`: int32;
   \`foo bar\`: int32;
+}
+enum \`2Colors\` {
+  \`red color\`,
+  \`green-color\`,
 }
 `,
       });
