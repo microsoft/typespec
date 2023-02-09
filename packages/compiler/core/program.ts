@@ -758,7 +758,7 @@ export async function compile(
       emitterOutputDir: emitter.emitterOutputDir,
       options: emitter.options,
       getAssetEmitter(TypeEmitterClass) {
-        return createAssetEmitter(program, TypeEmitterClass);
+        return createAssetEmitter(program, TypeEmitterClass, this);
       },
     };
     try {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix ambiguous references diagnostic for decorators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

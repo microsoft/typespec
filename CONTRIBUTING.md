@@ -228,7 +228,7 @@ debug the last one you chose.
 
 ## Prerequisites
 
-Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 16.9
+Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 17.0
 or later. It is not currently possible to build the VS extension
 without it, and of course you'll need Visual Studio to run and debug
 the Visual Studio extension.

@@ -144,7 +144,7 @@ export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
  * And we set reference context for the Person model, Pet will be emitted twice,
  * once without context and once with the reference context.
  */
-export class TypeEmitter<T> {
+export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   /**
    * @private
    *
@@ -152,7 +152,7 @@ export class TypeEmitter<T> {
    * call `createAssetEmitter` on the emitter context object.
    * @param emitter The asset emitter
    */
-  constructor(protected emitter: AssetEmitter<T>) {}
+  constructor(protected emitter: AssetEmitter<T, TOptions>) {}
 
   /**
    * Context shared by the entire program. In cases where you are emitting to a
@@ -370,6 +370,32 @@ export class TypeEmitter<T> {
    */
   modelPropertyReference(property: ModelProperty): EmitterOutput<T> {
     return this.emitter.emitTypeReference(property.type);
+  }
+
+  arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<T> {
+    this.emitter.emitType(array.indexer!.value);
+    return this.emitter.result.none();
+  }
+
+  arrayDeclarationContext(array: Model): Context {
+    return {};
+  }
+
+  arrayDeclarationReferenceContext(array: Model): Context {
+    this.emitter.emitType(array.indexer!.value);
+    return {};
+  }
+
+  arrayLiteral(array: Model, elementType: Type): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
+  arrayLiteralContext(array: Model): Context {
+    return {};
+  }
+
+  arrayLiteralReferenceContext(array: Model): Context {
+    return {};
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<T> {
@@ -660,7 +686,10 @@ export class TypeEmitter<T> {
  * by commas. It will also construct references by concatenating namespace elements together
  * with `.` which should work nicely in many object oriented languages.
  */
-export class CodeTypeEmitter extends TypeEmitter<string> {
+export class CodeTypeEmitter<TOptions extends object = Record<string, never>> extends TypeEmitter<
+  string,
+  TOptions
+> {
   modelProperties(model: Model): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;

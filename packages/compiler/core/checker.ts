@@ -240,7 +240,7 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
-type StdTypeName = IntrinsicScalarName | "Array" | "Record";
+type StdTypeName = IntrinsicScalarName | "Array" | "Record" | "object";
 type StdTypes = {
   // Models
   Array: Model;
@@ -655,10 +655,12 @@ export function createChecker(program: Program): Checker {
 
   function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
     if (!sym) return "";
+    if (sym.symbolSource) sym = sym.symbolSource;
     const parent = sym.parent;
-    return parent && parent.name !== ""
-      ? `${getFullyQualifiedSymbolName(parent)}.${sym.name}`
-      : sym.name;
+    const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
+    return parent && parent.name !== "" && !(parent.flags & SymbolFlags.SourceFile)
+      ? `${getFullyQualifiedSymbolName(parent)}.${name}`
+      : name;
   }
 
   /**
@@ -1750,17 +1752,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols
-      .map((x) => {
-        const namespace =
-          x.symbolSource!.flags & (SymbolFlags.Decorator | SymbolFlags.Function)
-            ? (x.symbolSource!.value as any).namespace
-            : getNamespaceFullName(
-                (getTypeForNode(x.symbolSource!.declarations[0], undefined) as any).namespace
-              );
-        return `${namespace}.${node.sv}`;
-      })
-      .join(", ");
+    const duplicateNames = symbols.map(getFullyQualifiedSymbolName).join(", ");
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "ambiguous-symbol",
@@ -4854,6 +4846,7 @@ export function createChecker(program: Program): Checker {
     if (type.kind === "Scalar") return stdType === undefined || stdType === type.name;
     if (stdType === "Array" && type === stdTypes["Array"]) return true;
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
+    if (type.kind === "Model") return stdType === undefined || stdType === type.name;
     return false;
   }
 }
