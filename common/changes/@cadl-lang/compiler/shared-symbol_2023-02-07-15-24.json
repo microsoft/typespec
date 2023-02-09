@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix issues with multiple copies of compiler core being loaded.",
+      "comment": "Fix issue with projectedName decorator not working correctly when multiple copies of the are loaded.",
       "type": "none"
     }
   ],
