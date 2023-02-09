@@ -65,10 +65,10 @@ Enums can be reused using the spread `...` pattern. All the members of the sourc
 ```cadl
 enum DirectionExt {
   ...Direction,
-  "North East",
-  "North West",
-  "South East",
-  "South West",
+  `North East`,
+  `North West`,
+  `South East`,
+  `South West`,
 }
 ```
 
