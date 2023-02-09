@@ -961,7 +961,7 @@ export function getOverloadedOperation(
   return program.stateMap(overloadsOperationKey).get(operation);
 }
 
-const projectedNameKey = Symbol("projectedNameKey");
+const projectedNameKey = createStateSymbol("projectedNameKey");
 
 /**
  * `@projectedName` - Indicate that this entity should be renamed according to the given projection.
