@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/rest",
-      "comment": "Fix issue with filtering of visibility decorator on resource key not working when multiple copies of compiler are loaded.",
+      "comment": "Fix issue with filtering of visibility decorator on resource key not working when multiple copies of the compiler are loaded.",
       "type": "none"
     }
   ],
