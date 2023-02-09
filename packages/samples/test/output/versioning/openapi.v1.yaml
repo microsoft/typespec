@@ -62,8 +62,11 @@ components:
       properties:
         name:
           type: string
+        material:
+          type: string
       required:
         - name
+        - material
     PetBase:
       type: object
       properties:

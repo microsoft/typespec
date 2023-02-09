@@ -13,6 +13,6 @@ enum Versions {
 model PetToy {
   name: string;
 
-  @added(Versions.`1.0`)
+  @added(Versions.`1.1`)
   material: string;
 }
