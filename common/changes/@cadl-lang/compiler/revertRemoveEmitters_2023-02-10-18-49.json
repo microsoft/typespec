@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "**Breaking Change**. Removes `emitters` option in cadl-project.yaml. Use `emit` and `options` instead.",
+      "comment": "Revert PR #1634.",
       "type": "none"
     }
   ],
