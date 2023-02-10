@@ -12,7 +12,6 @@ import { mkdtemp, readdir, rm } from "fs/promises";
 import watch from "node-watch";
 import os from "os";
 import { resolve } from "path";
-import prompts from "prompts";
 import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { loadCadlConfigForPath } from "../../config/index.js";
@@ -473,81 +472,24 @@ function isVSInstalled(versionRange: string) {
 const VSIX_ALREADY_INSTALLED = 1001;
 const VSIX_NOT_INSTALLED = 1002;
 const VSIX_USER_CANCELED = 2005;
+const VS_SUPPORTED_VERSION_RANGE = "[17.0,)";
 
 async function installVSExtension(debug: boolean) {
   const vsixInstaller = getVsixInstallerPath();
-  const versionMap = new Map([
-    [
-      "Microsoft.Cadl.VS2019.vsix",
-      {
-        friendlyVersion: "2019",
-        versionRange: "[16.0, 17.0)",
-        installed: false,
-      },
-    ],
-    [
-      "Microsoft.Cadl.VS2022.vsix",
-      {
-        friendlyVersion: "2022",
-        versionRange: "[17.0, 18.0)",
-        installed: false,
-        selected: true,
-      },
-    ],
-  ]);
 
-  let versionsFound = 0;
-  let latestVersionFound: string | undefined;
-  let versionsToInstall: string[] = [];
-  for (const entry of versionMap.values()) {
-    if (isVSInstalled(entry.versionRange)) {
-      entry.installed = true;
-      versionsFound++;
-      latestVersionFound = entry.friendlyVersion;
-    }
-  }
-
-  if (versionsFound === 0) {
+  if (!isVSInstalled(VS_SUPPORTED_VERSION_RANGE)) {
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
-  } else if (versionsFound === 1) {
-    compilerAssert(
-      latestVersionFound,
-      "expected latestFoundVersion to be defined if versionsFound === 1"
-    );
-    versionsToInstall = [latestVersionFound];
-  } else {
-    const choices = Array.from(versionMap.values())
-      .filter((x) => x.installed)
-      .map((x) => ({
-        title: `Visual Studio ${x.friendlyVersion}`,
-        value: x.friendlyVersion,
-        selected: x.selected,
-      }));
-
-    const response = await prompts({
-      type: "multiselect",
-      name: "versions",
-      message: `Visual Studio Version(s)`,
-      choices,
-    });
-
-    versionsToInstall = response.versions;
   }
 
   await installVsix(
     "cadl-vs",
     (vsixPaths) => {
       for (const vsix of vsixPaths) {
-        const vsixFilename = getBaseFileName(vsix);
-        const entry = versionMap.get(vsixFilename);
-        compilerAssert(entry, "Unexpected vsix filename:" + vsix);
-        if (versionsToInstall.includes(entry.friendlyVersion)) {
-          console.log(`Installing extension for Visual Studio ${entry?.friendlyVersion}...`);
-          run(vsixInstaller, [vsix], {
-            allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
-          });
-        }
+        console.log(`Installing extension for Visual Studio...`);
+        run(vsixInstaller, [vsix], {
+          allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
+        });
       }
     },
     debug

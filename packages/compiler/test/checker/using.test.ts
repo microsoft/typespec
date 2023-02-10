@@ -241,6 +241,61 @@ describe("compiler: using statements", () => {
     ]);
   });
 
+  it("reports ambiguous symbol for decorator", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./doc.js";
+      namespace Test;
+
+      namespace A {
+        extern dec doc(target: unknown);
+      }
+
+      using A;
+
+      @doc
+      namespace Foo {}
+      `
+    );
+
+    testHost.addJsFile("doc.js", {
+      namespace: "Test.A",
+      $doc() {},
+    });
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-symbol", message: /Test\.A\.doc, Cadl\.doc/ },
+      { code: "unknown-decorator" },
+    ]);
+  });
+
+  it("reports ambiguous symbol for decorator with missing implementation", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      namespace Test;
+
+      namespace A {
+        extern dec doc(target: unknown);
+      }
+
+      using A;
+
+      @doc
+      namespace Foo {}
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-symbol", message: /Test\.A\.doc, Cadl\.doc/ },
+      { code: "unknown-decorator" },
+      { code: "missing-implementation" },
+    ]);
+  });
+
   it("ambiguous use doesn't affect other files", async () => {
     testHost.addCadlFile(
       "main.cadl",
