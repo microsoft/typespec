@@ -1097,12 +1097,29 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     );
   }
 
+  function checkAdditionalProperties(model: Model): boolean {
+    const baseModel = model.baseModel;
+    if (!baseModel || baseModel.name !== "Record") {
+      return false;
+    }
+    const templateArg = baseModel.templateMapper?.args.at(0);
+    if (!templateArg) {
+      return false;
+    }
+    return (templateArg as IntrinsicType).name === "unknown";
+  }
+
   function getSchemaForModel(model: Model, visibility: Visibility) {
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
       description: getDoc(program, model),
     };
+
+    const hasAdditionalProperties = checkAdditionalProperties(model);
+    if (hasAdditionalProperties) {
+      modelSchema.additionalProperties = true;
+    }
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
