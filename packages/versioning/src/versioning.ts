@@ -20,6 +20,8 @@ const addedOnKey = createStateSymbol("addedOn");
 const removedOnKey = createStateSymbol("removedOn");
 const versionsKey = createStateSymbol("versions");
 const versionDependencyKey = createStateSymbol("versionDependency");
+const useDependencyNamespaceKey = createStateSymbol("useDependencyNamespace");
+const useDependencyEnumKey = createStateSymbol("useDependencyEnum");
 const renamedFromKey = createStateSymbol("renamedFrom");
 const madeOptionalKey = createStateSymbol("madeOptional");
 const typeChangedFromKey = createStateSymbol("typeChangedFrom");
@@ -149,6 +151,13 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
+  }
+
+  if (oldName === "") {
+    reportDiagnostic(program, {
+      code: "invalid-renamed-from-value",
+      target: t,
+    });
   }
 
   // retrieve statemap to update or create a new one
@@ -359,12 +368,120 @@ export function findVersionedNamespace(
   return undefined;
 }
 
+export function $useDependency(
+  context: DecoratorContext,
+  target: EnumMember | Namespace,
+  ...versionRecords: EnumMember[]
+) {
+  const versions: Array<Version> = [];
+  // ensure only valid versions are passed in
+  for (const record of versionRecords) {
+    const ver = checkIsVersion(context.program, record, context.getArgumentTarget(0)!);
+    if (ver) {
+      versions.push(ver);
+    }
+  }
+
+  if (target.kind === "Namespace") {
+    let state = context.program.stateMap(useDependencyNamespaceKey).get(target) as Version[];
+    if (!state) {
+      state = versions;
+    } else {
+      state.push(...versions);
+    }
+    context.program.stateMap(useDependencyNamespaceKey).set(target, state);
+  } else if (target.kind === "EnumMember") {
+    const targetEnum = target.enum;
+    let state = context.program.stateMap(useDependencyEnumKey).get(targetEnum) as Map<
+      EnumMember,
+      Version[]
+    >;
+    if (!state) {
+      state = new Map<EnumMember, Version[]>();
+    }
+    // get any existing versions and combine them
+    const currentVersions = state.get(target) ?? [];
+    currentVersions.push(...versions);
+    state.set(target, currentVersions);
+    context.program.stateMap(useDependencyEnumKey).set(targetEnum, state);
+  }
+}
+
+export function getUseDependencies(
+  program: Program,
+  target: Namespace | Enum,
+  searchEnum: boolean = true
+): Map<Namespace, Map<Version, Version> | Version> | undefined {
+  const result = new Map<Namespace, Map<Version, Version> | Version>();
+  if (target.kind === "Namespace") {
+    let current: Namespace | undefined = target;
+    while (current) {
+      const data = program.stateMap(useDependencyNamespaceKey).get(current) as Version[];
+      if (!data) {
+        // See if the namspace has a version enum
+        if (searchEnum) {
+          const versions = getVersion(program, current)?.getVersions();
+          if (versions?.length) {
+            const enumDeps = getUseDependencies(program, versions[0].enumMember.enum);
+            if (enumDeps) {
+              return enumDeps;
+            }
+          }
+        }
+        current = current.namespace;
+      } else {
+        for (const v of data) {
+          result.set(v.namespace, v);
+        }
+        return result;
+      }
+    }
+    return undefined;
+  } else if (target.kind === "Enum") {
+    const data = program.stateMap(useDependencyEnumKey).get(target) as Map<EnumMember, Version[]>;
+    if (!data) {
+      return undefined;
+    }
+    const resolved = resolveVersionDependency(program, data);
+    if (resolved instanceof Map) {
+      for (const [enumVer, value] of resolved) {
+        for (const val of value) {
+          const targetNamespace = val.enumMember.enum.namespace;
+          if (!targetNamespace) {
+            reportDiagnostic(program, {
+              code: "version-not-found",
+              target: val.enumMember.enum,
+              format: { version: val.enumMember.name, enumName: val.enumMember.enum.name },
+            });
+            return undefined;
+          }
+          let subMap = result.get(targetNamespace) as Map<Version, Version>;
+          if (subMap) {
+            subMap.set(enumVer, val);
+          } else {
+            subMap = new Map([[enumVer, val]]);
+          }
+          result.set(targetNamespace, subMap);
+        }
+      }
+    }
+  }
+  return result;
+}
+
 export function $versionedDependency(
   context: DecoratorContext,
   referenceNamespace: Namespace,
   versionRecord: Tuple | EnumMember
 ) {
   const { program } = context;
+
+  reportDeprecated(
+    program,
+    "@versionedDependency is deprecated. Use @useDependency instead.",
+    context.decoratorTarget
+  );
+
   let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
     Namespace,
     Version | Map<EnumMember, Version>
@@ -434,15 +551,13 @@ export function $versionedDependency(
 
 function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
   let current: Namespace | undefined = namespace;
-
   while (current) {
     const data = program.stateMap(versionDependencyKey).get(current);
-    if (data !== undefined) {
+    if (data) {
       return data;
     }
     current = current.namespace;
   }
-
   return undefined;
 }
 
@@ -450,6 +565,11 @@ export function getVersionDependencies(
   program: Program,
   namespace: Namespace
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
+  const useDeps = getUseDependencies(program, namespace);
+  if (useDeps) {
+    return useDeps;
+  }
+
   const data = findVersionDependencyForNamespace(program, namespace);
   if (data === undefined) {
     return undefined;
@@ -461,11 +581,14 @@ export function getVersionDependencies(
   return result;
 }
 
-function resolveVersionDependency(program: Program, data: Map<EnumMember, Version> | Version) {
+function resolveVersionDependency(
+  program: Program,
+  data: Map<EnumMember, Version[]> | Version[]
+): Map<Version, Version[]> | Version[] {
   if (!(data instanceof Map)) {
     return data;
   }
-  const mapping = new Map<Version, Version>();
+  const mapping = new Map<Version, Version[]>();
   for (const [key, value] of data) {
     const sourceVersion = getVersionForEnumMember(program, key);
     if (sourceVersion !== undefined) {
@@ -593,11 +716,8 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
   return versions;
 }
 
-export function getVersionsForEnum(
-  program: Program,
-  version: EnumMember
-): [Namespace, VersionMap] | [] {
-  const namespace = version.enum.namespace;
+export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
+  const namespace = en.namespace;
 
   if (namespace === undefined) {
     return [];
@@ -803,7 +923,11 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
-  const [, versions] = getVersionsForEnum(program, member);
+  const parentEnum = member.enum;
+  if (!parentEnum) {
+    return undefined;
+  }
+  const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);
 }
 

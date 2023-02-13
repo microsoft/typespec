@@ -691,8 +691,10 @@ describe("compiler: parser", () => {
     describe("projection expressions", () => {
       const exprs = [
         `x || y`,
+        `x > 10 || y < 20`,
         `x || y || z`,
         `x && y`,
+        `x > 10 && y < 20`,
         `x && y && z`,
         `x && y || z && q`,
         `x || y && z || q`,
@@ -784,6 +786,7 @@ describe("compiler: parser", () => {
            * \`This is not a @tag either because we're in a code span\`.
            *
            * @param x the param
+           * that continues on another line
            * @template T some template
            * @returns something
            * @pretend this an unknown tag
@@ -802,7 +805,10 @@ describe("compiler: parser", () => {
             strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
             strictEqual(docs[0].tags[0].tagName.sv, "param");
             strictEqual(docs[0].tags[0].paramName.sv, "x");
-            strictEqual(docs[0].tags[0].content[0].text, "the param");
+            strictEqual(
+              docs[0].tags[0].content[0].text,
+              "the param\nthat continues on another line"
+            );
             strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
             strictEqual(docs[0].tags[1].tagName.sv, "template");
             strictEqual(docs[0].tags[1].paramName.sv, "T");

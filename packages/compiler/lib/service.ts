@@ -1,8 +1,8 @@
-import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { getNamespaceFullName, getTypeName, reportDeprecated } from "../core/index.js";
+import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
+import { getTypeName } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { DecoratorContext, Model, Namespace, Type } from "../core/types.js";
+import { DecoratorContext, Model, Namespace } from "../core/types.js";
 
 export interface ServiceDetails {
   title?: string;
@@ -94,61 +94,3 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
 
   addService(context.program, target, serviceDetails);
 }
-
-/**
- * @deprecated use `@service` instead
- */
-export function $serviceTitle(context: DecoratorContext, target: Type, title: string) {
-  reportDeprecated(
-    context.program,
-    "@serviceTitle decorator has been deprecated use @service({title: _}) instead.",
-    context.decoratorTarget
-  );
-  if (!validateDecoratorTarget(context, target, "@serviceTitle", "Namespace")) {
-    return;
-  }
-
-  addService(context.program, target, { title });
-}
-
-/**
- * @deprecated use `@service` instead
- */
-export function $serviceVersion(context: DecoratorContext, target: Type, version: string) {
-  reportDeprecated(
-    context.program,
-    "@serviceVersion decorator has been deprecated use @service({title: _}) instead.",
-    context.decoratorTarget
-  );
-  if (!validateDecoratorTarget(context, target, "@serviceVersion", "Namespace")) {
-    return;
-  }
-
-  addService(context.program, target, { version });
-}
-
-// #region deprecated
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceNamespace(program: Program): Namespace {
-  return listServices(program)[0]?.type ?? program.getGlobalNamespaceType();
-}
-
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceTitle(program: Program): string {
-  return listServices(program)[0]?.title ?? `(title)`;
-}
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceVersion(program: Program): string {
-  return listServices(program)[0]?.version ?? `0000-00-00`;
-}
-
-/** @deprecated use @see listServices() or @see getService() */
-export function getServiceNamespaceString(program: Program): string | undefined {
-  return getNamespaceFullName(getServiceNamespace(program));
-}
-
-/** @deprecated use @see addService */
-export function setServiceNamespace(program: Program, namespace: Namespace): void {
-  addService(program, namespace);
-}
-// #endregion

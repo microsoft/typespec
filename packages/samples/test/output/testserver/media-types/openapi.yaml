@@ -21,24 +21,19 @@ paths:
         content:
           application/pdf:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           image/jpeg:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           image/png:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
           image/tiff:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
   /mediatypes/contentTypeWithEncoding:
     post:
       operationId: contentTypeWithEncoding
@@ -58,10 +53,18 @@ paths:
         content:
           text/plain:
             schema:
-              $ref:
-                value: '#/components/schemas/SourcePath'
+              $ref: '#/components/schemas/SourcePath'
 components:
   schemas:
+    Input:
+      type: object
+      properties:
+        input:
+          allOf:
+            - $ref: '#/components/schemas/SourcePath'
+          description: Input parameter.
+      required:
+        - input
     SourcePath:
       type: object
       properties:
@@ -73,13 +76,3 @@ components:
       description: Uri or local path to source data.
       required:
         - source
-    Input:
-      type: object
-      properties:
-        input:
-          allOf:
-            - $ref:
-                value: '#/components/schemas/SourcePath'
-          description: Input parameter.
-      required:
-        - input

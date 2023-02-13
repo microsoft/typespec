@@ -386,22 +386,6 @@ dec Cadl.Rest.actionSeparator(target: Cadl.object | Cadl.Reflection.ModelPropert
 | --------- | -------------------- | ---------------------------------------------------------------- |
 | seperator | `union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
 
-### `@segmentSeparator` {#@Cadl.Rest.segmentSeparator}
-
-```cadl
-dec Cadl.Rest.segmentSeparator(target: Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation, seperator: Cadl.string)
-```
-
-#### Target
-
-`union Cadl.object | Cadl.Reflection.ModelProperty | Cadl.Reflection.Operation`
-
-#### Parameters
-
-| Name      | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| seperator | `scalar Cadl.string` |             |
-
 ### `@resource` {#@Cadl.Rest.resource}
 
 Mark this model as a resource type with a name.

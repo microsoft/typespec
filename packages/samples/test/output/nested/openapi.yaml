@@ -4,40 +4,6 @@ info:
   version: '0000-00-00'
 tags: []
 paths:
-  /sub/a/subsub:
-    post:
-      operationId: SubSubA_doSomething
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/SubA.SubSubA.Thing'
-  /sub/b:
-    post:
-      operationId: SubB_doSomething
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/SubB.Thing'
   /:
     post:
       operationId: SubC_anotherOp
@@ -56,15 +22,45 @@ paths:
               type: object
               properties:
                 thing:
-                  $ref:
-                    value: '#/components/schemas/SubA.Thing'
+                  $ref: '#/components/schemas/SubA.Thing'
                 thing2:
-                  $ref:
-                    value: '#/components/schemas/SubA.Thing'
+                  $ref: '#/components/schemas/SubA.Thing'
               required:
                 - thing
                 - thing2
               x-cadl-name: SubC.(anonymous model)
+  /sub/a/subsub:
+    post:
+      operationId: SubSubA_doSomething
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubA.SubSubA.Thing'
+  /sub/b:
+    post:
+      operationId: SubB_doSomething
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubB.Thing'
 components:
   schemas:
     SubA.SubSubA.Thing:
@@ -74,7 +70,7 @@ components:
           type: string
       required:
         - name
-    SubB.Thing:
+    SubA.Thing:
       type: object
       properties:
         id:
@@ -82,7 +78,7 @@ components:
           format: int64
       required:
         - id
-    SubA.Thing:
+    SubB.Thing:
       type: object
       properties:
         id:

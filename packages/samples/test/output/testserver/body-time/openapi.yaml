@@ -22,8 +22,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
     put:
       operationId: Time_put
       description: Put time value "08:07:56"
@@ -36,8 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:

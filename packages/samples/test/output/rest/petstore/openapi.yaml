@@ -4,433 +4,6 @@ info:
   version: '2021-03-25'
 tags: []
 paths:
-  /pets/{petId}:
-    get:
-      operationId: Pets_get
-      description: Gets an instance of the resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-    patch:
-      operationId: Pets_update
-      description: Updates an existing instance of the resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/PetUpdate'
-    delete:
-      operationId: Pets_delete
-      description: Deletes an existing instance of the resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: Resource deleted successfully.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /pets:
-    post:
-      operationId: Pets_create
-      description: Creates a new instance of the resource.
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
-        '201':
-          description: Resource create operation completed successfully.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Pet'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/PetCreate'
-    get:
-      operationId: Pets_list
-      description: Lists all instances of the resource.
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetCollectionWithNextLink'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /pets/{petId}/checkups/{checkupId}:
-    patch:
-      operationId: PetCheckups_CreateOrUpdate
-      description: Creates or update a instance of the extension resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: checkupId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Checkup'
-        '201':
-          description: Resource create operation completed successfully.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Checkup'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/CheckupUpdate'
-  /pets/{petId}/checkups:
-    get:
-      operationId: PetCheckups_List
-      description: Lists all instances of the extension resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/CheckupCollectionWithNextLink'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /pets/{petId}/insurance:
-    get:
-      operationId: PetInsurance_Get
-      description: Gets the singleton resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Insurance'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-    patch:
-      operationId: PetInsurance_Update
-      description: Updates the singleton resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Insurance'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/InsuranceUpdate'
-  /pets/{petId}/toys/{toyId}:
-    get:
-      operationId: Toys_get
-      description: Gets an instance of the resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: toyId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Toy'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /pets/{petId}/toys:
-    get:
-      operationId: Toys_list
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: nameFilter
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/ToyCollectionWithNextLink'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /pets/{petId}/toys/{toyId}/insurance:
-    get:
-      operationId: ToyInsurance_Get
-      description: Gets the singleton resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: toyId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Insurance'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-    patch:
-      operationId: ToyInsurance_Update
-      description: Updates the singleton resource.
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: toyId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Insurance'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/InsuranceUpdate'
-  /checkups/{checkupId}:
-    patch:
-      operationId: Checkups_createOrUpdate
-      description: Creates or update a instance of the resource.
-      parameters:
-        - name: checkupId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Checkup'
-        '201':
-          description: Resource create operation completed successfully.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Checkup'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:
-                value: '#/components/schemas/CheckupUpdate'
   /checkups:
     get:
       operationId: Checkups_list
@@ -442,92 +15,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/CheckupCollectionWithNextLink'
+                $ref: '#/components/schemas/CheckupCollectionWithNextLink'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /owners/{ownerId}:
-    get:
-      operationId: Owners_get
-      description: Gets an instance of the resource.
-      parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Owner'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
+  /checkups/{checkupId}:
     patch:
-      operationId: Owners_update
-      description: Updates an existing instance of the resource.
+      operationId: Checkups_createOrUpdate
+      description: Creates or update a instance of the resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Owner'
+                $ref: '#/components/schemas/Checkup'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkup'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/OwnerUpdate'
-    delete:
-      operationId: Owners_delete
-      description: Deletes an existing instance of the resource.
-      parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Resource deleted successfully.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+              $ref: '#/components/schemas/CheckupUpdate'
   /owners:
     post:
       operationId: Owners_create
@@ -539,28 +63,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Owner'
+                $ref: '#/components/schemas/Owner'
         '201':
           description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Owner'
+                $ref: '#/components/schemas/Owner'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/OwnerCreate'
+              $ref: '#/components/schemas/OwnerCreate'
     get:
       operationId: Owners_list
       description: Lists all instances of the resource.
@@ -571,145 +91,606 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/OwnerCollectionWithNextLink'
+                $ref: '#/components/schemas/OwnerCollectionWithNextLink'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
-  /owners/{ownerId}/checkups/{checkupId}:
-    patch:
-      operationId: OwnerCheckups_CreateOrUpdate
-      description: Creates or update a instance of the extension resource.
+                $ref: '#/components/schemas/PetStoreError'
+  /owners/{ownerId}:
+    get:
+      operationId: Owners_get
+      description: Gets an instance of the resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: checkupId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Checkup'
-        '201':
-          description: Resource create operation completed successfully.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/Checkup'
+                $ref: '#/components/schemas/Owner'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
+    patch:
+      operationId: Owners_update
+      description: Updates an existing instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/OwnerKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Owner'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/CheckupUpdate'
+              $ref: '#/components/schemas/OwnerUpdate'
+    delete:
+      operationId: Owners_delete
+      description: Deletes an existing instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/OwnerKey'
+      responses:
+        '200':
+          description: Resource deleted successfully.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
   /owners/{ownerId}/checkups:
     get:
       operationId: OwnerCheckups_List
       description: Lists all instances of the extension resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/CheckupCollectionWithNextLink'
+                $ref: '#/components/schemas/CheckupCollectionWithNextLink'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
+  /owners/{ownerId}/checkups/{checkupId}:
+    patch:
+      operationId: OwnerCheckups_CreateOrUpdate
+      description: Creates or update a instance of the extension resource.
+      parameters:
+        - $ref: '#/components/parameters/OwnerKey'
+        - $ref: '#/components/parameters/CheckupKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkup'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkup'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckupUpdate'
   /owners/{ownerId}/insurance:
     get:
       operationId: OwnerInsurance_Get
       description: Gets the singleton resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Insurance'
+                $ref: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
     patch:
       operationId: OwnerInsurance_Update
       description: Updates the singleton resource.
       parameters:
-        - name: ownerId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/Insurance'
+                $ref: '#/components/schemas/Insurance'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/PetStoreError'
+                $ref: '#/components/schemas/PetStoreError'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/InsuranceUpdate'
+              $ref: '#/components/schemas/InsuranceUpdate'
+  /pets:
+    post:
+      operationId: Pets_create
+      description: Creates a new instance of the resource.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetCreate'
+    get:
+      operationId: Pets_list
+      description: Lists all instances of the resource.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetCollectionWithNextLink'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+  /pets/{petId}:
+    get:
+      operationId: Pets_get
+      description: Gets an instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+    patch:
+      operationId: Pets_update
+      description: Updates an existing instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetUpdate'
+    delete:
+      operationId: Pets_delete
+      description: Deletes an existing instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+      responses:
+        '200':
+          description: Resource deleted successfully.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+  /pets/{petId}/checkups:
+    get:
+      operationId: PetCheckups_List
+      description: Lists all instances of the extension resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckupCollectionWithNextLink'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+  /pets/{petId}/checkups/{checkupId}:
+    patch:
+      operationId: PetCheckups_CreateOrUpdate
+      description: Creates or update a instance of the extension resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+        - $ref: '#/components/parameters/CheckupKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkup'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkup'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckupUpdate'
+  /pets/{petId}/insurance:
+    get:
+      operationId: PetInsurance_Get
+      description: Gets the singleton resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Insurance'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+    patch:
+      operationId: PetInsurance_Update
+      description: Updates the singleton resource.
+      parameters:
+        - $ref: '#/components/parameters/PetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Insurance'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InsuranceUpdate'
+  /pets/{petId}/toys:
+    get:
+      operationId: Toys_list
+      parameters:
+        - $ref: '#/components/parameters/ToyParentKey'
+        - name: nameFilter
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToyCollectionWithNextLink'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+  /pets/{petId}/toys/{toyId}:
+    get:
+      operationId: Toys_get
+      description: Gets an instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Toy'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+  /pets/{petId}/toys/{toyId}/insurance:
+    get:
+      operationId: ToyInsurance_Get
+      description: Gets the singleton resource.
+      parameters:
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Insurance'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+    patch:
+      operationId: ToyInsurance_Update
+      description: Updates the singleton resource.
+      parameters:
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Insurance'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStoreError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InsuranceUpdate'
 components:
+  parameters:
+    CheckupKey:
+      name: checkupId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    OwnerKey:
+      name: ownerId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    PetKey:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    ToyKey.petId:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    ToyKey.toyId:
+      name: toyId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    ToyParentKey:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
   schemas:
+    Checkup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        vetName:
+          type: string
+        notes:
+          type: string
+      required:
+        - id
+        - vetName
+        - notes
+    CheckupCollectionWithNextLink:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Checkup'
+          x-cadl-name: Checkup[]
+          description: The items on this page
+        nextLink:
+          type: string
+          format: uri
+          description: The link to the next page of items
+          x-cadl-name: Rest.ResourceLocation
+      description: Paged response of Checkup items
+      required:
+        - value
+    CheckupUpdate:
+      type: object
+      properties:
+        vetName:
+          type: string
+        notes:
+          type: string
+      description: The template for adding optional properties.
+    Insurance:
+      type: object
+      properties:
+        provider:
+          type: string
+        premium:
+          type: integer
+          format: int32
+        deductible:
+          type: integer
+          format: int32
+      required:
+        - provider
+        - premium
+        - deductible
+    InsuranceUpdate:
+      type: object
+      properties:
+        provider:
+          type: string
+        premium:
+          type: integer
+          format: int32
+        deductible:
+          type: integer
+          format: int32
+      description: The template for adding optional properties.
+    Owner:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        age:
+          type: integer
+          format: int32
+      required:
+        - id
+        - name
+        - age
+    OwnerCollectionWithNextLink:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Owner'
+          x-cadl-name: Owner[]
+          description: The items on this page
+        nextLink:
+          type: string
+          format: uri
+          description: The link to the next page of items
+          x-cadl-name: Rest.ResourceLocation
+      description: Paged response of Owner items
+      required:
+        - value
+    OwnerCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+          format: int32
+      description: The template for adding updateable properties.
+      required:
+        - name
+        - age
+    OwnerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+          format: int32
+      description: The template for adding optional properties.
     Pet:
       type: object
       properties:
@@ -730,6 +711,43 @@ components:
           format: int64
       required:
         - id
+        - name
+        - age
+        - ownerId
+    PetCollectionWithNextLink:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pet'
+          x-cadl-name: Pet[]
+          description: The items on this page
+        nextLink:
+          type: string
+          format: uri
+          description: The link to the next page of items
+          x-cadl-name: Rest.ResourceLocation
+      description: Paged response of Pet items
+      required:
+        - value
+    PetCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        tag:
+          type: string
+        age:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 20
+        ownerId:
+          type: integer
+          format: int64
+      description: The template for adding updateable properties.
+      required:
         - name
         - age
         - ownerId
@@ -760,111 +778,6 @@ components:
           type: integer
           format: int64
       description: The template for adding optional properties.
-    PetCreate:
-      type: object
-      properties:
-        name:
-          type: string
-        tag:
-          type: string
-        age:
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 20
-        ownerId:
-          type: integer
-          format: int64
-      description: The template for adding updateable properties.
-      required:
-        - name
-        - age
-        - ownerId
-    PetCollectionWithNextLink:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/Pet'
-          x-cadl-name: Pet[]
-          description: The items on this page
-        nextLink:
-          type: string
-          format: uri
-          description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
-      description: Paged response of Pet items
-      required:
-        - value
-    CheckupUpdate:
-      type: object
-      properties:
-        vetName:
-          type: string
-        notes:
-          type: string
-      description: The template for adding optional properties.
-    Checkup:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        vetName:
-          type: string
-        notes:
-          type: string
-      required:
-        - id
-        - vetName
-        - notes
-    CheckupCollectionWithNextLink:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/Checkup'
-          x-cadl-name: Checkup[]
-          description: The items on this page
-        nextLink:
-          type: string
-          format: uri
-          description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
-      description: Paged response of Checkup items
-      required:
-        - value
-    Insurance:
-      type: object
-      properties:
-        provider:
-          type: string
-        premium:
-          type: integer
-          format: int32
-        deductible:
-          type: integer
-          format: int32
-      required:
-        - provider
-        - premium
-        - deductible
-    InsuranceUpdate:
-      type: object
-      properties:
-        provider:
-          type: string
-        premium:
-          type: integer
-          format: int32
-        deductible:
-          type: integer
-          format: int32
-      description: The template for adding optional properties.
     Toy:
       type: object
       properties:
@@ -886,8 +799,7 @@ components:
         value:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/Toy'
+            $ref: '#/components/schemas/Toy'
           x-cadl-name: Toy[]
           description: The items on this page
         nextLink:
@@ -896,59 +808,5 @@ components:
           description: The link to the next page of items
           x-cadl-name: Rest.ResourceLocation
       description: Paged response of Toy items
-      required:
-        - value
-    Owner:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-        age:
-          type: integer
-          format: int32
-      required:
-        - id
-        - name
-        - age
-    OwnerUpdate:
-      type: object
-      properties:
-        name:
-          type: string
-        age:
-          type: integer
-          format: int32
-      description: The template for adding optional properties.
-    OwnerCreate:
-      type: object
-      properties:
-        name:
-          type: string
-        age:
-          type: integer
-          format: int32
-      description: The template for adding updateable properties.
-      required:
-        - name
-        - age
-    OwnerCollectionWithNextLink:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/Owner'
-          x-cadl-name: Owner[]
-          description: The items on this page
-        nextLink:
-          type: string
-          format: uri
-          description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
-      description: Paged response of Owner items
       required:
         - value

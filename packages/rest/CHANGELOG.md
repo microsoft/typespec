@@ -1,6 +1,15 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Updates
+
+- Give KeysOf and ParentKeysOf friendly name to dedupe parameters
+- Removed `@segmentSeparator`, `@produces` and `@consumes` decorators. Removed `getSegmentSeparator`, `getProduces` and `getConsumes` functions.
+- Allow @route and @autoRoute to be used together.
 
 ## 0.39.0
 Fri, 13 Jan 2023 00:05:26 GMT
