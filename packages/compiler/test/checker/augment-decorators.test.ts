@@ -230,4 +230,41 @@ describe("compiler: checker: augment decorators", () => {
       `);
     });
   });
+
+  describe("augment order", () => {
+    async function expectAugmentTarget(code: string) {
+      let customName: string | undefined;
+      let runOnTarget: Type | undefined;
+
+      testHost.addJsFile("test.js", {
+        $customName(_: any, t: Type, n: string) {
+          runOnTarget = t;
+          customName = n;
+        },
+      });
+
+      testHost.addCadlFile(
+        "test.cadl",
+        `
+      import "./test.js";
+
+      ${code}
+      `
+      );
+
+      const { target } = await testHost.compile("test.cadl");
+      strictEqual(runOnTarget?.kind, target.kind);
+      strictEqual(runOnTarget, target);
+      strictEqual(customName, "FooCustom");
+    }
+
+    it("augment decorator should be applied at last", async () => {
+      await expectAugmentTarget(`
+          @test("target") 
+          @customName("Foo")
+          model Foo {}
+          @@customName(Foo, "FooCustom")
+      `);
+    });
+  });
 });
