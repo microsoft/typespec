@@ -240,7 +240,9 @@ function validateProgram(program: Program, diagnostics: DiagnosticCollector) {
   // interpretation of visibility into the core.
   function checkForUnsupportedVisibility(property: ModelProperty) {
     if (getVisibility(program, property)?.includes("write")) {
-      const decorator = property.decorators.find((d) => d.decorator === $visibility);
+      // NOTE: Check for name equality instead of function equality
+      // to deal with multiple copies of core being used.
+      const decorator = property.decorators.find((d) => d.decorator.name === $visibility.name);
       const arg = decorator?.args.find(
         (a) => a.node?.kind === SyntaxKind.StringLiteral && a.node.value === "write"
       );
