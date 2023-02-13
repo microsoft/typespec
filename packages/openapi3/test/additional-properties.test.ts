@@ -15,7 +15,7 @@ describe("openapi3: Additional properties", () => {
     ok(res.schemas.Pet.additionalProperties === true, "Additional properties not found.");
   });
 
-  it("set additionalProperties true if model extends record with compatible value type", async () => {
+  it("pass if model extends record with compatible value type", async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -25,7 +25,10 @@ describe("openapi3: Additional properties", () => {
 
     ok(res.isRef);
     ok(res.schemas.Pet, "expected definition named Pet");
-    ok(res.schemas.Pet.additionalProperties === true, "Additional properties not found.");
+    ok(
+      "additionalProperties" in res.schemas.Pet === false,
+      "Schemas unexpectedly has additionalProperties."
+    );
   });
 
   it("emits error if model extends record with incompatible value type", async () => {

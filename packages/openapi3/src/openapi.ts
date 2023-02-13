@@ -1110,19 +1110,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "Intrinsic":
         return templateArg.name === "unknown";
       case "Scalar":
-        let isAssignable = true;
         for (const [_, prop] of model.properties) {
-          const [isTypeAssignable, diagnostics] = program.checker.isTypeAssignableTo(
-            prop.type,
-            templateArg,
-            prop
-          );
+          // ensure that the record type is compatible with any listed properties
+          const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, templateArg, prop);
           for (const diag of diagnostics) {
             program.reportDiagnostic(diag);
           }
-          isAssignable = isAssignable && isTypeAssignable;
         }
-        return isAssignable;
+        return false;
       default:
         return false;
     }
