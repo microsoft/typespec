@@ -1,8 +1,8 @@
 import { ok } from "assert";
-import { oapiForModel } from "./test-host.js";
+import { diagnoseOpenApiFor, oapiForModel } from "./test-host.js";
 
 describe("openapi3: Additional properties", () => {
-  it("defines array inline", async () => {
+  it("set additionalProperties true if model extends Record<unknown>", async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -13,5 +13,29 @@ describe("openapi3: Additional properties", () => {
     ok(res.isRef);
     ok(res.schemas.Pet, "expected definition named Pet");
     ok(res.schemas.Pet.additionalProperties === true, "Additional properties not found.");
+  });
+
+  it("set additionalProperties true if model extends record with compatible value type", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet extends Record<string> { name: string };
+      `
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Pet, "expected definition named Pet");
+    ok(res.schemas.Pet.additionalProperties === true, "Additional properties not found.");
+  });
+
+  it("emits error if model extends record with incompatible value type", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Pet extends Record<string> { age: int16 };
+      `
+    );
+
+    ok(diagnostics.length === 1, "Expected diagnostics.");
+    ok(diagnostics[0].message === "Type 'Cadl.int16' is not assignable to type 'Cadl.string'");
   });
 });

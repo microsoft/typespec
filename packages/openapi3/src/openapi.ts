@@ -1097,7 +1097,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     );
   }
 
-  function checkAdditionalProperties(model: Model): boolean {
+  function checkAdditionalProperties(program: Program, model: Model): boolean {
     const baseModel = model.baseModel;
     if (!baseModel || baseModel.name !== "Record") {
       return false;
@@ -1106,7 +1106,26 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!templateArg) {
       return false;
     }
-    return (templateArg as IntrinsicType).name === "unknown";
+    switch (templateArg.kind) {
+      case "Intrinsic":
+        return templateArg.name === "unknown";
+      case "Scalar":
+        let isAssignable = true;
+        for (const [_, prop] of model.properties) {
+          const [isTypeAssignable, diagnostics] = program.checker.isTypeAssignableTo(
+            prop.type,
+            templateArg,
+            prop
+          );
+          for (const diag of diagnostics) {
+            program.reportDiagnostic(diag);
+          }
+          isAssignable = isAssignable && isTypeAssignable;
+        }
+        return isAssignable;
+      default:
+        return false;
+    }
   }
 
   function getSchemaForModel(model: Model, visibility: Visibility) {
@@ -1116,7 +1135,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       description: getDoc(program, model),
     };
 
-    const hasAdditionalProperties = checkAdditionalProperties(model);
+    const hasAdditionalProperties = checkAdditionalProperties(program, model);
     if (hasAdditionalProperties) {
       modelSchema.additionalProperties = true;
     }
