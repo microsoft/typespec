@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix bug in `checker.arScalarsRelated`.",
+      "comment": "Fix bug in `checker.areScalarsRelated`.",
       "type": "none"
     }
   ],
