@@ -486,7 +486,7 @@ export function createChecker(program: Program): Checker {
             list = [];
             augmentDecoratorsForSym.set(ref, list);
           }
-          list.push(decNode);
+          list.unshift(decNode);
         }
       }
     }
