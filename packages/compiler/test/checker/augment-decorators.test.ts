@@ -266,5 +266,15 @@ describe("compiler: checker: augment decorators", () => {
           @@customName(Foo, "FooCustom")
       `);
     });
+
+    it("augment decorator - last win", async () => {
+      await expectAugmentTarget(`
+          @test("target") 
+          @customName("Foo")
+          model Foo {}
+          @@customName(Foo, "NonCustom")
+          @@customName(Foo, "FooCustom")
+      `);
+    });
   });
 });
