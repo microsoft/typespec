@@ -343,6 +343,13 @@ export class VersionMap {
 
 export function $versioned(context: DecoratorContext, t: Namespace, versions: Enum) {
   context.program.stateMap(versionsKey).set(t, new VersionMap(t, versions));
+  // associate a copy of the map with the enum's containing namespace as well
+  const enumNamespace = versions.namespace;
+  if (enumNamespace) {
+    context.program
+      .stateMap(versionsKey)
+      .set(enumNamespace, new VersionMap(enumNamespace, versions));
+  }
 }
 
 /**
@@ -717,6 +724,8 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
 }
 
 export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
+  // FIXME: We should get the versions for the target namespace, not the namespace the enum
+  // is in
   const namespace = en.namespace;
 
   if (namespace === undefined) {
