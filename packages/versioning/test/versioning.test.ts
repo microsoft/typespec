@@ -31,6 +31,33 @@ describe("compiler: versioning", () => {
   });
 
   describe("version compare", () => {
+    it("allows a plain enum to describe multiple namespaces", async () => {
+      const { Test } = (await runner.compile(`
+        enum Versions {
+          v1: "1",
+          v2: "2",
+        }
+
+        @versioned(Versions)
+        namespace MyService {
+          @test model Test {
+            @added(Versions.v1) a: 1;
+            @added(Versions.v2) b: 1;
+          }  
+        }
+
+        @versioned(Versions)
+        namespace MyOtherService {}
+        `)) as { Test: Model };
+
+      const v1 = project(Test, "1");
+      ok(v1.properties.has("a"), "v1 has a");
+      ok(!v1.properties.has("b"), "v1 doesn't have b");
+      const v2 = project(Test, "version two");
+      ok(v2.properties.has("a"), "v2 has a");
+      ok(v2.properties.has("b"), "v2 has b");
+    });
+
     it("compares arbitrary types in order", async () => {
       const { Test } = (await runner.compile(`
         @versioned(Versions)
