@@ -486,7 +486,7 @@ export function createChecker(program: Program): Checker {
             list = [];
             augmentDecoratorsForSym.set(ref, list);
           }
-          list.push(decNode);
+          list.unshift(decNode);
         }
       }
     }
@@ -3057,8 +3057,8 @@ export function createChecker(program: Program): Checker {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
     const decoratorNodes = [
+      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []), // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
-      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []),
     ];
     for (const decNode of decoratorNodes) {
       const decorator = checkDecorator(targetType, decNode, mapper);
