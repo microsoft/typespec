@@ -1,10 +1,10 @@
-import "./http.cadl";
+import "./http.tsp";
 import "../dist/src/index.js";
 import "../dist/src/internal-decorators.js";
 
-namespace Cadl.Rest.Resource;
+namespace TypeSpec.Rest.Resource;
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @doc("The default error response for resource operations.")
 model ResourceError {
@@ -124,7 +124,7 @@ interface ResourceDelete<TResource extends object, TError> {
 /**
  * Structure for a paging response using `value` and `nextLink` to represent pagination.
  * This only provides the model structure and not actual pagination support.
- * See https://github.com/microsoft/cadl/issues/705 for general paging support.
+ * See https://github.com/microsoft/typespec/issues/705 for general paging support.
  */
 @doc("Paged response of {name} items", T)
 @friendlyName("{name}CollectionWithNextLink", T)

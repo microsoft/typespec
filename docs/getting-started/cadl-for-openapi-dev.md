@@ -1,14 +1,14 @@
 ---
-title: Cadl For OpenAPI Developer
+title: TypeSpec For OpenAPI Developer
 ---
 
-# Cadl for the OpenAPI developer
+# TypeSpec for the OpenAPI developer
 
-This guide is an introduction to Cadl using concepts that will be familiar to developers
+This guide is an introduction to TypeSpec using concepts that will be familiar to developers
 that either build or use API definitions in OpenAPI v2 or v3.
 
-In many case, this will also describe how the cadl-autorest and openapi3 emitters translate
-Cadl designs into OpenAPI.
+In many case, this will also describe how the typespec-autorest and openapi3 emitters translate
+TypeSpec designs into OpenAPI.
 
 The document is organized around the features of an OpenAPI v2 or v3 definition.
 The idea is that if you know how to describe some API feature in OpenAPI, you can just navigate
@@ -18,11 +18,11 @@ to the section of this document for that feature.
 
 In OpenAPI [v2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types)/[v3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes), data types are specified using the `type` and `format` fields in a schema.
 
-The Cadl equivalent of OpenAPI data types are the Cadl primitive types or [built-in models](https://microsoft.github.io/cadl/docs/standard-library/built-in-types).
+The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://microsoft.github.io/typespec/docs/standard-library/built-in-types).
 
-The following table shows how common OpenAPI types map to Cadl types:
+The following table shows how common OpenAPI types map to TypeSpec types:
 
-| OpenAPI `type`/`format`           | Cadl type        | Notes                                                                     |
+| OpenAPI `type`/`format`           | TypeSpec type        | Notes                                                                     |
 | --------------------------------- | ---------------- | ------------------------------------------------------------------------- |
 | `type: integer, format: int32`    | `int32`          |                                                                           |
 | `type: integer, format: int64`    | `int64`          |                                                                           |
@@ -41,22 +41,22 @@ These are actually borrowed into OpenAPI from JSON Schema.
 
 For `type: integer` and `type: number` data types:
 
-| OpenAPI/JSON Schema keyword | Cadl construct               | Notes |
+| OpenAPI/JSON Schema keyword | TypeSpec construct               | Notes |
 | --------------------------- | ---------------------------- | ----- |
 | `minimum: value`            | `@minValue(value)` decorator |       |
 | `maximum: value`            | `@maxValue(value)` decorator |       |
 
 For `type: string` data types:
 
-| OpenAPI/JSON Schema keyword | Cadl construct                | Notes |
+| OpenAPI/JSON Schema keyword | TypeSpec construct                | Notes |
 | --------------------------- | ----------------------------- | ----- |
 | `minLength: value`          | `@minLength(value)` decorator |       |
 | `maxLength: value`          | `@maxLength(value)` decorator |       |
 | `pattern: regex`            | `@pattern(regex)` decorator   |       |
 
-There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement](https://microsoft.github.io/cadl/docs/language-basics/enums), e.g.:
+There are two ways to define an `enum` data type. One is with the [TypeSpec `enum` statement](https://microsoft.github.io/typespec/docs/language-basics/enums), e.g.:
 
-```cadl
+```typespec
 enum Color {
   Red: "red",
   Blue: "blue",
@@ -66,7 +66,7 @@ enum Color {
 
 Another is to use the union operation to define the enum values inline, e.g.:
 
-```cadl
+```typespec
 status: "Running" | "Stopped" | "Failed"
 ```
 
@@ -80,7 +80,7 @@ In OpenAPI v3, the top-level `servers` field specifies an array of `server` obje
 
 There is also an autorest extension used in many Azure API definitions called [`x-ms-parameterized-host`](https://github.com/Azure/autorest/tree/main/docs/extensions#x-ms-parameterized-host) to define the base URL for the service.
 
-In Cadl, the `host` in OpenAPI v2 can be specified with the `@server` decorator on the namespace(From `@cadl-lang/rest` library). Similar support will be added to the openapi3 emitter shortly.
+In TypeSpec, the `host` in OpenAPI v2 can be specified with the `@server` decorator on the namespace(From `@typespec/rest` library). Similar support will be added to the openapi3 emitter shortly.
 
 ## Paths Object
 
@@ -89,9 +89,9 @@ In OpenAPI, the `paths` object [[v2][v2-paths], [v3][v3-paths]] is the top-level
 [v2-paths]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#paths-object
 [v3-paths]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#paths-object
 
-In Cadl, a path is associated with a `namespace` using the `@route` decorator. Then all operations within the namespace use this path, plus any path parameters an operation may define.
+In TypeSpec, a path is associated with a `namespace` using the `@route` decorator. Then all operations within the namespace use this path, plus any path parameters an operation may define.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op create(@body pet: Pet): Pet; // uses path "/pets"
@@ -106,12 +106,12 @@ In OpenAPI, a path item object [[v2][v2-pathitem], [v3][v3-pathitem]] describes 
 [v2-pathitem]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#pathItemObject
 [v3-pathitem]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#pathItemObject
 
-In Cadl, operations are defined within a namespace with a syntax very similar to typescript functions.
+In TypeSpec, operations are defined within a namespace with a syntax very similar to typescript functions.
 The http method for an operation can be specified explicitly using a decorator: `@get`, `@put`, `@post`, `@patch`, `@delete`, or `@head`.
 But a namespace may contain operations for a set of related paths (depending on path parameters), and so may have multiple operations that use a particular HTTP method.
 The http method decorators also accept an explicit path, which is appended to the namespace path.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   @get op list(): Pet[]; // get on path "/pets"
@@ -130,9 +130,9 @@ In OpenAPI, an operation object [[v2][v2-operation], [v3][v3-operation]] describ
 [v2-operation]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#operationObject
 [v3-operation]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#operationObject
 
-The fields in an OpenAPI operation object are specified with the following Cadl constructs:
+The fields in an OpenAPI operation object are specified with the following TypeSpec constructs:
 
-| OpenAPI `operation` field | Cadl construct           | Notes                                     |
+| OpenAPI `operation` field | TypeSpec construct           | Notes                                     |
 | ------------------------- | ------------------------ | ----------------------------------------- |
 | `description`             | `@doc` decorator         |                                           |
 | `operationId`             | `@operationId` decorator |                                           |
@@ -151,11 +151,11 @@ In OpenAPI, a parameter object [[v2][v2-parameter], [v3][v3-parameter]] describe
 [v2-parameter]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameter-object
 [v3-parameter]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#parameterObject
 
-The fields of a parameter object correspond to the following Cadl constructs:
+The fields of a parameter object correspond to the following TypeSpec constructs:
 
 <!-- prettier-ignore-start -->
 
-| OpenAPI `parameter` field | Cadl construct   | Notes                                 |
+| OpenAPI `parameter` field | TypeSpec construct   | Notes                                 |
 | ------------------------- | ---------------- | ------------------------------------- |
 | `name`                    | parameter name   |                                       |
 | `in`                      | decorator        | `@query`, `@path`, `@header`, `@body` |
@@ -171,7 +171,7 @@ The fields of a parameter object correspond to the following Cadl constructs:
 
 In OpenAPI v3, the operation request body is defined with a `requestBody` object rather than as a parameter.
 
-An OpenAPI v3 `requestBody` corresponds to a Cadl `op` parameter with the `@body` decorator.
+An OpenAPI v3 `requestBody` corresponds to a TypeSpec `op` parameter with the `@body` decorator.
 
 ## Responses Object
 
@@ -181,9 +181,9 @@ The responses object maps a HTTP response code to the expected response.
 [v2-responses]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#responsesObject
 [v3-responses]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#responsesObject
 
-In Cadl, operation responses are defined by the return types of the `op`. The status code for a response can be specified as a property in the return type with the `@statusCode` decorator (the property name is ignored). The Cadl.Http package also defines several standard response types:
+In TypeSpec, operation responses are defined by the return types of the `op`. The status code for a response can be specified as a property in the return type with the `@statusCode` decorator (the property name is ignored). The TypeSpec.Http package also defines several standard response types:
 
-| OpenAPI response | Cadl construct         |
+| OpenAPI response | TypeSpec construct         |
 | ---------------- | ---------------------- |
 | `200`            | `OkResponse`           |
 | `201`            | `CreatedResponse`      |
@@ -206,9 +206,9 @@ elements common to both.
 [v2-response]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#responseObject
 [v3-response]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#responseObject
 
-The fields in an OpenAPI response object are specified with the following Cadl constructs:
+The fields in an OpenAPI response object are specified with the following TypeSpec constructs:
 
-| OpenAPI `response` field | Cadl construct                                     | Notes                    |
+| OpenAPI `response` field | TypeSpec construct                                     | Notes                    |
 | ------------------------ | -------------------------------------------------- | ------------------------ |
 | `description`            | `@doc` decorator                                   |                          |
 | `schema`                 | return type                                        |                          |
@@ -218,17 +218,17 @@ The fields in an OpenAPI response object are specified with the following Cadl c
 
 ## Schema Object
 
-OpenAPI schemas are represented in Cadl by [models](https://microsoft.github.io/cadl/docs/language-basics/models/).
+OpenAPI schemas are represented in TypeSpec by [models](https://microsoft.github.io/typespec/docs/language-basics/models/).
 Models have any number of members and can extend and be composed with other models.
 
 Models can be defined with the `model` statement and then referenced by name, which generally results in a `$ref` to a schema for the model in the `definitions` or `components.schemas` section of the OpenAPI document.
 
-Cadl supports the ["spread" operator](https://microsoft.github.io/cadl/docs/language-basics/models/#spread) (`...`), which copies the members of the source model into the target model.
-But Cadl processes all spread transformations before emitters are invoked, so this form of reuse is not represented in the emitted OpenAPI.
+TypeSpec supports the ["spread" operator](https://microsoft.github.io/typespec/docs/language-basics/models/#spread) (`...`), which copies the members of the source model into the target model.
+But TypeSpec processes all spread transformations before emitters are invoked, so this form of reuse is not represented in the emitted OpenAPI.
 
 The spread operation is useful if you want one or more properties to be present in several different models but in a standard fashion. For example:
 
-```cadl
+```typespec
 model Legs {
   @doc("number of legs") legs: int32;
 }
@@ -249,9 +249,9 @@ model Snake {
 }
 ```
 
-Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
+TypeSpec also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
 
-```cadl
+```typespec
 model Pet {
   name: string;
 }
@@ -265,9 +265,9 @@ model Dog extends Pet {
 }
 ```
 
-Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
+TypeSpec does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in TypeSpec with the spread operator.
 
-Cadl does not yet support a means to specify an OpenAPI `discriminator` but this support is currently in development.
+TypeSpec does not yet support a means to specify an OpenAPI `discriminator` but this support is currently in development.
 
 ## definitions / components
 
@@ -277,7 +277,7 @@ Referencing a model by name (not with "spread"), as an `op` parameter or return 
 
 Reusable parameters can be defined as members of a model and then incorporated into an operation parameter list using the spread operator. For example:
 
-```cadl
+```typespec
 model PetId {
   @path petId: int32;
 }
@@ -296,32 +296,32 @@ In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata a
 [v2-info]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#infoObject
 [v3-info]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#infoObject
 
-In Cadl this information is specified with [decorators on the namespace][cadl-service-metadata].
+In TypeSpec this information is specified with [decorators on the namespace][typespec-service-metadata].
 
-| OpenAPI `info` field | Cadl decorator         | Notes                    |
+| OpenAPI `info` field | TypeSpec decorator         | Notes                    |
 | -------------------- | ---------------------- | ------------------------ |
-| `title`              | `@service({title: }`   | Cadl built-in decorator  |
-| `version`            | `@service({version: }` | Cadl built-in decorator  |
-| `description`        | `@doc`                 | Cadl built-in decorator  |
+| `title`              | `@service({title: }`   | TypeSpec built-in decorator  |
+| `version`            | `@service({version: }` | TypeSpec built-in decorator  |
+| `description`        | `@doc`                 | TypeSpec built-in decorator  |
 | `license`            |                        | Not currently supported. |
 | `contact`            |                        | Not currently supported. |
 
-[cadl-service-metadata]: https://microsoft.github.io/cadl/docs/standard-library/http/#service-definition-and-metadata
+[typespec-service-metadata]: https://microsoft.github.io/typespec/docs/standard-library/http/#service-definition-and-metadata
 
 ## Consumes / Produces (OAS2)
 
 In OpenAPI v2, the top-level `consumes` and `produces` fields specify a list of MIME types an operation can consume / produce
 when not overridden by a `consumes` or `produces` on an individual operation.
 
-The cadl-autorest emitter previously supported `@produces` and `@consumes` decorators on a namespace, but these are deprecated
+The typespec-autorest emitter previously supported `@produces` and `@consumes` decorators on a namespace, but these are deprecated
 in favor of explicit `content-type` and `accept` header properties in request and response bodies.
 
 ## securityDefinitions / securitySchemes Object
 
-Use `@useAuth` decorator from the `@cadl-lang/rest" library
+Use `@useAuth` decorator from the `@typespec/rest" library
 
-```cadl
-using Cadl.Http;
+```typespec
+using TypeSpec.Http;
 @useAuth(OAuth2Auth<["read", "write"]>)
 namespace MyService;
 ```
@@ -331,7 +331,7 @@ namespace MyService;
 You can add arbitrary specification extensions ("x-" properties) to a model or an operation with the `@extension` decorator.
 For example:
 
-```cadl
+```typespec
 namespace Pets {
   @extension("x-streaming-operation", true) op read(...PetId): Pet | Error;
 }

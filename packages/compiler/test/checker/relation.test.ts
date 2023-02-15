@@ -66,7 +66,7 @@ describe("compiler: checker: type relations", () => {
         }`);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'Cadl.string' is not assignable to type 'Cadl.int32'",
+        message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.int32'",
       });
     });
 
@@ -166,7 +166,7 @@ describe("compiler: checker: type relations", () => {
         { source: "123", target: "string" },
         {
           code: "unassignable",
-          message: "Type '123' is not assignable to type 'Cadl.string'",
+          message: "Type '123' is not assignable to type 'TypeSpec.string'",
         }
       );
     });
@@ -192,7 +192,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'Cadl.string' is not assignable to type 'foo'",
+          message: "Type 'TypeSpec.string' is not assignable to type 'foo'",
         }
       );
     });
@@ -216,7 +216,7 @@ describe("compiler: checker: type relations", () => {
         { source: `129`, target: "int8" },
         {
           code: "unassignable",
-          message: "Type '129' is not assignable to type 'Cadl.int8'",
+          message: "Type '129' is not assignable to type 'TypeSpec.int8'",
         }
       );
     });
@@ -225,7 +225,7 @@ describe("compiler: checker: type relations", () => {
         { source: `21.49`, target: "int8" },
         {
           code: "unassignable",
-          message: "Type '21.49' is not assignable to type 'Cadl.int8'",
+          message: "Type '21.49' is not assignable to type 'TypeSpec.int8'",
         }
       );
     });
@@ -245,7 +245,7 @@ describe("compiler: checker: type relations", () => {
         { source: `34000`, target: "int16" },
         {
           code: "unassignable",
-          message: "Type '34000' is not assignable to type 'Cadl.int16'",
+          message: "Type '34000' is not assignable to type 'TypeSpec.int16'",
         }
       );
     });
@@ -255,7 +255,7 @@ describe("compiler: checker: type relations", () => {
         { source: `31489.49`, target: "int16" },
         {
           code: "unassignable",
-          message: "Type '31489.49' is not assignable to type 'Cadl.int16'",
+          message: "Type '31489.49' is not assignable to type 'TypeSpec.int16'",
         }
       );
     });
@@ -275,7 +275,7 @@ describe("compiler: checker: type relations", () => {
         { source: `3000000000`, target: "int32" },
         {
           code: "unassignable",
-          message: "Type '3000000000' is not assignable to type 'Cadl.int32'",
+          message: "Type '3000000000' is not assignable to type 'TypeSpec.int32'",
         }
       );
     });
@@ -285,13 +285,13 @@ describe("compiler: checker: type relations", () => {
         { source: `125125125.49`, target: "int32" },
         {
           code: "unassignable",
-          message: "Type '125125125.49' is not assignable to type 'Cadl.int32'",
+          message: "Type '125125125.49' is not assignable to type 'TypeSpec.int32'",
         }
       );
     });
   });
 
-  // Need to handle bigint in cadl. https://github.com/Azure/cadl-azure/issues/506
+  // Need to handle bigint in typespec. https://github.com/Azure/typespec-azure/issues/506
   describe.skip("int64 target", () => {
     it("can assign int64", async () => {
       await expectTypeAssignable({ source: "int64", target: "int64" });
@@ -307,7 +307,7 @@ describe("compiler: checker: type relations", () => {
         { source: `109223372036854775808`, target: "int64" },
         {
           code: "unassignable",
-          message: "Type '109223372036854775808' is not assignable to type 'Cadl.int64'",
+          message: "Type '109223372036854775808' is not assignable to type 'TypeSpec.int64'",
         }
       );
     });
@@ -317,7 +317,7 @@ describe("compiler: checker: type relations", () => {
         { source: `9223372036875808.49`, target: "int64" },
         {
           code: "unassignable",
-          message: "Type '9223372036875808.49' is not assignable to type 'Cadl.int64'",
+          message: "Type '9223372036875808.49' is not assignable to type 'TypeSpec.int64'",
         }
       );
     });
@@ -352,7 +352,7 @@ describe("compiler: checker: type relations", () => {
         { source: `125125125.49`, target: "integer" },
         {
           code: "unassignable",
-          message: "Type '125125125.49' is not assignable to type 'Cadl.integer'",
+          message: "Type '125125125.49' is not assignable to type 'TypeSpec.integer'",
         }
       );
     });
@@ -380,7 +380,7 @@ describe("compiler: checker: type relations", () => {
         { source: `integer`, target: "float" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.integer' is not assignable to type 'Cadl.float'",
+          message: "Type 'TypeSpec.integer' is not assignable to type 'TypeSpec.float'",
         }
       );
     });
@@ -390,7 +390,7 @@ describe("compiler: checker: type relations", () => {
         { source: `boolean`, target: "float" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.float'",
+          message: "Type 'TypeSpec.boolean' is not assignable to type 'TypeSpec.float'",
         }
       );
     });
@@ -431,7 +431,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "numeric" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.string' is not assignable to type 'Cadl.numeric'",
+          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.numeric'",
         }
       );
     });
@@ -457,7 +457,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "{}" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.string' is not assignable to type '{}'",
+          message: "Type 'TypeSpec.string' is not assignable to type '{}'",
         }
       );
     });
@@ -467,7 +467,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "object" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.string' is not assignable to type 'Cadl.object'",
+          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.object'",
         }
       );
     });
@@ -519,7 +519,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.string' is not assignable to type 'Cadl.Record<Cadl.string>'",
+          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.Record<TypeSpec.string>'",
         }
       );
     });
@@ -529,7 +529,7 @@ describe("compiler: checker: type relations", () => {
         { source: `Record<int32>`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.int32' is not assignable to type 'Cadl.string'",
+          message: "Type 'TypeSpec.int32' is not assignable to type 'TypeSpec.string'",
         }
       );
     });
@@ -539,7 +539,7 @@ describe("compiler: checker: type relations", () => {
         { source: `{foo: string, bar: int32}`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.int32' is not assignable to type 'Cadl.string'",
+          message: "Type 'TypeSpec.int32' is not assignable to type 'TypeSpec.string'",
         }
       );
     });
@@ -621,7 +621,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "string[]" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.string' is not assignable to type 'Cadl.string[]'",
+          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.string[]'",
         }
       );
     });
@@ -631,7 +631,7 @@ describe("compiler: checker: type relations", () => {
         { source: `["abc", 123]`, target: "string[]" },
         {
           code: "unassignable",
-          message: "Type '123' is not assignable to type 'Cadl.string'",
+          message: "Type '123' is not assignable to type 'TypeSpec.string'",
         }
       );
     });
@@ -659,7 +659,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: [
-            "Type '[Cadl.string]' is not assignable to type '[Cadl.string, Cadl.string]'",
+            "Type '[TypeSpec.string]' is not assignable to type '[TypeSpec.string, TypeSpec.string]'",
             "  Source has 1 element(s) but target requires 2.",
           ].join("\n"),
         }
@@ -681,7 +681,7 @@ describe("compiler: checker: type relations", () => {
         { source: `true`, target: "string | int32" },
         {
           code: "unassignable",
-          message: "Type 'true' is not assignable to type 'Cadl.string | Cadl.int32'",
+          message: "Type 'true' is not assignable to type 'TypeSpec.string | TypeSpec.int32'",
         }
       );
     });

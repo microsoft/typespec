@@ -1,1 +1,1 @@
-import "./nullable.cadl";
+import "./nullable.tsp";

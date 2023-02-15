@@ -1,1 +1,1 @@
-import "./media-types.cadl";
+import "./media-types.tsp";

@@ -1,15 +1,15 @@
 import "../dist/lib/decorators.js";
 
-using Cadl.Reflection;
+using TypeSpec.Reflection;
 
-namespace Cadl;
+namespace TypeSpec;
 
 /**
  * Typically a short, single-line description.
  * @param summary Summary string.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @summary("This is a pet")
  * model Pet {}
  * ```
@@ -22,7 +22,7 @@ extern dec summary(target: unknown, summary: string);
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @doc("Represent a Pet available in the PetStore")
  * model Pet {}
  * ```
@@ -35,7 +35,7 @@ extern dec doc(target: unknown, doc: string, formatArgs?: object);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @deprecated("Use ActionV2")
  * op Action<T>(): T;
  * ```
@@ -61,19 +61,19 @@ model ServiceOptions {
  * @param options Optional configuration for the service.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @service
  * namespace PetStore;
  * ```
  *
  * @example Setting service title
- * ```cadl
+ * ```typespec
  * @service({title: "Pet store"})
  * namespace PetStore;
  * ```
  *
  * @example Setting service version
- * ```cadl
+ * ```typespec
  * @service({version: "1.0"})
  * namespace PetStore;
  * ```
@@ -84,7 +84,7 @@ extern dec service(target: Namespace, options?: ServiceOptions);
  * Specify that this model is an error type. Operations return error types when the operation has failed.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @error
  * model PetStoreError {
  *   code: string;
@@ -102,7 +102,7 @@ extern dec error(target: object);
  * @param format format name.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @format("uuid")
  * scalar uuid extends string;
  * ```
@@ -117,7 +117,7 @@ extern dec format(target: string | bytes | ModelProperty, format: string);
  * @param pattern Regular expression.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @pattern("[a-z]+")
  * scalar LowerAlpha extends string;
  * ```
@@ -129,7 +129,7 @@ extern dec pattern(target: string | bytes | ModelProperty, pattern: string);
  * @param value Minimum length
  *
  * @example
- * ```cadl
+ * ```typespec
  * @minLength(2)
  * scalar Username extends string;
  * ```
@@ -141,7 +141,7 @@ extern dec minLength(target: string | ModelProperty, value: integer);
  * @param value Maximum length
  *
  * @example
- * ```cadl
+ * ```typespec
  * @maxLength(20)
  * scalar Username extends string;
  * ```
@@ -153,7 +153,7 @@ extern dec maxLength(target: string | ModelProperty, value: integer);
  * @param value Minimum number
  *
  * @example
- * ```cadl
+ * ```typespec
  * @minItems(1)
  * model Endpoints is string[];
  * ```
@@ -165,7 +165,7 @@ extern dec minItems(target: unknown[] | ModelProperty, value: integer);
  * @param value Maximum number
  *
  * @example
- * ```cadl
+ * ```typespec
  * @maxItems(5)
  * model Endpoints is string[];
  * ```
@@ -177,7 +177,7 @@ extern dec maxItems(target: unknown[] | ModelProperty, value: integer);
  * @param value Minimum value
  *
  * @example
- * ```cadl
+ * ```typespec
  * @minValue(18)
  * scalar Age is int32;
  * ```
@@ -189,7 +189,7 @@ extern dec minValue(target: numeric | ModelProperty, value: numeric);
  * @param value Maximum value
  *
  * @example
- * ```cadl
+ * ```typespec
  * @maxValue(200)
  * scalar Age is int32;
  * ```
@@ -202,7 +202,7 @@ extern dec maxValue(target: numeric | ModelProperty, value: numeric);
  * @param value Minimum value
  *
  * @example
- * ```cadl
+ * ```typespec
  * @minValueExclusive(0)
  * scalar distance is float64;
  * ```
@@ -215,7 +215,7 @@ extern dec minValueExclusive(target: numeric | ModelProperty, value: numeric);
  * @param value Maximum value
  *
  * @example
- * ```cadl
+ * ```typespec
  * @maxValueExclusive(50)
  * scalar distance is float64;
  * ```
@@ -226,7 +226,7 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: numeric);
  * Mark this string as a secret value that should be treated carefully to avoid exposure
  *
  * @example
- * ```cadl
+ * ```typespec
  * @secret
  * scalar Password is string;
  * ```
@@ -234,7 +234,7 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: numeric);
 extern dec secret(target: string | ModelProperty);
 
 /**
- * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a Cadl element.
+ * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  * @param tag Tag value
  */
 extern dec tag(target: Namespace | Interface | Operation, tag: string);
@@ -245,7 +245,7 @@ extern dec tag(target: Namespace | Interface | Operation, tag: string);
  * @formatArgs Model with key value used to interpolate the name
  *
  * @example
- * ```cadl
+ * ```typespec
  * @friendlyName("{name}List", T)
  * model List<T> {
  *   value: T[];
@@ -260,7 +260,7 @@ extern dec friendlyName(target: unknown, name: string, formatArgs?: unknown);
  * @param values Known values enum.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @knownValues(KnownErrorCode)
  * scalar ErrorCode extends string;
  *
@@ -276,7 +276,7 @@ extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
  * Mark a model property as the key to identify instances of that type
  *
  * @example
- * ```cadl
+ * ```typespec
  * model Pet {
  *   @key id: string;
  * }
@@ -289,7 +289,7 @@ extern dec key(target: ModelProperty, altName?: string);
  * @param overloadbase Base operation that should be a union of all overloads
  *
  * @example
- * ```cadl
+ * ```typespec
  * op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
  * @overload(upload)
  * op uploadString(data: string, @header contentType: "text/plain" ): void;
@@ -305,7 +305,7 @@ extern dec overload(target: Operation, overloadbase: Operation);
  * @param projectedName Alternative name
  *
  * @example
- * ```cadl
+ * ```typespec
  * model Certificate {
  *   @projectedName("json", "exp")
  *   expireAt: int32;
@@ -319,7 +319,7 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @discriminator("kind")
  * union Pet{ cat: Cat, dog: Dog }
  *
@@ -327,7 +327,7 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  * model Dog {kind: "dog", bark: boolean}
  * ```
  *
- * ```cadl
+ * ```typespec
  * @discriminator("kind")
  * model Pet{ kind: string }
  *
@@ -342,7 +342,7 @@ extern dec discriminator(target: object | Union, propertyName: string);
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.
  *
- * As far as the Cadl core library is concerned, visibilities are open-ended and can be arbitrary
+ * As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
  * strings, but  the following visibilities are well-known to standard libraries and should be used
  * with standard emitters that interpret them as follows:
  *
@@ -352,11 +352,11 @@ extern dec discriminator(target: object | Union, propertyName: string);
  * - "update": input to operations that update data.
  * - "delete": input to operations that delete data.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/cadl/standard-library/rest/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * model Dog {
  *   // the service will generate an ID, so you don't need to send it.
  *   @visibility("read") id: int32;
@@ -375,13 +375,13 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * together with spread to effectively spread only visible properties into
  * a new model.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/cadl/standard-library/rest/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
  *
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.
  *
  * @example
- * ```cadl
+ * ```typespec
  * model Dog {
  *   @visibility("read") id: int32;
  *   @visibility("create", "update") secretName: string;

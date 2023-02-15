@@ -1,2 +1,2 @@
 emit:
-  - "@cadl-lang/openapi3"
+  - "@typespec/openapi3"

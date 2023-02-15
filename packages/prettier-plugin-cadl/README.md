@@ -1,4 +1,4 @@
-# Prettier Plugin for Cadl
+# Prettier Plugin for TypeSpec
 
 ## Requirements
 
@@ -8,11 +8,11 @@
 ## Getting Started
 
 ```bash
-npm install --save-dev prettier @cadl-lang/prettier-plugin-cadl
+npm install --save-dev prettier @typespec/prettier-plugin-typespec
 ```
 
 You can now call prettier
 
 ```bash
-./node_modules/.bin/prettier --write '**/*.cadl'
+./node_modules/.bin/prettier --write '**/*.tsp'
 ```

@@ -3,7 +3,7 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
 describe("versioning: validate incompatible references", () => {
@@ -13,9 +13,9 @@ describe("versioning: validate incompatible references", () => {
     const host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
-      import "@cadl-lang/versioning";
+      import "@typespec/versioning";
 
-      using Cadl.Versioning;
+      using TypeSpec.Versioning;
       
       @versioned(Versions)
       namespace TestService {
@@ -34,7 +34,7 @@ describe("versioning: validate incompatible references", () => {
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
@@ -49,7 +49,7 @@ describe("versioning: validate incompatible references", () => {
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
@@ -64,7 +64,7 @@ describe("versioning: validate incompatible references", () => {
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
@@ -110,7 +110,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
@@ -127,7 +127,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
@@ -144,7 +144,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
@@ -202,7 +202,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was added on version 'v3' but contains type 'TestService.Bar.foo' added in version 'v2'.",
       });
@@ -217,7 +217,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.Bar.foo' removed in version 'v3'.",
       });
@@ -256,7 +256,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/made-optional-not-optional",
+        code: "@typespec/versioning/made-optional-not-optional",
         message: "Property 'name' marked with @madeOptional but is required. Should be 'name?'",
       });
     });
@@ -275,7 +275,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
       });
@@ -302,7 +302,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was added on version 'v3' but contains type 'TestService.foo' added in version 'v2'.",
       });
@@ -317,7 +317,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.foo' removed in version 'v3'.",
       });
@@ -372,7 +372,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added on version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
       });
@@ -422,7 +422,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
       });
@@ -444,7 +444,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is l2.",
       });
@@ -486,7 +486,7 @@ describe("versioning (deprecated): validate incompatible references (@versionedD
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added on version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
       });
@@ -535,7 +535,7 @@ describe("versioning (deprecated): validate incompatible references (@versionedD
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
       });
@@ -558,7 +558,7 @@ describe("versioning (deprecated): validate incompatible references (@versionedD
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is l2.",
       });

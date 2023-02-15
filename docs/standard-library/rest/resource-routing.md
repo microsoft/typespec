@@ -6,8 +6,8 @@ title: Resource and routes
 
 Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
 
-```cadl
-using Cadl.Http;
+```typespec
+using TypeSpec.Http;
 
 @route("/pets")
 namespace Pets {
@@ -17,7 +17,7 @@ namespace Pets {
 
 To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(): Pet[];
@@ -29,7 +29,7 @@ namespace Pets {
 
 If `@route` is applied to an interface, that route is not "portable". It will be applied to that interface but will not carry over if another interface extends it.
 
-```cadl
+```typespec
 // Operations prepended with /pets
 @route("/pets")
 interface PetOps {
@@ -55,7 +55,7 @@ This is especially useful when reusing common parameter sets defined as model ty
 
 For example:
 
-```cadl
+```typespec
 model CommonParameters {
   @path
   @segment("tenants")
@@ -84,7 +84,7 @@ This will result in the following route for both operations
 
 If `@autoRoute` is applied to an interface, it is not "portable". It will be applied to that interface but will not carry over if another interface extends it.
 
-```cadl
+```typespec
 // Operations prepended with /pets
 @autoRoute
 interface PetOps {

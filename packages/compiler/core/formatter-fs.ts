@@ -2,23 +2,23 @@ import { readFile, writeFile } from "fs/promises";
 import { globby } from "globby";
 import prettier from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
-import { checkFormatCadl, formatCadl } from "./formatter.js";
+import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
 import { normalizePath } from "./path-utils.js";
 
-export interface CadlFormatOptions {
+export interface TypeSpecFormatOptions {
   exclude?: string[];
   debug?: boolean;
 }
 
 /**
- * Format all the Cadl files.
- * @param patterns List of wildcard pattern searching for Cadl files.
+ * Format all the TypeSpec files.
+ * @param patterns List of wildcard pattern searching for TypeSpec files.
  */
-export async function formatCadlFiles(patterns: string[], { exclude, debug }: CadlFormatOptions) {
+export async function formatTypeSpecFiles(patterns: string[], { exclude, debug }: TypeSpecFormatOptions) {
   const files = await findFiles(patterns, exclude);
   for (const file of files) {
     try {
-      await formatCadlFile(file);
+      await formatTypeSpecFile(file);
     } catch (e) {
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
@@ -35,15 +35,15 @@ export async function formatCadlFiles(patterns: string[], { exclude, debug }: Ca
  * Find all the unformatted files.
  * @returns list of files not formatted.
  */
-export async function findUnformattedCadlFiles(
+export async function findUnformattedTypeSpecFiles(
   patterns: string[],
-  { exclude, debug }: CadlFormatOptions
+  { exclude, debug }: TypeSpecFormatOptions
 ): Promise<string[]> {
   const files = await findFiles(patterns, exclude);
   const unformatted = [];
   for (const file of files) {
     try {
-      if (!(await checkFormatCadlFile(file))) {
+      if (!(await checkFormatTypeSpecFile(file))) {
         unformatted.push(file);
       }
     } catch (e) {
@@ -60,21 +60,21 @@ export async function findUnformattedCadlFiles(
   return unformatted;
 }
 
-export async function formatCadlFile(filename: string) {
+export async function formatTypeSpecFile(filename: string) {
   const content = await readFile(filename, "utf-8");
   const prettierConfig = await prettier.resolveConfig(filename);
-  const formattedContent = formatCadl(content, prettierConfig ?? {});
+  const formattedContent = formatTypeSpec(content, prettierConfig ?? {});
   await writeFile(filename, formattedContent);
 }
 
 /**
- * Check the given cadl file is correctly formatted.
+ * Check the given typespec file is correctly formatted.
  * @returns true if code is formatted correctly.
  */
-export async function checkFormatCadlFile(filename: string): Promise<boolean> {
+export async function checkFormatTypeSpecFile(filename: string): Promise<boolean> {
   const content = await readFile(filename, "utf-8");
   const prettierConfig = await prettier.resolveConfig(filename);
-  return await checkFormatCadl(content, prettierConfig ?? {});
+  return await checkFormatTypeSpec(content, prettierConfig ?? {});
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {

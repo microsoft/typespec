@@ -1,8 +1,8 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi";
+import "@typespec/rest";
+import "@typespec/openapi";
 import "./decorators.js";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "Pet Store Service",

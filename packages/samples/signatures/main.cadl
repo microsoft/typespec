@@ -1,1 +1,1 @@
-import "./signatures.cadl";
+import "./signatures.tsp";

@@ -1,4 +1,4 @@
-import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { checkFor, openApiFor } from "./test-host.js";
 
@@ -268,9 +268,9 @@ describe("openapi3: return types", () => {
     `
     );
     expectDiagnostics(diagnostics, [
-      { code: "@cadl-lang/rest/status-code-invalid" },
-      { code: "@cadl-lang/rest/status-code-invalid" },
-      { code: "@cadl-lang/rest/status-code-invalid" },
+      { code: "@typespec/rest/status-code-invalid" },
+      { code: "@typespec/rest/status-code-invalid" },
+      { code: "@typespec/rest/status-code-invalid" },
     ]);
     ok(diagnostics[0].message.includes("must be a numeric or string literal"));
     ok(diagnostics[1].message.includes("must be a three digit code between 100 and 599"));
@@ -320,7 +320,7 @@ describe("openapi3: return types", () => {
         schema: {
           type: "object",
           properties: {},
-          "x-cadl-name": "{}",
+          "x-typespec-name": "{}",
         },
       },
     });
@@ -364,7 +364,7 @@ describe("openapi3: return types", () => {
           additionalProperties: {
             type: "string",
           },
-          "x-cadl-name": "Record<string>",
+          "x-typespec-name": "Record<string>",
         },
       },
     });
@@ -543,7 +543,7 @@ describe("openapi3: return types", () => {
           | {@header contentType: "text/plain", @body body: string, @header foo: string };
         `
       );
-      expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-header" }]);
+      expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/duplicate-header" }]);
     });
 
     it("issues no diagnostic when same response with headers as multiple content types", async () => {

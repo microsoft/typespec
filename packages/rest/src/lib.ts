@@ -1,7 +1,7 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 const libDefinition = {
-  name: "@cadl-lang/rest",
+  name: "@typespec/rest",
   diagnostics: {
     "http-verb-duplicate": {
       severity: "error",
@@ -157,7 +157,7 @@ const libDefinition = {
   },
 } as const;
 
-const restLib = createCadlLibrary(libDefinition);
+const restLib = createTypeSpecLibrary(libDefinition);
 const { reportDiagnostic, createDiagnostic, createStateSymbol } = restLib;
 
 export { restLib, reportDiagnostic, createDiagnostic, createStateSymbol };

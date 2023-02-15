@@ -1,4 +1,4 @@
-# Troubleshooting Cadl common issues
+# Troubleshooting TypeSpec common issues
 
 ## `Cannot find package 'x' imported from 'y'` but not using this package
 

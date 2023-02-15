@@ -2,12 +2,12 @@ import { editor } from "monaco-editor";
 import { FunctionComponent } from "react";
 import { Editor, EditorCommand, useMonacoModel } from "./editor.js";
 
-export interface CadlEditorProps {
+export interface TypeSpecEditorProps {
   model: editor.IModel;
   commands?: EditorCommand[];
 }
 
-export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
+export const TypeSpecEditor: FunctionComponent<TypeSpecEditorProps> = (props) => {
   const options: editor.IStandaloneEditorConstructionOptions = {
     "semanticHighlighting.enabled": true,
     automaticLayout: true,

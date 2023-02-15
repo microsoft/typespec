@@ -1,8 +1,8 @@
 let cachedCompiler: any;
-export async function importCadlCompiler(): Promise<typeof import("@cadl-lang/compiler")> {
+export async function importTypeSpecCompiler(): Promise<typeof import("@typespec/compiler")> {
   if (cachedCompiler === undefined) {
     // We need to do this so the compiler loaded is the same as the one loaded by the bundled libraries.
-    const name = "@cadl-lang/compiler";
+    const name = "@typespec/compiler";
     cachedCompiler = (await importShim(name)) as any;
   }
 

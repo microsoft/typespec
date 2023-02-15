@@ -3,7 +3,7 @@ import ts from "typescript";
 import { createRule } from "../utils.js";
 
 const messages = {
-  default: "Use context.call to call a Cadl decorator function.",
+  default: "Use context.call to call a TypeSpec decorator function.",
   suggestReplaceWithContextCall: "Replace with context.call",
 };
 
@@ -23,7 +23,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
               return;
             }
 
-            if (isCadlFunctionSignature(checker, signature, tsNode)) {
+            if (isTypeSpecFunctionSignature(checker, signature, tsNode)) {
               context.report({
                 messageId: "default",
                 node,
@@ -48,7 +48,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   name: "call-decorator",
   meta: {
     docs: {
-      description: "Calling a Cadl decorator from JS/TS code should be done with context.call",
+      description: "Calling a TypeSpec decorator from JS/TS code should be done with context.call",
       recommended: "warn",
     },
     hasSuggestions: true,
@@ -59,7 +59,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   defaultOptions: [],
 });
 
-function isCadlFunctionSignature(
+function isTypeSpecFunctionSignature(
   checker: ts.TypeChecker,
   signature: ts.Signature,
   tsNode: ts.Node

@@ -1,21 +1,21 @@
 {
-  "name": "@cadl-lang/samples",
+  "name": "@typespec/samples",
   "private": true,
   "version": "1.0.0",
   "author": "Microsoft Corporation",
-  "description": "Samples for Cadl",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/readme.md",
+  "description": "Samples for TypeSpec",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/readme.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl",
+    "typespec",
     "cli"
   ],
   "type": "module",
@@ -29,20 +29,20 @@
     "regen-samples": "node scripts/regen-samples.js"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/versioning": "~0.40.0",
-    "@cadl-lang/compiler": "~0.40.0",
-    "@cadl-lang/rest": "~0.40.0",
-    "@cadl-lang/openapi": "~0.40.0",
-    "@cadl-lang/openapi3": "~0.40.0",
-    "@cadl-lang/html-program-viewer": "~0.40.0"
+    "@typespec/versioning": "~0.40.0",
+    "@typespec/compiler": "~0.40.0",
+    "@typespec/rest": "~0.40.0",
+    "@typespec/openapi": "~0.40.0",
+    "@typespec/openapi3": "~0.40.0",
+    "@typespec/html-program-viewer": "~0.40.0"
   },
   "devDependencies": {
-    "@cadl-lang/internal-build-utils": "~0.3.3",
+    "@typespec/internal-build-utils": "~0.3.3",
     "@types/mkdirp": "~1.0.1",
     "autorest": "~3.3.2",
     "mkdirp": "~1.0.4",

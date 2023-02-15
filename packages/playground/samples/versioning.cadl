@@ -1,7 +1,7 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/versioning";
+import "@typespec/rest";
+import "@typespec/versioning";
 
-using Cadl.Versioning;
+using TypeSpec.Versioning;
 
 @versioned(Versions)
 @service({
@@ -14,8 +14,8 @@ enum Versions {
   "v2",
 }
 
-using Cadl.Http;
-using Cadl.Rest;
+using TypeSpec.Http;
+using TypeSpec.Rest;
 
 model Widget {
   @key id: string;

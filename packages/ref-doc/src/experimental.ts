@@ -1,4 +1,4 @@
-import { compile, joinPaths, NodeHost, NodePackage } from "@cadl-lang/compiler";
+import { compile, joinPaths, NodeHost, NodePackage } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
@@ -13,8 +13,8 @@ export async function generateLibraryDocs(
   outputDir: string
 ) {
   const pkgJson = await readPackageJson(libraryPath);
-  if (pkgJson.cadlMain) {
-    const main = joinPaths(libraryPath, pkgJson.cadlMain);
+  if (pkgJson.typespecMain) {
+    const main = joinPaths(libraryPath, pkgJson.typespecMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });

@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { setCadlNamespace } from "../../core/index.js";
+import { setTypeSpecNamespace } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -27,7 +27,7 @@ describe("compiler: checker: decorators", () => {
       testHost.addJsFile("test.js", testJs);
       runner = createTestWrapper(testHost, {
         autoImports: ["./test.js"],
-        autoUsings: ["Cadl.Reflection"],
+        autoUsings: ["TypeSpec.Reflection"],
       });
     });
 
@@ -47,7 +47,7 @@ describe("compiler: checker: decorators", () => {
     it("bind implementation to declaration when in a namespace", async () => {
       const $otherDec = () => {};
       testJs.$otherDec = $otherDec;
-      setCadlNamespace("MyLib", $otherDec);
+      setTypeSpecNamespace("MyLib", $otherDec);
 
       await runner.compile(`
         extern dec testDec(target: unknown);
@@ -109,7 +109,7 @@ describe("compiler: checker: decorators", () => {
       });
       runner = createTestWrapper(testHost, {
         autoImports: ["./test.js"],
-        autoUsings: ["Cadl.Reflection"],
+        autoUsings: ["TypeSpec.Reflection"],
       });
     });
 
@@ -237,7 +237,7 @@ describe("compiler: checker: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @testDec decorator to Foo since it is not assignable to Cadl.Reflection.Union",
+          "Cannot apply @testDec decorator to Foo since it is not assignable to TypeSpec.Reflection.Union",
       });
     });
 
@@ -251,7 +251,7 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
 
@@ -266,11 +266,11 @@ describe("compiler: checker: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+          message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
         },
         {
           code: "invalid-argument",
-          message: "Argument '456' is not assignable to parameter of type 'Cadl.string'",
+          message: "Argument '456' is not assignable to parameter of type 'TypeSpec.string'",
         },
       ]);
     });
@@ -284,8 +284,8 @@ describe("compiler: checker: decorators", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
       model foo { };
@@ -294,7 +294,7 @@ describe("compiler: checker: decorators", () => {
       `
     );
 
-    await testHost.compile("test.cadl");
+    await testHost.compile("test.tsp");
     ok(called);
   });
 
@@ -303,8 +303,8 @@ describe("compiler: checker: decorators", () => {
       $foo(_: any, __: any, t: any) {},
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
 
@@ -314,7 +314,7 @@ describe("compiler: checker: decorators", () => {
       `
     );
 
-    await testHost.diagnose("test.cadl");
+    await testHost.diagnose("test.tsp");
   });
 
   it("evaluates in outside-in order", async () => {
@@ -330,8 +330,8 @@ describe("compiler: checker: decorators", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
 
@@ -341,7 +341,7 @@ describe("compiler: checker: decorators", () => {
       `
     );
 
-    await testHost.diagnose("test.cadl");
+    await testHost.diagnose("test.tsp");
     ok(result, "expected Foo to be blue in isBlue decorator");
   });
 });

@@ -15,7 +15,7 @@ import { Placeholder } from "./placeholder.js";
 import { TypeEmitter } from "./type-emitter.js";
 import {
   AssetEmitter,
-  CadlDeclaration,
+  TypeSpecDeclaration,
   CircularEmit,
   ContextState,
   Declaration,
@@ -314,12 +314,12 @@ export function createAssetEmitter<T, TOptions extends object>(
         case "enumDeclaration":
         case "unionDeclaration":
         case "unionInstantiation":
-          const declarationName = typeEmitter.declarationName(type as CadlDeclaration);
+          const declarationName = typeEmitter.declarationName(type as TypeSpecDeclaration);
           args = [declarationName];
           break;
 
         case "arrayDeclaration":
-          const arrayDeclName = typeEmitter.declarationName(type as CadlDeclaration);
+          const arrayDeclName = typeEmitter.declarationName(type as TypeSpecDeclaration);
           const arrayDeclElement = (type as Model).indexer!.value;
           args = [arrayDeclName, arrayDeclElement];
           break;
@@ -347,7 +347,7 @@ export function createAssetEmitter<T, TOptions extends object>(
       }
 
       for (const ns of namespace.namespaces.values()) {
-        if (ns.name === "Cadl" && !options?.emitCadlNamespace) continue;
+        if (ns.name === "TypeSpec" && !options?.emitTypeSpecNamespace) continue;
         this.emitType(ns);
       }
 
@@ -691,7 +691,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   }
 }
 
-function isDeclaration(type: Type): type is CadlDeclaration | Namespace {
+function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespace {
   switch (type.kind) {
     case "Namespace":
     case "Interface":

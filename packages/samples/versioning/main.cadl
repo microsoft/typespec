@@ -1,16 +1,16 @@
-import "@cadl-lang/versioning";
-import "@cadl-lang/rest";
-import "./library.cadl";
+import "@typespec/versioning";
+import "@typespec/rest";
+import "./library.tsp";
 
-using Cadl.Versioning;
-using Cadl.Rest;
+using TypeSpec.Versioning;
+using TypeSpec.Rest;
 
 @service({
   title: "Pet Store Service",
 })
 @versioned(Versions)
 namespace VersionedApi;
-using Cadl.Http;
+using TypeSpec.Http;
 
 enum Versions {
   @useDependency(Library.Versions.v1_0)

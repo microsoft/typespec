@@ -1,23 +1,23 @@
-# Cadl Language Support for Visual Studio
+# TypeSpec Language Support for Visual Studio
 
-This package provides [Cadl](https://github.com/microsoft/cadl) language support for Visual Studio 2019 and 2022.
+This package provides [TypeSpec](https://github.com/microsoft/typespec) language support for Visual Studio 2019 and 2022.
 
-See https://github.com/microsoft/cadl#installing-visual-studio-extension for installation instructions.
+See https://github.com/microsoft/typespec#installing-visual-studio-extension for installation instructions.
 
-**NOTE**: The npm package is used as an implementation detail of the `cadl vs` command that installs the Visual Studio Cadl extension, and not intended to be used for other purposes.
+**NOTE**: The npm package is used as an implementation detail of the `tsp vs` command that installs the Visual Studio TypeSpec extension, and not intended to be used for other purposes.
 
-## Configure CADL Visual Studio Extension
+## Configure TYPESPEC Visual Studio Extension
 
 1. Create a file `.vs/VSWorkspaceSettings.json` at the root of the project.
 2. Add configuration as key value pair in this file. Example:
 
 ```json
 {
-  "cadl.cadl-server.path": "${workspaceFolder}/my-nested-project/node_modules/@cadl-lang/compiler"
+  "typespec.tsp-server.path": "${workspaceFolder}/my-nested-project/node_modules/@typespec/compiler"
 }
 ```
 
-Cadl wil interpolate a few variables using this pattern `${<name>}`. For example `${workspaceFolder}`.
+TypeSpec wil interpolate a few variables using this pattern `${<name>}`. For example `${workspaceFolder}`.
 
 Available variables:
 

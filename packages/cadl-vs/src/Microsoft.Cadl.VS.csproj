@@ -23,7 +23,7 @@
   <ItemGroup>
     <Content Include="..\LICENSE" Link="LICENSE" />
     <Content Include="*.pkgdef" />
-    <Content Include="../node_modules/cadl-vscode/dist/cadl.tmLanguage" Link="TextMate/cadl.tmLanguage" />
+    <Content Include="../node_modules/typespec-vscode/dist/typespec.tmLanguage" Link="TextMate/typespec.tmLanguage" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
@@ -45,7 +45,7 @@
   <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'" AfterTargets="AfterBuild">
     <Message Importance="High" Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
   </Target>
-  <!-- Stash debug source directory so deployed debug vsix can use it to find and cadl-server under development in source tree. -->
+  <!-- Stash debug source directory so deployed debug vsix can use it to find and tsp-server under development in source tree. -->
   <Target Name="WriteDebugSourceDirectory" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="BeforeBuild">
     <WriteLinesToFile File="$(IntermediateOutputPath)DebugSourceDirectory.txt" Lines="$(MSBuildThisFileDirectory)" WriteOnlyWhenDifferent="true" Overwrite="true" />
   </Target>

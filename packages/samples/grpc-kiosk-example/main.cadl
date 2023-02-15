@@ -1,2 +1,2 @@
-import "./types.cadl";
-import "./kiosk.cadl";
+import "./types.tsp";
+import "./kiosk.tsp";

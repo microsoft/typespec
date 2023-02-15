@@ -4,14 +4,14 @@ title: Overview
 
 # Http and rest
 
-Cadl has an official REST API "binding" called `@cadl-lang/rest`. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
+TypeSpec has an official REST API "binding" called `@typespec/rest`. It's a set of TypeSpec declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
 
 ## Installation
 
-In your cadl project
+In your typespec project
 
 ```bash
-npm install @cadl-lang/rest
+npm install @typespec/rest
 ```
 
 ## Details

@@ -5,23 +5,23 @@ title: Namespaces
 
 # Namespaces
 
-Namespaces let you group related types together into namespaces. This helps organize your types, making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your Cadl program via its namespace.
+Namespaces let you group related types together into namespaces. This helps organize your types, making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your TypeSpec program via its namespace.
 
 ## Basics
 
 Create a namespace with the `namespace` keyword.
 
-```cadl
+```typespec
 namespace SampleNamespace {
   model SampleModel {}
 }
 ```
 
-_The name of a namespace must be a valid Cadl identifier._
+_The name of a namespace must be a valid TypeSpec identifier._
 
 The `SampleNamespace` can then be used from other places:
 
-```cadl
+```typespec
 model Foo {
   sample: SampleNamespace.SampleModel;
 }
@@ -31,7 +31,7 @@ model Foo {
 
 Namespaces can contain sub namespaces providing additional granularity
 
-```cadl
+```typespec
 namespace Foo {
   namespace Bar {
     namespace Baz {
@@ -43,7 +43,7 @@ namespace Foo {
 
 or this can be simplified using `.` notation
 
-```cadl
+```typespec
 namespace Foo.Bar.Baz {
   model SampleModel {}
 }
@@ -51,7 +51,7 @@ namespace Foo.Bar.Baz {
 
 The sub-namespace can then be used from other places using the fully qualified name.
 
-```cadl
+```typespec
 model A {
   sample: Foo.Bar.Baz.SampleModel;
 }
@@ -61,7 +61,7 @@ model A {
 
 A namespace for all declarations contained in a file can be provided at the top (After the `import` statements) using a blockless namespace statement
 
-```cadl
+```typespec
 namespace SampleNamespace;
 
 model SampleModel {}
@@ -73,7 +73,7 @@ A file can only have a single blockless namespace.
 
 The content of a namespace can be exposed to the current scope using the `using` keyword.
 
-```cadl
+```typespec
 using SampleNamespace;
 
 model Foo {
@@ -83,7 +83,7 @@ model Foo {
 
 The bindings introduced by a `using` statement are local to the namespace they are declared in. They do not become part of the namespace themselves.
 
-```cadl
+```typespec
 namespace One {
   model A {}
 }

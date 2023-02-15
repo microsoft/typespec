@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cadl-lang/compiler";
+import type { Diagnostic } from "@typespec/compiler";
 import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
 

@@ -64,7 +64,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message:
-        "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.ServiceOptions'",
+        "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.ServiceOptions'",
     });
   });
 
@@ -85,7 +85,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "decorator-wrong-target",
       message:
-        "Cannot apply @service decorator to S since it is not assignable to Cadl.Reflection.Namespace",
+        "Cannot apply @service decorator to S since it is not assignable to TypeSpec.Reflection.Namespace",
     });
   });
 
@@ -97,7 +97,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message:
-        "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.ServiceOptions'",
+        "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.ServiceOptions'",
     });
   });
 });

@@ -16,7 +16,7 @@ describe("openapi3: union type", () => {
       type: "object",
       allOf: [{ $ref: "#/components/schemas/Thing" }],
       nullable: true,
-      "x-cadl-name": "Thing | null",
+      "x-typespec-name": "Thing | null",
     });
   });
 
@@ -147,7 +147,7 @@ describe("openapi3: union type", () => {
           type: "string",
           enum: ["cat", "dog"],
           nullable: true,
-          "x-cadl-name": "cat | dog | null",
+          "x-typespec-name": "cat | dog | null",
         },
       },
       required: ["type"],

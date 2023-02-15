@@ -2,7 +2,7 @@ import { deepStrictEqual, ok } from "assert";
 import { oapiForModel } from "./test-host.js";
 
 describe("openapi3: primitives", () => {
-  describe("handle cadl intrinsic types", () => {
+  describe("handle typespec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
       ["int8", { type: "integer", format: "int8" }],

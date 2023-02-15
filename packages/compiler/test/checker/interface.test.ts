@@ -25,8 +25,8 @@ describe("compiler: interfaces", () => {
         blues.add(t);
       },
     });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       @test @blue interface Foo {
@@ -51,8 +51,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("throws diagnostics for duplicate properties", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test interface Foo {
         bar(): string;
@@ -69,8 +69,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("can be templated", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test interface Foo<T> {
         bar(): T;
@@ -91,8 +91,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("can extend one other interfaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       interface Bar<T> { bar(): T }
       @test interface Foo<T> extends Bar<T> {
@@ -113,8 +113,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("can extend two other interfaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       interface Bar<T> { bar(): T }
       interface Baz<T> { baz(): T }
@@ -144,8 +144,8 @@ describe("compiler: interfaces", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       @blue interface Foo { foo(): int32 }
@@ -173,8 +173,8 @@ describe("compiler: interfaces", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       interface Foo { @blue foo(): int32 }
@@ -191,8 +191,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("doesn't allow extensions to contain duplicate members", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       interface Bar { bar(): int32 }
       interface Baz { bar(): int32 }
@@ -208,8 +208,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("allows overriding extended interface members", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       interface Bar { bar(): int32 }
       @test interface Foo extends Bar { bar(): string }
@@ -225,8 +225,8 @@ describe("compiler: interfaces", () => {
   });
 
   it("doesn't allow extending non-interfaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model Bar { }
       @test interface Foo extends Bar { bar(): string }
@@ -249,8 +249,8 @@ describe("compiler: interfaces", () => {
         blues.add(t);
       },
     });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./dec.js";
       @blue interface A<T> { @blue foo(): int32}

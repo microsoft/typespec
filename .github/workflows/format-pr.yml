@@ -16,7 +16,7 @@ jobs:
   # Create PR
   pr_commented:
     name: Format comment
-    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/cadleng format') }}
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/tspeng format') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v5
@@ -48,14 +48,14 @@ jobs:
         run: npx @microsoft/rush update
 
       - name: Build necessary packages
-        run: npx @microsoft/rush build  --to @cadl-lang/prettier-plugin-cadl
+        run: npx @microsoft/rush build  --to @typespec/prettier-plugin-typespec
 
       - name: Format
         run: npx @microsoft/rush format
 
       - name: Commit
         run: |
-          git config --global user.name 'Cadl Eng Bot'
+          git config --global user.name 'TypeSpec Eng Bot'
           git config --global user.email 'microsoft@users.noreply.github.com'
           git commit -am "Format"
 

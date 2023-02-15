@@ -1,4 +1,4 @@
-cadl-vscode
+typespec-vscode
 
 THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
 Do Not Translate or Localize

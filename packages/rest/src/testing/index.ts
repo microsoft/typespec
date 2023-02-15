@@ -1,8 +1,8 @@
-import { resolvePath } from "@cadl-lang/compiler";
-import { CadlTestLibrary, createTestLibrary } from "@cadl-lang/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import { TypeSpecTestLibrary, createTestLibrary } from "@typespec/compiler/testing";
 import { fileURLToPath } from "url";
 
-export const RestTestLibrary: CadlTestLibrary = createTestLibrary({
-  name: "@cadl-lang/rest",
+export const RestTestLibrary: TypeSpecTestLibrary = createTestLibrary({
+  name: "@typespec/rest",
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
 });

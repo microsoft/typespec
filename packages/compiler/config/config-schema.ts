@@ -1,5 +1,5 @@
 import { JSONSchemaType } from "ajv";
-import { CadlRawConfig, EmitterOptions } from "./types.js";
+import { TypeSpecRawConfig, EmitterOptions } from "./types.js";
 
 const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
@@ -10,7 +10,7 @@ const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   },
 };
 
-export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
+export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
   type: "object",
   additionalProperties: false,
   properties: {

@@ -13,7 +13,7 @@ import {
   Type,
   Union,
   UnionVariant,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { css } from "@emotion/react";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
@@ -29,11 +29,11 @@ function expandNamespaces(namespace: Namespace): Namespace[] {
 const ProgramContext = React.createContext<Program>({} as any);
 
 export function renderProgram(program: Program) {
-  const html = ReactDOMServer.renderToString(<CadlProgramViewer program={program} />);
+  const html = ReactDOMServer.renderToString(<TypeSpecProgramViewer program={program} />);
   return html;
 }
 
-export interface CadlProgramViewerProps {
+export interface TypeSpecProgramViewerProps {
   program: Program;
 }
 
@@ -47,7 +47,7 @@ const ProgramViewerStyles = css({
   },
 });
 
-export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ program }) => {
+export const TypeSpecProgramViewer: FunctionComponent<TypeSpecProgramViewerProps> = ({ program }) => {
   const root = program.checker!.getGlobalNamespaceType();
   const namespaces = expandNamespaces(root);
   return (

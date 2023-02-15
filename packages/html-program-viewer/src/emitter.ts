@@ -1,7 +1,7 @@
-import { EmitContext, emitFile, resolvePath } from "@cadl-lang/compiler";
+import { EmitContext, emitFile, resolvePath } from "@typespec/compiler";
 import { renderProgram } from "./ui.js";
 
-import { createCadlLibrary, JSONSchemaType } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
 
 export interface HtmlProgramViewerOptions {
   /**
@@ -20,19 +20,19 @@ const EmitterOptionsSchema: JSONSchemaType<HtmlProgramViewerOptions> = {
 };
 
 export const libDef = {
-  name: "@cadl-lang/openapi3",
+  name: "@typespec/openapi3",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<HtmlProgramViewerOptions>,
   },
 } as const;
 
-export const $lib = createCadlLibrary(libDef);
+export const $lib = createTypeSpecLibrary(libDef);
 
 export async function $onEmit(context: EmitContext<HtmlProgramViewerOptions>) {
   const html = renderProgram(context.program);
   const outputDir = context.emitterOutputDir;
-  const htmlPath = resolvePath(outputDir, "cadl-program.html");
+  const htmlPath = resolvePath(outputDir, "typespec-program.html");
   await emitFile(context.program, {
     path: htmlPath,
     content: `<!DOCTYPE html><html lang="en"><link rel="stylesheet" href="style.css"><body>${html}</body></html>`,

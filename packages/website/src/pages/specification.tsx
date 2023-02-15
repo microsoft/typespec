@@ -15,7 +15,7 @@ export default function Playground() {
       >
         {
           <iframe
-            title="Cadl Specification"
+            title="TypeSpec Specification"
             src={useBaseUrl("/spec.html")}
             style={{
               height: "100%",

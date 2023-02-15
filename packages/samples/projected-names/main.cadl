@@ -1,1 +1,1 @@
-import "./projected-names.cadl";
+import "./projected-names.tsp";

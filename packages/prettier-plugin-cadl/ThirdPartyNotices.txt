@@ -1,4 +1,4 @@
-prettier-plugin-cadl
+prettier-plugin-typespec
 
 THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
 Do Not Translate or Localize

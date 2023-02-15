@@ -8,7 +8,7 @@ import {
   TextEdit,
 } from "vscode-languageserver";
 import {
-  CadlScriptNode,
+  TypeSpecScriptNode,
   IdentifierNode,
   Node,
   Program,
@@ -31,7 +31,7 @@ import { getTypeDetails } from "./type-details.js";
 export type CompletionContext = {
   program: Program;
   params: CompletionParams;
-  file: CadlScriptNode;
+  file: TypeSpecScriptNode;
   completions: CompletionList;
 };
 
@@ -140,7 +140,7 @@ async function addLibraryImportCompletion(
         JSON.parse,
         program.reportDiagnostic
       );
-      if (libPackageJson.cadlMain !== undefined) {
+      if (libPackageJson.typespecMain !== undefined) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),
@@ -173,14 +173,14 @@ async function addRelativePathCompletion(
   const nodevalueDir = hasTrailingDirectorySeparator(node.value)
     ? node.value
     : getDirectoryPath(node.value);
-  const mainCadl = resolvePath(documentDir, nodevalueDir);
-  const files = (await program.host.readDir(mainCadl)).filter(
+  const mainTypeSpec = resolvePath(documentDir, nodevalueDir);
+  const files = (await program.host.readDir(mainTypeSpec)).filter(
     (x) => x !== documentFile && x !== "node_modules"
   );
   for (const file of files) {
     const extension = getAnyExtensionFromPath(file);
     switch (extension) {
-      case ".cadl":
+      case ".tsp":
       case ".js":
       case ".mjs":
         completions.items.push({

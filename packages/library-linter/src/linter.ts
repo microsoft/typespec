@@ -1,4 +1,4 @@
-import { Namespace, Program, SymbolFlags, Type } from "@cadl-lang/compiler";
+import { Namespace, Program, SymbolFlags, Type } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {

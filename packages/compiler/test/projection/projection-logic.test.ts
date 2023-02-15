@@ -74,7 +74,7 @@ describe("compiler: projections: logic", () => {
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/786
+  // Test for https://github.com/microsoft/typespec/issues/786
   it("projects nested namespaces with common parent and decorator referencing each others content", async () => {
     const sym = Symbol("test-ref");
     testHost.addJsFile("./ref.js", {
@@ -587,8 +587,8 @@ describe("compiler: projections: logic", () => {
 
   describe("operations", () => {
     it("can access parameters and return type", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         @test op Foo(): void;
         
@@ -600,7 +600,7 @@ describe("compiler: projections: logic", () => {
         }
         `
       );
-      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: Operation };
+      const { Foo } = (await testHost.compile("main.tsp")) as { Foo: Operation };
       const result = testHost.program.checker.project(
         Foo,
         Foo.projections.find((x) => x.id.sv === "test")!.to!
@@ -751,8 +751,8 @@ describe("compiler: projections: logic", () => {
 
   // TODO with realm move that to realm testing area.
   it("[REALM] any program/projected program get access to every type state", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @doc("abc")
       @test model Foo {}
@@ -763,7 +763,7 @@ describe("compiler: projections: logic", () => {
       }
     `
     );
-    const { Foo } = await testHost.compile("main.cadl");
+    const { Foo } = await testHost.compile("main.tsp");
     const program = testHost.program;
     strictEqual(getDoc(program, Foo), "abc");
 
@@ -858,8 +858,8 @@ describe("compiler: projections: logic", () => {
           },
         });
 
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
         import "./mark.js";
   
@@ -873,7 +873,7 @@ describe("compiler: projections: logic", () => {
           }
        `
         );
-        await testHost.compile("main.cadl");
+        await testHost.compile("main.tsp");
         run = 0; // reset we only intrested after projection
         createProjector(testHost.program, [
           {
@@ -945,8 +945,8 @@ describe("compiler: projections: logic", () => {
     ],
     startNode?: Type
   ): Promise<Type> {
-    testHost.addCadlFile("main.cadl", code);
-    const { Foo } = await testHost.compile("main.cadl");
+    testHost.addTypeSpecFile("main.tsp", code);
+    const { Foo } = await testHost.compile("main.tsp");
     const projector = createProjector(testHost.program, projections, startNode).projector;
     return projector.projectedTypes.get(startNode ?? Foo)!;
   }

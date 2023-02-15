@@ -1,4 +1,4 @@
-import { joinPaths } from "@cadl-lang/compiler";
+import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { Application } from "typedoc";
 import { load } from "typedoc-plugin-markdown";

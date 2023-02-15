@@ -1,1 +1,1 @@
-import "./body-time.cadl";
+import "./body-time.tsp";

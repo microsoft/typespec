@@ -1,14 +1,14 @@
 {
-  "name": "@cadl-lang/eslint-config-cadl",
+  "name": "@typespec/eslint-config-typespec",
   "version": "0.5.0",
-  "description": "ESLint config for cadl packages",
+  "description": "ESLint config for typespec packages",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "scripts": {
     "build": "echo 'No build.'"

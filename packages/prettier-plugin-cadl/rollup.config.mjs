@@ -27,7 +27,7 @@ export default defineConfig({
     json(),
     replace({
       values: {
-        "export const cadlVersion = getVersion();": `export const cadlVersion = "";`,
+        "export const typespecVersion = getVersion();": `export const typespecVersion = "";`,
       },
       delimiters: ["", ""],
       preventAssignment: true,

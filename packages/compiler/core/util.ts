@@ -20,7 +20,7 @@ import {
   SymbolTable,
 } from "./types.js";
 
-export { cadlVersion } from "./manifest.js";
+export { typespecVersion } from "./manifest.js";
 export { NodeHost } from "./node-host.js";
 
 export class ExternalError extends Error {}
@@ -161,7 +161,7 @@ export async function doIO<T>(
     let diagnostic: Diagnostic;
     let target = options?.diagnosticTarget ?? NoTarget;
 
-    // blame the JS file, not the Cadl import statement for JS syntax errors.
+    // blame the JS file, not the TypeSpec import statement for JS syntax errors.
     if (e instanceof SyntaxError && options?.jsDiagnosticTarget) {
       target = options.jsDiagnosticTarget;
     }
@@ -419,8 +419,8 @@ export function getSourceFileKindFromExt(path: string): SourceFileKind | undefin
   const ext = getAnyExtensionFromPath(path);
   if (ext === ".js" || ext === ".mjs") {
     return "js";
-  } else if (ext === ".cadl") {
-    return "cadl";
+  } else if (ext === ".tsp") {
+    return "typespec";
   } else {
     return undefined;
   }

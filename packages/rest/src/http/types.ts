@@ -5,7 +5,7 @@ import {
   Namespace,
   Operation,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
 /**
  * @deprecated use `HttpOperation`. To remove in November 2022 release.

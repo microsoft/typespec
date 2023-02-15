@@ -1,7 +1,7 @@
-import "./decorators.cadl";
+import "./decorators.tsp";
 import "../dist/src/validate.js";
 
-using Cadl.Versioning;
+using TypeSpec.Versioning;
 
 #suppress "projections-are-experimental"
 projection op#v {

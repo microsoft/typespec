@@ -14,12 +14,12 @@ import {
   Type,
 } from "./types.js";
 
-export type CadlValue = Type | string | number | boolean;
+export type TypeSpecValue = Type | string | number | boolean;
 
 // prettier-ignore
-export type InferredCadlValue<K extends TypeKind> = 
-  K extends "Any" ? CadlValue
-  : K extends (infer T extends Type["kind"])[] ? InferredCadlValue<T>
+export type InferredTypeSpecValue<K extends TypeKind> = 
+  K extends "Any" ? TypeSpecValue
+  : K extends (infer T extends Type["kind"])[] ? InferredTypeSpecValue<T>
   : K extends "String" ? string 
   : K extends "Number" ? number 
   : K extends "Boolean" ? boolean 
@@ -39,7 +39,7 @@ export function validateDecoratorTarget<K extends TypeKind>(
   decoratorName: string,
   expectedType: K | readonly K[]
 ): target is K extends "Any" ? Type : Type & { kind: K } {
-  const isCorrectType = isCadlValueTypeOf(target, expectedType);
+  const isCorrectType = isTypeSpecValueTypeOf(target, expectedType);
   if (!isCorrectType) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
@@ -83,15 +83,15 @@ export function validateDecoratorTargetIntrinsic(
   return true;
 }
 /**
- * Check if the given target is of any of the cadl types.
+ * Check if the given target is of any of the typespec types.
  * @param target Target to validate.
- * @param expectedType One or multiple allowed cadl types.
+ * @param expectedType One or multiple allowed typespec types.
  * @returns boolean if the target is of one of the allowed types.
  */
-export function isCadlValueTypeOf<K extends TypeKind>(
-  target: CadlValue,
+export function isTypeSpecValueTypeOf<K extends TypeKind>(
+  target: TypeSpecValue,
   expectedType: K | readonly K[]
-): target is InferredCadlValue<K> {
+): target is InferredTypeSpecValue<K> {
   const kind = getTypeKind(target);
   if (kind === undefined) {
     return false;
@@ -102,7 +102,7 @@ export function isCadlValueTypeOf<K extends TypeKind>(
     : expectedType.includes("Any" as any) || expectedType.includes(kind as any);
 }
 
-function getTypeKind(target: CadlValue): Type["kind"] | undefined {
+function getTypeKind(target: TypeSpecValue): Type["kind"] | undefined {
   switch (typeof target) {
     case "object":
       return target.kind;
@@ -129,10 +129,10 @@ function getTypeKind(target: CadlValue): Type["kind"] | undefined {
 export function validateDecoratorParamType<K extends Type["kind"]>(
   program: Program,
   target: Type,
-  value: CadlValue,
+  value: TypeSpecValue,
   expectedType: K | K[]
-): value is InferredCadlValue<K> {
-  if (!isCadlValueTypeOf(value, expectedType)) {
+): value is InferredTypeSpecValue<K> {
+  if (!isTypeSpecValueTypeOf(value, expectedType)) {
     reportDiagnostic(program, {
       code: "invalid-argument",
       format: {
@@ -204,8 +204,8 @@ type InferParameter<P extends DecoratorParamDefinition<TypeKind>> = P["optional"
 
 // prettier-ignore
 type InferParameterKind<P extends TypeKind | readonly TypeKind[]> =
-  P extends readonly (infer T extends TypeKind)[] ? InferredCadlValue<T> 
-  : P extends TypeKind ? InferredCadlValue<P> : never
+  P extends readonly (infer T extends TypeKind)[] ? InferredTypeSpecValue<T> 
+  : P extends TypeKind ? InferredTypeSpecValue<P> : never
 
 export interface DecoratorValidator<
   T extends TypeKind,
@@ -214,7 +214,7 @@ export interface DecoratorValidator<
 > {
   validate(
     context: DecoratorContext,
-    target: InferredCadlValue<T>,
+    target: InferredTypeSpecValue<T>,
     parameters: InferParameters<P, S>
   ): boolean;
 }
@@ -222,7 +222,7 @@ export interface DecoratorValidator<
 export type TypeKind = Type["kind"] | "Any";
 
 /**
- * @deprecated use extern dec definition in cadl instead.
+ * @deprecated use extern dec definition in typespec instead.
  */
 export function createDecoratorDefinition<
   T extends TypeKind,
@@ -232,7 +232,7 @@ export function createDecoratorDefinition<
   const minParams = definition.args.filter((x) => !x.optional).length;
   const maxParams = definition.spreadArgs ? undefined : definition.args.length;
 
-  function validate(context: DecoratorContext, target: Type, args: CadlValue[]) {
+  function validate(context: DecoratorContext, target: Type, args: TypeSpecValue[]) {
     if (
       !validateDecoratorTarget(context, target, definition.name, definition.target) ||
       !validateDecoratorParamCount(context, minParams, maxParams, args)
@@ -254,7 +254,7 @@ export function createDecoratorDefinition<
           });
           return false;
         }
-      } else if (!isCadlValueTypeOf(arg, paramDefinition.kind)) {
+      } else if (!isTypeSpecValueTypeOf(arg, paramDefinition.kind)) {
         reportDiagnostic(context.program, {
           code: "invalid-argument",
           format: {
@@ -329,37 +329,37 @@ function prettyValue(program: Program, value: any) {
 }
 
 /**
- * Convert a cadl type to a serializable Json object.
+ * Convert a typespec type to a serializable Json object.
  * Emits diagnostics if the given type is invalid
- * @param cadlType The type to convert to Json data
+ * @param typespecType The type to convert to Json data
  * @param target The diagnostic target in case of errors.
  */
-export function cadlTypeToJson<T>(
-  cadlType: CadlValue,
+export function typespecTypeToJson<T>(
+  typespecType: TypeSpecValue,
   target: DiagnosticTarget
 ): [T | undefined, Diagnostic[]] {
-  if (typeof cadlType !== "object") {
-    return [cadlType as any, []];
+  if (typeof typespecType !== "object") {
+    return [typespecType as any, []];
   }
-  return cadlTypeToJsonInternal(cadlType, target, []);
+  return typespecTypeToJsonInternal(typespecType, target, []);
 }
 
-function cadlTypeToJsonInternal(
-  cadlType: Type,
+function typespecTypeToJsonInternal(
+  typespecType: Type,
   target: DiagnosticTarget,
   path: string[]
 ): [any | undefined, Diagnostic[]] {
-  switch (cadlType.kind) {
+  switch (typespecType.kind) {
     case "String":
     case "Boolean":
     case "Number":
-      return [cadlType.value, []];
+      return [typespecType.value, []];
     case "EnumMember":
-      return [cadlType.value ?? cadlType.name, []];
+      return [typespecType.value ?? typespecType.name, []];
     case "Tuple": {
       const result = [];
-      for (const [index, type] of cadlType.values.entries()) {
-        const [item, diagnostics] = cadlTypeToJsonInternal(type, target, [
+      for (const [index, type] of typespecType.values.entries()) {
+        const [item, diagnostics] = typespecTypeToJsonInternal(type, target, [
           ...path,
           index.toString(),
         ]);
@@ -372,8 +372,8 @@ function cadlTypeToJsonInternal(
     }
     case "Model": {
       const result: Record<string, any> = {};
-      for (const [name, type] of cadlType.properties.entries()) {
-        const [item, diagnostics] = cadlTypeToJsonInternal(type.type, target, [
+      for (const [name, type] of typespecType.properties.entries()) {
+        const [item, diagnostics] = typespecTypeToJsonInternal(type.type, target, [
           ...path,
           name.toString(),
         ]);
@@ -390,7 +390,7 @@ function cadlTypeToJsonInternal(
           ? createDiagnostic({
               code: "invalid-value",
               format: {
-                kind: cadlType.kind,
+                kind: typespecType.kind,
               },
               target,
             })
@@ -398,7 +398,7 @@ function cadlTypeToJsonInternal(
               code: "invalid-value",
               messageId: "atPath",
               format: {
-                kind: cadlType.kind,
+                kind: typespecType.kind,
                 path: path.join("."),
               },
               target,

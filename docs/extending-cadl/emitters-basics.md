@@ -5,15 +5,15 @@ title: Emitters
 
 # Writing emitters
 
-Cadl emitters are libraries that use various Cadl compiler APIs to reflect on the cadl compilation and produce generated artifacts. The cadl standard library includes an emitter for OpenAPI version 3.0, but odds are good you will want to emit Cadl to another output format. In fact, one of Cadl's main benefits is how easy it is to use Cadl as a source of truth for all data shapes, and the ease of writing an emitter is a big part of that story.
+TypeSpec emitters are libraries that use various TypeSpec compiler APIs to reflect on the typespec compilation and produce generated artifacts. The typespec standard library includes an emitter for OpenAPI version 3.0, but odds are good you will want to emit TypeSpec to another output format. In fact, one of TypeSpec's main benefits is how easy it is to use TypeSpec as a source of truth for all data shapes, and the ease of writing an emitter is a big part of that story.
 
 ## Getting started
 
-Cadl emitters are a special kind of Cadl library and so have the same getting started instructions. Follow [these steps](#todo) to initialize a cadl library.
+TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions. Follow [these steps](#todo) to initialize a typespec library.
 
 ## $onEmit
 
-A Cadl emitter exports a function named `$onEmit` from its main entrypoint. It receives two arguments:
+A TypeSpec emitter exports a function named `$onEmit` from its main entrypoint. It receives two arguments:
 
 - _context_: The current context including the current progfam being compiled
 - _options_: Custom configuration options selected for this emitter
@@ -21,7 +21,7 @@ A Cadl emitter exports a function named `$onEmit` from its main entrypoint. It r
 For example, the following will write a text file to the output directory:
 
 ```typescript
-import { EmitContext } from "@cadl-lang/compiler";
+import { EmitContext } from "@typespec/compiler";
 import Path from "path";
 
 export async function $onEmit(context: EmitContext) {
@@ -30,7 +30,7 @@ export async function $onEmit(context: EmitContext) {
 }
 ```
 
-You can now compile a Cadl program passing your library name to --emit, or add it to your `cadl-project.yaml`.
+You can now compile a TypeSpec program passing your library name to --emit, or add it to your `tspconfig.yaml`.
 
 ### Custom configuration options
 
@@ -41,7 +41,7 @@ To pass your emitter custom options, the options must be registered with the com
 The following example extends the hello world emitter to be configured with a name:
 
 ```typescript
-import { Program, createCadlLibrary, EmitOptionsFor, JSONSchemaType } from "@cadl-lang/compiler";
+import { Program, createTypeSpecLibrary, EmitOptionsFor, JSONSchemaType } from "@typespec/compiler";
 import Path from "path";
 
 export interface EmitterOptions {
@@ -57,7 +57,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   required: [],
 };
 
-export const $lib = createCadlLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "MyEmitter",
   diagnostics: {},
   emitter: {
@@ -81,23 +81,23 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
 Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputFilename` option could be passed on the command line, or we could have an `@outputFilename` decorator that has the same effect. Which do you use?
 
-The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for `outputFilename` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
+The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the TypeSpec program would use the same configuration. This is not the case for `outputFilename` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
-## Emitting Cadl types to assets on disk
+## Emitting TypeSpec types to assets on disk
 
 One of the main tasks of an emitter is finding types to emit. There are three main approaches:
 
-1. The [emitter framework](./emitter-framework.md), which makes it relatively easy to emit all your Cadl types (or a subset, if you wish).
+1. The [emitter framework](./emitter-framework.md), which makes it relatively easy to emit all your TypeSpec types (or a subset, if you wish).
 1. The Semantic Walker, which lets you easily run code for every type in the program
 1. Custom traversal, which gives you a lot more flexibility than either of the previous approaches at the cost of some complexity.
 
 ### Emitter Framework
 
-The emitter framework provides handles a lot of hard problems for you while providing an easy-to-use API to convert your Cadl into source code or other object graphs. Visit the [emitter framework](./emitter-framework.md) page to learn more.
+The emitter framework provides handles a lot of hard problems for you while providing an easy-to-use API to convert your TypeSpec into source code or other object graphs. Visit the [emitter framework](./emitter-framework.md) page to learn more.
 
 ### Semantic Walker
 
-The Semantic Walker will visit every type in the Cadl program and call any callbacks you provide for that type. To use, import `navigateProgram` from `@cadl-lang/compiler`. Starting a walk needs two parameters - the program to walk, and an object with callbacks for each type. For example, if we want to do something for every model in the program, we could do the following in our `$onEmit` function:
+The Semantic Walker will visit every type in the TypeSpec program and call any callbacks you provide for that type. To use, import `navigateProgram` from `@typespec/compiler`. Starting a walk needs two parameters - the program to walk, and an object with callbacks for each type. For example, if we want to do something for every model in the program, we could do the following in our `$onEmit` function:
 
 ```typescript
 navigateProgram(program, {
@@ -107,9 +107,9 @@ navigateProgram(program, {
 });
 ```
 
-You can provide a callback for every kind of Cadl type. The walker will call your callback pre-order, i.e. as soon as it sees a type for the first time it will invoke your callback. You can invoke callback post-order instead by prefixing the type name with `exit`, for example `exitModel(m)`.
+You can provide a callback for every kind of TypeSpec type. The walker will call your callback pre-order, i.e. as soon as it sees a type for the first time it will invoke your callback. You can invoke callback post-order instead by prefixing the type name with `exit`, for example `exitModel(m)`.
 
-Note that the semantic walker will visit all types in the program including built-in Cadl types and cadl types defined by any libraries you're using. Care must be taken to filter out any types you do not intend to emit. Sometimes this is quite difficult, so a custom traversal may be easier.
+Note that the semantic walker will visit all types in the program including built-in TypeSpec types and typespec types defined by any libraries you're using. Care must be taken to filter out any types you do not intend to emit. Sometimes this is quite difficult, so a custom traversal may be easier.
 
 ### Custom traversal
 
@@ -127,7 +127,7 @@ import {
   Model,
   createStateSymbol,
   createDecoratorDefinition,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
 // Decorator Setup Code
 
@@ -153,9 +153,9 @@ function emitModel(model: Model) {
 }
 ```
 
-### Resolving a cadl type
+### Resolving a typespec type
 
-Sometimes you might want to get access to a known Cadl type in the type graph, for example a model that you have defined in your library.
+Sometimes you might want to get access to a known TypeSpec type in the type graph, for example a model that you have defined in your library.
 
 A helper is provided on the program to do that.
 
@@ -163,12 +163,12 @@ A helper is provided on the program to do that.
 program.resolveTypeReference(reference: string): Type | undefined;
 ```
 
-The reference must be a valid cadl reference(Like you would have it in a cadl document)
+The reference must be a valid typespec reference(Like you would have it in a typespec document)
 
 **Example**
 
 ```ts
-program.resolveTypeReference("Cadl.string"); // Resolve cadl string intrinsic type
+program.resolveTypeReference("TypeSpec.string"); // Resolve typespec string intrinsic type
 program.resolveTypeReference("MyOrg.MyLibrary.MyEnum"); // Resolve `MyEnum` defined in `MyOrg.MyLibrary` namespace.
 ```
 
@@ -185,4 +185,4 @@ Since an emitter is a node library, you could use standard `fs` APIs to write fi
 
 Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the node API but works in a wider range of scenarios.
 
-In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/cadl-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`
+In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/typespec-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`

@@ -6,7 +6,7 @@ export interface CompilerOptions {
   /**
    * Default output directory used by emitters.
    *
-   * @default ./cadl-output
+   * @default ./typespec-output
    */
   outputDir?: string;
 

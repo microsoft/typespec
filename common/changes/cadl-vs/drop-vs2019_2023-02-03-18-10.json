@@ -1,10 +1,10 @@
 {
   "changes": [
     {
-      "packageName": "cadl-vs",
+      "packageName": "typespec-vs",
       "comment": "Remove support for Visual Studio 2019",
       "type": "none"
     }
   ],
-  "packageName": "cadl-vs"
+  "packageName": "typespec-vs"
 }

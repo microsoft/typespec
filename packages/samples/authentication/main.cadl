@@ -1,6 +1,6 @@
-import "@cadl-lang/rest";
+import "@typespec/rest";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "Authenticated service",
@@ -12,7 +12,7 @@ using Cadl.Http;
   // - OAuth2
   BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth] | OAuth2Auth<[MyFlow]>
 )
-namespace Cadl.Samples;
+namespace TypeSpec.Samples;
 
 model MyFlow {
   type: OAuth2FlowType.implicit;

@@ -3,7 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@babel/code-frame': ~7.18.6
   '@babel/core': ^7.0.0
-  '@cadl-lang/compiler-v0.37': npm:@cadl-lang/compiler@0.37.0
+  '@typespec/compiler-v0.37': npm:@typespec/compiler@0.37.0
   '@docusaurus/core': ^2.2.0
   '@docusaurus/module-type-aliases': ^2.2.0
   '@docusaurus/preset-classic': ^2.2.0
@@ -21,10 +21,10 @@ specifiers:
   '@rollup/plugin-replace': ~4.0.0
   '@rollup/plugin-virtual': ~3.0.1
   '@rush-temp/bundler': file:./projects/bundler.tgz
-  '@rush-temp/cadl-vs': file:./projects/cadl-vs.tgz
-  '@rush-temp/cadl-vscode': file:./projects/cadl-vscode.tgz
+  '@rush-temp/typespec-vs': file:./projects/typespec-vs.tgz
+  '@rush-temp/typespec-vscode': file:./projects/typespec-vscode.tgz
   '@rush-temp/compiler': file:./projects/compiler.tgz
-  '@rush-temp/eslint-config-cadl': file:./projects/eslint-config-cadl.tgz
+  '@rush-temp/eslint-config-typespec': file:./projects/eslint-config-typespec.tgz
   '@rush-temp/eslint-plugin': file:./projects/eslint-plugin.tgz
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
@@ -34,7 +34,7 @@ specifiers:
   '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz
-  '@rush-temp/prettier-plugin-cadl': file:./projects/prettier-plugin-cadl.tgz
+  '@rush-temp/prettier-plugin-typespec': file:./projects/prettier-plugin-typespec.tgz
   '@rush-temp/ref-doc': file:./projects/ref-doc.tgz
   '@rush-temp/rest': file:./projects/rest.tgz
   '@rush-temp/samples': file:./projects/samples.tgz
@@ -130,7 +130,7 @@ specifiers:
 dependencies:
   '@babel/code-frame': 7.18.6
   '@babel/core': 7.20.12
-  '@cadl-lang/compiler-v0.37': /@cadl-lang/compiler/0.37.0
+  '@typespec/compiler-v0.37': /@typespec/compiler/0.37.0
   '@docusaurus/core': 2.3.0_8d89849c7c13db1dc34255908e1757ca
   '@docusaurus/module-type-aliases': 2.3.0_react-dom@18.2.0+react@18.2.0
   '@docusaurus/preset-classic': 2.3.0_d6adfce1a9735f2773fdfdc805a804cb
@@ -148,10 +148,10 @@ dependencies:
   '@rollup/plugin-replace': 4.0.0_rollup@3.4.0
   '@rollup/plugin-virtual': 3.0.1_rollup@3.4.0
   '@rush-temp/bundler': file:projects/bundler.tgz
-  '@rush-temp/cadl-vs': file:projects/cadl-vs.tgz
-  '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
+  '@rush-temp/typespec-vs': file:projects/typespec-vs.tgz
+  '@rush-temp/typespec-vscode': file:projects/typespec-vscode.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
-  '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.8.3
+  '@rush-temp/eslint-config-typespec': file:projects/eslint-config-typespec.tgz_prettier@2.8.3
   '@rush-temp/eslint-plugin': file:projects/eslint-plugin.tgz
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
@@ -161,7 +161,7 @@ dependencies:
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz_rollup@3.4.0
-  '@rush-temp/prettier-plugin-cadl': file:projects/prettier-plugin-cadl.tgz
+  '@rush-temp/prettier-plugin-typespec': file:projects/prettier-plugin-typespec.tgz
   '@rush-temp/ref-doc': file:projects/ref-doc.tgz
   '@rush-temp/rest': file:projects/rest.tgz
   '@rush-temp/samples': file:projects/samples.tgz
@@ -1772,7 +1772,7 @@ packages:
     resolution: {integrity: sha512-Tbsj02wXCbqGmzdnXNk0SOF19ChhRU70BsroIi4Pm6Ehp56in6vch94mfbdQ17DozxkL3BAVjbZ4Qc1a0HFRAg==}
     dev: false
 
-  /@cadl-lang/compiler/0.37.0:
+  /@typespec/compiler/0.37.0:
     resolution: {integrity: sha512-jHMqPZmM4evQlu7oY9vj6PEM+f+OhnfPqAdwxALrU2gwsLcwYG1h8rkjX/iK2KfeewCbXuRT/hztOTo3pcbYWA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
@@ -15310,15 +15310,15 @@ packages:
       - terser
     dev: false
 
-  file:projects/cadl-vs.tgz:
-    resolution: {integrity: sha512-i/10VOQOkEl9M0wDLMHSYuZlwiwnSM2gqt7xmTUcdEn5vkbufZGa0x9ZoLRhnC91DB4QYPb67i7IxYeemOKG6w==, tarball: file:projects/cadl-vs.tgz}
-    name: '@rush-temp/cadl-vs'
+  file:projects/typespec-vs.tgz:
+    resolution: {integrity: sha512-i/10VOQOkEl9M0wDLMHSYuZlwiwnSM2gqt7xmTUcdEn5vkbufZGa0x9ZoLRhnC91DB4QYPb67i7IxYeemOKG6w==, tarball: file:projects/typespec-vs.tgz}
+    name: '@rush-temp/typespec-vs'
     version: 0.0.0
     dev: false
 
-  file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-0N+mjSTMWK0DFvoeFN95U/kIVyq9sYRB+AWLk8dTe7DHsJFKqm3s801KmFQIEn/gKrbxniC8ig3JcSGveMJzdA==, tarball: file:projects/cadl-vscode.tgz}
-    name: '@rush-temp/cadl-vscode'
+  file:projects/typespec-vscode.tgz:
+    resolution: {integrity: sha512-0N+mjSTMWK0DFvoeFN95U/kIVyq9sYRB+AWLk8dTe7DHsJFKqm3s801KmFQIEn/gKrbxniC8ig3JcSGveMJzdA==, tarball: file:projects/typespec-vscode.tgz}
+    name: '@rush-temp/typespec-vscode'
     version: 0.0.0
     dependencies:
       '@rollup/plugin-commonjs': 23.0.7_rollup@3.4.0
@@ -15391,10 +15391,10 @@ packages:
       - supports-color
     dev: false
 
-  file:projects/eslint-config-cadl.tgz_prettier@2.8.3:
-    resolution: {integrity: sha512-ovAW4RMqoyTK/d6UwLoIiS7KwDgNWLfSt1Q1Pg0NDshJJailWLxtTrgcU5yn/8eL1vm9bRFfbiI0OvOhBsjCYA==, tarball: file:projects/eslint-config-cadl.tgz}
-    id: file:projects/eslint-config-cadl.tgz
-    name: '@rush-temp/eslint-config-cadl'
+  file:projects/eslint-config-typespec.tgz_prettier@2.8.3:
+    resolution: {integrity: sha512-ovAW4RMqoyTK/d6UwLoIiS7KwDgNWLfSt1Q1Pg0NDshJJailWLxtTrgcU5yn/8eL1vm9bRFfbiI0OvOhBsjCYA==, tarball: file:projects/eslint-config-typespec.tgz}
+    id: file:projects/eslint-config-typespec.tgz
+    name: '@rush-temp/eslint-config-typespec'
     version: 0.0.0
     dependencies:
       '@rushstack/eslint-patch': 1.1.0
@@ -15523,7 +15523,7 @@ packages:
     name: '@rush-temp/migrate'
     version: 0.0.0
     dependencies:
-      '@cadl-lang/compiler-v0.37': /@cadl-lang/compiler/0.37.0
+      '@typespec/compiler-v0.37': /@typespec/compiler/0.37.0
       '@types/mocha': 10.0.1
       '@types/node': 18.11.18
       c8: 7.12.0
@@ -15632,9 +15632,9 @@ packages:
       - terser
     dev: false
 
-  file:projects/prettier-plugin-cadl.tgz:
-    resolution: {integrity: sha512-GQEQVjZpwz9D0zGQReL53HT5BBX0Q1hPEDggYYbefl1xvnPhnTm6PWtVJxxzsOVnR51X8GXqZGpsSTHnAyJgzQ==, tarball: file:projects/prettier-plugin-cadl.tgz}
-    name: '@rush-temp/prettier-plugin-cadl'
+  file:projects/prettier-plugin-typespec.tgz:
+    resolution: {integrity: sha512-GQEQVjZpwz9D0zGQReL53HT5BBX0Q1hPEDggYYbefl1xvnPhnTm6PWtVJxxzsOVnR51X8GXqZGpsSTHnAyJgzQ==, tarball: file:projects/prettier-plugin-typespec.tgz}
+    name: '@rush-temp/prettier-plugin-typespec'
     version: 0.0.0
     dependencies:
       '@rollup/plugin-commonjs': 23.0.7_rollup@3.4.0

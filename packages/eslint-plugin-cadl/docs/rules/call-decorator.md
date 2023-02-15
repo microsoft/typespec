@@ -1,6 +1,6 @@
 # `call-decorator`
 
-Enforces calling other Cadl decorator using `context.call` instead of calling the decorator function directly.
+Enforces calling other TypeSpec decorator using `context.call` instead of calling the decorator function directly.
 
 Calling the decorator function directly can result in diagnostics with incorrect location.
 
@@ -10,7 +10,7 @@ Calling the decorator function directly can result in diagnostics with incorrect
 
 ```jsonc
 {
-  "@cadl-lang/call-decorator": "warn"
+  "@typespec/call-decorator": "warn"
 }
 ```
 

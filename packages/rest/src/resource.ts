@@ -9,7 +9,7 @@ import {
   Program,
   Type,
   validateDecoratorTarget,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { $path } from "./http/decorators.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 

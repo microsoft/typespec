@@ -1,10 +1,10 @@
 {
   "changes": [
     {
-      "packageName": "@cadl-lang/compiler",
+      "packageName": "@typespec/compiler",
       "comment": "Revert PR #1634.",
       "type": "none"
     }
   ],
-  "packageName": "@cadl-lang/compiler"
+  "packageName": "@typespec/compiler"
 }

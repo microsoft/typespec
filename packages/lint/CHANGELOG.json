@@ -1,15 +1,15 @@
 {
-  "name": "@cadl-lang/lint",
+  "name": "@typespec/lint",
   "entries": [
     {
       "version": "0.40.0",
-      "tag": "@cadl-lang/lint_v0.40.0",
+      "tag": "@typespec/lint_v0.40.0",
       "date": "Tue, 07 Feb 2023 21:56:17 GMT",
       "comments": {}
     },
     {
       "version": "0.39.0",
-      "tag": "@cadl-lang/lint_v0.39.0",
+      "tag": "@typespec/lint_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",
       "comments": {
         "none": [
@@ -21,7 +21,7 @@
     },
     {
       "version": "0.38.0",
-      "tag": "@cadl-lang/lint_v0.38.0",
+      "tag": "@typespec/lint_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
       "comments": {
         "patch": [
@@ -31,14 +31,14 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.1` to `~0.5.0`"
           }
         ]
       }
     },
     {
       "version": "0.3.0",
-      "tag": "@cadl-lang/lint_v0.3.0",
+      "tag": "@typespec/lint_v0.3.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",
       "comments": {
         "minor": [
@@ -48,17 +48,17 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.36.1` to `~0.37.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.36.1` to `~0.37.0`"
           }
         ]
       }
     },
     {
       "version": "0.2.0",
-      "tag": "@cadl-lang/lint_v0.2.0",
+      "tag": "@typespec/lint_v0.2.0",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",
       "comments": {
         "minor": [
@@ -68,10 +68,10 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.35.0` to `~0.36.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.35.0` to `~0.36.0`"
           }
         ]
       }

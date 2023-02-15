@@ -1,4 +1,4 @@
-import { CadlLibrary } from "@cadl-lang/compiler";
+import { TypeSpecLibrary } from "@typespec/compiler";
 import {
   Input,
   InputOnChangeData,
@@ -16,7 +16,7 @@ import { emittersOptionsState, selectedEmitterState } from "../state.js";
 
 export const OutputSettings: FunctionComponent = () => {
   const [selectedEmitter] = useRecoilState(selectedEmitterState);
-  const library = useCadlLibrary(selectedEmitter);
+  const library = useTypeSpecLibrary(selectedEmitter);
   return (
     <div css={{ padding: 10 }}>
       <h2>Settings</h2>
@@ -27,8 +27,8 @@ export const OutputSettings: FunctionComponent = () => {
   );
 };
 
-function useCadlLibrary(name: string): CadlLibrary<any> | undefined {
-  const [lib, setLib] = useState<CadlLibrary<any>>();
+function useTypeSpecLibrary(name: string): TypeSpecLibrary<any> | undefined {
+  const [lib, setLib] = useState<TypeSpecLibrary<any>>();
 
   useEffect(() => {
     setLib(undefined);
@@ -49,7 +49,7 @@ function useCadlLibrary(name: string): CadlLibrary<any> | undefined {
 }
 
 type EmitterOptionsFormProps = {
-  library: CadlLibrary<any>;
+  library: TypeSpecLibrary<any>;
 };
 
 const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = (props) => {

@@ -3,7 +3,7 @@ id: emitter-framework
 title: Emitter framework
 ---
 
-The emitter framework makes writing emitters from Cadl to other assets a fair bit easier than manually consuming the type graph. The framework gives you an easy way to handle all the types Cadl might throw at you and know when you're "feature complete". It also handles a lot of hard problems for you, such as how to construct references between types, how to handle circular references, or how to propagate the context of the types you're emitting based on their containers or where they're referenced from. Lastly, it provides a class-based inheritance model that makes it fairly painless to extend and customize existing emitters.
+The emitter framework makes writing emitters from TypeSpec to other assets a fair bit easier than manually consuming the type graph. The framework gives you an easy way to handle all the types TypeSpec might throw at you and know when you're "feature complete". It also handles a lot of hard problems for you, such as how to construct references between types, how to handle circular references, or how to propagate the context of the types you're emitting based on their containers or where they're referenced from. Lastly, it provides a class-based inheritance model that makes it fairly painless to extend and customize existing emitters.
 
 ## Getting Started
 
@@ -14,7 +14,7 @@ Make sure to read the getting started section under the [emitter basics](./emitt
 Implementing an emitter using the emitter framework will use a variety of types from the framework. To give you a high level overview, these are:
 
 - `AssetEmitter`: The asset emitter is the main type you will interact with in your `$onEmit` function. You can pass the asset emitter types to emit, and tell it to write types to disk or give you source files for you to process in other ways.
-- `TypeEmitter`: The type emitter is the base class for most of your emit logic. Every Cadl type has a corresponding method on TypeEmitter. It also is where you will manage your emit context, making it easy to answer such questions as "is this type inside something I care about" or "was this type referenced from something".
+- `TypeEmitter`: The type emitter is the base class for most of your emit logic. Every TypeSpec type has a corresponding method on TypeEmitter. It also is where you will manage your emit context, making it easy to answer such questions as "is this type inside something I care about" or "was this type referenced from something".
 - `CodeTypeEmitter`: A subclass of `TypeEmitter` that makes building source code easier.
 - `StringBuilder`, `ObjectBuilder`, `ArrayBuilder`: when implementing your `TypeEmitter` you will likely use these classes to help you build strings and object graphs. These classes take care of handling the placeholders that result from circular references.
 
@@ -22,15 +22,15 @@ Let's walk through each of these types in turn.
 
 ### `AssetEmitter<T>`
 
-The asset emitter is responsible for driving the emit process. It has methods for taking Cadl types to emit, and maintains the state of your current emit process including the declarations you've accumulated, current emit context, and converting your emitted content into files on disk.
+The asset emitter is responsible for driving the emit process. It has methods for taking TypeSpec types to emit, and maintains the state of your current emit process including the declarations you've accumulated, current emit context, and converting your emitted content into files on disk.
 
-To create your asset emitter, call `createAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the Cadl graph. Otherwise, you can call `emitType(someType)` to emit specific types instead.
+To create your asset emitter, call `createAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the TypeSpec graph. Otherwise, you can call `emitType(someType)` to emit specific types instead.
 
 ```typescript
 export async function $onEmit(context: EmitContext) {
   const assetEmitter = context.createAssetEmitter(MyTypeEmitter);
 
-  // emit my entire cadl program
+  // emit my entire typespec program
   assetEmitter.emitProgram();
   // or, maybe emit types just in a specific namespace
   const ns = context.program.resolveTypeReference("MyNamespace")!;
@@ -43,9 +43,9 @@ export async function $onEmit(context: EmitContext) {
 
 ### `TypeEmitter<T>`
 
-This is the base class for writing logic to convert Cadl types into assets in your target language. Every Cadl type has at least one method on this base class, and many have multiple methods. For example, models have both `ModelDeclaration` and `ModelLiteral` methods to handle `model Pet { }` declarations and `{ anonymous: boolean }` literals respectively.
+This is the base class for writing logic to convert TypeSpec types into assets in your target language. Every TypeSpec type has at least one method on this base class, and many have multiple methods. For example, models have both `ModelDeclaration` and `ModelLiteral` methods to handle `model Pet { }` declarations and `{ anonymous: boolean }` literals respectively.
 
-To support emitting all Cadl types, you should expect to implement all of these methods. But if you don't want to support emitting all Cadl types, you can either throw or just not implement the method, in which case the type will not be emitted.
+To support emitting all TypeSpec types, you should expect to implement all of these methods. But if you don't want to support emitting all TypeSpec types, you can either throw or just not implement the method, in which case the type will not be emitted.
 
 The generic type parameter `T` is the type of emit output you are building. For example, if you're emitting source code, `T` will be `string`. If you're building an object graph like JSON, `T` will be `object`. If your `T` is `string`, i.e. you are building source code, you will probably want to use the `CodeTypeEmitter` subclass which is a bit more convenient, but `TypeEmitter<string>` will also work fine.
 
@@ -93,9 +93,9 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-If we have a cadl program that looks like:
+If we have a typespec program that looks like:
 
-```cadl
+```typespec
 model Pet {}
 ```
 
@@ -105,7 +105,7 @@ In order to emit properties of `Pet`, we'll need to concatenate the properties o
 
 #### Concatenating results
 
-It is very rare that you only want to emit a declaration and nothing else. Probably your declaration will have various parts to it, and those parts will depend on the emit output of the parts of the type your emitting. For example, a declaration from a Cadl model will likely include members based on the members declared in the Cadl.
+It is very rare that you only want to emit a declaration and nothing else. Probably your declaration will have various parts to it, and those parts will depend on the emit output of the parts of the type your emitting. For example, a declaration from a TypeSpec model will likely include members based on the members declared in the TypeSpec.
 
 This is accomplished by calling `emit` or other `emit*` methods on the asset emitter from inside your `AssetEmitter` methods. For example, to emit the properties of a model declaration, we can call `this.emitter.emitModelProperties(model)`. This will invoke your the corresponding `AssetEmitter` method and return you the `EmitterOutput` result.
 
@@ -148,9 +148,9 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-Now given a cadl program like:
+Now given a typespec program like:
 
-```cadl
+```typespec
 model Pet {
   position: {};
 }
@@ -241,9 +241,9 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-Now if we emit the following Cadl program:
+Now if we emit the following TypeSpec program:
 
-```cadl
+```typespec
 model Pet {
   person: Person;
 }
@@ -259,9 +259,9 @@ We will find that `test.txt` contains the following text:
 
 #### Placeholders
 
-Consider the following Cadl program:
+Consider the following TypeSpec program:
 
-```cadl
+```typespec
 model Pet {
   owner: Person;
 }
@@ -279,21 +279,21 @@ If you're using the `Builder`s that come with the framework, you will not need t
 
 #### Context
 
-A common need when emitting Cadl is to know what context you are emitting the type in. There is one piece of required context: `scope`, which tells the emitter framework where you want to place your declarations. But you might also want to easily answer questions like: am I emitting a model inside a particular namespace? Or am I emitting a model that is referenced from the return type of an operation? The emitter framework makes managing this context fairly trivial.
+A common need when emitting TypeSpec is to know what context you are emitting the type in. There is one piece of required context: `scope`, which tells the emitter framework where you want to place your declarations. But you might also want to easily answer questions like: am I emitting a model inside a particular namespace? Or am I emitting a model that is referenced from the return type of an operation? The emitter framework makes managing this context fairly trivial.
 
 Every method that results in an `EmitterOutput` has a corresponding method for setting lexical and reference context. We saw this above when we created `modelDeclarationContext` in order to put some models into a different namespace.
 
 ##### Lexical Context
 
-Lexical context is available when emitting types that are lexically contained within the emitted entity in the source Cadl. For example, if we set `modelDeclarationContext`, that context will be visible when emitting the model's properties and any nested model literals.
+Lexical context is available when emitting types that are lexically contained within the emitted entity in the source TypeSpec. For example, if we set `modelDeclarationContext`, that context will be visible when emitting the model's properties and any nested model literals.
 
 ##### Reference Context
 
 Reference context is passed along when making references and otherwise propagates lexically. For example, if we set `modelDeclarationReferenceContext`, that context will be visible when emitting the model's properties and any nested model literals just like with lexical context. But unlike with lexical context, if the current model references another type, then the reference context will be visible when emitting the referenced model.
 
-Note that this means that we may emit the same model multiple times. Consider the following Cadl program:
+Note that this means that we may emit the same model multiple times. Consider the following TypeSpec program:
 
-```cadl
+```typespec
 model Pet {}
 model Person {
   pet: Pet;
@@ -304,7 +304,7 @@ If, when emitting Person, we set the reference context to `{ refByPerson: true }
 
 #### Scope
 
-The scope that declarations are created in is set in using context. When emitting all of your Cadl program into the same file, and not emitting types into any kind of namespace, it suffices to set scope once in `programContext`. Call `this.emitter.createSourceFile("filePath.txt")` to create a source file, which comes with a scope ready to use.
+The scope that declarations are created in is set in using context. When emitting all of your TypeSpec program into the same file, and not emitting types into any kind of namespace, it suffices to set scope once in `programContext`. Call `this.emitter.createSourceFile("filePath.txt")` to create a source file, which comes with a scope ready to use.
 
 To emit into different source files, e.g. if we want to emit using a "one class per file" pattern, move the into a more granular context method. For example, if we instead create source files in `modelDeclarationContext`, then declarations for each model will be in their own file.
 
@@ -331,7 +331,7 @@ We can now see how this results in the `Person` model being located in a nested 
 
 ### Extending `TypeEmitter`
 
-TypeEmitters are classes and explicitly support subclassing, so you can customize an existing emitter by extending it and overriding any methods you want to customize in your subclass. In fact, emitters you find out in the ecosystem are likely not to work without creating a subclass, because they only know how to emit types, but you need to provide the scope for any declarations it wants to create. For example, if we have a base `TypeScriptEmitter` that can convert Cadl into TypeScript, we might extend it to tell it to put all declarations in the same file:
+TypeEmitters are classes and explicitly support subclassing, so you can customize an existing emitter by extending it and overriding any methods you want to customize in your subclass. In fact, emitters you find out in the ecosystem are likely not to work without creating a subclass, because they only know how to emit types, but you need to provide the scope for any declarations it wants to create. For example, if we have a base `TypeScriptEmitter` that can convert TypeSpec into TypeScript, we might extend it to tell it to put all declarations in the same file:
 
 ```typescript
 class MyTsEmitter extends TypeScriptEmitter {

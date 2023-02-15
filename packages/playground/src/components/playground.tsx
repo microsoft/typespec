@@ -6,7 +6,7 @@ import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
-import { importCadlCompiler } from "../core.js";
+import { importTypeSpecCompiler } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
 import {
@@ -15,7 +15,7 @@ import {
   emittersOptionsState,
   selectedEmitterState,
 } from "../state.js";
-import { CadlEditor } from "./cadl-editor.js";
+import { TypeSpecEditor } from "./typespec-editor.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.jsx";
 import { Footer } from "./footer.js";
@@ -23,7 +23,7 @@ import { OutputView } from "./output-view.js";
 
 export interface PlaygroundProps {
   host: BrowserHost;
-  cadlContent?: string;
+  typespecContent?: string;
   onSave?: (value: string) => void;
 }
 
@@ -39,67 +39,67 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
   </RecoilRoot>
 );
 
-const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, cadlContent, onSave }) => {
-  const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
+const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, typespecContent, onSave }) => {
+  const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const setCompilationStatus = useSetRecoilState(compilationState);
   const emittersOptions = useRecoilValue(emittersOptionsState);
   const selectedEmitter = useRecoilValue(selectedEmitterState);
 
   useEffect(() => {
-    const newContent = cadlContent ?? "";
-    cadlModel.setValue(newContent);
+    const newContent = typespecContent ?? "";
+    typespecModel.setValue(newContent);
     void doCompile(newContent);
-  }, [cadlContent]);
+  }, [typespecContent]);
 
   useEffect(() => {
-    cadlModel.onDidChangeContent(debounce(() => doCompile(cadlModel.getValue()), 200));
-  }, [cadlModel]);
+    typespecModel.onDidChangeContent(debounce(() => doCompile(typespecModel.getValue()), 200));
+  }, [typespecModel]);
 
   useEffect(() => {
-    void doCompile(cadlModel.getValue());
+    void doCompile(typespecModel.getValue());
   }, [selectedEmitter, emittersOptions]);
 
-  const updateCadl = useCallback(
+  const updateTypeSpec = useCallback(
     (value: string) => {
-      cadlModel.setValue(value);
+      typespecModel.setValue(value);
       return doCompile(value);
     },
-    [cadlModel]
+    [typespecModel]
   );
 
   const saveCode = useCallback(async () => {
     if (onSave) {
-      onSave(cadlModel.getValue());
+      onSave(typespecModel.getValue());
     }
-  }, [cadlModel, onSave]);
+  }, [typespecModel, onSave]);
 
   const newIssue = useCallback(async () => {
     await saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `${PlaygroundManifest.links.newIssue}?body=${bodyPayload}`;
     window.open(url, "_blank");
-  }, [saveCode, cadlModel]);
+  }, [saveCode, typespecModel]);
 
   async function doCompile(content: string) {
-    const cadlCompiler = await importCadlCompiler();
+    const typespecCompiler = await importTypeSpecCompiler();
 
     const state = await compile(host, content, selectedEmitter, emittersOptions);
     setCompilationStatus(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(cadlCompiler, diag.target),
+        ...getMarkerLocation(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
       }));
 
-      editor.setModelMarkers(cadlModel, "owner", markers ?? []);
+      editor.setModelMarkers(typespecModel, "owner", markers ?? []);
     } else {
-      editor.setModelMarkers(cadlModel, "owner", []);
+      editor.setModelMarkers(typespecModel, "owner", []);
     }
   }
 
-  const cadlEditorCommands = useMemo(
+  const typespecEditorCommands = useMemo(
     () => [
       // ctrl/cmd+S => save
       { binding: KeyMod.CtrlCmd | KeyCode.KeyS, handle: saveCode },
@@ -113,21 +113,21 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, cadlCont
         display: "grid",
         gridTemplateColumns: "repeat(2, 1fr)",
         gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"cadleditor output"\n    "footer footer"',
+        gridTemplateAreas: '"typespeceditor output"\n    "footer footer"',
         width: "100vw",
         height: "100vh",
         overflow: "hidden",
         fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
       }}
     >
-      <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
+      <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
         <EditorCommandBar
           saveCode={saveCode}
           newIssue={newIssue}
-          updateCadl={updateCadl}
+          updateTypeSpec={updateTypeSpec}
           documentationUrl={PlaygroundManifest.links.documentation}
         />
-        <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
+        <TypeSpecEditor model={typespecModel} commands={typespecEditorCommands} />
       </div>
       <div
         css={{
@@ -145,7 +145,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, cadlCont
   );
 };
 
-const outputDir = "./cadl-output";
+const outputDir = "./typespec-output";
 
 async function compile(
   host: BrowserHost,
@@ -153,18 +153,18 @@ async function compile(
   selectedEmitter: string,
   emittersOptions: Record<string, Record<string, unknown>>
 ): Promise<CompilationState> {
-  await host.writeFile("main.cadl", content);
+  await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
-    const cadlCompiler = await importCadlCompiler();
-    const program = await cadlCompiler.compile(host, "main.cadl", {
-      outputDir: "cadl-output",
+    const typespecCompiler = await importTypeSpecCompiler();
+    const program = await typespecCompiler.compile(host, "main.tsp", {
+      outputDir: "typespec-output",
       emit: [selectedEmitter],
       options: {
         ...emittersOptions,
         [selectedEmitter]: {
           ...emittersOptions[selectedEmitter],
-          "emitter-output-dir": "cadl-output",
+          "emitter-output-dir": "typespec-output",
         },
       },
     });
@@ -196,9 +196,9 @@ async function findOutputFiles(host: BrowserHost): Promise<string[]> {
 
 async function emptyOutputDir(host: BrowserHost) {
   // empty output directory
-  const dirs = await host.readDir("./cadl-output");
+  const dirs = await host.readDir("./typespec-output");
   for (const file of dirs) {
-    const path = "./cadl-output/" + file;
+    const path = "./typespec-output/" + file;
     const uri = Uri.parse(host.pathToFileURL(path));
     const model = editor.getModel(uri);
     if (model) {

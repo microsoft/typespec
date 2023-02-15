@@ -7,14 +7,14 @@ import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
-import { CadlScope } from "../../server/tmlanguage.js";
+import { TypeSpecScope } from "../../server/tmlanguage.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
 
-export type MetaScope = `meta.${string}.cadl`;
-export type TokenScope = CadlScope | MetaScope;
+export type MetaScope = `meta.${string}.tsp`;
+export type TokenScope = TypeSpecScope | MetaScope;
 
 interface Token {
   text: string;
@@ -29,64 +29,64 @@ type Tokenize = (input: string) => Promise<Token[]>;
 
 const Token = {
   keywords: {
-    model: createToken("model", "keyword.other.cadl"),
-    scalar: createToken("scalar", "keyword.other.cadl"),
-    operation: createToken("op", "keyword.other.cadl"),
-    namespace: createToken("namespace", "keyword.other.cadl"),
-    interface: createToken("interface", "keyword.other.cadl"),
-    alias: createToken("alias", "keyword.other.cadl"),
-    dec: createToken("dec", "keyword.other.cadl"),
-    fn: createToken("fn", "keyword.other.cadl"),
-    projection: createToken("projection", "keyword.other.cadl"),
-    extends: createToken("extends", "keyword.other.cadl"),
-    extern: createToken("extern", "keyword.other.cadl"),
-    is: createToken("is", "keyword.other.cadl"),
-    if: createToken("if", "keyword.other.cadl"),
-    else: createToken("else", "keyword.other.cadl"),
-    to: createToken("to", "keyword.other.cadl"),
-    from: createToken("from", "keyword.other.cadl"),
-    other: (text: string) => createToken(text, "keyword.other.cadl"),
+    model: createToken("model", "keyword.other.tsp"),
+    scalar: createToken("scalar", "keyword.other.tsp"),
+    operation: createToken("op", "keyword.other.tsp"),
+    namespace: createToken("namespace", "keyword.other.tsp"),
+    interface: createToken("interface", "keyword.other.tsp"),
+    alias: createToken("alias", "keyword.other.tsp"),
+    dec: createToken("dec", "keyword.other.tsp"),
+    fn: createToken("fn", "keyword.other.tsp"),
+    projection: createToken("projection", "keyword.other.tsp"),
+    extends: createToken("extends", "keyword.other.tsp"),
+    extern: createToken("extern", "keyword.other.tsp"),
+    is: createToken("is", "keyword.other.tsp"),
+    if: createToken("if", "keyword.other.tsp"),
+    else: createToken("else", "keyword.other.tsp"),
+    to: createToken("to", "keyword.other.tsp"),
+    from: createToken("from", "keyword.other.tsp"),
+    other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
 
-  meta: (text: string, meta: string) => createToken(text, `meta.${meta}.cadl`),
+  meta: (text: string, meta: string) => createToken(text, `meta.${meta}.tsp`),
 
   identifiers: {
-    variable: (name: string) => createToken(name, "variable.name.cadl"),
-    functionName: (name: string) => createToken(name, "entity.name.function.cadl"),
-    tag: (name: string) => createToken(name, "entity.name.tag.cadl"),
-    type: (name: string) => createToken(name, "entity.name.type.cadl"),
+    variable: (name: string) => createToken(name, "variable.name.tsp"),
+    functionName: (name: string) => createToken(name, "entity.name.function.tsp"),
+    tag: (name: string) => createToken(name, "entity.name.tag.tsp"),
+    type: (name: string) => createToken(name, "entity.name.type.tsp"),
   },
 
   operators: {
-    assignment: createToken("=", "keyword.operator.assignment.cadl"),
-    optional: createToken("?", "keyword.operator.optional.cadl"),
-    typeAnnotation: createToken(":", "keyword.operator.type.annotation.cadl"),
-    selector: createToken("#", "keyword.operator.selector.cadl"),
-    spread: createToken("...", "keyword.operator.spread.cadl"),
+    assignment: createToken("=", "keyword.operator.assignment.tsp"),
+    optional: createToken("?", "keyword.operator.optional.tsp"),
+    typeAnnotation: createToken(":", "keyword.operator.type.annotation.tsp"),
+    selector: createToken("#", "keyword.operator.selector.tsp"),
+    spread: createToken("...", "keyword.operator.spread.tsp"),
   },
 
   punctuation: {
-    comma: createToken(",", "punctuation.comma.cadl"),
-    accessor: createToken(".", "punctuation.accessor.cadl"),
-    valueAccessor: createToken("::", "punctuation.accessor.cadl"),
-    openBracket: createToken("[", "punctuation.squarebracket.open.cadl"),
-    closeBracket: createToken("]", "punctuation.squarebracket.close.cadl"),
-    openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
-    closeBrace: createToken("}", "punctuation.curlybrace.close.cadl"),
-    openParen: createToken("(", "punctuation.parenthesis.open.cadl"),
-    closeParen: createToken(")", "punctuation.parenthesis.close.cadl"),
-    semicolon: createToken(";", "punctuation.terminator.statement.cadl"),
+    comma: createToken(",", "punctuation.comma.tsp"),
+    accessor: createToken(".", "punctuation.accessor.tsp"),
+    valueAccessor: createToken("::", "punctuation.accessor.tsp"),
+    openBracket: createToken("[", "punctuation.squarebracket.open.tsp"),
+    closeBracket: createToken("]", "punctuation.squarebracket.close.tsp"),
+    openBrace: createToken("{", "punctuation.curlybrace.open.tsp"),
+    closeBrace: createToken("}", "punctuation.curlybrace.close.tsp"),
+    openParen: createToken("(", "punctuation.parenthesis.open.tsp"),
+    closeParen: createToken(")", "punctuation.parenthesis.close.tsp"),
+    semicolon: createToken(";", "punctuation.terminator.statement.tsp"),
 
     typeParameters: {
-      begin: createToken("<", "punctuation.definition.typeparameters.begin.cadl"),
-      end: createToken(">", "punctuation.definition.typeparameters.end.cadl"),
+      begin: createToken("<", "punctuation.definition.typeparameters.begin.tsp"),
+      end: createToken(">", "punctuation.definition.typeparameters.end.tsp"),
     },
   },
 
   literals: {
-    numeric: (text: string) => createToken(text, "constant.numeric.cadl"),
+    numeric: (text: string) => createToken(text, "constant.numeric.tsp"),
     string: (text: string) =>
-      createToken(text.startsWith('"') ? text : '"' + text + '"', "string.quoted.double.cadl"),
+      createToken(text.startsWith('"') ? text : '"' + text + '"', "string.quoted.double.tsp"),
   },
 } as const;
 
@@ -932,9 +932,9 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
   // Make @myDec one token to match tmlanguage
   for (let i = 0; i < tokens.length - 1; i++) {
     if (
-      tokens[i].scope === "entity.name.tag.cadl" &&
+      tokens[i].scope === "entity.name.tag.tsp" &&
       tokens[i].text === "@" &&
-      tokens[i + 1].scope === "entity.name.tag.cadl"
+      tokens[i + 1].scope === "entity.name.tag.tsp"
     ) {
       tokens[i].text = "@" + tokens[i + 1].text;
       tokens.splice(i + 1, 1);
@@ -995,14 +995,14 @@ const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async () => {
     const data = await readFile(
-      resolve(dirname(fileURLToPath(import.meta.url)), "../../cadl.tmLanguage"),
+      resolve(dirname(fileURLToPath(import.meta.url)), "../../typespec.tmLanguage"),
       "utf-8"
     );
     return parseRawGrammar(data);
   },
 });
 
-const excludedScopes = ["source.cadl"];
+const excludedScopes = ["source.tsp"];
 
 export async function tokenizeTMLanguage(input: string | Input): Promise<Token[]> {
   if (typeof input === "string") {
@@ -1011,7 +1011,7 @@ export async function tokenizeTMLanguage(input: string | Input): Promise<Token[]
 
   const tokens: Token[] = [];
   let previousStack: StateStack | null = null;
-  const grammar = await registry.loadGrammar("source.cadl");
+  const grammar = await registry.loadGrammar("source.tsp");
 
   if (grammar === null) {
     throw new Error("Unexpected null grammar");

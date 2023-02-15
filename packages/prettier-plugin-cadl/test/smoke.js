@@ -6,7 +6,7 @@ const { resolve } = require("path");
 describe("prettier-plugin: smoke test", () => {
   it("loads and formats", () => {
     const result = prettier.format("alias   Foo   =   string;", {
-      parser: "cadl",
+      parser: "typespec",
       plugins: [resolve(__dirname, "..")],
     });
     strictEqual(result, "alias Foo = string;\n");

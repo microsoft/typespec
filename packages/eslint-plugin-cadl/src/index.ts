@@ -7,7 +7,7 @@ export const rules = {
 export const configs = {
   recommended: {
     rules: {
-      "@cadl-lang/call-decorator": "warn",
+      "@typespec/call-decorator": "warn",
     },
   },
 };

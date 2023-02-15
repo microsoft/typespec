@@ -1,3 +1,3 @@
-import "my-cadl-library";
+import "my-typespec-library";
 
-op test(): MyCadlLibrary.Test;
+op test(): MyTypeSpecLibrary.Test;

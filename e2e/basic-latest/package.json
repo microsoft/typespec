@@ -1,11 +1,11 @@
 {
-  "name": "@cadl-lang/e2e-test-basic-latest",
+  "name": "@typespec/e2e-test-basic-latest",
   "dependencies": {
-    "@cadl-lang/compiler": "latest",
-    "@cadl-lang/rest": "latest",
-    "@cadl-lang/versioning": "latest",
-    "@cadl-lang/openapi": "latest",
-    "@cadl-lang/openapi3": "latest"
+    "@typespec/compiler": "latest",
+    "@typespec/rest": "latest",
+    "@typespec/versioning": "latest",
+    "@typespec/openapi": "latest",
+    "@typespec/openapi3": "latest"
   },
   "private": true
 }

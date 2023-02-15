@@ -1,5 +1,5 @@
-import { Diagnostic, Program } from "@cadl-lang/compiler";
-import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
+import { Diagnostic, Program } from "@typespec/compiler";
+import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { css } from "@emotion/react";
 import { Settings16Filled } from "@fluentui/react-icons";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
@@ -46,7 +46,7 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
   }, [program, outputFiles]);
 
   async function loadOutputFile(path: string) {
-    const contents = await program.host.readFile("./cadl-output/" + path);
+    const contents = await program.host.readFile("./typespec-output/" + path);
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 
@@ -131,7 +131,7 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({ viewSelection, p
             overflow: "scroll",
           }}
         >
-          {program && <CadlProgramViewer program={program} />}
+          {program && <TypeSpecProgramViewer program={program} />}
         </div>
       );
   }

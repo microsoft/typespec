@@ -1,19 +1,19 @@
-import { TextRange } from "@cadl-lang/compiler";
+import { TextRange } from "@typespec/compiler";
 
 export type MigrationKind = "Syntax";
 
 // Update here before release.
-export type CadlCompilerCurrent = typeof import("@cadl-lang/compiler");
-export type CadlCompilerV0_38 = CadlCompilerCurrent;
-export type CadlCompilerV0_37 = typeof import("@cadl-lang/compiler-v0.37");
+export type TypeSpecCompilerCurrent = typeof import("@typespec/compiler");
+export type TypeSpecCompilerV0_38 = TypeSpecCompilerCurrent;
+export type TypeSpecCompilerV0_37 = typeof import("@typespec/compiler-v0.37");
 
-export type CadlCompilers = {
-  "0.37": CadlCompilerV0_37;
-  "0.38": CadlCompilerV0_38;
+export type TypeSpecCompilers = {
+  "0.37": TypeSpecCompilerV0_37;
+  "0.38": TypeSpecCompilerV0_38;
 };
 
-export type CadlCompiler = CadlCompilers[keyof CadlCompilers];
-export type CadlCompilerVersion = keyof CadlCompilers;
+export type TypeSpecCompiler = TypeSpecCompilers[keyof TypeSpecCompilers];
+export type TypeSpecCompilerVersion = keyof TypeSpecCompilers;
 
 export interface MigrationContext {
   /**
@@ -27,7 +27,7 @@ export interface MigrationContext {
   printNodes(node: readonly TextRange[]): string;
 }
 
-export interface Migration<TFrom extends CadlCompilerVersion> {
+export interface Migration<TFrom extends TypeSpecCompilerVersion> {
   name: string;
   kind: "Syntax";
   /**
@@ -38,29 +38,29 @@ export interface Migration<TFrom extends CadlCompilerVersion> {
   /**
    * Target version
    */
-  to: CadlCompilerVersion;
+  to: TypeSpecCompilerVersion;
 
   /**
    * Migrate logic.
    * @param compilerInstance Instance of the compiler at the `from` version.
-   * @param script Cadl Script source node.
+   * @param script TypeSpec Script source node.
    */
   migrate(
     context: MigrationContext,
-    compilerInstance: CadlCompilers[TFrom],
+    compilerInstance: TypeSpecCompilers[TFrom],
     script: unknown
   ): MigrateAction[];
 }
 
 export interface MigrateAction {
-  target: TextRange; // Cadl  compiler node
+  target: TextRange; // TypeSpec  compiler node
   /**
    * Replaced content
    */
   content: string;
 }
 
-export function createMigration<TFrom extends CadlCompilerVersion>(
+export function createMigration<TFrom extends TypeSpecCompilerVersion>(
   migration: Migration<TFrom>
 ): Migration<TFrom> {
   return migration;

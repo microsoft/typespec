@@ -13,7 +13,7 @@ import {
 import {
   ArrayBuilder,
   AssetEmitter,
-  CadlDeclaration,
+  TypeSpecDeclaration,
   code,
   CodeTypeEmitter,
   Context,
@@ -29,7 +29,7 @@ import {
   StringBuilder,
   TypeEmitter,
 } from "../../emitter-framework/index.js";
-import { emitCadl, getHostForCadlFile } from "./host.js";
+import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
 
 const testCode = `
@@ -85,16 +85,16 @@ class SingleFileEmitter extends TypeScriptInterfaceEmitter {
   }
 }
 
-async function emitCadlToTs(code: string) {
-  const emitter = await emitCadl(SingleFileEmitter, code, {}, false);
+async function emitTypeSpecToTs(code: string) {
+  const emitter = await emitTypeSpec(SingleFileEmitter, code, {}, false);
 
-  const sf = await emitter.getProgram().host.readFile("./cadl-output/output.ts");
+  const sf = await emitter.getProgram().host.readFile("./typespec-output/output.ts");
   return sf.text;
 }
 
 describe("typescript emitter", () => {
   it("emits models", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model A {
         x: {
           y: string;
@@ -107,7 +107,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits model templates", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model Template<T> {
         x: T
       }
@@ -125,7 +125,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits literal types", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model A {
         x: true,
         y: "hi",
@@ -139,7 +139,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits array literals", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model MyArray2 is Array<string>;
 
       model HasArray {
@@ -156,7 +156,7 @@ describe("typescript emitter", () => {
   });
   // todo: what to do with optionals not at the end??
   it("emits operations", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model SomeModel {
         x: string;
       }
@@ -171,7 +171,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits interfaces", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model Foo {
         prop: string;
       }
@@ -201,7 +201,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits enums", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       enum StringEnum {
         x; y: "hello";
       }
@@ -220,7 +220,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits unions", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model SomeModel {
         a: 1 | 2 | SomeModel;
         b: TU<string>;
@@ -246,7 +246,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits tuple types", async () => {
-    const contents = await emitCadlToTs(`
+    const contents = await emitTypeSpecToTs(`
       model Foo {
         x: [string, int32];
       }
@@ -256,7 +256,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits models to a single file", async () => {
-    const host = await getHostForCadlFile(testCode);
+    const host = await getHostForTypeSpecFile(testCode);
     const emitter = createAssetEmitter(host.program, SingleFileEmitter, {
       emitterOutputDir: host.program.compilerOptions.outputDir!,
       options: {},
@@ -265,16 +265,16 @@ describe("typescript emitter", () => {
     emitter.emitProgram();
     await emitter.writeOutput();
 
-    const files = await host.program.host.readDir("./cadl-output");
+    const files = await host.program.host.readDir("./typespec-output");
     assert.strictEqual(files.length, 1);
-    const contents = (await host.program.host.readFile("./cadl-output/output.ts")).text;
+    const contents = (await host.program.host.readFile("./typespec-output/output.ts")).text;
     // some light assertions
     assert.match(contents, /export interface Basic/);
     assert.match(contents, /export interface HasRef/);
   });
 
   it("emits to multiple files", async () => {
-    const host = await getHostForCadlFile(testCode);
+    const host = await getHostForTypeSpecFile(testCode);
 
     class ClassPerFileEmitter extends TypeScriptInterfaceEmitter {
       modelDeclarationContext(model: Model): Context {
@@ -309,7 +309,7 @@ describe("typescript emitter", () => {
         return this.#declarationContext(operation);
       }
 
-      #declarationContext(decl: CadlDeclaration) {
+      #declarationContext(decl: TypeSpecDeclaration) {
         const name = this.emitter.emitDeclarationName(decl);
         const outputFile = this.emitter.createSourceFile(`${name}.ts`);
 
@@ -325,7 +325,7 @@ describe("typescript emitter", () => {
 
     await emitter.writeOutput();
 
-    const files = new Set(await host.program.host.readDir("./cadl-output"));
+    const files = new Set(await host.program.host.readDir("./typespec-output"));
     [
       "Basic.ts",
       "RefsOtherModel.ts",
@@ -348,7 +348,7 @@ describe("typescript emitter", () => {
   });
 
   it("emits to namespaces", async () => {
-    const host = await getHostForCadlFile(testCode);
+    const host = await getHostForTypeSpecFile(testCode);
 
     class NamespacedEmitter extends TypeScriptInterfaceEmitter {
       private nsByName: Map<string, Scope<string>> = new Map();
@@ -406,7 +406,7 @@ describe("typescript emitter", () => {
     } as any);
     emitter.emitProgram();
     await emitter.writeOutput();
-    const contents = (await host.compilerHost.readFile("cadl-output/output.ts")).text;
+    const contents = (await host.compilerHost.readFile("typespec-output/output.ts")).text;
     assert.match(contents, /namespace B/);
     assert.match(contents, /namespace R/);
     assert.match(contents, /namespace H/);
@@ -417,7 +417,7 @@ describe("typescript emitter", () => {
   });
 
   it("handles circular references", async () => {
-    const host = await getHostForCadlFile(`
+    const host = await getHostForTypeSpecFile(`
       model Foo { prop: Baz }
       model Baz { prop: Foo }
     `);
@@ -434,7 +434,7 @@ describe("typescript emitter", () => {
     } as any);
     emitter.emitProgram();
     await emitter.writeOutput();
-    const contents = (await host.compilerHost.readFile("cadl-output/output.ts")).text;
+    const contents = (await host.compilerHost.readFile("typespec-output/output.ts")).text;
     assert.match(contents, /prop: Foo/);
     assert.match(contents, /prop: Baz/);
   });
@@ -485,7 +485,7 @@ it("handles circular references", async () => {
     }
   }
 
-  await emitCadl(
+  await emitTypeSpec(
     TestEmitter,
     `
     model Bar { bProp: Foo };
@@ -546,7 +546,7 @@ it("handles multiple circular references", async () => {
     }
   }
 
-  await emitCadl(
+  await emitTypeSpec(
     TestEmitter,
     `
     model Bar { prop: Foo, pro2: Baz };
@@ -571,7 +571,7 @@ it("can get options", async () => {
     }
   }
 
-  const host = await getHostForCadlFile(`model Foo { }`);
+  const host = await getHostForTypeSpecFile(`model Foo { }`);
   const assetEmitter = createAssetEmitter(host.program, TestEmitter, {
     emitterOutputDir: host.program.compilerOptions.outputDir!,
     options: { doThing: "yes" },
@@ -657,7 +657,7 @@ describe("Object emitter", () => {
   }
 
   it("emits objects", async () => {
-    const host = await getHostForCadlFile(
+    const host = await getHostForTypeSpecFile(
       `
       model Foo {
         bar: Bar
@@ -676,7 +676,7 @@ describe("Object emitter", () => {
     } as any);
     assetEmitter.emitProgram();
     await assetEmitter.writeOutput();
-    const contents = JSON.parse((await host.compilerHost.readFile("cadl-output/test.json")!).text);
+    const contents = JSON.parse((await host.compilerHost.readFile("typespec-output/test.json")!).text);
     assert.strictEqual(contents.declarations.length, 2);
   });
 });

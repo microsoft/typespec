@@ -9,7 +9,7 @@ Operations describe service endpoints and consist of an operation name, paramete
 
 Operations are declared using the `op` keyword:
 
-```cadl
+```typespec
 op ping(): void;
 ```
 
@@ -17,7 +17,7 @@ op ping(): void;
 
 The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:
 
-```cadl
+```typespec
 op feedDog(...CommonParams, name: string): void;
 ```
 
@@ -25,7 +25,7 @@ op feedDog(...CommonParams, name: string): void;
 
 Often an endpoint returns one of any number of models. For example, there might be a return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:
 
-```cadl
+```typespec
 model DogNotFound {
   error: "Not Found";
 }
@@ -37,13 +37,13 @@ op getDog(name: string): Dog | DogNotFound;
 
 Operation signatures can be reused using the `is` keyword. Given an operation
 
-```cadl
+```typespec
 op Delete(id: string): void;
 ```
 
 its signature can be reused like this:
 
-```cadl
+```typespec
 op deletePet is Delete;
 ```
 
@@ -55,12 +55,12 @@ This pattern is most commonly used in combination with [operation templates](#op
 
 [See templates](./templates.md) for details on templates.
 
-```cadl
+```typespec
 op ReadResource<T>(id: string): T;
 ```
 
 The operation template can then be referenced via `is`:
 
-```cadl
+```typespec
 op readPet is ReadResource<Pet>;
 ```

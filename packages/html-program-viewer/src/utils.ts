@@ -1,4 +1,4 @@
-import { getNamespaceFullName, Type, Union } from "@cadl-lang/compiler";
+import { getNamespaceFullName, Type, Union } from "@typespec/compiler";
 
 export function getIdForType(type: Type): string | undefined {
   if (type.kind === "Namespace") {

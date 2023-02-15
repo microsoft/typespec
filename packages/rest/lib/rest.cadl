@@ -1,8 +1,8 @@
-import "./http.cadl";
-import "./rest-decorators.cadl";
-import "./resource.cadl";
+import "./http.tsp";
+import "./rest-decorators.tsp";
+import "./resource.tsp";
 
-namespace Cadl.Rest;
+namespace TypeSpec.Rest;
 
 @doc("The location of an instance of {name}", TResource)
 @Private.resourceLocation(TResource)

@@ -1,8 +1,8 @@
 import "../dist/src/http/index.js";
-import "./http-decorators.cadl";
-import "./auth.cadl";
+import "./http-decorators.tsp";
+import "./auth.tsp";
 
-namespace Cadl.Http;
+namespace TypeSpec.Http;
 
 using Private;
 
@@ -32,7 +32,7 @@ model LocationHeader {
 // Don't put @doc on these, change `getStatusCodeDescription` implementation
 // to update the default descriptions for these status codes. This ensures
 // that we get consistent emit between different ways to spell the same
-// responses in Cadl.
+// responses in TypeSpec.
 model OkResponse is Response<200>;
 model CreatedResponse is Response<201>;
 model AcceptedResponse is Response<202>;

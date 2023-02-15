@@ -1,6 +1,6 @@
-import "@cadl-lang/versioning";
+import "@typespec/versioning";
 
-using Cadl.Versioning;
+using TypeSpec.Versioning;
 
 @versioned(Versions)
 namespace Library;

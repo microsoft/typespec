@@ -1,12 +1,12 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi";
+import "@typespec/rest";
+import "@typespec/openapi";
 
 @service({
   title: "Pet Store Service",
   version: "2021-03-25",
 })
 namespace PetStore;
-using Cadl.Http;
+using TypeSpec.Http;
 
 model ApiVersionParam {
   @header apiVersion: string;

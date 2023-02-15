@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cadl-lang/compiler";
+import type { Diagnostic } from "@typespec/compiler";
 import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
 import { DiagnosticList } from "./diagnostic-list.js";
@@ -34,7 +34,7 @@ export const InternalCompilerError: FunctionComponent<InternalCompilerErrorProps
         }}
       >
         <h3>Internal Compiler error</h3>
-        <div>File issue at https://github.com/microsoft/cadl</div>
+        <div>File issue at https://github.com/microsoft/typespec</div>
         <hr />
         <div>{error.stack}</div>
       </div>

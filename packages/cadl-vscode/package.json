@@ -1,23 +1,23 @@
 {
-  "name": "cadl-vscode",
+  "name": "typespec-vscode",
   "version": "0.40.0",
   "author": "Microsoft Corporation",
-  "description": "Cadl Language Support for VS Code",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "description": "TypeSpec Language Support for VS Code",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "publisher": "Microsoft",
-  "displayName": "Cadl Language Support for VS Code",
+  "displayName": "TypeSpec Language Support for VS Code",
   "categories": [
     "Programming Languages"
   ],
@@ -27,38 +27,38 @@
     "vscode": "^1.53.0"
   },
   "activationEvents": [
-    "onLanguage:cadl",
-    "onCommand:cadl.restartServer"
+    "onLanguage:typespec",
+    "onCommand:typespec.restartServer"
   ],
   "files": [
-    "cadl-vscode-*.vsix",
+    "typespec-vscode-*.vsix",
     "ThirdPartyNotices.txt"
   ],
   "contributes": {
     "languages": [
       {
-        "id": "cadl",
+        "id": "typespec",
         "aliases": [
-          "Cadl",
-          "CADL"
+          "TypeSpec",
+          "TYPESPEC"
         ],
         "extensions": [
-          ".cadl"
+          ".tsp"
         ],
         "configuration": "./dist/language-configuration.json"
       },
       {
-        "id": "markdown-cadl"
+        "id": "markdown-typespec"
       }
     ],
     "configuration": [
       {
-        "title": "Cadl Language Server Path",
+        "title": "TypeSpec Language Server Path",
         "properties": {
-          "cadl.cadl-server.path": {
+          "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
-            "description": "Path to `cadl-server` command that runs the Cadl language server.\n\nIf not specified, then `cadl-server` found on PATH is used.\n\nExample (User): /usr/local/bin/cadl-server\nExample (Workspace): ${workspaceFolder}/node_modules/@cadl-lang/compiler",
+            "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
             "scope": "machine-overridable"
           }
         }
@@ -66,37 +66,37 @@
     ],
     "grammars": [
       {
-        "language": "cadl",
-        "scopeName": "source.cadl",
-        "path": "./dist/cadl.tmLanguage"
+        "language": "typespec",
+        "scopeName": "source.tsp",
+        "path": "./dist/typespec.tmLanguage"
       },
       {
-        "language": "markdown-cadl",
-        "scopeName": "markdown.cadl.codeblock",
-        "path": "./markdown-cadl.json",
+        "language": "markdown-typespec",
+        "scopeName": "markdown.tsp.codeblock",
+        "path": "./markdown-tsp.json",
         "injectTo": [
           "text.html.markdown"
         ],
         "embeddedLanguages": {
-          "meta.embedded.block.cadl": "cadl"
+          "meta.embedded.block.tsp": "typespec"
         }
       }
     ],
     "commands": [
       {
-        "command": "cadl.restartServer",
-        "title": "Restart Cadl server",
-        "category": "Cadl"
+        "command": "typespec.restartServer",
+        "title": "Restart TypeSpec server",
+        "category": "TypeSpec"
       }
     ],
     "semanticTokenScopes": [
       {
         "scopes": {
           "keyword": [
-            "keyword.other.cadl"
+            "keyword.other.tsp"
           ],
           "macro": [
-            "entity.name.tag.cadl"
+            "entity.name.tag.tsp"
           ]
         }
       }
@@ -110,7 +110,7 @@
     "dogfood": "node scripts/dogfood.js",
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
-    "generate-third-party-notices": "cadl-build-tool generate-third-party-notices",
+    "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
     "rollup": "rollup --config --failAfterWarnings 2>&1",
     "package-vsix": "vsce package"
   },
@@ -121,9 +121,9 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.53.0",
-    "@cadl-lang/compiler": "~0.40.0",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/internal-build-utils": "~0.3.3",
+    "@typespec/compiler": "~0.40.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/internal-build-utils": "~0.3.3",
     "eslint": "^8.12.0",
     "c8": "~7.12.0",
     "mkdirp": "~1.0.4",

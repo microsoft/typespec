@@ -1,8 +1,8 @@
-import "@cadl-lang/versioning";
-import "@cadl-lang/rest";
-import "./library.cadl";
+import "@typespec/versioning";
+import "@typespec/rest";
+import "./library.tsp";
 
-using Cadl.Versioning;
+using TypeSpec.Versioning;
 
 // Use version 1.0 of the Library
 @service({
@@ -10,6 +10,6 @@ using Cadl.Versioning;
 })
 @useDependency(Library.Versions.v1_0)
 namespace VersionedApi;
-using Cadl.Http;
+using TypeSpec.Http;
 
 op read(): Library.PetToy;

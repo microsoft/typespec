@@ -22,7 +22,7 @@ jobs:
         inputs:
           version: 6.0.x
 
-      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+      - script: echo '##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true'
         displayName: Enable official Visual Studio extension build
 
       - script: npx @microsoft/rush install
@@ -30,7 +30,7 @@ jobs:
 
       - script: dotnet restore
         displayName: Restore .NET Dependencies
-        workingDirectory: packages/cadl-vs
+        workingDirectory: packages/typespec-vs
 
       - script: npx @microsoft/rush rebuild --verbose
         displayName: Build
@@ -50,7 +50,7 @@ jobs:
           sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "cadlplayground"
+          storage: "typespecplayground"
           containerName: "$web"
         displayName: "Update playground"
 
@@ -59,7 +59,7 @@ jobs:
           sourcePath: "packages/website/build/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "cadlwebsite"
+          storage: "typespecwebsite"
           containerName: "$web"
         displayName: "Update website"
 
@@ -74,7 +74,7 @@ jobs:
           versionSpec: 16.x
         displayName: Install Node.js
 
-      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+      - script: echo '##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true'
         displayName: Enable official Visual Studio extension build
 
       - script: npx @microsoft/rush install
@@ -82,7 +82,7 @@ jobs:
 
       - script: dotnet restore
         displayName: Restore .NET Dependencies
-        workingDirectory: packages/cadl-vs
+        workingDirectory: packages/typespec-vs
 
       - script: npx @microsoft/rush rebuild --verbose
         displayName: Build
@@ -98,7 +98,7 @@ jobs:
   - job: docker
     displayName: Docker build and publish
     variables:
-      imageName: "azsdkengsys.azurecr.io/cadl"
+      imageName: "azsdkengsys.azurecr.io/typespec"
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
     steps:

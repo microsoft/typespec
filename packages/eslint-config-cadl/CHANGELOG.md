@@ -1,4 +1,4 @@
-# Change Log - @cadl-lang/eslint-config-cadl
+# Change Log - @typespec/eslint-config-typespec
 
 This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
 

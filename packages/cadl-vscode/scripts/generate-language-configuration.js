@@ -1,5 +1,5 @@
 // @ts-check
-import { CadlLanguageConfiguration } from "@cadl-lang/compiler";
+import { TypeSpecLanguageConfiguration } from "@typespec/compiler";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -12,7 +12,7 @@ main().catch((err) => {
 });
 
 async function main() {
-  const content = JSON.stringify(CadlLanguageConfiguration, null, 2);
+  const content = JSON.stringify(TypeSpecLanguageConfiguration, null, 2);
   await mkdir(distFolder, { recursive: true });
   await writeFile(join(distFolder, "language-configuration.json"), content);
 }

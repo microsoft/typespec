@@ -1,7 +1,7 @@
 import { createDiagnosticCollector, ignoreDiagnostics } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Diagnostic, NoTarget } from "../core/types.js";
-import { CadlConfig, ConfigEnvironmentVariable, ConfigParameter, EmitterOptions } from "./types.js";
+import { TypeSpecConfig, ConfigEnvironmentVariable, ConfigParameter, EmitterOptions } from "./types.js";
 
 export interface ExpandConfigOptions {
   readonly cwd: string;
@@ -11,9 +11,9 @@ export interface ExpandConfigOptions {
 }
 
 export function expandConfigVariables(
-  config: CadlConfig,
+  config: TypeSpecConfig,
   expandOptions: ExpandConfigOptions
-): [CadlConfig, readonly Diagnostic[]] {
+): [TypeSpecConfig, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const builtInVars = {
     "project-root": config.projectRoot,

@@ -15,7 +15,7 @@ function main() {
   run("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
 
   console.log("Check cli is working");
-  runCadl(packages["@cadl-lang/compiler"], ["--help"], { cwd: e2eTestDir });
+  runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
   console.log("Cli is working");
 
   testBasicLatest(packages);
@@ -49,34 +49,34 @@ function packPackages() {
   }
 
   return {
-    "@cadl-lang/compiler": resolvePackage("cadl-lang-compiler-"),
-    "@cadl-lang/openapi": resolvePackage("cadl-lang-openapi-"),
-    "@cadl-lang/openapi3": resolvePackage("cadl-lang-openapi3-"),
-    "@cadl-lang/rest": resolvePackage("cadl-lang-rest-"),
-    "@cadl-lang/versioning": resolvePackage("cadl-lang-versioning-"),
+    "@typespec/compiler": resolvePackage("typespec-lang-compiler-"),
+    "@typespec/openapi": resolvePackage("typespec-lang-openapi-"),
+    "@typespec/openapi3": resolvePackage("typespec-lang-openapi3-"),
+    "@typespec/rest": resolvePackage("typespec-lang-rest-"),
+    "@typespec/versioning": resolvePackage("typespec-lang-versioning-"),
   };
 }
 
-function runCadl(compilerTgz, args, options) {
-  run(npxCmd, ["-p", compilerTgz, "cadl", ...args], { ...options });
+function runTypeSpec(compilerTgz, args, options) {
+  run(npxCmd, ["-p", compilerTgz, "typespec", ...args], { ...options });
 }
 
 function testBasicLatest(packages) {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
-  const outputDir = join(basicLatestDir, "cadl-output");
+  const outputDir = join(basicLatestDir, "typespec-output");
   console.log("Clearing basic-latest output");
   rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-latest output");
 
   console.log("Installing basic-latest dependencies");
-  runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicLatestDir });
+  runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicLatestDir });
   console.log("Installed basic-latest dependencies");
 
-  console.log("Running cadl compile .");
-  runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
+  console.log("Running tsp compile .");
+  runTypeSpec(packages["@typespec/compiler"], ["compile", ".", "--emit", "@typespec/openapi3"], {
     cwd: basicLatestDir,
   });
-  console.log("Completed cadl compile .");
+  console.log("Completed tsp compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
     console.log("Output created successfully.");
@@ -87,20 +87,20 @@ function testBasicLatest(packages) {
 
 function testBasicCurrentTgz(packages) {
   const basicCurrentDir = join(e2eTestDir, "basic-current");
-  const outputDir = join(basicCurrentDir, "cadl-output");
+  const outputDir = join(basicCurrentDir, "typespec-output");
   console.log("Clearing basic-current");
   rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-current");
 
   console.log("Generating package.json for basic-current");
   const packageJson = {
-    name: "@cadl-lang/e2e-test-basic-current",
+    name: "@typespec/e2e-test-basic-current",
     dependencies: {
-      "@cadl-lang/compiler": packages["@cadl-lang/compiler"],
-      "@cadl-lang/rest": packages["@cadl-lang/rest"],
-      "@cadl-lang/openapi": packages["@cadl-lang/openapi"],
-      "@cadl-lang/openapi3": packages["@cadl-lang/openapi3"],
-      "@cadl-lang/versioning": packages["@cadl-lang/versioning"],
+      "@typespec/compiler": packages["@typespec/compiler"],
+      "@typespec/rest": packages["@typespec/rest"],
+      "@typespec/openapi": packages["@typespec/openapi"],
+      "@typespec/openapi3": packages["@typespec/openapi3"],
+      "@typespec/versioning": packages["@typespec/versioning"],
     },
     private: true,
   };
@@ -108,14 +108,14 @@ function testBasicCurrentTgz(packages) {
   console.log("Generated package.json for basic-current");
 
   console.log("Installing basic-current dependencies");
-  runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicCurrentDir });
+  runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicCurrentDir });
   console.log("Installed basic-current dependencies");
 
-  console.log(`Running cadl compile . in "${basicCurrentDir}"`);
-  runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
+  console.log(`Running tsp compile . in "${basicCurrentDir}"`);
+  runTypeSpec(packages["@typespec/compiler"], ["compile", ".", "--emit", "@typespec/openapi3"], {
     cwd: basicCurrentDir,
   });
-  console.log("Completed cadl compile .");
+  console.log("Completed tsp compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
     console.log("Output created successfully.");

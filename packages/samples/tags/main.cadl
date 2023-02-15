@@ -1,1 +1,1 @@
-import "./tagged-operations.cadl";
+import "./tagged-operations.tsp";

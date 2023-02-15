@@ -1,4 +1,4 @@
-using Cadl.Reflection;
+using TypeSpec.Reflection;
 
 namespace OpenAPI;
 
@@ -9,7 +9,7 @@ namespace OpenAPI;
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @operationId("download")
  * op read(): string;
  * ```
@@ -24,7 +24,7 @@ extern dec operationId(target: Operation, operationId: string);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @extension("x-custom", "My value")
  * @extension("x-pageable", {nextLink: "x-next-link"})
  * op read(): string;
@@ -38,7 +38,7 @@ extern dec extension(target: unknown, key: string, value: unknown);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @defaultResponse
  * model PetStoreResponse is object;
  *
@@ -54,7 +54,7 @@ extern dec defaultResponse(target: object);
  * @param description Description of the docs
  *
  * @example
- * ```cadl
+ * ```typespec
  * @externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")
  * op listPets(): Pet[];
  * ```

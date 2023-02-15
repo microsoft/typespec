@@ -1,7 +1,7 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi";
+import "@typespec/rest";
+import "@typespec/openapi";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "sample",

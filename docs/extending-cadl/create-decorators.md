@@ -1,13 +1,13 @@
 ---
 id: create-decorators
-title: Creating Cadl Decorators
+title: Creating TypeSpec Decorators
 ---
 
-# Creating Cadl decorators
+# Creating TypeSpec decorators
 
-Cadl decorator are implemented as JavaScript function. Declarating a decorator can be done in 1 or 2 part:
+TypeSpec decorator are implemented as JavaScript function. Declarating a decorator can be done in 1 or 2 part:
 
-1. [(Optional) Declare the decorator signature in cadl](#declaring-a-decorator-signature)
+1. [(Optional) Declare the decorator signature in typespec](#declaring-a-decorator-signature)
 2. [Implement the decorator in Javascript](#implement-the-decorator-in-js)
 
 ## Declaring a decorator signature
@@ -19,18 +19,18 @@ This part is optional but provides great value:
 
 A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS (only choice right now), we must apply the `extern` modifier as well.
 
-```cadl
-extern dec logType(target: Cadl.Reflection.Type, name: Cadl.Reflection.StringLiteral);
+```typespec
+extern dec logType(target: TypeSpec.Reflection.Type, name: TypeSpec.Reflection.StringLiteral);
 ```
 
 ## Decorator target
 
-The first parameter of the decorator represents the cadl type(s) that the decorator can be applied on.
+The first parameter of the decorator represents the typespec type(s) that the decorator can be applied on.
 
 You can specify multiple potential target type using an `union expression`
 
-```cadl
-using Cadl.Reflection;
+```typespec
+using TypeSpec.Reflection;
 
 extern dec track(target: Model | Enum);
 ```
@@ -39,7 +39,7 @@ extern dec track(target: Model | Enum);
 
 A decorator parameter can be marked optional using `?`
 
-```cadl
+```typespec
 extern dec track(target: Model | Enum, name?: StringLiteral);
 ```
 
@@ -47,7 +47,7 @@ extern dec track(target: Model | Enum, name?: StringLiteral);
 
 A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
-```cadl
+```typespec
 extern dec track(target: Model | Enum, ...names: StringLiteral[]);
 ```
 
@@ -56,12 +56,12 @@ extern dec track(target: Model | Enum, ...names: StringLiteral[]);
 Decorators can be implemented in JavaScript by prefixing the function name with `$`. A decorator function must have the following parameters:
 
 - `1`: `context` of type `DecoratorContext`
-- `2`: `target` The Cadl type target. (`Namespace`, `Interface`, etc.)
+- `2`: `target` The TypeSpec type target. (`Namespace`, `Interface`, etc.)
 - `3+`: Any arguments of the decorators.
 
 ```ts
 // model.ts
-import type { DecoratorContext, Type } from "@cadl-lang/compiler";
+import type { DecoratorContext, Type } from "@typespec/compiler";
 
 export function $logType(context: DecoratorContext, target: Type, name: string) {
   console.log(name + ": " + targetType.kind);
@@ -79,8 +79,8 @@ export function $logType(context, target, name) {
 
 The decorator can then be consumed this way
 
-```cadl
-// main.cadl
+```typespec
+// main.tsp
 import "./model.js";
 
 @logType("Dog type")
@@ -92,9 +92,9 @@ model Dog {
 
 ### Decorator parameter marshalling
 
-For certain Cadl types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
+For certain TypeSpec types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
 
-| Cadl Type        | Marshalled value in JS |
+| TypeSpec Type        | Marshalled value in JS |
 | ---------------- | ---------------------- |
 | `StringLiteral`  | `string`               |
 | `NumericLiteral` | `number`               |
@@ -118,7 +118,7 @@ Decorators can be used to register some metadata. For this you can use the `cont
 ❌ Do not save the data in a global variable.
 
 ```ts
-import type { DecoratorContext, Type } from "@cadl-lang/compiler";
+import type { DecoratorContext, Type } from "@typespec/compiler";
 import type { createStateSymbol } from "./lib.js";
 
 // Create a unique key
@@ -137,17 +137,17 @@ export function $customName(context: DecoratorContext, target: Type, name: strin
 Decorator context provide the `decoratorTarget` and `getArgumentTarget` helpers
 
 ```ts
-import type { DecoratorContext, Type } from "@cadl-lang/compiler";
+import type { DecoratorContext, Type } from "@typespec/compiler";
 import type { reportDiagnostic } from "./lib.js";
 
 export function $customName(context: DecoratorContext, target: Type, name: string) {
   reportDiagnostic({
     code: "custom-name-invalid",
-    target: context.decoratorTarget, // Get location of @customName decorator in cadl document.
+    target: context.decoratorTarget, // Get location of @customName decorator in typespec document.
   });
   reportDiagnostic({
     code: "bad-name",
-    target: context.getArgumentTarget(0), // Get location of {name} argument in cadl document.
+    target: context.getArgumentTarget(0), // Get location of {name} argument in typespec document.
   });
 }
 ```
@@ -156,7 +156,7 @@ export function $customName(context: DecoratorContext, target: Type, name: strin
 
 Decorator signatures are linked to the implementation of the same name in the same namespace
 
-```cadl
+```typespec
 import "./lib.js";
 extern dec customName(target: Type, name: StringLiteral);
 
@@ -171,7 +171,7 @@ is linked the the following in `lib.js`
 export function $customName(context: DecoratorContext, name: string) {}
 
 export function $tableName(context: DecoratorContext, name: string) {}
-setCadlNamespace("MyLib", $tableName);
+setTypeSpecNamespace("MyLib", $tableName);
 ```
 
 ## Troubleshooting
@@ -182,6 +182,6 @@ Potential issues:
 
 - JS function is not prefixed with `$`. For a decorator called `@decorate` the JS function must be called `$decoratate`
 - JS function is not in the same namespace as the the `extern dec`
-- Error is only showing in the IDE? Restart the Cadl server or the IDE.
+- Error is only showing in the IDE? Restart the TypeSpec server or the IDE.
 
 You can use `--trace bind.js.decorator` to log debug information about decorator loading in JS file that should help pinning down which of those is the issue.
