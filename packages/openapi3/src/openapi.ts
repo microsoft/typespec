@@ -1100,51 +1100,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     );
   }
 
-  function checkAdditionalProperties(program: Program, model: Model): string | boolean | undefined {
-    const baseModel = model.baseModel;
-    if (!baseModel || baseModel.name !== "Record") {
-      return undefined;
-    }
-    const templateArg = baseModel.templateMapper?.args.at(0);
-    if (!templateArg) {
-      return undefined;
-    }
-    switch (templateArg.kind) {
-      case "Intrinsic":
-        if (templateArg.name === "unknown") {
-          return true;
-        }
-        break;
-      case "Scalar":
-        for (const [_, prop] of model.properties) {
-          // ensure that the record type is compatible with any listed properties
-          const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, templateArg, prop);
-          for (const diag of diagnostics) {
-            program.reportDiagnostic(diag);
-          }
-        }
-        return templateArg.name;
-    }
-    return undefined;
-  }
-
   function getSchemaForModel(model: Model, visibility: Visibility) {
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
       description: getDoc(program, model),
     };
-
-    // TODO: This feels like the wrong place to do this. It seems hacky.
-    const additionalProperties = checkAdditionalProperties(program, model);
-    if (additionalProperties === true) {
-      modelSchema.additionalProperties = {};
-    } else if (additionalProperties) {
-      // must be a string property
-      (modelSchema.additionalProperties as unknown) = {
-        type: additionalProperties,
-      };
-    }
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
@@ -1208,7 +1169,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         description: modelSchema.description,
       };
     } else if (model.baseModel) {
-      modelSchema.allOf = [getSchemaOrRef(model.baseModel, visibility)];
+      const baseSchema = getSchemaOrRef(model.baseModel, visibility);
+      modelSchema.allOf = [baseSchema];
+      modelSchema.additionalProperties = baseSchema.additionalProperties;
+      if (modelSchema.additionalProperties) {
+        validateAdditionalProperties(model);
+      }
     }
 
     // Attach any OpenAPI extensions
@@ -1370,6 +1336,44 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function validateAdditionalProperties(model: Model) {
+    const templateArg = model.baseModel?.templateMapper?.args[0];
+    if (!templateArg) {
+      return;
+    }
+    for (const [_, prop] of model.properties) {
+      // ensure that the record type is compatible with any listed properties
+      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, templateArg, prop);
+      for (const diag of diagnostics) {
+        program.reportDiagnostic(diag);
+      }
+    }
+  }
+
+  /**
+   * Returns appropriate additional properties for Record types.
+   */
+  function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
+    if (model.name !== "Record") {
+      return undefined;
+    }
+    const templateArg = model.templateMapper?.args.at(0);
+    if (!templateArg) {
+      return undefined;
+    }
+    switch (templateArg.kind) {
+      case "Intrinsic":
+        if (templateArg.name === "unknown") {
+          return {};
+        }
+        break;
+      case "Scalar":
+      case "Model":
+        return getSchemaOrRef(templateArg, visibility);
+    }
+    return undefined;
+  }
+
   /**
    * Map TypeSpec intrinsic models to open api definitions
    */
@@ -1384,7 +1388,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (name === "string") {
           return {
             type: "object",
+<<<<<<< HEAD
             additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
+=======
+            additionalProperties: processAdditionalProperties(cadlType, visibility),
+>>>>>>> 6edc7a9f (Centralize logic.)
           };
         } else if (name === "integer") {
           return {
