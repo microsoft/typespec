@@ -11,7 +11,7 @@ import { BasicTestRunner, CadlTestLibrary, CadlTestLibraryInit, TestHost } from 
 export function createTestLibrary(init: CadlTestLibraryInit): CadlTestLibrary {
   const { name } = init;
   const cadlFileFolder = init.cadlFileFolder ?? "lib";
-  const jsFileFolder = init.jsFileFolder ?? "dist";
+  const jsFileFolder = init.jsFileFolder ?? "dist/src";
   return {
     name,
     packageRoot: init.packageRoot,
