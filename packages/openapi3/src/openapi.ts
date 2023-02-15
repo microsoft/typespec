@@ -635,7 +635,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         visibility,
         ref: refs.getOrAdd(type, visibility, () => new Ref()),
       }));
-      return { $ref: pending.ref };
+      return {
+        $ref: pending.ref,
+        description: getDoc(program, type),
+      };
     }
   }
 
@@ -1363,13 +1366,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "Boolean":
         return { type: "boolean", enum: [typespecType.value] };
       case "Model":
-        const result = mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
-        // for the additional properties scenario, copy the description
-        // from the value type into the additional properties
-        if (result && result.additionalProperties) {
-          result.additionalProperties.description = result.description;
-        }
-        return result;
+        return mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
     }
   }
 
@@ -1388,7 +1385,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           return {
             type: "object",
             additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
-            description: getDoc(program, typespecType.indexer.value!),
           };
         } else if (name === "integer") {
           return {
