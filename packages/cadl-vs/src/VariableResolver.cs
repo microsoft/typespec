@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Cadl.VisualStudio
+namespace Microsoft.TypeSpec.VisualStudio
 {
     internal static class VariableResolver
     {

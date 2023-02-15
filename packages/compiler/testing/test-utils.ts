@@ -1,16 +1,16 @@
 import { resolvePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { StandardTestLibrary } from "./test-host.js";
-import { BasicTestRunner, CadlTestLibrary, CadlTestLibraryInit, TestHost } from "./types.js";
+import { BasicTestRunner, TypeSpecTestLibrary, TypeSpecTestLibraryInit, TestHost } from "./types.js";
 
 /**
  * Define a test library defaulting to the most common library structure.
  * @param init Library configuration.
- * @returns Cadl Test library.
+ * @returns TypeSpec Test library.
  */
-export function createTestLibrary(init: CadlTestLibraryInit): CadlTestLibrary {
+export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLibrary {
   const { name } = init;
-  const cadlFileFolder = init.cadlFileFolder ?? "lib";
+  const typespecFileFolder = init.typespecFileFolder ?? "lib";
   const jsFileFolder = init.jsFileFolder ?? "dist";
   return {
     name,
@@ -18,9 +18,9 @@ export function createTestLibrary(init: CadlTestLibraryInit): CadlTestLibrary {
     files: [
       { realDir: "", pattern: "package.json", virtualPath: `./node_modules/${name}` },
       {
-        realDir: cadlFileFolder,
-        pattern: "*.cadl",
-        virtualPath: resolvePath(`./node_modules/${name}`, cadlFileFolder),
+        realDir: typespecFileFolder,
+        pattern: "*.tsp",
+        virtualPath: resolvePath(`./node_modules/${name}`, typespecFileFolder),
       },
       {
         realDir: jsFileFolder,
@@ -75,16 +75,16 @@ export function createTestWrapper(
     autoCodeOffset: autoCode.length,
 
     compile: (code: string, options?: CompilerOptions) => {
-      host.addCadlFile("./main.cadl", wrap(code));
-      return host.compile("./main.cadl", { ...defaultCompilerOptions, ...options });
+      host.addTypeSpecFile("./main.tsp", wrap(code));
+      return host.compile("./main.tsp", { ...defaultCompilerOptions, ...options });
     },
     diagnose: (code: string, options?: CompilerOptions) => {
-      host.addCadlFile("./main.cadl", wrap(code));
-      return host.diagnose("./main.cadl", { ...defaultCompilerOptions, ...options });
+      host.addTypeSpecFile("./main.tsp", wrap(code));
+      return host.diagnose("./main.tsp", { ...defaultCompilerOptions, ...options });
     },
     compileAndDiagnose: (code: string, options?: CompilerOptions) => {
-      host.addCadlFile("./main.cadl", wrap(code));
-      return host.compileAndDiagnose("./main.cadl", { ...defaultCompilerOptions, ...options });
+      host.addTypeSpecFile("./main.tsp", wrap(code));
+      return host.compileAndDiagnose("./main.tsp", { ...defaultCompilerOptions, ...options });
     },
   };
 }

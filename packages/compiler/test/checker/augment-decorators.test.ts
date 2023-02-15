@@ -18,8 +18,8 @@ describe("compiler: checker: augment decorators", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
 
@@ -29,7 +29,7 @@ describe("compiler: checker: augment decorators", () => {
       `
     );
 
-    const { Foo } = await testHost.compile("test.cadl");
+    const { Foo } = await testHost.compile("test.tsp");
     strictEqual(Foo, blueThing);
   });
 
@@ -42,8 +42,8 @@ describe("compiler: checker: augment decorators", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
 
@@ -53,7 +53,7 @@ describe("compiler: checker: augment decorators", () => {
       `
     );
 
-    await testHost.compile("test.cadl");
+    await testHost.compile("test.tsp");
     strictEqual(customName, "FooCustom");
   });
 
@@ -69,8 +69,8 @@ describe("compiler: checker: augment decorators", () => {
       });
     });
     it("can be defined at the root of document", async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
   
@@ -80,13 +80,13 @@ describe("compiler: checker: augment decorators", () => {
         `
       );
 
-      const { Foo } = await testHost.compile("test.cadl");
+      const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
 
     it("can be defined in blockless namespace", async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
   
@@ -98,13 +98,13 @@ describe("compiler: checker: augment decorators", () => {
         `
       );
 
-      const { Foo } = await testHost.compile("test.cadl");
+      const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
 
     it("can be defined in namespace", async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
   
@@ -116,7 +116,7 @@ describe("compiler: checker: augment decorators", () => {
         `
       );
 
-      const { Foo } = await testHost.compile("test.cadl");
+      const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
   });
@@ -133,8 +133,8 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
 
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
       import "./test.js";
 
@@ -144,7 +144,7 @@ describe("compiler: checker: augment decorators", () => {
       `
       );
 
-      const { target } = await testHost.compile("test.cadl");
+      const { target } = await testHost.compile("test.tsp");
       strictEqual(runOnTarget?.kind, target.kind);
       strictEqual(runOnTarget, target);
       strictEqual(customName, "FooCustom");
@@ -184,8 +184,8 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
 
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
       import "./test.js";
 
@@ -193,7 +193,7 @@ describe("compiler: checker: augment decorators", () => {
       `
       );
 
-      const { target } = await testHost.compile("test.cadl");
+      const { target } = await testHost.compile("test.tsp");
       strictEqual(runOnTarget?.kind, target.kind);
       strictEqual(runOnTarget, target);
       strictEqual(customName, "FooCustom");
@@ -212,19 +212,19 @@ describe("compiler: checker: augment decorators", () => {
     });
 
     it("augment type in another file checked before", async () => {
-      testHost.addCadlFile("lib.cadl", `@test("target") model Foo {} `);
+      testHost.addTypeSpecFile("lib.tsp", `@test("target") model Foo {} `);
 
       await expectAugmentTarget(`
-        import "./lib.cadl";
+        import "./lib.tsp";
         @@customName(Foo, "FooCustom")
       `);
     });
 
     it("augment type in another file checked after", async () => {
-      testHost.addCadlFile("lib.cadl", `@@customName(Foo, "FooCustom") `);
+      testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom") `);
 
       await expectAugmentTarget(`
-        import "./lib.cadl";
+        import "./lib.tsp";
 
         @test("target") model Foo {}
       `);
@@ -243,8 +243,8 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
 
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
       import "./test.js";
 
@@ -252,7 +252,7 @@ describe("compiler: checker: augment decorators", () => {
       `
       );
 
-      const { target } = await testHost.compile("test.cadl");
+      const { target } = await testHost.compile("test.tsp");
       strictEqual(runOnTarget?.kind, target.kind);
       strictEqual(runOnTarget, target);
       strictEqual(customName, "FooCustom");

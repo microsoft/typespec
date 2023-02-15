@@ -1,4 +1,4 @@
-import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export interface OpenAPI3EmitterOptions {
@@ -41,7 +41,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
 };
 
 export const libDef = {
-  name: "@cadl-lang/openapi3",
+  name: "@typespec/openapi3",
   diagnostics: {
     "invalid-server-variable": {
       severity: "error",
@@ -119,7 +119,7 @@ export const libDef = {
   },
 } as const;
 
-export const $lib = createCadlLibrary(libDef);
+export const $lib = createTypeSpecLibrary(libDef);
 export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

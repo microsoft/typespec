@@ -28,7 +28,7 @@ export async function createTestServerHost(options?: TestHostOptions) {
   const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
   const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
   const fileSystem = await createTestFileSystem({ ...options, excludeTestLib: true });
-  await fileSystem.addCadlLibrary(StandardTestLibrary);
+  await fileSystem.addTypeSpecLibrary(StandardTestLibrary);
 
   const serverHost: TestServerHost = {
     ...fileSystem,
@@ -53,9 +53,9 @@ export async function createTestServerHost(options?: TestHostOptions) {
         }
       }
 
-      const document = TextDocument.create(url, "cadl", version, content);
+      const document = TextDocument.create(url, "typespec", version, content);
       documents.set(url, document);
-      fileSystem.addCadlFile(path, ""); // force virtual file system to create directory where document lives.
+      fileSystem.addTypeSpecFile(path, ""); // force virtual file system to create directory where document lives.
       return document;
     },
     getDiagnostics(path) {

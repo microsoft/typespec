@@ -1,34 +1,34 @@
 {
-  "name": "cadl-vs",
+  "name": "typespec-vs",
   "author": "Microsoft Corporation",
   "version": "0.40.0",
-  "description": "Cadl Language Support for Visual Studio",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "description": "TypeSpec Language Support for Visual Studio",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "engines": {
     "node": ">=16.0.0"
   },
   "files": [
-    "Microsoft.Cadl.VS.vsix"
+    "Microsoft.TypeSpec.VS.vsix"
   ],
   "scripts": {
     "build": "node scripts/build.js"
   },
   "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.40.0",
-    "@cadl-lang/internal-build-utils": "~0.3.3"
+    "typespec-vscode": "~0.40.0",
+    "@typespec/internal-build-utils": "~0.3.3"
   }
 }

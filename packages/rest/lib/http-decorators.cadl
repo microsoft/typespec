@@ -1,6 +1,6 @@
-namespace Cadl.Http;
+namespace TypeSpec.Http;
 
-using Cadl.Reflection;
+using TypeSpec.Reflection;
 
 /**
  * Header options.
@@ -23,7 +23,7 @@ model HeaderOptions {
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * op read(@header accept: string): {@header("E-Tag") eTag: string};
  * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
  * ```
@@ -51,7 +51,7 @@ model QueryOptions {
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * op read(@query select: string, @query("order-by") orderBy: string): void;
  * op list(@query({name: "id", format: "multi"}) ids: string[]): void;
  * ```
@@ -65,7 +65,7 @@ extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptio
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @route("/read/{explicit}/things/{implicit}")
  * op read(@path explicit: string, implicit: string): void;
  * ```
@@ -77,7 +77,7 @@ extern dec path(target: ModelProperty, paramName?: string);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * op upload(@body image: bytes): void;
  * op download(): {@body image: bytes};
  * ```
@@ -89,7 +89,7 @@ extern dec body(target: ModelProperty);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * op read(): {@statusCode: 200, @body pet: Pet}
  * op create(): {@statusCode: 201 | 202}
  * ```
@@ -101,7 +101,7 @@ extern dec statusCode(target: ModelProperty);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @get op read(): string
  * ```
  */
@@ -112,7 +112,7 @@ extern dec get(target: Operation);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @put op set(pet: Pet): void
  * ```
  */
@@ -123,7 +123,7 @@ extern dec put(target: Operation);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @post op create(pet: Pet): void
  * ```
  */
@@ -134,7 +134,7 @@ extern dec post(target: Operation);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @patch op update(pet: Pet): void
  * ```
  */
@@ -145,7 +145,7 @@ extern dec patch(target: Operation);
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @delete op set(petId: string): void
  * ```
  */
@@ -155,7 +155,7 @@ extern dec delete(target: Operation);
  * Specify the http verb for the target operation to be `HEAD`.
  * @example
  *
- * ```cadl
+ * ```typespec
  * @head op ping(petId: string): void
  * ```
  */
@@ -168,7 +168,7 @@ extern dec head(target: Operation);
  *  @param parameters Optional set of parameters used to interpolate the url.
  *
  * @example
- * ```cadl
+ * ```typespec
  * @service
  * @server("https://example.com", "Single server endpoint")
  * namespace PetStore;
@@ -176,7 +176,7 @@ extern dec head(target: Operation);
  *
  * @example parameterized
  *
- * ```cadl
+ * ```typespec
  * @server("https://{region}.foo.com", "Regional endpoint", {
  *   @doc("Region name")
  *   region?: string = "westus",
@@ -187,12 +187,12 @@ extern dec head(target: Operation);
 extern dec server(target: Namespace, url: string, description: string, parameters?: object);
 
 /**
- * Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/cadl/standard-library/rest/authentication] for full details.
+ * Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
  *
  * @param auth Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together)
  * @example
  *
- * ```cadl
+ * ```typespec
  * @service
  * @useAuth(BasicAuth)
  * namespace PetStore;

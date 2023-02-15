@@ -1,4 +1,4 @@
-import { Enum, Interface, Model, Union } from "@cadl-lang/compiler";
+import { Enum, Interface, Model, Union } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 
 export function assertHasProperties(model: Model, props: string[]) {

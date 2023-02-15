@@ -26,7 +26,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Resp'
-                x-cadl-name: Resp[]
+                x-typespec-name: Resp[]
   /bar/{id}:
     post:
       tags:

@@ -1,6 +1,6 @@
-import "@cadl-lang/rest";
+import "@typespec/rest";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "Documentaion sample",

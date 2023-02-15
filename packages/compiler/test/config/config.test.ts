@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
-import { CadlConfigJsonSchema } from "../../config/config-schema.js";
-import { CadlRawConfig, loadCadlConfigForPath } from "../../config/index.js";
+import { TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { NodeHost } from "../../core/node-host.js";
 import { createJSONSchemaValidator } from "../../core/schema-validator.js";
@@ -14,7 +14,7 @@ describe("compiler: config file loading", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (folderName: string) => {
       const folderPath = join(scenarioRoot, folderName);
-      const { filename, projectRoot, ...config } = await loadCadlConfigForPath(
+      const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         folderPath
       );
@@ -25,7 +25,7 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/typespec-output",
         emit: ["openapi"],
       });
     });
@@ -34,8 +34,8 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("extends");
       deepStrictEqual(config, {
         diagnostics: [],
-        extends: "./cadl-base.yaml",
-        outputDir: "{cwd}/cadl-output",
+        extends: "./typespec-base.yaml",
+        outputDir: "{cwd}/typespec-output",
         emit: ["openapi"],
       });
     });
@@ -44,7 +44,7 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/typespec-output",
       });
     });
 
@@ -53,7 +53,7 @@ describe("compiler: config file loading", () => {
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/typespec-output",
       });
     });
 
@@ -63,17 +63,17 @@ describe("compiler: config file loading", () => {
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/typespec-output",
         emit: ["openapi"],
       });
     });
   });
 
   describe("validation", () => {
-    const validator = createJSONSchemaValidator(CadlConfigJsonSchema);
+    const validator = createJSONSchemaValidator(TypeSpecConfigJsonSchema);
     const file = createSourceFile("<content>", "<path>");
 
-    function validate(data: CadlRawConfig) {
+    function validate(data: TypeSpecRawConfig) {
       return validator.validate(data, file);
     }
 

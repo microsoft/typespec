@@ -41,7 +41,7 @@ export interface NodePackage {
   type?: "module" | "commonjs";
   main?: string;
   version: string;
-  cadlMain?: string;
+  typespecMain?: string;
   homepage?: string;
   bugs?: {
     url?: string;

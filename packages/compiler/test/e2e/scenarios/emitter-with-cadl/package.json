@@ -1,6 +1,6 @@
 {
-  "name": "@cadl-lang/test-emitter-with-cadl",
+  "name": "@typespec/test-emitter-with-typespec",
   "type": "module",
   "main": "lib.js",
-  "cadlMain": "lib.cadl"
+  "typespecMain": "lib.tsp"
 }

@@ -6,7 +6,7 @@ import {
   Operation,
   Program,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol } from "../lib.js";
 import { getActionSegment, getActionSeparator, getSegment, isAutoRoute } from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";

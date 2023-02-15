@@ -13,7 +13,7 @@ import {
   reportDeprecated,
   Tuple,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 const addedOnKey = createStateSymbol("addedOn");
@@ -27,7 +27,7 @@ const madeOptionalKey = createStateSymbol("madeOptional");
 const typeChangedFromKey = createStateSymbol("typeChangedFrom");
 const returnTypeChangedFromKey = createStateSymbol("returnTypeChangedFrom");
 
-export const namespace = "Cadl.Versioning";
+export const namespace = "TypeSpec.Versioning";
 
 function checkIsVersion(
   program: Program,
@@ -81,7 +81,7 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
 
 /**
  * Returns the mapping of versions to old type values, if applicable
- * @param p Cadl program
+ * @param p TypeSpec program
  * @param t type to query
  * @returns Map of versions to old types, if any
  */
@@ -112,7 +112,7 @@ export function $typeChangedFrom(
 
 /**
  * Returns the mapping of versions to old return type values, if applicable
- * @param p Cadl program
+ * @param p TypeSpec program
  * @param t type to query
  * @returns Map of versions to old types, if any
  */
@@ -824,7 +824,7 @@ export enum Availability {
 
 /**
  * Returns a map of version names and whether a given type is available in that version
- * @param program Cadl program
+ * @param program TypeSpec program
  * @param type Type to get the availability map for
  * @returns the availability map for the type, if applicable
  */

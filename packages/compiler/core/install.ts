@@ -8,7 +8,7 @@ interface SpawnError {
   spawnArgs: string[];
 }
 
-export async function installCadlDependencies(directory: string): Promise<void> {
+export async function installTypeSpecDependencies(directory: string): Promise<void> {
   const cmd = process.platform === "win32" ? "npm.cmd" : "npm";
   const child = spawn(cmd, ["install"], {
     stdio: "inherit",

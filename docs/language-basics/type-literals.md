@@ -5,13 +5,13 @@ title: Type literals
 
 # Type literals
 
-API authors often need to describe API shapes in terms of specific literal values. For example, this operation returns this specific integer status code, or this model member can be one of a few specific string values. It is also often useful to pass specific literal values to decorators. Cadl supports string, number, and boolean literal values to support these cases.
+API authors often need to describe API shapes in terms of specific literal values. For example, this operation returns this specific integer status code, or this model member can be one of a few specific string values. It is also often useful to pass specific literal values to decorators. TypeSpec supports string, number, and boolean literal values to support these cases.
 
 ## String literals
 
 String literals can be represented using double quotes `"`
 
-```cadl
+```typespec
 alias Str = "Hello World!";
 ```
 
@@ -19,7 +19,7 @@ alias Str = "Hello World!";
 
 A multi string literal is represented using a set of 3 double quotes `"""`.
 
-```cadl
+```typespec
 alias Str = """
 This is a multi line string
  - opt 1
@@ -36,7 +36,7 @@ Multi lines automatically remove leading whitespaces of each line aligned with t
 
 All those options will produce the exact same string value `"one\ntwo"`
 
-```cadl
+```typespec
 model MultiLineContainer {
   prop1: """
 one
@@ -66,7 +66,7 @@ two
 
 Numeric literals can be declare by using the raw number (`interger` or `float`)
 
-```cadl
+```typespec
 alias Kilo = 1000;
 alias PI = 3.14;
 ```
@@ -75,7 +75,7 @@ alias PI = 3.14;
 
 Boolean literals can be declare by using `true` or `false` keywords
 
-```cadl
-alias InCadl = true;
+```typespec
+alias InTypeSpec = true;
 alias Cheater = false;
 ```

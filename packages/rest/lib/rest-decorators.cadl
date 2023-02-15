@@ -1,13 +1,13 @@
-namespace Cadl.Rest;
+namespace TypeSpec.Rest;
 
-using Cadl.Reflection;
+using TypeSpec.Reflection;
 
 /**
  * This namespace, interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
  *
  * @example
  *
- * ```cadl
+ * ```typespec
  * @autoRoute
  * interface Pets {
  *   get(@segment("pets") @path id: string): void; //-> route: /pets/{id}

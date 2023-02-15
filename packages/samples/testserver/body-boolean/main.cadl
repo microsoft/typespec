@@ -1,1 +1,1 @@
-import "./body-boolean.cadl";
+import "./body-boolean.tsp";

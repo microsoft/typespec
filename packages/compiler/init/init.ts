@@ -2,9 +2,9 @@ import { readdir } from "fs/promises";
 import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
-import { CadlConfigFilename } from "../config/config-loader.js";
+import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
-import { formatCadl } from "../core/formatter.js";
+import { formatTypeSpec } from "../core/formatter.js";
 import { NodePackage } from "../core/module-resolver.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
@@ -39,7 +39,7 @@ interface ScaffoldingConfig extends InitTemplate {
   libraries: string[];
 
   /**
-   * A flag to indicate not adding @cadl-lang/compiler package to package.json.
+   * A flag to indicate not adding @typespec/compiler package to package.json.
    * Other libraries may already brought in the dependency such as Azure template.
    */
   skipCompilerPackage: boolean;
@@ -83,7 +83,7 @@ const normalizePackageName = function () {
   };
 };
 
-export async function initCadlProject(
+export async function initTypeSpecProject(
   host: CompilerHost,
   directory: string,
   templatesUrl?: string
@@ -165,9 +165,9 @@ const builtInTemplates: Record<string, InitTemplate> = {
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
-    libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
+    libraries: ["@typespec/rest", "@typespec/openapi3"],
     config: {
-      emit: ["@cadl-lang/openapi3"],
+      emit: ["@typespec/openapi3"],
     },
   },
 };
@@ -252,14 +252,14 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writeFiles(host, config);
 
   // eslint-disable-next-line no-console
-  console.log("Cadl init completed. You can run `cadl install` now to install dependencies.");
+  console.log("TypeSpec init completed. You can run `tsp install` now to install dependencies.");
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   const dependencies: Record<string, string> = {};
 
   if (!config.skipCompilerPackage) {
-    dependencies["@cadl-lang/compiler"] = "latest";
+    dependencies["@typespec/compiler"] = "latest";
   }
 
   for (const library of config.libraries) {
@@ -285,7 +285,7 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
     return;
   }
   const content = jsyaml.dump(config.config);
-  return host.writeFile(joinPaths(config.directory, CadlConfigFilename), content);
+  return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
 async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
@@ -298,7 +298,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(joinPaths(config.directory, "main.cadl"), formatCadl(content));
+  return host.writeFile(joinPaths(config.directory, "main.tsp"), formatTypeSpec(content));
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {

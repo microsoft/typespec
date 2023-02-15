@@ -11,6 +11,6 @@ Alias is only a syntax helper, and it has no representation in the type graph. T
 
 Alias can be defined using the `alias` keyword
 
-```cadl
+```typespec
 alias Options = "one" | "two";
 ```

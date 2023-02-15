@@ -14,7 +14,7 @@ describe("compiler: libraries", () => {
     describe(lib, () => {
       it("compiles without error", async () => {
         const mainFile = fileURLToPath(
-          new URL(`../../../test/libraries/${lib}/main.cadl`, import.meta.url)
+          new URL(`../../../test/libraries/${lib}/main.tsp`, import.meta.url)
         );
         const program = await compile(NodeHost, mainFile, { noEmit: true });
         expectDiagnosticEmpty(program.diagnostics);
@@ -24,33 +24,33 @@ describe("compiler: libraries", () => {
 
   it("detects compiler version mismatches", async () => {
     const testHost = await createTestHost();
-    testHost.addCadlFile("main.cadl", "");
-    testHost.addCadlFile(
-      "./node_modules/@cadl-lang/compiler/package.json",
+    testHost.addTypeSpecFile("main.tsp", "");
+    testHost.addTypeSpecFile(
+      "./node_modules/@typespec/compiler/package.json",
       JSON.stringify({
-        name: "@cadl-lang/compiler",
+        name: "@typespec/compiler",
         main: "index.js",
         version: "0.1.0-notthesame.1",
       })
     );
-    testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
-    const diagnostics = await testHost.diagnose("main.cadl");
+    testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "compiler-version-mismatch",
       severity: "warning",
-      message: /Current Cadl compiler conflicts with local version/,
+      message: /Current TypeSpec compiler conflicts with local version/,
     });
   });
 
   it("allows compiler install to mismatch if the version are the same", async () => {
     const testHost = await createTestHost();
-    testHost.addCadlFile("main.cadl", "");
-    testHost.addCadlFile(
-      "./node_modules/@cadl-lang/compiler/package.json",
-      JSON.stringify({ name: "@cadl-lang/compiler", main: "index.js", version: MANIFEST.version })
+    testHost.addTypeSpecFile("main.tsp", "");
+    testHost.addTypeSpecFile(
+      "./node_modules/@typespec/compiler/package.json",
+      JSON.stringify({ name: "@typespec/compiler", main: "index.js", version: MANIFEST.version })
     );
-    testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
-    const diagnostics = await testHost.diagnose("main.cadl");
+    testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
   });
 
@@ -58,14 +58,14 @@ describe("compiler: libraries", () => {
     const testHost = await createTestHost();
     testHost.addJsFile("lib1.js", { $myDec: () => null });
     testHost.addJsFile("lib2.js", { $myDec: () => null });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
     import "./lib1.js";
     import "./lib2.js";
     `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
         code: "duplicate-symbol",

@@ -8,5 +8,5 @@ echo "Repo root: $repo_root"
 
 # Compiler decorators
 # node $dir_path/dist/src/cli.js $repo_root/docs/standard-library
-node $dir_path/dist/src/cli.js $repo_root/packages/rest/lib/rest.cadl $repo_root/docs/standard-library/rest/reference Cadl.Http Cadl.Rest Cadl.Rest.Resource
-node $dir_path/dist/src/cli.js $repo_root/packages/openapi/lib/main.cadl $repo_root/docs/standard-library/openapi/reference OpenAPI
+node $dir_path/dist/src/cli.js $repo_root/packages/rest/lib/rest.tsp $repo_root/docs/standard-library/rest/reference TypeSpec.Http TypeSpec.Rest TypeSpec.Rest.Resource
+node $dir_path/dist/src/cli.js $repo_root/packages/openapi/lib/main.tsp $repo_root/docs/standard-library/openapi/reference OpenAPI

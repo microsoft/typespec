@@ -35,7 +35,7 @@ describe("compiler: binder", () => {
       }
       model D { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 3);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -66,7 +66,7 @@ describe("compiler: binder", () => {
         }
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 2);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -101,7 +101,7 @@ describe("compiler: binder", () => {
         op get2() { }
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 5);
     assertBindings("root", script.symbol.exports!, {
       test: {
@@ -138,7 +138,7 @@ describe("compiler: binder", () => {
 
       model B<Foo, Bar> { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -170,7 +170,7 @@ describe("compiler: binder", () => {
 
       enum B { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -197,7 +197,7 @@ describe("compiler: binder", () => {
 
       op Foo(): void
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -225,7 +225,7 @@ describe("compiler: binder", () => {
 
       interface Bar<T, U> { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -259,7 +259,7 @@ describe("compiler: binder", () => {
 
       union Bar<T, U> { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -293,7 +293,7 @@ describe("compiler: binder", () => {
 
       alias Bar<T, U> = { a: T, b: U };
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -332,7 +332,7 @@ describe("compiler: binder", () => {
         to(a) { },
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 0);
     assertBindings("root", script.symbol.exports!, {
       proj: {
@@ -358,7 +358,7 @@ describe("compiler: binder", () => {
         }
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     const lambdaNode = (
       (script.statements[0] as ProjectionStatementNode).to!
         .body[0] as ProjectionExpressionStatementNode
@@ -418,7 +418,7 @@ describe("compiler: binder", () => {
     });
   });
 
-  function bindCadl(code: string) {
+  function bindTypeSpec(code: string) {
     const sourceFile = parse(code);
     binder.bindSourceFile(sourceFile);
     return sourceFile;

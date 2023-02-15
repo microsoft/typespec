@@ -22,7 +22,7 @@ using Debugger = System.Diagnostics.Debugger;
 using Process = System.Diagnostics.Process;
 using Task = System.Threading.Tasks.Task;
 
-namespace Microsoft.Cadl.VisualStudio
+namespace Microsoft.TypeSpec.VisualStudio
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid("88b9492f-c019-492c-8aeb-f325a7e4cf23")]
@@ -31,32 +31,32 @@ namespace Microsoft.Cadl.VisualStudio
     public sealed class ContentDefinition
     {
         [Export]
-        [Name("cadl")]
+        [Name("typespec")]
         [BaseDefinition(CodeRemoteContentDefinition.CodeRemoteContentTypeName)]
-        public ContentTypeDefinition? CadlContentTypeDefinition => null;
+        public ContentTypeDefinition? TypeSpecContentTypeDefinition => null;
 
         [Export]
-        [FileExtension(".cadl")]
-        [ContentType("cadl")]
-        public FileExtensionToContentTypeDefinition? CadlFileExtensionDefinition => null;
+        [FileExtension(".tsp")]
+        [ContentType("typespec")]
+        public FileExtensionToContentTypeDefinition? TypeSpecFileExtensionDefinition => null;
     }
 
     [Export(typeof(ILanguageClient))]
-    [ContentType("cadl")]
+    [ContentType("typespec")]
     public sealed class LanguageClient : ILanguageClient
     {
-        public string Name => "Cadl";
-        public IEnumerable<string>? ConfigurationSections { get; } = new[] { "cadl" };
+        public string Name => "TypeSpec";
+        public IEnumerable<string>? ConfigurationSections { get; } = new[] { "typespec" };
         public object? InitializationOptions => null;
         public bool ShowNotificationOnInitializeFailed => true;
-        public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.cadl", "**/cadl-project.yaml", "**/package.json" };
+        public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.tsp", "**/tspconfig.yaml", "**/package.json" };
         public event AsyncEventHandler<EventArgs>? StartAsync;
         public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 
         private readonly IVsFolderWorkspaceService _workspaceService;
         private readonly SVsServiceProvider _serviceProvider;
         private string? _workspaceFolder;
-        private string? _configuredCadlServerPath;
+        private string? _configuredTypeSpecServerPath;
 
         [ImportingConstructor]
         public LanguageClient(
@@ -71,7 +71,7 @@ namespace Microsoft.Cadl.VisualStudio
         {
             await LoadSettingsAsync();
 
-            var (serverCommand, serverArgs, env) = resolveCadlServer();
+            var (serverCommand, serverArgs, env) = resolveTypeSpecServer();
             var info = new ProcessStartInfo
             {
                 FileName = serverCommand,
@@ -101,7 +101,7 @@ namespace Microsoft.Cadl.VisualStudio
             }
             catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.ERROR_FILE_NOT_FOUND)
             {
-                throw new CadlServerNotFoundException(info.FileName, e);
+                throw new TypeSpecServerNotFoundException(info.FileName, e);
             }
         }
 
@@ -117,18 +117,18 @@ namespace Microsoft.Cadl.VisualStudio
         public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState)
         {
             var exception = initializationState.InitializationException;
-            var message = exception is CadlUserErrorException
+            var message = exception is TypeSpecUserErrorException
                 ? exception.Message
-                : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
+                : $"File issue at https://github.com/microsoft/typespec\r\n\r\n{exception}";
 
             Debug.Assert(
-                exception is CadlUserErrorException,
-                "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
+                exception is TypeSpecUserErrorException,
+                "Unexpected error initializing tsp-server:\r\n\r\n" + exception);
 
             return Task.FromResult<InitializationFailureContext?>(
                 new InitializationFailureContext
                 {
-                    FailureMessage = "Failed to activate Cadl language server!\r\n" + message
+                    FailureMessage = "Failed to activate TypeSpec language server!\r\n" + message
                 });
         }
 
@@ -144,42 +144,42 @@ namespace Microsoft.Cadl.VisualStudio
                 return;
             }
 
-            Debugger.Log(0, null, "cadl-server (stderr): " + message);
+            Debugger.Log(0, null, "tsp-server (stderr): " + message);
         }
 
 #if DEBUG
         private static bool InDevelopmentMode()
         {
             return string.Equals(
-              Environment.GetEnvironmentVariable("CADL_DEVELOPMENT_MODE"),
+              Environment.GetEnvironmentVariable("TYPESPEC_DEVELOPMENT_MODE"),
               "true",
               StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetDevelopmentCadlServerPath()
+        private static string GetDevelopmentTypeSpecServerPath()
         {
             // Even when debugging, we get deployed to an extension folder outside the
             // source tree, so we stash the source directory in a file in debug builds
-            // so we can use it to run cadl-server against the live developer build in
+            // so we can use it to run tsp-server against the live developer build in
             // the source tree.
             var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "cmd", "cadl-server.js"));
+            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "cmd", "tsp-server.js"));
         }
 #endif
 
-        private (string command, string arguments, IDictionary<string, string> environment) resolveCadlServer()
+        private (string command, string arguments, IDictionary<string, string> environment) resolveTypeSpecServer()
         {
             var env = new Dictionary<string, string>();
             var args = "--stdio";
-            var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+            var options = Environment.GetEnvironmentVariable("TYPESPEC_SERVER_NODE_OPTIONS");
 
 #if DEBUG
-            // Use local build of cadl-server in development (launched from F5 in VS)
+            // Use local build of tsp-server in development (launched from F5 in VS)
             if (InDevelopmentMode())
             {
                 // NOTE: --no-lazy is not supported as environment variable, so we pass it in command line.
-                var module = GetDevelopmentCadlServerPath();
+                var module = GetDevelopmentTypeSpecServerPath();
                 return ("node.exe", $"{options} {module} {args}", env);
             }
 #endif
@@ -188,7 +188,7 @@ namespace Microsoft.Cadl.VisualStudio
                 env.Add("NODE_OPTIONS", options);
             }
 
-            var serverPath = _configuredCadlServerPath;
+            var serverPath = _configuredTypeSpecServerPath;
             if ((serverPath == null || serverPath.Length == 0) && _workspaceFolder != null && _workspaceFolder.Length > 0)
             {
                 serverPath = ResolveLocalCompiler(_workspaceFolder);
@@ -196,7 +196,7 @@ namespace Microsoft.Cadl.VisualStudio
 
             if (serverPath == null || serverPath.Length == 0)
             {
-                return ("cadl-server.cmd", args, env);
+                return ("tsp-server.cmd", args, env);
             }
 
             var variables = new Dictionary<string, string>();
@@ -217,7 +217,7 @@ namespace Microsoft.Cadl.VisualStudio
                 }
                 else
                 {
-                    serverPath = Path.Combine(serverPath, "cmd", "cadl-server.js");
+                    serverPath = Path.Combine(serverPath, "cmd", "tsp-server.js");
                 }
             }
 
@@ -226,10 +226,10 @@ namespace Microsoft.Cadl.VisualStudio
             // is not found.
             if (!File.Exists(serverPath))
             {
-                throw new CadlServerNotFoundException(serverPath);
+                throw new TypeSpecServerNotFoundException(serverPath);
             }
 
-            env.Add("CADL_SKIP_COMPILER_RESOLVE", "1");
+            env.Add("TYPESPEC_SKIP_COMPILER_RESOLVE", "1");
             return ("node.exe", $"{serverPath} {args}", env);
         }
 
@@ -238,7 +238,7 @@ namespace Microsoft.Cadl.VisualStudio
             var current = baseDir;
             while (current != null)
             {
-                var potentialInstallDir = Path.Combine(current, "node_modules", "@cadl-lang", "compiler");
+                var potentialInstallDir = Path.Combine(current, "node_modules", "@typespec", "compiler");
                 if (Directory.Exists(potentialInstallDir))
                 {
                     return potentialInstallDir;
@@ -255,7 +255,7 @@ namespace Microsoft.Cadl.VisualStudio
             {
                 // Use workspace manager when there is a workspace.
                 var settings = workspace.GetSettingsManager()?.GetAggregatedSettings(SettingsTypes.Generic);
-                _configuredCadlServerPath = settings?.Property<string>("cadl.cadl-server.path");
+                _configuredTypeSpecServerPath = settings?.Property<string>("typespec.tsp-server.path");
                 _workspaceFolder = workspace.Location;
             }
             else
@@ -263,7 +263,7 @@ namespace Microsoft.Cadl.VisualStudio
                 // When a solution is open, read the settings ourselves.
                 _workspaceFolder = await GetSolutionFolderAsync();
                 var settings = ReadSettingsFromJson(_workspaceFolder);
-                settings.TryGetValue("cadl.cadl-server.path", out _configuredCadlServerPath);
+                settings.TryGetValue("typespec.tsp-server.path", out _configuredTypeSpecServerPath);
             }
         }
 
@@ -289,7 +289,7 @@ namespace Microsoft.Cadl.VisualStudio
             }
             catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is JsonException)
             {
-                throw new CadlUserErrorException($"Error reading {settingsPath}: {e.Message}", e);
+                throw new TypeSpecUserErrorException($"Error reading {settingsPath}: {e.Message}", e);
             }
         }
 

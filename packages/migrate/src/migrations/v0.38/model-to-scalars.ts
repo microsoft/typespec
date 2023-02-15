@@ -2,9 +2,9 @@ import type {
   CadlScriptNode,
   Node,
   TemplateParameterDeclarationNode,
-} from "@cadl-lang/compiler-v0.37";
+} from "@typespec/compiler-v0.37";
 import {
-  CadlCompilerV0_37,
+  TypeSpecCompilerV0_37,
   createMigration,
   MigrateAction,
   MigrationContext,
@@ -17,7 +17,7 @@ export const migrateModelToScalar = createMigration({
   to: "0.38",
   migrate: (
     { printNode, printNodes }: MigrationContext,
-    compilerV37: CadlCompilerV0_37,
+    compilerV37: TypeSpecCompilerV0_37,
     root: CadlScriptNode
   ) => {
     function printTemplateParameters(parameters: readonly TemplateParameterDeclarationNode[]) {

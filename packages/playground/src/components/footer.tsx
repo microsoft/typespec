@@ -1,10 +1,10 @@
-import { MANIFEST } from "@cadl-lang/compiler";
+import { MANIFEST } from "@typespec/compiler";
 import { css } from "@emotion/react";
 import { FunctionComponent, PropsWithChildren } from "react";
 
 export const Footer: FunctionComponent = () => {
   const prItem = MANIFEST.pr ? (
-    <FooterItem link={`https://github.com/microsoft/cadl/pull/${MANIFEST.pr}`}>
+    <FooterItem link={`https://github.com/microsoft/typespec/pull/${MANIFEST.pr}`}>
       <span>PR </span>
       <span>{MANIFEST.pr}</span>
     </FooterItem>
@@ -26,10 +26,10 @@ export const Footer: FunctionComponent = () => {
     >
       {prItem}
       <FooterItem>
-        <span>Cadl Version </span>
+        <span>TypeSpec Version </span>
         <span>{MANIFEST.version}</span>
       </FooterItem>
-      <FooterItem link={`https://github.com/microsoft/cadl/commit/${MANIFEST.commit}`}>
+      <FooterItem link={`https://github.com/microsoft/typespec/commit/${MANIFEST.commit}`}>
         <span>Commit </span>
         <span>{MANIFEST.commit.slice(0, 6)}</span>
       </FooterItem>

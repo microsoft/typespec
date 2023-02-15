@@ -3,10 +3,10 @@
 //   https://github.com/googleapis/googleapis/tree/master/google/example/library
 
 // package google.example.library.v1;
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi";
+import "@typespec/rest";
+import "@typespec/openapi";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "Grpc Library sample",

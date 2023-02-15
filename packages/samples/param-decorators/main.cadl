@@ -1,1 +1,1 @@
-import "./param-decorators.cadl";
+import "./param-decorators.tsp";

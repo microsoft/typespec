@@ -1,11 +1,11 @@
-# Cadl Eslint Plugin
+# TypeSpec Eslint Plugin
 
 ## Installation
 
 Install the package as a dev dependency.
 
 ```
-npm install -D @cadl-lang/eslint-plugin
+npm install -D @typespec/eslint-plugin
 ```
 
 ## Usage
@@ -13,8 +13,8 @@ npm install -D @cadl-lang/eslint-plugin
 Add the following to your eslint config
 
 ```yaml
-plugins: ["@cadl-lang/eslint-plugin"],
-extends: ["plugin:@cadl-lang/eslint-plugin/recommended"],
+plugins: ["@typespec/eslint-plugin"],
+extends: ["plugin:@typespec/eslint-plugin/recommended"],
 ```
 
 ## Rules

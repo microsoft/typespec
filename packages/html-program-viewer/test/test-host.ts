@@ -1,4 +1,4 @@
-import { createTestHost, createTestWrapper } from "@cadl-lang/compiler/testing";
+import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
 import { ProgramViewerTestLibrary } from "../src/testing/index.js";
 
 export async function createOpenAPITestHost() {
@@ -11,7 +11,7 @@ export async function createViewerTestRunner() {
   const host = await createOpenAPITestHost();
   return createTestWrapper(host, {
     compilerOptions: {
-      emitters: { "@cadl-lang/html-program-viewer": {} },
+      emitters: { "@typespec/html-program-viewer": {} },
     },
   });
 }

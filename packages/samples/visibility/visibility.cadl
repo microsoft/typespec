@@ -1,6 +1,6 @@
-import "@cadl-lang/rest";
+import "@typespec/rest";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "Visibility sample",
@@ -63,9 +63,9 @@ namespace Hello {
   @post op create(@body person: WritablePerson): ReadablePerson;
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
 
-  @Cadl.Rest.listsResource(Person)
+  @TypeSpec.Rest.listsResource(Person)
   op list(): ListResult<Person>;
 
-  @Cadl.Rest.updatesResource(Person)
+  @TypeSpec.Rest.updatesResource(Person)
   op updateRest(@body person: Person): ReadablePerson;
 }

@@ -5,16 +5,16 @@ export interface TestFileSystem {
   compilerHost: CompilerHost;
   fs: Map<string, string>;
 
-  addCadlFile(path: string, contents: string): void;
+  addTypeSpecFile(path: string, contents: string): void;
   addJsFile(path: string, contents: Record<string, any>): void;
-  addRealCadlFile(path: string, realPath: string): Promise<void>;
+  addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
-  addCadlLibrary(testLibrary: CadlTestLibrary): Promise<void>;
+  addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
 }
 
 export interface TestHost extends TestFileSystem {
   program: Program;
-  libraries: CadlTestLibrary[];
+  libraries: TypeSpecTestLibrary[];
   testTypes: Record<string, Type>;
 
   compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
@@ -31,13 +31,13 @@ export interface TestFiles {
   virtualPath: string;
 }
 
-export interface CadlTestLibraryInit {
+export interface TypeSpecTestLibraryInit {
   name: string;
   packageRoot: string;
   /**
    * Folder @default "lib"
    */
-  cadlFileFolder?: string;
+  typespecFileFolder?: string;
 
   /**
    * JS files folder. @default "dist"
@@ -45,14 +45,14 @@ export interface CadlTestLibraryInit {
   jsFileFolder?: string;
 }
 
-export interface CadlTestLibrary {
+export interface TypeSpecTestLibrary {
   name: string;
   packageRoot: string;
   files: TestFiles[];
 }
 
 export interface TestHostConfig {
-  libraries?: CadlTestLibrary[];
+  libraries?: TypeSpecTestLibrary[];
 }
 
 export class TestHostError extends Error {

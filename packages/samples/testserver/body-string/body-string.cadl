@@ -1,7 +1,7 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi";
+import "@typespec/rest";
+import "@typespec/openapi";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @service({
   title: "sample",
@@ -114,7 +114,7 @@ namespace String {
   }
 }
 
-// TODO: closed enum https://github.com/Azure/cadl-azure/issues/1036
+// TODO: closed enum https://github.com/Azure/typespec-azure/issues/1036
 enum Colors {
   "red color",
   "green-color",

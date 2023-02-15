@@ -1,4 +1,4 @@
-namespace Cadl;
+namespace TypeSpec;
 
 /**
  * Represent a byte array

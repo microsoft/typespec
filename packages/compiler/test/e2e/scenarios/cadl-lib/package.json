@@ -1,6 +1,6 @@
 {
-  "name": "@cadl-lang/test-cadl-lib",
+  "name": "@typespec/test-typespec-lib",
   "type": "module",
   "main": "lib.js",
-  "cadlMain": "lib.cadl"
+  "typespecMain": "lib.tsp"
 }

@@ -1,11 +1,11 @@
-import "@cadl-lang/rest";
+import "@typespec/rest";
 
 @service({
   title: "Parameter Decorators",
 })
-namespace Cadl.Samples;
+namespace TypeSpec.Samples;
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @route("/thing")
 namespace Operations {

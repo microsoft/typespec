@@ -1,5 +1,5 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi";
+import "@typespec/rest";
+import "@typespec/openapi";
 
 @autoRoute
 @service({
@@ -8,9 +8,9 @@ import "@cadl-lang/openapi";
 })
 namespace PetStore;
 
-using Cadl.Http;
-using Cadl.Rest;
-using Cadl.Rest.Resource;
+using TypeSpec.Http;
+using TypeSpec.Rest;
+using TypeSpec.Rest.Resource;
 
 @error
 model PetStoreError {

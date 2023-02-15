@@ -1,1 +1,1 @@
-extends: ./cadl-base.yaml
+extends: ./typespec-base.yaml

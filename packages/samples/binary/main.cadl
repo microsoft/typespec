@@ -1,1 +1,1 @@
-import "./binary.cadl";
+import "./binary.tsp";

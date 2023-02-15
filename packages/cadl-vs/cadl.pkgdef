@@ -1,5 +1,5 @@
 [$RootKey$\TextMate\Repositories]
-"Cadl"="$PackageFolder$\TextMate"
+"TypeSpec"="$PackageFolder$\TextMate"
 
-[$RootKey$\ShellFileAssociations\.cadl]
+[$RootKey$\ShellFileAssociations\.tsp]
 "DefaultIconMoniker"="KnownMonikers.ClassFile"

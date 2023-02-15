@@ -1,1 +1,1 @@
-import "@cadl-lang/lib1";
+import "@typespec/lib1";

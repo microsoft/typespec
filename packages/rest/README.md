@@ -1,31 +1,31 @@
-# Cadl HTTP/Rest Library
+# TypeSpec HTTP/Rest Library
 
-This package provides [Cadl](https://github.com/microsoft/Cadl) decorators, models, and interfaces to describe HTTP and REST API. With fundamental models and decorators defined in Cadl.Http namespace, you will be able describe basic http level operations. Cadl.Rest namespace adds additional predefined models and interfaces. These building blocks make defining REST resources and operations based on standard patterns extremely simple.
+This package provides [TypeSpec](https://github.com/microsoft/TypeSpec) decorators, models, and interfaces to describe HTTP and REST API. With fundamental models and decorators defined in TypeSpec.Http namespace, you will be able describe basic http level operations. TypeSpec.Rest namespace adds additional predefined models and interfaces. These building blocks make defining REST resources and operations based on standard patterns extremely simple.
 
 ## Install
 
-In your cadl project root
+In your typespec project root
 
 ```bash
-npm install @cadl-lang/rest
+npm install @typespec/rest
 ```
 
 ## Usage
 
-```Cadl
-import "@cadl-lang/rest";
+```TypeSpec
+import "@typespec/rest";
 
-using Cadl.Http;
-using Cadl.Rest;
+using TypeSpec.Http;
+using TypeSpec.Rest;
 ```
 
-See [Http and rest](https://microsoft.github.io/cadl/docs/standard-library/http/).
+See [Http and rest](https://microsoft.github.io/typespec/docs/standard-library/http/).
 
 ## Library Tour
 
-`@cadl-lang/rest` library defines of the following artifacts:
+`@typespec/rest` library defines of the following artifacts:
 
-- [Cadl HTTP/Rest Library](#cadl-httprest-library)
+- [TypeSpec HTTP/Rest Library](#typespec-httprest-library)
   - [Install](#install)
   - [Usage](#usage)
   - [Library Tour](#library-tour)
@@ -73,7 +73,7 @@ See [Http and rest](https://microsoft.github.io/cadl/docs/standard-library/http/
 
 - ### HTTP namespace
 
-The `@cadl-lang/rest` library defines the following decorators in `Cadl.Http` namespace:
+The `@typespec/rest` library defines the following decorators in `TypeSpec.Http` namespace:
 
 | Declarator  | Scope                                     | Usage                                                                                                                                                                                                                                                                                                                                                                                          |
 | ----------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -94,7 +94,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Http` na
 
 - ### REST namespace
 
-The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` namespace:
+The `@typespec/rest` library defines the following decorators in `TypeSpec.Rest` namespace:
 
 | Declarator                | Scope                                                 | Syntax                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -133,13 +133,13 @@ model Widget {
 
 - `Widget` resource supports full CRUDL operations.
 
-```Cadl
+```TypeSpec
 interface WidgetService extends Resource.ResourceOperations<Widget, Error>;
 ```
 
 - `Widget` resource supports only CRD operations.
 
-```Cadl
+```TypeSpec
 interface WidgetService
    extends Resource.ResourceRead<Widget, Error>,
     Resource.ResourceCreate<Widget, Error>,
@@ -181,7 +181,7 @@ To specify the content type you can add a `@header contentType: <value>` in the 
 
 Example: return `application/png` byte body
 
-```cadl
+```typespec
 op getPng(): {
   @header contentType: "application/png";
   @body _: bytes;
@@ -190,16 +190,16 @@ op getPng(): {
 
 Example: expect `application/png` byte body
 
-```cadl
+```typespec
 op getPng(@header contentType: "application/png", @body _: bytes): void;
 ```
 
 ## See also
 
-- [HTTP example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7CnVzaW5nIENhZGwuSHR0cDsKCm1vZGVsIMdAewogIEBrZXkgaWQ6IHN0cmluZzsKICB3ZWlnaHQ6IGludDMyxBFjb2xvcjogInJlZCIgfCAiYmx1ZSI7Cn0KCkBlcnJvcsdWRcQMxVVjb2Rly0BtZXNzYWdlymR9CgppbnRlcmbkALLmAI3nALTFP0DkAJ1saXN0KCk6xx9bXSB8xmHEUUByb3V0ZSgid8Uccy97aWR9IinGOHJlYWQoQHBhdGjrANfJSM1GcG9zdCBjcmVhdGUoQGJvZHkgxAXIK9Y0x3pjdXN0b21HZXTId8kR6gC0yjh9Cg%3D%3D):
-- [REST example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7Cgp1c2luZyBDYWRsLkh0dHA7zBFSZXN0OwoKbW9kZWwgx1J7CiAgQGtleSBpZDogc3RyaW5nOwogIHdlaWdodDogaW50MzLEEWNvbG9yOiAicmVkIiB8ICJibHVlIjsKfQoKQGVycm9yx1ZFxAzFVWNvZGXLQG1lc3NhZ2XKZH0KCmludGVyZuQAxOYAjecAxiBleHRlbmRzIFJlc291cmNl5AC5xQlPcGVyYXRpb25zPMYyLMZxPsVyQOQA0EByb3V0ZSgiY3VzdG9tR2V0IikgyQwoKTrHa%2BQAgA%3D%3D):
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Website](https://microsoft.github.io/cadl)
+- [HTTP example](https://typespecplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7CnVzaW5nIENhZGwuSHR0cDsKCm1vZGVsIMdAewogIEBrZXkgaWQ6IHN0cmluZzsKICB3ZWlnaHQ6IGludDMyxBFjb2xvcjogInJlZCIgfCAiYmx1ZSI7Cn0KCkBlcnJvcsdWRcQMxVVjb2Rly0BtZXNzYWdlymR9CgppbnRlcmbkALLmAI3nALTFP0DkAJ1saXN0KCk6xx9bXSB8xmHEUUByb3V0ZSgid8Uccy97aWR9IinGOHJlYWQoQHBhdGjrANfJSM1GcG9zdCBjcmVhdGUoQGJvZHkgxAXIK9Y0x3pjdXN0b21HZXTId8kR6gC0yjh9Cg%3D%3D):
+- [REST example](https://typespecplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7Cgp1c2luZyBDYWRsLkh0dHA7zBFSZXN0OwoKbW9kZWwgx1J7CiAgQGtleSBpZDogc3RyaW5nOwogIHdlaWdodDogaW50MzLEEWNvbG9yOiAicmVkIiB8ICJibHVlIjsKfQoKQGVycm9yx1ZFxAzFVWNvZGXLQG1lc3NhZ2XKZH0KCmludGVyZuQAxOYAjecAxiBleHRlbmRzIFJlc291cmNl5AC5xQlPcGVyYXRpb25zPMYyLMZxPsVyQOQA0EByb3V0ZSgiY3VzdG9tR2V0IikgyQwoKTrHa%2BQAgA%3D%3D):
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec Website](https://microsoft.github.io/typespec)
 
 ```
 

@@ -236,7 +236,7 @@ paths:
               schema:
                 type: string
                 nullable: true
-                x-cadl-name: string | null
+                x-typespec-name: string | null
         default:
           description: An unexpected error response.
           content:
@@ -264,7 +264,7 @@ paths:
             schema:
               type: string
               nullable: true
-              x-cadl-name: string | null
+              x-typespec-name: string | null
   /string/whitespace:
     get:
       tags:

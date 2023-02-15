@@ -10,8 +10,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can alias a union expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo = int32 | string;
       alias Bar = "hi" | 10;
@@ -36,8 +36,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can alias a deep union expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo = int32 | string;
       alias Bar = "hi" | 10;
@@ -64,8 +64,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can alias a union expression with parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo<T> = int32 | T;
       
@@ -87,8 +87,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can alias a deep union expression with parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo<T> = int32 | T;
       alias Bar<T, U> = Foo<T> | Foo<U>;
@@ -113,8 +113,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can alias an intersection expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo = {a: string} & {b: string};
       alias Bar = {c: string} & {d: string};
@@ -139,8 +139,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can be used like any model", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Test { a: string };
 
@@ -164,8 +164,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can be used like any namespace", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Foo {
         @test model Bar { }
@@ -186,13 +186,13 @@ describe("compiler: aliases", () => {
   });
 
   it("emit diagnostics if assign itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias A = A;
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",
@@ -200,15 +200,15 @@ describe("compiler: aliases", () => {
   });
 
   it("emit single diagnostics if assign itself as generic and is referenced", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias A<T> = A<T>;
 
       model Foo {a: A<string>}
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",
@@ -216,13 +216,13 @@ describe("compiler: aliases", () => {
   });
 
   it("emit diagnostics if reference itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias A = "string" | A;
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",

@@ -1,8 +1,8 @@
 import "../dist/src/versioning.js";
 
-using Cadl.Reflection;
+using TypeSpec.Reflection;
 
-namespace Cadl.Versioning;
+namespace TypeSpec.Versioning;
 
 extern dec versioned(target: Namespace, versions: Enum);
 extern dec useDependency(target: EnumMember | Namespace, ...versionRecords: EnumMember[]);

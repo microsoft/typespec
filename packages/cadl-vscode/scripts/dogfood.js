@@ -1,9 +1,9 @@
 // @ts-check
-import { run, xplatCmd } from "@cadl-lang/internal-build-utils";
+import { run, xplatCmd } from "@typespec/internal-build-utils";
 import { readFileSync } from "fs";
 
 const version = JSON.parse(readFileSync("package.json", "utf-8")).version;
-const vsix = `cadl-vscode-${version}.vsix`;
+const vsix = `typespec-vscode-${version}.vsix`;
 
 const options = {
   ignoreCommandNotFound: true,

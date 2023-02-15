@@ -1,4 +1,4 @@
-namespace Cadl.Http;
+namespace TypeSpec.Http;
 
 @doc("Authentication type")
 enum AuthType {

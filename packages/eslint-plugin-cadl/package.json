@@ -1,20 +1,20 @@
 {
-  "name": "@cadl-lang/eslint-plugin",
+  "name": "@typespec/eslint-plugin",
   "version": "0.40.0",
   "author": "Microsoft Corporation",
-  "description": "Eslint plugin providing set of rules to be used in the JS/TS code of Cadl libraries",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/main/README.md",
+  "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "commonjs",
   "main": "dist/src/index.js",
@@ -31,7 +31,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
     "@typescript-eslint/parser": "^5.30.7",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",

@@ -2,40 +2,40 @@
   "azure-core": {
     "title": "Azure Data Plane Service",
     "description": "Create a project representing an Azure service Data Plane API",
-    "libraries": ["@azure-tools/cadl-autorest"],
+    "libraries": ["@azure-tools/typespec-autorest"],
     "skipCompilerPackage": true,
     "config": {},
     "files": [
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/main.cadl",
-        "destination": "main.cadl"
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/main.tsp",
+        "destination": "main.tsp"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/client.cadl",
-        "destination": "client.cadl"
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/client.tsp",
+        "destination": "client.tsp"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/cadl-project.yaml",
-        "destination": "cadl-project.yaml"
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/tspconfig.yaml",
+        "destination": "tspconfig.yaml"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json",
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json",
         "destination": "examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json",
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json",
         "destination": "examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json",
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json",
         "destination": "examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_GetWidgetSample.json",
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_GetWidgetSample.json",
         "destination": "examples/2022-11-01-preview/Widgets_GetWidgetSample.json"
       },
       {
-        "path": "https://raw.githubusercontent.com/microsoft/cadl/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_ListWidgetsSample.json",
+        "path": "https://raw.githubusercontent.com/microsoft/typespec/main/eng/feeds/data-plane/examples/2022-11-01-preview/Widgets_ListWidgetsSample.json",
         "destination": "examples/2022-11-01-preview/Widgets_ListWidgetsSample.json"
       }
     ],
@@ -51,14 +51,14 @@
     "title": "Azure Resource Manager Service",
     "description": "Create a project representing an Azure service ARM API",
     "libraries": [
-      "@cadl-lang/rest",
-      "@cadl-lang/versioning",
-      "@azure-tools/cadl-autorest",
-      "@azure-tools/cadl-azure-core",
-      "@azure-tools/cadl-azure-resource-manager"
+      "@typespec/rest",
+      "@typespec/versioning",
+      "@azure-tools/typespec-autorest",
+      "@azure-tools/typespec-azure-core",
+      "@azure-tools/typespec-azure-resource-manager"
     ],
     "config": {
-      "emit": ["@azure-tools/cadl-autorest"]
+      "emit": ["@azure-tools/typespec-autorest"]
     }
   }
 }

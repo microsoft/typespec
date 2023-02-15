@@ -1,38 +1,38 @@
-import { TextRange } from "@cadl-lang/compiler";
+import { TextRange } from "@typespec/compiler";
 import { readFile, writeFile } from "fs/promises";
 import {
-  CadlCompiler,
-  CadlCompilers,
-  CadlCompilerVersion,
+  TypeSpecCompiler,
+  TypeSpecCompilers,
+  TypeSpecCompilerVersion,
   Migration,
 } from "./migrations/migration.js";
 export interface MigrationResult {
   fileChanged: string[];
 }
 
-export async function migrateCadlFiles(files: string[], migration: Migration<any>) {
+export async function migrateTypeSpecFiles(files: string[], migration: Migration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
-  return migrateCadlFilesInternal(fromCompiler, toCompiler, files, migration);
+  return migrateTypeSpecFilesInternal(fromCompiler, toCompiler, files, migration);
 }
 
-export async function migrateCadlContent(content: string, migration: Migration<any>) {
+export async function migrateTypeSpecContent(content: string, migration: Migration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
-  return migrateCadlContentInternal(fromCompiler, toCompiler, content, migration);
+  return migrateTypeSpecContentInternal(fromCompiler, toCompiler, content, migration);
 }
 
-async function loadCompiler<V extends CadlCompilerVersion>(version: V): Promise<CadlCompilers[V]> {
+async function loadCompiler<V extends TypeSpecCompilerVersion>(version: V): Promise<TypeSpecCompilers[V]> {
   try {
-    return await import(`@cadl-lang/compiler-v${version}`);
+    return await import(`@typespec/compiler-v${version}`);
   } catch {
-    return (await import("@cadl-lang/compiler")) as any;
+    return (await import("@typespec/compiler")) as any;
   }
 }
 
-async function migrateCadlFilesInternal(
-  fromCompiler: CadlCompiler,
-  toCompiler: CadlCompiler,
+async function migrateTypeSpecFilesInternal(
+  fromCompiler: TypeSpecCompiler,
+  toCompiler: TypeSpecCompiler,
   files: string[],
   migration: Migration<any>
 ): Promise<MigrationResult> {
@@ -40,22 +40,22 @@ async function migrateCadlFilesInternal(
     fileChanged: [],
   };
   for (const file of files) {
-    if (await migrateCadlFile(fromCompiler, toCompiler, file, migration)) {
+    if (await migrateTypeSpecFile(fromCompiler, toCompiler, file, migration)) {
       result.fileChanged.push(file);
     }
   }
   return result;
 }
 
-async function migrateCadlFile(
-  fromCompiler: CadlCompiler,
-  toCompiler: CadlCompiler,
+async function migrateTypeSpecFile(
+  fromCompiler: TypeSpecCompiler,
+  toCompiler: TypeSpecCompiler,
   filename: string,
   migration: Migration<any>
 ): Promise<boolean> {
   const buffer = await readFile(filename);
   const content = buffer.toString();
-  const [newContent, changed] = migrateCadlContentInternal(
+  const [newContent, changed] = migrateTypeSpecContentInternal(
     fromCompiler,
     toCompiler,
     content,
@@ -66,9 +66,9 @@ async function migrateCadlFile(
   return changed;
 }
 
-function migrateCadlContentInternal(
-  fromCompiler: CadlCompiler,
-  toCompiler: CadlCompiler,
+function migrateTypeSpecContentInternal(
+  fromCompiler: TypeSpecCompiler,
+  toCompiler: TypeSpecCompiler,
   content: string,
   migration: Migration<any>
 ): [string, boolean] {
@@ -92,7 +92,7 @@ function migrateCadlContentInternal(
   const newContent = segments.join("");
 
   try {
-    return [(toCompiler as any).formatCadl(newContent), true];
+    return [(toCompiler as any).formatTypeSpec(newContent), true];
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error("Failed to format new code", e);

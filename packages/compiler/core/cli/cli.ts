@@ -14,25 +14,25 @@ import os from "os";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
 import yargs from "yargs";
-import { loadCadlConfigForPath } from "../../config/index.js";
-import { initCadlProject } from "../../init/index.js";
+import { loadTypeSpecConfigForPath } from "../../config/index.js";
+import { initTypeSpecProject } from "../../init/index.js";
 import { compilerAssert, logDiagnostics } from "../diagnostics.js";
-import { findUnformattedCadlFiles, formatCadlFiles } from "../formatter-fs.js";
-import { installCadlDependencies } from "../install.js";
+import { findUnformattedTypeSpecFiles, formatTypeSpecFiles } from "../formatter-fs.js";
+import { installTypeSpecDependencies } from "../install.js";
 import { createConsoleSink } from "../logger/index.js";
 import { NodeHost } from "../node-host.js";
 import { CompilerOptions } from "../options.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../path-utils.js";
 import { compile, Program } from "../program.js";
 import { CompilerHost, Diagnostic } from "../types.js";
-import { cadlVersion, ExternalError } from "../util.js";
+import { typespecVersion, ExternalError } from "../util.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 
 async function main() {
-  console.log(`Cadl compiler v${cadlVersion}\n`);
+  console.log(`TypeSpec compiler v${typespecVersion}\n`);
 
   await yargs(process.argv.slice(2))
-    .scriptName("cadl")
+    .scriptName("typespec")
     .help()
     .strict()
     .parserConfiguration({
@@ -47,16 +47,16 @@ async function main() {
     .option("pretty", {
       type: "boolean",
       description:
-        "Enable color and formatting in Cadl's output to make compiler errors easier to read.",
+        "Enable color and formatting in TypeSpec's output to make compiler errors easier to read.",
       default: true,
     })
     .command(
       "compile <path>",
-      "Compile Cadl source.",
+      "Compile TypeSpec source.",
       (cmd) => {
         return cmd
           .positional("path", {
-            description: "The path to the main.cadl file or directory containing main.cadl.",
+            description: "The path to the main.tsp file or directory containing main.tsp.",
             type: "string",
             demandOption: true,
           })
@@ -80,7 +80,7 @@ async function main() {
           .option("nostdlib", {
             type: "boolean",
             default: false,
-            describe: "Don't load the Cadl standard library.",
+            describe: "Don't load the TypeSpec standard library.",
           })
           .option("import", {
             type: "array",
@@ -130,7 +130,7 @@ async function main() {
         }
         if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
           console.log(
-            "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the cadl config."
+            "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
           );
         }
       }
@@ -174,7 +174,7 @@ async function main() {
     })
     .command(
       "format <include...>",
-      "Format given list of Cadl files.",
+      "Format given list of TypeSpec files.",
       (cmd) => {
         return cmd
           .positional("include", {
@@ -197,7 +197,7 @@ async function main() {
       },
       async (args) => {
         if (args["check"]) {
-          const unformatted = await findUnformattedCadlFiles(args["include"], {
+          const unformatted = await findUnformattedTypeSpecFiles(args["include"], {
             exclude: args["exclude"],
             debug: args.debug,
           });
@@ -209,33 +209,33 @@ async function main() {
             process.exit(1);
           }
         } else {
-          await formatCadlFiles(args["include"], { exclude: args["exclude"], debug: args.debug });
+          await formatTypeSpecFiles(args["include"], { exclude: args["exclude"], debug: args.debug });
         }
       }
     )
     .command(
       "init [templatesUrl]",
-      "Create a new Cadl project.",
+      "Create a new TypeSpec project.",
       (cmd) =>
         cmd.positional("templatesUrl", {
           description: "Url of the initialization template",
           type: "string",
         }),
-      (args) => initCadlProject(createCLICompilerHost(args), process.cwd(), args.templatesUrl)
+      (args) => initTypeSpecProject(createCLICompilerHost(args), process.cwd(), args.templatesUrl)
     )
     .command(
       "install",
-      "Install cadl dependencies",
+      "Install typespec dependencies",
       () => {},
-      () => installCadlDependencies(process.cwd())
+      () => installTypeSpecDependencies(process.cwd())
     )
     .command(
       "info",
-      "Show information about current Cadl compiler.",
+      "Show information about current TypeSpec compiler.",
       () => {},
       (args) => printInfo(createCLICompilerHost(args))
     )
-    .version(cadlVersion)
+    .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 
@@ -303,7 +303,7 @@ function compileInput(
         {
           recursive: true,
           filter: (f: string) =>
-            [".js", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
+            [".js", ".tsp"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
         },
         (e: any, name: string) => {
           runCompile();
@@ -355,10 +355,10 @@ async function getCompilerOptionsOrExit(
 
 async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {
   // download npm package to temporary directory
-  const temp = await mkdtemp(joinPaths(os.tmpdir(), "cadl"));
+  const temp = await mkdtemp(joinPaths(os.tmpdir(), "typespec"));
   const npmArgs = ["install"];
 
-  // hide npm output unless --debug was passed to cadl
+  // hide npm output unless --debug was passed to typespec
   if (!debug) {
     npmArgs.push("--silent");
   }
@@ -371,9 +371,9 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, 
   npmArgs.push("--prefix", ".");
 
   // To debug with a locally built package rather than pulling from npm,
-  // specify the full path to the packed .tgz using CADL_DEBUG_VSIX_TGZ
+  // specify the full path to the packed .tgz using TYPESPEC_DEBUG_VSIX_TGZ
   // environment variable.
-  npmArgs.push(process.env.CADL_DEBUG_VSIX_TGZ ?? pkg);
+  npmArgs.push(process.env.TYPESPEC_DEBUG_VSIX_TGZ ?? pkg);
 
   run("npm", npmArgs, { cwd: temp, debug });
 
@@ -425,7 +425,7 @@ function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {
 
 async function installVSCodeExtension(insiders: boolean, debug: boolean) {
   await installVsix(
-    "cadl-vscode",
+    "typespec-vscode",
     (vsixPaths) => {
       runCode(["--install-extension", vsixPaths[0]], insiders, debug);
     },
@@ -434,7 +434,7 @@ async function installVSCodeExtension(insiders: boolean, debug: boolean) {
 }
 
 async function uninstallVSCodeExtension(insiders: boolean, debug: boolean) {
-  await runCode(["--uninstall-extension", "microsoft.cadl-vscode"], insiders, debug);
+  await runCode(["--uninstall-extension", "microsoft.tsp-vscode"], insiders, debug);
 }
 
 function getVsixInstallerPath(): string {
@@ -483,7 +483,7 @@ async function installVSExtension(debug: boolean) {
   }
 
   await installVsix(
-    "cadl-vs",
+    "typespec-vs",
     (vsixPaths) => {
       for (const vsix of vsixPaths) {
         console.log(`Installing extension for Visual Studio...`);
@@ -504,13 +504,13 @@ async function uninstallVSExtension() {
 }
 
 /**
- * Print the resolved Cadl configuration.
+ * Print the resolved TypeSpec configuration.
  */
 async function printInfo(host: CompilerHost) {
   const cwd = process.cwd();
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
-  const config = await loadCadlConfigForPath(host, cwd);
+  const config = await loadTypeSpecConfigForPath(host, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
   const replacer = (emitter: string, value: any) =>
@@ -603,7 +603,7 @@ function internalCompilerError(error: unknown): never {
     console.error(error);
   } else {
     console.error("Internal compiler error!");
-    console.error("File issue at https://github.com/microsoft/cadl");
+    console.error("File issue at https://github.com/microsoft/typespec");
     console.error();
     console.error(error);
   }

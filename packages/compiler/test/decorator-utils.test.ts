@@ -1,7 +1,7 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import {
-  cadlTypeToJson,
-  CadlValue,
+  typespecTypeToJson,
+  TypeSpecValue,
   DecoratorContext,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
@@ -16,27 +16,27 @@ import {
 } from "../testing/index.js";
 
 describe("compiler: decorator utils", () => {
-  describe("cadlTypeToJson", () => {
+  describe("typespecTypeToJson", () => {
     async function convertDecoratorDataToJson(code: string) {
       const host = await createTestHost();
       let result: any;
 
       // add test decorators
       host.addJsFile("mapToJson.js", {
-        $jsonData(context: DecoratorContext, target: Type, value: CadlValue) {
-          result = cadlTypeToJson(value, target);
+        $jsonData(context: DecoratorContext, target: Type, value: TypeSpecValue) {
+          result = typespecTypeToJson(value, target);
         },
       });
 
-      host.addCadlFile(
-        "main.cadl",
+      host.addTypeSpecFile(
+        "main.tsp",
         `
         import "./mapToJson.js";
 
         ${code};
       `
       );
-      await host.compile("main.cadl");
+      await host.compile("main.tsp");
       return result;
     }
     it("can convert a string", async () => {

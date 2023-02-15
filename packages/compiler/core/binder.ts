@@ -2,7 +2,7 @@ import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
-  CadlScriptNode,
+  TypeSpecScriptNode,
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
@@ -31,7 +31,7 @@ import {
 } from "./types.js";
 import { mutate } from "./util.js";
 
-// Use a regular expression to define the prefix for Cadl-exposed functions
+// Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
@@ -72,7 +72,7 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
 };
 
 export interface Binder {
-  bindSourceFile(script: CadlScriptNode): void;
+  bindSourceFile(script: TypeSpecScriptNode): void;
   bindJsSourceFile(sourceFile: JsSourceFileNode): void;
   /**
    * @internal
@@ -85,7 +85,7 @@ export function createSymbolTable(source?: SymbolTable): SymbolTable {
 }
 
 export function createBinder(program: Program): Binder {
-  let currentFile: CadlScriptNode;
+  let currentFile: TypeSpecScriptNode;
   let parentNode: Node | undefined;
   let fileNamespace: NamespaceStatementNode | undefined;
   let scope: ScopeNode;
@@ -204,7 +204,7 @@ export function createBinder(program: Program): Binder {
     }
   }
 
-  function bindSourceFile(script: CadlScriptNode) {
+  function bindSourceFile(script: TypeSpecScriptNode) {
     if (script.locals !== undefined) {
       return;
     }
@@ -321,7 +321,7 @@ export function createBinder(program: Program): Binder {
    */
   function bindProjectionStatement(node: ProjectionStatementNode) {
     const name = node.id.sv;
-    const table: SymbolTable = (scope as NamespaceStatementNode | CadlScriptNode).symbol.exports!;
+    const table: SymbolTable = (scope as NamespaceStatementNode | TypeSpecScriptNode).symbol.exports!;
     let sym: Sym;
     if (table.has(name)) {
       sym = table.get(name)!;
@@ -435,8 +435,8 @@ export function createBinder(program: Program): Binder {
 
     if (statement.statements === undefined) {
       fileNamespace = statement;
-      let current: CadlScriptNode | NamespaceStatementNode = statement;
-      while (current.kind !== SyntaxKind.CadlScript) {
+      let current: TypeSpecScriptNode | NamespaceStatementNode = statement;
+      while (current.kind !== SyntaxKind.TypeSpecScript) {
         (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
         current = current.parent!;
       }
@@ -471,7 +471,7 @@ export function createBinder(program: Program): Binder {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
         return declareNamespaceMember(node, flags, name);
-      case SyntaxKind.CadlScript:
+      case SyntaxKind.TypeSpecScript:
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags, name);
       default:
@@ -529,7 +529,7 @@ function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.AliasStatement:
-    case SyntaxKind.CadlScript:
+    case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:

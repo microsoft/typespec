@@ -1,4 +1,4 @@
-import { ExtensionKey } from "@cadl-lang/openapi";
+import { ExtensionKey } from "@typespec/openapi";
 
 export type Extensions = {
   [key in ExtensionKey]?: any;

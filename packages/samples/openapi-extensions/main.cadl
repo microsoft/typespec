@@ -1,1 +1,1 @@
-import "./openapi-extensions.cadl";
+import "./openapi-extensions.tsp";

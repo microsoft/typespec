@@ -61,7 +61,7 @@ describe("compiler: projected-names", () => {
     strictEqual(jsonView.getProjectedName(expireAtCSProjected), "exp");
   });
 
-  it("if another projection renamed the cadl type it should be taken into account by getProjectedName", async () => {
+  it("if another projection renamed the typespec type it should be taken into account by getProjectedName", async () => {
     const { expireAt } = (await runner.compile(`
       model Foo {
         @test expireAt: int32;

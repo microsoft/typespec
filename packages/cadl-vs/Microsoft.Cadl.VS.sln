@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 16.0.31202.260
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Cadl.VS", "src\Microsoft.Cadl.VS.csproj", "{C7566715-9191-4D95-B673-4E569800CE32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.TypeSpec.VS", "src\Microsoft.TypeSpec.VS.csproj", "{C7566715-9191-4D95-B673-4E569800CE32}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{128D9265-5E6B-4C7E-889E-15EE684BEFD6}"
 	ProjectSection(SolutionItems) = preProject

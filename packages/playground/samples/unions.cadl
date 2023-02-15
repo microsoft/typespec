@@ -1,12 +1,12 @@
-import "@cadl-lang/rest";
-import "@cadl-lang/openapi3";
+import "@typespec/rest";
+import "@typespec/openapi3";
 
 @service({
   title: "Widget Service",
 })
 namespace DemoService;
-using Cadl.Rest;
-using Cadl.Http;
+using TypeSpec.Rest;
+using TypeSpec.Http;
 using OpenAPI;
 
 model WidgetBase {

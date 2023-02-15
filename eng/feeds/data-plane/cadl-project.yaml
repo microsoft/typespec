@@ -10,22 +10,22 @@ parameters:
   service-directory-name:
     default: "{{folderName}}"
 emit:
-  - "@azure-tools/cadl-autorest"
+  - "@azure-tools/typespec-autorest"
 options:
-  "@azure-tools/cadl-autorest":
+  "@azure-tools/typespec-autorest":
     output-file: "{{#toLowerCase}}{{parameters.ServiceNamespace}}{{/toLowerCase}}.json"
     azure-resource-provider-folder: ../../../../data-plane
     examples-directory: ./examples
-  "@azure-tools/cadl-python":
+  "@azure-tools/typespec-python":
     package-name: "{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
     emitter-output-dir: "{python-sdk-folder}/sdk/{service-directory-name}/{package-name}"
     package-mode: dataplane
-  "@azure-tools/cadl-csharp":
+  "@azure-tools/typespec-csharp":
     namespace: "{{parameters.ServiceNamespace}}"
     clear-output-folder: true
     model-namespace: false
     emitter-output-dir: "{csharp-sdk-folder}/sdk/{service-directory-name}/{namespace}/src"
-  "@azure-tools/cadl-typescript":
+  "@azure-tools/typespec-typescript":
     emitter-output-dir: "{js-sdk-folder}/sdk/{service-directory-name}/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}-rest"
     generateMetadata: true
     generateTest: true
@@ -33,6 +33,6 @@ options:
     packageDetails:
       name: "@azure-rest/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}-rest"
       description: "{{parameters.ServiceNamespace}} Service"
-  "@azure-tools/cadl-java":
+  "@azure-tools/typespec-java":
     emitter-output-dir: "{java-sdk-folder}/sdk/{service-directory-name}/{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
     namespace: com.{{#toLowerCase}}{{parameters.ServiceNamespace}}{{/toLowerCase}}

@@ -1,4 +1,4 @@
-import { ResolveModuleHost } from "@cadl-lang/compiler/module-resolver";
+import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
 import { join } from "path";
 import vscode, { commands, ExtensionContext, workspace } from "vscode";
@@ -12,18 +12,18 @@ import {
 let client: LanguageClient | undefined;
 
 export async function activate(context: ExtensionContext) {
-  context.subscriptions.push(commands.registerCommand("cadl.restartServer", restartCadlServer));
+  context.subscriptions.push(commands.registerCommand("typespec.restartServer", restartTypeSpecServer));
 
   return await vscode.window.withProgress(
     {
-      title: "Launching Cadl language service...",
+      title: "Launching TypeSpec language service...",
       location: vscode.ProgressLocation.Notification,
     },
     async () => launchLanguageClient(context)
   );
 }
 
-async function restartCadlServer(): Promise<void> {
+async function restartTypeSpecServer(): Promise<void> {
   if (client) {
     await client.stop();
     await client.start();
@@ -31,25 +31,25 @@ async function restartCadlServer(): Promise<void> {
 }
 
 async function launchLanguageClient(context: ExtensionContext) {
-  const exe = await resolveCadlServer(context);
+  const exe = await resolveTypeSpecServer(context);
   const options: LanguageClientOptions = {
     synchronize: {
-      // Synchronize the setting section 'cadl' to the server
-      configurationSection: "cadl",
+      // Synchronize the setting section 'typespec' to the server
+      configurationSection: "typespec",
       fileEvents: [
-        workspace.createFileSystemWatcher("**/*.cadl"),
-        workspace.createFileSystemWatcher("**/cadl-project.yaml"),
+        workspace.createFileSystemWatcher("**/*.tsp"),
+        workspace.createFileSystemWatcher("**/tspconfig.yaml"),
         workspace.createFileSystemWatcher("**/package.json"),
       ],
     },
     documentSelector: [
-      { scheme: "file", language: "cadl" },
-      { scheme: "untitled", language: "cadl" },
+      { scheme: "file", language: "typespec" },
+      { scheme: "untitled", language: "typespec" },
     ],
   };
 
-  const name = "Cadl";
-  const id = "cadlLanguageServer";
+  const name = "TypeSpec";
+  const id = "typespecLanguageServer";
   try {
     client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     await client.start();
@@ -59,27 +59,27 @@ async function launchLanguageClient(context: ExtensionContext) {
 
       client?.error(
         [
-          `Cadl server executable was not found: '${exe.command}' is not found. Make sure either:`,
-          ` - cadl is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
-          " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
-          " - cadl server path is configured with https://github.com/microsoft/cadl#installing-vs-code-extension.",
+          `TypeSpec server executable was not found: '${exe.command}' is not found. Make sure either:`,
+          ` - typespec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
+          " - typespec is installed globally with `npm install -g @typespec/compiler'.",
+          " - typespec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
         ].join("\n"),
         undefined,
         false
       );
-      throw `Cadl server executable was not found: '${exe.command}' is not found.`;
+      throw `TypeSpec server executable was not found: '${exe.command}' is not found.`;
     } else {
       throw e;
     }
   }
 }
 
-async function resolveCadlServer(context: ExtensionContext): Promise<Executable> {
-  const nodeOptions = process.env.CADL_SERVER_NODE_OPTIONS;
+async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
+  const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
   // In development mode (F5 launch from source), resolve to locally built server.js.
-  if (process.env.CADL_DEVELOPMENT_MODE) {
+  if (process.env.TYPESPEC_DEVELOPMENT_MODE) {
     const script = context.asAbsolutePath("../compiler/dist/server/server.js");
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
@@ -96,19 +96,19 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
 
   // In production, first try VS Code configuration, which allows a global machine
   // location that is not on PATH, or a workspace-specific installation.
-  let serverPath: string | undefined = workspace.getConfiguration().get("cadl.cadl-server.path");
+  let serverPath: string | undefined = workspace.getConfiguration().get("typespec.tsp-server.path");
   if (serverPath && typeof serverPath !== "string") {
-    throw new Error("VS Code configuration option 'cadl.cadl-server.path' must be a string");
+    throw new Error("VS Code configuration option 'typespec.tsp-server.path' must be a string");
   }
   const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 
-  // Default to cadl-server on PATH, which would come from `npm install -g
-  // @cadl-lang/compiler` in a vanilla setup.
+  // Default to tsp-server on PATH, which would come from `npm install -g
+  // @typespec/compiler` in a vanilla setup.
   if (!serverPath) {
     serverPath = await resolveLocalCompiler(workspaceFolder);
   }
   if (!serverPath) {
-    const executable = process.platform === "win32" ? "cadl-server.cmd" : "cadl-server";
+    const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
     return { command: executable, args, options };
   }
   const variableResolver = new VSCodeVariableResolver({
@@ -119,27 +119,27 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
   serverPath = variableResolver.resolve(serverPath);
 
   if (!serverPath.endsWith(".js")) {
-    // Allow path to cadl-server.cmd to be passed.
+    // Allow path to tsp-server.cmd to be passed.
     if (await isFile(serverPath)) {
       const command =
         process.platform === "win32" && !serverPath.endsWith(".cmd")
           ? `${serverPath}.cmd`
-          : "cadl-server";
+          : "tsp-server";
 
       return { command, args, options };
     } else {
-      serverPath = join(serverPath, "cmd/cadl-server.js");
+      serverPath = join(serverPath, "cmd/tsp-server.js");
     }
   }
 
-  options.env["CADL_SKIP_COMPILER_RESOLVE"] = "1";
+  options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
   return { command: "node", args: [serverPath, ...args], options };
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
   // dynamic import required when unbundled as this module is CommonJS for
   // VS Code and the module-resolver is an ES module.
-  const { resolveModule } = await import("@cadl-lang/compiler/module-resolver");
+  const { resolveModule } = await import("@typespec/compiler/module-resolver");
 
   const host: ResolveModuleHost = {
     realpath,
@@ -147,7 +147,7 @@ async function resolveLocalCompiler(baseDir: string): Promise<string | undefined
     stat,
   };
   try {
-    const executable = await resolveModule(host, "@cadl-lang/compiler", {
+    const executable = await resolveModule(host, "@typespec/compiler", {
       baseDir,
     });
     if (executable.type === "module") {

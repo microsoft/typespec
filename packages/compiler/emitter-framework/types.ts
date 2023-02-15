@@ -27,9 +27,9 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   getOptions(): AssetEmitterOptions<TOptions>;
   getProgram(): Program;
   emitTypeReference(type: Type): EmitEntity<T>;
-  emitDeclarationName(type: CadlDeclaration): string;
+  emitDeclarationName(type: TypeSpecDeclaration): string;
   emitType(type: Type): EmitEntity<T>;
-  emitProgram(options?: { emitGlobalNamespace?: boolean; emitCadlNamespace?: boolean }): void;
+  emitProgram(options?: { emitGlobalNamespace?: boolean; emitTypeSpecNamespace?: boolean }): void;
   emitModelProperties(model: Model): EmitEntity<T>;
   emitModelProperty(prop: ModelProperty): EmitEntity<T>;
   emitOperationParameters(operation: Operation): EmitEntity<T>;
@@ -142,7 +142,7 @@ export type AssetTagFactory = {
   (value: string): AssetTagInstance;
 };
 
-export type CadlDeclaration = Model | Interface | Union | Operation | Enum | Scalar;
+export type TypeSpecDeclaration = Model | Interface | Union | Operation | Enum | Scalar;
 
 export interface ContextState {
   lexicalContext: Record<string, any>;

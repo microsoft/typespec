@@ -1,25 +1,25 @@
 {
-  "name": "@cadl-lang/compiler",
+  "name": "@typespec/compiler",
   "version": "0.40.0",
-  "description": "Cadl Compiler Preview",
+  "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl",
+    "typespec",
     "cli"
   ],
   "type": "module",
   "main": "dist/core/index.js",
-  "cadlMain": "lib/main.cadl",
+  "typespecMain": "lib/main.tsp",
   "exports": {
     ".": "./dist/core/index.js",
     "./testing": "./dist/testing/index.js",
@@ -47,11 +47,11 @@
     "node": ">=16.0.0"
   },
   "bin": {
-    "cadl": "cmd/cadl.js",
-    "cadl-server": "cmd/cadl-server.js"
+    "tsp": "cmd/tsp.js",
+    "tsp-server": "cmd/tsp-server.js"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
@@ -98,8 +98,8 @@
     "@types/prettier": "2.6.0",
     "@types/prompts": "~2.4.1",
     "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/internal-build-utils": "~0.3.3",
+    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/internal-build-utils": "~0.3.3",
     "eslint": "^8.12.0",
     "grammarkdown": "~3.2.0",
     "mocha": "~10.1.0",

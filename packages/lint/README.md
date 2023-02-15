@@ -1,4 +1,4 @@
-# Cadl Lint
+# TypeSpec Lint
 
 ## Usage
 
@@ -19,7 +19,7 @@ export const myRule = createRule({
 ### Register the rule
 
 ```ts
-const linter = getLinter($lib); // where $lib is the CadlLibrary created with createCadlLibrary
+const linter = getLinter($lib); // where $lib is the TypeSpecLibrary created with createTypeSpecLibrary
 linter.registerRule(myRule);
 
 // register multiple rules

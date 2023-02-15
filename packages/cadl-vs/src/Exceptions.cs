@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.Cadl.VisualStudio
+namespace Microsoft.TypeSpec.VisualStudio
 {
     /// <summary>
     /// Provide a typed map for Win32 error codes as described here https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/18d8fbe8-a967-4f1c-ae50-99ca8e491d2d
@@ -12,24 +12,24 @@ namespace Microsoft.Cadl.VisualStudio
 
 
     [Serializable]
-    internal class CadlUserErrorException : Exception
+    internal class TypeSpecUserErrorException : Exception
     {
-        public CadlUserErrorException(string message, Exception? innerException = null)
+        public TypeSpecUserErrorException(string message, Exception? innerException = null)
             : base(message, innerException)
         {
         }
     }
 
     [Serializable]
-    internal sealed class CadlServerNotFoundException : CadlUserErrorException
+    internal sealed class TypeSpecServerNotFoundException : TypeSpecUserErrorException
     {
-        public CadlServerNotFoundException(string fileName, Exception? innerException = null)
+        public TypeSpecServerNotFoundException(string fileName, Exception? innerException = null)
             : base(string.Join("\n", new string[]
             {
-                $"Cadl server executable was not found: '{fileName}' is not found. Make sure either:",
-                " - cadl is installed locally at the root of this workspace or in a parent directory.",
-                " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
-                " - cadl server path is configured with https://github.com/microsoft/cadl/blob/main/packages/cadl-vs/README.md#configure-cadl-visual-studio-extension."
+                $"TypeSpec server executable was not found: '{fileName}' is not found. Make sure either:",
+                " - typespec is installed locally at the root of this workspace or in a parent directory.",
+                " - typespec is installed globally with `npm install -g @typespec/compiler'.",
+                " - typespec server path is configured with https://github.com/microsoft/typespec/blob/main/packages/typespec-vs/README.md#configure-typespec-visual-studio-extension."
             }), innerException)
         {
         }

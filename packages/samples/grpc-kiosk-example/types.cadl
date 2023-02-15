@@ -1,9 +1,9 @@
-import "@cadl-lang/openapi";
+import "@typespec/openapi";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 //
-// types.cadl
+// types.tsp
 //
 // Generic types used in the Kiosk example that could be part of a standard library
 //

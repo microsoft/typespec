@@ -1,1 +1,1 @@
-import "./body-string.cadl";
+import "./body-string.tsp";

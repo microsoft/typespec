@@ -1,4 +1,4 @@
-namespace Cadl.Reflection;
+namespace TypeSpec.Reflection;
 
 model ModelProperty {}
 model Interface {}

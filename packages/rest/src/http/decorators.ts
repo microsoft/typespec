@@ -1,5 +1,5 @@
 import {
-  cadlTypeToJson,
+  typespecTypeToJson,
   createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
@@ -11,13 +11,13 @@ import {
   Namespace,
   Operation,
   Program,
-  setCadlNamespace,
+  setTypeSpecNamespace,
   Tuple,
   Type,
   Union,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import { extractParamsFromPath } from "../utils.js";
 import {
@@ -32,7 +32,7 @@ import {
   ServiceAuthentication,
 } from "./types.js";
 
-export const namespace = "Cadl.Http";
+export const namespace = "TypeSpec.Http";
 
 const headerFieldsKey = createStateSymbol("header");
 export function $header(
@@ -408,7 +408,7 @@ export function $plainData(context: DecoratorContext, entity: Type) {
   }
 }
 
-setCadlNamespace("Private", $plainData);
+setTypeSpecNamespace("Private", $plainData);
 
 const authenticationKey = createStateSymbol("authentication");
 export function $useAuth(
@@ -521,7 +521,7 @@ function extractHttpAuthentication(
   modelType: Model,
   diagnosticTarget: DiagnosticTarget
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
-  const [result, diagnostics] = cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
+  const [result, diagnostics] = typespecTypeToJson<HttpAuth>(modelType, diagnosticTarget);
   if (result === undefined) {
     return [result, diagnostics];
   }

@@ -7,24 +7,24 @@ title: Linters
 
 ## Linter vs `onValidate`
 
-Cadl library can probide a `$onValidate` hook which can be used to validate the cadl program is valid in the eye of your library.
+TypeSpec library can probide a `$onValidate` hook which can be used to validate the typespec program is valid in the eye of your library.
 
-A linter on the other hand might be a validation that is more optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the cadl program but without it the end user experience might suffer.
+A linter on the other hand might be a validation that is more optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the typespec program but without it the end user experience might suffer.
 
 ## Writing a linter
 
-There is no built-in concept of linter into Cadl, there is however a library `@cadl-lang/lint` that lets a library define its linting rules and hooks on to the `onValidate`.
+There is no built-in concept of linter into TypeSpec, there is however a library `@typespec/lint` that lets a library define its linting rules and hooks on to the `onValidate`.
 
-### 1. Install the `@cadl-lang/lint` package
+### 1. Install the `@typespec/lint` package
 
 ```bash
-npm install @cadl-lang/lint
+npm install @typespec/lint
 ```
 
 ### 2. Define the rules
 
 ```ts
-import { createRule } from "@cadl-lang/lint";
+import { createRule } from "@typespec/lint";
 import { reportDiagnostic } from "../lib.js";
 
 export const modelDocRule = createRule({
@@ -48,7 +48,7 @@ export const modelDocRule = createRule({
 
 <!-- cspell:disable-next-line -->
 
-`$lib` refer to the value of `createCadlLibrary` [See](./basics.md#4-create-libts)
+`$lib` refer to the value of `createTypeSpecLibrary` [See](./basics.md#4-create-libts)
 
 ```ts
 import { $lib } from "../lib.js";
@@ -109,7 +109,7 @@ First you'll want to create an instance of the rule tester using `createRuleTest
 You can then provide different test checking the rule pass or fails.
 
 ```ts
-import { createRuleTester } from "@cadl-lang/lint/testing";
+import { createRuleTester } from "@typespec/lint/testing";
 import { noFooModelRule } from "./no-foo-model.js";
 
 let ruleTester: RuleTester;
