@@ -19,17 +19,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Kiosk'
+                description: Describes a hardware device that can display signs.
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Kiosk'
+              description: Describes a hardware device that can display signs.
     get:
       tags:
         - Display
@@ -43,12 +46,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListKiosksResponse'
+                description: A successful response.
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
   /v1/kiosks/{id}:
     get:
       tags:
@@ -69,12 +74,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Kiosk'
+                description: Describes a hardware device that can display signs.
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
     delete:
       tags:
         - Display
@@ -98,6 +105,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
   /v1/kiosks/{kiosk_id}/sign:
     get:
       tags:
@@ -118,12 +126,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetSignIdResponse'
+                description: A successful response.
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
   /v1/signs:
     post:
       tags:
@@ -138,17 +148,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Sign'
+                description: |-
+                  Describes a digital sign.
+                  Signs can include text, images, or both.
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Sign'
+              description: |-
+                Describes a digital sign.
+                Signs can include text, images, or both.
     get:
       tags:
         - Display
@@ -162,6 +179,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListSignsResponse'
+                description: A successful response.
   /v1/signs/{id}:
     get:
       tags:
@@ -182,12 +200,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Sign'
+                description: |-
+                  Describes a digital sign.
+                  Signs can include text, images, or both.
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
     delete:
       tags:
         - Display
@@ -211,6 +233,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
   /v1/signs/{sign_id}:
     post:
       tags:
@@ -230,6 +253,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+                description: An unexpected error response.
       requestBody:
         content:
           application/json:
@@ -277,13 +301,28 @@ components:
         size:
           allOf:
             - $ref: '#/components/schemas/ScreenSize'
+              description: Represents the size of a screen in pixels.
           description: screen size
         location:
           allOf:
             - $ref: '#/components/schemas/LatLng'
+              description: >-
+                An object that represents a latitude/longitude pair. This is
+                expressed as a
+
+                pair of doubles to represent degrees latitude and degrees
+                longitude. Unless
+
+                specified otherwise, this must conform to the
+
+                <a
+                href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
+
+                standard</a>. Values must be within normalized ranges.
           description: kiosk location
         create_time:
           $ref: '#/components/schemas/Timestamp'
+          description: A timestamp
       description: Describes a hardware device that can display signs.
       required:
         - name
@@ -320,6 +359,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Kiosk'
+            description: Describes a hardware device that can display signs.
           x-typespec-name: Kiosk[]
       description: A successful response.
     ListSignsResponse:
@@ -329,6 +369,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Sign'
+            description: |-
+              Describes a digital sign.
+              Signs can include text, images, or both.
           x-typespec-name: Sign[]
       description: A successful response.
     ProtobufAny:

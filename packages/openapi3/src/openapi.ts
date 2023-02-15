@@ -1388,11 +1388,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (name === "string") {
           return {
             type: "object",
-<<<<<<< HEAD
-            additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
-=======
-            additionalProperties: processAdditionalProperties(cadlType, visibility),
->>>>>>> 6edc7a9f (Centralize logic.)
+            additionalProperties: processAdditionalProperties(typespecType, visibility),
           };
         } else if (name === "integer") {
           return {

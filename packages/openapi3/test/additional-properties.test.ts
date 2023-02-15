@@ -1,4 +1,4 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { diagnoseOpenApiFor, oapiForModel } from "./test-host.js";
 
@@ -29,7 +29,7 @@ describe("openapi3: Additional properties", () => {
     deepStrictEqual(res.schemas.Pet.properties.details, {
       type: "object",
       additionalProperties: {},
-      "x-cadl-name": "Record<unknown>",
+      "x-typespec-name": "Record<unknown>",
     });
   });
 
@@ -57,7 +57,7 @@ describe("openapi3: Additional properties", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unassignable",
-        message: "Type 'Cadl.int16' is not assignable to type 'Cadl.string'",
+        message: "Type 'TypeSpec.int16' is not assignable to type 'TypeSpec.string'",
       },
     ]);
   });

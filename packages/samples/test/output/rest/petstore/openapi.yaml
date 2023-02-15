@@ -16,6 +16,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckupCollectionWithNextLink'
+                description: Paged response of Checkup items
         default:
           description: An unexpected error response.
           content:
@@ -52,6 +53,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
+              description: The template for adding optional properties.
   /owners:
     post:
       operationId: Owners_create
@@ -81,6 +83,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OwnerCreate'
+              description: The template for adding updateable properties.
     get:
       operationId: Owners_list
       description: Lists all instances of the resource.
@@ -92,6 +95,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OwnerCollectionWithNextLink'
+                description: Paged response of Owner items
         default:
           description: An unexpected error response.
           content:
@@ -140,6 +144,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OwnerUpdate'
+              description: The template for adding optional properties.
     delete:
       operationId: Owners_delete
       description: Deletes an existing instance of the resource.
@@ -167,6 +172,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckupCollectionWithNextLink'
+                description: Paged response of Checkup items
         default:
           description: An unexpected error response.
           content:
@@ -204,6 +210,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
+              description: The template for adding optional properties.
   /owners/{ownerId}/insurance:
     get:
       operationId: OwnerInsurance_Get
@@ -246,6 +253,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InsuranceUpdate'
+              description: The template for adding optional properties.
   /pets:
     post:
       operationId: Pets_create
@@ -275,6 +283,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PetCreate'
+              description: The template for adding updateable properties.
     get:
       operationId: Pets_list
       description: Lists all instances of the resource.
@@ -286,6 +295,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetCollectionWithNextLink'
+                description: Paged response of Pet items
         default:
           description: An unexpected error response.
           content:
@@ -334,6 +344,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PetUpdate'
+              description: The template for adding optional properties.
     delete:
       operationId: Pets_delete
       description: Deletes an existing instance of the resource.
@@ -361,6 +372,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckupCollectionWithNextLink'
+                description: Paged response of Checkup items
         default:
           description: An unexpected error response.
           content:
@@ -398,6 +410,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
+              description: The template for adding optional properties.
   /pets/{petId}/insurance:
     get:
       operationId: PetInsurance_Get
@@ -440,6 +453,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InsuranceUpdate'
+              description: The template for adding optional properties.
   /pets/{petId}/toys:
     get:
       operationId: Toys_list
@@ -457,6 +471,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ToyCollectionWithNextLink'
+                description: Paged response of Toy items
         default:
           description: An unexpected error response.
           content:
@@ -527,6 +542,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InsuranceUpdate'
+              description: The template for adding optional properties.
 components:
   parameters:
     CheckupKey:

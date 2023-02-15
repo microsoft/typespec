@@ -22,6 +22,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putArray
       description: Put complex types with array properties
@@ -35,6 +36,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -58,6 +60,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putValid
       description: 'Please put {id: 2, name: ''abc'', color: ''Magenta''}'
@@ -71,6 +74,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -94,6 +98,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Dictionary_putArray
       description: Put complex types with dictionary property
@@ -107,6 +112,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -130,6 +136,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putBool
       description: Put complex types with bool properties
@@ -143,6 +150,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -166,6 +174,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putBytes
       description: Put complex types with bytes properties
@@ -179,6 +188,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -202,6 +212,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putPlainDate
       description: Put complex types with date properties
@@ -215,6 +226,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -238,6 +250,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putZonedDateTime
       description: Put complex types with DateTime properties
@@ -251,6 +264,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -274,6 +288,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putDouble
       description: Put complex types with double properties
@@ -287,6 +302,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -310,6 +326,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putZonedDuration
       description: Put complex types with Duration properties
@@ -323,6 +340,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -346,6 +364,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putFloat
       description: Put complex types with float properties
@@ -359,6 +378,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -382,6 +402,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putInt
       description: Put complex types with integer properties
@@ -395,6 +416,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -418,6 +440,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putLong
       description: Put complex types with long properties
@@ -431,6 +454,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
@@ -454,6 +478,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
     put:
       operationId: Complex_putString
       description: Put complex types with string properties
@@ -467,6 +492,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                description: Error
       requestBody:
         content:
           application/json:
