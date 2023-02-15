@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Apply augmented decorator at last.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
