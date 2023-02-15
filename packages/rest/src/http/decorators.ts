@@ -1,5 +1,4 @@
 import {
-  typespecTypeToJson,
   createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
@@ -14,6 +13,7 @@ import {
   setTypeSpecNamespace,
   Tuple,
   Type,
+  typespecTypeToJson,
   Union,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,

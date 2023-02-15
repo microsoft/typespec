@@ -1,3 +1,7 @@
+import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import nodeResolve from "@rollup/plugin-node-resolve";
+import virtual from "@rollup/plugin-virtual";
 import {
   compile,
   getNormalizedAbsolutePath,
@@ -5,10 +9,6 @@ import {
   NodeHost,
   normalizePath,
 } from "@typespec/compiler";
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import virtual from "@rollup/plugin-virtual";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
 import { OutputChunk, rollup, RollupBuild, RollupOptions, watch } from "rollup";
@@ -60,7 +60,10 @@ export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpe
   }
 }
 
-export async function watchTypeSpecBundle(libraryPath: string, onBundle: (bundle: TypeSpecBundle) => void) {
+export async function watchTypeSpecBundle(
+  libraryPath: string,
+  onBundle: (bundle: TypeSpecBundle) => void
+) {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
   const rollupOptions = await createRollupConfig(definition);
   const watcher = watch({
@@ -99,7 +102,9 @@ export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: stri
   }
 }
 
-async function resolveTypeSpecBundleDefinition(libraryPath: string): Promise<TypeSpecBundleDefinition> {
+async function resolveTypeSpecBundleDefinition(
+  libraryPath: string
+): Promise<TypeSpecBundleDefinition> {
   libraryPath = normalizePath(await realpath(libraryPath));
   const pkg = await readLibraryPackageJson(libraryPath);
 

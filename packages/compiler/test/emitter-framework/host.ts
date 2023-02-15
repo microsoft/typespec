@@ -1,7 +1,7 @@
 import { fileURLToPath } from "url";
 import { resolvePath } from "../../core/index.js";
 import { createAssetEmitter, TypeEmitter } from "../../emitter-framework/index.js";
-import { TypeSpecTestLibrary, createTestHost } from "../../testing/index.js";
+import { createTestHost, TypeSpecTestLibrary } from "../../testing/index.js";
 
 import assert from "assert";
 import { SinonSpy, spy } from "sinon";

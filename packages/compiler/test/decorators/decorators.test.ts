@@ -538,7 +538,8 @@ describe("compiler: built-in decorators", () => {
         },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.boolean' is not assignable to type 'TypeSpec.string | TypeSpec.int32'",
+          message:
+            "Type 'TypeSpec.boolean' is not assignable to type 'TypeSpec.string | TypeSpec.int32'",
           severity: "error",
         },
       ]);

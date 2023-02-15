@@ -7,7 +7,6 @@ import {
   AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
-  TypeSpecScriptNode,
   Comment,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
@@ -60,6 +59,7 @@ import {
   TextRange,
   TupleExpressionNode,
   TypeReferenceNode,
+  TypeSpecScriptNode,
   UnionExpressionNode,
   UnionStatementNode,
   UnionVariantNode,
@@ -67,7 +67,7 @@ import {
 import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
-import { TypeSpecPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
+import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 
 const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
   prettier.doc.builders;

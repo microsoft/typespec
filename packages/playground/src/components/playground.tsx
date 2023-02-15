@@ -15,11 +15,11 @@ import {
   emittersOptionsState,
   selectedEmitterState,
 } from "../state.js";
-import { TypeSpecEditor } from "./typespec-editor.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.jsx";
 import { Footer } from "./footer.js";
 import { OutputView } from "./output-view.js";
+import { TypeSpecEditor } from "./typespec-editor.js";
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -39,7 +39,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
   </RecoilRoot>
 );
 
-const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, typespecContent, onSave }) => {
+const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
+  host,
+  typespecContent,
+  onSave,
+}) => {
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const setCompilationStatus = useSetRecoilState(compilationState);
   const emittersOptions = useRecoilValue(emittersOptionsState);

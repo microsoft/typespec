@@ -8,7 +8,6 @@ import {
   TextEdit,
 } from "vscode-languageserver";
 import {
-  TypeSpecScriptNode,
   IdentifierNode,
   Node,
   Program,
@@ -16,6 +15,7 @@ import {
   SymbolFlags,
   SyntaxKind,
   Type,
+  TypeSpecScriptNode,
 } from "../core/index.js";
 import {
   getAnyExtensionFromPath,

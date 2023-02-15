@@ -12,7 +12,9 @@ import {
 let client: LanguageClient | undefined;
 
 export async function activate(context: ExtensionContext) {
-  context.subscriptions.push(commands.registerCommand("typespec.restartServer", restartTypeSpecServer));
+  context.subscriptions.push(
+    commands.registerCommand("typespec.restartServer", restartTypeSpecServer)
+  );
 
   return await vscode.window.withProgress(
     {

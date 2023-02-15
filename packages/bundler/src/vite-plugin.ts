@@ -1,7 +1,12 @@
 import { resolvePath } from "@typespec/compiler";
 import { resolve } from "path";
 import type { IndexHtmlTransformContext, Plugin, ResolvedConfig } from "vite";
-import { TypeSpecBundle, TypeSpecBundleDefinition, createTypeSpecBundle, watchTypeSpecBundle } from "./bundler.js";
+import {
+  createTypeSpecBundle,
+  TypeSpecBundle,
+  TypeSpecBundleDefinition,
+  watchTypeSpecBundle,
+} from "./bundler.js";
 
 export interface TypeSpecBundlePluginOptions {
   folderName: string;
@@ -109,7 +114,10 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
   };
 }
 
-function createImportMap(folderName: string, definitions: Record<string, TypeSpecBundleDefinition>) {
+function createImportMap(
+  folderName: string,
+  definitions: Record<string, TypeSpecBundleDefinition>
+) {
   const imports: Record<string, string> = {};
   for (const [library, definition] of Object.entries(definitions)) {
     imports[library] = `./${folderName}/${library}/index.js`;

@@ -22,7 +22,7 @@ The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types o
 
 The following table shows how common OpenAPI types map to TypeSpec types:
 
-| OpenAPI `type`/`format`           | TypeSpec type        | Notes                                                                     |
+| OpenAPI `type`/`format`           | TypeSpec type    | Notes                                                                     |
 | --------------------------------- | ---------------- | ------------------------------------------------------------------------- |
 | `type: integer, format: int32`    | `int32`          |                                                                           |
 | `type: integer, format: int64`    | `int64`          |                                                                           |
@@ -41,14 +41,14 @@ These are actually borrowed into OpenAPI from JSON Schema.
 
 For `type: integer` and `type: number` data types:
 
-| OpenAPI/JSON Schema keyword | TypeSpec construct               | Notes |
+| OpenAPI/JSON Schema keyword | TypeSpec construct           | Notes |
 | --------------------------- | ---------------------------- | ----- |
 | `minimum: value`            | `@minValue(value)` decorator |       |
 | `maximum: value`            | `@maxValue(value)` decorator |       |
 
 For `type: string` data types:
 
-| OpenAPI/JSON Schema keyword | TypeSpec construct                | Notes |
+| OpenAPI/JSON Schema keyword | TypeSpec construct            | Notes |
 | --------------------------- | ----------------------------- | ----- |
 | `minLength: value`          | `@minLength(value)` decorator |       |
 | `maxLength: value`          | `@maxLength(value)` decorator |       |
@@ -132,7 +132,7 @@ In OpenAPI, an operation object [[v2][v2-operation], [v3][v3-operation]] describ
 
 The fields in an OpenAPI operation object are specified with the following TypeSpec constructs:
 
-| OpenAPI `operation` field | TypeSpec construct           | Notes                                     |
+| OpenAPI `operation` field | TypeSpec construct       | Notes                                     |
 | ------------------------- | ------------------------ | ----------------------------------------- |
 | `description`             | `@doc` decorator         |                                           |
 | `operationId`             | `@operationId` decorator |                                           |
@@ -183,7 +183,7 @@ The responses object maps a HTTP response code to the expected response.
 
 In TypeSpec, operation responses are defined by the return types of the `op`. The status code for a response can be specified as a property in the return type with the `@statusCode` decorator (the property name is ignored). The TypeSpec.Http package also defines several standard response types:
 
-| OpenAPI response | TypeSpec construct         |
+| OpenAPI response | TypeSpec construct     |
 | ---------------- | ---------------------- |
 | `200`            | `OkResponse`           |
 | `201`            | `CreatedResponse`      |
@@ -208,7 +208,7 @@ elements common to both.
 
 The fields in an OpenAPI response object are specified with the following TypeSpec constructs:
 
-| OpenAPI `response` field | TypeSpec construct                                     | Notes                    |
+| OpenAPI `response` field | TypeSpec construct                                 | Notes                    |
 | ------------------------ | -------------------------------------------------- | ------------------------ |
 | `description`            | `@doc` decorator                                   |                          |
 | `schema`                 | return type                                        |                          |
@@ -298,13 +298,13 @@ In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata a
 
 In TypeSpec this information is specified with [decorators on the namespace][typespec-service-metadata].
 
-| OpenAPI `info` field | TypeSpec decorator         | Notes                    |
-| -------------------- | ---------------------- | ------------------------ |
-| `title`              | `@service({title: }`   | TypeSpec built-in decorator  |
-| `version`            | `@service({version: }` | TypeSpec built-in decorator  |
-| `description`        | `@doc`                 | TypeSpec built-in decorator  |
-| `license`            |                        | Not currently supported. |
-| `contact`            |                        | Not currently supported. |
+| OpenAPI `info` field | TypeSpec decorator     | Notes                       |
+| -------------------- | ---------------------- | --------------------------- |
+| `title`              | `@service({title: }`   | TypeSpec built-in decorator |
+| `version`            | `@service({version: }` | TypeSpec built-in decorator |
+| `description`        | `@doc`                 | TypeSpec built-in decorator |
+| `license`            |                        | Not currently supported.    |
+| `contact`            |                        | Not currently supported.    |
 
 [typespec-service-metadata]: https://microsoft.github.io/typespec/docs/standard-library/http/#service-definition-and-metadata
 

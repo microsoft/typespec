@@ -14,7 +14,10 @@ export interface TypeSpecFormatOptions {
  * Format all the TypeSpec files.
  * @param patterns List of wildcard pattern searching for TypeSpec files.
  */
-export async function formatTypeSpecFiles(patterns: string[], { exclude, debug }: TypeSpecFormatOptions) {
+export async function formatTypeSpecFiles(
+  patterns: string[],
+  { exclude, debug }: TypeSpecFormatOptions
+) {
   const files = await findFiles(patterns, exclude);
   for (const file of files) {
     try {

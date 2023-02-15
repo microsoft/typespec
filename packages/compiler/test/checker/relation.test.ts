@@ -519,7 +519,8 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.Record<TypeSpec.string>'",
+          message:
+            "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.Record<TypeSpec.string>'",
         }
       );
     });

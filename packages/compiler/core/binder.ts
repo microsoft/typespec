@@ -2,7 +2,6 @@ import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
-  TypeSpecScriptNode,
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
@@ -26,6 +25,7 @@ import {
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
+  TypeSpecScriptNode,
   UnionStatementNode,
   UsingStatementNode,
 } from "./types.js";
@@ -321,7 +321,8 @@ export function createBinder(program: Program): Binder {
    */
   function bindProjectionStatement(node: ProjectionStatementNode) {
     const name = node.id.sv;
-    const table: SymbolTable = (scope as NamespaceStatementNode | TypeSpecScriptNode).symbol.exports!;
+    const table: SymbolTable = (scope as NamespaceStatementNode | TypeSpecScriptNode).symbol
+      .exports!;
     let sym: Sym;
     if (table.has(name)) {
       sym = table.get(name)!;

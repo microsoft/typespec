@@ -15,11 +15,11 @@ import { expectDiagnosticEmpty } from "./expect.js";
 import { createTestWrapper } from "./test-utils.js";
 import {
   BasicTestRunner,
-  TypeSpecTestLibrary,
   TestFileSystem,
   TestHost,
   TestHostConfig,
   TestHostError,
+  TypeSpecTestLibrary,
 } from "./types.js";
 
 export interface TestHostOptions {

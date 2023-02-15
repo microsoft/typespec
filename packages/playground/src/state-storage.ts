@@ -10,7 +10,10 @@ export function getTypeSpecContentFromQueryParam(queryParameterName: string) {
   }
 }
 
-export async function saveTypeSpecContentInQueryParameter(queryParameterName: string, content: string) {
+export async function saveTypeSpecContentInQueryParameter(
+  queryParameterName: string,
+  content: string
+) {
   const compressed = lzutf8.compress(content, { outputEncoding: "Base64" });
   history.pushState(null, "", window.location.pathname + "?c=" + encodeURIComponent(compressed));
   await navigator.clipboard.writeText(window.location.toString());

@@ -92,7 +92,7 @@ Examples:
 | Variable name  | Scope           | Description                                                                          |
 | -------------- | --------------- | ------------------------------------------------------------------------------------ |
 | `cwd`          | \*              | Points to the current working directory                                              |
-| `project-root` | \*              | Points to the the tspconfig.yaml file containing folder.                          |
+| `project-root` | \*              | Points to the the tspconfig.yaml file containing folder.                             |
 | `output-dir`   | emitter options | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
 | `emitter-name` | emitter options | Name of the emitter                                                                  |
 

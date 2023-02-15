@@ -5,7 +5,10 @@ import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "./browser-host.js";
 import { StyledPlayground } from "./components/playground.js";
 import { attachServices } from "./services.js";
-import { getTypeSpecContentFromQueryParam, saveTypeSpecContentInQueryParameter } from "./state-storage.js";
+import {
+  getTypeSpecContentFromQueryParam,
+  saveTypeSpecContentInQueryParameter,
+} from "./state-storage.js";
 
 import "./style.css";
 

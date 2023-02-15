@@ -1,7 +1,12 @@
 import { resolvePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { StandardTestLibrary } from "./test-host.js";
-import { BasicTestRunner, TypeSpecTestLibrary, TypeSpecTestLibraryInit, TestHost } from "./types.js";
+import {
+  BasicTestRunner,
+  TestHost,
+  TypeSpecTestLibrary,
+  TypeSpecTestLibraryInit,
+} from "./types.js";
 
 /**
  * Define a test library defaulting to the most common library structure.

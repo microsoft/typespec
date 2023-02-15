@@ -1,10 +1,10 @@
 import { TextRange } from "@typespec/compiler";
 import { readFile, writeFile } from "fs/promises";
 import {
+  Migration,
   TypeSpecCompiler,
   TypeSpecCompilers,
   TypeSpecCompilerVersion,
-  Migration,
 } from "./migrations/migration.js";
 export interface MigrationResult {
   fileChanged: string[];
@@ -22,7 +22,9 @@ export async function migrateTypeSpecContent(content: string, migration: Migrati
   return migrateTypeSpecContentInternal(fromCompiler, toCompiler, content, migration);
 }
 
-async function loadCompiler<V extends TypeSpecCompilerVersion>(version: V): Promise<TypeSpecCompilers[V]> {
+async function loadCompiler<V extends TypeSpecCompilerVersion>(
+  version: V
+): Promise<TypeSpecCompilers[V]> {
   try {
     return await import(`@typespec/compiler-v${version}`);
   } catch {

@@ -23,13 +23,13 @@ import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import {
   AssetEmitter,
-  TypeSpecDeclaration,
   Context,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
   Scope,
   SourceFile,
+  TypeSpecDeclaration,
 } from "./types.js";
 
 export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;

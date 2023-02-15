@@ -25,7 +25,7 @@ import { CompilerOptions } from "../options.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../path-utils.js";
 import { compile, Program } from "../program.js";
 import { CompilerHost, Diagnostic } from "../types.js";
-import { typespecVersion, ExternalError } from "../util.js";
+import { ExternalError, typespecVersion } from "../util.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 
 async function main() {
@@ -209,7 +209,10 @@ async function main() {
             process.exit(1);
           }
         } else {
-          await formatTypeSpecFiles(args["include"], { exclude: args["exclude"], debug: args.debug });
+          await formatTypeSpecFiles(args["include"], {
+            exclude: args["exclude"],
+            debug: args.debug,
+          });
         }
       }
     )

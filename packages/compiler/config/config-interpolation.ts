@@ -1,7 +1,12 @@
 import { createDiagnosticCollector, ignoreDiagnostics } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Diagnostic, NoTarget } from "../core/types.js";
-import { TypeSpecConfig, ConfigEnvironmentVariable, ConfigParameter, EmitterOptions } from "./types.js";
+import {
+  ConfigEnvironmentVariable,
+  ConfigParameter,
+  EmitterOptions,
+  TypeSpecConfig,
+} from "./types.js";
 
 export interface ExpandConfigOptions {
   readonly cwd: string;

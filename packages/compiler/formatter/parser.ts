@@ -1,7 +1,7 @@
 import { Parser, ParserOptions } from "prettier";
 import { getSourceLocation } from "../core/diagnostics.js";
 import { parse as typespecParse } from "../core/parser.js";
-import { TypeSpecScriptNode, Diagnostic } from "../core/types.js";
+import { Diagnostic, TypeSpecScriptNode } from "../core/types.js";
 
 export function parse(
   text: string,

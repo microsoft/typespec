@@ -28,7 +28,10 @@ describe("compiler: server: completion", () => {
         label: "int32",
         insertText: "int32",
         kind: CompletionItemKind.Unit,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nscalar TypeSpec.int32\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar TypeSpec.int32\n```",
+        },
       },
       {
         label: "Record",
@@ -94,7 +97,8 @@ describe("compiler: server: completion", () => {
       );
     }
     it(`complete at start of "`, () => testCompleteLibrary(` import "~~~┆~~~"`));
-    it("complete after some text in import", () => testCompleteLibrary(` import "~~~@typespec┆~~~"`));
+    it("complete after some text in import", () =>
+      testCompleteLibrary(` import "~~~@typespec┆~~~"`));
     it("complete in middle of import", () => testCompleteLibrary(` import "~~~@typespec┆libr~~~"`));
 
     it("doesn't include imports when there is no project package.json", async () => {
@@ -310,7 +314,10 @@ describe("compiler: server: completion", () => {
         label: "string",
         insertText: "string",
         kind: CompletionItemKind.Unit,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nscalar TypeSpec.string\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar TypeSpec.string\n```",
+        },
       },
     ]);
   });
@@ -472,7 +479,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```typespec\nop N.test(): void\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```typespec\nop N.test(): void\n```",
+          },
         },
       ],
       {

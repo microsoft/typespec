@@ -4,10 +4,10 @@ import type {
   TemplateParameterDeclarationNode,
 } from "@typespec/compiler-v0.37";
 import {
-  TypeSpecCompilerV0_37,
   createMigration,
   MigrateAction,
   MigrationContext,
+  TypeSpecCompilerV0_37,
 } from "../migration.js";
 
 export const migrateModelToScalar = createMigration({
