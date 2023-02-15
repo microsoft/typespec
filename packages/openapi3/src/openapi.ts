@@ -1091,24 +1091,27 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function includeDerivedModel(model: Model): boolean {
     return (
       !isTemplateDeclaration(model) &&
-      (model.templateArguments === undefined ||
-        model.templateArguments?.length === 0 ||
+      (model.templateMapper?.args === undefined ||
+        model.templateMapper.args?.length === 0 ||
         model.derivedModels.length > 0)
     );
   }
 
-  function checkAdditionalProperties(program: Program, model: Model): boolean {
+  function checkAdditionalProperties(program: Program, model: Model): string | boolean | undefined {
     const baseModel = model.baseModel;
     if (!baseModel || baseModel.name !== "Record") {
-      return false;
+      return undefined;
     }
     const templateArg = baseModel.templateMapper?.args.at(0);
     if (!templateArg) {
-      return false;
+      return undefined;
     }
     switch (templateArg.kind) {
       case "Intrinsic":
-        return templateArg.name === "unknown";
+        if (templateArg.name === "unknown") {
+          return true;
+        }
+        break;
       case "Scalar":
         for (const [_, prop] of model.properties) {
           // ensure that the record type is compatible with any listed properties
@@ -1117,10 +1120,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
             program.reportDiagnostic(diag);
           }
         }
-        return false;
-      default:
-        return false;
+        return templateArg.name;
     }
+    return undefined;
   }
 
   function getSchemaForModel(model: Model, visibility: Visibility) {
@@ -1130,9 +1132,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       description: getDoc(program, model),
     };
 
-    const hasAdditionalProperties = checkAdditionalProperties(program, model);
-    if (hasAdditionalProperties) {
-      modelSchema.additionalProperties = true;
+    // TODO: This feels like the wrong place to do this. It seems hacky.
+    const additionalProperties = checkAdditionalProperties(program, model);
+    if (additionalProperties === true) {
+      modelSchema.additionalProperties = {};
+    } else if (additionalProperties) {
+      // must be a string property
+      (modelSchema.additionalProperties as unknown) = {
+        type: additionalProperties,
+      };
     }
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
@@ -1355,7 +1363,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "Boolean":
         return { type: "boolean", enum: [typespecType.value] };
       case "Model":
-        return mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
+        const result = mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
+        // for the additional properties scenario, copy the description
+        // from the value type into the additional properties
+        if (result && result.additionalProperties) {
+          result.additionalProperties.description = result.description;
+        }
+        return result;
     }
   }
 
@@ -1374,6 +1388,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           return {
             type: "object",
             additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
+            description: getDoc(program, typespecType.indexer.value!),
           };
         } else if (name === "integer") {
           return {

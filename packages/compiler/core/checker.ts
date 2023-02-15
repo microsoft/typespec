@@ -4588,7 +4588,7 @@ export function createChecker(program: Program): Checker {
   function areScalarsRelated(source: Scalar, target: Scalar) {
     let current: Scalar | undefined = source;
     while (current) {
-      if (current.name === target.name) {
+      if (current === target) {
         return true;
       }
 
