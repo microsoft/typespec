@@ -1,8 +1,8 @@
 import {
-  TypeSpecLanguageConfiguration,
   DiagnosticTarget,
   NoTarget,
   ServerHost,
+  TypeSpecLanguageConfiguration,
 } from "@typespec/compiler";
 import * as monaco from "monaco-editor";
 import { editor } from "monaco-editor";

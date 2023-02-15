@@ -1,11 +1,11 @@
 import {
-  TypeSpecLibrary,
   compilerAssert,
   EventEmitter,
   mapEventEmitterToNodeListener,
   navigateProgram,
   Program,
   SemanticNodeListener,
+  TypeSpecLibrary,
 } from "@typespec/compiler";
 import { LibraryLinter, Linter, LintRule, RegisterRuleOptions } from "./types.js";
 

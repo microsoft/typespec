@@ -20,11 +20,11 @@ This is an overview of the language concept in TypeSpec. It doesn't go in detail
 
 _Details: [Imports](./imports.md)_
 
-| Feature          | Example                    |
-| ---------------- | -------------------------- |
+| Feature              | Example                   |
+| -------------------- | ------------------------- |
 | Import typespec file | `import "./models.tsp"`   |
-| Import JS file   | `import "./models.js"`     |
-| Import Library   | `import "@typespec/rest"` |
+| Import JS file       | `import "./models.js"`    |
+| Import Library       | `import "@typespec/rest"` |
 
 ## Namespaces
 

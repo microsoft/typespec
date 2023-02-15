@@ -20,8 +20,6 @@ import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
-  TypeSpecLibrary,
-  TypeSpecScriptNode,
   CompilerHost,
   Diagnostic,
   DiagnosticTarget,
@@ -44,6 +42,8 @@ import {
   SyntaxKind,
   Tracer,
   Type,
+  TypeSpecLibrary,
+  TypeSpecScriptNode,
 } from "./types.js";
 import {
   deepEquals,
@@ -463,7 +463,10 @@ export async function compile(
     return mainFile;
   }
 
-  async function loadTypeSpecFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
+  async function loadTypeSpecFile(
+    path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget
+  ) {
     if (seenSourceFiles.has(path)) {
       return;
     }

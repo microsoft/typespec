@@ -2,11 +2,11 @@ import { createDiagnosticCreator } from "./diagnostics.js";
 import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
-  TypeSpecLibrary,
-  TypeSpecLibraryDef,
   CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
+  TypeSpecLibrary,
+  TypeSpecLibraryDef,
 } from "./types.js";
 
 const globalLibraryUrlsLoadedSym = Symbol.for("TYPESPEC_LIBRARY_URLS_LOADED");

@@ -21,7 +21,6 @@ import {
   Union,
 } from "@typespec/compiler";
 import {
-  TypeSpecRefDoc,
   DecoratorRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
@@ -30,6 +29,7 @@ import {
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  TypeSpecRefDoc,
   UnionRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";

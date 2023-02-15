@@ -23,8 +23,8 @@ dec format(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelP
 
 #### Parameters
 
-| Name   | Type                 | Description  |
-| ------ | -------------------- | ------------ |
+| Name   | Type                     | Description  |
+| ------ | ------------------------ | ------------ |
 | format | `scalar TypeSpec.string` | format name. |
 
 ### `@doc` {#@doc}
@@ -41,8 +41,8 @@ dec doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)
 
 #### Parameters
 
-| Name       | Type                 | Description                                                     |
-| ---------- | -------------------- | --------------------------------------------------------------- |
+| Name       | Type                     | Description                                                     |
+| ---------- | ------------------------ | --------------------------------------------------------------- |
 | doc        | `scalar TypeSpec.string` | Documentation string                                            |
 | formatArgs | `model TypeSpec.object`  | Record with key value pair that can be interpolated in the doc. |
 
@@ -73,8 +73,8 @@ dec withoutOmittedProperties(target: TypeSpec.object, omit: TypeSpec.string | Ty
 
 #### Parameters
 
-| Name | Type                                         | Description |
-| ---- | -------------------------------------------- | ----------- |
+| Name | Type                                                 | Description |
+| ---- | ---------------------------------------------------- | ----------- |
 | omit | `union TypeSpec.string \| TypeSpec.Reflection.Union` |             |
 
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
@@ -122,8 +122,8 @@ dec summary(target: unknown, summary: TypeSpec.string)
 
 #### Parameters
 
-| Name    | Type                 | Description     |
-| ------- | -------------------- | --------------- |
+| Name    | Type                     | Description     |
+| ------- | ------------------------ | --------------- |
 | summary | `scalar TypeSpec.string` | Summary string. |
 
 ### `@deprecated` {#@deprecated}
@@ -140,8 +140,8 @@ dec deprecated(target: unknown, message: TypeSpec.string)
 
 #### Parameters
 
-| Name    | Type                 | Description          |
-| ------- | -------------------- | -------------------- |
+| Name    | Type                     | Description          |
+| ------- | ------------------------ | -------------------- |
 | message | `scalar TypeSpec.string` | Deprecation message. |
 
 ### `@service` {#@service}
@@ -158,8 +158,8 @@ dec service(target: TypeSpec.Reflection.Namespace, options?: TypeSpec.ServiceOpt
 
 #### Parameters
 
-| Name    | Type                        | Description                             |
-| ------- | --------------------------- | --------------------------------------- |
+| Name    | Type                            | Description                             |
+| ------- | ------------------------------- | --------------------------------------- |
 | options | `model TypeSpec.ServiceOptions` | Optional configuration for the service. |
 
 ### `@error` {#@error}
@@ -205,8 +205,8 @@ dec pattern(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.Model
 
 #### Parameters
 
-| Name    | Type                 | Description         |
-| ------- | -------------------- | ------------------- |
+| Name    | Type                     | Description         |
+| ------- | ------------------------ | ------------------- |
 | pattern | `scalar TypeSpec.string` | Regular expression. |
 
 ### `@minLength` {#@minLength}
@@ -223,8 +223,8 @@ dec minLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
 | value | `scalar TypeSpec.integer` | Minimum length |
 
 ### `@maxLength` {#@maxLength}
@@ -241,8 +241,8 @@ dec maxLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
 | value | `scalar TypeSpec.integer` | Maximum length |
 
 ### `@minItems` {#@minItems}
@@ -259,8 +259,8 @@ dec minItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeS
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
 | value | `scalar TypeSpec.integer` | Minimum number |
 
 ### `@maxItems` {#@maxItems}
@@ -277,8 +277,8 @@ dec maxItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeS
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
 | value | `scalar TypeSpec.integer` | Maximum number |
 
 ### `@minValue` {#@minValue}
@@ -295,8 +295,8 @@ dec minValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
 | value | `scalar TypeSpec.numeric` | Minimum value |
 
 ### `@maxValue` {#@maxValue}
@@ -313,8 +313,8 @@ dec maxValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
 | value | `scalar TypeSpec.numeric` | Maximum value |
 
 ### `@minValueExclusive` {#@minValueExclusive}
@@ -332,8 +332,8 @@ dec minValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProper
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
 | value | `scalar TypeSpec.numeric` | Minimum value |
 
 ### `@maxValueExclusive` {#@maxValueExclusive}
@@ -351,8 +351,8 @@ dec maxValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProper
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
 | value | `scalar TypeSpec.numeric` | Maximum value |
 
 ### `@secret` {#@secret}
@@ -393,8 +393,8 @@ dec tag(target: TypeSpec.Reflection.Namespace | TypeSpec.Reflection.Interface | 
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
 | tag  | `scalar TypeSpec.string` | Tag value   |
 
 ### `@friendlyName` {#@friendlyName}
@@ -411,10 +411,10 @@ dec friendlyName(target: unknown, name: TypeSpec.string, formatArgs?: unknown)
 
 #### Parameters
 
-| Name       | Type                  | Description                            |
-| ---------- | --------------------- | -------------------------------------- |
-| name       | `scalar TypeSpec.string`  | name the template instance should take |
-| formatArgs | `(intrinsic) unknown` |                                        |
+| Name       | Type                     | Description                            |
+| ---------- | ------------------------ | -------------------------------------- |
+| name       | `scalar TypeSpec.string` | name the template instance should take |
+| formatArgs | `(intrinsic) unknown`    |                                        |
 
 ### `@knownValues` {#@knownValues}
 
@@ -448,8 +448,8 @@ dec key(target: TypeSpec.Reflection.ModelProperty, altName?: TypeSpec.string)
 
 #### Parameters
 
-| Name    | Type                 | Description |
-| ------- | -------------------- | ----------- |
+| Name    | Type                     | Description |
+| ------- | ------------------------ | ----------- |
 | altName | `scalar TypeSpec.string` |             |
 
 #### Examples
@@ -492,8 +492,8 @@ dec projectedName(target: unknown, targetName: TypeSpec.string, projectedName: T
 
 #### Parameters
 
-| Name          | Type                 | Description       |
-| ------------- | -------------------- | ----------------- |
+| Name          | Type                     | Description       |
+| ------------- | ------------------------ | ----------------- |
 | targetName    | `scalar TypeSpec.string` | Projection target |
 | projectedName | `scalar TypeSpec.string` | Alternative name  |
 
@@ -511,8 +511,8 @@ dec discriminator(target: TypeSpec.object | TypeSpec.Reflection.Union, propertyN
 
 #### Parameters
 
-| Name         | Type                 | Description |
-| ------------ | -------------------- | ----------- |
+| Name         | Type                     | Description |
+| ------------ | ------------------------ | ----------- |
 | propertyName | `scalar TypeSpec.string` |             |
 
 #### Examples
@@ -561,8 +561,8 @@ dec visibility(target: TypeSpec.Reflection.ModelProperty, ...visibilities: TypeS
 
 #### Parameters
 
-| Name         | Type                  | Description |
-| ------------ | --------------------- | ----------- |
+| Name         | Type                      | Description |
+| ------------ | ------------------------- | ----------- |
 | visibilities | `model TypeSpec.string[]` |             |
 
 #### Examples
@@ -600,8 +600,8 @@ dec withVisibility(target: TypeSpec.object, ...visibilities: TypeSpec.string[])
 
 #### Parameters
 
-| Name         | Type                  | Description |
-| ------------ | --------------------- | ----------- |
+| Name         | Type                      | Description |
+| ------------ | ------------------------- | ----------- |
 | visibilities | `model TypeSpec.string[]` |             |
 
 #### Examples
@@ -644,8 +644,8 @@ dec inspectType(target: unknown, text: TypeSpec.string)
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
 | text | `scalar TypeSpec.string` |             |
 
 ### `@inspectTypeName` {#@inspectTypeName}
@@ -660,6 +660,6 @@ dec inspectTypeName(target: unknown, text: TypeSpec.string)
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
 | text | `scalar TypeSpec.string` |             |

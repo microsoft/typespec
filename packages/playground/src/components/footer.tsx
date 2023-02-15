@@ -1,5 +1,5 @@
-import { MANIFEST } from "@typespec/compiler";
 import { css } from "@emotion/react";
+import { MANIFEST } from "@typespec/compiler";
 import { FunctionComponent, PropsWithChildren } from "react";
 
 export const Footer: FunctionComponent = () => {

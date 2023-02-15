@@ -1,4 +1,3 @@
-import { TypeSpecLibrary } from "@typespec/compiler";
 import {
   Input,
   InputOnChangeData,
@@ -10,6 +9,7 @@ import {
   SwitchOnChangeData,
   useId,
 } from "@fluentui/react-components";
+import { TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState } from "recoil";
 import { emittersOptionsState, selectedEmitterState } from "../state.js";

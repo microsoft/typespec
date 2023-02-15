@@ -129,7 +129,7 @@ a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema
 
 The following table shows how TypeSpec types are translated to JSON Schema types:
 
-| TypeSpec type       | OpenAPI `type`/`format`           | Notes                                                                     |
+| TypeSpec type   | OpenAPI `type`/`format`           | Notes                                                                     |
 | --------------- | --------------------------------- | ------------------------------------------------------------------------- |
 | `int32`         | `type: integer, format: int32`    |                                                                           |
 | `int64`         | `type: integer, format: int64`    |                                                                           |

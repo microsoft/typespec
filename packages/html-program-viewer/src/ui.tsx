@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import {
   Enum,
   EnumMember,
@@ -14,7 +15,6 @@ import {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
-import { css } from "@emotion/react";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { KeyValueSection, Literal } from "./common.js";
@@ -47,7 +47,9 @@ const ProgramViewerStyles = css({
   },
 });
 
-export const TypeSpecProgramViewer: FunctionComponent<TypeSpecProgramViewerProps> = ({ program }) => {
+export const TypeSpecProgramViewer: FunctionComponent<TypeSpecProgramViewerProps> = ({
+  program,
+}) => {
   const root = program.checker!.getGlobalNamespaceType();
   const namespaces = expandNamespaces(root);
   return (

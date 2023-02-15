@@ -94,7 +94,7 @@ model Dog {
 
 For certain TypeSpec types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
 
-| TypeSpec Type        | Marshalled value in JS |
+| TypeSpec Type    | Marshalled value in JS |
 | ---------------- | ---------------------- |
 | `StringLiteral`  | `string`               |
 | `NumericLiteral` | `number`               |

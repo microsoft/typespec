@@ -15,7 +15,6 @@ import { Placeholder } from "./placeholder.js";
 import { TypeEmitter } from "./type-emitter.js";
 import {
   AssetEmitter,
-  TypeSpecDeclaration,
   CircularEmit,
   ContextState,
   Declaration,
@@ -28,6 +27,7 @@ import {
   Scope,
   SourceFile,
   SourceFileScope,
+  TypeSpecDeclaration,
 } from "./types.js";
 
 type EndingWith<Names, Name extends string> = Names extends `${infer _X}${Name}` ? Names : never;

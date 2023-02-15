@@ -22,8 +22,8 @@ dec OpenAPI.operationId(target: TypeSpec.Reflection.Operation, operationId: Type
 
 #### Parameters
 
-| Name        | Type                 | Description         |
-| ----------- | -------------------- | ------------------- |
+| Name        | Type                     | Description         |
+| ----------- | ------------------------ | ------------------- |
 | operationId | `scalar TypeSpec.string` | Operation id value. |
 
 ### `@extension` {#@OpenAPI.extension}
@@ -40,10 +40,10 @@ dec OpenAPI.extension(target: unknown, key: TypeSpec.string, value: unknown)
 
 #### Parameters
 
-| Name  | Type                  | Description                         |
-| ----- | --------------------- | ----------------------------------- |
-| key   | `scalar TypeSpec.string`  | Extension key. Must start with `x-` |
-| value | `(intrinsic) unknown` | Extension value.                    |
+| Name  | Type                     | Description                         |
+| ----- | ------------------------ | ----------------------------------- |
+| key   | `scalar TypeSpec.string` | Extension key. Must start with `x-` |
+| value | `(intrinsic) unknown`    | Extension value.                    |
 
 ### `@defaultResponse` {#@OpenAPI.defaultResponse}
 
@@ -86,7 +86,7 @@ dec OpenAPI.externalDocs(target: unknown, url: TypeSpec.string, description?: Ty
 
 #### Parameters
 
-| Name        | Type                 | Description             |
-| ----------- | -------------------- | ----------------------- |
+| Name        | Type                     | Description             |
+| ----------- | ------------------------ | ----------------------- |
 | url         | `scalar TypeSpec.string` | Url to the docs         |
 | description | `scalar TypeSpec.string` | Description of the docs |

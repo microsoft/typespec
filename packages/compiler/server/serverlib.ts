@@ -45,7 +45,11 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { defaultConfig, findTypeSpecConfigPath, loadTypeSpecConfigFile } from "../config/config-loader.js";
+import {
+  defaultConfig,
+  findTypeSpecConfigPath,
+  loadTypeSpecConfigFile,
+} from "../config/config-loader.js";
 import { TypeSpecConfig } from "../config/types.js";
 import { codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
@@ -74,7 +78,6 @@ import {
 } from "../core/scanner.js";
 import {
   AugmentDecoratorStatementNode,
-  TypeSpecScriptNode,
   CompilerHost,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
@@ -86,6 +89,7 @@ import {
   StringLiteralNode,
   SyntaxKind,
   TextRange,
+  TypeSpecScriptNode,
 } from "../core/types.js";
 import { doIO, getNormalizedRealPath, getSourceFileKindFromExt, loadFile } from "../core/util.js";
 import { resolveCompletion } from "./completion.js";

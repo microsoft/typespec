@@ -48,7 +48,7 @@ Built in types are related to each other according to the rules described in [ty
 | `object`    | Represent any structured model.(With properties)                                           |
 | `Array<T>`  | Array model type, equivalent to `T[]`                                                      |
 | `Record<T>` | Model with string properties where all the properties have type `T`                        |
-| `unknown`   | A top type in TypeSpec that all types can be assigned to.                                      |
+| `unknown`   | A top type in TypeSpec that all types can be assigned to.                                  |
 | `void`      | A function/operation return type indicating the function/operation doesn't return a value. |
 | `never`     | The never type indicates the values that will never occur.                                 |
 

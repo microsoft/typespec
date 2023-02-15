@@ -1,6 +1,9 @@
 import { expandConfigVariables } from "../../config/config-interpolation.js";
-import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "../../config/config-loader.js";
-import { TypeSpecConfig, EmitterOptions } from "../../config/types.js";
+import {
+  loadTypeSpecConfigForPath,
+  validateConfigPathsAbsolute,
+} from "../../config/config-loader.js";
+import { EmitterOptions, TypeSpecConfig } from "../../config/types.js";
 import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
 import { resolvePath } from "../path-utils.js";

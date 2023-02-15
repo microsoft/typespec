@@ -70,8 +70,8 @@ dec TypeSpec.Http.header(target: TypeSpec.Reflection.ModelProperty, headerNameOr
 
 #### Parameters
 
-| Name                | Type                                           | Description                                                        |
-| ------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| Name                | Type                                                   | Description                                                        |
+| ------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
 | headerNameOrOptions | `union TypeSpec.string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
 ### `@query` {#@TypeSpec.Http.query}
@@ -88,8 +88,8 @@ dec TypeSpec.Http.query(target: TypeSpec.Reflection.ModelProperty, queryNameOrOp
 
 #### Parameters
 
-| Name               | Type                                          | Description                                                                     |
-| ------------------ | --------------------------------------------- | ------------------------------------------------------------------------------- |
+| Name               | Type                                                  | Description                                                                     |
+| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------- |
 | queryNameOrOptions | `union TypeSpec.string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 ### `@path` {#@TypeSpec.Http.path}
@@ -106,8 +106,8 @@ dec TypeSpec.Http.path(target: TypeSpec.Reflection.ModelProperty, paramName?: Ty
 
 #### Parameters
 
-| Name      | Type                 | Description                                         |
-| --------- | -------------------- | --------------------------------------------------- |
+| Name      | Type                     | Description                                         |
+| --------- | ------------------------ | --------------------------------------------------- |
 | paramName | `scalar TypeSpec.string` | Optional name of the parameter in the url template. |
 
 ### `@get` {#@TypeSpec.Http.get}
@@ -262,8 +262,8 @@ dec TypeSpec.Http.server(target: TypeSpec.Reflection.Namespace, url: TypeSpec.st
 
 #### Parameters
 
-| Name        | Type                 | Description                                             |
-| ----------- | -------------------- | ------------------------------------------------------- |
+| Name        | Type                     | Description                                             |
+| ----------- | ------------------------ | ------------------------------------------------------- |
 | url         | `scalar TypeSpec.string` | Description of the endpoint                             |
 | description | `scalar TypeSpec.string` |                                                         |
 | parameters  | `model TypeSpec.object`  | Optional set of parameters used to interpolate the url. |
@@ -282,8 +282,8 @@ dec TypeSpec.Http.useAuth(target: TypeSpec.Reflection.Namespace, auth: TypeSpec.
 
 #### Parameters
 
-| Name | Type                                                          | Description                                                                                                                                                    |
-| ---- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name | Type                                                                      | Description                                                                                                                                                    |
+| ---- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union TypeSpec.object \| TypeSpec.Reflection.Union \| TypeSpec.object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
 ### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
@@ -300,8 +300,8 @@ dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: T
 
 #### Parameters
 
-| Name  | Type                  | Description |
-| ----- | --------------------- | ----------- |
+| Name  | Type                      | Description |
+| ----- | ------------------------- | ----------- |
 | value | `scalar TypeSpec.boolean` |             |
 
 ## TypeSpec.Rest
@@ -346,8 +346,8 @@ dec TypeSpec.Rest.segment(target: TypeSpec.object | TypeSpec.Reflection.ModelPro
 
 #### Parameters
 
-| Name | Type                 | Description                                                                                    |
-| ---- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| Name | Type                     | Description                                                                                    |
+| ---- | ------------------------ | ---------------------------------------------------------------------------------------------- |
 | name | `scalar TypeSpec.string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
 ### `@segmentOf` {#@TypeSpec.Rest.segmentOf}
@@ -364,8 +364,8 @@ dec TypeSpec.Rest.segmentOf(target: TypeSpec.Reflection.Operation, type: TypeSpe
 
 #### Parameters
 
-| Name | Type                | Description |
-| ---- | ------------------- | ----------- |
+| Name | Type                    | Description |
+| ---- | ----------------------- | ----------- |
 | type | `model TypeSpec.object` |             |
 
 ### `@actionSeparator` {#@TypeSpec.Rest.actionSeparator}
@@ -400,8 +400,8 @@ dec TypeSpec.Rest.resource(target: TypeSpec.object, collectionName: TypeSpec.str
 
 #### Parameters
 
-| Name           | Type                 | Description            |
-| -------------- | -------------------- | ---------------------- |
+| Name           | Type                     | Description            |
+| -------------- | ------------------------ | ---------------------- |
 | collectionName | `scalar TypeSpec.string` | type's collection name |
 
 ### `@readsResource` {#@TypeSpec.Rest.readsResource}
@@ -418,8 +418,8 @@ dec TypeSpec.Rest.readsResource(target: TypeSpec.Reflection.Operation, resourceT
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@createsResource` {#@TypeSpec.Rest.createsResource}
@@ -436,8 +436,8 @@ dec TypeSpec.Rest.createsResource(target: TypeSpec.Reflection.Operation, resourc
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
@@ -454,8 +454,8 @@ dec TypeSpec.Rest.createsOrReplacesResource(target: TypeSpec.Reflection.Operatio
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@createsOrUpdatesResource` {#@TypeSpec.Rest.createsOrUpdatesResource}
@@ -472,8 +472,8 @@ dec TypeSpec.Rest.createsOrUpdatesResource(target: TypeSpec.Reflection.Operation
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@updatesResource` {#@TypeSpec.Rest.updatesResource}
@@ -490,8 +490,8 @@ dec TypeSpec.Rest.updatesResource(target: TypeSpec.Reflection.Operation, resourc
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@deletesResource` {#@TypeSpec.Rest.deletesResource}
@@ -508,8 +508,8 @@ dec TypeSpec.Rest.deletesResource(target: TypeSpec.Reflection.Operation, resourc
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@listsResource` {#@TypeSpec.Rest.listsResource}
@@ -526,8 +526,8 @@ dec TypeSpec.Rest.listsResource(target: TypeSpec.Reflection.Operation, resourceT
 
 #### Parameters
 
-| Name         | Type                | Description |
-| ------------ | ------------------- | ----------- |
+| Name         | Type                    | Description |
+| ------------ | ----------------------- | ----------- |
 | resourceType | `model TypeSpec.object` |             |
 
 ### `@action` {#@TypeSpec.Rest.action}
@@ -544,8 +544,8 @@ dec TypeSpec.Rest.action(target: TypeSpec.Reflection.Operation, name?: TypeSpec.
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
 | name | `scalar TypeSpec.string` |             |
 
 ### `@collectionAction` {#@TypeSpec.Rest.collectionAction}
@@ -562,7 +562,7 @@ dec TypeSpec.Rest.collectionAction(target: TypeSpec.Reflection.Operation, resour
 
 #### Parameters
 
-| Name         | Type                 | Description |
-| ------------ | -------------------- | ----------- |
+| Name         | Type                     | Description |
+| ------------ | ------------------------ | ----------- |
 | resourceType | `model TypeSpec.object`  |             |
 | name         | `scalar TypeSpec.string` |             |

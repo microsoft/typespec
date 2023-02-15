@@ -1,11 +1,11 @@
 import {
-  typespecTypeToJson,
-  TypeSpecValue,
   DecoratorContext,
   Model,
   Operation,
   Program,
   Type,
+  typespecTypeToJson,
+  TypeSpecValue,
 } from "@typespec/compiler";
 import { http } from "@typespec/rest";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";

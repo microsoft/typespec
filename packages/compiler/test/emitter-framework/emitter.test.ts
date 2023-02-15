@@ -13,7 +13,6 @@ import {
 import {
   ArrayBuilder,
   AssetEmitter,
-  TypeSpecDeclaration,
   code,
   CodeTypeEmitter,
   Context,
@@ -28,6 +27,7 @@ import {
   SourceFile,
   StringBuilder,
   TypeEmitter,
+  TypeSpecDeclaration,
 } from "../../emitter-framework/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
@@ -676,7 +676,9 @@ describe("Object emitter", () => {
     } as any);
     assetEmitter.emitProgram();
     await assetEmitter.writeOutput();
-    const contents = JSON.parse((await host.compilerHost.readFile("typespec-output/test.json")!).text);
+    const contents = JSON.parse(
+      (await host.compilerHost.readFile("typespec-output/test.json")!).text
+    );
     assert.strictEqual(contents.declarations.length, 2);
   });
 });

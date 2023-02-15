@@ -1,6 +1,5 @@
 import prettier from "prettier";
 import {
-  TypeSpecRefDoc,
   DecoratorRefDoc,
   EnumRefDoc,
   InterfaceRefDoc,
@@ -8,6 +7,7 @@ import {
   NamespaceRefDoc,
   OperationRefDoc,
   TemplateParameterRefDoc,
+  TypeSpecRefDoc,
   UnionRefDoc,
 } from "../types.js";
 import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";

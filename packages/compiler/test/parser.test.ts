@@ -3,12 +3,12 @@ import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import {
-  TypeSpecScriptNode,
   Node,
   NodeFlags,
   ParseOptions,
   SourceFile,
   SyntaxKind,
+  TypeSpecScriptNode,
 } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 

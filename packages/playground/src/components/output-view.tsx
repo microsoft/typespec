@@ -1,7 +1,7 @@
-import { Diagnostic, Program } from "@typespec/compiler";
-import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { css } from "@emotion/react";
 import { Settings16Filled } from "@fluentui/react-icons";
+import { Diagnostic, Program } from "@typespec/compiler";
+import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";

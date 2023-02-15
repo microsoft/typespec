@@ -28,7 +28,7 @@ The guidelines in this article are used in TypeSpec Core libraries. You can use 
 | alias            | camelCase or PascalCase depending on context | `alias myString = string` or `alias MyPet = Pet` |
 | decorators       | camelCase                                    | `@format`, `@resourceCollection`                 |
 | functions        | camelCase                                    | `addedAfter`                                     |
-| file name        | kebab-case                                   | `my-lib.tsp`                                    |
+| file name        | kebab-case                                   | `my-lib.tsp`                                     |
 
 ## Layout convention
 

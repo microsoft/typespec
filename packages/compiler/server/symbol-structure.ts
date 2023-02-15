@@ -1,6 +1,5 @@
 import { DocumentSymbol, Range, SymbolKind } from "vscode-languageserver";
 import {
-  TypeSpecScriptNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
   IdentifierNode,
@@ -9,6 +8,7 @@ import {
   ModelStatementNode,
   Statement,
   StringLiteralNode,
+  TypeSpecScriptNode,
   UnionStatementNode,
 } from "../core/index.js";
 import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";

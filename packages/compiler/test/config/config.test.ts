@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
-import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../config/index.js";
+import { loadTypeSpecConfigForPath, TypeSpecRawConfig } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { NodeHost } from "../../core/node-host.js";
 import { createJSONSchemaValidator } from "../../core/schema-validator.js";
