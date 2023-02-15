@@ -1354,10 +1354,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    * Returns appropriate additional properties for Record types.
    */
   function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
-    if (model.name !== "Record") {
+    if (model.name !== "Record" && !model.indexer) {
       return undefined;
     }
-    const templateArg = model.templateMapper?.args.at(0);
+    const templateArg = model.templateMapper?.args.at(0) ?? model.indexer?.value;
     if (!templateArg) {
       return undefined;
     }
