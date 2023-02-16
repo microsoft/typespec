@@ -10,4 +10,4 @@ const version = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf-8
 console.log("Packing...");
 await run(xplatCmd("npm"), ["pack"]);
 console.log("Installing...");
-await run(xplatCmd("npm"), ["install", "-g", `typespec-lang-compiler-${version}.tgz`]);
+await run(xplatCmd("npm"), ["install", "-g", `typespec-compiler-${version}.tgz`]);
