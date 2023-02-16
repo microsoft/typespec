@@ -37,7 +37,7 @@ jobs:
       - name: Build
         run: npx @microsoft/rush build --to @typespec/website
         env:
-          TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
+          TYPESPEC_WEBSITE_BASE_PATH: "/cadl/"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
