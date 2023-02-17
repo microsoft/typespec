@@ -5,25 +5,29 @@ import url from "url";
 
 import micromatch from "micromatch";
 
-import { formatDiagnostic } from "@cadl-lang/compiler";
-import { CadlTestLibrary, createTestHost, resolveVirtualPath } from "@cadl-lang/compiler/testing";
+import { formatDiagnostic } from "@typespec/compiler";
+import {
+  createTestHost,
+  resolveVirtualPath,
+  TypeSpecTestLibrary,
+} from "@typespec/compiler/testing";
 
 const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios", import.meta.url));
 
 const shouldRecord = process.env.RECORD === "true";
 const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
 
-const CadlProtobufTestLibrary: CadlTestLibrary = {
-  name: "@cadl-lang/protobuf",
+const TypeSpecProtobufTestLibrary: TypeSpecTestLibrary = {
+  name: "@typespec/protobuf",
   packageRoot: path.resolve(url.fileURLToPath(import.meta.url), "../../../"),
   files: [
-    { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@cadl-lang/protobuf" },
+    { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@typespec/protobuf" },
     {
       realDir: "dist/src",
       pattern: "*.js",
-      virtualPath: "./node_modules/@cadl-lang/protobuf/dist/src",
+      virtualPath: "./node_modules/@typespec/protobuf/dist/src",
     },
-    { realDir: "lib/", pattern: "*.cadl", virtualPath: "./node_modules/@cadl-lang/protobuf/lib" },
+    { realDir: "lib/", pattern: "*.tsp", virtualPath: "./node_modules/@typespec/protobuf/lib" },
   ],
 };
 
@@ -112,18 +116,18 @@ async function doEmit(files: Record<string, string>): Promise<EmitResult> {
   const baseOutputPath = resolveVirtualPath("test-output/");
 
   const host = await createTestHost({
-    libraries: [CadlProtobufTestLibrary],
+    libraries: [TypeSpecProtobufTestLibrary],
   });
 
   for (const [fileName, content] of Object.entries(files)) {
-    host.addCadlFile(fileName, content);
+    host.addTypeSpecFile(fileName, content);
   }
 
-  const [, diagnostics] = await host.compileAndDiagnose("main.cadl", {
+  const [, diagnostics] = await host.compileAndDiagnose("main.tsp", {
     outputDir: baseOutputPath,
     noEmit: false,
     emitters: {
-      "@cadl-lang/protobuf": {},
+      "@typespec/protobuf": {},
     },
   });
 

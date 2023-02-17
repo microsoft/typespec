@@ -1,19 +1,19 @@
-# Cadl OpenAPI Library
+# TypeSpec OpenAPI Library
 
-This package provide [Cadl](https://github.com/microsoft/cadl) decorators to specify some OpenAPI specific concepts.
+This package provide [TypeSpec](https://github.com/microsoft/typespec) decorators to specify some OpenAPI specific concepts.
 
 ## Install
 
-In your cadl project root
+In your typespec project root
 
 ```bash
-npm install @cadl-lang/openapi
+npm install @typespec/openapi
 ```
 
 ## Usage
 
-```cadl
-import "@cadl-lang/openapi";
+```typespec
+import "@typespec/openapi";
 
 using OpenAPI;
 ```
@@ -29,11 +29,11 @@ Decorators:
 
 ### `@defaultResponse`
 
-**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://microsoft.github.io/cadl/docs/standard-library/built-in-decorators/#error)**
+**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://microsoft.github.io/typespec/docs/standard-library/built-in-decorators/#error)**
 
 Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
 
-```cadl
+```typespec
 @defaultResponse
 model MyNonErrorResponse {}
 
@@ -52,7 +52,7 @@ Arguments:
 | `key`   | **Required** | Extension key. **MUST** start with `x-`                          |
 | `value` | **Required** | Value of the extension. Can be an primitive, a tuple or a model. |
 
-```cadl
+```typespec
 @extension("x-custom", "MyCustomValue")
 model Foo {}
 
@@ -78,14 +78,14 @@ Arguments:
 | `url`         | **Required** | Url for the external docs        |
 | `description` | **Optional** | Description of the documentation |
 
-```cadl
+```typespec
 @externalDocs("https://example.com", "More info there")
 model Foo {}
 ```
 
 ### `@operationId`
 
-Decorator that can be used on an operation to specify the `operationId` field in OpenAPI. If this is not provided the `operationId` will be the cadl operation name.
+Decorator that can be used on an operation to specify the `operationId` field in OpenAPI. If this is not provided the `operationId` will be the typespec operation name.
 
 Arguments:
 
@@ -93,13 +93,13 @@ Arguments:
 | ------ | ------------ | ------------------- |
 | `opId` | **Required** | Id of the operation |
 
-```cadl
+```typespec
 @operationId("custom_Foo")
 op foo(): string;
 ```
 
 ## See also
 
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Website](https://microsoft.github.io/cadl)
-- [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec Website](https://microsoft.github.io/typespec)
+- [TypeSpec for the OpenAPI Developer](https://github.com/microsoft/typespec/blob/main/docs/typespec-for-openapi-dev.md)

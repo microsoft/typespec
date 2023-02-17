@@ -57,4 +57,4 @@ You can look at the millestones https://github.com/microsoft/cadl/milestones to 
 
 Release notes describing the breaking changes and how to migrate can be found in this folder:
 
-[https://github.com/microsoft/cadl/tree/main/docs/release](https://github.com/microsoft/cadl/tree/main/docs/release)
+[https://github.com/microsoft/cadl/tree/main/docs/release-notes](https://github.com/microsoft/cadl/tree/main/docs/release-notes)

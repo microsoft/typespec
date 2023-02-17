@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 /**
  * Options that the Protobuf emitter accepts.
@@ -22,9 +22,9 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
   required: [],
 };
 
-const PACKAGE_NAME = "@cadl-lang/protobuf";
+const PACKAGE_NAME = "@typespec/protobuf";
 
-export const CadlProtobufLibrary = createCadlLibrary({
+export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
   name: PACKAGE_NAME,
   requireImports: [PACKAGE_NAME],
   diagnostics: {
@@ -72,7 +72,7 @@ export const CadlProtobufLibrary = createCadlLibrary({
       messages: {
         unconvertible: paramMessage`cannot convert a ${"type"} to a protobuf type (only intrinsic types and models are supported)`,
         "unknown-intrinsic": paramMessage`no known protobuf scalar for intrinsic type ${"name"}`,
-        "unknown-scalar": paramMessage`no known protobuf scalar for Cadl scalar type ${"name"}`,
+        "unknown-scalar": paramMessage`no known protobuf scalar for TypeSpec scalar type ${"name"}`,
         "recursive-map": "a protobuf map's 'value' type may not refer to another map",
       },
     },
@@ -121,17 +121,17 @@ export const CadlProtobufLibrary = createCadlLibrary({
   emitter: { options: EmitterOptionsSchema },
 });
 
-export const { reportDiagnostic } = CadlProtobufLibrary;
+export const { reportDiagnostic } = TypeSpecProtobufLibrary;
 
 // TODO: onValidate?
 export { $onEmit } from "./proto.js";
 
-export type CadlProtobufLibrary = typeof CadlProtobufLibrary;
+export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 
 const keys = ["fieldIndex", "package", "service", "externRef", "stream", "reserve"] as const;
 
 export const state = Object.fromEntries(
-  keys.map((k) => [k, Symbol(`@cadl-lang/protobuf.${k}`)])
+  keys.map((k) => [k, Symbol(`@typespec/protobuf.${k}`)])
 ) as {
   [K in typeof keys[number]]: symbol;
 };

@@ -5,12 +5,12 @@ info:
 tags:
   - name: String Operations
 paths:
-  /string/null:
+  /string/base64Encoding:
     get:
       tags:
         - String Operations
-      operationId: String_getNull
-      description: Get null string value
+      operationId: String_getBase64Encoding
+      description: Get value that is base64 encoded
       parameters: []
       responses:
         '200':
@@ -19,8 +19,7 @@ paths:
             application/json:
               schema:
                 type: string
-                nullable: true
-                x-cadl-name: string | null
+                format: byte
         default:
           description: An unexpected error response.
           content:
@@ -30,8 +29,8 @@ paths:
     put:
       tags:
         - String Operations
-      operationId: String_putNull
-      description: Put null string value
+      operationId: String_putBase64Encoding
+      description: Put value that is base64 encoded
       parameters: []
       responses:
         '200':
@@ -47,8 +46,7 @@ paths:
           application/json:
             schema:
               type: string
-              nullable: true
-              x-cadl-name: string | null
+              format: byte
   /string/empty:
     get:
       tags:
@@ -93,6 +91,86 @@ paths:
               type: string
               enum:
                 - ''
+  /string/enum/constant:
+    get:
+      tags:
+        - String Operations
+      operationId: Enums_getConstant
+      description: Gets value 'green-color' from a constant
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colors'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - String Operations
+      operationId: Enums_putConstant
+      description: Sends value 'green-color' from a constant
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Colors'
+  /string/enum/empty:
+    get:
+      tags:
+        - String Operations
+      operationId: Enums_getNotExpandable
+      description: Get non expandable string enum value
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colors'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - String Operations
+      operationId: Enums_putNotExpandable
+      description: Put non expandable string enum value
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Colors'
   /string/mbcs:
     get:
       tags:
@@ -143,6 +221,50 @@ paths:
               enum:
                 - >-
                   啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+  /string/null:
+    get:
+      tags:
+        - String Operations
+      operationId: String_getNull
+      description: Get null string value
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+                nullable: true
+                x-typespec-name: string | null
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - String Operations
+      operationId: String_putNull
+      description: Put null string value
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              nullable: true
+              x-typespec-name: string | null
   /string/whitespace:
     get:
       tags:
@@ -193,130 +315,14 @@ paths:
               type: string
               enum:
                 - '   Now is the time for all good men to come to the aid of their country    '
-  /string/base64Encoding:
-    get:
-      tags:
-        - String Operations
-      operationId: String_getBase64Encoding
-      description: Get value that is base64 encoded
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                type: string
-                format: byte
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      tags:
-        - String Operations
-      operationId: String_putBase64Encoding
-      description: Put value that is base64 encoded
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-              format: byte
-  /string/enum/empty:
-    get:
-      tags:
-        - String Operations
-      operationId: Enums_getNotExpandable
-      description: Get non expandable string enum value
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Colors'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      tags:
-        - String Operations
-      operationId: Enums_putNotExpandable
-      description: Put non expandable string enum value
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Colors'
-  /string/enum/constant:
-    get:
-      tags:
-        - String Operations
-      operationId: Enums_getConstant
-      description: Gets value 'green-color' from a constant
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Colors'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      tags:
-        - String Operations
-      operationId: Enums_putConstant
-      description: Sends value 'green-color' from a constant
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Colors'
 components:
   schemas:
+    Colors:
+      type: string
+      enum:
+        - red color
+        - green-color
+        - blue-color
     Error:
       type: object
       properties:
@@ -329,9 +335,3 @@ components:
       required:
         - status
         - message
-    Colors:
-      type: string
-      enum:
-        - red color
-        - green-color
-        - blue-color

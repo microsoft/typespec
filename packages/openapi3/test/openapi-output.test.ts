@@ -1,5 +1,5 @@
-import { resolvePath } from "@cadl-lang/compiler";
-import { expectDiagnosticEmpty } from "@cadl-lang/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3Document } from "../src/types.js";
@@ -16,11 +16,11 @@ describe("openapi3: types included", () => {
 
     const diagnostics = await runner.diagnose(code, {
       noEmit: false,
-      emit: ["@cadl-lang/openapi3"],
-      options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+      emit: ["@typespec/openapi3"],
+      options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
     });
 
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
+    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/rest/no-routes"));
 
     const content = runner.fs.get(outPath)!;
     return JSON.parse(content);
@@ -36,7 +36,7 @@ describe("openapi3: types included", () => {
     `,
       {}
     );
-    deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced", "NotReferenced"]);
+    deepStrictEqual(Object.keys(output.components!.schemas!), ["NotReferenced", "Referenced"]);
   });
 
   it("emit only referenced types when using omit-unreachable-types", async () => {

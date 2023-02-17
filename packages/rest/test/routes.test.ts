@@ -1,4 +1,4 @@
-import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { HttpOperation } from "../src/http/types.js";
 import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
@@ -290,7 +290,7 @@ describe("rest: routes", () => {
   it("automatically generates routes for operations in various scopes when specified", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       @route("/api")
       namespace Things {
@@ -403,9 +403,9 @@ describe("rest: routes", () => {
 
     // Has one diagnostic per duplicate operation
     strictEqual(diagnostics.length, 2);
-    strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-operation");
+    strictEqual(diagnostics[0].code, "@typespec/rest/duplicate-operation");
     strictEqual(diagnostics[0].message, `Duplicate operation "get1" routed at "get /test".`);
-    strictEqual(diagnostics[1].code, "@cadl-lang/rest/duplicate-operation");
+    strictEqual(diagnostics[1].code, "@typespec/rest/duplicate-operation");
     strictEqual(diagnostics[1].message, `Duplicate operation "get2" routed at "get /test".`);
   });
 
@@ -428,7 +428,7 @@ describe("rest: routes", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/operation-param-duplicate-type",
+        code: "@typespec/rest/operation-param-duplicate-type",
         message: "Param multiParam has multiple types: [query, path]",
       });
     });
@@ -440,7 +440,7 @@ describe("rest: routes", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-body",
+        code: "@typespec/rest/duplicate-body",
         message:
           "Operation has a @body and an unannotated parameter. There can only be one representing the body",
       });
@@ -453,7 +453,7 @@ describe("rest: routes", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-body",
+        code: "@typespec/rest/duplicate-body",
         message: "Operation has multiple @body parameters declared",
       });
     });
@@ -465,7 +465,7 @@ describe("rest: routes", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/multipart-model",
+        code: "@typespec/rest/multipart-model",
         message: "Multipart request body must be a model.",
       });
     });
@@ -477,7 +477,7 @@ describe("rest: routes", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/content-type-ignored",
+        code: "@typespec/rest/content-type-ignored",
         message: "`Content-Type` header ignored because there is no body.",
       });
     });
@@ -643,7 +643,7 @@ describe("rest: routes", () => {
     `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/duplicate-route-decorator",
+        code: "@typespec/rest/duplicate-route-decorator",
         message: "@route was defined twice on this namespace and has different values.",
       });
     });
@@ -664,6 +664,139 @@ describe("rest: routes", () => {
     `);
 
       expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("use of @route with @autoRoute", () => {
+    it("can override library operation route in service", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @route("one")
+          op action(): void;
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          op my is Lib.action;
+          @route("my")
+          op my2 is Lib.action;
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/one");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my");
+    });
+
+    it("can override library interface route in service", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @route("one")
+          interface Ops {
+            action(): void;
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          interface Mys extends Lib.Ops {
+          }
+
+          @route("my") interface Mys2 extends Lib.Ops {}
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my");
+    });
+
+    it("can override library interface route in service without changing library", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @route("one")
+          interface Ops {
+            action(): void;
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          @route("my") interface Mys2 extends Lib.Ops {}
+
+          op op2 is Lib.Ops.action;
+        }
+      `);
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my");
+      strictEqual(ops[1].container.kind, "Interface");
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/");
+      strictEqual(ops[0].container.kind, "Namespace");
+    });
+
+    it("prepends @route in service when library operation uses @autoRoute", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @autoRoute
+          op action(@path @segment("pets") id: string): void;
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          op my is Lib.action;
+          @route("my")
+          op my2 is Lib.action;
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/pets/{id}");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my/pets/{id}");
+    });
+
+    it("prepends @route in service when library interface operation uses @autoRoute", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          interface Ops {
+            @autoRoute
+            action(@path @segment("pets") id: string): void;  
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          interface Mys extends Lib.Ops {}
+          @route("my")
+          interface Mys2 extends Lib.Ops {};
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/pets/{id}");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my/pets/{id}");
+    });
+
+    it("prepends @route in service when library interface uses @autoRoute", async () => {
+      const ops = await getOperations(`
+        namespace Lib {
+          @autoRoute
+          interface Ops {
+            action(@path @segment("pets") id: string): void;  
+          }
+        }
+
+        @service({title: "Test"})
+        namespace Test {
+          interface Mys extends Lib.Ops {}
+          @route("my")
+          interface Mys2 extends Lib.Ops {};
+        }
+      `);
+      strictEqual(ops[0].verb, "get");
+      strictEqual(ops[0].path, "/{id}");
+      strictEqual(ops[1].verb, "get");
+      strictEqual(ops[1].path, "/my/{id}");
     });
   });
 

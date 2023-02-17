@@ -23,8 +23,8 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can be decorated", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./blue.js";
       @blue @test namespace Z.Q;
@@ -44,8 +44,8 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can reference array expression on decorator of namespace", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
     import "./blue.js";
     @blue(Bar) @test
@@ -62,8 +62,8 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("merges like namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test
       namespace N { @test model X { x: string } }
@@ -84,29 +84,29 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("merges like namespaces across files", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
-      import "./c.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
+      import "./c.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       @test
       namespace N { @test model X { x: string } }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace N { @test model Y { y: int32 } }
       `
     );
-    testHost.addCadlFile(
-      "c.cadl",
+    testHost.addTypeSpecFile(
+      "c.tsp",
       `
       namespace N { @test model Z { ... X, ... Y } }
       `
@@ -124,28 +124,28 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("merges sub-namespaces across files", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
-      import "./c.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
+      import "./c.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N { namespace M { model X { x: string } } }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace N { namespace M { model Y { y: int32 } } }
       `
     );
-    testHost.addCadlFile(
-      "c.cadl",
+    testHost.addTypeSpecFile(
+      "c.tsp",
       `
       namespace N { @test model Z { ... M.X, ... M.Y } }
       `
@@ -171,8 +171,8 @@ describe("compiler: namespaces with blocks", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./blue.js";
       import "./red.js";
@@ -214,13 +214,13 @@ describe("compiler: namespaces with blocks", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./blue.js";
       import "./red.js";
-      import "./one.cadl";
-      import "./two.cadl";
+      import "./one.tsp";
+      import "./two.tsp";
       
       @ref(N)
       namespace A { }
@@ -228,8 +228,8 @@ describe("compiler: namespaces with blocks", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "one.cadl",
+    testHost.addTypeSpecFile(
+      "one.tsp",
       `
       @red
       @test
@@ -238,8 +238,8 @@ describe("compiler: namespaces with blocks", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "two.cadl",
+    testHost.addTypeSpecFile(
+      "two.tsp",
       `
       @blue
       namespace N {}
@@ -258,8 +258,8 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can see things in outer scope same file", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model A { }
       namespace N { model B extends A { } }
@@ -269,28 +269,28 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can see things in outer scope cross file", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
-      import "./c.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
+      import "./c.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       model A { }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       model B extends A { }
       `
     );
-    testHost.addCadlFile(
-      "c.cadl",
+    testHost.addTypeSpecFile(
+      "c.tsp",
       `
       model C { }
       namespace foo {
@@ -302,8 +302,8 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("accumulates declarations inside of it", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test namespace Foo {
         namespace Bar { };
@@ -323,8 +323,8 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can be decorated, passing a model in a later namespace", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test(Azure.Foo)
       namespace Baz { };
@@ -353,30 +353,30 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("merges properly with other namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
-      import "./c.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
+      import "./c.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N;
       model X { x: int32 }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace N;
       model Y { y: int32 }
       `
     );
-    testHost.addCadlFile(
-      "c.cadl",
+    testHost.addTypeSpecFile(
+      "c.tsp",
       `
       @test model Z { ... N.X, ... N.Y }
       `
@@ -388,8 +388,8 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("does lookup correctly", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Repro;
       model Yo {
@@ -404,8 +404,8 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("does lookup correctly with nested namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Repro;
       model Yo {
@@ -415,8 +415,8 @@ describe("compiler: blockless namespaces", () => {
       }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace Repro.Uhoh;
       model SayYo {
@@ -430,15 +430,15 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("binds correctly", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace N.M;
       model A { }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       model X { a: N.M.A }
       `
@@ -448,8 +448,8 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("works with blockful namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test
       namespace N;
@@ -460,8 +460,8 @@ describe("compiler: blockless namespaces", () => {
       }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       model X { a: N.M.A }
       `
@@ -476,15 +476,15 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("works with nested blockless and blockfull namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       @test
       namespace N.M;
@@ -495,8 +495,8 @@ describe("compiler: blockless namespaces", () => {
       }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       model X { a: N.M.O.A }
       `
@@ -512,27 +512,27 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("works when namespaces aren't evaluated first", async () => {
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
-      import "./b.cadl";
+      import "./b.tsp";
       model M {x: N.X }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace N;
       model X {}
       `
     );
 
-    await testHost.compile("./a.cadl");
+    await testHost.compile("./a.tsp");
   });
 
   it("accumulates declarations inside of it", async () => {
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       @test namespace Foo;
       namespace Bar { };
@@ -541,7 +541,7 @@ describe("compiler: blockless namespaces", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./a.cadl")) as {
+    const { Foo } = (await testHost.compile("./a.tsp")) as {
       Foo: Namespace;
     };
 
@@ -559,8 +559,8 @@ describe("compiler: namespace type name", () => {
   });
 
   it("prefix with the namespace of the entity", async () => {
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace Foo;
       
@@ -574,7 +574,7 @@ describe("compiler: namespace type name", () => {
       `
     );
 
-    const { Model1, Model2 } = await testHost.compile("./a.cadl");
+    const { Model1, Model2 } = await testHost.compile("./a.tsp");
     strictEqual(getTypeName(Model1), "Foo.Model1");
     strictEqual(getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
@@ -585,8 +585,8 @@ describe("compiler: namespace type name", () => {
       $myDec() {},
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./lib.js";
 
@@ -603,7 +603,7 @@ describe("compiler: namespace type name", () => {
       `
     );
 
-    const { SomeModel, AnotherModel } = await testHost.compile("./main.cadl");
+    const { SomeModel, AnotherModel } = await testHost.compile("./main.tsp");
     const checker = testHost.program.checker;
     strictEqual(checker.getTypeName(SomeModel), "SomeNamespace.SomeModel");
     strictEqual(checker.getTypeName(AnotherModel), "AnotherNamespace.AnotherModel");
@@ -635,15 +635,15 @@ describe("compiler: decorators in namespaces", () => {
 
     testHost.addJsFile("dec.js", dec);
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./dec.js";
       @A.B.foo @A.B.C.bar model M { };
       `
     );
 
-    await testHost.compile("main.cadl");
+    await testHost.compile("main.tsp");
     ok(fooCalled);
     ok(barCalled);
   });
@@ -664,8 +664,8 @@ describe("compiler: decorators in namespaces", () => {
     (dec.$bar as any).namespace = "A.B";
     testHost.addJsFile("dec.js", dec);
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./dec.js";
 
@@ -673,23 +673,23 @@ describe("compiler: decorators in namespaces", () => {
       `
     );
 
-    await testHost.compile("main.cadl");
+    await testHost.compile("main.tsp");
     ok(fooCalled);
     ok(barCalled);
   });
 
   it("provides full namespace name in error when namespace is missing a member", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./other.cadl";
+      import "./other.tsp";
       namespace A.B;
       model M { }
       model N extends A.B.M {}// There's a A.B.M, but this looks in A.B.A.B for M
     `
     );
-    testHost.addCadlFile(
-      "other.cadl",
+    testHost.addTypeSpecFile(
+      "other.tsp",
       `
       namespace A.B.A.B;
       model N {}
@@ -706,8 +706,8 @@ describe("compiler: decorators in namespaces", () => {
   });
 
   it("can reference global namespace using `global` for disambiguation", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace A {
        @test namespace B {
@@ -720,7 +720,7 @@ describe("compiler: decorators in namespaces", () => {
     `
     );
 
-    const { B, X, Y } = await testHost.compile("./main.cadl");
+    const { B, X, Y } = await testHost.compile("./main.tsp");
     strictEqual(B.kind, "Namespace" as const);
     strictEqual(X.kind, "Model" as const);
     strictEqual(Y.kind, "Model" as const);

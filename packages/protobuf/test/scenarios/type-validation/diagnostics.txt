@@ -1,1 +1,1 @@
-/test/main.cadl:10:3 - error @cadl-lang/protobuf/unsupported-return-type: Protobuf methods must return a named Model
+/test/main.tsp:10:3 - error @typespec/protobuf/unsupported-return-type: Protobuf methods must return a named Model

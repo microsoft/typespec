@@ -1,6 +1,5 @@
 import { DocumentSymbol, Range, SymbolKind } from "vscode-languageserver";
 import {
-  CadlScriptNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
   IdentifierNode,
@@ -9,12 +8,13 @@ import {
   ModelStatementNode,
   Statement,
   StringLiteralNode,
+  TypeSpecScriptNode,
   UnionStatementNode,
 } from "../core/index.js";
 import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
 import { isArray, isDefined } from "../core/util.js";
 
-export function getSymbolStructure(ast: CadlScriptNode): DocumentSymbol[] {
+export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
   const file = ast.file;
 
   const fileNamespace = findFileNamespace(ast);
@@ -27,7 +27,7 @@ export function getSymbolStructure(ast: CadlScriptNode): DocumentSymbol[] {
   );
   return [fileNamespaceSymbol];
 
-  function findFileNamespace(ast: CadlScriptNode): NamespaceStatementNode | undefined {
+  function findFileNamespace(ast: TypeSpecScriptNode): NamespaceStatementNode | undefined {
     const firstNamespace: NamespaceStatementNode | undefined = ast.statements.find(
       (x) => x.kind === SyntaxKind.NamespaceStatement
     ) as any;

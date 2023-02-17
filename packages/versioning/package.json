@@ -1,24 +1,24 @@
 {
-  "name": "@cadl-lang/versioning",
-  "version": "0.39.0",
+  "name": "@typespec/versioning",
+  "version": "0.40.0",
   "author": "Microsoft Corporation",
-  "description": "Cadl library for declaring and emitting versioned APIs",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "description": "TypeSpec library for declaring and emitting versioned APIs",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "cadlMain": "lib/versioning.cadl",
+  "typespecMain": "lib/versioning.tsp",
   "exports": {
     ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
@@ -38,28 +38,28 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-cadl-library",
+    "build": "tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.39.0"
+    "@typespec/compiler": "~0.40.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/library-linter": "~0.39.0",
-    "@cadl-lang/eslint-plugin": "~0.39.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/library-linter": "~0.40.0",
+    "@typespec/eslint-plugin": "~0.40.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",

@@ -64,6 +64,8 @@ words:
   - vswhere
   - westus
   - xplat
+  - keyer
+  - interner
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

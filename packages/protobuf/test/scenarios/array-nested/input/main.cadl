@@ -1,6 +1,6 @@
-import "@cadl-lang/protobuf";
+import "@typespec/protobuf";
 
-using Cadl.Protobuf;
+using TypeSpec.Protobuf;
 
 @package
 namespace com.azure.Test;

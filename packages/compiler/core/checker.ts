@@ -20,7 +20,6 @@ import {
   AugmentDecoratorStatementNode,
   BooleanLiteral,
   BooleanLiteralNode,
-  CadlScriptNode,
   DecoratedType,
   Decorator,
   DecoratorApplication,
@@ -114,6 +113,7 @@ import {
   TypeMapper,
   TypeOrReturnRecord,
   TypeReferenceNode,
+  TypeSpecScriptNode,
   Union,
   UnionExpressionNode,
   UnionStatementNode,
@@ -128,25 +128,25 @@ export interface Checker {
   typePrototype: TypePrototype;
 
   getTypeForNode(node: Node): Type;
-  setUsingsForFile(file: CadlScriptNode): void;
+  setUsingsForFile(file: TypeSpecScriptNode): void;
   checkProgram(): void;
-  checkSourceFile(file: CadlScriptNode): void;
+  checkSourceFile(file: TypeSpecScriptNode): void;
   getGlobalNamespaceType(): Namespace;
   getGlobalNamespaceNode(): NamespaceStatementNode;
   getMergedSymbol(sym: Sym | undefined): Sym | undefined;
-  mergeSourceFile(file: CadlScriptNode | JsSourceFileNode): void;
+  mergeSourceFile(file: TypeSpecScriptNode | JsSourceFileNode): void;
   getLiteralType(node: StringLiteralNode): StringLiteral;
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
 
   /**
-   * @deprecated use `import { getTypeName } from "@cadl-lang/compiler";`
+   * @deprecated use `import { getTypeName } from "@typespec/compiler";`
    */
   getTypeName(type: Type, options?: TypeNameOptions): string;
 
   /**
-   * @deprecated use `import { getNamespaceFullName } from "@cadl-lang/compiler";`
+   * @deprecated use `import { getNamespaceFullName } from "@typespec/compiler";`
    */
   getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
@@ -157,7 +157,7 @@ export interface Checker {
     args?: (Type | string | number | boolean)[]
   ): Type;
   resolveIdentifier(node: IdentifierNode): Sym | undefined;
-  resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
+  resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T>(typeDef: T): T & TypePrototype;
   createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
     typeDef: U
@@ -190,7 +190,7 @@ export interface Checker {
   ): [boolean, Diagnostic[]];
 
   /**
-   * Check if the given type is one of the built-in standard Cadl Types.
+   * Check if the given type is one of the built-in standard TypeSpec Types.
    * @param type Type to check
    * @param stdType If provided check is that standard type
    */
@@ -224,7 +224,7 @@ interface TypePrototype {
   projectionsByName(name: string): ProjectionStatementNode[];
 }
 
-export interface CadlCompletionItem {
+export interface TypeSpecCompletionItem {
   sym: Sym;
 
   /**
@@ -240,7 +240,7 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
-type StdTypeName = IntrinsicScalarName | "Array" | "Record";
+type StdTypeName = IntrinsicScalarName | "Array" | "Record" | "object";
 type StdTypes = {
   // Models
   Array: Model;
@@ -276,7 +276,7 @@ export function createChecker(program: Program): Checker {
   };
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
-  let cadlNamespaceNode: NamespaceStatementNode | undefined;
+  let typespecNamespaceNode: NamespaceStatementNode | undefined;
 
   const errorType: ErrorType = createType({ kind: "Intrinsic", name: "ErrorType" });
   const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
@@ -317,15 +317,15 @@ export function createChecker(program: Program): Checker {
     setUsingsForFile(file);
   }
 
-  const cadlNamespaceBinding = globalNamespaceNode.symbol.exports!.get("Cadl");
-  if (cadlNamespaceBinding) {
-    // the cadl namespace binding will be absent if we've passed
+  const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
+  if (typespecNamespaceBinding) {
+    // the typespec namespace binding will be absent if we've passed
     // the no-std-lib option.
-    // the first declaration here is the JS file for the cadl script.
-    cadlNamespaceNode = cadlNamespaceBinding.declarations[1] as NamespaceStatementNode;
-    initializeCadlIntrinsics();
+    // the first declaration here is the JS file for the typespec script.
+    typespecNamespaceNode = typespecNamespaceBinding.declarations[1] as NamespaceStatementNode;
+    initializeTypeSpecIntrinsics();
     for (const file of program.sourceFiles.values()) {
-      addUsingSymbols(cadlNamespaceBinding.exports!, file.locals);
+      addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
     }
   }
 
@@ -374,9 +374,9 @@ export function createChecker(program: Program): Checker {
     diagnostics.forEach((x) => reportCheckerDiagnostic(x));
   }
 
-  function initializeCadlIntrinsics() {
+  function initializeTypeSpecIntrinsics() {
     // a utility function to log strings or numbers
-    mutate(cadlNamespaceBinding!.exports)!.set("log", {
+    mutate(typespecNamespaceBinding!.exports)!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
       value(p: Program, ...strs: string[]): Type {
@@ -387,7 +387,7 @@ export function createChecker(program: Program): Checker {
     });
 
     // Until we have an `unit` type for `null`
-    mutate(cadlNamespaceBinding!.exports).set("null", nullSym);
+    mutate(typespecNamespaceBinding!.exports).set("null", nullSym);
     mutate(nullSym).type = nullType;
     getSymbolLinks(nullSym).type = nullType;
   }
@@ -398,7 +398,7 @@ export function createChecker(program: Program): Checker {
       return type as any;
     }
 
-    const sym = cadlNamespaceBinding?.exports?.get(name);
+    const sym = typespecNamespaceBinding?.exports?.get(name);
     if (sym && sym.flags & SymbolFlags.Model) {
       checkModelStatement(sym!.declarations[0] as any, undefined);
     } else {
@@ -408,16 +408,16 @@ export function createChecker(program: Program): Checker {
     const loadedType = stdTypes[name];
     compilerAssert(
       loadedType,
-      `Cadl std type "${name}" should have been initalized before using array syntax.`
+      `TypeSpec std type "${name}" should have been initalized before using array syntax.`
     );
     return loadedType as any;
   }
 
-  function mergeSourceFile(file: CadlScriptNode | JsSourceFileNode) {
+  function mergeSourceFile(file: TypeSpecScriptNode | JsSourceFileNode) {
     mergeSymbolTable(file.symbol.exports!, mutate(globalNamespaceNode.symbol.exports!));
   }
 
-  function setUsingsForFile(file: CadlScriptNode) {
+  function setUsingsForFile(file: TypeSpecScriptNode) {
     const usedUsing = new Set<Sym>();
 
     for (const using of file.usings) {
@@ -447,12 +447,12 @@ export function createChecker(program: Program): Checker {
       addUsingSymbols(sym.exports!, parentNs.locals!);
     }
 
-    if (cadlNamespaceNode) {
-      addUsingSymbols(cadlNamespaceBinding!.exports!, file.locals);
+    if (typespecNamespaceNode) {
+      addUsingSymbols(typespecNamespaceBinding!.exports!, file.locals);
     }
   }
 
-  function applyAugmentDecorators(node: CadlScriptNode | NamespaceStatementNode) {
+  function applyAugmentDecorators(node: TypeSpecScriptNode | NamespaceStatementNode) {
     if (!node.statements || !isArray(node.statements)) {
       return;
     }
@@ -486,7 +486,7 @@ export function createChecker(program: Program): Checker {
             list = [];
             augmentDecoratorsForSym.set(ref, list);
           }
-          list.push(decNode);
+          list.unshift(decNode);
         }
       }
     }
@@ -655,10 +655,12 @@ export function createChecker(program: Program): Checker {
 
   function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
     if (!sym) return "";
+    if (sym.symbolSource) sym = sym.symbolSource;
     const parent = sym.parent;
-    return parent && parent.name !== ""
-      ? `${getFullyQualifiedSymbolName(parent)}.${sym.name}`
-      : sym.name;
+    const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
+    return parent && parent.name !== "" && !(parent.flags & SymbolFlags.SourceFile)
+      ? `${getFullyQualifiedSymbolName(parent)}.${name}`
+      : name;
   }
 
   /**
@@ -678,23 +680,23 @@ export function createChecker(program: Program): Checker {
   }
 
   /**
-   * Check if the given namespace is the standard library `Cadl` namespace.
+   * Check if the given namespace is the standard library `TypeSpec` namespace.
    */
-  function isCadlNamespace(
+  function isTypeSpecNamespace(
     namespace: Namespace
-  ): namespace is Namespace & { name: "Cadl"; namespace: Namespace } {
+  ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
     return (
-      namespace.name === "Cadl" &&
+      namespace.name === "TypeSpec" &&
       (namespace.namespace === globalNamespaceType ||
         namespace.namespace?.projectionBase === globalNamespaceType)
     );
   }
 
   /**
-   * Check if the given type is defined right in the Cadl namespace.
+   * Check if the given type is defined right in the TypeSpec namespace.
    */
-  function isInCadlNamespace(type: Type & { namespace?: Namespace }): boolean {
-    return Boolean(type.namespace && isCadlNamespace(type.namespace));
+  function isInTypeSpecNamespace(type: Type & { namespace?: Namespace }): boolean {
+    return Boolean(type.namespace && isTypeSpecNamespace(type.namespace));
   }
 
   function checkTemplateParameterDeclaration(
@@ -1462,7 +1464,7 @@ export function createChecker(program: Program): Checker {
 
       symbolLinks.type = type;
       for (const sourceNode of mergedSymbol.declarations) {
-        // namespaces created from cadl scripts don't have decorators
+        // namespaces created from typespec scripts don't have decorators
         if (sourceNode.kind !== SyntaxKind.NamespaceStatement) continue;
         type.decorators = type.decorators.concat(checkDecorators(type, sourceNode, undefined));
       }
@@ -1528,7 +1530,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (
-      node.symbol.parent.declarations[0].kind === SyntaxKind.CadlScript ||
+      node.symbol.parent.declarations[0].kind === SyntaxKind.TypeSpecScript ||
       node.symbol.parent.declarations[0].kind === SyntaxKind.JsSourceFile
     ) {
       return globalNamespaceType;
@@ -1750,17 +1752,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols
-      .map((x) => {
-        const namespace =
-          x.symbolSource!.flags & (SymbolFlags.Decorator | SymbolFlags.Function)
-            ? (x.symbolSource!.value as any).namespace
-            : getNamespaceFullName(
-                (getTypeForNode(x.symbolSource!.declarations[0], undefined) as any).namespace
-              );
-        return `${namespace}.${node.sv}`;
-      })
-      .join(", ");
+    const duplicateNames = symbols.map(getFullyQualifiedSymbolName).join(", ");
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "ambiguous-symbol",
@@ -1830,8 +1822,8 @@ export function createChecker(program: Program): Checker {
     return sym?.symbolSource ?? sym;
   }
 
-  function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
-    const completions = new Map<string, CadlCompletionItem>();
+  function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
+    const completions = new Map<string, TypeSpecCompletionItem>();
     const { kind } = getIdentifierContext(identifier);
 
     switch (kind) {
@@ -1866,7 +1858,7 @@ export function createChecker(program: Program): Checker {
       }
     } else {
       let scope: Node | undefined = identifier.parent;
-      while (scope && scope.kind !== SyntaxKind.CadlScript) {
+      while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
         if (scope.symbol && scope.symbol.exports) {
           const mergedSymbol = getMergedSymbol(scope.symbol)!;
           addCompletions(mergedSymbol.exports);
@@ -1877,7 +1869,7 @@ export function createChecker(program: Program): Checker {
         scope = scope.parent;
       }
 
-      if (scope && scope.kind === SyntaxKind.CadlScript) {
+      if (scope && scope.kind === SyntaxKind.TypeSpecScript) {
         // check any blockless namespace decls
         for (const ns of scope.inScopeNamespaces) {
           const mergedSymbol = getMergedSymbol(ns.symbol)!;
@@ -1965,7 +1957,7 @@ export function createChecker(program: Program): Checker {
     let scope: Node | undefined = node.parent;
     let binding: Sym | undefined;
 
-    while (scope && scope.kind !== SyntaxKind.CadlScript) {
+    while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
       if (scope.symbol && "exports" in scope.symbol) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
@@ -1980,7 +1972,7 @@ export function createChecker(program: Program): Checker {
       scope = scope.parent;
     }
 
-    if (!binding && scope && scope.kind === SyntaxKind.CadlScript) {
+    if (!binding && scope && scope.kind === SyntaxKind.TypeSpecScript) {
       // check any blockless namespace decls
       for (const ns of scope.inScopeNamespaces) {
         const mergedSymbol = getMergedSymbol(ns.symbol);
@@ -2223,7 +2215,7 @@ export function createChecker(program: Program): Checker {
     validateInheritanceDiscriminatedUnions(program);
   }
 
-  function applyAugmentDecoratorsInScope(scope: CadlScriptNode | NamespaceStatementNode) {
+  function applyAugmentDecoratorsInScope(scope: TypeSpecScriptNode | NamespaceStatementNode) {
     applyAugmentDecorators(scope);
     if (scope.statements === undefined) {
       return;
@@ -2240,7 +2232,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkSourceFile(file: CadlScriptNode) {
+  function checkSourceFile(file: TypeSpecScriptNode) {
     for (const statement of file.statements) {
       getTypeForNode(statement, undefined);
     }
@@ -2334,9 +2326,9 @@ export function createChecker(program: Program): Checker {
     }
 
     const indexer = getIndexer(program, type);
-    if (type.name === "Array" && isInCadlNamespace(type)) {
+    if (type.name === "Array" && isInTypeSpecNamespace(type)) {
       stdTypes.Array = type;
-    } else if (type.name === "Record" && isInCadlNamespace(type)) {
+    } else if (type.name === "Record" && isInTypeSpecNamespace(type)) {
       stdTypes.Record = type;
     }
     if (indexer) {
@@ -3065,8 +3057,8 @@ export function createChecker(program: Program): Checker {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
     const decoratorNodes = [
+      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []), // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
-      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []),
     ];
     for (const decNode of decoratorNodes) {
       const decorator = checkDecorator(targetType, decNode, mapper);
@@ -3125,7 +3117,7 @@ export function createChecker(program: Program): Checker {
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(type, mapper);
     }
-    if (isInCadlNamespace(type)) {
+    if (isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
 
@@ -4423,10 +4415,10 @@ export function createChecker(program: Program): Checker {
 
     if (options.functionName) {
       throw new ProjectionError(
-        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into cadl`
+        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into typespec`
       );
     } else {
-      throw new ProjectionError(`Can't marshal value "${value}" into cadl`);
+      throw new ProjectionError(`Can't marshal value "${value}" into typespec`);
     }
   }
 
@@ -4572,17 +4564,14 @@ export function createChecker(program: Program): Checker {
     return (
       type.kind === "Model" &&
       type.namespace?.name === "Reflection" &&
-      type.namespace?.namespace?.name === "Cadl"
+      type.namespace?.namespace?.name === "TypeSpec"
     );
   }
 
   function isRelatedToScalar(source: Type, target: Scalar): boolean | undefined {
     switch (source.kind) {
       case "Number":
-        return (
-          areScalarsRelated(target, getStdType("numeric")) &&
-          isNumericLiteralRelatedTo(source, target.name as any)
-        );
+        return isNumericLiteralRelatedTo(source, target);
       case "String":
         return areScalarsRelated(target, getStdType("string"));
       case "Boolean":
@@ -4631,30 +4620,29 @@ export function createChecker(program: Program): Checker {
     return undefined;
   }
 
-  function isNumericLiteralRelatedTo(
-    source: NumericLiteral,
-    targetIntrinsicType:
-      | "int64"
-      | "int32"
-      | "int16"
-      | "int8"
-      | "uint64"
-      | "uint32"
-      | "uint16"
-      | "uint8"
-      | "safeint"
-      | "float32"
-      | "float64"
-      | "numeric"
-      | "integer"
-      | "float"
-  ) {
-    if (targetIntrinsicType === "numeric") return true;
-    const isInt = Number.isInteger(source.value);
-    if (targetIntrinsicType === "integer") return isInt;
-    if (targetIntrinsicType === "float") return true;
+  function isNumericLiteralRelatedTo(source: NumericLiteral, target: Scalar) {
+    // if the target does not derive from numeric, then it can't be assigned a numeric literal
+    if (!areScalarsRelated(target, getStdType("numeric"))) {
+      return false;
+    }
 
-    const [low, high, options] = numericRanges[targetIntrinsicType];
+    // With respect to literal assignability a custom numeric scalar is
+    // equivalent to its nearest TypeSpec.* base. Adjust target accordingly.
+    while (!target.namespace || !isTypeSpecNamespace(target.namespace)) {
+      compilerAssert(
+        target.baseScalar,
+        "Should not be possible to be derived from TypeSpec.numeric and not have a base when not in TypeSpec namespace."
+      );
+      target = target.baseScalar;
+    }
+
+    if (target.name === "numeric") return true;
+    const isInt = Number.isInteger(source.value);
+    if (target.name === "integer") return isInt;
+    if (target.name === "float") return true;
+
+    if (!(target.name in numericRanges)) return false;
+    const [low, high, options] = numericRanges[target.name];
     return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
@@ -4852,12 +4840,13 @@ export function createChecker(program: Program): Checker {
     if (
       (type.kind !== "Model" && type.kind !== "Scalar") ||
       type.namespace === undefined ||
-      !isCadlNamespace(type.namespace)
+      !isTypeSpecNamespace(type.namespace)
     )
       return false;
     if (type.kind === "Scalar") return stdType === undefined || stdType === type.name;
     if (stdType === "Array" && type === stdTypes["Array"]) return true;
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
+    if (type.kind === "Model") return stdType === undefined || stdType === type.name;
     return false;
   }
 }
@@ -4870,7 +4859,10 @@ function isErrorType(type: Type): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
-const numericRanges = {
+const numericRanges: Record<
+  string,
+  [min: number | bigint, max: number | bigint, options: { int: boolean }]
+> = {
   int64: [BigInt("-9223372036854775807"), BigInt("9223372036854775808"), { int: true }],
   int32: [-2147483648, 2147483647, { int: true }],
   int16: [-32768, 32767, { int: true }],
@@ -4882,7 +4874,7 @@ const numericRanges = {
   safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
   float32: [-3.4e38, 3.4e38, { int: false }],
   float64: [Number.MIN_VALUE, Number.MAX_VALUE, { int: false }],
-} as const;
+};
 
 /**
  * Find all named models that could have been the source of the given
@@ -5230,7 +5222,7 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
 }
 
 /**
- * Convert cadl argument to JS argument.
+ * Convert typespec argument to JS argument.
  */
 function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] {
   return args.map((arg) => {

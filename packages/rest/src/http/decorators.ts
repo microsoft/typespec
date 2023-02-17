@@ -1,5 +1,4 @@
 import {
-  cadlTypeToJson,
   createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
@@ -11,13 +10,14 @@ import {
   Namespace,
   Operation,
   Program,
-  setCadlNamespace,
+  setTypeSpecNamespace,
   Tuple,
   Type,
+  typespecTypeToJson,
   Union,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import { extractParamsFromPath } from "../utils.js";
 import {
@@ -32,7 +32,7 @@ import {
   ServiceAuthentication,
 } from "./types.js";
 
-export const namespace = "Cadl.Http";
+export const namespace = "TypeSpec.Http";
 
 const headerFieldsKey = createStateSymbol("header");
 export function $header(
@@ -408,7 +408,7 @@ export function $plainData(context: DecoratorContext, entity: Type) {
   }
 }
 
-setCadlNamespace("Private", $plainData);
+setTypeSpecNamespace("Private", $plainData);
 
 const authenticationKey = createStateSymbol("authentication");
 export function $useAuth(
@@ -521,7 +521,7 @@ function extractHttpAuthentication(
   modelType: Model,
   diagnosticTarget: DiagnosticTarget
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
-  const [result, diagnostics] = cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
+  const [result, diagnostics] = typespecTypeToJson<HttpAuth>(modelType, diagnosticTarget);
   if (result === undefined) {
     return [result, diagnostics];
   }
@@ -631,16 +631,14 @@ function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
 
   const state = context.program.stateMap(routesKey);
 
-  if (state.has(entity)) {
-    if (entity.kind === "Namespace") {
-      const existingValue: RoutePath = state.get(entity);
-      if (existingValue.path !== details.path) {
-        reportDiagnostic(context.program, {
-          code: "duplicate-route-decorator",
-          messageId: "namespace",
-          target: entity,
-        });
-      }
+  if (state.has(entity) && entity.kind === "Namespace") {
+    const existingValue: RoutePath = state.get(entity);
+    if (existingValue.path !== details.path) {
+      reportDiagnostic(context.program, {
+        code: "duplicate-route-decorator",
+        messageId: "namespace",
+        target: entity,
+      });
     }
   } else {
     state.set(entity, details);

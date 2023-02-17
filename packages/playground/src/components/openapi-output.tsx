@@ -1,8 +1,8 @@
 import { css } from "@emotion/react";
 import { FunctionComponent, useCallback, useState } from "react";
 import { PlaygroundManifest } from "../manifest.js";
-import { OutputEditor } from "./cadl-editor.js";
 import { SwaggerUI } from "./swagger-ui.js";
+import { OutputEditor } from "./typespec-editor.js";
 
 export interface OpenAPIOutputProps {
   filename: string;
@@ -12,7 +12,7 @@ export interface OpenAPIOutputProps {
 export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
   const [selected, setSelected] = useState<"raw" | "swagger-ui">("raw");
   const options = [
-    { label: "Open API", value: "raw" },
+    { label: "OpenAPI", value: "raw" },
     { label: "Swagger UI", value: "swagger-ui" },
   ];
 

@@ -6,7 +6,7 @@ import {
   Operation,
   Program,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic } from "../lib.js";
 import { getAction, getCollectionAction, getResourceOperation } from "../rest.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";

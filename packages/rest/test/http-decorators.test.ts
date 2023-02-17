@@ -1,9 +1,9 @@
-import { ModelProperty, Namespace } from "@cadl-lang/compiler";
+import { ModelProperty, Namespace } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
   getAuthentication,
@@ -57,12 +57,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @header decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @header decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @header decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @header decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
       ]);
     });
@@ -78,17 +78,17 @@ describe("rest: http decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '123' is not assignable to parameter of type 'Cadl.string | Cadl.Http.HeaderOptions'",
+            "Argument '123' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.HeaderOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.HeaderOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.HeaderOptions'",
         },
       ]);
     });
@@ -146,12 +146,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @query decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @query decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @query decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @query decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
       ]);
     });
@@ -167,17 +167,17 @@ describe("rest: http decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '123' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
+            "Argument '123' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'Cadl.string | Cadl.Http.QueryOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.QueryOptions'",
         },
       ]);
     });
@@ -233,11 +233,11 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "@cadl-lang/rest/duplicate-operation",
+          code: "@typespec/rest/duplicate-operation",
           message: `Duplicate operation "test" routed at "get /test".`,
         },
         {
-          code: "@cadl-lang/rest/duplicate-operation",
+          code: "@typespec/rest/duplicate-operation",
           message: `Duplicate operation "test2" routed at "get /test".`,
         },
       ]);
@@ -258,7 +258,7 @@ describe("rest: http decorators", () => {
       `);
       expectDiagnostics(diagnostics, [
         {
-          code: "@cadl-lang/rest/shared-boolean",
+          code: "@typespec/rest/shared-boolean",
           message: `shared parameter must be a boolean.`,
         },
       ]);
@@ -277,12 +277,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @path decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @path decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @path decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @path decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
       ]);
     });
@@ -293,7 +293,7 @@ describe("rest: http decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/optional-path-param",
+        code: "@typespec/rest/optional-path-param",
         message: "Path parameter 'myPath' cannot be optional.",
       });
     });
@@ -314,7 +314,7 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+          message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
         },
       ]);
     });
@@ -353,12 +353,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @body decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @body decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @body decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @body decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
       ]);
     });
@@ -384,12 +384,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @statusCode decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @statusCode decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @statusCode decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @statusCode decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
         },
       ]);
     });
@@ -417,12 +417,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @server decorator to test since it is not assignable to Cadl.Reflection.Namespace",
+            "Cannot apply @server decorator to test since it is not assignable to TypeSpec.Reflection.Namespace",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @server decorator to Foo since it is not assignable to Cadl.Reflection.Namespace",
+            "Cannot apply @server decorator to Foo since it is not assignable to TypeSpec.Reflection.Namespace",
         },
       ]);
     });
@@ -435,7 +435,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
 
@@ -447,7 +447,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
 
@@ -471,7 +471,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.object'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.object'",
       });
     });
 
@@ -482,7 +482,7 @@ describe("rest: http decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/rest/missing-server-param",
+        code: "@typespec/rest/missing-server-param",
         message: "Server url contains parameter 'name' but wasn't found in given parameters",
       });
     });
@@ -530,7 +530,7 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @useAuth decorator to test since it is not assignable to Cadl.Reflection.Namespace",
+            "Cannot apply @useAuth decorator to test since it is not assignable to TypeSpec.Reflection.Namespace",
         },
       ]);
     });
@@ -546,7 +546,7 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument 'anOp' is not assignable to parameter of type 'Cadl.object | Cadl.Reflection.Union | Cadl.object[]'",
+          "Argument 'anOp' is not assignable to parameter of type 'TypeSpec.object | TypeSpec.Reflection.Union | TypeSpec.object[]'",
       });
     });
 
@@ -703,7 +703,7 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           severity: "warning",
-          code: "@cadl-lang/rest/write-visibility-not-supported",
+          code: "@typespec/rest/write-visibility-not-supported",
         },
       ]);
     });

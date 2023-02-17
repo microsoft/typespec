@@ -10,8 +10,8 @@ describe("compiler: enums", () => {
   });
 
   it("can be valueless", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test enum E {
         A, B, C
@@ -30,8 +30,8 @@ describe("compiler: enums", () => {
   });
 
   it("can have values", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test enum E {
         @test("A") A: "a";
@@ -55,8 +55,8 @@ describe("compiler: enums", () => {
   });
 
   it("can be a model property", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Foo;
       enum E { A, B, C }
@@ -75,13 +75,13 @@ describe("compiler: enums", () => {
   });
 
   it("can't have duplicate variants", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       enum A { A, A }
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "enum-member-duplicate",
       message: "Enum already has a member named A",
@@ -89,8 +89,8 @@ describe("compiler: enums", () => {
   });
 
   it("can have spread members", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test enum Bar {
         One: "1",
@@ -103,7 +103,7 @@ describe("compiler: enums", () => {
       `
     );
 
-    const { Foo, Bar } = (await testHost.compile("main.cadl")) as {
+    const { Foo, Bar } = (await testHost.compile("main.tsp")) as {
       Foo: Enum;
       Bar: Enum;
     };
@@ -132,8 +132,8 @@ describe("compiler: enums", () => {
         refViaMyLib = ref;
       },
     });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./lib.js";
 

@@ -1,4 +1,4 @@
-import { DecoratorContext, Program, Type, validateDecoratorTarget } from "@cadl-lang/compiler";
+import { DecoratorContext, Program, Type, validateDecoratorTarget } from "@typespec/compiler";
 import { createStateSymbol } from "./lib.js";
 
 const refTargetsKey = createStateSymbol("refs");

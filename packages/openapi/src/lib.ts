@@ -1,7 +1,7 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const libDef = {
-  name: "@cadl-lang/openapi",
+  name: "@typespec/openapi",
   diagnostics: {
     "invalid-extension-key": {
       severity: "error",
@@ -12,10 +12,10 @@ export const libDef = {
     "duplicate-type-name": {
       severity: "error",
       messages: {
-        default: paramMessage`Duplicate type name: '${"value"}'. Check @friendlyName decorators and overlap with types in Cadl or service namespace.`,
-        parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in Cadl or service namespace.`,
+        default: paramMessage`Duplicate type name: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
+        parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
       },
     },
   },
 } as const;
-export const { reportDiagnostic, createStateSymbol } = createCadlLibrary(libDef);
+export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);

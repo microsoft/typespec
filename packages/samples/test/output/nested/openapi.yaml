@@ -4,6 +4,31 @@ info:
   version: '0000-00-00'
 tags: []
 paths:
+  /:
+    post:
+      operationId: SubC_anotherOp
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thing:
+                  $ref: '#/components/schemas/SubA.Thing'
+                thing2:
+                  $ref: '#/components/schemas/SubA.Thing'
+              required:
+                - thing
+                - thing2
+              x-typespec-name: SubC.(anonymous model)
   /sub/a/subsub:
     post:
       operationId: SubSubA_doSomething
@@ -36,31 +61,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SubB.Thing'
-  /:
-    post:
-      operationId: SubC_anotherOp
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                thing:
-                  $ref: '#/components/schemas/SubA.Thing'
-                thing2:
-                  $ref: '#/components/schemas/SubA.Thing'
-              required:
-                - thing
-                - thing2
-              x-cadl-name: SubC.(anonymous model)
 components:
   schemas:
     SubA.SubSubA.Thing:
@@ -70,7 +70,7 @@ components:
           type: string
       required:
         - name
-    SubB.Thing:
+    SubA.Thing:
       type: object
       properties:
         id:
@@ -78,7 +78,7 @@ components:
           format: int64
       required:
         - id
-    SubA.Thing:
+    SubB.Thing:
       type: object
       properties:
         id:

@@ -58,7 +58,7 @@ import {
   TypeNameOptions,
   Union,
   UnionVariant,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
 import {
   checkDuplicateTypeName,
@@ -69,8 +69,8 @@ import {
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
-} from "@cadl-lang/openapi";
-import { http } from "@cadl-lang/rest";
+} from "@typespec/openapi";
+import { http } from "@typespec/rest";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -89,8 +89,8 @@ import {
   reportIfNoRoutes,
   ServiceAuthentication,
   Visibility,
-} from "@cadl-lang/rest/http";
-import { buildVersionProjections } from "@cadl-lang/versioning";
+} from "@typespec/rest/http";
+import { buildVersionProjections } from "@typespec/versioning";
 import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
@@ -177,7 +177,7 @@ class Ref {
  * Computation of the OpenAPI schema object is deferred.
  */
 interface PendingSchema {
-  /** The CADL type for the schema */
+  /** The TYPESPEC type for the schema */
   type: Type;
 
   /** The visibility to apply when computing the schema */
@@ -198,7 +198,7 @@ interface PendingSchema {
  * has been produced.
  */
 interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema;
+  schema: OpenAPI3Schema | undefined;
 }
 
 function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
@@ -231,10 +231,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   let tags: Set<string>;
 
   const typeNameOptions: TypeNameOptions = {
-    // shorten type names by removing Cadl and service namespace
+    // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
       const name = getNamespaceFullName(ns);
-      return name !== "Cadl" && name !== serviceNamespace;
+      return name !== "TypeSpec" && name !== serviceNamespace;
     },
   };
 
@@ -417,8 +417,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
       emitParameters();
-      emitUnreferencedSchemas(service.type);
-      emitSchemas();
+      emitSchemas(service.type);
       emitTags();
 
       // Clean up empty entries
@@ -442,7 +441,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was
-        // inserted into the Cadl output
+        // inserted into the TypeSpec output
         return;
       } else {
         throw err;
@@ -571,7 +570,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header | undefined {
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
@@ -589,7 +588,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
       // For literal types, we just want to emit them directly as well.
-      return mapCadlTypeToOpenAPI(type, visibility);
+      return mapTypeSpecTypeToOpenAPI(type, visibility);
     }
 
     if (type.kind === "Intrinsic" && type.name === "unknown") {
@@ -621,9 +620,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         throw new ErrorTypeFoundError();
       }
 
-      // helps to read output and correlate to Cadl
+      // helps to read output and correlate to TypeSpec
       if (schema) {
-        schema["x-cadl-name"] = name;
+        schema["x-typespec-name"] = name;
       }
       return schema;
     } else {
@@ -744,8 +743,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getOpenAPIParameterBase(
     param: ModelProperty,
     visibility: Visibility
-  ): OpenAPI3ParameterBase {
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type, visibility));
+  ): OpenAPI3ParameterBase | undefined {
+    const typeSchema = getSchemaForType(param.type, visibility);
+    if (!typeSchema) {
+      return undefined;
+    }
+    const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -804,45 +807,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitUnreferencedSchemas(namespace: Namespace) {
-    if (options.omitUnreachableTypes) {
-      return;
-    }
-    const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
-
-    const skipSubNamespaces = isGlobalNamespace(program, namespace);
-    navigateTypesInNamespace(
-      namespace,
-      {
-        model: (x) => x.name !== "" && computeSchema(x),
-        scalar: computeSchema,
-        enum: computeSchema,
-        union: (x) => x.name !== undefined && computeSchema(x),
-      },
-      { skipSubNamespaces }
-    );
-  }
-
-  function emitSchemas() {
-    // Process pending schemas. Note that getSchemaForType may pull in new
-    // pending schemas so we iterate until there are no pending schemas
-    // remaining.
+  function emitSchemas(serviceNamespace: Namespace) {
     const processedSchemas = new TwoLevelMap<Type, Visibility, ProcessedSchema>();
-    while (pendingSchemas.size > 0) {
-      for (const [type, group] of pendingSchemas) {
-        for (const [visibility, pending] of group) {
-          processedSchemas.getOrAdd(type, visibility, () => ({
-            ...pending,
-            schema: getSchemaForType(type, visibility),
-          }));
-        }
-        pendingSchemas.delete(type);
-      }
+
+    processSchemas();
+    if (!options.omitUnreachableTypes) {
+      processUnreferencedSchemas();
     }
 
     // Emit the processed schemas. Only now can we compute the names as it
     // depends on whether we have produced multiple schemas for a single
-    // CADL type.
+    // TYPESPEC type.
     for (const group of processedSchemas.values()) {
       for (const [visibility, processed] of group) {
         let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
@@ -851,8 +826,47 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        root.components!.schemas![name] = processed.schema;
+        if (processed.schema) {
+          root.components!.schemas![name] = processed.schema;
+        }
       }
+    }
+
+    function processSchemas() {
+      // Process pending schemas. Note that getSchemaForType may pull in new
+      // pending schemas so we iterate until there are no pending schemas
+      // remaining.
+      while (pendingSchemas.size > 0) {
+        for (const [type, group] of pendingSchemas) {
+          for (const [visibility, pending] of group) {
+            processedSchemas.getOrAdd(type, visibility, () => ({
+              ...pending,
+              schema: getSchemaForType(type, visibility),
+            }));
+          }
+          pendingSchemas.delete(type);
+        }
+      }
+    }
+
+    function processUnreferencedSchemas() {
+      const addSchema = (type: Type) => {
+        if (!processedSchemas.has(type) && !shouldInline(program, type)) {
+          getSchemaOrRef(type, Visibility.All);
+        }
+      };
+      const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
+      navigateTypesInNamespace(
+        serviceNamespace,
+        {
+          model: addSchema,
+          scalar: addSchema,
+          enum: addSchema,
+          union: addSchema,
+        },
+        { skipSubNamespaces }
+      );
+      processSchemas();
     }
   }
 
@@ -862,8 +876,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForType(type: Type, visibility: Visibility) {
-    const builtinType = mapCadlTypeToOpenAPI(type, visibility);
+  function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
+    const builtinType = mapTypeSpecTypeToOpenAPI(type, visibility);
     if (builtinType !== undefined) return builtinType;
 
     switch (type.kind) {
@@ -871,6 +885,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "ModelProperty":
+        return getSchemaForType(type.type, visibility);
       case "Scalar":
         return getSchemaForScalar(type);
       case "Union":
@@ -948,7 +964,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   /**
-   * A Cadl union maps to a variety of OA3 structures according to the following rules:
+   * A TypeSpec union maps to a variety of OA3 structures according to the following rules:
    *
    * * A union containing `null` makes a `nullable` schema comprised of the remaining
    *   union variants.
@@ -974,7 +990,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = mapCadlTypeToOpenAPI(variant.type, visibility);
+          const enumSchema = mapTypeSpecTypeToOpenAPI(variant.type, visibility);
           literalVariantEnumByType[variant.type.kind] = enumSchema;
           schemaMembers.push({ schema: enumSchema, type: null });
         } else {
@@ -1146,7 +1162,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // that we set before
       const baseSchema = getSchemaForType(model.baseModel, visibility);
       modelSchema = {
-        ...baseSchema,
+        ...(baseSchema as any),
         description: modelSchema.description,
       };
     } else if (model.baseModel) {
@@ -1211,73 +1227,73 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function applyIntrinsicDecorators(
-    cadlType: Scalar | ModelProperty,
+    typespecType: Scalar | ModelProperty,
     target: OpenAPI3Schema
   ): OpenAPI3Schema {
     const newTarget = { ...target };
-    const docStr = getDoc(program, cadlType);
-    const isString = isStringType(program, getPropertyType(cadlType));
-    const isNumeric = isNumericType(program, getPropertyType(cadlType));
+    const docStr = getDoc(program, typespecType);
+    const isString = isStringType(program, getPropertyType(typespecType));
+    const isNumeric = isNumericType(program, getPropertyType(typespecType));
 
     if (!target.description && docStr) {
       newTarget.description = docStr;
     }
-    const formatStr = getFormat(program, cadlType);
+    const formatStr = getFormat(program, typespecType);
     if (isString && !target.format && formatStr) {
       newTarget.format = formatStr;
     }
 
-    const pattern = getPattern(program, cadlType);
+    const pattern = getPattern(program, typespecType);
     if (isString && !target.pattern && pattern) {
       newTarget.pattern = pattern;
     }
 
-    const minLength = getMinLength(program, cadlType);
+    const minLength = getMinLength(program, typespecType);
     if (isString && !target.minLength && minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
-    const maxLength = getMaxLength(program, cadlType);
+    const maxLength = getMaxLength(program, typespecType);
     if (isString && !target.maxLength && maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
-    const minValue = getMinValue(program, cadlType);
+    const minValue = getMinValue(program, typespecType);
     if (isNumeric && !target.minimum && minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
-    const minValueExclusive = getMinValueExclusive(program, cadlType);
+    const minValueExclusive = getMinValueExclusive(program, typespecType);
     if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
       newTarget.exclusiveMinimum = minValueExclusive;
     }
 
-    const maxValue = getMaxValue(program, cadlType);
+    const maxValue = getMaxValue(program, typespecType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
-    const maxValueExclusive = getMaxValueExclusive(program, cadlType);
+    const maxValueExclusive = getMaxValueExclusive(program, typespecType);
     if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
       newTarget.exclusiveMaximum = maxValueExclusive;
     }
 
-    const minItems = getMinItems(program, cadlType);
+    const minItems = getMinItems(program, typespecType);
     if (!target.minItems && minItems !== undefined) {
       newTarget.minItems = minItems;
     }
 
-    const maxItems = getMaxItems(program, cadlType);
+    const maxItems = getMaxItems(program, typespecType);
     if (!target.maxItems && maxItems !== undefined) {
       newTarget.maxItems = maxItems;
     }
 
-    if (isSecret(program, cadlType)) {
+    if (isSecret(program, typespecType)) {
       newTarget.format = "password";
     }
 
     if (isString) {
-      const values = getKnownValues(program, cadlType);
+      const values = getKnownValues(program, typespecType);
       if (values) {
         return {
           oneOf: [newTarget, getSchemaForEnum(values)],
@@ -1285,53 +1301,53 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
 
-    attachExtensions(program, cadlType, newTarget);
+    attachExtensions(program, typespecType, newTarget);
 
     return newTarget;
   }
 
-  function applyExternalDocs(cadlType: Type, target: Record<string, unknown>) {
-    const externalDocs = getExternalDocs(program, cadlType);
+  function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
+    const externalDocs = getExternalDocs(program, typespecType);
     if (externalDocs) {
       target.externalDocs = externalDocs;
     }
   }
 
-  // Map an Cadl type to an OA schema. Returns undefined when the resulting
+  // Map an TypeSpec type to an OA schema. Returns undefined when the resulting
   // OA schema is just a regular object schema.
-  function mapCadlTypeToOpenAPI(cadlType: Type, visibility: Visibility): any {
-    switch (cadlType.kind) {
+  function mapTypeSpecTypeToOpenAPI(typespecType: Type, visibility: Visibility): any {
+    switch (typespecType.kind) {
       case "Number":
-        return { type: "number", enum: [cadlType.value] };
+        return { type: "number", enum: [typespecType.value] };
       case "String":
-        return { type: "string", enum: [cadlType.value] };
+        return { type: "string", enum: [typespecType.value] };
       case "Boolean":
-        return { type: "boolean", enum: [cadlType.value] };
+        return { type: "boolean", enum: [typespecType.value] };
       case "Model":
-        return mapCadlIntrinsicModelToOpenAPI(cadlType, visibility);
+        return mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
     }
   }
 
   /**
-   * Map Cadl intrinsic models to open api definitions
+   * Map TypeSpec intrinsic models to open api definitions
    */
-  function mapCadlIntrinsicModelToOpenAPI(
-    cadlType: Model,
+  function mapTypeSpecIntrinsicModelToOpenAPI(
+    typespecType: Model,
     visibility: Visibility
   ): any | undefined {
-    if (cadlType.indexer) {
-      if (isNeverType(cadlType.indexer.key)) {
+    if (typespecType.indexer) {
+      if (isNeverType(typespecType.indexer.key)) {
       } else {
-        const name = cadlType.indexer.key.name;
+        const name = typespecType.indexer.key.name;
         if (name === "string") {
           return {
             type: "object",
-            additionalProperties: getSchemaOrRef(cadlType.indexer.value!, visibility),
+            additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
           };
         } else if (name === "integer") {
           return {
             type: "array",
-            items: getSchemaOrRef(cadlType.indexer.value!, visibility | Visibility.Item),
+            items: getSchemaOrRef(typespecType.indexer.value!, visibility | Visibility.Item),
           };
         }
       }
@@ -1391,7 +1407,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "integer":
       case "numeric":
       case "float":
-        return {}; // Waiting on design for more precise type https://github.com/microsoft/cadl/issues/1260
+        return {}; // Waiting on design for more precise type https://github.com/microsoft/typespec/issues/1260
       default:
         const _assertNever: never = scalar.name;
         return {};
@@ -1459,6 +1475,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 }
 
 function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
@@ -1478,6 +1495,25 @@ function prettierOutput(output: string) {
 
 class ErrorTypeFoundError extends Error {
   constructor() {
-    super("Error type found in evaluated Cadl output");
+    super("Error type found in evaluated TypeSpec output");
+  }
+}
+
+function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
+  return Object.keys(obj)
+    .sort()
+    .reduce((sortedObj: any, key: string) => {
+      sortedObj[key] = obj[key];
+      return sortedObj;
+    }, {});
+}
+
+function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+  doc.paths = sortObjectByKeys(doc.paths);
+  if (doc.components?.schemas) {
+    doc.components.schemas = sortObjectByKeys(doc.components.schemas);
+  }
+  if (doc.components?.parameters) {
+    doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
 }

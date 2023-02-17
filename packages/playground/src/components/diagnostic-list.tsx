@@ -1,5 +1,5 @@
-import type { Diagnostic } from "@cadl-lang/compiler";
 import { css } from "@emotion/react";
+import type { Diagnostic } from "@typespec/compiler";
 import { FunctionComponent } from "react";
 
 export interface DiagnosticListProps {

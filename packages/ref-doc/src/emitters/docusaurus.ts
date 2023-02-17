@@ -1,6 +1,5 @@
 import prettier from "prettier";
 import {
-  CadlRefDoc,
   DecoratorRefDoc,
   EnumRefDoc,
   InterfaceRefDoc,
@@ -8,6 +7,7 @@ import {
   NamespaceRefDoc,
   OperationRefDoc,
   TemplateParameterRefDoc,
+  TypeSpecRefDoc,
   UnionRefDoc,
 } from "../types.js";
 import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
@@ -16,7 +16,7 @@ import { getTypeSignature } from "../utils/type-signature.js";
 /**
  * Render doc to a markdown using docusaurus addons.
  */
-export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, string> {
+export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
   const files: Record<string, string> = {
     "index.md": renderIndexFile(refDoc),
   };
@@ -49,7 +49,7 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
   return files;
 }
 
-function renderIndexFile(refDoc: CadlRefDoc): string {
+function renderIndexFile(refDoc: TypeSpecRefDoc): string {
   const content = [
     "---",
     `title: Index`,
@@ -92,7 +92,7 @@ function renderIndexFile(refDoc: CadlRefDoc): string {
   return content.join("\n");
 }
 
-function renderDecoratorFile(refDoc: CadlRefDoc): string | undefined {
+function renderDecoratorFile(refDoc: TypeSpecRefDoc): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
   }
@@ -127,7 +127,7 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     headings.hx(headingLevel, `${inlinecode(dec.name)} {#${dec.id}}`),
     "",
     dec.doc,
-    codeblock(dec.signature, "cadl"),
+    codeblock(dec.signature, "typespec"),
     "",
   ];
 
@@ -157,7 +157,7 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
   return content.join("\n");
 }
 
-function renderInterfacesFile(refDoc: CadlRefDoc): string | undefined {
+function renderInterfacesFile(refDoc: TypeSpecRefDoc): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
     return undefined;
   }
@@ -196,7 +196,7 @@ function renderOperationMarkdown(op: OperationRefDoc, headingLevel: number = 3) 
     headings.hx(headingLevel, `${inlinecode(op.name)} {#${op.id}}`),
     "",
     op.doc,
-    codeblock(op.signature, "cadl"),
+    codeblock(op.signature, "typespec"),
     "",
   ];
 
@@ -224,7 +224,7 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
     headings.hx(headingLevel, `${inlinecode(iface.name)} {#${iface.id}}`),
     "",
     iface.doc,
-    codeblock(iface.signature, "cadl"),
+    codeblock(iface.signature, "typespec"),
     "",
   ];
 
@@ -235,7 +235,7 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
   return content.join("\n");
 }
 
-function renderDataTypes(refDoc: CadlRefDoc): string | undefined {
+function renderDataTypes(refDoc: TypeSpecRefDoc): string | undefined {
   if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
     return undefined;
   }
@@ -275,7 +275,7 @@ function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
     headings.hx(headingLevel, `${inlinecode(model.name)} {#${model.id}}`),
     "",
     model.doc,
-    codeblock(model.signature, "cadl"),
+    codeblock(model.signature, "typespec"),
     "",
   ];
 
@@ -291,7 +291,7 @@ function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
     headings.hx(headingLevel, `${inlinecode(e.name)} {#${e.id}}`),
     "",
     e.doc,
-    codeblock(e.signature, "cadl"),
+    codeblock(e.signature, "typespec"),
     "",
   ];
 
@@ -302,7 +302,7 @@ function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
     headings.hx(headingLevel, `${inlinecode(union.name)} {#${union.id}}`),
     "",
     union.doc,
-    codeblock(union.signature, "cadl"),
+    codeblock(union.signature, "typespec"),
     "",
   ];
 

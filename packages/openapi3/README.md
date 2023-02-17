@@ -1,13 +1,13 @@
-# Cadl OpenAPI 3.0 Emitter
+# TypeSpec OpenAPI 3.0 Emitter
 
-This package provides the [Cadl](https://github.com/microsoft/cadl) emitter to produce OpenAPI 3.0 output from Cadl source.
+This package provides the [TypeSpec](https://github.com/microsoft/typespec) emitter to produce OpenAPI 3.0 output from TypeSpec source.
 
 ## Install
 
-In your cadl project root
+In your typespec project root
 
 ```bash
-npm install @cadl-lang/openapi3
+npm install @typespec/openapi3
 ```
 
 ## Emit OpenAPI 3.0 spec
@@ -15,24 +15,24 @@ npm install @cadl-lang/openapi3
 1. Via the command line
 
 ```bash
-cadl compile . --emit @cadl-lang/openapi3
+tsp compile . --emit @typespec/openapi3
 ```
 
 2. Via the config
 
-Add the following to the `cadl-project.yaml` file.
+Add the following to the `tspconfig.yaml` file.
 
 ```yaml
 emitters:
-  @cadl-lang/openapi3: true
+  @typespec/openapi3: true
 ```
 
 For configuration [see options](#emitter-options)
 
 ## Use OpenAPI 3.0 specific decorators:
 
-```cadl
-import "@cadl-lang/openapi3";
+```typespec
+import "@typespec/openapi3";
 
 using OpenAPI;
 
@@ -63,7 +63,7 @@ Syntax:
 
 `@useRef`
 
-`@useRef` is used to replace the Cadl model type in emitter output with a pre-existing named OpenAPI schema.
+`@useRef` is used to replace the TypeSpec model type in emitter output with a pre-existing named OpenAPI schema.
 
 ### @oneOf
 
@@ -79,27 +79,27 @@ Syntax:
 
 ## Emitter options:
 
-Emitter options can be configured via the `cadl-project.yaml` configuration:
+Emitter options can be configured via the `tspconfig.yaml` configuration:
 
 ```yaml
 emitters:
-  '@cadl-lang/openapi3':
+  '@typespec/openapi3':
     <optionName>: <value>
 
 
 # For example
 emitters:
-  '@cadl-lang/openapi3':
+  '@typespec/openapi3':
     outputFile: my-custom-openapi.json
 ```
 
 or via the command line with
 
 ```bash
---option "@cadl-lang/openapi3.<optionName>=<value>"
+--option "@typespec/openapi3.<optionName>=<value>"
 
 # For example
---option "@cadl-lang/openapi3.output-file=my-custom-openapi.json"
+--option "@typespec/openapi3.output-file=my-custom-openapi.json"
 ```
 
 ### `output-file`
@@ -119,6 +119,6 @@ Only include types referenced via an operation.
 
 ## See also
 
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Website](https://microsoft.github.io/cadl)
-- [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec Website](https://microsoft.github.io/typespec)
+- [TypeSpec for the OpenAPI Developer](https://github.com/microsoft/typespec/blob/main/docs/typespec-for-openapi-dev.md)

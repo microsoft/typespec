@@ -20,7 +20,7 @@ import {
   SyntaxKind,
   Type,
   Union,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import {
   map,
   matchType,
@@ -50,14 +50,14 @@ import { writeProtoFile } from "./write.js";
 let _protoScalarsMap: Map<Type, ProtoScalar>;
 
 /**
- * Create a worker function that converts the CADL program to Protobuf and writes it to the file system.
+ * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
  */
 export function createProtobufEmitter(
   program: Program
 ): (outDir: string, options: ProtobufEmitterOptions) => Promise<void> {
   return async function doEmit(outDir, options) {
     // Convert the program to a set of proto files.
-    const files = cadlToProto(program);
+    const files = tspToProto(program);
 
     if (!program.compilerOptions.noEmit && !options?.noEmit && !program.hasError()) {
       for (const file of files) {
@@ -80,11 +80,11 @@ export function createProtobufEmitter(
 }
 
 /**
- * Create a set of proto files that represent the CADL program.
+ * Create a set of proto files that represent the TypeSpec program.
  *
  * This is the meat of the emitter.
  */
-function cadlToProto(program: Program): ProtoFile[] {
+function tspToProto(program: Program): ProtoFile[] {
   const packages = new Set<Namespace>(
     program.stateMap(state.package).keys() as Iterable<Namespace>
   );
@@ -300,7 +300,7 @@ function cadlToProto(program: Program): ProtoFile[] {
             // We just use the built-in "unknown" type to mean the protobuf Any type
             return ref("Any");
           case "void": {
-            const emptyRef = program.resolveTypeReference("Cadl.Protobuf.Empty")[0];
+            const emptyRef = program.resolveTypeReference("TypeSpec.Protobuf.Empty")[0];
             if (emptyRef) {
               const externRef = program.stateMap(state.externRef).get(emptyRef) as [string, string];
               typeWantsImport(program, operation, externRef[0]);
@@ -321,7 +321,7 @@ function cadlToProto(program: Program): ProtoFile[] {
   }
 
   /**
-   * Converts a Cadl Model to a Protobuf Ref in return position, adding a corresponding message if necessary.
+   * Converts a TypeSpec Model to a Protobuf Ref in return position, adding a corresponding message if necessary.
    *
    * @param m - the model to add to the Protofile.
    * @returns a Protobuf reference to the model
@@ -347,7 +347,7 @@ function cadlToProto(program: Program): ProtoFile[] {
   }
 
   /**
-   * Converts a CADL type to a Protobuf type, adding a corresponding message if necessary.
+   * Converts a TypeSpec type to a Protobuf type, adding a corresponding message if necessary.
    *
    * @param t - the type to add to the ProtoFile.
    * @returns a Protobuf type corresponding to the given type
@@ -437,21 +437,21 @@ function cadlToProto(program: Program): ProtoFile[] {
     return (_protoScalarsMap ??= new Map<Type, ProtoScalar>(
       (
         [
-          [program.resolveTypeReference("Cadl.bytes"), scalar("bytes")],
-          [program.resolveTypeReference("Cadl.boolean"), scalar("bool")],
-          [program.resolveTypeReference("Cadl.string"), scalar("string")],
-          [program.resolveTypeReference("Cadl.int32"), scalar("int32")],
-          [program.resolveTypeReference("Cadl.int64"), scalar("int64")],
-          [program.resolveTypeReference("Cadl.uint32"), scalar("uint32")],
-          [program.resolveTypeReference("Cadl.uint64"), scalar("uint64")],
-          [program.resolveTypeReference("Cadl.float32"), scalar("float")],
-          [program.resolveTypeReference("Cadl.float64"), scalar("double")],
-          [program.resolveTypeReference("Cadl.Protobuf.sfixed32"), scalar("sfixed32")],
-          [program.resolveTypeReference("Cadl.Protobuf.sfixed64"), scalar("sfixed64")],
-          [program.resolveTypeReference("Cadl.Protobuf.sint32"), scalar("sint32")],
-          [program.resolveTypeReference("Cadl.Protobuf.sint64"), scalar("sint64")],
-          [program.resolveTypeReference("Cadl.Protobuf.fixed32"), scalar("fixed32")],
-          [program.resolveTypeReference("Cadl.Protobuf.fixed64"), scalar("fixed64")],
+          [program.resolveTypeReference("TypeSpec.bytes"), scalar("bytes")],
+          [program.resolveTypeReference("TypeSpec.boolean"), scalar("bool")],
+          [program.resolveTypeReference("TypeSpec.string"), scalar("string")],
+          [program.resolveTypeReference("TypeSpec.int32"), scalar("int32")],
+          [program.resolveTypeReference("TypeSpec.int64"), scalar("int64")],
+          [program.resolveTypeReference("TypeSpec.uint32"), scalar("uint32")],
+          [program.resolveTypeReference("TypeSpec.uint64"), scalar("uint64")],
+          [program.resolveTypeReference("TypeSpec.float32"), scalar("float")],
+          [program.resolveTypeReference("TypeSpec.float64"), scalar("double")],
+          [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), scalar("sfixed32")],
+          [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), scalar("sfixed64")],
+          [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), scalar("sint32")],
+          [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), scalar("sint64")],
+          [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), scalar("fixed32")],
+          [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), scalar("fixed64")],
         ] as [[Type, unknown], ProtoScalar][]
       ).map(([[type], scalar]) => [type, scalar])
     ));
@@ -801,7 +801,7 @@ function cadlToProto(program: Program): ProtoFile[] {
 }
 
 function isArray(t: Type) {
-  return t.kind === "Model" && t.name === "Array" && t.namespace?.name === "Cadl";
+  return t.kind === "Model" && t.name === "Array" && t.namespace?.name === "TypeSpec";
 }
 
 /**

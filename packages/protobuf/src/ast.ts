@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 
-import { Namespace } from "@cadl-lang/compiler";
+import { Namespace } from "@typespec/compiler";
 
 /**
  * This module describes an AST for Protobuf.

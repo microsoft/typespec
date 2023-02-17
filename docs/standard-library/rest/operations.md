@@ -12,13 +12,13 @@ You can use one of the [verb decorators](./reference/decorators.md): `@get`, `@p
 
 An operation route can be specified using the `@route` decorator.
 
-```cadl
+```typespec
 @route("/pets") op list(): Pet[];
 ```
 
 Route path parameters are declared using `{}`. Providing `@path` on the model property with the matching name is optional.
 
-```cadl
+```typespec
 @route("/pets/{petId}") op get(petId: string): Pet;
 // or explicit @path
 @route("/pets/{petId}") op get(@path petId: string): Pet;
@@ -26,7 +26,7 @@ Route path parameters are declared using `{}`. Providing `@path` on the model pr
 
 Route can be specified on a parent namespace or interface. In that case all the operations, interfaces and namespaces underneath will be prefixed with it.
 
-```cadl
+```typespec
 @route("/store")
 namespace PetStore {
   op hello(): void; // `/store`
@@ -44,7 +44,7 @@ namespace PetStore {
 
 Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` parameters respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
@@ -52,9 +52,9 @@ namespace Pets {
 }
 ```
 
-Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
+Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following TypeSpec. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
 
-```cadl
+```typespec
 @route("/pets/{petId}/toys")
 namespace PetToys {
   op list(@path petId: int32): Toy[];
@@ -65,7 +65,7 @@ namespace PetToys {
 
 Request and response bodies can be declared explicitly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
@@ -90,7 +90,7 @@ create in the same terse style by spreading the Pet object into the parameter li
 
 See also [metadata](./operations.md#metadata) for more advanced details.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   @post
@@ -102,7 +102,7 @@ namespace Pets {
 
 Model properties and parameters that should be passed in a header use the `@header` decorator. The decorator takes the header name as a parameter. If a header name is not provided, it is inferred from the property or parameter name. Let's add `etag` support to our pet store's read operation.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
@@ -121,7 +121,7 @@ namespace Pets {
 
 Use the `@header` decorator on a property named `statusCode` to declare a status code for a response. Generally, setting this to just `int32` isn't particularly useful. Instead, use number literal types to create a discriminated union of response types. Let's add status codes to our responses, and add a 404 response to our read endpoint.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
@@ -145,7 +145,7 @@ namespace Pets {
 
 A pattern often used in REST APIs is to define a request or response body as having one of several different shapes, with a property called the
 "discriminator" indicating which actual shape is used for a particular instance.
-Cadl supports this pattern with the `@discriminator` decorator of the Rest library.
+TypeSpec supports this pattern with the `@discriminator` decorator of the Rest library.
 
 The `@discriminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
 model for the request or response body. The different shapes are then defined by separate models that `extend` this request or response model.
@@ -153,7 +153,7 @@ The discriminator property is defined in the "child" models with the value or va
 
 As an example, a `Pet` model that allows instances that are either a `Cat` or a `Dog` can be defined with
 
-```cadl
+```typespec
 @discriminator("kind")
 model Pet {
   name: string;
@@ -181,7 +181,7 @@ Depending on the body of the operation http library will assume different conten
 
 Examples:
 
-```cadl
+```typespec
 op download(): bytes; // response content type is application/octet-stream
 op upload(@body file: bytes): void; // request content type is application/octet-stream
 op getContent(): string; // response content type is text/plain
@@ -197,13 +197,13 @@ The content type for an operation can be specified by including a header paramet
 
 #### Request content type
 
-```cadl
+```typespec
 op uploadImage(@header contentType: "image/png", @body image: bytes): void;
 ```
 
 #### Response content type:
 
-```cadl
+```typespec
 op downloadImage(): {
   @header contentType: "image/png";
   @body image: bytes;
@@ -212,19 +212,19 @@ op downloadImage(): {
 
 #### Multiple content types
 
-```cadl
+```typespec
 op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: bytes): void;
 ```
 
 ## Built-in response shapes
 
-Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
+Since status codes are so common for REST APIs, TypeSpec comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
 
 There is also a `Body<T>` type, which can be used as a shorthand for { @body body: T } when an explicit body is required.
 
 Lets update our sample one last time to use these built-in types:
 
-```cadl
+```typespec
 model ETag {
   @header eTag: string;
 }
@@ -241,7 +241,7 @@ namespace Pets {
 
 Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit `Body<T>` is not required when T is known to be a model. So the following terser form is equivalent:
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
@@ -257,7 +257,7 @@ entirely explicit while also keeping operation definitions concise.
 
 For example, we could write :
 
-```cadl
+```typespec
 model ListResponse<T> {
   ...OkResponse;
   ...Body<T[]>;
@@ -286,7 +286,9 @@ namespace Pets {
 
 ## Automatic visibility
 
-The `@cadl-lang/rest` library understands the following well-known [visibilities](../../standard-library/built-in-decorators.md#visibility-decorators) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below. Currently, only the `@cadl-lang/openapi3` emitter uses this, but it is expected that other REST-based emitters will do so as well in the near future.
+The `@typespec/rest` library understands the following well-known [visibilities](../../standard-library/built-in-decorators.md#visibility-decorators) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below.
+
+See [handling visibility and metadata](../../extending-typespec/emitter-metadata-handling.md) for how to incorporate this into
 
 | Name     | Visible in           |
 | -------- | -------------------- |
@@ -296,9 +298,9 @@ The `@cadl-lang/rest` library understands the following well-known [visibilities
 | "update" | PATCH or PUT request |
 | "delete" | DELETE request       |
 
-This allows a single logical Cadl model to be used as in the following example:
+This allows a single logical TypeSpec model to be used as in the following example:
 
-```cadl
+```typespec
 model User {
   name: string;
   @visibility("read") id: string;
@@ -312,13 +314,13 @@ interface Users {
 }
 ```
 
-There is a single logical user entity represented by the single Cadl type `User`, but the HTTP payload for this entity varies based on context. When returned in a response, the `id` property is included, but when sent in a request, it is not. Similarly, the `password` property is only included in create requests, but not present in responses.
+There is a single logical user entity represented by the single TypeSpec type `User`, but the HTTP payload for this entity varies based on context. When returned in a response, the `id` property is included, but when sent in a request, it is not. Similarly, the `password` property is only included in create requests, but not present in responses.
 
-The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility("read")` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility("create")` applied to a model property of a type named Widget will generate a WidgetCreate schema.
+The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility("read")` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility("create")` applied to a model property of a type named Widget will generate a `WidgetCreate` schema.
 
 Another emitter such as one generating client code can see and preserve a single logical type and deal with these HTTP payload differences by means other than type proliferation.
 
-Modeling with logical entities rather than HTTP-specific shapes also keeps the Cadl spec decoupled from HTTP and REST and can allow the same spec to be used with multiple protocols.
+Modeling with logical entities rather than HTTP-specific shapes also keeps the TypeSpec spec decoupled from HTTP and REST and can allow the same spec to be used with multiple protocols.
 
 ## Metadata
 
@@ -335,11 +337,11 @@ Metadata is determined to be applicable or inapplicable based on the context tha
 
 Additionally metadata that appears in an array element type always inapplicable.
 
-When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload](./reference/decorators.md#@Cadl.Rest.includeinapplicablemetadatainpayload) decorator is used and given a value of `false`.
+When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload](./reference/decorators.md#@TypeSpec.Rest.includeinapplicablemetadatainpayload) decorator is used and given a value of `false`.
 
-The handling of metadata applicability furthers the goal of keeping a single logical model in Cadl. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
+The handling of metadata applicability furthers the goal of keeping a single logical model in TypeSpec. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
 
-```cadl
+```typespec
 model User {
   name: string;
   @path id: string;
@@ -349,7 +351,7 @@ model User {
 
 Then, we can write operations in terms of the logical entity:
 
-```cadl
+```typespec
 @route("/users")
 interface Users {
   @post create(...User): User;
@@ -359,18 +361,18 @@ interface Users {
 Abstractly, this expresses that a create operation that takes and returns a user. But concretely, at the HTTP protocol level, a create request and response look like this:
 
 ```
-POST /Users/CadlFan42 HTTP/1.1
+POST /Users/TypeSpecFan42 HTTP/1.1
 Content-Type: application/json
 {
-  "name": "Cadl Fan",
+  "name": "TypeSpec Fan",
   "password": "Y0uW1llN3v3rGu3ss!"
 }
 
 HTTP/1.1 200 OK
 Content-Type: application/json
 {
-  name: "Cadl Fan",
-  id: "CadlFan42
+  name: "TypeSpec Fan",
+  id: "TypeSpecFan42
 }
 ```
 
@@ -382,7 +384,7 @@ Metadata properties are filtered based on visibility as [described above](#autom
 
 Metadata properties are not required to be top-level. They can also be nested deeper in a parameter or response model type. For example:
 
-```cadl
+```typespec
 model Thing {
   headers: {
     @header example: string;
@@ -393,7 +395,7 @@ model Thing {
 
 Note that nesting in this sense does not require the use of anonymous models. This is equivalent:
 
-```cadl
+```typespec
 model Thing {
   headers: Headers;
   name: string;
@@ -405,7 +407,7 @@ model Headers {
 
 In the event that this nesting introduces duplication, then the least nested property with a given name is preferred and the duplicate metadata properties are ignored.
 
-```cadl
+```typespec
 model Thing {
   headers: {
     @header example: string; // preferred
@@ -415,3 +417,7 @@ model Thing {
   };
 }
 ```
+
+## Emitter resources
+
+See [Handling metadata and visibility in emitters for REST API](../../extending-typespec/emitter-metadata-handling.md) for information on how to handle metadata applicability and automatic visibility in a custom emitter.

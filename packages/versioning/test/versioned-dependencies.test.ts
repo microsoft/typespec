@@ -1,10 +1,10 @@
-import { Model, Namespace, Operation, Program, projectProgram } from "@cadl-lang/compiler";
+import { Model, Namespace, Operation, Program, projectProgram } from "@typespec/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { buildVersionProjections } from "../src/versioning.js";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
@@ -17,8 +17,8 @@ describe("versioning: reference versioned library", () => {
     const host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
-      import "@cadl-lang/versioning";
-      using Cadl.Versioning;
+      import "@typespec/versioning";
+      using TypeSpec.Versioning;
       @versioned(Versions)
       namespace VersionedLib {
         enum Versions {l1, l2}
@@ -99,7 +99,7 @@ describe("versioning: reference versioned library", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'Cadl.Reflection.EnumMember'",
+          "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'TypeSpec.Reflection.EnumMember'",
       });
     });
   });
@@ -171,7 +171,7 @@ describe("versioning: reference versioned library", () => {
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-namespace-use-dependency",
+        code: "@typespec/versioning/incompatible-versioned-namespace-use-dependency",
         message:
           "The useDependency decorator can only be used on a Namespace if the namespace is unversioned. For versioned namespaces, put the useDependency decorator on the version enum members.",
       });
@@ -192,7 +192,7 @@ describe("versioning: reference versioned library", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/version-not-found",
+        code: "@typespec/versioning/version-not-found",
         message:
           "The provided version 'v2' from 'TestServiceVersions' is not declared as a version enum. Use '@versioned(TestServiceVersions)' on the containing namespace.",
       });
@@ -207,7 +207,7 @@ describe("versioning: reference versioned library", () => {
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
           "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
@@ -222,7 +222,7 @@ describe("versioning: reference versioned library", () => {
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
           "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
@@ -233,7 +233,7 @@ describe("versioning: reference versioned library", () => {
         model Test extends VersionedLib.Foo {}
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
           "Namespace '' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
@@ -394,7 +394,7 @@ describe("versioning: reference versioned library", () => {
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
           "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
@@ -409,8 +409,8 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
     const host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
-      import "@cadl-lang/versioning";
-      using Cadl.Versioning;
+      import "@typespec/versioning";
+      using TypeSpec.Versioning;
       @versioned(Versions)
       namespace VersionedLib {
         enum Versions {l1, l2}
@@ -462,7 +462,7 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/versioned-dependency-not-picked",
+        code: "@typespec/versioning/versioned-dependency-not-picked",
         message:
           "The versionedDependency decorator must provide a version of the dependency 'VersionedLib'.",
       });
@@ -531,7 +531,7 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/versioned-dependency-record-not-mapping",
+        code: "@typespec/versioning/versioned-dependency-record-not-mapping",
         message:
           "The versionedDependency decorator must provide a model mapping local versions to dependency 'VersionedLib' versions",
       });
@@ -640,7 +640,7 @@ describe("versioning (deprecated): reference versioned library (@versionedDepend
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
           "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
@@ -717,7 +717,7 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/760
+  // Test for https://github.com/microsoft/typespec/issues/760
   it("have a nested service namespace", async () => {
     const { MyService } = (await runner.compile(`
         #suppress "deprecated"
@@ -738,7 +738,7 @@ describe("versioning (deprecated): dependencies (@versionedDependency)", () => {
     ok(v1.projectedTypes.get(MyService));
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/786
+  // Test for https://github.com/microsoft/typespec/issues/786
   it("have a nested service namespace and libraries sharing common parent namespace", async () => {
     const { MyService } = (await runner.compile(`
         #suppress "deprecated"
@@ -865,7 +865,7 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/760
+  // Test for https://github.com/microsoft/typespec/issues/760
   it("have a nested service namespace", async () => {
     const { MyService } = (await runner.compile(`
         @service({title: "Test"})
@@ -885,7 +885,7 @@ describe("versioning: dependencies", () => {
     ok(v1.projectedTypes.get(MyService));
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/786
+  // Test for https://github.com/microsoft/typespec/issues/786
   it("have a nested service namespace and libraries sharing common parent namespace", async () => {
     const { MyService } = (await runner.compile(`
         @service({title: "Test"})

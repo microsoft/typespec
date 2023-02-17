@@ -1,25 +1,25 @@
 {
-  "name": "@cadl-lang/migrate",
-  "version": "0.39.0",
+  "name": "@typespec/migrate",
+  "version": "0.40.0",
   "author": "Microsoft Corporation",
-  "description": "Migration tool for cadl.",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/main/README.md",
+  "description": "Migration tool for typespec.",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/index.js",
   "bin": {
-    "cadl-migrate": "./dist/src/cli.js"
+    "typespec-migrate": "./dist/src/cli.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -39,15 +39,15 @@
   ],
   "dependencies": {
     "globby": "~13.1.1",
-    "@cadl-lang/compiler": "~0.39.0",
-    "@cadl-lang/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0"
+    "@typespec/compiler": "~0.40.0",
+    "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.39.0",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/eslint-plugin": "~0.39.0",
+    "@typespec/compiler": "~0.40.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/eslint-plugin": "~0.40.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",

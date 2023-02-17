@@ -68,21 +68,6 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, { $ref: "#/components/schemas/MRead" });
 
     deepStrictEqual(res.components.schemas, {
-      M: {
-        type: "object",
-        properties: {
-          c: {
-            type: "string",
-          },
-          r: {
-            readOnly: true,
-            type: "string",
-          },
-          u: {
-            type: "string",
-          },
-        },
-      },
       MCreate: {
         type: "object",
         properties: {
@@ -251,7 +236,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MRead" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -260,7 +245,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MCreate" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -269,7 +254,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MCreateOrUpdate" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -278,7 +263,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MUpdate" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -287,7 +272,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MDelete" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -338,8 +323,8 @@ describe("openapi3: metadata", () => {
               "application/json": {
                 schema: {
                   type: "array",
-                  items: { $ref: "#/components/schemas/ParametersQueryItem" },
-                  "x-cadl-name": "Parameters[]",
+                  items: { $ref: "#/components/schemas/Parameters" },
+                  "x-typespec-name": "Parameters[]",
                 },
               },
             },
@@ -370,10 +355,6 @@ describe("openapi3: metadata", () => {
       },
       schemas: {
         Parameters: {
-          type: "object",
-          properties: {},
-        },
-        ParametersQueryItem: {
           properties: {
             h: {
               type: "string",
@@ -395,9 +376,6 @@ describe("openapi3: metadata", () => {
   it("uses item suffix if array element has inapplicable metadata and is used with more than one visibility.", async () => {
     const res = await openApiFor(
       `
-      model Bag {
-        items?: Thing[];
-      }
       model Thing {
         @header etag: string;
         name: string;
@@ -414,7 +392,7 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, {
       type: "array",
       items: { $ref: "#/components/schemas/ThingReadItem" },
-      "x-cadl-name": "Thing[]",
+      "x-typespec-name": "Thing[]",
     });
 
     deepStrictEqual(res.components, {
@@ -427,33 +405,6 @@ describe("openapi3: metadata", () => {
         },
       },
       schemas: {
-        Bag: {
-          type: "object",
-          properties: {
-            items: {
-              type: "array",
-              items: { $ref: "#/components/schemas/ThingItem" },
-              "x-cadl-name": "Thing[]",
-            },
-          },
-        },
-        Thing: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            d: { type: "string" },
-          },
-          required: ["name", "d"],
-        },
-        ThingItem: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            d: { type: "string" },
-            etag: { type: "string" },
-          },
-          required: ["etag", "name", "d"],
-        },
         ThingCreate: {
           type: "object",
           properties: {
@@ -518,16 +469,6 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, { $ref: "#/components/schemas/ThingRead" });
 
     deepStrictEqual(res.components.schemas, {
-      Thing: {
-        type: "object",
-        properties: {
-          c: { type: "string" },
-          inner: { $ref: "#/components/schemas/Thing" },
-          u: {
-            type: "string",
-          },
-        },
-      },
       ThingRead: {
         type: "object",
         properties: {

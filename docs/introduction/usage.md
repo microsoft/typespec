@@ -5,27 +5,27 @@ title: Usage
 
 # Usage
 
-See full usage documentation by typing `cadl --help`:
+See full usage documentation by typing `tsp --help`:
 
 ```bash
->cadl --help
-Cadl compiler v0.36.1
+>tsp --help
+TypeSpec compiler v0.36.1
 
-cadl <command>
+typespec <command>
 
 Commands:
-  cadl compile <path>       Compile Cadl source.
-  cadl code                 Manage VS Code Extension.
-  cadl vs                   Manage Visual Studio Extension.
-  cadl format <include...>  Format given list of Cadl files.
-  cadl init [templatesUrl]  Create a new Cadl project.
-  cadl install              Install cadl dependencies
-  cadl info                 Show information about current Cadl compiler.
+  tsp compile <path>       Compile TypeSpec source.
+  tsp code                 Manage VS Code Extension.
+  tsp vs                   Manage Visual Studio Extension.
+  tsp format <include...>  Format given list of TypeSpec files.
+  tsp init [templatesUrl]  Create a new TypeSpec project.
+  tsp install              Install typespec dependencies
+  tsp info                 Show information about current TypeSpec compiler.
 
 Options:
   --help     Show help                                                 [boolean]
   --debug    Output debug log messages.               [boolean] [default: false]
-  --pretty   Enable color and formatting in Cadl's output to make compiler error
+  --pretty   Enable color and formatting in TypeSpec's output to make compiler error
              s easier to read.                         [boolean] [default: true]
   --version  Show version number                                       [boolean]
 ```

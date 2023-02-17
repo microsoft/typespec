@@ -1,6 +1,6 @@
-import "@cadl-lang/protobuf";
+import "@typespec/protobuf";
 
-using Cadl.Protobuf;
+using TypeSpec.Protobuf;
 
 @package
 namespace Test;
@@ -11,5 +11,5 @@ interface Service {
 }
 
 model Input {
-  @field(1) testInputField: Cadl.Protobuf.Map<sfixed32, string>;
+  @field(1) testInputField: TypeSpec.Protobuf.Map<sfixed32, string>;
 }

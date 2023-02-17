@@ -1,4 +1,4 @@
-/test/main.cadl:18:1 - error @cadl-lang/protobuf/unconvertible-enum: enums must explicitly assign exactly one integer to each member to be used in a Protobuf message
-/test/main.cadl:19:3 - error @cadl-lang/protobuf/unconvertible-enum: the first variant of an enum must be set to zero to be used in a Protobuf message
-/test/main.cadl:23:1 - error @cadl-lang/protobuf/unconvertible-enum: enums must explicitly assign exactly one integer to each member to be used in a Protobuf message
-/test/main.cadl:24:3 - error @cadl-lang/protobuf/unconvertible-enum: the first variant of an enum must be set to zero to be used in a Protobuf message
+/test/main.tsp:18:1 - error @typespec/protobuf/unconvertible-enum: enums must explicitly assign exactly one integer to each member to be used in a Protobuf message
+/test/main.tsp:19:3 - error @typespec/protobuf/unconvertible-enum: the first variant of an enum must be set to zero to be used in a Protobuf message
+/test/main.tsp:23:1 - error @typespec/protobuf/unconvertible-enum: enums must explicitly assign exactly one integer to each member to be used in a Protobuf message
+/test/main.tsp:24:3 - error @typespec/protobuf/unconvertible-enum: the first variant of an enum must be set to zero to be used in a Protobuf message

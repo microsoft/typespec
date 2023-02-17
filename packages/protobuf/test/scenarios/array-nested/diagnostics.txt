@@ -1,1 +1,1 @@
-/test/.cadl/lib/lib.cadl:116:1 - error @cadl-lang/protobuf/nested-array: nested arrays are not supported by the Protobuf emitter
+/test/.typespec/lib/lib.tsp:116:1 - error @typespec/protobuf/nested-array: nested arrays are not supported by the Protobuf emitter

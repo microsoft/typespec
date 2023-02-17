@@ -10,7 +10,7 @@ export interface EmitFileOptions {
 
 /**
  * Helper to emit a file.
- * @param program Cadl Program
+ * @param program TypeSpec Program
  * @param options File Emitter options
  */
 export async function emitFile(program: Program, options: EmitFileOptions): Promise<void> {

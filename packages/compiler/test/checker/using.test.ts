@@ -15,22 +15,22 @@ describe("compiler: using statements", () => {
   });
 
   it("works in global scope", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N;
       model X { x: int32 }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N;
       @test model Y { ... X }
@@ -45,22 +45,22 @@ describe("compiler: using statements", () => {
   });
 
   it("works in namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N;
       model X { x: int32 }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace Z;
       using N;
@@ -76,22 +76,22 @@ describe("compiler: using statements", () => {
   });
 
   it("works with dotted namespaces", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N.M;
       model X { x: int32 }
       `
     );
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N.M;
       @test model Y { ... X }
@@ -106,15 +106,15 @@ describe("compiler: using statements", () => {
   });
 
   it("can use 2 namespace with the same last name", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N.A {
         model B { }
@@ -126,8 +126,8 @@ describe("compiler: using statements", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N.A;
       using M.A;
@@ -139,23 +139,23 @@ describe("compiler: using statements", () => {
   });
 
   it("throws errors for duplicate imported usings", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N.M;
       model X { x: int32 }
       `
     );
 
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N.M;
       using N.M;
@@ -169,15 +169,15 @@ describe("compiler: using statements", () => {
   });
 
   it("does not throws errors for different usings with the same bindings if not used", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N {
         model A { }
@@ -189,8 +189,8 @@ describe("compiler: using statements", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N;
       using M;
@@ -202,15 +202,15 @@ describe("compiler: using statements", () => {
   });
 
   it("report ambiguous diagnostics when using name present in multiple using", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N {
         model A { }
@@ -222,8 +222,8 @@ describe("compiler: using statements", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N;
       using M;
@@ -241,17 +241,72 @@ describe("compiler: using statements", () => {
     ]);
   });
 
-  it("ambiguous use doesn't affect other files", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+  it("reports ambiguous symbol for decorator", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./ambiguous.cadl";
-      import "./notambiguous.cadl";
+      import "./doc.js";
+      namespace Test;
+
+      namespace A {
+        extern dec doc(target: unknown);
+      }
+
+      using A;
+
+      @doc
+      namespace Foo {}
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+
+    testHost.addJsFile("doc.js", {
+      namespace: "Test.A",
+      $doc() {},
+    });
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      { code: "unknown-decorator" },
+    ]);
+  });
+
+  it("reports ambiguous symbol for decorator with missing implementation", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      namespace Test;
+
+      namespace A {
+        extern dec doc(target: unknown);
+      }
+
+      using A;
+
+      @doc
+      namespace Foo {}
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      { code: "unknown-decorator" },
+      { code: "missing-implementation" },
+    ]);
+  });
+
+  it("ambiguous use doesn't affect other files", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./ambiguous.tsp";
+      import "./notambiguous.tsp";
+      `
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N {
         model A { }
@@ -263,8 +318,8 @@ describe("compiler: using statements", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "ambiguous.cadl",
+    testHost.addTypeSpecFile(
+      "ambiguous.tsp",
       `
       using N;
       using M;
@@ -273,8 +328,8 @@ describe("compiler: using statements", () => {
       `
     );
 
-    testHost.addCadlFile(
-      "notambiguous.cadl",
+    testHost.addTypeSpecFile(
+      "notambiguous.tsp",
       `
       using N;
 
@@ -287,29 +342,29 @@ describe("compiler: using statements", () => {
         code: "ambiguous-symbol",
         message:
           '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
-        file: /ambiguous\.cadl$/,
+        file: /ambiguous\.tsp$/,
       },
     ]);
   });
 
   it("resolves 'local' decls over usings", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N;
       model A { a: string }
       `
     );
 
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       using N;
       model A { a: int32 | string }
@@ -325,23 +380,23 @@ describe("compiler: using statements", () => {
   });
 
   it("usings are local to a file", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./a.cadl";
-      import "./b.cadl";
+      import "./a.tsp";
+      import "./b.tsp";
       `
     );
-    testHost.addCadlFile(
-      "a.cadl",
+    testHost.addTypeSpecFile(
+      "a.tsp",
       `
       namespace N;
       model A { a: string }
       `
     );
 
-    testHost.addCadlFile(
-      "b.cadl",
+    testHost.addTypeSpecFile(
+      "b.tsp",
       `
       namespace M {
         using N;
@@ -355,9 +410,9 @@ describe("compiler: using statements", () => {
 
     await rejects(testHost.compile("./"));
   });
-  it("Cadl namespace is automatically using'd", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+  it("TypeSpec namespace is automatically using'd", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Foo;
       model test { x: int32 };
@@ -368,10 +423,10 @@ describe("compiler: using statements", () => {
   });
 
   it("works when the using'd namespace is merged after the current namespace", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./other.cadl";
+      import "./other.tsp";
       namespace Main;
       using Other;
       model Thing {
@@ -379,8 +434,8 @@ describe("compiler: using statements", () => {
       }
     `
     );
-    testHost.addCadlFile(
-      "other.cadl",
+    testHost.addTypeSpecFile(
+      "other.tsp",
       `
       namespace Other;
 

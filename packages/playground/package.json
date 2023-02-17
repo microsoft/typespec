@@ -1,21 +1,21 @@
 {
-  "name": "@cadl-lang/playground",
+  "name": "@typespec/playground",
   "private": true,
   "version": "1.0.0",
   "author": "Microsoft Corporation",
-  "description": "An app to play with CADL in the browser",
-  "homepage": "https://github.com/microsoft/cadl",
-  "readme": "https://github.com/microsoft/cadl/blob/main/README.md",
+  "description": "An app to play with TYPESPEC in the browser",
+  "homepage": "https://github.com/microsoft/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/lib.js",
@@ -23,7 +23,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./dist-dev ./temp ./cadlContents.json",
+    "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
     "build": "tsc -p . && vite build 2>&1",
     "preview": "npm run build && vite preview",
     "start": "vite",
@@ -36,17 +36,17 @@
     "lint:fix": "eslint . --fix"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/versioning": "~0.39.0",
-    "@cadl-lang/compiler": "~0.39.0",
-    "@cadl-lang/rest": "~0.39.0",
-    "@cadl-lang/openapi3": "~0.39.0",
-    "@cadl-lang/openapi": "~0.39.0",
-    "@cadl-lang/html-program-viewer": "~0.39.0",
+    "@typespec/versioning": "~0.40.0",
+    "@typespec/compiler": "~0.40.0",
+    "@typespec/rest": "~0.40.0",
+    "@typespec/openapi3": "~0.40.0",
+    "@typespec/openapi": "~0.40.0",
+    "@typespec/html-program-viewer": "~0.40.0",
     "@emotion/react": "^11.10.4",
     "@vitejs/plugin-react": "~2.2.0",
     "es-module-shims": "~1.6.2",
@@ -71,8 +71,8 @@
     "@types/prettier": "2.6.0",
     "@types/react-dom": "~18.0.1",
     "@types/react": "~18.0.5",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/bundler": "~0.1.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/bundler": "~0.1.0",
     "@babel/core": "^7.0.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",

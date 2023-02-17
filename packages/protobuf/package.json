@@ -1,24 +1,26 @@
 {
-  "name": "@cadl-lang/protobuf",
+  "name": "@typespec/protobuf",
   "version": "0.1.0",
   "author": "Microsoft Corporation",
-  "description": "Cadl library and emitter for Protobuf (gRPC)",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "description": "TypeSpec library and emitter for Protobuf (gRPC)",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/packages/protobuf/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec",
+    "protobuf",
+    "grpc"
   ],
   "main": "dist/src/lib.js",
   "type": "module",
-  "cadlMain": "lib/proto.cadl",
+  "typespecMain": "lib/proto.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
@@ -29,11 +31,11 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@cadl-lang/compiler": "~0.39.0"
+    "@typespec/compiler": "~0.40.0"
   },
   "devDependencies": {
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/eslint-plugin": "~0.39.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/eslint-plugin": "~0.40.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "c8": "~7.12.0",

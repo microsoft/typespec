@@ -13,7 +13,7 @@ describe("compiler: imports", () => {
     host = await createTestHost();
   });
 
-  function expectFileLoaded(files: { cadl?: string[]; js?: string[] }) {
+  function expectFileLoaded(files: { typespec?: string[]; js?: string[] }) {
     const expectFileIn = (file: string, map: Map<string, unknown>) => {
       const vFile = resolveVirtualPath(file);
       ok(
@@ -24,8 +24,8 @@ describe("compiler: imports", () => {
         ].join("\n")
       );
     };
-    if (files.cadl) {
-      for (const file of files.cadl) {
+    if (files.typespec) {
+      for (const file of files.typespec) {
         expectFileIn(file, host.program.sourceFiles);
       }
     }
@@ -36,29 +36,29 @@ describe("compiler: imports", () => {
     }
   }
 
-  it("import relative cadl file", async () => {
+  it("import relative typespec file", async () => {
     host.addJsFile("blue.js", { $blue() {} });
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
-      import "./b.cadl";
+      import "./b.tsp";
       model A extends B { }
       `
     );
-    host.addCadlFile(
-      "b.cadl",
+    host.addTypeSpecFile(
+      "b.tsp",
       `
       model B { }
       `
     );
-    await host.compile("main.cadl");
-    expectFileLoaded({ cadl: ["main.cadl", "b.cadl"] });
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "b.tsp"] });
   });
 
   it("import relative JS file", async () => {
     host.addJsFile("blue.js", { $blue() {} });
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
       import "./blue.js";
 
@@ -66,14 +66,14 @@ describe("compiler: imports", () => {
       model A  {}
       `
     );
-    await host.compile("main.cadl");
-    expectFileLoaded({ cadl: ["main.cadl"], js: ["blue.js"] });
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp"], js: ["blue.js"] });
   });
 
   it("import relative JS file in parent folder", async () => {
     host.addJsFile("blue.js", { $blue() {} });
-    host.addCadlFile(
-      "proj/main.cadl",
+    host.addTypeSpecFile(
+      "proj/main.tsp",
       `
       import "../blue.js";
 
@@ -81,65 +81,65 @@ describe("compiler: imports", () => {
       model A  {}
       `
     );
-    await host.compile("proj/main.cadl");
-    expectFileLoaded({ cadl: ["proj/main.cadl"], js: ["blue.js"] });
+    await host.compile("proj/main.tsp");
+    expectFileLoaded({ typespec: ["proj/main.tsp"], js: ["blue.js"] });
   });
 
-  it("import directory with main.cadl", async () => {
-    host.addCadlFile(
-      "main.cadl",
+  it("import directory with main.tsp", async () => {
+    host.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test";
 
       model A { x: C }
       `
     );
-    host.addCadlFile(
-      "test/main.cadl",
+    host.addTypeSpecFile(
+      "test/main.tsp",
       `
       model C { }
       `
     );
 
-    await host.compile("main.cadl");
-    expectFileLoaded({ cadl: ["main.cadl", "test/main.cadl"] });
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "test/main.tsp"] });
   });
 
   it("import library", async () => {
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
       import "my-lib";
 
       model A { x: C }
       `
     );
-    host.addCadlFile(
+    host.addTypeSpecFile(
       "node_modules/my-lib/package.json",
       JSON.stringify({
-        cadlMain: "./main.cadl",
+        typespecMain: "./main.tsp",
       })
     );
-    host.addCadlFile(
-      "node_modules/my-lib/main.cadl",
+    host.addTypeSpecFile(
+      "node_modules/my-lib/main.tsp",
       `
       model C { }
       `
     );
 
-    await host.compile("main.cadl");
-    expectFileLoaded({ cadl: ["main.cadl", "node_modules/my-lib/main.cadl"] });
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/main.tsp"] });
   });
 
   it("emit diagnostic when trying to load invalid relative file", async () => {
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
       import "./doesnotexists";
       `
     );
 
-    const diagnostics = await host.diagnose("main.cadl");
+    const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "import-not-found",
       message: `Couldn't resolve import "./doesnotexists"`,
@@ -147,17 +147,17 @@ describe("compiler: imports", () => {
   });
 
   it("emit diagnostic when trying to load invalid library", async () => {
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
-      import "@cadl-lang/doesnotexists";
+      import "@typespec/doesnotexists";
       `
     );
 
-    const diagnostics = await host.diagnose("main.cadl");
+    const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "import-not-found",
-      message: `Couldn't resolve import "@cadl-lang/doesnotexists"`,
+      message: `Couldn't resolve import "@typespec/doesnotexists"`,
     });
   });
 });

@@ -4,6 +4,42 @@ info:
   version: '0000-00-00'
 tags: []
 paths:
+  /complex/array/valid:
+    get:
+      operationId: Complex_getArray
+      description: Get complex types with array properties
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayWrapper'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Complex_putArray
+      description: Put complex types with array properties
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArrayWrapper'
   /complex/basic/valid:
     get:
       operationId: Complex_getValid
@@ -40,10 +76,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Basic'
-  /complex/primitive/integer:
+  /complex/dictionary/typed/valid:
     get:
-      operationId: Complex_getInt
-      description: Get complex types with integer properties
+      operationId: Dictionary_getDictionary
+      description: Get complex types with dictionary property
       parameters: []
       responses:
         '200':
@@ -51,7 +87,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IntWrapper'
+                $ref: '#/components/schemas/DictionaryWrapper'
         default:
           description: An unexpected error response.
           content:
@@ -59,8 +95,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
-      operationId: Complex_putInt
-      description: Put complex types with integer properties
+      operationId: Dictionary_putArray
+      description: Put complex types with dictionary property
       parameters: []
       responses:
         '200':
@@ -75,115 +111,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IntWrapper'
-  /complex/primitive/long:
-    get:
-      operationId: Complex_getLong
-      description: Get complex types with long properties
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LongWrapper'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: Complex_putLong
-      description: Put complex types with long properties
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LongWrapper'
-  /complex/primitive/float:
-    get:
-      operationId: Complex_getFloat
-      description: Get complex types with float properties
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FloatWrapper'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: Complex_putFloat
-      description: Put complex types with float properties
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FloatWrapper'
-  /complex/primitive/double:
-    get:
-      operationId: Complex_getDouble
-      description: Get complex types with double properties
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DoubleWrapper'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: Complex_putDouble
-      description: Put complex types with double properties
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DoubleWrapper'
+              $ref: '#/components/schemas/DictionaryWrapper'
   /complex/primitive/bool:
     get:
       operationId: Complex_getBool
@@ -220,10 +148,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/BooleanWrapper'
-  /complex/primitive/string:
+  /complex/primitive/bytes:
     get:
-      operationId: Complex_getString
-      description: Get complex types with string properties
+      operationId: Complex_getBytes
+      description: Get complex types with bytes properties
       parameters: []
       responses:
         '200':
@@ -231,7 +159,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StringWrapper'
+                $ref: '#/components/schemas/BytesWrapper'
         default:
           description: An unexpected error response.
           content:
@@ -239,8 +167,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
-      operationId: Complex_putString
-      description: Put complex types with string properties
+      operationId: Complex_putBytes
+      description: Put complex types with bytes properties
       parameters: []
       responses:
         '200':
@@ -255,7 +183,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StringWrapper'
+              $ref: '#/components/schemas/BytesWrapper'
   /complex/primitive/date:
     get:
       operationId: Complex_getPlainDate
@@ -328,6 +256,42 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DateTimeWrapper'
+  /complex/primitive/double:
+    get:
+      operationId: Complex_getDouble
+      description: Get complex types with double properties
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoubleWrapper'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Complex_putDouble
+      description: Put complex types with double properties
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoubleWrapper'
   /complex/primitive/duration:
     get:
       operationId: Complex_getZonedDuration
@@ -364,10 +328,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DurationWrapper'
-  /complex/primitive/bytes:
+  /complex/primitive/float:
     get:
-      operationId: Complex_getBytes
-      description: Get complex types with bytes properties
+      operationId: Complex_getFloat
+      description: Get complex types with float properties
       parameters: []
       responses:
         '200':
@@ -375,7 +339,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BytesWrapper'
+                $ref: '#/components/schemas/FloatWrapper'
         default:
           description: An unexpected error response.
           content:
@@ -383,8 +347,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
-      operationId: Complex_putBytes
-      description: Put complex types with bytes properties
+      operationId: Complex_putFloat
+      description: Put complex types with float properties
       parameters: []
       responses:
         '200':
@@ -399,11 +363,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BytesWrapper'
-  /complex/array/valid:
+              $ref: '#/components/schemas/FloatWrapper'
+  /complex/primitive/integer:
     get:
-      operationId: Complex_getArray
-      description: Get complex types with array properties
+      operationId: Complex_getInt
+      description: Get complex types with integer properties
       parameters: []
       responses:
         '200':
@@ -411,7 +375,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayWrapper'
+                $ref: '#/components/schemas/IntWrapper'
         default:
           description: An unexpected error response.
           content:
@@ -419,8 +383,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
-      operationId: Complex_putArray
-      description: Put complex types with array properties
+      operationId: Complex_putInt
+      description: Put complex types with integer properties
       parameters: []
       responses:
         '200':
@@ -435,11 +399,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ArrayWrapper'
-  /complex/dictionary/typed/valid:
+              $ref: '#/components/schemas/IntWrapper'
+  /complex/primitive/long:
     get:
-      operationId: Dictionary_getDictionary
-      description: Get complex types with dictionary property
+      operationId: Complex_getLong
+      description: Get complex types with long properties
       parameters: []
       responses:
         '200':
@@ -447,7 +411,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DictionaryWrapper'
+                $ref: '#/components/schemas/LongWrapper'
         default:
           description: An unexpected error response.
           content:
@@ -455,8 +419,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
-      operationId: Dictionary_putArray
-      description: Put complex types with dictionary property
+      operationId: Complex_putLong
+      description: Put complex types with long properties
       parameters: []
       responses:
         '200':
@@ -471,9 +435,55 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DictionaryWrapper'
+              $ref: '#/components/schemas/LongWrapper'
+  /complex/primitive/string:
+    get:
+      operationId: Complex_getString
+      description: Get complex types with string properties
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringWrapper'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Complex_putString
+      description: Put complex types with string properties
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StringWrapper'
 components:
   schemas:
+    ArrayWrapper:
+      type: object
+      properties:
+        field:
+          type: array
+          items:
+            type: string
+          x-typespec-name: string[]
+      required:
+        - field
     Basic:
       type: object
       properties:
@@ -481,7 +491,7 @@ components:
           type: integer
           format: int32
           nullable: true
-          x-cadl-name: int32 | null
+          x-typespec-name: int32 | null
           description: Basic Id
         name:
           type: string
@@ -494,6 +504,74 @@ components:
         - id
         - name
         - color
+    BooleanWrapper:
+      type: object
+      properties:
+        field_true:
+          type: boolean
+        field_false:
+          type: boolean
+      required:
+        - field_true
+        - field_false
+    BytesWrapper:
+      type: object
+      properties:
+        field:
+          type: string
+          format: byte
+      required:
+        - field
+    CMYKColors:
+      type: string
+      enum:
+        - cyan
+        - Magenta
+        - YELLOW
+        - blacK
+    DateTimeWrapper:
+      type: object
+      properties:
+        field:
+          type: string
+          format: date-time
+        now:
+          type: string
+          format: date-time
+      required:
+        - field
+        - now
+    DictionaryWrapper:
+      type: object
+      properties:
+        field:
+          type: object
+          additionalProperties:
+            type: string
+          x-typespec-name: Record<string>
+      required:
+        - field
+    DoubleWrapper:
+      type: object
+      properties:
+        field1:
+          type: number
+          format: double
+        field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose:
+          type: number
+          format: double
+      required:
+        - field1
+        - >-
+          field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
+    DurationWrapper:
+      type: object
+      properties:
+        field:
+          type: string
+          format: duration
+      required:
+        - field
     Error:
       type: object
       properties:
@@ -502,6 +580,18 @@ components:
       description: Error
       required:
         - message
+    FloatWrapper:
+      type: object
+      properties:
+        field1:
+          type: number
+          format: float
+        field2:
+          type: number
+          format: float
+      required:
+        - field1
+        - field2
     IntWrapper:
       type: object
       properties:
@@ -526,56 +616,17 @@ components:
       required:
         - field1
         - field2
-    FloatWrapper:
+    Pet:
       type: object
       properties:
-        field1:
-          type: number
-          format: float
-        field2:
-          type: number
-          format: float
-      required:
-        - field1
-        - field2
-    DoubleWrapper:
-      type: object
-      properties:
-        field1:
-          type: number
-          format: double
-        field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose:
-          type: number
-          format: double
-      required:
-        - field1
-        - >-
-          field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
-    BooleanWrapper:
-      type: object
-      properties:
-        field_true:
-          type: boolean
-        field_false:
-          type: boolean
-      required:
-        - field_true
-        - field_false
-    StringWrapper:
-      type: object
-      properties:
-        field:
+        id:
+          type: integer
+          format: int32
+        name:
           type: string
-        empty:
-          type: string
-        'null':
-          type: string
-          nullable: true
-          x-cadl-name: string | null
       required:
-        - field
-        - empty
-        - 'null'
+        - id
+        - name
     PlainDateWrapper:
       type: object
       properties:
@@ -588,72 +639,6 @@ components:
       required:
         - field
         - leap
-    DateTimeWrapper:
-      type: object
-      properties:
-        field:
-          type: string
-          format: date-time
-        now:
-          type: string
-          format: date-time
-      required:
-        - field
-        - now
-    DurationWrapper:
-      type: object
-      properties:
-        field:
-          type: string
-          format: duration
-      required:
-        - field
-    BytesWrapper:
-      type: object
-      properties:
-        field:
-          type: string
-          format: byte
-      required:
-        - field
-    ArrayWrapper:
-      type: object
-      properties:
-        field:
-          type: array
-          items:
-            type: string
-          x-cadl-name: string[]
-      required:
-        - field
-    DictionaryWrapper:
-      type: object
-      properties:
-        field:
-          type: object
-          additionalProperties:
-            type: string
-          x-cadl-name: Record<string>
-      required:
-        - field
-    CMYKColors:
-      type: string
-      enum:
-        - cyan
-        - Magenta
-        - YELLOW
-        - blacK
-    Pet:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-      required:
-        - id
-        - name
     ReadonlyObj:
       type: object
       properties:
@@ -668,3 +653,18 @@ components:
       required:
         - id
         - size
+    StringWrapper:
+      type: object
+      properties:
+        field:
+          type: string
+        empty:
+          type: string
+        'null':
+          type: string
+          nullable: true
+          x-typespec-name: string | null
+      required:
+        - field
+        - empty
+        - 'null'

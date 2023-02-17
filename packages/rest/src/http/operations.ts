@@ -14,7 +14,7 @@ import {
   Operation,
   Program,
   SyntaxKind,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic, reportDiagnostic } from "../lib.js";
 import { getRoutePath } from "./decorators.js";
 import { getResponsesForOperation } from "./responses.js";
@@ -28,7 +28,7 @@ import {
 } from "./types.js";
 
 /**
- * Return the Http Operation details for a given Cadl operation.
+ * Return the Http Operation details for a given TypeSpec operation.
  * @param operation Operation
  * @param options Optional option on how to resolve the http details.
  */
@@ -240,7 +240,9 @@ function validateProgram(program: Program, diagnostics: DiagnosticCollector) {
   // interpretation of visibility into the core.
   function checkForUnsupportedVisibility(property: ModelProperty) {
     if (getVisibility(program, property)?.includes("write")) {
-      const decorator = property.decorators.find((d) => d.decorator === $visibility);
+      // NOTE: Check for name equality instead of function equality
+      // to deal with multiple copies of core being used.
+      const decorator = property.decorators.find((d) => d.decorator.name === $visibility.name);
       const arg = decorator?.args.find(
         (a) => a.node?.kind === SyntaxKind.StringLiteral && a.node.value === "write"
       );

@@ -4,27 +4,27 @@ import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../cor
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
 import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
-import { CadlConfigJsonSchema } from "./config-schema.js";
-import { CadlConfig, CadlRawConfig } from "./types.js";
+import { TypeSpecConfigJsonSchema } from "./config-schema.js";
+import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
-export const CadlConfigFilename = "cadl-project.yaml";
+export const TypeSpecConfigFilename = "tspconfig.yaml";
 
 export const defaultConfig = deepFreeze({
-  outputDir: "{cwd}/cadl-output",
+  outputDir: "{cwd}/typespec-output",
   diagnostics: [] as Diagnostic[],
 });
 
 /**
- * Look for the project root by looking up until a `cadl-project.yaml` is found.
+ * Look for the project root by looking up until a `tspconfig.yaml` is found.
  * @param path Path to start looking
  */
-export async function findCadlConfigPath(
+export async function findTypeSpecConfigPath(
   host: CompilerHost,
   path: string
 ): Promise<string | undefined> {
   let current = path;
   while (true) {
-    const pkgPath = joinPaths(current, CadlConfigFilename);
+    const pkgPath = joinPaths(current, TypeSpecConfigFilename);
     const stat = await doIO(
       () => host.stat(pkgPath),
       pkgPath,
@@ -43,32 +43,32 @@ export async function findCadlConfigPath(
 }
 
 /**
- * Load the cadl configuration for the provided directory
+ * Load the typespec configuration for the provided directory
  * @param host
  * @param directoryPath
  */
-export async function loadCadlConfigForPath(
+export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
   directoryPath: string
-): Promise<CadlConfig> {
-  const cadlConfigPath = await findCadlConfigPath(host, directoryPath);
-  if (cadlConfigPath === undefined) {
+): Promise<TypeSpecConfig> {
+  const typespecConfigPath = await findTypeSpecConfigPath(host, directoryPath);
+  if (typespecConfigPath === undefined) {
     return { ...deepClone(defaultConfig), projectRoot: directoryPath };
   }
-  return loadCadlConfigFile(host, cadlConfigPath);
+  return loadTypeSpecConfigFile(host, typespecConfigPath);
 }
 
 /**
- * Load given file as a Cadl configuration
+ * Load given file as a TypeSpec configuration
  */
-export async function loadCadlConfigFile(
+export async function loadTypeSpecConfigFile(
   host: CompilerHost,
   filePath: string
-): Promise<CadlConfig> {
+): Promise<TypeSpecConfig> {
   const config = await loadConfigFile(host, filePath, jsyaml.load);
   if (config.diagnostics.length === 0 && config.extends) {
     const extendPath = resolvePath(getDirectoryPath(filePath), config.extends);
-    const parent = await loadCadlConfigFile(host, extendPath);
+    const parent = await loadTypeSpecConfigFile(host, extendPath);
     if (parent.diagnostics.length > 0) {
       return {
         ...config,
@@ -88,17 +88,17 @@ export async function loadCadlConfigFile(
   };
 }
 
-const configValidator = createJSONSchemaValidator(CadlConfigJsonSchema);
+const configValidator = createJSONSchemaValidator(TypeSpecConfigJsonSchema);
 
 async function loadConfigFile(
   host: CompilerHost,
   filename: string,
   loadData: (content: string) => any
-): Promise<CadlConfig> {
+): Promise<TypeSpecConfig> {
   let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
 
-  let [data, file] = await loadFile<CadlRawConfig>(host, filename, loadData, reportDiagnostic);
+  let [data, file] = await loadFile<TypeSpecRawConfig>(host, filename, loadData, reportDiagnostic);
 
   if (data) {
     diagnostics = diagnostics.concat(configValidator.validate(data, file));
@@ -107,8 +107,8 @@ async function loadConfigFile(
   if (!data || diagnostics.length > 0) {
     // NOTE: Don't trust the data if there are errors and use default
     // config. Otherwise, we may return an object that does not conform to
-    // CadlConfig's typing.
-    data = deepClone(defaultConfig) as CadlRawConfig;
+    // TypeSpecConfig's typing.
+    data = deepClone(defaultConfig) as TypeSpecRawConfig;
   }
 
   let emit = data.emit;
@@ -121,7 +121,7 @@ async function loadConfigFile(
         code: "deprecated",
         format: {
           message:
-            "`emitters` options in cadl-project.yaml is deprecated use `emit` and `options` instead.",
+            "`emitters` options in tspconfig.yaml is deprecated use `emit` and `options` instead.",
         },
         target: NoTarget,
       })
@@ -147,7 +147,7 @@ async function loadConfigFile(
     extends: data.extends,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
-    outputDir: data["output-dir"] ?? "{cwd}/cadl-output",
+    outputDir: data["output-dir"] ?? "{cwd}/typespec-output",
     warnAsError: data["warn-as-error"],
     imports: data.imports,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
@@ -156,7 +156,7 @@ async function loadConfigFile(
   });
 }
 
-export function validateConfigPathsAbsolute(config: CadlConfig): readonly Diagnostic[] {
+export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
   function checkPath(value: string | undefined) {

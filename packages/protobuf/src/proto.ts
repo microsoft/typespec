@@ -16,16 +16,16 @@ import {
   resolvePath,
   Tuple,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
 import { StreamingMode } from "./ast.js";
-import { CadlProtobufLibrary, ProtobufEmitterOptions, reportDiagnostic, state } from "./lib.js";
+import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
 import { createProtobufEmitter } from "./transform.js";
 
 /**
- * # cadl-protobuf : Protobuf/gRPC Emitter and Decorators for CADL
+ * # @typespec/protobuf : Protobuf/gRPC Emitter and Decorators for TypeSpec
  *
- * This module defines an emitter and decorator library for CADL that enables specifying Protobuf services and models.
+ * This module defines an emitter and decorator library for TypeSpec that enables specifying Protobuf services and models.
  */
 
 /**
@@ -71,13 +71,14 @@ export function $package(ctx: DecoratorContext, target: Namespace, details?: Mod
   ctx.program.stateMap(state.package).set(target, details);
 }
 
-const mapState = Symbol("@cadl-lang/protobuf._map");
+const mapState = Symbol("@typespec/protobuf._map");
 
 export function isMap(program: Program, m: Type): boolean {
   return program.stateSet(mapState).has(m);
 }
 
 export function $_map(ctx: DecoratorContext, target: Model) {
+  // TODO: validate map here.
   ctx.program.stateSet(mapState).add(target);
 }
 
@@ -180,7 +181,7 @@ export function $field(ctx: DecoratorContext, target: ModelProperty, fieldIndex:
  *
  * @param program - the program to emit
  */
-export async function $onEmit(ctx: EmitContext<EmitOptionsFor<CadlProtobufLibrary>>) {
+export async function $onEmit(ctx: EmitContext<EmitOptionsFor<TypeSpecProtobufLibrary>>) {
   const emitter = createProtobufEmitter(ctx.program);
 
   await emitter(resolvePath(ctx.emitterOutputDir), ctx.options);
@@ -197,7 +198,5 @@ export async function $onValidate(program: Program) {
     await emitter("", options);
   }
 }
-
-export const namespace = "Cadl.Protobuf";
-
-export { CadlProtobufLibrary as $lib };
+export const namespace = "TypeSpec.Protobuf";
+export { TypeSpecProtobufLibrary as $lib };

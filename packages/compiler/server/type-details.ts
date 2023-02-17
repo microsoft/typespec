@@ -14,7 +14,7 @@ export function getTypeDetails(
     includeParameterTags: true,
   }
 ): string {
-  // BUG: https://github.com/microsoft/cadl/issues/1348
+  // BUG: https://github.com/microsoft/typespec/issues/1348
   // We've already resolved to a Type and lost the alias node so we don't show doc comments on aliases or alias signatures, currently.
 
   if (type.kind === "Intrinsic") {

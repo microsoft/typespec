@@ -4,19 +4,20 @@
     { "path": "packages/versioning/tsconfig.json" },
     { "path": "packages/rest/tsconfig.json" },
     { "path": "packages/library-linter/tsconfig.json" },
-    { "path": "packages/eslint-plugin-cadl/tsconfig.json" },
+    { "path": "packages/eslint-plugin-typespec/tsconfig.json" },
     { "path": "packages/openapi/tsconfig.json" },
     { "path": "packages/openapi3/tsconfig.json" },
     { "path": "packages/lint/tsconfig.json" },
     { "path": "packages/migrate/tsconfig.json" },
-    { "path": "packages/cadl-vscode/tsconfig.json" },
+    { "path": "packages/typespec-vscode/tsconfig.json" },
     { "path": "packages/internal-build-utils/tsconfig.json" },
     { "path": "packages/tmlanguage-generator/tsconfig.json" },
     { "path": "packages/html-program-viewer/tsconfig.json" },
     { "path": "packages/openapi3/tsconfig.json" },
     { "path": "packages/bundler/tsconfig.json" },
     { "path": "packages/playground/tsconfig.json" },
-    { "path": "packages/ref-doc/tsconfig.json" }
+    { "path": "packages/ref-doc/tsconfig.json" },
+    { "path": "packages/samples/tsconfig.json" }
   ],
   "files": []
 }

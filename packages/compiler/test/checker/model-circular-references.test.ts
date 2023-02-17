@@ -14,8 +14,8 @@ describe("compiler: model circular references", () => {
   });
 
   it("model can reference itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `@test model M {
         self: M;
       }
@@ -29,8 +29,8 @@ describe("compiler: model circular references", () => {
   });
 
   it("model can reference itself in an array", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `@test model M {
         selfs: M[];
       }
@@ -46,8 +46,8 @@ describe("compiler: model circular references", () => {
   });
 
   it("models can reference each other", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Parent {
         child: Child;
@@ -69,8 +69,8 @@ describe("compiler: model circular references", () => {
   });
 
   it("template model can reference itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Templated<T> {
         value: T;
@@ -90,8 +90,8 @@ describe("compiler: model circular references", () => {
   });
 
   it("template model can reference each other", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model A<T> {
         value: T;
@@ -117,8 +117,8 @@ describe("compiler: model circular references", () => {
   });
 
   it("models can reference each other in different namespace with the same name", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Foo {
         namespace Nested {

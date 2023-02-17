@@ -1,6 +1,11 @@
-# Change Log - @cadl-lang/openapi
+# Change Log - @typespec/openapi
 
-This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+_Version update only_
 
 ## 0.39.0
 Fri, 13 Jan 2023 00:05:26 GMT
@@ -18,7 +23,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Patches
 
-- Add cadl docs on decorators
+- Add typespec docs on decorators
 - Update dependencies
 
 ## 0.14.0
@@ -26,7 +31,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Declare decorators in cadl using `extern dec`
+- Declare decorators in typespec using `extern dec`
 
 ## 0.13.0
 Wed, 12 Oct 2022 21:12:35 GMT
@@ -37,7 +42,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Patches
 
-- Remove workaround for issue with `KeysOf` https://github.com/microsoft/cadl/issues/462
+- Remove workaround for issue with `KeysOf` https://github.com/microsoft/typespec/issues/462
 - Add/update docs for openapi3 emitter
 
 ## 0.12.0

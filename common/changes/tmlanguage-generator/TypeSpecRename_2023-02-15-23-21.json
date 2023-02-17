@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "Rename to TypeSpec",
+      "type": "minor"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}

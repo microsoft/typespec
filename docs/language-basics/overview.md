@@ -5,13 +5,13 @@ title: Overview
 
 # Language Overview
 
-This is an overview of the language concept in Cadl. It doesn't go in detail but can be used as a cheat sheet.
+This is an overview of the language concept in TypeSpec. It doesn't go in detail but can be used as a cheat sheet.
 
 ## Declarations
 
 - Declaration names must be unique across types within the same scope. For example this is not allowed
   <!-- prettier-ignore -->
-    ```cadl
+    ```typespec
   model Dog {}
   namespace Dog {}
   ```
@@ -20,11 +20,11 @@ This is an overview of the language concept in Cadl. It doesn't go in detail but
 
 _Details: [Imports](./imports.md)_
 
-| Feature          | Example                    |
-| ---------------- | -------------------------- |
-| Import cadl file | `import "./models.cadl"`   |
-| Import JS file   | `import "./models.js"`     |
-| Import Library   | `import "@cadl-lang/rest"` |
+| Feature              | Example                   |
+| -------------------- | ------------------------- |
+| Import typespec file | `import "./models.tsp"`   |
+| Import JS file       | `import "./models.js"`    |
+| Import Library       | `import "@typespec/rest"` |
 
 ## Namespaces
 

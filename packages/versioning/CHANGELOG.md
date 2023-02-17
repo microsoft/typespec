@@ -1,6 +1,14 @@
-# Change Log - @cadl-lang/versioning
+# Change Log - @typespec/versioning
 
-This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Updates
+
+- Adds the @useDependency decorator. Deprecates the @versionedDependency decorator.
+- Ensure @renamedFrom requires a non-empty value.
 
 ## 0.39.0
 Fri, 13 Jan 2023 00:05:26 GMT
@@ -35,7 +43,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Declare decorators in cadl using `extern dec`
+- Declare decorators in typespec using `extern dec`
 
 ## 0.9.0
 Wed, 12 Oct 2022 21:12:35 GMT
@@ -79,7 +87,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Uptake changes to decorator context
 - Add ability to use @renamedFrom on Models, Operations, Interface, Unions and Enums.
 - Add validation for incompatible versioning across references
-- Moved all decorators and functions to `Cadl.Versioning` namespace
+- Moved all decorators and functions to `TypeSpec.Versioning` namespace
 - **Breaking Change** Version must be defined using an enum and referenced using enums
 
 ### Updates

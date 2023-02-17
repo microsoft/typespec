@@ -14,34 +14,34 @@ Authentication can be configured using the `@useAuth` decorator on the service n
 
 - A security scheme(see options [here]). This means this is the security scheme to use to authenticate this service.
 
-```cadl
+```typespec
 @useAuth(Auth1)
 ```
 
 - A tuple of security scheme. This means ALL the different security schemes of the tuple MUST be used together to authenticate this service.
 
-```cadl
+```typespec
 // Use BOTH Auth1 or Auth2
 @useAuth([Auth1, Auth2])
 ```
 
 - A union of security scheme. This means EITHER of the security schemes can be used to authenticate this service
 
-```cadl
+```typespec
 // Use EITHER Auth1 or Auth2
 @useAuth(Auth1 | Auth2)
 ```
 
 - A union of tuple security scheme. This means EITHER of the security groups schemes can be used to authenticate this service
 
-```cadl
+```typespec
 // Use EITHER (Auth1 AND Auth2) OR Auth3
 @useAuth([Auth1, Auth2] | Auth3)
 ```
 
 ## Available security schemes
 
-Models can be found in https://github.com/microsoft/cadl/blob/main/packages/rest/lib/auth.cadl
+Models can be found in https://github.com/microsoft/typespec/blob/main/packages/rest/lib/auth.tsp
 
 ### `BasicAuth`
 
@@ -53,7 +53,7 @@ For example, to authorize as demo / p@55w0rd the client would send
  Authorization: Basic ZGVtbzpwQDU1dzByZA==
 ```
 
-```cadl
+```typespec
 @useAuth(BasicAuth)
 ```
 
@@ -67,7 +67,7 @@ The client must send this token in the Authorization header when making requests
   Authorization: Bearer <token>
 ```
 
-```cadl
+```typespec
 @useAuth(BearerAuth)
 ```
 
@@ -79,7 +79,7 @@ An API key is a token that a client provides when making API calls. The key can 
 GET /something?api_key=abcdef12345
 ```
 
-```cadl
+```typespec
 @useAuth(ApiKeyAuth<ApiKeyLocation.query, "api_key">)
 ```
 
@@ -90,7 +90,7 @@ GET /something HTTP/1.1
 X-API-Key: abcdef12345
 ```
 
-```cadl
+```typespec
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">)
 ```
 
@@ -101,7 +101,7 @@ GET /something HTTP/1.1
 Cookie: X-API-KEY=abcdef12345
 ```
 
-```cadl
+```typespec
 @useAuth(ApiKeyAuth<ApiKeyLocation.cookie, "X-API-KEY">)
 ```
 

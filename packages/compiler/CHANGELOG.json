@@ -1,9 +1,36 @@
 {
-  "name": "@cadl-lang/compiler",
+  "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.40.0",
+      "tag": "@typespec/compiler_v0.40.0",
+      "date": "Tue, 07 Feb 2023 21:56:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix giving a default value to custom numeric scalar"
+          },
+          {
+            "comment": "Feature: add an emitter framework to simplify building emitters"
+          },
+          {
+            "comment": "Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter"
+          },
+          {
+            "comment": "Bug: properly parse logical and (`&&`) expressions in projections"
+          },
+          {
+            "comment": "Support --option=path/to/emitter.js.option=value in cli args"
+          },
+          {
+            "comment": "Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.39.0",
-      "tag": "@cadl-lang/compiler_v0.39.0",
+      "tag": "@typespec/compiler_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",
       "comments": {
         "none": [
@@ -35,7 +62,7 @@
             "comment": "Fix: Alias cause types to be resolved before some binding"
           },
           {
-            "comment": "Fix `cadl format` works with windows backslash paths"
+            "comment": "Fix `tsp format` works with windows backslash paths"
           },
           {
             "comment": "[Language Server] Fix: Completion of library imports replace import correctly\""
@@ -76,14 +103,14 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.2` to `~0.3.3`"
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.3.2` to `~0.3.3`"
           }
         ]
       }
     },
     {
       "version": "0.38.5",
-      "tag": "@cadl-lang/compiler_v0.38.5",
+      "tag": "@typespec/compiler_v0.38.5",
       "date": "Fri, 16 Dec 2022 22:02:45 GMT",
       "comments": {
         "patch": [
@@ -95,7 +122,7 @@
     },
     {
       "version": "0.38.4",
-      "tag": "@cadl-lang/compiler_v0.38.4",
+      "tag": "@typespec/compiler_v0.38.4",
       "date": "Thu, 15 Dec 2022 02:21:08 GMT",
       "comments": {
         "patch": [
@@ -107,7 +134,7 @@
     },
     {
       "version": "0.38.3",
-      "tag": "@cadl-lang/compiler_v0.38.3",
+      "tag": "@typespec/compiler_v0.38.3",
       "date": "Fri, 09 Dec 2022 22:03:04 GMT",
       "comments": {
         "patch": [
@@ -119,7 +146,7 @@
     },
     {
       "version": "0.38.2",
-      "tag": "@cadl-lang/compiler_v0.38.2",
+      "tag": "@typespec/compiler_v0.38.2",
       "date": "Fri, 09 Dec 2022 20:43:01 GMT",
       "comments": {
         "patch": [
@@ -131,7 +158,7 @@
     },
     {
       "version": "0.38.1",
-      "tag": "@cadl-lang/compiler_v0.38.1",
+      "tag": "@typespec/compiler_v0.38.1",
       "date": "Thu, 08 Dec 2022 22:04:15 GMT",
       "comments": {
         "patch": [
@@ -143,7 +170,7 @@
     },
     {
       "version": "0.38.0",
-      "tag": "@cadl-lang/compiler_v0.38.0",
+      "tag": "@typespec/compiler_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
       "comments": {
         "minor": [
@@ -160,7 +187,7 @@
             "comment": "Doc: Add Doc comments to built-in types and decorators"
           },
           {
-            "comment": "**Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI"
+            "comment": "**Deprecation** Split `emitters` in tspconfig.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI"
           },
           {
             "comment": "Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function "
@@ -169,7 +196,7 @@
             "comment": "Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node"
           },
           {
-            "comment": "Add variable interpolation functionality in the cadl-project.yaml"
+            "comment": "Add variable interpolation functionality in the tspconfig.yaml"
           },
           {
             "comment": "Add built-in `emitter-output-dir` options for all emitter."
@@ -184,7 +211,7 @@
             "comment": "**Api Breaking** Multiple `@service` per specs are now allowed."
           },
           {
-            "comment": "Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name"
+            "comment": "Add new `program.resolveTypeReference` helper to resolve a type in the typespec program using fully qualified name"
           },
           {
             "comment": "**Breaking** Add new `scalar` type and updated all intrinsic types to be a scalar type. `model MyString is string` changes to `scalar MyString extends string`"
@@ -196,7 +223,7 @@
             "comment": "`Testing` Simplification of the testing framework"
           },
           {
-            "comment": "`cadl init` Initialize the package.json with `type: module`"
+            "comment": "`tsp init` Initialize the package.json with `type: module`"
           },
           {
             "comment": "**Deprecation** Renamed `url` to `uri`. Old `uri` is deprecated"
@@ -236,10 +263,10 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.1` to `~0.5.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.1` to `~0.3.2`"
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.3.1` to `~0.3.2`"
           },
           {
             "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.1` to `~0.3.2`"
@@ -249,15 +276,15 @@
     },
     {
       "version": "0.37.0",
-      "tag": "@cadl-lang/compiler_v0.37.0",
+      "tag": "@typespec/compiler_v0.37.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments"
+            "comment": "Add `output-dir`, `trace`, `imports` option to tspconfig.yaml giving parity with cli arguments"
           },
           {
-            "comment": "**Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`."
+            "comment": "**Feature** Add decorator and function declaration in typespec using `extern dec` and `extern fn`."
           },
           {
             "comment": "Fix: crash with referencing global namespace"
@@ -281,7 +308,7 @@
     },
     {
       "version": "0.36.1",
-      "tag": "@cadl-lang/compiler_v0.36.1",
+      "tag": "@typespec/compiler_v0.36.1",
       "date": "Wed, 19 Oct 2022 19:36:13 GMT",
       "comments": {
         "patch": [
@@ -293,7 +320,7 @@
     },
     {
       "version": "0.36.0",
-      "tag": "@cadl-lang/compiler_v0.36.0",
+      "tag": "@typespec/compiler_v0.36.0",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",
       "comments": {
         "patch": [
@@ -342,7 +369,7 @@
             "comment": "Add support for augment decorators."
           },
           {
-            "comment": "Language server provide document formatting using Cadl formatter"
+            "comment": "Language server provide document formatting using TypeSpec formatter"
           },
           {
             "comment": "**Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. "
@@ -372,7 +399,7 @@
             "comment": "Add `navigateNamespace` helper letting user to navigate types under a namespace.(Similar to `navigateProgram`)"
           },
           {
-            "comment": "Include `@discriminator` decorator from \"@cadl-lang/rest\" library"
+            "comment": "Include `@discriminator` decorator from \"@typespec/rest\" library"
           },
           {
             "comment": "Language Server: Improvement to outline, symbols correctly structured."
@@ -394,7 +421,7 @@
     },
     {
       "version": "0.35.0",
-      "tag": "@cadl-lang/compiler_v0.35.0",
+      "tag": "@typespec/compiler_v0.35.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",
       "comments": {
         "patch": [
@@ -405,7 +432,7 @@
             "comment": "Internal: Facilitate adding new tokens to scanner.\""
           },
           {
-            "comment": "Formatter: Cadl doesn't include blank line at the end of embedded markdown codeblock"
+            "comment": "Formatter: TypeSpec doesn't include blank line at the end of embedded markdown codeblock"
           },
           {
             "comment": "Fix issue with ever-increasing duplicate symbol errors in IDE"
@@ -461,7 +488,7 @@
             "comment": "Enable loading multiple installation of the same library as long as the versions are the same"
           },
           {
-            "comment": "Internal: Remove `evalCadlScript` from `Program`"
+            "comment": "Internal: Remove `evalTypeSpecScript` from `Program`"
           },
           {
             "comment": "Remove Type suffix from most Types and deprecate old names"
@@ -472,14 +499,14 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.0` to `~0.4.1`"
           }
         ]
       }
     },
     {
       "version": "0.34.0",
-      "tag": "@cadl-lang/compiler_v0.34.0",
+      "tag": "@typespec/compiler_v0.34.0",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",
       "comments": {
         "minor": [
@@ -594,7 +621,7 @@
             "comment": "Emit diagnostic when an optional property is marked with @key"
           },
           {
-            "comment": "Providing `cadl.cadl-server.path` option will force the specified compiler to be used"
+            "comment": "Providing `typespec.tsp-server.path` option will force the specified compiler to be used"
           },
           {
             "comment": "Fix error location of duplicate property from spread"
@@ -602,10 +629,10 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.3.0` to `~0.4.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.0` to `~0.3.1`"
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.3.0` to `~0.3.1`"
           },
           {
             "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.0` to `~0.3.1`"
@@ -615,7 +642,7 @@
     },
     {
       "version": "0.33.0",
-      "tag": "@cadl-lang/compiler_v0.33.0",
+      "tag": "@typespec/compiler_v0.33.0",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",
       "comments": {
         "minor": [
@@ -656,7 +683,7 @@
     },
     {
       "version": "0.32.0",
-      "tag": "@cadl-lang/compiler_v0.32.0",
+      "tag": "@typespec/compiler_v0.32.0",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",
       "comments": {
         "minor": [
@@ -691,7 +718,7 @@
             "comment": "Add compiler API to filter model properties and get try to find equivalent named models for anonymous models"
           },
           {
-            "comment": "Rename `setDecoratorNamespace` -> `setCadlNamespace`"
+            "comment": "Rename `setDecoratorNamespace` -> `setTypeSpecNamespace`"
           },
           {
             "comment": "Add support for operation templates and operation signature reuse"
@@ -717,7 +744,7 @@
             "comment": "Fix issue with compiling virtual editor files"
           },
           {
-            "comment": "Allow an emitter library to have `.cadl` files"
+            "comment": "Allow an emitter library to have `.tsp` files"
           },
           {
             "comment": "Fix issue with resolving node position when inside string literal"
@@ -726,7 +753,7 @@
             "comment": "Provide full namespace name in diagnostic"
           },
           {
-            "comment": "Fix issue with server not locating main.cadl in parent folder"
+            "comment": "Fix issue with server not locating main.tsp in parent folder"
           },
           {
             "comment": "Improve tracking of open documents in language server"
@@ -737,7 +764,7 @@
         ],
         "none": [
           {
-            "comment": "Allow cadl compile . on the compiler itself"
+            "comment": "Allow tsp compile . on the compiler itself"
           },
           {
             "comment": "`getTypeName` returns type name for more types"
@@ -748,22 +775,22 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.2.0` to `~0.3.0`"
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.2.0` to `~0.3.0`"
           }
         ]
       }
     },
     {
       "version": "0.31.0",
-      "tag": "@cadl-lang/compiler_v0.31.0",
+      "tag": "@typespec/compiler_v0.31.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "Prompt on cadl vs install if multiple versions of VS are installed"
+            "comment": "Prompt on tsp vs install if multiple versions of VS are installed"
           },
           {
-            "comment": "Improve module resolution logic to allow compiling a cadl library"
+            "comment": "Improve module resolution logic to allow compiling a typespec library"
           },
           {
             "comment": "Add code preview and coloring for diagnostics."
@@ -860,19 +887,19 @@
         ],
         "none": [
           {
-            "comment": "Add `CadlLanguageConfiguration` containing the configuration used by editor (vscode, monaco)"
+            "comment": "Add `TypeSpecLanguageConfiguration` containing the configuration used by editor (vscode, monaco)"
           }
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.1.0` to `~0.2.0`"
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.1.0` to `~0.2.0`"
           }
         ]
       }
     },
     {
       "version": "0.30.0",
-      "tag": "@cadl-lang/compiler_v0.30.0",
+      "tag": "@typespec/compiler_v0.30.0",
       "date": "Thu, 31 Mar 2022 17:10:49 GMT",
       "comments": {
         "patch": [
@@ -906,7 +933,7 @@
         ],
         "minor": [
           {
-            "comment": "Add new helper `cadlTypeToJson` to convert cadl type to a Json serializable type"
+            "comment": "Add new helper `typespecTypeToJson` to convert typespec type to a Json serializable type"
           },
           {
             "comment": "Add helper methods to detect `void` and `never` types"
@@ -926,14 +953,14 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.2.0` to `~0.3.0`"
           }
         ]
       }
     },
     {
       "version": "0.29.0",
-      "tag": "@cadl-lang/compiler_v0.29.0",
+      "tag": "@typespec/compiler_v0.29.0",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",
       "comments": {
         "patch": [
@@ -941,7 +968,7 @@
             "comment": "Improve list parsing error recovery"
           },
           {
-            "comment": "Use the proper symbol to use cadl exports in eval"
+            "comment": "Use the proper symbol to use typespec exports in eval"
           },
           {
             "comment": "Fix issue with missing namespace name in certain cases"
@@ -964,7 +991,7 @@
             "comment": "Replace findChildModels with mapChildModels"
           },
           {
-            "comment": "**Exports** `NodeHost` for programmatic usage of Cadl "
+            "comment": "**Exports** `NodeHost` for programmatic usage of TypeSpec "
           },
           {
             "comment": "**Added** `@knownValues` decorator providing set of known options for a string type"
@@ -987,14 +1014,14 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.1.0` to `~0.2.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.1.0` to `~0.2.0`"
           }
         ]
       }
     },
     {
       "version": "0.28.0",
-      "tag": "@cadl-lang/compiler_v0.28.0",
+      "tag": "@typespec/compiler_v0.28.0",
       "date": "Tue, 15 Feb 2022 22:35:02 GMT",
       "comments": {
         "patch": [
@@ -1020,7 +1047,7 @@
     },
     {
       "version": "0.27.0",
-      "tag": "@cadl-lang/compiler_v0.27.0",
+      "tag": "@typespec/compiler_v0.27.0",
       "date": "Mon, 14 Feb 2022 03:01:07 GMT",
       "comments": {
         "minor": [
@@ -1049,7 +1076,7 @@
     },
     {
       "version": "0.26.0",
-      "tag": "@cadl-lang/compiler_v0.26.0",
+      "tag": "@typespec/compiler_v0.26.0",
       "date": "Fri, 04 Feb 2022 18:00:18 GMT",
       "comments": {
         "patch": [
@@ -1078,7 +1105,7 @@
             "comment": "Fix error with file ending with mutline comment"
           },
           {
-            "comment": "**Fix** issue when loading cadl using a different casing than the actual casing in a case insensitive file system"
+            "comment": "**Fix** issue when loading typespec using a different casing than the actual casing in a case insensitive file system"
           },
           {
             "comment": "Add @friendlyName decorator to customize model names for emitters"
@@ -1123,7 +1150,7 @@
     },
     {
       "version": "0.25.0",
-      "tag": "@cadl-lang/compiler_v0.25.0",
+      "tag": "@typespec/compiler_v0.25.0",
       "date": "Thu, 16 Dec 2021 08:02:20 GMT",
       "comments": {
         "minor": [
@@ -1188,7 +1215,7 @@
     },
     {
       "version": "0.24.1",
-      "tag": "@cadl-lang/compiler_v0.24.1",
+      "tag": "@typespec/compiler_v0.24.1",
       "date": "Wed, 01 Dec 2021 22:56:11 GMT",
       "comments": {
         "patch": [
@@ -1215,12 +1242,12 @@
     },
     {
       "version": "0.24.0",
-      "tag": "@cadl-lang/compiler_v0.24.0",
+      "tag": "@typespec/compiler_v0.24.0",
       "date": "Thu, 18 Nov 2021 13:58:15 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "**Added** `cadl install` command which shell out to `npm install`"
+            "comment": "**Added** `tsp install` command which shell out to `npm install`"
           },
           {
             "comment": "Remove @list decorator"
@@ -1244,7 +1271,7 @@
     },
     {
       "version": "0.23.0",
-      "tag": "@cadl-lang/compiler_v0.23.0",
+      "tag": "@typespec/compiler_v0.23.0",
       "date": "Thu, 11 Nov 2021 21:46:21 GMT",
       "comments": {
         "minor": [
@@ -1252,10 +1279,10 @@
             "comment": "**Added** `duration` intrinsic type"
           },
           {
-            "comment": "**Added** `--check` option to `cadl format` command to verify files are formatted"
+            "comment": "**Added** `--check` option to `tsp format` command to verify files are formatted"
           },
           {
-            "comment": "**Added** log of the error and warning count at the end in case `cadl compile` failed."
+            "comment": "**Added** log of the error and warning count at the end in case `tsp compile` failed."
           },
           {
             "comment": "**Added** Support for models with mutual references"
@@ -1264,7 +1291,7 @@
             "comment": "Add completion (\"IntelliSense\") support to language server"
           },
           {
-            "comment": "`cadl init` generate `package.json` with `private: true`"
+            "comment": "`tsp init` generate `package.json` with `private: true`"
           }
         ],
         "patch": [
@@ -1279,7 +1306,7 @@
     },
     {
       "version": "0.22.0",
-      "tag": "@cadl-lang/compiler_v0.22.0",
+      "tag": "@typespec/compiler_v0.22.0",
       "date": "Thu, 28 Oct 2021 21:17:50 GMT",
       "comments": {
         "patch": [
@@ -1311,7 +1338,7 @@
     },
     {
       "version": "0.21.0",
-      "tag": "@cadl-lang/compiler_v0.21.0",
+      "tag": "@typespec/compiler_v0.21.0",
       "date": "Fri, 15 Oct 2021 21:33:37 GMT",
       "comments": {
         "patch": [
@@ -1379,7 +1406,7 @@
     },
     {
       "version": "0.20.0",
-      "tag": "@cadl-lang/compiler_v0.20.0",
+      "tag": "@typespec/compiler_v0.20.0",
       "date": "Fri, 17 Sep 2021 00:49:37 GMT",
       "comments": {
         "patch": [
@@ -1404,7 +1431,7 @@
         ],
         "minor": [
           {
-            "comment": "Added `cadl init` command to scaffold new cadl project"
+            "comment": "Added `tsp init` command to scaffold new typespec project"
           },
           {
             "comment": "Added semantic walker"
@@ -1413,7 +1440,7 @@
             "comment": "Add IDE go-to definition support"
           },
           {
-            "comment": "Implement cadl namespace, don't merge namespaces until checking"
+            "comment": "Implement typespec namespace, don't merge namespaces until checking"
           },
           {
             "comment": "Remove support for multiple inheritance"
@@ -1426,12 +1453,12 @@
     },
     {
       "version": "0.19.0",
-      "tag": "@cadl-lang/compiler_v0.19.0",
+      "tag": "@typespec/compiler_v0.19.0",
       "date": "Sat, 21 Aug 2021 00:04:02 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "Introduce naming convention `$name` for JavaScript-defined Cadl functions and decorators"
+            "comment": "Introduce naming convention `$name` for JavaScript-defined TypeSpec functions and decorators"
           }
         ],
         "patch": [
@@ -1443,7 +1470,7 @@
     },
     {
       "version": "0.18.0",
-      "tag": "@cadl-lang/compiler_v0.18.0",
+      "tag": "@typespec/compiler_v0.18.0",
       "date": "Fri, 13 Aug 2021 19:10:21 GMT",
       "comments": {
         "patch": [
@@ -1451,31 +1478,31 @@
             "comment": "Add support for discovering updatable properties using visibility"
           },
           {
-            "comment": "Fix error in `cadl vs uninstall` command"
+            "comment": "Fix error in `tsp vs uninstall` command"
           }
         ],
         "minor": [
           {
-            "comment": "Remove `cadl generate` command"
+            "comment": "Remove `typespec generate` command"
           }
         ]
       }
     },
     {
       "version": "0.17.0",
-      "tag": "@cadl-lang/compiler_v0.17.0",
+      "tag": "@typespec/compiler_v0.17.0",
       "date": "Tue, 10 Aug 2021 20:23:04 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "Rename package to @cadl-lang/compiler"
+            "comment": "Rename package to @typespec/compiler"
           }
         ]
       }
     },
     {
       "version": "0.16.0",
-      "tag": "@azure-tools/cadl_v0.16.0",
+      "tag": "@azure-tools/typespec_v0.16.0",
       "date": "Mon, 09 Aug 2021 21:14:12 GMT",
       "comments": {
         "patch": [
@@ -1498,12 +1525,12 @@
     },
     {
       "version": "0.15.0",
-      "tag": "@azure-tools/cadl_v0.15.0",
+      "tag": "@azure-tools/typespec_v0.15.0",
       "date": "Mon, 02 Aug 2021 18:17:00 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "Rename ADL to Cadl"
+            "comment": "Rename ADL to TypeSpec"
           }
         ]
       }

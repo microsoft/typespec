@@ -1,15 +1,7 @@
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import {
-  createStateAccessors,
-  getParentTemplateNode,
-  isNeverType,
-  isProjectedProgram,
-  isTemplateInstance,
-  ProjectedProgram,
-  Scalar,
-} from "./index.js";
-import { Program } from "./program.js";
+import { createStateAccessors, isProjectedProgram, Program, ProjectedProgram } from "./program.js";
+import { getParentTemplateNode, isNeverType, isTemplateInstance } from "./type-utils.js";
 import {
   DecoratorApplication,
   DecoratorArgument,
@@ -22,11 +14,14 @@ import {
   Operation,
   ProjectionApplication,
   Projector,
+  Scalar,
   Tuple,
   Type,
+  TypeMapper,
   Union,
   UnionVariant,
 } from "./types.js";
+import { mutate } from "./util.js";
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
@@ -262,18 +257,15 @@ export function createProjector(
 
   function projectModel(model: Model): Type {
     const properties = new Map<string, ModelProperty>();
-    let templateArguments: Type[] | undefined;
 
     const projectedModel = shallowClone(model, {
       properties,
       derivedModels: [],
     });
 
-    if (model.templateArguments !== undefined) {
-      templateArguments = [];
-      for (const arg of model.templateArguments) {
-        templateArguments.push(projectType(arg));
-      }
+    if (model.templateMapper) {
+      projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
+      projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
     if (model.baseModel) {
@@ -300,7 +292,6 @@ export function createProjector(
     if (shouldFinishType(model)) {
       finishTypeForProgram(projectedProgram, projectedModel);
     }
-    projectedModel.templateArguments = templateArguments;
     const projectedResult = applyProjection(model, projectedModel);
     if (
       !isNeverType(projectedResult) &&
@@ -313,16 +304,30 @@ export function createProjector(
     return projectedResult;
   }
 
+  function projectTemplateMapper(mapper: TypeMapper): TypeMapper {
+    const projectedMapper: TypeMapper = {
+      ...mapper,
+      args: [],
+      map: new Map(),
+    };
+    for (const arg of mapper.args) {
+      mutate(projectedMapper.args).push(projectType(arg));
+    }
+    for (const [param, type] of mapper.map) {
+      projectedMapper.map.set(param, projectType(type));
+    }
+    return projectedMapper;
+  }
+
   function projectScalar(scalar: Scalar): Type {
     const projectedScalar = shallowClone(scalar, {
       derivedScalars: [],
     });
 
-    let templateArguments: Type[] | undefined;
-    if (scalar.templateArguments !== undefined) {
-      templateArguments = scalar.templateArguments.map(projectType);
+    if (scalar.templateMapper) {
+      projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
+      projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
-    projectedScalar.templateArguments = templateArguments;
 
     if (scalar.baseScalar) {
       projectedScalar.baseScalar = projectType(scalar.baseScalar) as Scalar;
@@ -389,6 +394,11 @@ export function createProjector(
       returnType,
     });
 
+    if (op.templateMapper) {
+      projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
+      projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
+    }
+
     if (op.namespace) {
       projectedOp.namespace = projectedNamespaceScope();
     }
@@ -407,6 +417,11 @@ export function createProjector(
       decorators,
       operations,
     });
+
+    if (iface.templateMapper) {
+      projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
+      projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
+    }
 
     for (const op of iface.operations.values()) {
       const projectedOp = projectType(op);
@@ -430,6 +445,11 @@ export function createProjector(
       decorators,
       variants,
     });
+
+    if (union.templateMapper) {
+      projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
+      projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
+    }
 
     for (const [key, variant] of union.variants) {
       const projectedVariant = projectType(variant);

@@ -1,4 +1,4 @@
-import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { getExtensions, getExternalDocs } from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
@@ -20,7 +20,7 @@ describe("openapi: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @operationId decorator to Foo since it is not assignable to Cadl.Reflection.Operation",
+          "Cannot apply @operationId decorator to Foo since it is not assignable to TypeSpec.Reflection.Operation",
       });
     });
 
@@ -32,7 +32,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
   });
@@ -77,7 +77,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
 
@@ -91,7 +91,7 @@ describe("openapi: decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/openapi/invalid-extension-key",
+        code: "@typespec/openapi/invalid-extension-key",
         message: `OpenAPI extension must start with 'x-' but was 'foo'`,
       });
     });
@@ -106,7 +106,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
 
@@ -119,7 +119,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Cadl.string'",
+        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
       });
     });
 
