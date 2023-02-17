@@ -41,6 +41,8 @@ export interface BaseType {
   projectionSource?: Type;
   projectionBase?: Type;
   projector?: Projector;
+  /** indicates that this type is the constraint of the template parameter. */
+  templateParameter?: TemplateParameter;
 }
 
 export interface DecoratedType {
@@ -54,7 +56,7 @@ export type TemplatedType = Model | Operation | Interface | Union;
 
 export interface TypeMapper {
   partial: boolean;
-  getMappedType(type: TemplateParameter): Type;
+  getMappedType(type: TemplateParameter | Type): Type;
   args: readonly Type[];
   /** @internal */ map: Map<TemplateParameter, Type>;
 }

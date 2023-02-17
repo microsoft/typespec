@@ -257,7 +257,7 @@ export function createChecker(program: Program): Checker {
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
-    TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    TypeReferenceNode | MemberExpressionNode | IdentifierNode | TemplateParameterDeclarationNode,
     Sym | undefined
   >();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
@@ -727,7 +727,11 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
-        type.constraint = getTypeForNode(node.constraint);
+        type.constraint = getResolvedTypeParameterConstraint(node, mapper);
+        if (type.constraint) {
+          type.constraint.templateParameter = type;
+          links.declaredType = type.constraint;
+        }
       }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
@@ -738,8 +742,24 @@ export function createChecker(program: Program): Checker {
         );
       }
     }
+    return mapper ? mapper.getMappedType(type.constraint || type) : type.constraint || type;
+  }
 
-    return mapper ? mapper.getMappedType(type) : type;
+  function getResolvedTypeParameterConstraint(
+    node: TemplateParameterDeclarationNode,
+    mapper: TypeMapper | undefined
+  ): Type | undefined {
+    if (node.constraint === undefined) {
+      return undefined;
+    }
+    const constraint = getTypeForNode(node.constraint!, mapper);
+    if (!("symbol" in constraint)) {
+      lateBindMemberContainer(constraint);
+    }
+    if ("symbol" in constraint && constraint.symbol) {
+      lateBindMembers(constraint, constraint.symbol);
+    }
+    return constraint;
   }
 
   function getResolvedTypeParameterDefault(
@@ -757,6 +777,10 @@ export function createChecker(program: Program): Checker {
     return getTypeForNode(node.default!, mapper);
   }
 
+  function isTemplateParameter(type: Type) {
+    return !!type.templateParameter || type.kind === "TemplateParameter";
+  }
+
   function checkTemplateParameterDefault(
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
@@ -766,9 +790,12 @@ export function createChecker(program: Program): Checker {
     function visit(node: Node) {
       const type = getTypeForNode(node);
       let hasError = false;
-      if (type.kind === "TemplateParameter") {
+      if (isTemplateParameter(type)) {
         for (let i = index; i < templateParameters.length; i++) {
-          if (type.node.symbol === templateParameters[i].symbol) {
+          if (
+            (type.templateParameter?.node.symbol || type.node?.symbol) ===
+            templateParameters[i].symbol
+          ) {
             reportCheckerDiagnostic(
               createDiagnostic({ code: "invalid-template-default", target: node })
             );
@@ -882,24 +909,32 @@ export function createChecker(program: Program): Checker {
     for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
       const declaredType = getTypeForNode(declaration)! as TemplateParameter;
+      const constraint = declaredType.templateParameter?.constraint
+        ? declaredType
+        : declaredType.constraint;
+
       params.push(declaredType);
 
       if (i < args.length) {
         let [valueNode, value] = args[i];
-        if (declaredType.constraint) {
-          if (!checkTypeAssignable(value, declaredType.constraint, valueNode)) {
-            value = declaredType.constraint;
+        if (constraint) {
+          if (!checkTypeAssignable(value, constraint, valueNode)) {
+            value = constraint;
           }
         }
         values.push(value);
       } else {
         const mapper = createTypeMapper(params, values);
-        const defaultValue = getResolvedTypeParameterDefault(declaredType, declaration, mapper);
+        const defaultValue = getResolvedTypeParameterDefault(
+          declaredType.templateParameter || declaredType,
+          declaration,
+          mapper
+        );
         if (defaultValue) {
           values.push(defaultValue);
         } else {
           tooFew = true;
-          values.push(declaredType.constraint ?? unknownType);
+          values.push(constraint ?? unknownType);
         }
       }
     }
@@ -1087,6 +1122,7 @@ export function createChecker(program: Program): Checker {
       : checkUnion(node as UnionStatementNode, mapper);
   }
 
+  // TBD
   function getOrInstantiateTemplate(
     templateNode: TemplateableNode,
     params: TemplateParameter[],
@@ -2103,61 +2139,6 @@ export function createChecker(program: Program): Checker {
           return undefined;
         }
         return sym;
-      } else if (
-        base.flags & SymbolFlags.TemplateParameter &&
-        base.declarations[0].kind === SyntaxKind.TemplateParameterDeclaration &&
-        base.declarations[0].constraint
-      ) {
-        const baseConstraint = getTypeForNode(base.declarations[0].constraint);
-        if (!baseConstraint) {
-          createDiagnostic({
-            code: "invalid-ref",
-            messageId: "node",
-            format: { id: node.id.sv, nodeName: "templateParameterConstraint" },
-            target: node,
-          });
-          return undefined;
-        }
-        if (!("symbol" in baseConstraint)) {
-          lateBindMemberContainer(baseConstraint);
-          if ("symbol" in baseConstraint && baseConstraint.symbol) {
-            lateBindMembers(baseConstraint, baseConstraint.symbol);
-          }
-        }
-        if (
-          "symbol" in baseConstraint &&
-          baseConstraint.symbol &&
-          "members" in baseConstraint.symbol
-        ) {
-          const sym = resolveIdentifierInTable(
-            node.id,
-            baseConstraint.symbol.members!,
-            resolveDecorator
-          );
-          if (!sym) {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "invalid-ref",
-                messageId: "underContainer",
-                format: {
-                  kind: getMemberKindName(base.declarations[0].constraint),
-                  id: node.id.sv,
-                },
-                target: node,
-              })
-            );
-          }
-          return sym;
-        }
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-ref",
-            messageId: "underContainer",
-            format: { kind: getMemberKindName(base.declarations[0].constraint), id: node.id.sv },
-            target: node,
-          })
-        );
-        return undefined;
       } else {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -2176,11 +2157,26 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
     }
-
     if (node.kind === SyntaxKind.Identifier) {
       const sym = resolveIdentifierInScope(node, mapper, resolveDecorator);
       if (!sym) return undefined;
-
+      if (
+        sym.flags & SymbolFlags.TemplateParameter &&
+        sym.declarations[0].kind === SyntaxKind.TemplateParameterDeclaration &&
+        sym.declarations[0].constraint
+      ) {
+        const constraint = getResolvedTypeParameterConstraint(sym.declarations[0], mapper);
+        if (constraint && "symbol" in constraint) {
+          if (mapper) {
+            const mappedType = mapper.getMappedType(constraint);
+            lateBindMemberContainer(mappedType);
+            if ("symbol" in mappedType) {
+              return mappedType.symbol;
+            }
+          }
+          return constraint.symbol;
+        }
+      }
       return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
     }
 
