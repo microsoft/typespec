@@ -2,12 +2,10 @@ import "@cadl-lang/protobuf";
 
 using Cadl.Protobuf;
 
-@service({
-  title: "gRPC Test Service",
-})
+@package
 namespace Test;
 
-@serviceInterface
+@Protobuf.service
 interface Service {
   foo(...Input): Output;
 }

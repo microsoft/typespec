@@ -19,3 +19,9 @@ await generateLibraryDocs(
   ["OpenAPI"],
   join(repoRoot, "docs/standard-library/openapi/reference")
 );
+
+await generateLibraryDocs(
+  join(repoRoot, "packages/protobuf"),
+  ["Cadl.Protobuf"],
+  join(repoRoot, "docs/standard-library/protobuf/reference")
+);

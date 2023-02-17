@@ -3,6 +3,7 @@
 
 import {
   DecoratorContext,
+  EmitContext,
   EmitOptionsFor,
   EnumMember,
   Interface,
@@ -12,12 +13,13 @@ import {
   NumericLiteral,
   Operation,
   Program,
+  resolvePath,
   Tuple,
   Type,
 } from "@cadl-lang/compiler";
 
 import { StreamingMode } from "./ast.js";
-import { CadlProtobufLibrary, reportDiagnostic, state } from "./lib.js";
+import { CadlProtobufLibrary, ProtobufEmitterOptions, reportDiagnostic, state } from "./lib.js";
 import { createProtobufEmitter } from "./transform.js";
 
 /**
@@ -50,21 +52,26 @@ export const PROTO_FULL_IDENT = /([a-zA-Z][a-zA-Z0-9_]*)+/;
  * @param ctx - decorator context
  * @param target - the decorated interface
  */
-export function $serviceInterface(ctx: DecoratorContext, target: Interface) {
-  ctx.program.stateSet(state.serviceInterface).add(target);
+export function $service(ctx: DecoratorContext, target: Interface) {
+  ctx.program.stateSet(state.service).add(target);
+}
+
+export interface PackageDetails {
+  name?: string;
 }
 
 /**
- * Rename a package instead of using the implied name of the service namespace.
+ * Declare a Protobuf package.
  *
  * @param ctx - decorator context
  * @param target - target decorator namespace
  */
-export function $packageName(ctx: DecoratorContext, target: Namespace, name: string) {
-  ctx.program.stateMap(state.packageName).set(target, name);
+export function $package(ctx: DecoratorContext, target: Namespace, details?: Model) {
+  // TODO: need to convert details from Model to PackageDetails
+  ctx.program.stateMap(state.package).set(target, details);
 }
 
-const mapState = Symbol("cadl-protobuf::_map");
+const mapState = Symbol("@cadl-lang/protobuf._map");
 
 export function isMap(program: Program, m: Type): boolean {
   return program.stateSet(mapState).has(m);
@@ -99,17 +106,24 @@ function getTuple(program: Program, t: Type): [number, number] | null {
     return null;
   }
 
-  return (t as Tuple).values.map((v) => (v as NumericLiteral).value) as [number, number];
+  return Object.assign(
+    (t as Tuple).values.map((v) => (v as NumericLiteral).value) as [number, number],
+    { type: t }
+  );
 }
+
+export type Reservation = string | number | ([number, number] & { type: Type });
 
 export function $reserve(
   ctx: DecoratorContext,
   target: Model,
   ...reservations: readonly (Type | number | string)[]
 ) {
-  const finalReservations = reservations.map((reservation) =>
-    typeof reservation === "object" ? getTuple(ctx.program, reservation) : reservation
-  );
+  const finalReservations = reservations
+    .map((reservation) =>
+      typeof reservation === "object" ? getTuple(ctx.program, reservation) : reservation
+    )
+    .filter((v) => v != null);
 
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
 }
@@ -166,22 +180,23 @@ export function $field(ctx: DecoratorContext, target: ModelProperty, fieldIndex:
  *
  * @param program - the program to emit
  */
-export async function $onEmit(program: Program, options?: EmitOptionsFor<CadlProtobufLibrary>) {
-  const emitter = createProtobufEmitter(program);
+export async function $onEmit(ctx: EmitContext<EmitOptionsFor<CadlProtobufLibrary>>) {
+  const emitter = createProtobufEmitter(ctx.program);
 
-  await emitter({
-    /* c8 ignore next */
-    outputDirectory: options?.outputDirectory,
-  });
+  await emitter(resolvePath(ctx.emitterOutputDir), ctx.options);
 }
 
-/*export async function $onValidate(program: Program) {
-  const emitter = createGrpcEmitter(program);
-
-  await emitter({
-    noEmit: true,
-  });
-}*/
+/**
+ * Validation function
+ */
+export async function $onValidate(program: Program) {
+  if (program.compilerOptions.noEmit) {
+    const options = program.emitters.find((e) => e.emitFunction === $onEmit)
+      ?.options as ProtobufEmitterOptions;
+    const emitter = createProtobufEmitter(program);
+    await emitter("", options);
+  }
+}
 
 export const namespace = "Cadl.Protobuf";
 

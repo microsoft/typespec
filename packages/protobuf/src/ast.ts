@@ -218,14 +218,21 @@ export interface ProtoMethodDeclaration {
 }
 
 /**
+ * A declaration that can fit within the body of a message declaration.
+ */
+export type ProtoMessageBodyDeclaration =
+  | ProtoFieldDeclaration
+  | ProtoMessageDeclaration
+  | ProtoOneOfDeclaration
+  | ProtoEnumDeclaration;
+
+/**
  * A `message` declaration.
  */
 export interface ProtoMessageDeclaration {
   kind: "message";
   name: string;
-  declarations: Array<
-    ProtoFieldDeclaration | ProtoMessageDeclaration | ProtoOneOfDeclaration | ProtoEnumDeclaration
-  >;
+  declarations: Array<ProtoMessageBodyDeclaration>;
   reservations?: Array<string | number | [number, number]>;
 }
 
@@ -258,7 +265,7 @@ export interface DefaultFieldOptions {
 export interface ProtoOneOfDeclaration {
   kind: "oneof";
   name: string;
-  declarations: [ProtoFieldDeclaration, ...ProtoFieldDeclaration[]];
+  declarations: ProtoFieldDeclaration[];
 }
 
 /**

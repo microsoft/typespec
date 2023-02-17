@@ -1,2 +1,2 @@
-/test/.cadl/lib/lib.cadl:18:1 - error @cadl-lang/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
-/test/.cadl/lib/lib.cadl:12:1 - error @cadl-lang/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
+/test/.cadl/lib/lib.cadl:81:1 - error @cadl-lang/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
+/test/.cadl/lib/lib.cadl:51:1 - error @cadl-lang/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range

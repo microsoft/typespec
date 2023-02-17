@@ -98,6 +98,14 @@ const sidebars = {
             "standard-library/openapi/openapi",
           ],
         },
+        {
+          type: "category",
+          label: "Protobuf",
+          items: [
+            "standard-library/protobuf/overview",
+            createLibraryReferenceStructure("protobuf"),
+          ],
+        },
       ],
     },
     {

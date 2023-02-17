@@ -2,11 +2,12 @@ import "@cadl-lang/protobuf";
 
 using Cadl.Protobuf;
 
-@packageName("com.azure.test")
-@service
+@package({
+  name: "com.azure.test",
+})
 namespace Test;
 
-@serviceInterface
+@Protobuf.service
 interface Service {
   foo(@field(1) testInputField: string): {
     @field(1) testOutputField: int32;

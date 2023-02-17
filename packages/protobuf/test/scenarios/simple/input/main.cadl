@@ -2,11 +2,12 @@ import "@cadl-lang/protobuf";
 
 using Cadl.Protobuf;
 
-@packageName("com.azure.test")
-@service
+@package({
+  name: "com.azure.Test",
+})
 namespace Test;
 
-@serviceInterface
+@Protobuf.service
 interface Service {
   foo(...Input): Output;
 }

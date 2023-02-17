@@ -2,10 +2,10 @@ import "@cadl-lang/protobuf";
 
 using Cadl.Protobuf;
 
-@service
+@package
 namespace Test;
 
-@serviceInterface
+@Protobuf.service
 interface Service {
   foo(...MyExtern): WellKnown.Empty;
 

@@ -2,12 +2,13 @@
 // Licensed under the MIT license.
 
 import {
+  DiagnosticTarget,
   Enum,
+  EnumMember,
   getEffectiveModelType,
   getTypeName,
   Interface,
   isDeclaredInNamespace,
-  listServices,
   Model,
   ModelProperty,
   Namespace,
@@ -15,7 +16,10 @@ import {
   Program,
   resolvePath,
   Scalar,
+  StringLiteral,
+  SyntaxKind,
   Type,
+  Union,
 } from "@cadl-lang/compiler";
 import {
   map,
@@ -24,8 +28,10 @@ import {
   ProtoFieldDeclaration,
   ProtoFile,
   ProtoMap,
+  ProtoMessageBodyDeclaration,
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
+  ProtoOneOfDeclaration,
   ProtoRef,
   ProtoScalar,
   ProtoTopLevelDeclaration,
@@ -37,23 +43,19 @@ import {
   unreachable,
 } from "./ast.js";
 import { ProtobufEmitterOptions, reportDiagnostic, state } from "./lib.js";
-import { isMap } from "./proto.js";
+import { $field, isMap, Reservation } from "./proto.js";
 import { writeProtoFile } from "./write.js";
 
-// Default options
-const DEFAULT_OPTIONS = {
-  outputDirectory: "./cadl-output/",
-} as const;
+// Cache for scalar -> ProtoScalar map
+let _protoScalarsMap: Map<Type, ProtoScalar>;
 
 /**
  * Create a worker function that converts the CADL program to Protobuf and writes it to the file system.
  */
 export function createProtobufEmitter(
   program: Program
-): (options?: ProtobufEmitterOptions) => Promise<void> {
-  return async function doEmit(options) {
-    const outDir = resolvePath(options?.outputDirectory ?? DEFAULT_OPTIONS.outputDirectory);
-
+): (outDir: string, options: ProtobufEmitterOptions) => Promise<void> {
+  return async function doEmit(outDir, options) {
     // Convert the program to a set of proto files.
     const files = cadlToProto(program);
 
@@ -83,9 +85,11 @@ export function createProtobufEmitter(
  * This is the meat of the emitter.
  */
 function cadlToProto(program: Program): ProtoFile[] {
-  const packages = new Set(listServices(program).map((service) => service.type));
+  const packages = new Set<Namespace>(
+    program.stateMap(state.package).keys() as Iterable<Namespace>
+  );
 
-  const serviceInterfaces = [...(program.stateSet(state.serviceInterface) as Set<Interface>)];
+  const serviceInterfaces = [...(program.stateSet(state.service) as Set<Interface>)];
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
     [...packages].map((p) => [p, []])
@@ -132,7 +136,7 @@ function cadlToProto(program: Program): ProtoFile[] {
       // we also only support enums where the first value is zero.
       if (members[0].value !== 0) {
         reportDiagnostic(program, {
-          target: members[0],
+          target: getMemberTypeSyntaxTarget(members[0]),
           code: "unconvertible-enum",
           messageId: "no-zero-first",
         });
@@ -164,21 +168,25 @@ function cadlToProto(program: Program): ProtoFile[] {
   }
 
   // Emit a file per package.
-  const files = [...packages].map(
-    (namespace) =>
-      ({
-        package: program.stateMap(state.packageName).get(namespace),
+  const files = [...packages].map((namespace) => {
+    const details = program.stateMap(state.package).get(namespace) as Model | undefined;
+    return {
+      package: (
+        (details?.properties.get("name") as ModelProperty | undefined)?.type as
+          | StringLiteral
+          | undefined
+      )?.value,
 
-        // TODO: The language guide is really unclear about how to handle these. We may also need a facility for
-        // allowing packages to declare extensions.
-        options: {},
+      // TODO: The language guide is really unclear about how to handle these. We may also need a facility for
+      // allowing packages to declare extensions, as extensions may be target/compiler specific.
+      options: {},
 
-        imports: [...(importMap.get(namespace) ?? [])],
+      imports: [...(importMap.get(namespace) ?? [])],
 
-        declarations: declarationMap.get(namespace),
-        source: namespace,
-      } as ProtoFile)
-  );
+      declarations: declarationMap.get(namespace),
+      source: namespace,
+    } as ProtoFile;
+  });
 
   checkForNamespaceCollisions(files);
 
@@ -250,7 +258,7 @@ function cadlToProto(program: Program): ProtoFile[] {
 
     /* c8 ignore start */
 
-    // Not sure if this can or can't happen.
+    // Not sure if this can or can't actually happen at runtime, but we'll defensively handle it anyway.
     if (!effectiveModel) {
       reportDiagnostic(program, {
         code: "unsupported-input-type",
@@ -305,7 +313,7 @@ function cadlToProto(program: Program): ProtoFile[] {
         // TODO: logic is duplicated in addReturnModel
         reportDiagnostic(program, {
           code: "unsupported-return-type",
-          target: t,
+          target: getOperationReturnSyntaxTarget(operation),
         });
 
         return unreachable("unsupported return type");
@@ -332,7 +340,7 @@ function cadlToProto(program: Program): ProtoFile[] {
 
     reportDiagnostic(program, {
       code: "unsupported-return-type",
-      target: m,
+      target: getOperationReturnSyntaxTarget(operation),
     });
 
     return unreachable("unsupported return type");
@@ -388,7 +396,7 @@ function cadlToProto(program: Program): ProtoFile[] {
   }
 
   function mapToProto(t: Model, relativeSource: Model | Operation): ProtoMap {
-    const [keyType, valueType] = t.templateArguments ?? [];
+    const [keyType, valueType] = t.templateMapper!.args;
 
     // A map's value cannot be another map.
     if (isMap(program, valueType)) {
@@ -403,7 +411,7 @@ function cadlToProto(program: Program): ProtoFile[] {
     // This is a core compile error.
     if (!keyType || !valueType) return unreachable("nonexistent map key or value type");
 
-    // TODO: key can be any integral type only
+    // TODO: key can be any integral or string type only
     const keyProto = addType(keyType, relativeSource);
     const valueProto = addType(valueType, relativeSource) as ProtoRef | ProtoScalar;
 
@@ -411,13 +419,13 @@ function cadlToProto(program: Program): ProtoFile[] {
   }
 
   function arrayToProto(t: Model, relativeSource: Model | Operation): ProtoType {
-    const valueType = (t as Model).templateArguments![0];
+    const valueType = (t as Model).templateMapper!.args[0];
 
     // Nested arrays are not supported.
     if (isArray(valueType)) {
       reportDiagnostic(program, {
         code: "nested-array",
-        target: t,
+        target: valueType,
       });
       return ref("<unreachable>");
     }
@@ -425,26 +433,34 @@ function cadlToProto(program: Program): ProtoFile[] {
     return addType(valueType, relativeSource);
   }
 
+  function getProtoScalarsMap(program: Program): Map<Type, ProtoScalar> {
+    return (_protoScalarsMap ??= new Map<Type, ProtoScalar>(
+      (
+        [
+          [program.resolveTypeReference("Cadl.bytes"), scalar("bytes")],
+          [program.resolveTypeReference("Cadl.boolean"), scalar("bool")],
+          [program.resolveTypeReference("Cadl.string"), scalar("string")],
+          [program.resolveTypeReference("Cadl.int32"), scalar("int32")],
+          [program.resolveTypeReference("Cadl.int64"), scalar("int64")],
+          [program.resolveTypeReference("Cadl.uint32"), scalar("uint32")],
+          [program.resolveTypeReference("Cadl.uint64"), scalar("uint64")],
+          [program.resolveTypeReference("Cadl.float32"), scalar("float")],
+          [program.resolveTypeReference("Cadl.float64"), scalar("double")],
+          [program.resolveTypeReference("Cadl.Protobuf.sfixed32"), scalar("sfixed32")],
+          [program.resolveTypeReference("Cadl.Protobuf.sfixed64"), scalar("sfixed64")],
+          [program.resolveTypeReference("Cadl.Protobuf.sint32"), scalar("sint32")],
+          [program.resolveTypeReference("Cadl.Protobuf.sint64"), scalar("sint64")],
+          [program.resolveTypeReference("Cadl.Protobuf.fixed32"), scalar("fixed32")],
+          [program.resolveTypeReference("Cadl.Protobuf.fixed64"), scalar("fixed64")],
+        ] as [[Type, unknown], ProtoScalar][]
+      ).map(([[type], scalar]) => [type, scalar])
+    ));
+  }
+
   function scalarToProto(t: Scalar): ProtoType {
     const fullName = getTypeName(t);
 
-    const protoType = {
-      "Cadl.bytes": scalar("bytes"),
-      "Cadl.boolean": scalar("bool"),
-      "Cadl.string": scalar("string"),
-      "Cadl.int32": scalar("int32"),
-      "Cadl.int64": scalar("int64"),
-      "Cadl.uint32": scalar("uint32"),
-      "Cadl.uint64": scalar("uint64"),
-      "Cadl.float32": scalar("float"),
-      "Cadl.float64": scalar("double"),
-      "Cadl.Protobuf.sfixed32": scalar("sfixed32"),
-      "Cadl.Protobuf.sfixed64": scalar("sfixed64"),
-      "Cadl.Protobuf.sint32": scalar("sint32"),
-      "Cadl.Protobuf.sint64": scalar("sint64"),
-      "Cadl.Protobuf.fixed32": scalar("fixed32"),
-      "Cadl.Protobuf.fixed64": scalar("fixed64"),
-    }[fullName];
+    const protoType = getProtoScalarsMap(program).get(t);
 
     if (!protoType) {
       reportDiagnostic(program, {
@@ -511,15 +527,114 @@ function cadlToProto(program: Program): ProtoFile[] {
       kind: "message",
       name: model.name,
       reservations: program.stateMap(state.reserve).get(model),
-      declarations: [...model.properties.values()].map((f) => toField(f, model)),
+      declarations: [...model.properties.values()].map((f) => toMessageBodyDeclaration(f, model)),
     };
   }
 
   /**
    * @param property - the ModelProperty to convert
-   * @returns a corresponding field declaration
+   * @returns a corresponding declaration
    */
-  function toField(property: ModelProperty, model: Model): ProtoFieldDeclaration {
+  function toMessageBodyDeclaration(
+    property: ModelProperty,
+    model: Model
+  ): ProtoMessageBodyDeclaration {
+    if (property.type.kind === "Union") {
+      // TODO: union must have at least one variant.
+      // TODO: union members must have field decorators.
+      // TODO: union must be anonymous
+      // TODO: union fields mustn't be arrays or maps.
+      // TODO: union variants must be string-named
+
+      // TODO: this isn't actually possible at all, because "union has named variants" and "union must be anonymous"
+      // are currently contradictory, so we can temporarily allow union decls with the understanding that they will be
+      // certainly inlined.
+
+      const oneof: ProtoOneOfDeclaration = {
+        kind: "oneof",
+        name: property.name,
+        declarations: [...property.type.variants.values()]
+          .filter(/*TODO:*/ (v) => typeof v.name === "string")
+          .map(
+            (v): ProtoFieldDeclaration => ({
+              kind: "field",
+              name: v.name as string,
+              index: program.stateMap(state.fieldIndex).get(v),
+              type: addImportSourceForProtoIfNeeded(
+                program,
+                addType(v.type, model),
+                model,
+                v.type as NamespaceTraversable /*TODO: seems weird*/
+              ),
+              repeated: false,
+            })
+          ),
+      };
+
+      return oneof;
+    }
+    // TODO: all fields must have an index.
+    // TODO: validate that the type is OK _before_ calling addImportSourceForProtoIfNeeded
+
+    const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;
+    const fieldIndexNode = property.decorators.find((d) => d.decorator === $field)?.args[0].node;
+    if (!fieldIndexNode) throw new Error("Failed to recover field decorator argument.");
+
+    if (fieldIndex === undefined) {
+      reportDiagnostic(program, {
+        code: "field-index",
+        messageId: "missing",
+        format: {
+          name: property.name,
+        },
+        target: property,
+      });
+    }
+
+    const reservations = program.stateMap(state.reserve).get(model) as Reservation[] | undefined;
+
+    if (reservations) {
+      for (const reservation of reservations) {
+        if (typeof reservation === "string" && reservation === property.name) {
+          reportDiagnostic(program, {
+            code: "field-name",
+            messageId: "user-reserved",
+            format: {
+              name: property.name,
+            },
+            target: getPropertyNameSyntaxTarget(property),
+          });
+        } else if (
+          fieldIndex !== undefined &&
+          typeof reservation === "number" &&
+          reservation === fieldIndex
+        ) {
+          reportDiagnostic(program, {
+            code: "field-index",
+            messageId: "user-reserved",
+            format: {
+              index: fieldIndex.toString(),
+            },
+            target: fieldIndexNode,
+          });
+        } else if (
+          fieldIndex !== undefined &&
+          Array.isArray(reservation) &&
+          fieldIndex >= reservation[0] &&
+          fieldIndex <= reservation[1]
+        ) {
+          reportDiagnostic(program, {
+            code: "field-index",
+            messageId: "user-reserved-range",
+            format: {
+              index: fieldIndex.toString(),
+            },
+            target: fieldIndexNode,
+          });
+        }
+      }
+    }
+
     const field: ProtoFieldDeclaration = {
       kind: "field",
       name: property.name,
@@ -555,7 +670,7 @@ function cadlToProto(program: Program): ProtoFile[] {
     };
   }
 
-  type NamespaceTraversable = Enum | Model | Interface | Operation | Namespace;
+  type NamespaceTraversable = Enum | Model | Interface | Union | Operation | Namespace;
 
   function getPackageOfType(
     program: Program,
@@ -569,6 +684,7 @@ function cadlToProto(program: Program): ProtoFile[] {
     switch (t.kind) {
       case "Enum":
       case "Model":
+      case "Union":
       case "Interface":
         if (!t.namespace) {
           !quiet && reportDiagnostic(program, { code: "no-package", target: t });
@@ -657,9 +773,13 @@ function cadlToProto(program: Program): ProtoFile[] {
           )
             return pt;
 
-          const dependencyPackageName = program
-            .stateMap(state.packageName)
-            .get(dependencyPackage) as string | undefined;
+          const dependencyDetails = program.stateMap(state.package).get(dependencyPackage) as
+            | Model
+            | undefined;
+
+          const dependencyPackageName = (
+            dependencyDetails?.properties.get("name")?.type as StringLiteral | undefined
+          )?.value;
 
           const dependencyPackagePrefix =
             dependencyPackageName === undefined || dependencyPackageName === ""
@@ -689,4 +809,63 @@ function isArray(t: Type) {
  */
 function capitalize<S extends string>(s: S) {
   return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
+}
+
+/**
+ * Helps us squiggle the right things for operation return types.
+ */
+function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
+  const signature = op.node.signature;
+  switch (signature.kind) {
+    case SyntaxKind.OperationSignatureDeclaration:
+      return signature.returnType;
+    case SyntaxKind.OperationSignatureReference:
+      // op foo is whatever;
+      return op;
+    default:
+      const __exhaust: never = signature;
+      throw new Error(
+        `Internal Emitter Error: reached unreachable operation signature: ${op.node.signature.kind}`
+      );
+  }
+}
+
+function getMemberTypeSyntaxTarget(property: ModelProperty | EnumMember): DiagnosticTarget {
+  const node = property.node;
+
+  switch (node.kind) {
+    case SyntaxKind.ModelProperty:
+      return node.value;
+    case SyntaxKind.ModelSpreadProperty:
+      return node;
+    case SyntaxKind.EnumMember:
+      return node.value ?? node;
+    case SyntaxKind.ProjectionModelProperty:
+    case SyntaxKind.ProjectionModelSpreadProperty:
+      return property;
+    default:
+      const __exhaust: never = node;
+      throw new Error(
+        `Internal Emitter Error: reached unreachable member node: ${property.node.kind}`
+      );
+  }
+}
+
+function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
+  const node = property.node;
+
+  switch (node.kind) {
+    case SyntaxKind.ModelProperty:
+      return node.id;
+    case SyntaxKind.ModelSpreadProperty:
+      return node;
+    case SyntaxKind.ProjectionModelProperty:
+    case SyntaxKind.ProjectionModelSpreadProperty:
+      return property;
+    default:
+      const __exhaust: never = node;
+      throw new Error(
+        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`
+      );
+  }
 }

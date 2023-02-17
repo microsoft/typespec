@@ -2,11 +2,10 @@ import "@cadl-lang/protobuf";
 
 using Cadl.Protobuf;
 
-@packageName("com.azure.test")
-@service
+@package
 namespace Test;
 
-@serviceInterface
+@Protobuf.service
 interface Service {
   foo(...Input): Output;
 }
@@ -23,9 +22,9 @@ enum InputType {
 }
 
 enum InputTypeWithAlias {
-  FOO: 0,
-  BAR: 1,
-  BAZ: 1,
+  BAZ: 0,
+  QUX: 1,
+  FUZ: 1,
 }
 
 model Output {

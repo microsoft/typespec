@@ -1,0 +1,5 @@
+/test/main.cadl:15:13 - error @cadl-lang/protobuf/field-name: field name 'foo' was reserved by a call to @reserve on this model
+/test/main.cadl:16:10 - error @cadl-lang/protobuf/field-index: field index 2 was reserved by a call to @reserve on this model
+/test/main.cadl:17:10 - error @cadl-lang/protobuf/field-index: field index 9 falls within a range reserved by a call to @reserve on this model
+/test/main.cadl:18:10 - error @cadl-lang/protobuf/field-index: field index 11 falls within a range reserved by a call to @reserve on this model
+/test/main.cadl:18:14 - error @cadl-lang/protobuf/field-name: field name 'bar' was reserved by a call to @reserve on this model

@@ -8,11 +8,6 @@ import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/comp
  */
 export interface ProtobufEmitterOptions {
   /**
-   * The directory where the emitter will write the Protobuf output tree.
-   */
-  outputDirectory?: string;
-
-  /**
    * Don't emit anything.
    */
   noEmit?: boolean;
@@ -22,7 +17,6 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    outputDirectory: { type: "string", nullable: true },
     noEmit: { type: "boolean", nullable: true },
   },
   required: [],
@@ -37,9 +31,18 @@ export const CadlProtobufLibrary = createCadlLibrary({
     "field-index": {
       severity: "error",
       messages: {
+        missing: paramMessage`field ${"name"} does not have a field index, but one is required (try using the '@field' decorator)`,
         invalid: paramMessage`field index ${"index"} is invalid (must be an integer greater than zero)`,
         "out-of-bounds": paramMessage`field index ${"index"} is out of bounds (must be less than ${"max"})`,
-        reserved: paramMessage`field index ${"index"} falls within the implementation-reserved range of 19000-19999 (try an index value of 20,000 or higher)`,
+        reserved: paramMessage`field index ${"index"} falls within the implementation-reserved range of 19000-19999 inclusive`,
+        "user-reserved": paramMessage`field index ${"index"} was reserved by a call to @reserve on this model`,
+        "user-reserved-range": paramMessage`field index ${"index"} falls within a range reserved by a call to @reserve on this model`,
+      },
+    },
+    "field-name": {
+      severity: "error",
+      messages: {
+        "user-reserved": paramMessage`field name '${"name"}' was reserved by a call to @reserve on this model`,
       },
     },
     "root-operation": {
@@ -125,15 +128,10 @@ export { $onEmit } from "./proto.js";
 
 export type CadlProtobufLibrary = typeof CadlProtobufLibrary;
 
-const keys = [
-  "fieldIndex",
-  "serviceInterface",
-  "packageName",
-  "externRef",
-  "stream",
-  "reserve",
-] as const;
+const keys = ["fieldIndex", "package", "service", "externRef", "stream", "reserve"] as const;
 
-export const state = Object.fromEntries(keys.map((k) => [k, Symbol(`cadl-protobuf::${k}`)])) as {
+export const state = Object.fromEntries(
+  keys.map((k) => [k, Symbol(`@cadl-lang/protobuf.${k}`)])
+) as {
   [K in typeof keys[number]]: symbol;
 };

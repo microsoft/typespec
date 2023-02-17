@@ -2,8 +2,9 @@ import "@cadl-lang/protobuf";
 
 using Cadl.Protobuf;
 
-@packageName("A")
-@service
+@package({
+  name: "A",
+})
 namespace A {
   model Output {
     @field(1) testOutputField: int32;
@@ -11,10 +12,11 @@ namespace A {
   }
 }
 
-@packageName("B")
-@service
+@package({
+  name: "B",
+})
 namespace B {
-  @serviceInterface
+  @Protobuf.service
   interface Service {
     foo(...Input): A.Output;
   }

@@ -120,12 +120,10 @@ async function doEmit(files: Record<string, string>): Promise<EmitResult> {
   }
 
   const [, diagnostics] = await host.compileAndDiagnose("main.cadl", {
-    outputPath: baseOutputPath,
+    outputDir: baseOutputPath,
     noEmit: false,
     emitters: {
-      "@cadl-lang/protobuf": {
-        outputDirectory: baseOutputPath,
-      },
+      "@cadl-lang/protobuf": {},
     },
   });
 
@@ -192,7 +190,7 @@ async function readdirRecursive(dir: string, base: string = dir): Promise<Record
         res[name] = content;
       }
     } else if (stat.isFile()) {
-      const content = await (await fs.promises.readFile(entry)).toString("utf-8");
+      const content = (await fs.promises.readFile(entry)).toString("utf-8");
 
       res[path.relative(base, entry)] = content;
     } else {
