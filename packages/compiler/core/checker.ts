@@ -2547,16 +2547,6 @@ export function createChecker(program: Program): Checker {
             }
           }
           break;
-        case SyntaxKind.ModelExpression:
-          for (const prop of node.properties) {
-            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
-              resolveAndCopyMembers(prop.target);
-            } else {
-              const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
-              bindMember(name, prop, SymbolFlags.ModelProperty);
-            }
-          }
-          break;
         case SyntaxKind.EnumStatement:
           for (const member of node.members.values()) {
             if (member.kind === SyntaxKind.EnumSpreadMember) {

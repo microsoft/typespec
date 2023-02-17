@@ -245,7 +245,7 @@ describe("compiler: references", () => {
     describe("property type reference of the property of the template parameter", () => {
       it("resolve references property of template parameter", async () => {
         testHost.addTypeSpecFile(
-          "main.cadl",
+          "main.tsp",
           `
           model A {
             kind: string;
@@ -259,14 +259,14 @@ describe("compiler: references", () => {
           model C is B<A>;
           `
         );
-        const { C } = await testHost.compile("main.cadl");
+        const { C } = await testHost.compile("main.tsp");
         strictEqual(((C as Model).properties.get("b")?.type as any).name, "kind");
         strictEqual(((C as Model).properties.get("c")?.type as any).name, "kind");
       });
 
       it("resolve references property of template parameter with anonymous model as constrint", async () => {
         testHost.addTypeSpecFile(
-          "main.cadl",
+          "main.tsp",
           `
           model A<T extends {kind:"string"}> {
             b: T.kind;
@@ -275,7 +275,7 @@ describe("compiler: references", () => {
           model B is A<{kind:"string"}>;
           `
         );
-        const { B } = await testHost.compile("main.cadl");
+        const { B } = await testHost.compile("main.tsp");
         strictEqual(((B as Model).properties.get("b")?.type as any).name, "kind");
       });
     });
