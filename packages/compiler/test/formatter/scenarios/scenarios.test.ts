@@ -8,7 +8,7 @@ import * as plugin from "../../../formatter/index.js";
 
 function format(code: string): string {
   const output = prettier.format(code, {
-    parser: "cadl",
+    parser: "typespec",
     plugins: [plugin],
   });
   return output;
@@ -58,7 +58,7 @@ describe("compiler: prettier formatter scenarios", () => {
   const scenarioFiles = readdirSync(join(__dirname, "../../../../test/formatter/scenarios/inputs"));
 
   for (const file of scenarioFiles) {
-    if (file.endsWith(".cadl")) {
+    if (file.endsWith(".tsp")) {
       it(file, async () => {
         await testScenario(file);
       });

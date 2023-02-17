@@ -13,11 +13,11 @@ describe("compiler: server: main file", () => {
       },
     });
 
-    host.addCadlFile("./main.cadl", 'import "./common.cadl"; import "./subdir/subfile.cadl";');
-    host.addCadlFile("./common.cadl", "model Base {}");
-    const document = host.addOrUpdateDocument("./subdir/subfile.cadl", "model Sub extends Base {}");
+    host.addTypeSpecFile("./main.tsp", 'import "./common.tsp"; import "./subdir/subfile.tsp";');
+    host.addTypeSpecFile("./common.tsp", "model Base {}");
+    const document = host.addOrUpdateDocument("./subdir/subfile.tsp", "model Sub extends Base {}");
 
     await host.server.checkChange({ document });
-    deepStrictEqual(host.getDiagnostics("./subdir/subfile.cadl"), [], "No diagnostics expected");
+    deepStrictEqual(host.getDiagnostics("./subdir/subfile.tsp"), [], "No diagnostics expected");
   });
 });

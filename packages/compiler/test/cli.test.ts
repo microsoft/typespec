@@ -16,7 +16,7 @@ describe("compiler: cli", () => {
 
   beforeEach(async () => {
     host = await createTestHost();
-    host.addCadlFile("ws/main.cadl", "");
+    host.addTypeSpecFile("ws/main.tsp", "");
   });
 
   describe("resolving compiler options", () => {
@@ -26,10 +26,10 @@ describe("compiler: cli", () => {
       return options;
     }
 
-    it("no args and config: return empty options with output-dir at {cwd}/cadl-output", async () => {
+    it("no args and config: return empty options with output-dir at {cwd}/typespec-output", async () => {
       const options = await resolveCompilerOptions({});
       deepStrictEqual(options, {
-        outputDir: `${cwd}/cadl-output`,
+        outputDir: `${cwd}/typespec-output`,
         options: {},
       });
     });
@@ -45,20 +45,20 @@ describe("compiler: cli", () => {
 
     context("config file with emitters", () => {
       beforeEach(() => {
-        host.addCadlFile(
-          "ws/cadl-project.yaml",
+        host.addTypeSpecFile(
+          "ws/tspconfig.yaml",
           dump({
             parameters: {
               "custom-arg": {
                 default: "/default-arg-value",
               },
             },
-            emit: ["@cadl-lang/openapi3", "@cadl-lang/with-args"],
+            emit: ["@typespec/openapi3", "@typespec/with-args"],
             options: {
-              "@cadl-lang/openapi3": {
+              "@typespec/openapi3": {
                 "emitter-output-dir": "{output-dir}/custom",
               },
-              "@cadl-lang/with-args": {
+              "@typespec/with-args": {
                 "emitter-output-dir": "{custom-arg}/custom",
               },
             },
@@ -70,8 +70,8 @@ describe("compiler: cli", () => {
         const options = await resolveCompilerOptions({});
 
         strictEqual(
-          options?.options?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/cadl-output/custom`
+          options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
+          `${cwd}/typespec-output/custom`
         );
       });
 
@@ -79,18 +79,18 @@ describe("compiler: cli", () => {
         const options = await resolveCompilerOptions({ "output-dir": `${cwd}/my-output-dir` });
 
         strictEqual(
-          options?.options?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
+          options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
           `${cwd}/my-output-dir/custom`
         );
       });
 
       it("override emitter-output-dir from cli args", async () => {
         const options = await resolveCompilerOptions({
-          options: [`@cadl-lang/openapi3.emitter-output-dir={cwd}/relative-to-cwd`],
+          options: [`@typespec/openapi3.emitter-output-dir={cwd}/relative-to-cwd`],
         });
 
         strictEqual(
-          options?.options?.["@cadl-lang/openapi3"]?.["emitter-output-dir"],
+          options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
           `${cwd}/relative-to-cwd`
         );
       });
@@ -111,7 +111,7 @@ describe("compiler: cli", () => {
           const options = await resolveCompilerOptions({});
 
           strictEqual(
-            options?.options?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
+            options?.options?.["@typespec/with-args"]?.["emitter-output-dir"],
             `/default-arg-value/custom`
           );
         });
@@ -122,7 +122,7 @@ describe("compiler: cli", () => {
           });
 
           strictEqual(
-            options?.options?.["@cadl-lang/with-args"]?.["emitter-output-dir"],
+            options?.options?.["@typespec/with-args"]?.["emitter-output-dir"],
             `/my-updated-arg-value/custom`
           );
         });
@@ -145,8 +145,8 @@ describe("compiler: cli", () => {
       });
 
       it("emit diagnostic if using relative path in config paths", async () => {
-        host.addCadlFile(
-          "ws/cadl-project.yaml",
+        host.addTypeSpecFile(
+          "ws/tspconfig.yaml",
           dump({
             "output-dir": "./my-output",
           })

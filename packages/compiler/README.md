@@ -1,9 +1,9 @@
-# Cadl compiler and CLI
+# TypeSpec compiler and CLI
 
-This package implements the core of the [Cadl](https://github.com/microsoft/cadl)
+This package implements the core of the [TypeSpec](https://github.com/microsoft/typespec)
 compiler and its command-line interface.
 
 ## See also
 
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Website](https://microsoft.github.io/cadl)
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec Website](https://microsoft.github.io/typespec)

@@ -1,5 +1,5 @@
-import { Model } from "@cadl-lang/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { Model } from "@typespec/compiler";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
@@ -20,7 +20,7 @@ describe("rest: responses", () => {
       }
       `
     );
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/rest/duplicate-body" }]);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/rest/duplicate-body" }]);
   });
 
   it("issues diagnostics for return type with duplicate status code", async () => {
@@ -40,7 +40,7 @@ describe("rest: responses", () => {
     `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/rest/duplicate-response",
+      code: "@typespec/rest/duplicate-response",
       message: "Multiple return types for content type application/json and status code 200",
     });
   });
@@ -70,9 +70,9 @@ describe("rest: responses", () => {
     `
     );
     expectDiagnostics(diagnostics, [
-      { code: "@cadl-lang/rest/content-type-string" },
-      { code: "@cadl-lang/rest/content-type-string" },
-      { code: "@cadl-lang/rest/content-type-string" },
+      { code: "@typespec/rest/content-type-string" },
+      { code: "@typespec/rest/content-type-string" },
+      { code: "@typespec/rest/content-type-string" },
     ]);
   });
 
@@ -104,7 +104,7 @@ describe("rest: responses", () => {
     deepStrictEqual(routes[2].responses[0].responses[0].body?.contentTypes, ["application/json"]);
   });
 
-  // Regression test for https://github.com/microsoft/cadl/issues/328
+  // Regression test for https://github.com/microsoft/typespec/issues/328
   it("empty response model becomes body if it has children", async () => {
     const [routes, diagnostics] = await getOperationsWithServiceNamespace(
       `

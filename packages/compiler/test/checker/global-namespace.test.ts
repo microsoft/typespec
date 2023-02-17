@@ -11,7 +11,7 @@ describe("compiler: global namespace", () => {
 
   describe("it adds top level entities to the global namespace", () => {
     it("adds top-level namespaces", async () => {
-      testHost.addCadlFile("main.cadl", `namespace Foo {}`);
+      testHost.addTypeSpecFile("main.tsp", `namespace Foo {}`);
 
       await testHost.compile("./");
 
@@ -23,7 +23,7 @@ describe("compiler: global namespace", () => {
     });
 
     it("adds top-level models", async () => {
-      testHost.addCadlFile("main.cadl", `model MyModel {}`);
+      testHost.addTypeSpecFile("main.tsp", `model MyModel {}`);
 
       await testHost.compile("./");
 
@@ -35,7 +35,7 @@ describe("compiler: global namespace", () => {
     });
 
     it("adds top-level operations", async () => {
-      testHost.addCadlFile("main.cadl", `op myOperation(): string;`);
+      testHost.addTypeSpecFile("main.tsp", `op myOperation(): string;`);
 
       await testHost.compile("./");
 
@@ -49,10 +49,10 @@ describe("compiler: global namespace", () => {
 
   describe("it adds top level entities used in other files to the global namespace", () => {
     beforeEach(() => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
-      import "./a.cadl";
+      import "./a.tsp";
 
       model Base {}
       `
@@ -60,7 +60,7 @@ describe("compiler: global namespace", () => {
     });
 
     it("adds top-level namespaces", async () => {
-      testHost.addCadlFile("a.cadl", `namespace Foo {}`);
+      testHost.addTypeSpecFile("a.tsp", `namespace Foo {}`);
 
       await testHost.compile("./");
 
@@ -76,7 +76,7 @@ describe("compiler: global namespace", () => {
     });
 
     it("adds top-level models", async () => {
-      testHost.addCadlFile("a.cadl", `model MyModel {}`);
+      testHost.addTypeSpecFile("a.tsp", `model MyModel {}`);
 
       await testHost.compile("./");
 
@@ -88,7 +88,7 @@ describe("compiler: global namespace", () => {
     });
 
     it("adds top-level operations", async () => {
-      testHost.addCadlFile("a.cadl", `op myOperation(): string;`);
+      testHost.addTypeSpecFile("a.tsp", `op myOperation(): string;`);
 
       await testHost.compile("./");
 
@@ -100,8 +100,8 @@ describe("compiler: global namespace", () => {
     });
   });
 
-  it("can override cadl library things", async () => {
-    testHost.addCadlFile("./main.cadl", `@test model int32 { x: Cadl.int32 }`);
+  it("can override typespec library things", async () => {
+    testHost.addTypeSpecFile("./main.tsp", `@test model int32 { x: TypeSpec.int32 }`);
 
     const { int32 } = (await testHost.compile("./")) as { int32: Model };
     notStrictEqual(int32, int32.properties.get("x")!.type);

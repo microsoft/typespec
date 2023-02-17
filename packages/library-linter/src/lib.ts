@@ -1,7 +1,7 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const libDef = {
-  name: "@cadl-lang/library-linter",
+  name: "@typespec/library-linter",
   diagnostics: {
     "missing-namespace": {
       severity: "warning",
@@ -11,7 +11,7 @@ export const libDef = {
     },
   },
 } as const;
-const lib = createCadlLibrary(libDef);
+const lib = createTypeSpecLibrary(libDef);
 export const { reportDiagnostic } = lib;
 
 export type OpenAPILibrary = typeof lib;

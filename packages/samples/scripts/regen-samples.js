@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-check
-import { run } from "@cadl-lang/internal-build-utils";
+import { run } from "@typespec/internal-build-utils";
 import { readdirSync, rmSync } from "fs";
 import mkdirp from "mkdirp";
 import { dirname, join, normalize, resolve } from "path";
@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 
 const excludedSamples = [
   // fails compilation by design to demo language server
-  "local-cadl",
+  "local-typespec",
 
   // no actual samples in these dirs
   "node_modules",
@@ -39,7 +39,7 @@ async function main() {
     const outputPath = join(rootOutputPath, folderName);
     mkdirp(outputPath);
 
-    let emitter = "@cadl-lang/openapi3";
+    let emitter = "@typespec/openapi3";
     if (inputPath === restEmitterSamplePath) {
       emitter = resolvePath("../dist/rest-metadata-emitter/rest-metadata-emitter-sample.js");
     }
@@ -70,7 +70,7 @@ function getSampleFolders() {
     for (const entry of readdirSync(fullDir, { withFileTypes: true })) {
       if (entry.isDirectory()) {
         walk(join(relativeDir, entry.name));
-      } else if (relativeDir && (entry.name === "main.cadl" || entry.name === "package.json")) {
+      } else if (relativeDir && (entry.name === "main.tsp" || entry.name === "package.json")) {
         samples.add(relativeDir);
       }
     }

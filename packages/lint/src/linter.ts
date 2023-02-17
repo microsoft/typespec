@@ -1,20 +1,20 @@
 import {
-  CadlLibrary,
   compilerAssert,
   EventEmitter,
   mapEventEmitterToNodeListener,
   navigateProgram,
   Program,
   SemanticNodeListener,
-} from "@cadl-lang/compiler";
+  TypeSpecLibrary,
+} from "@typespec/compiler";
 import { LibraryLinter, Linter, LintRule, RegisterRuleOptions } from "./types.js";
 
-export function getLinter(library: CadlLibrary<any, any>): LibraryLinter {
+export function getLinter(library: TypeSpecLibrary<any, any>): LibraryLinter {
   const linter = getLinterSingleton();
   return getLinterForLibrary(linter, library);
 }
 
-const linterSingletonKey = Symbol.for("@cadl-lang/lint.singleton");
+const linterSingletonKey = Symbol.for("@typespec/lint.singleton");
 function getLinterSingleton(): Linter {
   let linter: Linter | undefined = (globalThis as any)[linterSingletonKey];
   if (linter === undefined) {
@@ -24,7 +24,7 @@ function getLinterSingleton(): Linter {
   return linter;
 }
 
-function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): LibraryLinter {
+function getLinterForLibrary(linter: Linter, library: TypeSpecLibrary<any, any>): LibraryLinter {
   const rulesToAutoEnable: string[] = [];
   return {
     ...linter,
@@ -130,5 +130,5 @@ export function createRule(rule: LintRule): LintRule {
 }
 
 function getTracer(program: Program) {
-  return program.tracer.sub("@cadl-lang/lint");
+  return program.tracer.sub("@typespec/lint");
 }

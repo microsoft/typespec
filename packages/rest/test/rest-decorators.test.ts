@@ -1,5 +1,5 @@
-import { Scalar } from "@cadl-lang/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { Scalar } from "@typespec/compiler";
+import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { getResourceLocationType } from "../src/rest.js";
 import { createRestTestRunner } from "./test-host.js";
@@ -16,7 +16,7 @@ describe("rest: rest decorators", () => {
       const diagnostics = await runner.diagnose(`
           model Widget {};
 
-          @Cadl.Rest.Private.resourceLocation(Widget)
+          @TypeSpec.Rest.Private.resourceLocation(Widget)
           op test(): string;
 
           scalar WidgetLocation extends ResourceLocation<Widget>;
@@ -26,7 +26,7 @@ describe("rest: rest decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @resourceLocation decorator to test since it is not assignable to Cadl.string",
+            "Cannot apply @resourceLocation decorator to test since it is not assignable to TypeSpec.string",
         },
       ]);
     });

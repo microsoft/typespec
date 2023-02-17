@@ -1,7 +1,7 @@
-require("@cadl-lang/eslint-config-cadl/patch/modern-module-resolution");
+require("@typespec/eslint-config-typespec/patch/modern-module-resolution");
 
 module.exports = {
   plugins: [],
-  extends: ["@cadl-lang/eslint-config-cadl"],
+  extends: ["@typespec/eslint-config-typespec"],
   parserOptions: { tsconfigRootDir: __dirname },
 };

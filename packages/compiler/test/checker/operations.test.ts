@@ -10,28 +10,28 @@ describe("compiler: operations", () => {
   });
 
   it("can return void", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test op foo(): void;
     `
     );
 
-    const { foo } = (await testHost.compile("./main.cadl")) as { foo: Operation };
+    const { foo } = (await testHost.compile("./main.tsp")) as { foo: Operation };
     strictEqual(foo.returnType.kind, "Intrinsic");
     strictEqual((foo.returnType as IntrinsicType).name, "void");
   });
 
   it("can be templated and referenced to define other operations", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       @test
       op newFoo is Foo<string, string>;`
     );
 
-    const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
+    const [result, diagnostics] = await testHost.compileAndDiagnose("./main.tsp");
     expectDiagnostics(diagnostics, []);
 
     const { newFoo } = result as { newFoo: Operation };
@@ -45,8 +45,8 @@ describe("compiler: operations", () => {
   });
 
   it("can be defined based on other operation references", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
       op NewFooBase<TPayload> is Foo<string, TPayload>;
 
@@ -54,7 +54,7 @@ describe("compiler: operations", () => {
       op newFoo is NewFooBase<string>;`
     );
 
-    const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
+    const [result, diagnostics] = await testHost.compileAndDiagnose("./main.tsp");
     expectDiagnostics(diagnostics, []);
 
     const { newFoo } = result as { newFoo: Operation };
@@ -68,8 +68,8 @@ describe("compiler: operations", () => {
   });
 
   it("can reference an operation when being defined in an interface", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       interface Test {
@@ -78,7 +78,7 @@ describe("compiler: operations", () => {
       }`
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
+    const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
     const props = Array.from(newFoo.parameters.properties.values());
 
@@ -89,8 +89,8 @@ describe("compiler: operations", () => {
   });
 
   it("can reference an operation defined inside an interface", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       interface Foo {
         bar(): boolean;
@@ -100,15 +100,15 @@ describe("compiler: operations", () => {
       `
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
+    const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
 
     strictEqual(newFoo.returnType.kind, "Scalar" as const);
     strictEqual(newFoo.returnType.name, "boolean");
   });
 
   it("can reference an operation defined in the same interface", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       interface Foo {
         bar(): boolean;
@@ -117,7 +117,7 @@ describe("compiler: operations", () => {
       `
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
+    const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
 
     strictEqual(newFoo.returnType.kind, "Scalar" as const);
     strictEqual(newFoo.returnType.name, "boolean");
@@ -129,8 +129,8 @@ describe("compiler: operations", () => {
       $beta() {},
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       @alpha
@@ -142,7 +142,7 @@ describe("compiler: operations", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./main.cadl")) as { Foo: Operation };
+    const { Foo } = (await testHost.compile("./main.tsp")) as { Foo: Operation };
     deepStrictEqual(
       Foo.decorators.map((x) => x.decorator.name),
       ["$test", "$alpha"]
@@ -168,8 +168,8 @@ describe("compiler: operations", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       @alpha(TPayload)
@@ -183,7 +183,7 @@ describe("compiler: operations", () => {
       op newFoo is NewFooBase<string>;`
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
+    const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
 
     // Check that the decorators were applied correctly to `newFoo`
@@ -193,13 +193,13 @@ describe("compiler: operations", () => {
   });
 
   it("emit diagnostic when operation is referencing itself as signature", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       op foo is foo;
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
         code: "circular-op-signature",
@@ -209,14 +209,14 @@ describe("compiler: operations", () => {
   });
 
   it("emit diagnostic when operations reference each other using signature", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       op foo is bar;
       op bar is foo;
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
         code: "circular-op-signature",

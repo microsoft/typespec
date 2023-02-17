@@ -1,9 +1,14 @@
-import { resolvePath } from "@cadl-lang/compiler";
+import { resolvePath } from "@typespec/compiler";
 import { resolve } from "path";
 import type { IndexHtmlTransformContext, Plugin, ResolvedConfig } from "vite";
-import { CadlBundle, CadlBundleDefinition, createCadlBundle, watchCadlBundle } from "./bundler.js";
+import {
+  createTypeSpecBundle,
+  TypeSpecBundle,
+  TypeSpecBundleDefinition,
+  watchTypeSpecBundle,
+} from "./bundler.js";
 
-export interface CadlBundlePluginOptions {
+export interface TypeSpecBundlePluginOptions {
   folderName: string;
 
   /**
@@ -12,13 +17,13 @@ export interface CadlBundlePluginOptions {
   libraries: string[];
 }
 
-export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
+export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plugin {
   let config: ResolvedConfig;
-  const definitions: Record<string, CadlBundleDefinition> = {};
-  const bundles: Record<string, CadlBundle> = {};
+  const definitions: Record<string, TypeSpecBundleDefinition> = {};
+  const bundles: Record<string, TypeSpecBundle> = {};
 
   return {
-    name: "cadl-bundle",
+    name: "typespec-bundle",
     enforce: "pre",
     async configResolved(c) {
       config = c;
@@ -109,7 +114,10 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
   };
 }
 
-function createImportMap(folderName: string, definitions: Record<string, CadlBundleDefinition>) {
+function createImportMap(
+  folderName: string,
+  definitions: Record<string, TypeSpecBundleDefinition>
+) {
   const imports: Record<string, string> = {};
   for (const [library, definition] of Object.entries(definitions)) {
     imports[library] = `./${folderName}/${library}/index.js`;
@@ -124,12 +132,12 @@ function createImportMap(folderName: string, definitions: Record<string, CadlBun
   return importMap;
 }
 async function bundleLibrary(projectRoot: string, name: string) {
-  return await createCadlBundle(resolve(projectRoot, "node_modules", name));
+  return await createTypeSpecBundle(resolve(projectRoot, "node_modules", name));
 }
 async function watchBundleLibrary(
   projectRoot: string,
   name: string,
-  onChange: (bundle: CadlBundle) => void
+  onChange: (bundle: TypeSpecBundle) => void
 ) {
-  return await watchCadlBundle(resolve(projectRoot, "node_modules", name), onChange);
+  return await watchTypeSpecBundle(resolve(projectRoot, "node_modules", name), onChange);
 }

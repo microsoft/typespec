@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console */
-import { migrateCadlFiles } from "./migrate.js";
+import { migrateTypeSpecFiles } from "./migrate.js";
 import { migrateModelToScalar } from "./migrations/v0.38/model-to-scalars.js";
-import { findCadlFiles } from "./utils.js";
+import { findTypeSpecFiles } from "./utils.js";
 
 async function main() {
-  const files = await findCadlFiles(process.cwd());
-  const result = await migrateCadlFiles(files, migrateModelToScalar);
+  const files = await findTypeSpecFiles(process.cwd());
+  const result = await migrateTypeSpecFiles(files, migrateModelToScalar);
 
   if (result.fileChanged.length === 0) {
-    console.log("No cadl files migrated, no change detected.");
+    console.log("No typespec files migrated, no change detected.");
   } else {
-    console.log(`Updated ${result.fileChanged.length} cadl files:`);
+    console.log(`Updated ${result.fileChanged.length} typespec files:`);
     for (const file of result.fileChanged) {
       console.log(` - ${file}`);
     }

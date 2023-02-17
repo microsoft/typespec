@@ -172,8 +172,8 @@ temp
 common/temp/**
 package-deps.json
 
-# Default Cadl output
-cadl-output/
+# Default TypeSpec output
+typespec-output/
 
 # Visual Studio / C#
 bin/

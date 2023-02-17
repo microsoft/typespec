@@ -1,2 +1,0 @@
-import "./types.cadl";
-import "./kiosk.cadl";

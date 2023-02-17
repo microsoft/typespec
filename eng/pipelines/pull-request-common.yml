@@ -28,7 +28,7 @@ steps:
 
   - script: dotnet restore
     displayName: Restore .NET Dependencies
-    workingDirectory: packages/cadl-vs
+    workingDirectory: packages/typespec-vs
 
   - script: node common/scripts/install-run-rush.js rebuild --verbose
     displayName: Build

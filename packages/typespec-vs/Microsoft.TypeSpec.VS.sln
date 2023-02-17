@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 16.0.31202.260
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.TypeSpec.VS", "src\Microsoft.TypeSpec.VS.csproj", "{C7566715-9191-4D95-B673-4E569800CE32}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{128D9265-5E6B-4C7E-889E-15EE684BEFD6}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\build.js = scripts\build.js
+		Directory.Build.rsp = Directory.Build.rsp
+		nuget.config = nuget.config
+		package.json = package.json
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7566715-9191-4D95-B673-4E569800CE32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7566715-9191-4D95-B673-4E569800CE32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7566715-9191-4D95-B673-4E569800CE32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7566715-9191-4D95-B673-4E569800CE32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DFC3838-4459-4321-B2A1-D473D4654597}
+	EndGlobalSection
+EndGlobal

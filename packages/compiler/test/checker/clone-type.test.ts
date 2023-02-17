@@ -27,15 +27,15 @@ describe("compiler: type cloning", () => {
 
   function testClone(description: string, code: string) {
     it(`clones ${description}`, async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
         ${code}
         `
       );
 
-      const { test } = (await testHost.compile("./test.cadl")) as {
+      const { test } = (await testHost.compile("./test.tsp")) as {
         test: Type;
       };
       const clone = testHost.program.checker.cloneType(test);
@@ -106,8 +106,8 @@ describe("compiler: type cloning", () => {
   }
 
   it("preserves template arguments", async () => {
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       model Template<T, U> {}
       model Test {
@@ -116,7 +116,7 @@ describe("compiler: type cloning", () => {
       `
     );
 
-    const { test } = await testHost.compile("./test.cadl");
+    const { test } = await testHost.compile("./test.tsp");
     strictEqual(test.kind, "ModelProperty" as const);
     strictEqual(test.type.kind, "Model" as const);
     const clone = testHost.program.checker.cloneType(test.type);

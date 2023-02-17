@@ -7,7 +7,7 @@ import {
   NoTarget,
   Program,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 import {
   Availability,

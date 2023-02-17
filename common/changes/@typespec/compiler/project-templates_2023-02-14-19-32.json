@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix projection of template arguments",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

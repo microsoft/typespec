@@ -1,5 +1,5 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@cadl-lang/compiler";
-import { createTestWrapper } from "@cadl-lang/compiler/testing";
+import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
+import { createTestWrapper } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
@@ -118,8 +118,8 @@ describe("openapi3: versioning", () => {
 
     const runner = createTestWrapper(host, {
       autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-      autoUsings: ["Cadl.Rest", "Cadl.Http", "OpenAPI", "Cadl.Versioning"],
-      compilerOptions: { emit: ["@cadl-lang/openapi3"] },
+      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "OpenAPI", "TypeSpec.Versioning"],
+      compilerOptions: { emit: ["@typespec/openapi3"] },
     });
 
     await runner.compile(`
@@ -147,7 +147,7 @@ describe("openapi3: versioning", () => {
     strictEqual(storedNamespace, "Contoso.WidgetService");
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/812
+  // Test for https://github.com/microsoft/typespec/issues/812
   it("doesn't throw errors when using UpdateableProperties", async () => {
     // if this test throws a duplicate name diagnostic, check that getEffectiveType
     // is returning the projected type.

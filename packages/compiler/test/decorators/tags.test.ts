@@ -11,8 +11,8 @@ describe("compiler: tag decorator", () => {
   });
 
   it("applies @tag decorator to namespaces, interfaces, and operations", async (): Promise<void> => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test
       @tag("namespace")

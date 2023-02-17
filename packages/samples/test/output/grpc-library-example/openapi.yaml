@@ -382,7 +382,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Book'
-          x-cadl-name: Book[]
+          x-typespec-name: Book[]
           description: The list of books.
         next_page_token:
           type: string
@@ -426,7 +426,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Shelf'
-          x-cadl-name: Shelf[]
+          x-typespec-name: Shelf[]
           description: The list of shelves.
         next_page_token:
           type: string
@@ -492,7 +492,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
-          x-cadl-name: ProtobufAny[]
+          x-typespec-name: ProtobufAny[]
       description: An unexpected error response.
     Shelf:
       type: object

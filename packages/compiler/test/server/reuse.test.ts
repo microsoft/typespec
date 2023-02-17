@@ -10,7 +10,7 @@ import {
 describe("compiler: server: reuse", () => {
   it("reuses unchanged programs", async () => {
     const host = await createTestServerHost();
-    const document = host.addOrUpdateDocument("main.cadl", "model M  {}");
+    const document = host.addOrUpdateDocument("main.tsp", "model M  {}");
     const oldProgram = await host.server.compile(document);
     ok(oldProgram);
     expectDiagnosticEmpty(oldProgram.diagnostics);
@@ -20,32 +20,32 @@ describe("compiler: server: reuse", () => {
   });
 
   it("reuses unchanged files", async () => {
-    const source = `import "./other.cadl"; model M extends N {}`;
+    const source = `import "./other.tsp"; model M extends N {}`;
     const otherSource = `model N {}`;
 
     const host = await createTestServerHost();
-    const document = host.addOrUpdateDocument("main.cadl", source);
+    const document = host.addOrUpdateDocument("main.tsp", source);
 
-    host.addOrUpdateDocument("other.cadl", otherSource);
+    host.addOrUpdateDocument("other.tsp", otherSource);
 
     const oldProgram = await host.server.compile(document);
     ok(oldProgram);
     expectDiagnosticEmpty(oldProgram.diagnostics);
 
-    host.addOrUpdateDocument("other.cadl", otherSource + "// force change");
+    host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
     const newProgram = await host.server.compile(document);
     ok(newProgram);
     expectDiagnosticEmpty(newProgram.diagnostics);
 
     expectNotSameProgram(oldProgram, newProgram);
-    expectNotSameSourceFile(oldProgram, newProgram, "other.cadl");
-    expectSameSourceFile(oldProgram, newProgram, "main.cadl");
+    expectNotSameSourceFile(oldProgram, newProgram, "other.tsp");
+    expectSameSourceFile(oldProgram, newProgram, "main.tsp");
   });
 
   it("does not mutate symbols when reusing unchanged files", async () => {
     // trigger features that add symbols during checking: using statements, member references, namespace merging
     const source = `
-      import "./other.cadl";
+      import "./other.tsp";
 
       using OtherNamespace;
     
@@ -87,22 +87,22 @@ describe("compiler: server: reuse", () => {
       }`;
 
     const host = await createTestServerHost();
-    host.addOrUpdateDocument("other.cadl", otherSource);
-    const document = host.addOrUpdateDocument("main.cadl", source);
+    host.addOrUpdateDocument("other.tsp", otherSource);
+    const document = host.addOrUpdateDocument("main.tsp", source);
     const oldProgram = await host.server.compile(document);
     ok(oldProgram);
     expectDiagnosticEmpty(oldProgram.diagnostics);
 
     freezeSymbolTables(oldProgram);
 
-    host.addOrUpdateDocument("other.cadl", otherSource + "// force change");
+    host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
     const newProgram = await host.server.compile(document);
     ok(newProgram);
     expectDiagnosticEmpty(newProgram.diagnostics);
 
     expectNotSameProgram(oldProgram, newProgram);
-    expectNotSameSourceFile(oldProgram, newProgram, "other.cadl");
-    expectSameSourceFile(oldProgram, newProgram, "main.cadl");
+    expectNotSameSourceFile(oldProgram, newProgram, "other.tsp");
+    expectSameSourceFile(oldProgram, newProgram, "main.tsp");
   });
 });
 

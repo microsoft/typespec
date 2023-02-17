@@ -2,11 +2,11 @@
 // @ts-ignore
 import manifest from "../manifest.js";
 
-export const cadlVersion = manifest.version;
+export const typespecVersion = manifest.version;
 
-export interface CadlManifest {
+export interface TypeSpecManifest {
   /**
-   * Version of the cadl compiler.
+   * Version of the tsp compiler.
    */
   version: string;
 
@@ -21,4 +21,4 @@ export interface CadlManifest {
   pr?: number;
 }
 
-export const MANIFEST: CadlManifest = manifest;
+export const MANIFEST: TypeSpecManifest = manifest;

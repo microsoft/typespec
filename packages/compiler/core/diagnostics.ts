@@ -217,11 +217,11 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
     root = root.parent;
   }
 
-  if (root.kind !== SyntaxKind.CadlScript && root.kind !== SyntaxKind.JsSourceFile) {
+  if (root.kind !== SyntaxKind.TypeSpecScript && root.kind !== SyntaxKind.JsSourceFile) {
     return createSyntheticSourceLocation(
       node.flags & NodeFlags.Synthetic
         ? undefined
-        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/cadl>"
+        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/typespec>"
     );
   }
 
@@ -244,7 +244,7 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
 export function logVerboseTestOutput(
   messageOrCallback: string | ((log: (message: string) => void) => void)
 ) {
-  if (process.env.CADL_VERBOSE_TEST_OUTPUT) {
+  if (process.env.TYPESPEC_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
       // eslint-disable-next-line no-console
       console.log(messageOrCallback);
@@ -357,7 +357,7 @@ export function assertType<TKind extends Type["kind"][]>(
 
 /**
  * Report a deprecated diagnostic.
- * @param program Cadl Program.
+ * @param program TypeSpec Program.
  * @param message Message describing the deprecation.
  * @param target Target of the deprecation.
  */
@@ -394,7 +394,7 @@ export interface DiagnosticCollector {
   pipe<T>(result: DiagnosticResult<T>): T;
 
   /**
-   * Wrap the given value in a tuple including the diagnostics following the Cadl accessor pattern.
+   * Wrap the given value in a tuple including the diagnostics following the TypeSpec accessor pattern.
    * @param value Accessor value to return
    * @example return diagnostics.wrap(routes);
    */

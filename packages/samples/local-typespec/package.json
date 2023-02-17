@@ -1,0 +1,11 @@
+{
+  "name": "local-typespec-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demonstrate using TypeSpec server installed locally",
+  "author": "Sample",
+  "license": "MIT",
+  "devDependencies": {
+    "@typespec/compiler": "latest"
+  }
+}

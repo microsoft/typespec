@@ -3,12 +3,12 @@ import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import {
-  CadlScriptNode,
   Node,
   NodeFlags,
   ParseOptions,
   SourceFile,
   SyntaxKind,
+  TypeSpecScriptNode,
 } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
@@ -385,14 +385,14 @@ describe("compiler: parser", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Microsoft/cadl/issues/506
+      // Some questions remain here: https://github.com/Microsoft/typespec/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],
       ["-1e-9999", -0],
       ["-1e9999", -Infinity],
 
-      // NOTE: No octal in Cadl
+      // NOTE: No octal in TypeSpec
       ["077", 77],
       ["+077", 77],
       ["-077", -77],
@@ -433,7 +433,7 @@ describe("compiler: parser", () => {
     parseEach(good.map((c) => [`alias M = ${c[0]};`, (node) => isNumericLiteral(node, c[1])]));
     parseErrorEach(bad.map((c) => [`alias M = ${c[0]};`, [c[1]]]));
 
-    function isNumericLiteral(node: CadlScriptNode, value: number) {
+    function isNumericLiteral(node: TypeSpecScriptNode, value: number) {
       const statement = node.statements[0];
       assert(statement.kind === SyntaxKind.AliasStatement, "alias statement expected");
       const assignment = statement.value;
@@ -934,7 +934,7 @@ ${">>>>>>>"} theirs`,
   });
 });
 
-type Callback = (node: CadlScriptNode) => void;
+type Callback = (node: TypeSpecScriptNode) => void;
 
 function parseEach(cases: (string | [string, Callback])[], options?: ParseOptions) {
   for (const each of cases) {
@@ -972,7 +972,7 @@ function parseEach(cases: (string | [string, Callback])[], options?: ParseOption
   }
 }
 
-function checkInvariants(astNode: CadlScriptNode) {
+function checkInvariants(astNode: TypeSpecScriptNode) {
   checkVisitChildren(astNode, astNode.file);
   checkPositioning(astNode, astNode.file);
 }
@@ -1085,7 +1085,7 @@ function parseErrorEach(
 }
 
 export function dumpAST(astNode: Node, file?: SourceFile) {
-  if (!file && astNode.kind === SyntaxKind.CadlScript) {
+  if (!file && astNode.kind === SyntaxKind.TypeSpecScript) {
     file = astNode.file;
   }
   logVerboseTestOutput((log) => {

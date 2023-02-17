@@ -1,4 +1,4 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
@@ -29,7 +29,7 @@ describe("openapi3: servers", () => {
       `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/openapi3/invalid-server-variable",
+      code: "@typespec/openapi3/invalid-server-variable",
       message:
         "Server variable 'region' must be assignable to 'string'. It must either be a string, enum of string or union of strings.",
     });
@@ -49,7 +49,7 @@ describe("openapi3: servers", () => {
       `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/openapi3/invalid-server-variable",
+      code: "@typespec/openapi3/invalid-server-variable",
       message:
         "Server variable 'region' must be assignable to 'string'. It must either be a string, enum of string or union of strings.",
     });
@@ -64,7 +64,7 @@ describe("openapi3: servers", () => {
       `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/openapi3/invalid-server-variable",
+      code: "@typespec/openapi3/invalid-server-variable",
       message:
         "Server variable 'region' must be assignable to 'string'. It must either be a string, enum of string or union of strings.",
     });

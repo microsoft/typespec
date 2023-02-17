@@ -14,7 +14,7 @@ import {
   Operation,
   Program,
   SyntaxKind,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic, reportDiagnostic } from "../lib.js";
 import { getRoutePath } from "./decorators.js";
 import { getResponsesForOperation } from "./responses.js";
@@ -28,7 +28,7 @@ import {
 } from "./types.js";
 
 /**
- * Return the Http Operation details for a given Cadl operation.
+ * Return the Http Operation details for a given TypeSpec operation.
  * @param operation Operation
  * @param options Optional option on how to resolve the http details.
  */

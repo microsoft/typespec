@@ -18,8 +18,8 @@ describe("compiler: references", () => {
     resolveTarget?: (target: any) => Type | undefined;
   }) {
     async function runTest(code: string) {
-      testHost.addCadlFile("main.cadl", code);
-      const { RefContainer, target } = (await testHost.compile("./main.cadl")) as {
+      testHost.addTypeSpecFile("main.tsp", code);
+      const { RefContainer, target } = (await testHost.compile("./main.tsp")) as {
         RefContainer: Model;
         target: any;
       };
@@ -208,8 +208,8 @@ describe("compiler: references", () => {
 
     describe("sibling property", () => {
       it("can reference sibling property defined before", async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
       @test model Foo {
         a: string;
@@ -218,15 +218,15 @@ describe("compiler: references", () => {
       `
         );
 
-        const { Foo } = (await testHost.compile("./main.cadl")) as {
+        const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Model;
         };
         strictEqual(Foo.properties.get("b")!.type, Foo.properties.get("a"));
       });
 
       it("can reference sibling property defined after", async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
       @test model Foo {
         a: Foo.b;
@@ -235,7 +235,7 @@ describe("compiler: references", () => {
       `
         );
 
-        const { Foo } = (await testHost.compile("./main.cadl")) as {
+        const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Model;
         };
         strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
@@ -330,8 +330,8 @@ describe("compiler: references", () => {
       });
 
       it("can reference enum resolved in a namespace decorator", async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
           import "./collect.js";
           @test enum MyEnum { a, b }
@@ -359,7 +359,7 @@ describe("compiler: references", () => {
       `
         );
 
-        const { MyEnum } = (await testHost.compile("./main.cadl")) as { MyEnum: Enum };
+        const { MyEnum } = (await testHost.compile("./main.tsp")) as { MyEnum: Enum };
 
         ok(taggedValue);
         const t = taggedValue.properties.get("t")?.type;
@@ -369,8 +369,8 @@ describe("compiler: references", () => {
       });
 
       it("alias don't conflict", async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
         import "./collect.js";
         
@@ -391,7 +391,7 @@ describe("compiler: references", () => {
       `
         );
 
-        const { Foo } = (await testHost.compile("./main.cadl")) as {
+        const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Enum;
         };
 
@@ -495,8 +495,8 @@ describe("compiler: references", () => {
         });
       });
       it("defined before", async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
         import "./test-link.js";
         @test interface Foo {
@@ -507,15 +507,15 @@ describe("compiler: references", () => {
       `
         );
 
-        const { Foo } = (await testHost.compile("./main.cadl")) as {
+        const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Interface;
         };
         strictEqual(linkedValue, Foo.operations.get("a"));
       });
 
       it("defined after", async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
         import "./test-link.js";
         @test interface Foo {
@@ -526,7 +526,7 @@ describe("compiler: references", () => {
       `
         );
 
-        const { Foo } = (await testHost.compile("./main.cadl")) as {
+        const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Interface;
         };
         strictEqual(linkedValue, Foo.operations.get("a"));
@@ -535,8 +535,8 @@ describe("compiler: references", () => {
   });
 
   it("throws proper diagnostics", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model M { }
       interface I { }
@@ -552,7 +552,7 @@ describe("compiler: references", () => {
       `
     );
 
-    const diagnostics = await testHost.diagnose("./main.cadl");
+    const diagnostics = await testHost.diagnose("./main.tsp");
 
     expectDiagnostics(diagnostics, [
       {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Remove support for Visual Studio 2019",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

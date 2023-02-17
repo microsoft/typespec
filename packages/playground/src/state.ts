@@ -1,4 +1,4 @@
-import { Program } from "@cadl-lang/compiler";
+import { Program } from "@typespec/compiler";
 import { atom } from "recoil";
 import { PlaygroundManifest } from "./manifest.js";
 

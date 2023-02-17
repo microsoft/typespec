@@ -10,7 +10,7 @@ main().catch((e) => {
 
 async function main() {
   await yargs(process.argv.slice(2))
-    .scriptName("cadl-build-tool")
+    .scriptName("typespec-build-tool")
     .help()
     .strict()
     .command(

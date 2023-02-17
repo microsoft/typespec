@@ -97,7 +97,7 @@ function test(things: string, sourceWithCursor: string) {
 async function testFindReferences(sourceWithCursor: string) {
   const { source, pos } = extractCursor(sourceWithCursor);
   const testHost = await createTestServerHost();
-  const doc = await testHost.addOrUpdateDocument("test.cadl", source);
+  const doc = await testHost.addOrUpdateDocument("test.tsp", source);
 
   const references = await testHost.server.findReferences({
     textDocument: doc,
@@ -117,7 +117,7 @@ async function testFindReferences(sourceWithCursor: string) {
 async function testRename(sourceWithCursor: string) {
   const { source, pos } = extractCursor(sourceWithCursor);
   const testHost = await createTestServerHost();
-  const doc = await testHost.addOrUpdateDocument("test.cadl", source);
+  const doc = await testHost.addOrUpdateDocument("test.tsp", source);
 
   const edit = await testHost.server.rename({
     textDocument: doc,

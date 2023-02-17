@@ -1,4 +1,4 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
   createOpenAPITestRunner,
@@ -65,7 +65,7 @@ describe("openapi3: models", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "@cadl-lang/openapi/duplicate-type-name",
+        code: "@typespec/openapi/duplicate-type-name",
         message: /type/,
       },
     ]);
@@ -82,7 +82,7 @@ describe("openapi3: models", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-cadl-name": "(anonymous model)",
+      "x-typespec-name": "(anonymous model)",
     });
   });
 
@@ -101,7 +101,7 @@ describe("openapi3: models", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-cadl-name": "Foo<int32>",
+      "x-typespec-name": "Foo<int32>",
     });
   });
 
@@ -124,7 +124,7 @@ describe("openapi3: models", () => {
         x: { $ref: "#/components/schemas/Test.M" },
       },
       required: ["x"],
-      "x-cadl-name": "Foo<Test.M>",
+      "x-typespec-name": "Foo<Test.M>",
     });
   });
 
@@ -362,7 +362,7 @@ describe("openapi3: models", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-cadl-name": "Bar<int32>",
+      "x-typespec-name": "Bar<int32>",
       allOf: [
         {
           type: "object",
@@ -370,7 +370,7 @@ describe("openapi3: models", () => {
             y: { type: "integer", format: "int32" },
           },
           required: ["y"],
-          "x-cadl-name": "Foo<int32>",
+          "x-typespec-name": "Foo<int32>",
         },
       ],
     });
@@ -502,7 +502,7 @@ describe("openapi3: models", () => {
         name: {
           type: "string",
           nullable: true,
-          "x-cadl-name": "string | null",
+          "x-typespec-name": "string | null",
         },
       },
       required: ["name"],
@@ -529,7 +529,7 @@ describe("openapi3: models", () => {
             format: "int32",
           },
           nullable: true,
-          "x-cadl-name": "int32[] | null",
+          "x-typespec-name": "int32[] | null",
         },
       },
       required: ["name"],
@@ -547,7 +547,7 @@ describe("openapi3: models", () => {
       `);
 
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/openapi3/union-unsupported",
+      code: "@typespec/openapi3/union-unsupported",
       message:
         "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
@@ -566,7 +566,7 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-cadl-name": "Cat | Dog",
+      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -581,7 +581,7 @@ describe("openapi3: models", () => {
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-cadl-name": "Cat | string",
+      "x-typespec-name": "Cat | string",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { type: "string" }],
     });
   });
@@ -600,7 +600,7 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-cadl-name": "Cat | Dog",
+      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -619,7 +619,7 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-cadl-name": "Cat | Dog",
+      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -634,7 +634,7 @@ describe("openapi3: models", () => {
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-cadl-name": "Cat | string",
+      "x-typespec-name": "Cat | string",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { type: "string" }],
     });
   });
@@ -653,7 +653,7 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-cadl-name": "Cat | Dog",
+      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -671,7 +671,7 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-cadl-name": "Cat | Dog",
+      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -778,7 +778,7 @@ describe("openapi3: models", () => {
       { "omit-unreachable-types": true }
     );
 
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/inline-cycle" }]);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/inline-cycle" }]);
   });
 
   it("excludes properties with type 'never'", async () => {

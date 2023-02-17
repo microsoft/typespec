@@ -504,19 +504,19 @@ const diagnostics = {
   "dynamic-import": {
     severity: "error",
     messages: {
-      default: "Dynamically generated Cadl cannot have imports",
+      default: "Dynamically generated TypeSpec cannot have imports",
     },
   },
   "invalid-import": {
     severity: "error",
     messages: {
-      default: "Import paths must reference either a directory, a .cadl file, or .js file",
+      default: "Import paths must reference either a directory, a .tsp file, or .js file",
     },
   },
   "invalid-main": {
     severity: "error",
     messages: {
-      default: "Main file must either be a .cadl file or a .js file.",
+      default: "Main file must either be a .tsp file or a .js file.",
     },
   },
   "import-not-found": {
@@ -528,7 +528,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      cadlMain: paramMessage`Library "${"path"}" has an invalid cadlMain file.`,
+      typespecMain: paramMessage`Library "${"path"}" has an invalid typespecMain file.`,
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
@@ -541,7 +541,7 @@ const diagnostics = {
   "compiler-version-mismatch": {
     severity: "warning",
     messages: {
-      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
+      default: paramMessage`Current TypeSpec compiler conflicts with local version of @typespec/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`typespec\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`tsp-server\` path to ${"betterTypeSpecServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
     },
   },
   "duplicate-symbol": {
@@ -693,7 +693,7 @@ const diagnostics = {
   "service-decorator-duplicate": {
     severity: "error",
     messages: {
-      default: `@service can only be set once per Cadl document.`,
+      default: `@service can only be set once per TypeSpec document.`,
     },
   },
   "list-type-not-model": {

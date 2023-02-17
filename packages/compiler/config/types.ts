@@ -3,7 +3,7 @@ import { Diagnostic } from "../core/index.js";
 /**
  * Represent the normalized user configuration.
  */
-export interface CadlConfig {
+export interface TypeSpecConfig {
   /**
    * Project root.
    */
@@ -20,7 +20,7 @@ export interface CadlConfig {
   diagnostics: Diagnostic[];
 
   /**
-   * Path to another cadl config to extend.
+   * Path to another typespec config to extend.
    */
   extends?: string;
 
@@ -68,7 +68,7 @@ export interface CadlConfig {
 /**
  * Represent the configuration that can be provided in a config file.
  */
-export interface CadlRawConfig {
+export interface TypeSpecRawConfig {
   extends?: string;
   "environment-variables"?: Record<string, ConfigEnvironmentVariable>;
   parameters?: Record<string, ConfigParameter>;
