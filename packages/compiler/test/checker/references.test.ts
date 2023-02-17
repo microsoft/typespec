@@ -244,7 +244,7 @@ describe("compiler: references", () => {
 
     describe("property type reference of the property of the template parameter", () => {
       it("resolve references property of template parameter", async () => {
-        testHost.addCadlFile(
+        testHost.addTypeSpecFile(
           "main.cadl",
           `
           model A {
@@ -265,7 +265,7 @@ describe("compiler: references", () => {
       });
 
       it("resolve references property of template parameter with anonymous model as constrint", async () => {
-        testHost.addCadlFile(
+        testHost.addTypeSpecFile(
           "main.cadl",
           `
           model A<T extends {kind:"string"}> {
