@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-config-typespec",
+      "comment": "Rename to TypeSpec",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@typespec/eslint-config-typespec"
+}

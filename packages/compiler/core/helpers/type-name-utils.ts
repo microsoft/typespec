@@ -85,7 +85,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     return "{}";
   }
   if (model.indexer && model.indexer.key.kind === "Scalar") {
-    if (model.name === "Array" && isInCadlNamespace(model)) {
+    if (model.name === "Array" && isInTypeSpecNamespace(model)) {
       return `${getTypeName(model.indexer.value!, options)}[]`;
     }
   }
@@ -109,19 +109,19 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
 }
 
 /**
- * Check if the given namespace is the standard library `Cadl` namespace.
+ * Check if the given namespace is the standard library `TypeSpec` namespace.
  */
-function isCadlNamespace(
+function isTypeSpecNamespace(
   namespace: Namespace
-): namespace is Namespace & { name: "Cadl"; namespace: Namespace } {
-  return namespace.name === "Cadl" && namespace.namespace?.name === "";
+): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
+  return namespace.name === "TypeSpec" && namespace.namespace?.name === "";
 }
 
 /**
- * Check if the given type is defined right in the Cadl namespace.
+ * Check if the given type is defined right in the TypeSpec namespace.
  */
-function isInCadlNamespace(type: Type & { namespace?: Namespace }): boolean {
-  return Boolean(type.namespace && isCadlNamespace(type.namespace));
+function isInTypeSpecNamespace(type: Type & { namespace?: Namespace }): boolean {
+  return Boolean(type.namespace && isTypeSpecNamespace(type.namespace));
 }
 
 function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {

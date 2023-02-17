@@ -8,8 +8,8 @@ describe("compiler: semantic checks on source with parse errors", () => {
   });
 
   it("reports semantic errors in addition to parse errors", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `model M extends Q {
         a: B;
         a: C;

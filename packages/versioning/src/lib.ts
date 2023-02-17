@@ -1,7 +1,7 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 const libDef = {
-  name: "@cadl-lang/versioning",
+  name: "@typespec/versioning",
   diagnostics: {
     "versioned-dependency-tuple": {
       severity: "error",
@@ -78,4 +78,4 @@ const libDef = {
     },
   },
 } as const;
-export const { reportDiagnostic, createStateSymbol } = createCadlLibrary(libDef);
+export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);

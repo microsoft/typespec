@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Rename to TypeSpec",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

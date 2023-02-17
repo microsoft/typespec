@@ -19,9 +19,8 @@ import {
   TemplatedType,
   Type,
   Union,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import {
-  CadlRefDoc,
   DecoratorRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
@@ -30,16 +29,17 @@ import {
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  TypeSpecRefDoc,
   UnionRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
-export function extractRefDocs(program: Program, filterToNamespace: string[] = []): CadlRefDoc {
+export function extractRefDocs(program: Program, filterToNamespace: string[] = []): TypeSpecRefDoc {
   const namespaceTypes = filterToNamespace
     .map((x) => ignoreDiagnostics(program.resolveTypeReference(x)))
     .filter((x): x is Namespace => x !== undefined);
 
-  const refDoc: CadlRefDoc = {
+  const refDoc: TypeSpecRefDoc = {
     namespaces: [],
   };
 

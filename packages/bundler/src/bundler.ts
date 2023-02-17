@@ -1,39 +1,39 @@
+import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import nodeResolve from "@rollup/plugin-node-resolve";
+import virtual from "@rollup/plugin-virtual";
 import {
   compile,
   getNormalizedAbsolutePath,
   joinPaths,
   NodeHost,
   normalizePath,
-} from "@cadl-lang/compiler";
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import virtual from "@rollup/plugin-virtual";
+} from "@typespec/compiler";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
 import { OutputChunk, rollup, RollupBuild, RollupOptions, watch } from "rollup";
 import { relativeTo } from "./utils.js";
 
-export interface CadlBundleDefinition {
+export interface TypeSpecBundleDefinition {
   path: string;
   main: string;
   packageJson: PackageJson;
   exports: Record<string, string>;
 }
 
-export interface CadlBundle {
+export interface TypeSpecBundle {
   /**
    * Definition
    */
-  definition: CadlBundleDefinition;
+  definition: TypeSpecBundleDefinition;
 
   /**
    * Bundle content
    */
-  files: CadlBundleFile[];
+  files: TypeSpecBundleFile[];
 }
 
-export interface CadlBundleFile {
+export interface TypeSpecBundleFile {
   export?: string;
   filename: string;
   content: string;
@@ -42,26 +42,29 @@ export interface CadlBundleFile {
 interface PackageJson {
   name: string;
   main: string;
-  cadlMain?: string;
+  typespecMain?: string;
   peerDependencies: string[];
   dependencies: string[];
   exports?: Record<string, string>;
 }
 
-export async function createCadlBundle(libraryPath: string): Promise<CadlBundle> {
-  const definition = await resolveCadlBundleDefinition(libraryPath);
+export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpecBundle> {
+  const definition = await resolveTypeSpecBundleDefinition(libraryPath);
   const rollupOptions = await createRollupConfig(definition);
   const bundle = await rollup(rollupOptions);
 
   try {
-    return generateCadlBundle(definition, bundle);
+    return generateTypeSpecBundle(definition, bundle);
   } finally {
     await bundle.close();
   }
 }
 
-export async function watchCadlBundle(libraryPath: string, onBundle: (bundle: CadlBundle) => void) {
-  const definition = await resolveCadlBundleDefinition(libraryPath);
+export async function watchTypeSpecBundle(
+  libraryPath: string,
+  onBundle: (bundle: TypeSpecBundle) => void
+) {
+  const definition = await resolveTypeSpecBundleDefinition(libraryPath);
   const rollupOptions = await createRollupConfig(definition);
   const watcher = watch({
     ...rollupOptions,
@@ -77,8 +80,8 @@ export async function watchCadlBundle(libraryPath: string, onBundle: (bundle: Ca
         break;
       case "BUNDLE_END":
         try {
-          const cadlBundle = await generateCadlBundle(definition, event.result);
-          onBundle(cadlBundle);
+          const typespecBundle = await generateTypeSpecBundle(definition, event.result);
+          onBundle(typespecBundle);
         } finally {
           await event.result.close();
         }
@@ -91,15 +94,17 @@ export async function watchCadlBundle(libraryPath: string, onBundle: (bundle: Ca
   });
 }
 
-export async function bundleCadlLibrary(libraryPath: string, outputDir: string) {
-  const bundle = await createCadlBundle(libraryPath);
+export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: string) {
+  const bundle = await createTypeSpecBundle(libraryPath);
   await mkdir(outputDir, { recursive: true });
   for (const file of bundle.files) {
     await writeFile(joinPaths(outputDir, file.filename), file.content);
   }
 }
 
-async function resolveCadlBundleDefinition(libraryPath: string): Promise<CadlBundleDefinition> {
+async function resolveTypeSpecBundleDefinition(
+  libraryPath: string
+): Promise<TypeSpecBundleDefinition> {
   libraryPath = normalizePath(await realpath(libraryPath));
   const pkg = await readLibraryPackageJson(libraryPath);
 
@@ -117,7 +122,7 @@ async function resolveCadlBundleDefinition(libraryPath: string): Promise<CadlBun
   };
 }
 
-async function createRollupConfig(definition: CadlBundleDefinition): Promise<RollupOptions> {
+async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise<RollupOptions> {
   const libraryPath = definition.path;
   const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
@@ -128,17 +133,17 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
       jsFiles.push(file);
     }
   }
-  const cadlFiles: Record<string, string> = {
+  const typespecFiles: Record<string, string> = {
     [normalizePath(join(libraryPath, "package.json"))]: JSON.stringify(definition.packageJson),
   };
   for (const [filename, sourceFile] of program.sourceFiles) {
-    cadlFiles[filename] = sourceFile.file.text;
+    typespecFiles[filename] = sourceFile.file.text;
   }
   const content = createBundleEntrypoint({
     libraryPath,
     mainFile: definition.main,
     jsSourceFileNames: jsFiles,
-    cadlSourceFiles: cadlFiles,
+    typespecSourceFiles: typespecFiles,
   });
 
   const extraEntry = Object.fromEntries(
@@ -177,10 +182,10 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
   };
 }
 
-async function generateCadlBundle(
-  definition: CadlBundleDefinition,
+async function generateTypeSpecBundle(
+  definition: TypeSpecBundleDefinition,
   bundle: RollupBuild
-): Promise<CadlBundle> {
+): Promise<TypeSpecBundle> {
   const { output } = await bundle.generate({
     dir: "virtual",
   });
@@ -211,33 +216,33 @@ function createBundleEntrypoint({
   libraryPath,
   mainFile,
   jsSourceFileNames,
-  cadlSourceFiles,
+  typespecSourceFiles,
 }: {
   mainFile: string;
   libraryPath: string;
   jsSourceFileNames: string[];
-  cadlSourceFiles: Record<string, string>;
+  typespecSourceFiles: Record<string, string>;
 }): string {
   const absoluteMain = normalizePath(resolve(libraryPath, mainFile));
 
-  const relativeCadlFiles: Record<string, string> = {};
-  for (const [name, content] of Object.entries(cadlSourceFiles)) {
-    relativeCadlFiles[relativeTo(libraryPath, name)] = content;
+  const relativeTypeSpecFiles: Record<string, string> = {};
+  for (const [name, content] of Object.entries(typespecSourceFiles)) {
+    relativeTypeSpecFiles[relativeTo(libraryPath, name)] = content;
     getNormalizedAbsolutePath;
   }
   return [
     `export * from "${absoluteMain}";`,
     ...jsSourceFileNames.map((x, i) => `import * as f${i} from "${x}";`),
     "",
-    `const CadlJSSources = {`,
+    `const TypeSpecJSSources = {`,
     ...jsSourceFileNames.map((x, i) => `"${relativeTo(libraryPath, x)}": f${i},`),
     "};",
 
-    `const CadlSources = ${JSON.stringify(relativeCadlFiles, null, 2)};`,
+    `const TypeSpecSources = ${JSON.stringify(relativeTypeSpecFiles, null, 2)};`,
 
-    "export const _CadlLibrary_ = {",
-    "  jsSourceFiles: CadlJSSources,",
-    "  cadlSourceFiles: CadlSources,",
+    "export const _TypeSpecLibrary_ = {",
+    "  jsSourceFiles: TypeSpecJSSources,",
+    "  typespecSourceFiles: TypeSpecSources,",
     "};",
   ].join("\n");
 }

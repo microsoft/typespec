@@ -17,7 +17,6 @@ import {
   AnyKeywordNode,
   AugmentDecoratorStatementNode,
   BooleanLiteralNode,
-  CadlScriptNode,
   Comment,
   DeclarationNode,
   DecoratorDeclarationStatementNode,
@@ -91,6 +90,7 @@ import {
   TextRange,
   TupleExpressionNode,
   TypeReferenceNode,
+  TypeSpecScriptNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
@@ -141,7 +141,7 @@ interface UnannotatedListKind extends ListKind {
 }
 
 /**
- * The fixed set of options for each of the kinds of delimited lists in Cadl.
+ * The fixed set of options for each of the kinds of delimited lists in TypeSpec.
  */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ListKind {
@@ -267,9 +267,9 @@ const enum ParseMode {
   Doc,
 }
 
-export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
+export function parse(code: string | SourceFile, options: ParseOptions = {}): TypeSpecScriptNode {
   const parser = createParser(code, options);
-  return parser.parseCadlScript();
+  return parser.parseTypeSpecScript();
 }
 
 export function parseStandaloneTypeReference(
@@ -282,7 +282,7 @@ export function parseStandaloneTypeReference(
 
 interface Parser {
   parseDiagnostics: Diagnostic[];
-  parseCadlScript(): CadlScriptNode;
+  parseTypeSpecScript(): TypeSpecScriptNode;
   parseStandaloneReferenceExpression(): TypeReferenceNode;
 }
 
@@ -302,14 +302,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   nextToken();
   return {
     parseDiagnostics,
-    parseCadlScript,
+    parseTypeSpecScript,
     parseStandaloneReferenceExpression,
   };
 
-  function parseCadlScript(): CadlScriptNode {
-    const statements = parseCadlScriptItemList();
+  function parseTypeSpecScript(): TypeSpecScriptNode {
+    const statements = parseTypeSpecScriptItemList();
     return {
-      kind: SyntaxKind.CadlScript,
+      kind: SyntaxKind.TypeSpecScript,
       statements,
       file: scanner.file,
       id: {
@@ -331,7 +331,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseCadlScriptItemList(): Statement[] {
+  function parseTypeSpecScriptItemList(): Statement[] {
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
@@ -2776,7 +2776,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
   }
 
   switch (node.kind) {
-    case SyntaxKind.CadlScript:
+    case SyntaxKind.TypeSpecScript:
       return visitNode(cb, node.id) || visitEach(cb, node.statements);
     case SyntaxKind.ArrayExpression:
       return visitNode(cb, node.elementType);
@@ -3017,12 +3017,12 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
 
 /**
  * Resolve the node in the syntax tree that that is at the given position.
- * @param script Cadl Script node
+ * @param script TypeSpec Script node
  * @param position Position
  * @param filter Filter if wanting to return a parent containing node early.
  */
 export function getNodeAtPosition(
-  script: CadlScriptNode,
+  script: TypeSpecScriptNode,
   position: number,
   filter = (node: Node) => true
 ): Node | undefined {

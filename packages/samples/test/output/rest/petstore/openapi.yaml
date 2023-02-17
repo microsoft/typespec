@@ -593,13 +593,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Checkup'
-          x-cadl-name: Checkup[]
+          x-typespec-name: Checkup[]
           description: The items on this page
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
+          x-typespec-name: Rest.ResourceLocation
       description: Paged response of Checkup items
       required:
         - value
@@ -660,13 +660,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Owner'
-          x-cadl-name: Owner[]
+          x-typespec-name: Owner[]
           description: The items on this page
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
+          x-typespec-name: Rest.ResourceLocation
       description: Paged response of Owner items
       required:
         - value
@@ -721,13 +721,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Pet'
-          x-cadl-name: Pet[]
+          x-typespec-name: Pet[]
           description: The items on this page
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
+          x-typespec-name: Rest.ResourceLocation
       description: Paged response of Pet items
       required:
         - value
@@ -800,13 +800,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Toy'
-          x-cadl-name: Toy[]
+          x-typespec-name: Toy[]
           description: The items on this page
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-cadl-name: Rest.ResourceLocation
+          x-typespec-name: Rest.ResourceLocation
       description: Paged response of Toy items
       required:
         - value

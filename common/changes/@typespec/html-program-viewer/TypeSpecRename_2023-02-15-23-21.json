@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/html-program-viewer",
+      "comment": "Rename to TypeSpec",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/html-program-viewer"
+}

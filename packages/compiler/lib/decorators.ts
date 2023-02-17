@@ -27,7 +27,7 @@ import {
 } from "../core/types.js";
 export * from "./service.js";
 
-export const namespace = "Cadl";
+export const namespace = "TypeSpec";
 
 function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
   // Template parameters are not valid source objects, just skip them
@@ -56,7 +56,7 @@ function setTemplatedStringProperty(
 }
 
 function createStateSymbol(name: string) {
-  return Symbol.for(`Cadl.${name}`);
+  return Symbol.for(`TypeSpec.${name}`);
 }
 
 const summaryKey = createStateSymbol("summary");
@@ -193,9 +193,9 @@ const formatValuesKey = createStateSymbol("formatValues");
  * `@format` - specify the data format hint for a string type
  *
  * The first argument is a string that identifies the format that the string type expects.  Any string
- * can be entered here, but a Cadl emitter must know how to interpret
+ * can be entered here, but a TypeSpec emitter must know how to interpret
  *
- * For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
+ * For TypeSpec specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
  * valid values for a string type's format:
  *
  * https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes

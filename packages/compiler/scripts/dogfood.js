@@ -1,5 +1,5 @@
 // @ts-check
-import { run, xplatCmd } from "@cadl-lang/internal-build-utils";
+import { run, xplatCmd } from "@typespec/internal-build-utils";
 import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -10,4 +10,4 @@ const version = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf-8
 console.log("Packing...");
 await run(xplatCmd("npm"), ["pack"]);
 console.log("Installing...");
-await run(xplatCmd("npm"), ["install", "-g", `cadl-lang-compiler-${version}.tgz`]);
+await run(xplatCmd("npm"), ["install", "-g", `typespec-compiler-${version}.tgz`]);

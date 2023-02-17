@@ -10,7 +10,7 @@ import {
   Program,
   Type,
   TypeNameOptions,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { getOperationId } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
 
@@ -45,11 +45,11 @@ export function shouldInline(program: Program, type: Type): boolean {
 /**
  * Gets the name of a type to be used in OpenAPI.
  *
- * For inlined types: this is the Cadl-native name written to `x-cadl-name`.
+ * For inlined types: this is the TypeSpec-native name written to `x-typespec-name`.
  *
- * For non-inlined types: this is either the friendly name or the Cadl-native name.
+ * For non-inlined types: this is either the friendly name or the TypeSpec-native name.
  *
- * Cadl-native names are shortened to exclude root `Cadl` namespace and service
+ * TypeSpec-native names are shortened to exclude root `TypeSpec` namespace and service
  * namespace using the provided `TypeNameOptions`.
  */
 export function getOpenAPITypeName(
@@ -118,7 +118,7 @@ export function getParameterKey(
  * - If operation is defined at the root or under the service namespace return `<operation.name>`
  * - Otherwise(operation is under another namespace or interface) return `<namespace/interface.name>_<operation.name>`
  *
- * @param program Cadl Program
+ * @param program TypeSpec Program
  * @param operation Operation
  * @returns Operation ID in this format `<name>` or `<group>_<name>`
  */

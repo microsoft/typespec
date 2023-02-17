@@ -1,20 +1,20 @@
 {
-  "name": "@cadl-lang/html-program-viewer",
+  "name": "@typespec/html-program-viewer",
   "version": "0.40.0",
   "author": "Microsoft Corporation",
-  "description": "Cadl library for emitting an html view of the program.",
-  "homepage": "https://github.com/Azure/cadl",
-  "readme": "https://github.com/Azure/cadl/blob/master/README.md",
+  "description": "TypeSpec library for emitting an html view of the program.",
+  "homepage": "https://github.com/Azure/typespec",
+  "readme": "https://github.com/Azure/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/cadl.git"
+    "url": "git+https://github.com/Azure/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/cadl/issues"
+    "url": "https://github.com/Azure/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/index.js",
@@ -32,7 +32,7 @@
       ]
     }
   },
-  "cadlMain": "dist/src/index.js",
+  "typespecMain": "dist/src/index.js",
   "engines": {
     "node": ">=14.0.0"
   },
@@ -46,12 +46,12 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.40.0"
+    "@typespec/compiler": "~0.40.0"
   },
   "dependencies": {
     "prettier": "~2.8.1",
@@ -66,8 +66,8 @@
     "@types/prettier": "2.6.0",
     "@types/react": "~18.0.5",
     "@types/react-dom": "~18.0.1",
-    "@cadl-lang/compiler": "~0.40.0",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@typespec/compiler": "~0.40.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
     "@babel/core": "^7.0.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",

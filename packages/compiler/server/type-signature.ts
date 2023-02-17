@@ -28,7 +28,7 @@ export function getTypeSignature(type: Type): string {
     case "Operation":
       return fence(getOperationSignature(type));
     case "String":
-      // BUG: https://github.com/microsoft/cadl/issues/1350 - should escape string literal values
+      // BUG: https://github.com/microsoft/typespec/issues/1350 - should escape string literal values
       return `(string)\n${fence(`"${type.value}"`)}`;
     case "Boolean":
       return `(boolean)\n${fence(type.value ? "true" : "false")}`;
@@ -117,5 +117,5 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
 }
 
 function fence(code: string) {
-  return `\`\`\`cadl\n${code}\n\`\`\``;
+  return `\`\`\`typespec\n${code}\n\`\`\``;
 }

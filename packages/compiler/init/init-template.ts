@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
-import { CadlConfigJsonSchema } from "../config/config-schema.js";
-import { CadlRawConfig } from "../config/types.js";
+import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
+import { TypeSpecRawConfig } from "../config/types.js";
 
 export interface InitTemplateFile {
   path: string;
@@ -32,7 +32,7 @@ export interface InitTemplate {
   /**
    * Config
    */
-  config?: CadlRawConfig;
+  config?: TypeSpecRawConfig;
 
   /**
    * Custom inputs to prompt to the user
@@ -40,7 +40,7 @@ export interface InitTemplate {
   inputs?: Record<string, InitTemplateInput>;
 
   /**
-   * A flag to indicate not adding @cadl-lang/compiler package to package.json.
+   * A flag to indicate not adding @typespec/compiler package to package.json.
    * Other libraries may already brought in the dependency such as Azure template.
    */
   skipCompilerPackage?: boolean;
@@ -59,7 +59,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     description: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
     skipCompilerPackage: { type: "boolean", nullable: true },
-    config: { nullable: true, ...CadlConfigJsonSchema },
+    config: { nullable: true, ...TypeSpecConfigJsonSchema },
     inputs: {
       type: "object",
       nullable: true,

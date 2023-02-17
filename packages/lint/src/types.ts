@@ -1,4 +1,4 @@
-import { Program, SemanticNodeListener } from "@cadl-lang/compiler";
+import { Program, SemanticNodeListener } from "@typespec/compiler";
 
 export interface RegisterRuleOptions {
   autoEnable?: boolean;

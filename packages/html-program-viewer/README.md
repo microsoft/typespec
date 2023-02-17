@@ -1,7 +1,7 @@
-# Cadl Html Program viewer emitter.
+# TypeSpec Html Program viewer emitter.
 
 ## See also
 
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Website](https://microsoft.github.io/cadl)
-- [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec Website](https://microsoft.github.io/typespec)
+- [TypeSpec for the OpenAPI Developer](https://github.com/microsoft/typespec/blob/main/docs/typespec-for-openapi-dev.md)

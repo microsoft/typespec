@@ -14,8 +14,8 @@ export default function Playground() {
       >
         {
           <iframe
-            title="Cadl Playground"
-            src="https://cadlplayground.z22.web.core.windows.net"
+            title="TypeSpec Playground"
+            src="https://typespecplayground.z22.web.core.windows.net"
             style={{
               height: "100%",
               width: "100%",

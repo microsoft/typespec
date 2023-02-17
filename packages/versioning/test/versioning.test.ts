@@ -10,8 +10,8 @@ import {
   Scalar,
   Type,
   Union,
-} from "@cadl-lang/compiler";
-import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler";
+import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { getVersions, indexVersions, Version } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
@@ -27,7 +27,7 @@ describe("compiler: versioning", () => {
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(host, { autoUsings: ["Cadl.Versioning"] });
+    runner = createTestWrapper(host, { autoUsings: ["TypeSpec.Versioning"] });
   });
 
   describe("version compare", () => {

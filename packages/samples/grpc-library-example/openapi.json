@@ -283,7 +283,7 @@
           "items": {
             "$ref": "#/definitions/protobufAny"
           },
-          "x-cadl-name": "protobufAny[]"
+          "x-typespec-name": "protobufAny[]"
         }
       },
       "description": "An unexpected error response."
@@ -296,7 +296,7 @@
           "items": {
             "$ref": "#/definitions/Shelf"
           },
-          "x-cadl-name": "Shelf[]",
+          "x-typespec-name": "Shelf[]",
           "description": "The list of shelves."
         },
         "next_page_token": {
@@ -339,7 +339,7 @@
           "items": {
             "$ref": "#/definitions/Book"
           },
-          "x-cadl-name": "Book[]",
+          "x-typespec-name": "Book[]",
           "description": "The list of books."
         },
         "next_page_token": {

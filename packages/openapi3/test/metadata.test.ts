@@ -236,7 +236,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MRead" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -245,7 +245,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MCreate" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -254,7 +254,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MCreateOrUpdate" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -263,7 +263,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MUpdate" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -272,7 +272,7 @@ describe("openapi3: metadata", () => {
         properties: {
           e: {
             anyOf: [{ $ref: "#/components/schemas/MDelete" }, { type: "string" }],
-            "x-cadl-name": "M | string",
+            "x-typespec-name": "M | string",
           },
         },
       },
@@ -324,7 +324,7 @@ describe("openapi3: metadata", () => {
                 schema: {
                   type: "array",
                   items: { $ref: "#/components/schemas/Parameters" },
-                  "x-cadl-name": "Parameters[]",
+                  "x-typespec-name": "Parameters[]",
                 },
               },
             },
@@ -392,7 +392,7 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, {
       type: "array",
       items: { $ref: "#/components/schemas/ThingReadItem" },
-      "x-cadl-name": "Thing[]",
+      "x-typespec-name": "Thing[]",
     });
 
     deepStrictEqual(res.components, {

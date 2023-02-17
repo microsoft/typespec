@@ -88,7 +88,7 @@
       "label": "test",
       "type": "shell",
       "options": {
-        "cwd": "${workspaceFolder}/packages/cadl"
+        "cwd": "${workspaceFolder}/packages/typespec"
       },
       "command": "npm test",
       "group": {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/library-linter",
+      "comment": "Rename to TypeSpec",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/library-linter"
+}

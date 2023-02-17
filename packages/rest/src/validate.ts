@@ -6,7 +6,7 @@ import {
   Model,
   navigateTypesInNamespace,
   Program,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { getAllHttpServices } from "./http/operations.js";
 import { reportDiagnostic } from "./lib.js";
 import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";

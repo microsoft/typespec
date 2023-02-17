@@ -12,13 +12,13 @@ import {
   TextDocuments,
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
-import { cadlVersion } from "../core/util.js";
+import { typespecVersion } from "../core/util.js";
 import { createServer, Server, ServerHost } from "./serverlib.js";
 
 let server: Server | undefined = undefined;
 
-const profileDir = process.env.CADL_SERVER_PROFILE_DIR;
-const logTiming = process.env.CADL_SERVER_LOG_TIMING === "true";
+const profileDir = process.env.TYPESPEC_SERVER_PROFILE_DIR;
+const logTiming = process.env.TYPESPEC_SERVER_LOG_TIMING === "true";
 let profileSession: inspector.Session | undefined;
 
 process.on("unhandledRejection", fatalError);
@@ -53,7 +53,7 @@ function main() {
 
   const s = createServer(host);
   server = s;
-  s.log(`Cadl language server v${cadlVersion}`);
+  s.log(`TypeSpec language server v${typespecVersion}`);
   s.log("Module", fileURLToPath(import.meta.url));
   s.log("Process ID", process.pid);
   s.log("Command Line", process.argv);

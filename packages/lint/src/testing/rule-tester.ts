@@ -1,10 +1,10 @@
-import { Diagnostic, navigateProgram } from "@cadl-lang/compiler";
+import { Diagnostic, navigateProgram } from "@typespec/compiler";
 import {
   BasicTestRunner,
   DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { LintRule } from "../types.js";
 
 export interface RuleTester {

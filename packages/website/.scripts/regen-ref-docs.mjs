@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-check
-import { generateLibraryDocs } from "@cadl-lang/ref-doc";
+import { generateLibraryDocs } from "@typespec/ref-doc";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -9,14 +9,14 @@ export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../
 // Rest
 await generateLibraryDocs(
   join(repoRoot, "packages/compiler"),
-  ["Cadl"],
+  ["TypeSpec"],
   join(repoRoot, "docs/compiler/reference")
 );
 
 // Rest
 await generateLibraryDocs(
   join(repoRoot, "packages/rest"),
-  ["Cadl.Http", "Cadl.Rest", "Cadl.Rest.Resource"],
+  ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Rest.Resource"],
   join(repoRoot, "docs/standard-library/rest/reference")
 );
 

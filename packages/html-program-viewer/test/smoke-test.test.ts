@@ -1,4 +1,4 @@
-import { BasicTestRunner } from "@cadl-lang/compiler/testing";
+import { BasicTestRunner } from "@typespec/compiler/testing";
 import { createViewerTestRunner } from "./test-host.js";
 
 describe("html-program-viewer: smoke tests", () => {

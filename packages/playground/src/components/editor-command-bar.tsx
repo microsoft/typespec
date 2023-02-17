@@ -7,13 +7,13 @@ import { SamplesDropdown } from "./samples-dropdown.js";
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
-  updateCadl: (value: string) => Promise<void> | void;
+  updateTypeSpec: (value: string) => Promise<void> | void;
   newIssue: () => Promise<void> | void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
-  updateCadl,
+  updateTypeSpec,
   newIssue,
 }) => {
   const documentation = documentationUrl ? (
@@ -34,7 +34,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             onClick={saveCode as any}
           />
         </Tooltip>
-        <SamplesDropdown onSelectSample={updateCadl as any} />
+        <SamplesDropdown onSelectSample={updateTypeSpec as any} />
         {documentation}
         <div css={{ flex: "1" }}></div>
         <Tooltip content="Save" relationship="description" withArrow>

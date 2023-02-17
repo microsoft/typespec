@@ -536,7 +536,7 @@ export interface TypeInstantiationMap {
  * AST types
  */
 export enum SyntaxKind {
-  CadlScript,
+  TypeSpecScript,
   JsSourceFile,
   ImportStatement,
   Identifier,
@@ -668,7 +668,7 @@ export interface TemplateDeclarationNode {
 }
 
 export type Node =
-  | CadlScriptNode
+  | TypeSpecScriptNode
   | JsSourceFileNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
@@ -746,14 +746,14 @@ export interface BlockComment extends TextRange {
 }
 
 export interface ParseOptions {
-  /** When true, collect comment ranges in {@link CadlScriptNode.comments}. */
+  /** When true, collect comment ranges in {@link TypeSpecScriptNode.comments}. */
   readonly comments?: boolean;
   /** When true, parse doc comments into {@link Node.docs}. */
   readonly docs?: boolean;
 }
 
-export interface CadlScriptNode extends DeclarationNode, BaseNode {
-  readonly kind: SyntaxKind.CadlScript;
+export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
+  readonly kind: SyntaxKind.TypeSpecScript;
   readonly statements: readonly Statement[];
   readonly file: SourceFile;
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
@@ -809,7 +809,7 @@ export type ScopeNode =
   | ModelStatementNode
   | InterfaceStatementNode
   | AliasStatementNode
-  | CadlScriptNode
+  | TypeSpecScriptNode
   | JsSourceFileNode
   | ProjectionLambdaExpressionNode
   | ProjectionNode;
@@ -817,7 +817,7 @@ export type ScopeNode =
 export interface ImportStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ImportStatement;
   readonly path: StringLiteralNode;
-  readonly parent?: CadlScriptNode;
+  readonly parent?: TypeSpecScriptNode;
 }
 
 export interface IdentifierNode extends BaseNode {
@@ -836,7 +836,7 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   readonly targetType: TypeReferenceNode;
   readonly arguments: readonly Expression[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface DirectiveExpressionNode extends BaseNode {
@@ -904,13 +904,13 @@ export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface UsingStatementNode extends BaseNode {
   readonly kind: SyntaxKind.UsingStatement;
   readonly name: IdentifierNode | MemberExpressionNode;
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface OperationSignatureDeclarationNode extends BaseNode {
@@ -932,7 +932,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   readonly kind: SyntaxKind.OperationStatement;
   readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode | InterfaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -941,14 +941,14 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -956,14 +956,14 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   readonly operations: readonly OperationStatementNode[];
   readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface UnionVariantNode extends BaseNode {
@@ -978,7 +978,7 @@ export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface EnumMemberNode extends BaseNode {
@@ -997,7 +997,7 @@ export interface EnumSpreadMemberNode extends BaseNode {
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
   readonly value: Expression;
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface InvalidStatementNode extends BaseNode {
@@ -1116,7 +1116,7 @@ export type Modifier = ExternKeywordNode;
 /**
  * Represent a decorator declaration
  * @example
- * ```cadl
+ * ```typespec
  * extern dec doc(target: Type, value: StringLiteral);
  * ```
  */
@@ -1133,7 +1133,7 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
    * Additional parameters
    */
   readonly parameters: FunctionParameterNode[];
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface FunctionParameterNode extends BaseNode {
@@ -1155,7 +1155,7 @@ export interface FunctionParameterNode extends BaseNode {
 /**
  * Represent a function declaration
  * @example
- * ```cadl
+ * ```typespec
  * extern fn camelCase(value: StringLiteral): StringLiteral;
  * ```
  */
@@ -1165,7 +1165,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 // Projection-related Syntax
@@ -1317,7 +1317,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | IdentifierNode;
   readonly to?: ProjectionNode;
   readonly from?: ProjectionNode;
-  readonly parent?: CadlScriptNode | NamespaceStatementNode;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
@@ -1475,7 +1475,7 @@ export interface Diagnostic {
 }
 
 /**
- * Return type of accessor functions in CADL.
+ * Return type of accessor functions in TYPESPEC.
  * Tuple composed of:
  * - 0: Actual result of an accessor function
  * - 1: List of diagnostics that were emitted while retrieving the data.
@@ -1520,7 +1520,7 @@ export interface CompilerHost {
   /**
    * Optional cache to reuse the results of parsing and binding across programs.
    */
-  parseCache?: WeakMap<SourceFile, CadlScriptNode>;
+  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
 
   /**
    * Write the file.
@@ -1548,7 +1548,7 @@ export interface CompilerHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
-  // get the directory Cadl is executing from
+  // get the directory TypeSpec is executing from
   getExecutionRoot(): string;
 
   // get the directories we should load standard library files from
@@ -1575,9 +1575,9 @@ export interface CompilerHost {
 }
 
 /**
- * Type of the source file that can be loaded via cadl
+ * Type of the source file that can be loaded via typespec
  */
-export type SourceFileKind = "cadl" | "js";
+export type SourceFileKind = "typespec" | "js";
 
 type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (k: infer I) => void
   ? I
@@ -1663,9 +1663,9 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
   : never;
 
 /**
- * Definition of a Cadl library
+ * Definition of a TypeSpec library
  */
-export interface CadlLibraryDef<
+export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>
 > {
@@ -1706,10 +1706,10 @@ export interface JSONSchemaValidator {
   validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
 }
 
-export interface CadlLibrary<
+export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>
-> extends CadlLibraryDef<T, E> {
+> extends TypeSpecLibraryDef<T, E> {
   /**
    * JSON Schema validator for emitter options
    */
@@ -1739,7 +1739,7 @@ export interface CadlLibrary<
 /**
  * Get the options for the onEmit of this library.
  */
-export type EmitOptionsFor<C> = C extends CadlLibrary<infer _T, infer E> ? E : never;
+export type EmitOptionsFor<C> = C extends TypeSpecLibrary<infer _T, infer E> ? E : never;
 
 export interface DecoratorContext {
   program: Program;
@@ -1751,7 +1751,7 @@ export interface DecoratorContext {
 
   /**
    * Function that can be used to retrieve the target for a parameter at the given index.
-   * @param paramIndex Parameter index in the cadl
+   * @param paramIndex Parameter index in the typespec
    * @example @foo("bar", 123) -> $foo(context, target, arg0: string, arg1: number);
    *  getArgumentTarget(0) -> target for arg0
    *  getArgumentTarget(1) -> target for arg1
@@ -1772,7 +1772,7 @@ export interface DecoratorContext {
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {
   /**
-   * Cadl Program.
+   * TypeSpec Program.
    */
   program: Program;
 
@@ -1782,7 +1782,7 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
   emitterOutputDir: string;
 
   /**
-   * Emitter custom options defined in createCadlLibrary
+   * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
 

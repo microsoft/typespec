@@ -1,4 +1,4 @@
 {
-  "cadlMain": "petstore.cadl",
+  "typespecMain": "petstore.tsp",
   "type": "module"
 }

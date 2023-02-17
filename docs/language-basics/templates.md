@@ -14,7 +14,7 @@ Templates can be used on:
 - [operations](./operations.md)
 - [interfaces](./interfaces.md)
 
-```cadl
+```typespec
 model Page<T> {
   size: number;
   item: T[];
@@ -29,7 +29,7 @@ model DogPage {
 
 A template parameter can be given a default value with `= <value>`.
 
-```cadl
+```typespec
 model Page<T = string> {
   size: number;
   item: T[];
@@ -40,29 +40,29 @@ model Page<T = string> {
 
 Template parameter can provide a constraint using the `extends` keyword. See [type relations](./type-relations.md) documentation for details on how validation works.
 
-```cadl
+```typespec
 alias Foo<T extends string> = T;
 ```
 
 now instantiating Foo with the wrong type will result in an error
 
-```cadl
+```typespec
 alias Bar = Foo<123>;
-                ^ Type '123' is not assignable to type 'Cadl.string'
+                ^ Type '123' is not assignable to type 'TypeSpec.string'
 ```
 
 Template constraints can be a model expression
 
-```cadl
+```typespec
 // Expect T to be a model with property name: string
 alias Foo<T extends {name: string}> = T;
 ```
 
 Template parameter default also need to respect the constraint
 
-```cadl
+```typespec
 alias Foo<T extends string = "Abc">  = T
 // Invalid
 alias Bar<T extends string = 123>  = T
-                             ^ Type '123' is not assignable to type 'Cadl.string'
+                             ^ Type '123' is not assignable to type 'TypeSpec.string'
 ```

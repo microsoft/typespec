@@ -1,7 +1,7 @@
 /**
- * Cadl Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+ * TypeSpec Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
  */
-export const CadlLanguageConfiguration = {
+export const TypeSpecLanguageConfiguration = {
   comments: {
     lineComment: "//",
     blockComment: ["/*", "*/"],

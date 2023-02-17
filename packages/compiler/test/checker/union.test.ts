@@ -16,8 +16,8 @@ describe("compiler: union declarations", () => {
         blues.add(t);
       },
     });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       @test @blue union Foo { @blue x: int32; y: int16 };
@@ -42,8 +42,8 @@ describe("compiler: union declarations", () => {
   });
 
   it("can be templated", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test union Foo<T> { x: T };
       alias T = Foo<int32>;
@@ -61,8 +61,8 @@ describe("compiler: union declarations", () => {
   });
 
   it("reduces union expressions and gives them symbol keys", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Foo<T, U> { x: T | U };
       alias T = Foo<int16 | int32, string | int8>;
@@ -78,8 +78,8 @@ describe("compiler: union declarations", () => {
   });
 
   it("doesn't reduce union statements", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Foo<T, U> { x: T | U };
       union Bar { x: int16, y: int32 };
@@ -96,8 +96,8 @@ describe("compiler: union declarations", () => {
   });
 
   it("reduces nevers", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Foo { x: int32 | never };
       `
