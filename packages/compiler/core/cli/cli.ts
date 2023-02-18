@@ -32,7 +32,7 @@ async function main() {
   console.log(`TypeSpec compiler v${typespecVersion}\n`);
 
   await yargs(process.argv.slice(2))
-    .scriptName("typespec")
+    .scriptName("tsp")
     .help()
     .strict()
     .parserConfiguration({

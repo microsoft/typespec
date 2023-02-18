@@ -11,7 +11,7 @@ See full usage documentation by typing `tsp --help`:
 >tsp --help
 TypeSpec compiler v0.36.1
 
-typespec <command>
+tsp <command>
 
 Commands:
   tsp compile <path>       Compile TypeSpec source.

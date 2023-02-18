@@ -4,7 +4,7 @@
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "repository": {
     "type": "git",
