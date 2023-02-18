@@ -27,6 +27,7 @@ export async function findTypeSpecConfigPath(
   while (true) {
     let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
     if (pkgPath === undefined) {
+      // TODO: Add info diagnostics
       pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
     }
     // if found either file in current folder, return it
