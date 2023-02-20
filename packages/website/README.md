@@ -1,6 +1,6 @@
-# Cadl Website
+# TypeSpec Website
 
-This repo contains the code for static web generator for Cadl project using docusaurus.io
+This repo contains the code for static web generator for TypeSpec project using docusaurus.io
 
 Support libraries that enable the demo features are in the `packages/` directory. The demo code itself is in the `website/` directory.
 

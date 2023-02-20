@@ -4,29 +4,29 @@ title: Configuration
 
 # Compiler and Libraries configurations
 
-Cadl compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
+TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
 
 ## Configuration file
 
-Cadl configuration can be provided via the `cadl-project.yaml` configuration file.
+TypeSpec configuration can be provided via the `tspconfig.yaml` configuration file.
 
 ### Discovery
 
-Cadl compiler will look for the closest `cadl-project.yaml` file located in the same directory or closest parent directory from the cadl entrypoint.
+TypeSpec compiler will look for the closest `tspconfig.yaml` file located in the same directory or closest parent directory from the typespec entrypoint.
 
-For example if running `cadl compile /dev/foo/bar/main.cadl`, the compiler will lookup the file at the folllowing paths(In this order):
+For example if running `tsp compile /dev/foo/bar/main.tsp`, the compiler will lookup the file at the folllowing paths(In this order):
 
-- `/dev/foo/bar/cadl-project.yaml`
-- `/dev/foo/cadl-project.yaml`
-- `/dev/cadl-project.yaml`
-- `/cadl-project.yaml`
+- `/dev/foo/bar/tspconfig.yaml`
+- `/dev/foo/tspconfig.yaml`
+- `/dev/tspconfig.yaml`
+- `/tspconfig.yaml`
 
 ### Schema
 
-The file is a `yaml` document with the following structure. See the [next section](#cadl-configuration-options) for details on each option.
+The file is a `yaml` document with the following structure. See the [next section](#typespec-configuration-options) for details on each option.
 
-```cadl
-model CadlProjectSchema {
+```typespec
+model TypeSpecProjectSchema {
   extends?: string;
   parameters?: Record<{default: string}>
   "environment-variables"?: Record<{default: string}>
@@ -45,7 +45,7 @@ There is cases where you might want to build different folders with different op
 
 For that you can use the `extends` property of the configuration file
 
-in `<my-pkg>/cadl-project.yaml`
+in `<my-pkg>/tspconfig.yaml`
 
 ```yaml
 options:
@@ -55,25 +55,25 @@ options:
     some-other-option: This is a title
 ```
 
-in `<my-pkg>/proj2/cadl-project.yaml`, enable `emitter1` using the options specified in the parent `cadl-project.yaml
+in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter1` using the options specified in the parent `tspconfig.yaml
 
 ```yaml
-extends: ../cadl-project.yaml
+extends: ../tspconfig.yaml
 emit:
   - emitter1
 ```
 
-in `<my-pkg>/cadl-project.yaml`, enable `emitter2` using the options specified in the parent `cadl-project.yaml
+in `<my-pkg>/tspconfig.yaml`, enable `emitter2` using the options specified in the parent `tspconfig.yaml
 
 ```yaml
-extends: ../cadl-project.yaml
+extends: ../tspconfig.yaml
 emit:
   - emitter2
 ```
 
 ### Variable interpolation
 
-The cadl project file provide variable interpolation using:
+The typespec project file provide variable interpolation using:
 
 - built-in variables
 - environment variables
@@ -92,13 +92,13 @@ Examples:
 | Variable name  | Scope           | Description                                                                          |
 | -------------- | --------------- | ------------------------------------------------------------------------------------ |
 | `cwd`          | \*              | Points to the current working directory                                              |
-| `project-root` | \*              | Points to the the cadl-project.yaml file containing folder.                          |
+| `project-root` | \*              | Points to the the tspconfig.yaml file containing folder.                             |
 | `output-dir`   | emitter options | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
 | `emitter-name` | emitter options | Name of the emitter                                                                  |
 
 #### Project parameters
 
-A cadl project file can specify some parameters that can then be specified via the CLI.
+A typespec project file can specify some parameters that can then be specified via the CLI.
 
 `{cwd}` and `{project-root}` variables can be used in the default value of those parmeters.
 
@@ -118,12 +118,12 @@ output-dir: {base-dir}/output
 The parameter can then be specified with `--arg` in this format `--arg "<parameter-name>=<value>"`
 
 ```bash
-cadl compile . --arg "base-dir=/path/to/base"
+tsp compile . --arg "base-dir=/path/to/base"
 ```
 
 #### Environment variables
 
-A cadl project file can define which environment variables it can interpolate.
+A typespec project file can define which environment variables it can interpolate.
 
 `{cwd}` and `{project-root}` variables can be used in the default value of the environment variables.
 
@@ -149,13 +149,13 @@ Can only interpolate emitter options from the same emitter.
 
 ```yaml
 options:
-  @cadl-lang/openapi3:
+  @typespec/openapi3:
     emitter-output-dir: {output-dir}/{emitter-sub-folder}
     emitter-sub-folder: bar
 
 ```
 
-## Cadl Configuration Options
+## TypeSpec Configuration Options
 
 | Config          | Cli                       | Description                    |
 | --------------- | ------------------------- | ------------------------------ |
@@ -171,13 +171,13 @@ options:
 Specify which emitters to use and their options if applicable.
 
 ```yaml
-output-dir: {cwd}/cadl-build
+output-dir: {cwd}/typespec-build
 ```
 
 Output dir can be provided using the `--output-dir` cli flag
 
 ```bash
-cadl compile . --output-dir "./cadl-build"
+tsp compile . --output-dir "./typespec-build"
 ```
 
 Output dir must be an absolute path in the config. Use `{cwd}` or `{project-root}` to explicitly specify what it should be relative to.
@@ -199,7 +199,7 @@ trace:
 Trace can be provided using the `--trace` cli flag
 
 ```bash
-cadl compile . --trace import-resolution --trace projection
+tsp compile . --trace import-resolution --trace projection
 ```
 
 ### `warn-as-error` - Treat warning as error
@@ -215,20 +215,20 @@ warn-as-error: true
 or via the cli
 
 ```bash
-cadl compile . --warn-as-error
+tsp compile . --warn-as-error
 ```
 
 ### `imports` - Configure additional imports
 
 ```yaml
 imports:
-  - sidecar.cadl
+  - sidecar.tsp
 ```
 
-Specify additional cadl files to import
+Specify additional typespec files to import
 
 ```bash
-cadl compile . --import "sidecar.cadl"
+tsp compile . --import "sidecar.tsp"
 ```
 
 ### `emit` - Specifying which emitters to run
@@ -246,7 +246,7 @@ emit:
 or via the cli
 
 ```bash
-cadl compile . --emit emitter1 --emit /path/to/emitter2
+tsp compile . --emit emitter1 --emit /path/to/emitter2
 ```
 
 ### `options` - Configuring emitters
@@ -267,10 +267,10 @@ Emitters options can also be provided using the `--option` in this format `--opt
 
 ```bash
 
-cadl compile . --option "emitter1.option1=option1-value"
+tsp compile . --option "emitter1.option1=option1-value"
 ```
 
-Options specified via the CLI take precedence over the ones specified in `cadl-project.yaml`.
+Options specified via the CLI take precedence over the ones specified in `tspconfig.yaml`.
 
 #### Emitters built-in options
 
@@ -289,33 +289,33 @@ Disable emitting. If emitters are still specified it will still run the emitter 
 Can also be used to hide the "There is no emitters warning".
 
 ```yaml
-cadl compile . --no-emit
+tsp compile . --no-emit
 ```
 
 ## Other Command line flags
 
 ### `--watch`
 
-Start the cadl compiler in watch mode: watch for file changes and compile on save.
+Start the tsp compiler in watch mode: watch for file changes and compile on save.
 
 ```bash
-cadl compile . --watch
+tsp compile . --watch
 ```
 
 ### `--nostdlib`
 
-Don't load the Cadl standard library.
+Don't load the TypeSpec standard library.
 
 ```bash
-cadl compile . --nostdlib
+tsp compile . --nostdlib
 ```
 
 ### `--version`
 
-Log the version of the cadl compiler.
+Log the version of the tsp compiler.
 
 ```bash
-cadl compile . --version
+tsp compile . --version
 ```
 
 ### `--pretty`
@@ -325,5 +325,5 @@ cadl compile . --version
 Enable/Disable pretty logging(Colors, diagnostic preview, etc.).
 
 ```bash
-cadl compile . --pretty=false
+tsp compile . --pretty=false
 ```

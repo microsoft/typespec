@@ -1,9 +1,9 @@
-import { resolvePath } from "@cadl-lang/compiler";
+import { resolvePath } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
   resolveVirtualPath,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { createOpenAPITestRunner } from "./test-host.js";
@@ -42,11 +42,11 @@ describe("openapi3: output file", () => {
   async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""): Promise<void> {
     const diagnostics = await runner.diagnose(code, {
       noEmit: false,
-      emit: ["@cadl-lang/openapi3"],
-      options: { "@cadl-lang/openapi3": { ...options, "emitter-output-dir": outputDir } },
+      emit: ["@typespec/openapi3"],
+      options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
     });
 
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
+    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/rest/no-routes"));
   }
 
   function expectOutput(

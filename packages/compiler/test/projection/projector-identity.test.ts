@@ -290,4 +290,99 @@ describe("compiler: projector: Identity", () => {
       });
     });
   });
+
+  describe("template arguments", () => {
+    it("model", async () => {
+      const projection = await projectWithNoChange(
+        `
+        model M<P> {}
+        @test("target") model T extends M<string> {}
+        `,
+        "Model"
+      );
+      checkTemplateConsistency(projection.originalType.baseModel, projection.type.baseModel);
+    });
+    it("scalar", async () => {
+      const projection = await projectWithNoChange(
+        `
+        scalar S<P>;
+        @test("target") scalar T extends S<string>;
+        `,
+        "Scalar"
+      );
+      checkTemplateConsistency(projection.originalType.baseScalar, projection.type.baseScalar);
+    });
+
+    it("operation", async () => {
+      const projection = await projectWithNoChange(
+        `
+        op O<P>(): void;
+        @test("target") model T { p: O<string> };
+        `,
+        "Model"
+      );
+      checkTemplateConsistency(
+        projection.originalType.properties.get("p")?.type,
+        projection.type.properties.get("p")?.type
+      );
+    });
+    it("interface", async () => {
+      const projection = await projectWithNoChange(
+        `
+        interface I<P> {}
+        @test("target") model T { p: I<string> };
+        `,
+        "Model"
+      );
+      checkTemplateConsistency(
+        projection.originalType.properties.get("p")?.type,
+        projection.type.properties.get("p")?.type
+      );
+    });
+    it("union", async () => {
+      const projection = await projectWithNoChange(
+        `
+        union U<P> {}
+        @test("target") model T { p: U<string> };
+        `,
+        "Model"
+      );
+      checkTemplateConsistency(
+        projection.originalType.properties.get("p")?.type,
+        projection.type.properties.get("p")?.type
+      );
+    });
+  });
+
+  function checkTemplateConsistency(original: Type | undefined, projected: Type | undefined) {
+    // NOTE: Identity comparisons below are *much* faster than (deep)StrictEqual on failure.
+    ok(original && "templateMapper" in original && original.templateMapper);
+    ok(projected && "templateMapper" in projected && projected.templateMapper);
+    ok(projected !== original);
+    ok(projected.templateMapper !== original.templateMapper);
+    ok(projected.templateMapper.args !== original.templateMapper.args);
+    ok(projected.templateMapper.map !== original.templateMapper.map);
+    ok(projected.templateArguments !== original.templateArguments);
+    ok(projected.templateArguments === projected.templateMapper.args);
+    strictEqual(projected.templateMapper.args.length, original.templateMapper.args.length);
+    strictEqual(projected.templateMapper.map.size, original.templateMapper.map.size);
+    for (let i = 0; i < projected.templateMapper.args.length; i++) {
+      ok(projected.templateMapper.args[i] !== original.templateMapper.args[i]);
+    }
+    for (const [key, value] of projected.templateMapper.map) {
+      ok(value !== original.templateMapper.map.get(key));
+    }
+    for (const arg of original.templateMapper.args) {
+      ok(arg.projector === original.projector);
+    }
+    for (const value of original.templateMapper.map.values()) {
+      ok(value.projector === original.projector);
+    }
+    for (const arg of projected.templateMapper.args) {
+      ok(arg.projector === projected.projector);
+    }
+    for (const value of projected.templateMapper.map.values()) {
+      ok(value.projector === projected.projector);
+    }
+  }
 });

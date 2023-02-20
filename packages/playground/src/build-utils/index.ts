@@ -1,4 +1,4 @@
-import { cadlBundlePlugin } from "@cadl-lang/bundler";
+import { typespecBundlePlugin } from "@typespec/bundler";
 import react from "@vitejs/plugin-react";
 import { Plugin, ResolvedConfig, UserConfig } from "vite";
 import { PlaygroundConfig } from "../index.js";
@@ -20,7 +20,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
     },
-    assetsInclude: [/\.cadl$/],
+    assetsInclude: [/\.tsp$/],
     optimizeDeps: {
       exclude: ["node-fetch", "swagger-ui"],
     },
@@ -32,7 +32,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
         },
       }),
       playgroundManifestPlugin(config),
-      cadlBundlePlugin({
+      typespecBundlePlugin({
         folderName: "libs",
         libraries: config.libraries,
       }),

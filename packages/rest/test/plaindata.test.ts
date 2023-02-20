@@ -1,4 +1,4 @@
-import { TestHost } from "@cadl-lang/compiler/testing";
+import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http/decorators.js";
 import { createRestTestHost } from "./test-host.js";
@@ -11,11 +11,11 @@ describe("rest: plain data", () => {
   });
 
   it("removes header/query/body/path", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
-      import "@cadl-lang/rest";
-      using Cadl.Http;
+      import "@typespec/rest";
+      using TypeSpec.Http;
 
       @test
       model Before {
@@ -35,7 +35,7 @@ describe("rest: plain data", () => {
       `
     );
 
-    const { Before, After, Spread } = await testHost.compile("main.cadl");
+    const { Before, After, Spread } = await testHost.compile("main.tsp");
     const program = testHost.program;
 
     strictEqual(Before.kind, "Model" as const);

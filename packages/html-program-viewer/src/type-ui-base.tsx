@@ -1,5 +1,5 @@
-import { Type } from "@cadl-lang/compiler";
 import { css } from "@emotion/react";
+import { Type } from "@typespec/compiler";
 import { FunctionComponent } from "react";
 import { KeyValueSection } from "./common.js";
 import { Colors } from "./constants.js";

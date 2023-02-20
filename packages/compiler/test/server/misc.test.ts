@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { CadlScriptNode, Node, parse, SyntaxKind } from "../../core/index.js";
+import { Node, parse, SyntaxKind, TypeSpecScriptNode } from "../../core/index.js";
 import { getCompletionNodeAtPosition } from "../../server/serverlib.js";
 import { extractCursor } from "../../testing/test-server-host.js";
 import { dumpAST } from "../parser.test.js";
@@ -8,7 +8,7 @@ describe("compiler: server: misc", () => {
   describe("getCompletionNodeAtPosition", () => {
     async function getNodeAtCursor(
       sourceWithCursor: string
-    ): Promise<{ root: CadlScriptNode; node: Node | undefined }> {
+    ): Promise<{ root: TypeSpecScriptNode; node: Node | undefined }> {
       const { source, pos } = extractCursor(sourceWithCursor);
       const root = parse(source);
       dumpAST(root);

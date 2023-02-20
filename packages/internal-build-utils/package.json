@@ -1,25 +1,25 @@
 {
-  "name": "@cadl-lang/internal-build-utils",
+  "name": "@typespec/internal-build-utils",
   "version": "0.3.3",
   "author": "Microsoft Corporation",
-  "description": "Internal library to Cadl providing helpers to build.",
-  "homepage": "https://github.com/Azure/cadl",
-  "readme": "https://github.com/Azure/cadl/blob/master/README.md",
+  "description": "Internal library to TypeSpec providing helpers to build.",
+  "homepage": "https://github.com/Azure/typespec",
+  "readme": "https://github.com/Azure/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/cadl.git"
+    "url": "git+https://github.com/Azure/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/cadl/issues"
+    "url": "https://github.com/Azure/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/index.js",
   "bin": {
-    "cadl-build-tool": "cmd/cli.js"
+    "typespec-build-tool": "cmd/cli.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -34,7 +34,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
@@ -47,7 +47,7 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
+    "@typespec/eslint-config-typespec": "~0.5.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",

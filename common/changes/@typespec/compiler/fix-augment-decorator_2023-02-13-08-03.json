@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Apply augmented decorator at last.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

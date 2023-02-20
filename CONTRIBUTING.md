@@ -82,7 +82,7 @@ rushx test
 
 Tests sometimes log extra info using `logVerboseTestOutput` To see
 this output on the command line, set environment variable
-CADL_VERBOSE_TEST_OUTPUT=true.
+TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 
 ## Reformat source code
 
@@ -163,7 +163,7 @@ Always open the root of the repo as the workspace. Things are setup to
 allow easy development across packages rather than opening one package
 at a time in the IDE.
 
-- File -> Open Workspace, select root folder where the Cadl repo was
+- File -> Open Workspace, select root folder where the TypeSpec repo was
   cloned
 - Or run `code /path/to/repo/root` on the command line
 
@@ -180,7 +180,7 @@ Terminal pane will have three parallel watch tasks running:
 - `watch-source`: tsc process that recompile on TypeScript changes
 - `watch-spec`: process that regenerates spec.html when
   spec.emu.html changes
-- `watch-tmlanguage`: process that regenerates cadl.tmlanguage when
+- `watch-tmlanguage`: process that regenerates typespec.tmlanguage when
   tmlanguage.ts changes
 
 ## Testing
@@ -204,16 +204,16 @@ Debug icon on the sidebar, pick one from its down, and press F5 to
 debug the last one you chose.
 
 1. **VS Code Extension**: This will run and debug an experimental
-   instance of VS Code with the Cadl extension for VS Code and Cadl
+   instance of VS Code with the TypeSpec extension for VS Code and TypeSpec
    language server running live with any of your changes. It will
    attach to both the VS Code client process and the language server
    process automatically.
 2. **Compile Scratch**: Use this to debug compiling
-   `packages/cadl-samples/scratch/*.cadl`. The Cadl source code in that
-   folder is excluded from source control by design. Create Cadl files
+   `packages/typespec-samples/scratch/*.tsp`. The TypeSpec source code in that
+   folder is excluded from source control by design. Create TypeSpec files
    there to experiment and debug how the compiler reacts.
 3. **Compile Scratch (nostdlib)**: Same as above, but skips parsing
-   and evaluating the Cadl standard library. Sometimes it's easier to
+   and evaluating the TypeSpec standard library. Sometimes it's easier to
 4. **Attach to Default Port**: Use this to attach to a manually run
    `node --debug` command.
 5. **Attach to Language Server**: Use this to attach to the language
@@ -221,14 +221,14 @@ debug the last one you chose.
    want to debug the language server in VS Code while debugging the VS
    client in VS.
 6. **Regenerate .tmlanguage**: This runs the code that produces the
-   cadl.tmlanguage file that provides syntax highlighting of Cadl in VS
+   typespec.tmlanguage file that provides syntax highlighting of TypeSpec in VS
    and VS Code. Select this to debug its build process.
 
 # Developing the Visual Studio Extension
 
 ## Prerequisites
 
-Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 16.9
+Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 17.0
 or later. It is not currently possible to build the VS extension
 without it, and of course you'll need Visual Studio to run and debug
 the Visual Studio extension.
@@ -245,7 +245,7 @@ extension.
 
 ## Build VS extension in VS
 
-- Open packages/cadl-vs/Microsoft.Cadl.VisualStudio.sln in Visual Studio
+- Open packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.sln in Visual Studio
 - Build -> Build solution (`Ctrl+Shift+B`)
 
 Unlike TypeScript in VS Code above, this is not a watching build, but
@@ -257,8 +257,8 @@ changes after you make them.
 - Click on the play icon in the toolbar or press `F5`
 
 This will run and debug an experimental instance of VS with a version
-of the Cadl extension for VS Code running live with any of your changes
-to the extension or the Cadl language server.
+of the TypeSpec extension for VS Code running live with any of your changes
+to the extension or the TypeSpec language server.
 
 The VS debugger will attach only to the VS client process. Use "Attach
 to Language Server" described above to debug the language server in
@@ -270,34 +270,34 @@ VS Code.
 rush dogfood
 ```
 
-This will globally install the @cadl-lang/compiler package, putting your
-build of `cadl` on PATH, and install the VS Code extension if VS Code
+This will globally install the @typespec/compiler package, putting your
+build of `typespec` on PATH, and install the VS Code extension if VS Code
 is installed.
 
 Note the important difference between this and the steps to run and
 debug the VS Code extension above: the `dogfood` command installs the
-Cadl extension with your changes in regular, non-experimental instance
+TypeSpec extension with your changes in regular, non-experimental instance
 of VS Code, meaning you will have it always, and not only when running
-the debug steps above. This is exactly like using `cadl vscode install`,
+the debug steps above. This is exactly like using `tsp vscode install`,
 only instead of downloading the latest release, it uses a build with your
 changes applied.
 
 There is no automatic `dogfood` process for installing the VS
-extension non-experimentally, but if you build the cadl-vs project from
+extension non-experimentally, but if you build the typespec-vs project from
 the command line following the steps above, or build its Release
 configuration in Visual Studio, then you can install it by
-double-clicking on packages/cadl-vs/Microsoft.Cadl.VisualStudio.vsix
+double-clicking on packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.vsix
 that gets produced.
 
 # Pull request
 
-## Trigger Cadl Playground Try It build
+## Trigger TypeSpec Playground Try It build
 
 For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
-As a contributor you can run the following command to trigger the build and create a cadl playground link for this PR.
+As a contributor you can run the following command to trigger the build and create a typespec playground link for this PR.
 
 ```
-/azp run Cadl Pull Request Try It
+/azp run TypeSpec Pull Request Try It
 ```
 
 ## Run formatter
@@ -305,10 +305,10 @@ As a contributor you can run the following command to trigger the build and crea
 Trigger a workflow that will format the code, commit and push.
 
 ```
-/cadleng format
+/typespeceng format
 ```
 
-# Cadl website
+# TypeSpec website
 
 ## Run locally
 
@@ -324,5 +324,5 @@ The website on github.io should be published when releasing new packages.
 
 To release:
 
-- Go to https://github.com/microsoft/cadl/actions/workflows/website-gh-pages.yml
+- Go to https://github.com/microsoft/typespec/actions/workflows/website-gh-pages.yml
 - Click the `Run workflow` dropdown and select the `main` branch.

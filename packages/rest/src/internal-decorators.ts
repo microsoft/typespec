@@ -3,14 +3,14 @@ import {
   isErrorModel,
   Type,
   validateDecoratorParamType,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
-export const namespace = "Cadl.Rest.Private";
+export const namespace = "TypeSpec.Rest.Private";
 
 const validatedMissingKey = createStateSymbol("validatedMissing");
-// Workaround for the lack of template constraints https://github.com/microsoft/cadl/issues/377
+// Workaround for the lack of template constraints https://github.com/microsoft/typespec/issues/377
 export function $validateHasKey(context: DecoratorContext, target: Type, value: Type) {
   if (!validateDecoratorParamType(context.program, target, value, "Model")) {
     return;
@@ -30,7 +30,7 @@ export function $validateHasKey(context: DecoratorContext, target: Type, value: 
 }
 
 const validatedErrorKey = createStateSymbol("validatedError");
-// Workaround for the lack of template constraints https://github.com/microsoft/cadl/issues/377
+// Workaround for the lack of template constraints https://github.com/microsoft/typespec/issues/377
 export function $validateIsError(context: DecoratorContext, target: Type, value: Type) {
   if (!validateDecoratorParamType(context.program, target, value, "Model")) {
     return;

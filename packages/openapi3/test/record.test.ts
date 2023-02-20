@@ -15,7 +15,7 @@ describe("openapi3: Record", () => {
     deepStrictEqual(res.schemas.Pet.properties.foodScores, {
       type: "object",
       additionalProperties: { type: "integer", format: "int32" },
-      "x-cadl-name": "Record<int32>",
+      "x-typespec-name": "Record<int32>",
     });
   });
 

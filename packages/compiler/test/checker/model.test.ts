@@ -26,8 +26,8 @@ describe("compiler: models", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./dec.js";
       model B { }
@@ -49,13 +49,13 @@ describe("compiler: models", () => {
   });
 
   it("doesn't allow duplicate properties", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model A { x: int32; x: int32; }
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     match(diagnostics[0].message, /Model already has a property/);
   });
@@ -69,8 +69,8 @@ describe("compiler: models", () => {
         blues.add(t);
       },
     });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./dec.js";
       @blue model A<T> { @blue x: int32}
@@ -81,8 +81,8 @@ describe("compiler: models", () => {
   });
 
   it("emit single error when there is an invalid ref in a templated type", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         model A<T> {t: T, invalid: notValidType }
 
@@ -92,7 +92,7 @@ describe("compiler: models", () => {
         }
         `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
         code: "unknown-identifier",
@@ -111,13 +111,13 @@ describe("compiler: models", () => {
 
     for (const [type, defaultValue, expectedValue] of testCases) {
       it(`foo?: ${type} = ${defaultValue}`, async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
           model A { @test foo?: ${type} = ${defaultValue} }
           `
         );
-        const { foo } = (await testHost.compile("main.cadl")) as { foo: ModelProperty };
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         deepStrictEqual({ ...foo.default }, expectedValue);
       });
     }
@@ -125,22 +125,22 @@ describe("compiler: models", () => {
 
   describe("doesn't allow a default of different type than the property type", () => {
     const testCases: [string, string, string][] = [
-      ["string", "123", "Type '123' is not assignable to type 'Cadl.string'"],
-      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'Cadl.int32'"],
-      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'Cadl.boolean'"],
-      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'Cadl.string'`],
+      ["string", "123", "Type '123' is not assignable to type 'TypeSpec.string'"],
+      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'TypeSpec.int32'"],
+      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'TypeSpec.boolean'"],
+      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'TypeSpec.string'`],
       [`"foo" | "bar"`, `"foo1"`, "Type 'foo1' is not assignable to type 'foo | bar'"],
     ];
 
     for (const [type, defaultValue, errorMessage] of testCases) {
       it(`foo?: ${type} = ${defaultValue}`, async () => {
-        testHost.addCadlFile(
-          "main.cadl",
+        testHost.addTypeSpecFile(
+          "main.tsp",
           `
           model A { foo?: ${type} = ${defaultValue} }
           `
         );
-        const diagnostics = await testHost.diagnose("main.cadl");
+        const diagnostics = await testHost.diagnose("main.tsp");
         expectDiagnostics(diagnostics, {
           code: "unassignable",
           message: errorMessage,
@@ -150,13 +150,13 @@ describe("compiler: models", () => {
   });
 
   it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         model A { foo?: bool = false }
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       { code: "unknown-identifier", message: "Unknown identifier bool" },
     ]);
@@ -164,8 +164,8 @@ describe("compiler: models", () => {
 
   describe("link model with its properties", () => {
     it("provides parent model of properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         @test
         model A {
@@ -187,8 +187,8 @@ describe("compiler: models", () => {
     });
 
     it("property merged via intersection", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
       model A {
         a: string;
@@ -200,7 +200,7 @@ describe("compiler: models", () => {
       @test model Test {prop: A & B}
       `
       );
-      const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+      const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
       const AB = Test.properties.get("prop")?.type;
 
       strictEqual(AB?.kind, "Model" as const);
@@ -209,8 +209,8 @@ describe("compiler: models", () => {
     });
 
     it("property copied via spread", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
       model Foo {
         prop: string;
@@ -219,13 +219,13 @@ describe("compiler: models", () => {
       @test model Test {...Foo}
       `
       );
-      const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+      const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
       strictEqual(Test.properties.get("prop")?.model, Test);
     });
 
     it("property copied via `is`", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
       model Foo {
         prop: string;
@@ -234,15 +234,15 @@ describe("compiler: models", () => {
       @test model Test is Foo;
       `
       );
-      const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+      const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
       strictEqual(Test.properties.get("prop")?.model, Test);
     });
   });
 
   describe("with extends", () => {
     it("allow subtype to override parent property if subtype is assignable to parent type", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A { x: int32 }
         model B extends A { x: int16 };
@@ -251,12 +251,12 @@ describe("compiler: models", () => {
         model Ford extends Car { kind: "Ford" };
         `
       );
-      await testHost.compile("main.cadl");
+      await testHost.compile("main.tsp");
     });
 
     it("disallow subtype overriding parent property if subtype is not assignable to parent type", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A { x: int16 }
         model B extends A { x: int32 };
@@ -265,24 +265,24 @@ describe("compiler: models", () => {
         model Ford extends Car { kind: int32 };
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
         {
           code: "override-property-mismatch",
           message:
-            "Model has an inherited property named x of type Cadl.int32 which cannot override type Cadl.int16",
+            "Model has an inherited property named x of type TypeSpec.int32 which cannot override type TypeSpec.int16",
         },
         {
           code: "override-property-mismatch",
           message:
-            "Model has an inherited property named kind of type Cadl.int32 which cannot override type Cadl.string",
+            "Model has an inherited property named kind of type TypeSpec.int32 which cannot override type TypeSpec.string",
         },
       ]);
     });
 
     it("disallow subtype overriding parent property if parent property type is not intrinsic", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model Named {
           name: string;
@@ -295,7 +295,7 @@ describe("compiler: models", () => {
         model D extends C { kind: "D"}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
         {
           code: "override-property-intrinsic",
@@ -311,78 +311,78 @@ describe("compiler: models", () => {
     });
 
     it("allow multiple overrides", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A { x: int64 };
         model B extends A { x: int32 };
         model C extends B { x: int16 };
         `
       );
-      await testHost.compile("main.cadl");
+      await testHost.compile("main.tsp");
     });
 
     it("ensure subtype overriding is not shadowed", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A { x: int64 };
         model B extends A { x: int16 };
         model C extends B { x: int32 };
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
         {
           code: "override-property-mismatch",
           message:
-            "Model has an inherited property named x of type Cadl.int32 which cannot override type Cadl.int16",
+            "Model has an inherited property named x of type TypeSpec.int32 which cannot override type TypeSpec.int16",
         },
       ]);
     });
 
     it("removes decorators not specified on derived type that are on the base type", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model Base { @doc("Base") h: string;}
         @test model Widget extends Base { h: "test";}
         `
       );
-      const { Widget } = (await testHost.compile("main.cadl")) as { Widget: Model };
+      const { Widget } = (await testHost.compile("main.tsp")) as { Widget: Model };
       strictEqual(Widget.decorators.length, 1);
       strictEqual((Widget.properties.get("h")!.type as any)!.value, "test");
     });
 
     it("allow intersection of model with overridden property", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model Base {prop: string;}
         model Widget extends Base {prop: "test";}
         @test op foo(): Widget & {};
         `
       );
-      const { foo } = (await testHost.compile("main.cadl")) as { foo: Operation };
+      const { foo } = (await testHost.compile("main.tsp")) as { foo: Operation };
       strictEqual(((foo.returnType as Model).properties.get("prop")!.type as any)!.value, "test");
     });
 
     it("allow spreading of model with overridden property", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model Base {h1: string}
         model Widget extends Base {h1: "test"}
         @test model Spread {...Widget}
         `
       );
-      const { Spread } = (await testHost.compile("main.cadl")) as { Spread: Model };
+      const { Spread } = (await testHost.compile("main.tsp")) as { Spread: Model };
       strictEqual((Spread.properties.get("h1")!.type as any)!.value, "test");
     });
 
     it("keeps reference of children", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         @test model Pet {
           name: true;
@@ -397,7 +397,7 @@ describe("compiler: models", () => {
         }
         `
       );
-      const { Pet, Dog, Cat } = (await testHost.compile("main.cadl")) as {
+      const { Pet, Dog, Cat } = (await testHost.compile("main.tsp")) as {
         Pet: Model;
         Dog: Model;
         Cat: Model;
@@ -409,8 +409,8 @@ describe("compiler: models", () => {
     });
 
     it("keeps reference of children with templates", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         @test model Pet {
           name: true;
@@ -429,7 +429,7 @@ describe("compiler: models", () => {
         }
         `
       );
-      const { Pet, Dog, Cat } = (await testHost.compile("main.cadl")) as {
+      const { Pet, Dog, Cat } = (await testHost.compile("main.tsp")) as {
         Pet: Model;
         Dog: Model;
         Cat: Model;
@@ -448,13 +448,13 @@ describe("compiler: models", () => {
     });
 
     it("emit error when extends non model", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A extends (string | int32) {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
         code: "extend-model",
         message: "Models must extend other models.",
@@ -462,13 +462,13 @@ describe("compiler: models", () => {
     });
 
     it("emit error when extend model expression", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A extends {name: string} {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
         code: "extend-model",
         message: "Models cannot extend model expressions.",
@@ -476,14 +476,14 @@ describe("compiler: models", () => {
     });
 
     it("emit error when extend model expression via alias", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         alias B = {name: string};
         model A extends B {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
         code: "extend-model",
         message: "Models cannot extend model expressions.",
@@ -491,33 +491,33 @@ describe("compiler: models", () => {
     });
 
     it("emit error when extends itself", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A extends A {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit error when extends circular reference", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A extends B {}
         model B extends A {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit no error when extends has property to base model", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A extends B {}
         model B {
@@ -525,7 +525,7 @@ describe("compiler: models", () => {
         }
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
     });
   });
@@ -547,35 +547,35 @@ describe("compiler: models", () => {
     });
 
     it("copies decorators", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         import "./dec.js";
         @blue model A { }
         @test @red model B is A { };
         `
       );
-      const { B } = (await testHost.compile("main.cadl")) as { B: Model };
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       ok(blues.has(B));
       ok(reds.has(B));
     });
 
     it("copies properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A { x: int32 }
         @test model B is A { y: string };
         `
       );
-      const { B } = (await testHost.compile("main.cadl")) as { B: Model };
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       ok(B.properties.has("x"));
       ok(B.properties.has("y"));
     });
 
     it("copies heritage", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         import "./dec.js";
         @test model A { x: int32 }
@@ -583,58 +583,58 @@ describe("compiler: models", () => {
         @test model C is B { }
         `
       );
-      const { A, C } = (await testHost.compile("main.cadl")) as { A: Model; C: Model };
+      const { A, C } = (await testHost.compile("main.tsp")) as { A: Model; C: Model };
       strictEqual(C.baseModel, A);
       strictEqual(A.derivedModels[1], C);
     });
 
     it("model is accept array expression", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         import "./dec.js";
         @test model A is string[];
         `
       );
-      const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
     });
 
     it("model is accept array expression of complex type", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         import "./dec.js";
         @test model A is (string | int32)[];
         `
       );
-      const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
       strictEqual(A.indexer.value.kind, "Union");
     });
 
     it("doesn't allow duplicate properties", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         import "./dec.js";
         model A { x: int32 }
         model B is A { x: int32 };
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       match(diagnostics[0].message, /Model already has a property/);
     });
 
     it("emit error when is non model or array", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A is (string | int32) {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
         code: "is-model",
         message: "Model `is` must specify another model.",
@@ -642,13 +642,13 @@ describe("compiler: models", () => {
     });
 
     it("emit error when is model expression", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A is {name: string} {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
         code: "is-model",
         message: "Model `is` cannot specify a model expression.",
@@ -656,14 +656,14 @@ describe("compiler: models", () => {
     });
 
     it("emit error when is model expression via alias", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         alias B = {name: string};
         model A is B {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
         code: "is-model",
         message: "Model `is` cannot specify a model expression.",
@@ -671,20 +671,20 @@ describe("compiler: models", () => {
     });
 
     it("emit error when is itself", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A is A {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit single error when is itself as a templated with multiple instantiations", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A<T> is A<T> {}
 
@@ -694,7 +694,7 @@ describe("compiler: models", () => {
         }
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
         {
           code: "circular-base-type",
@@ -704,34 +704,34 @@ describe("compiler: models", () => {
     });
 
     it("emit error when 'is' has circular reference", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A is B {}
         model B is A {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit error when 'is' circular reference via extends", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A is B {}
         model B extends A {}
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
 
     it("emit no error when extends has property to base model", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A is B {}
         model B {
@@ -739,13 +739,13 @@ describe("compiler: models", () => {
         }
         `
       );
-      const diagnostics = await testHost.diagnose("main.cadl");
+      const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
     });
 
     it("resolve recursive template types", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
         model A<T> {
           c: T;
@@ -757,7 +757,7 @@ describe("compiler: models", () => {
         model C is A<int32> {}
         `
       );
-      const { B, C } = await testHost.compile("main.cadl");
+      const { B, C } = await testHost.compile("main.tsp");
       strictEqual((B as Model).properties.size, 2);
       strictEqual(((B as Model).properties.get("c")?.type as any).name, "string");
       strictEqual(((B as Model).properties.get("b")?.type as any).name, "B");

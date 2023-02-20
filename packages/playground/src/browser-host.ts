@@ -3,7 +3,7 @@ import {
   createSourceFile,
   getSourceFileKindFromExt,
   resolvePath,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { importShim } from "./core.js";
 import { PlaygroundManifest } from "./manifest.js";
 
@@ -19,11 +19,11 @@ export async function createBrowserHost(): Promise<BrowserHost> {
   const libsToLoad = PlaygroundManifest.libraries;
 
   for (const libName of libsToLoad) {
-    const { _CadlLibrary_ } = (await importShim(libName)) as any;
-    for (const [key, value] of Object.entries<any>(_CadlLibrary_.cadlSourceFiles)) {
+    const { _TypeSpecLibrary_ } = (await importShim(libName)) as any;
+    for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
-    for (const [key, value] of Object.entries<any>(_CadlLibrary_.jsSourceFiles)) {
+    for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
       addJsImport(`/test/node_modules/${libName}/${key}`, value);
     }
   }
@@ -81,11 +81,11 @@ export async function createBrowserHost(): Promise<BrowserHost> {
     },
 
     getLibDirs() {
-      return [resolveVirtualPath("/test/node_modules/@cadl-lang/compiler/lib")];
+      return [resolveVirtualPath("/test/node_modules/@typespec/compiler/lib")];
     },
 
     getExecutionRoot() {
-      return resolveVirtualPath(".cadl");
+      return resolveVirtualPath(".tsp");
     },
 
     async getJsImport(path) {

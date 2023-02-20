@@ -13,7 +13,7 @@ import {
   Program,
   Type,
   walkPropertiesInherited,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createDiagnostic } from "../lib.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
@@ -40,7 +40,7 @@ export function getResponsesForOperation(
   if (responseType.kind === "Union") {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
-        // TODO how should we treat this? https://github.com/microsoft/cadl/issues/356
+        // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
         continue;
       }
       processResponseType(program, diagnostics, responses, option.type);
@@ -245,7 +245,7 @@ function getResponseDescription(
   // response type is the same as the body type, then use the default status
   // code description and don't duplicate the schema description of the body
   // as the response description. This allows more freedom to change how
-  // Cadl is expressed in semantically equivalent ways without causing
+  // TypeSpec is expressed in semantically equivalent ways without causing
   // the output to change unnecessarily.
   if (responseType !== bodyType) {
     const desc = getDoc(program, responseType);

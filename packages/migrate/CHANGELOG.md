@@ -1,4 +1,4 @@
-# Change Log - @cadl-lang/migrate
+# Change Log - @typespec/migrate
 
 This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
 

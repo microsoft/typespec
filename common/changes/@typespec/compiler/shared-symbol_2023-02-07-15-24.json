@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix issue with projectedName decorator not working correctly when multiple copies of the compiler are loaded.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -5,7 +5,10 @@ import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "./browser-host.js";
 import { StyledPlayground } from "./components/playground.js";
 import { attachServices } from "./services.js";
-import { getCadlContentFromQueryParam, saveCadlContentInQueryParameter } from "./state-storage.js";
+import {
+  getTypeSpecContentFromQueryParam,
+  saveTypeSpecContentInQueryParameter,
+} from "./state-storage.js";
 
 import "./style.css";
 
@@ -21,12 +24,12 @@ import "./style.css";
 const host = await createBrowserHost();
 await attachServices(host);
 
-const initialContent = getCadlContentFromQueryParam("c");
+const initialContent = getTypeSpecContentFromQueryParam("c");
 const App: FunctionComponent = () => {
   const save = useCallback((content: string) => {
-    void saveCadlContentInQueryParameter("c", content);
+    void saveTypeSpecContentInQueryParameter("c", content);
   }, []);
-  return <StyledPlayground host={host} cadlContent={initialContent} onSave={save} />;
+  return <StyledPlayground host={host} typespecContent={initialContent} onSave={save} />;
 };
 
 const root = createRoot(document.getElementById("root")!);

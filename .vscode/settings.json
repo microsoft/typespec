@@ -57,7 +57,7 @@
     "editor.tabSize": 2,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[cadl]": {
+  "[typespec]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.insertSpaces": true,
@@ -102,11 +102,11 @@
   "mochaExplorer.require": "source-map-support/register",
   "mochaExplorer.debuggerConfig": "Tests",
   "mochaExplorer.env": {
-    "CADL_VERBOSE_TEST_OUTPUT": "true",
+    "TYPESPEC_VERBOSE_TEST_OUTPUT": "true",
     "NODE_OPTIONS": "--stack-trace-limit=50"
   },
   "prettier.prettierPath": "./packages/compiler/node_modules/prettier",
-  "prettier.documentSelectors": ["**/*.cadl"],
+  "prettier.documentSelectors": ["**/*.tsp"],
   "testExplorer.errorDecoration": false,
-  "cadl.cadl-server.path": "${workspaceFolder}/packages/compiler"
+  "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
 }

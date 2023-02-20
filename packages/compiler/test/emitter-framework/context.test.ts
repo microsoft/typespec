@@ -1,7 +1,7 @@
 import assert from "assert";
 import { Model, ModelProperty, Namespace, Program } from "../../core/index.js";
 import { CodeTypeEmitter, Context, EmitterOutput } from "../../emitter-framework/index.js";
-import { emitCadl } from "./host.js";
+import { emitTypeSpec } from "./host.js";
 
 describe("emitter context", () => {
   describe("program context", () => {
@@ -14,7 +14,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(Emitter, `model Foo { }`);
+      await emitTypeSpec(Emitter, `model Foo { }`);
     });
 
     it("should set program state for the whole program", async () => {
@@ -31,7 +31,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(Emitter, `model Foo { }`);
+      await emitTypeSpec(Emitter, `model Foo { }`);
     });
   });
 
@@ -51,7 +51,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(Emitter, `namespace Foo {  }`);
+      await emitTypeSpec(Emitter, `namespace Foo {  }`);
     });
 
     it("should set context for everything inside the namespace, multiple namespaces", async () => {
@@ -69,7 +69,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(Emitter, `namespace Foo {  } namespace Bar { }`, {
+      await emitTypeSpec(Emitter, `namespace Foo {  } namespace Bar { }`, {
         namespaceContext: 2,
         namespace: 2,
       });
@@ -105,7 +105,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(Emitter, `namespace Foo { namespace Bar { } }`, {
+      await emitTypeSpec(Emitter, `namespace Foo { namespace Bar { } }`, {
         namespaceContext: 2,
         namespace: 2,
       });
@@ -135,7 +135,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(
+      await emitTypeSpec(
         Emitter,
         `model Foo {
         prop: string;
@@ -160,7 +160,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(
+      await emitTypeSpec(
         Emitter,
         `model Foo {
         prop: {
@@ -192,7 +192,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(
+      await emitTypeSpec(
         TestEmitter,
         `
         model Bar { prop: A.Foo };
@@ -229,7 +229,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(
+      await emitTypeSpec(
         TestEmitter,
         `
         namespace Foo {
@@ -263,7 +263,7 @@ describe("emitter context", () => {
         }
       }
 
-      await emitCadl(
+      await emitTypeSpec(
         TestEmitter,
         `
         model Foo { x: Qux }

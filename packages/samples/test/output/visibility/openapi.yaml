@@ -50,10 +50,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PersonReadItem'
-                    x-cadl-name: Person[]
+                    x-typespec-name: Person[]
                 required:
                   - items
-                x-cadl-name: ListResult<Person>
+                x-typespec-name: ListResult<Person>
     patch:
       operationId: Hello_updateRest
       parameters: []
@@ -114,7 +114,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
     Person:
       type: object
       properties:
@@ -133,7 +133,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
       required:
         - id
         - secret
@@ -154,7 +154,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateItem'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
       required:
         - secret
         - name
@@ -176,7 +176,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeReadItem'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
       required:
         - id
         - name
@@ -234,7 +234,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
     PersonUpdateItem:
       type: object
       properties:
@@ -246,7 +246,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
       required:
         - name
         - other
@@ -267,7 +267,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeReadItem'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
       required:
         - id
         - name
@@ -287,7 +287,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateItem'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]
       required:
         - secret
         - name
@@ -306,4 +306,4 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
+          x-typespec-name: PersonRelative[]

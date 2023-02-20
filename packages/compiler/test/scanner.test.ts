@@ -345,7 +345,7 @@ describe("compiler: scanner", () => {
     ]);
   });
 
-  // https://github.com/microsoft/cadl/issues/168
+  // https://github.com/microsoft/typespec/issues/168
   it("scan file ending with multi-line comment", () => {
     const multiLineComment = "/* foo\n*bar\n*/";
     verify(tokens(multiLineComment), [

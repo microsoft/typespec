@@ -6,9 +6,9 @@ import {
   Model,
   Operation,
   Union,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
-export type CadlRefDoc = {
+export type TypeSpecRefDoc = {
   namespaces: NamespaceRefDoc[];
 };
 

@@ -5,7 +5,7 @@ import {
   resolveValues,
 } from "../../config/config-interpolation.js";
 import { defaultConfig, validateConfigPathsAbsolute } from "../../config/config-loader.js";
-import { CadlConfig } from "../../config/types.js";
+import { TypeSpecConfig } from "../../config/types.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
 
 describe("compiler: config interpolation", () => {
@@ -106,7 +106,7 @@ describe("compiler: config interpolation", () => {
   });
 
   describe("expandConfigVariables", () => {
-    function expectExpandConfigVariables(config: CadlConfig, options: ExpandConfigOptions) {
+    function expectExpandConfigVariables(config: TypeSpecConfig, options: ExpandConfigOptions) {
       const [resolved, diagnostics] = expandConfigVariables(config, options);
       expectDiagnosticEmpty(diagnostics);
       return resolved;
@@ -139,7 +139,7 @@ describe("compiler: config interpolation", () => {
     });
 
     describe("interpolating args", () => {
-      const config: CadlConfig = {
+      const config: TypeSpecConfig = {
         ...defaultConfig,
         parameters: {
           "repo-dir": {
@@ -184,7 +184,7 @@ describe("compiler: config interpolation", () => {
     });
 
     describe("interpolating env", () => {
-      const config: CadlConfig = {
+      const config: TypeSpecConfig = {
         ...defaultConfig,
         environmentVariables: {
           REPO_DIR: {

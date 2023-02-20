@@ -15,7 +15,7 @@ describe("openapi3: Array", () => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: { type: "string" },
-      "x-cadl-name": "string[]",
+      "x-typespec-name": "string[]",
     });
   });
 
@@ -53,7 +53,7 @@ describe("openapi3: Array", () => {
       type: "array",
       minItems: 1,
       items: { type: "string" },
-      "x-cadl-name": "string[]",
+      "x-typespec-name": "string[]",
     });
   });
 
@@ -73,7 +73,7 @@ describe("openapi3: Array", () => {
       type: "array",
       maxItems: 3,
       items: { type: "string" },
-      "x-cadl-name": "string[]",
+      "x-typespec-name": "string[]",
     });
   });
 });

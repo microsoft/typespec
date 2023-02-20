@@ -2,12 +2,12 @@
 title: Style guide
 ---
 
-# Cadl Language Style Guide
+# TypeSpec Language Style Guide
 
-This is a guide providing a recommended set of naming convention to use when writing a Cadl spec.
+This is a guide providing a recommended set of naming convention to use when writing a TypeSpec spec.
 
 :::info
-The guidelines in this article are used in Cadl Core libraries. You can use them, or adapt them to your needs. The primary objectives are consistency and readability within your project, team, organization, or company source code.
+The guidelines in this article are used in TypeSpec Core libraries. You can use them, or adapt them to your needs. The primary objectives are consistency and readability within your project, team, organization, or company source code.
 :::
 
 ## Naming convention
@@ -28,16 +28,16 @@ The guidelines in this article are used in Cadl Core libraries. You can use them
 | alias            | camelCase or PascalCase depending on context | `alias myString = string` or `alias MyPet = Pet` |
 | decorators       | camelCase                                    | `@format`, `@resourceCollection`                 |
 | functions        | camelCase                                    | `addedAfter`                                     |
-| file name        | kebab-case                                   | `my-lib.cadl`                                    |
+| file name        | kebab-case                                   | `my-lib.tsp`                                     |
 
 ## Layout convention
 
-Cadl has a built-in formatter. See [formatter section](./formatter.md) for more information on how to use it.
+TypeSpec has a built-in formatter. See [formatter section](./formatter.md) for more information on how to use it.
 
 - Use 2 space indenting
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 model Pet {
     name: string;
@@ -52,7 +52,7 @@ model Pet {
 - Place a space before an opening curly brace
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 model Pet{
   name: string;
@@ -67,7 +67,7 @@ model Pet {
 - Block opening curly brace `{` should be on the same line
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 model Pet 
 {
@@ -83,7 +83,7 @@ model Pet {
 - Add a newline after blocks
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 model Pet {
   name: string;
@@ -101,7 +101,7 @@ model Cat extends Pet {}
 - Place no space between an operation/decorator/function name and the parmaeter list
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 op list (filter: string): Pet[];
 
@@ -118,7 +118,7 @@ op list(filter: string): Pet[];
 - Do not add spaces inside parentheses
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 op list( filter: string ): Pet[];
 
@@ -130,7 +130,7 @@ op list(filter: string): Pet[];
 - Add spaces inside curly braces.
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 alias foo = {type: "cat"};
 
@@ -141,7 +141,7 @@ alias foo = { type: "cat" };
 - Do not add space inside square brackets
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 // bad
 alias foo = [ 1, 2, 3 ];
 
@@ -152,7 +152,7 @@ alias foo = [1, 2, 3];
 - Start all comments with a space
 
 <!-- prettier-ignore -->
-```cadl
+```typespec
 //bad
 
 // good

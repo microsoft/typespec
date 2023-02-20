@@ -4,7 +4,7 @@ copyright: false
 
 <emu-intro id="intro">
 <h1>Introduction</h1>
-<p>This document will eventually have a full specification for Cadl. For now, it just has the grammar below.</p>
+<p>This document will eventually have a full specification for TypeSpec. For now, it just has the grammar below.</p>
 </emu-intro>
 
 <emu-clause id="lexical-grammar">
@@ -262,13 +262,13 @@ SingleLineCommentChar :
 <h1>Syntactic Grammar</h1>
 <emu-grammar type="definition">
 <![CDATA[
-CadlScript :
-    CadlScriptItemList?
+TypeSpecScript :
+    TypeSpecScriptItemList?
 
-CadlScriptItemList :
-    CadlScriptItemList? CadlScriptItem
+TypeSpecScriptItemList :
+    TypeSpecScriptItemList? TypeSpecScriptItem
 
-CadlScriptItem :
+TypeSpecScriptItem :
     BlocklessNamespaceStatement
     ImportStatement
     Statement

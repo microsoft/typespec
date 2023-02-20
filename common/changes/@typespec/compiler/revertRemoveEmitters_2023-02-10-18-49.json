@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Revert PR #1634.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

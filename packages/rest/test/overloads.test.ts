@@ -1,5 +1,5 @@
-import { Operation } from "@cadl-lang/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { Operation } from "@typespec/compiler";
+import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { getHttpOperation, listHttpOperationsIn } from "../src/http/index.js";
 import { createHttpTestRunner } from "./test-host.js";
@@ -96,11 +96,11 @@ describe("rest: overloads", () => {
     `);
     expectDiagnostics(diagnostics, [
       {
-        code: "@cadl-lang/rest/duplicate-operation",
+        code: "@typespec/rest/duplicate-operation",
         message: `Duplicate operation "otherUpload" routed at "post /upload".`,
       },
       {
-        code: "@cadl-lang/rest/duplicate-operation",
+        code: "@typespec/rest/duplicate-operation",
         message: `Duplicate operation "upload" routed at "post /upload".`,
       },
     ]);
@@ -121,11 +121,11 @@ describe("rest: overloads", () => {
     `);
     expectDiagnostics(diagnostics, [
       {
-        code: "@cadl-lang/rest/duplicate-operation",
+        code: "@typespec/rest/duplicate-operation",
         message: `Duplicate operation "otherUploadString" routed at "post /uploadString".`,
       },
       {
-        code: "@cadl-lang/rest/duplicate-operation",
+        code: "@typespec/rest/duplicate-operation",
         message: `Duplicate operation "uploadString" routed at "post /uploadString".`,
       },
     ]);

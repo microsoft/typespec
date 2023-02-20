@@ -1,0 +1,5 @@
+[$RootKey$\TextMate\Repositories]
+"TypeSpec"="$PackageFolder$\TextMate"
+
+[$RootKey$\ShellFileAssociations\.tsp]
+"DefaultIconMoniker"="KnownMonikers.ClassFile"

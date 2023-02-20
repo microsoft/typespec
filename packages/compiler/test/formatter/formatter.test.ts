@@ -2,8 +2,8 @@ import { strictEqual, throws } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../formatter/index.js";
 
-type TestParser = "cadl" | "markdown";
-function format(code: string, parser: TestParser = "cadl"): string {
+type TestParser = "typespec" | "markdown";
+function format(code: string, parser: TestParser = "typespec"): string {
   const output = prettier.format(code, {
     parser,
     plugins: [plugin],
@@ -20,7 +20,7 @@ function assertFormat({
   expected: string;
   parser?: TestParser;
 }) {
-  const result = format(code, parser ?? "cadl");
+  const result = format(code, parser ?? "typespec");
   strictEqual(result.trim(), expected.trim());
 }
 
@@ -1854,7 +1854,7 @@ projection model#proj {
         parser: "markdown",
         code: `
 This is markdown
-\`\`\`cadl
+\`\`\`typespec
 
 op test(): string;
 
@@ -1864,7 +1864,7 @@ op test(): string;
         expected: `
 This is markdown
 
-\`\`\`cadl
+\`\`\`typespec
 op test(): string;
 \`\`\`
 `,

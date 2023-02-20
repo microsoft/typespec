@@ -1,3 +1,3 @@
-# Cadl Playground
+# TypeSpec Playground
 
-A web app to play with Cadl in the browser.
+A web app to play with TypeSpec in the browser.
