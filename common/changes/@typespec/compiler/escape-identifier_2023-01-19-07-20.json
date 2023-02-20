@@ -1,10 +1,10 @@
 {
   "changes": [
     {
-      "packageName": "@cadl-lang/compiler",
+      "packageName": "@typespec/compiler",
       "comment": "Allow escaping identifiers using backticks",
       "type": "none"
     }
   ],
-  "packageName": "@cadl-lang/compiler"
+  "packageName": "@typespec/compiler"
 }

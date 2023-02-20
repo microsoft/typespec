@@ -338,7 +338,7 @@ describe("compiler: server: completion", () => {
         label: "foo-bar",
         insertText: "`foo-bar`",
         kind: CompletionItemKind.EnumMember,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nenum.foo-bar\n```" },
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nenum.foo-bar\n```" },
       },
     ]);
   });

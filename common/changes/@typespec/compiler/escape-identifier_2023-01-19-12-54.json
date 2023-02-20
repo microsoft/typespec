@@ -1,10 +1,10 @@
 {
   "changes": [
     {
-      "packageName": "@cadl-lang/compiler",
+      "packageName": "@typespec/compiler",
       "comment": "Format `StringLiteral` to `Identifier` (backticked when necessary)",
       "type": "none"
     }
   ],
-  "packageName": "@cadl-lang/compiler"
+  "packageName": "@typespec/compiler"
 }
