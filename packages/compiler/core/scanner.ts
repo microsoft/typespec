@@ -1047,7 +1047,7 @@ export function createScanner(
         if (isBackticked) {
           return "`";
         }
-      // eslint-disable-next-line no-fallthrough
+      // fallthrough
       default:
         error({ code: "invalid-escape-sequence" });
         return String.fromCharCode(ch);
