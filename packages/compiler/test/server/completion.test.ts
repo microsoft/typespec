@@ -322,6 +322,27 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes partial backticked identifiers", async () => {
+    const completions = await complete(
+      `
+      enum \`enum\` {
+        \`foo-bar\`
+      }
+      model M {
+        s: \`enum\`.f┆
+      }
+      `
+    );
+    check(completions, [
+      {
+        label: "foo-bar",
+        insertText: "`foo-bar`",
+        kind: CompletionItemKind.EnumMember,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nenum.foo-bar\n```" },
+      },
+    ]);
+  });
+
   it("completes partial identifier with astral character", async () => {
     const completions = await complete(
       `
