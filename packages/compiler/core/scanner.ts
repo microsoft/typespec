@@ -880,9 +880,7 @@ export function createScanner(
         : position;
 
     const text =
-      tokenFlags & TokenFlags.Escaped
-        ? unescapeString(start, end, true)
-        : input.substring(start, end);
+      tokenFlags & TokenFlags.Escaped ? unescapeString(start, end) : input.substring(start, end);
 
     if (tokenFlags & TokenFlags.NonAscii) {
       return text.normalize("NFC");
@@ -1004,7 +1002,7 @@ export function createScanner(
     return pos;
   }
 
-  function unescapeString(start: number, end: number, isBackticked: boolean = false): string {
+  function unescapeString(start: number, end: number): string {
     let result = "";
     let pos = start;
 
@@ -1021,7 +1019,7 @@ export function createScanner(
       }
 
       result += input.substring(start, pos);
-      result += unescapeOne(pos, isBackticked);
+      result += unescapeOne(pos);
       pos += 2;
       start = pos;
     }
@@ -1030,7 +1028,7 @@ export function createScanner(
     return result;
   }
 
-  function unescapeOne(pos: number, isBackticked: boolean = false): string {
+  function unescapeOne(pos: number): string {
     const ch = input.charCodeAt(pos + 1);
     switch (ch) {
       case CharCode.r:
@@ -1044,10 +1042,7 @@ export function createScanner(
       case CharCode.Backslash:
         return "\\";
       case CharCode.Backtick:
-        if (isBackticked) {
-          return "`";
-        }
-      // fallthrough
+        return "`";
       default:
         error({ code: "invalid-escape-sequence" });
         return String.fromCharCode(ch);

@@ -91,7 +91,6 @@ BacktickedIdentifierChars:
 BacktickedIdentifierChar :
     SourceCharacter but not one of ``` or `\` or LineTerminator
     `\` EscapeCharacter
-    `\` ```
 
 AsciiLetter : one of
     `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M` `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
@@ -177,7 +176,7 @@ TripleQuotedStringCharacter :
     `\` EscapeCharacter
 
 EscapeCharacter : one of
-    `"` `r` `n` `t` `\`
+    `"` `r` `n` `t` `\` ```
 
 Punctuator : one of 
     `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...` `#`
