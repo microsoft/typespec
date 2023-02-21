@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Update package.json entrypoint to tspMain",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}

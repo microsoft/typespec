@@ -1,10 +1,10 @@
 import "MyLib";
-import "CustomTypeSpecMain";
+import "CustomtspMain";
 
 @myLibDec
 model A {
   x: MyLib.Model;
 }
 model B {
-  x: CustomTypeSpecMain.Model;
+  x: CustomtspMain.Model;
 }

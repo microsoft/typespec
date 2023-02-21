@@ -1,5 +1,5 @@
 {
   "name": "my-typespec-library",
   "type": "module",
-  "typespecMain": "./src/main.tsp"
+  "tspMain": "./src/main.tsp"
 }

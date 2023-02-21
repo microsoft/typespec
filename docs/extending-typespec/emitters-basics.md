@@ -185,4 +185,4 @@ Since an emitter is a node library, you could use standard `fs` APIs to write fi
 
 Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the node API but works in a wider range of scenarios.
 
-In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/typespec-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`
+In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/tsp-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`

@@ -46,7 +46,7 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
   }, [program, outputFiles]);
 
   async function loadOutputFile(path: string) {
-    const contents = await program.host.readFile("./typespec-output/" + path);
+    const contents = await program.host.readFile("./tsp-output/" + path);
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 

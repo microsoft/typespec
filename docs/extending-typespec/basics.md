@@ -59,7 +59,7 @@ Your package.json needs to refer to two main files: your node module main file, 
 
 ```json
   "main": "dist/index.js",
-  "typespecMain": "lib/main.tsp"
+  "tspMain": "lib/main.tsp"
 ```
 
 ### 3. Install and initialize TypeScript

@@ -31,7 +31,7 @@ export async function getHostForTypeSpecFile(contents: string, decorators?: Reco
   }
   await host.addTypeSpecFile("main.tsp", contents);
   await host.compile("main.tsp", {
-    outputDir: "typespec-output",
+    outputDir: "tsp-output",
   });
   return host;
 }
@@ -44,7 +44,7 @@ export async function emitTypeSpec(
 ) {
   const host = await getHostForTypeSpecFile(code);
   const emitter = createAssetEmitter(host.program, Emitter, {
-    emitterOutputDir: "typespec-output",
+    emitterOutputDir: "tsp-output",
     options: {},
   } as any);
   const spies = emitterSpies(Emitter);
