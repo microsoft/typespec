@@ -16,7 +16,7 @@ import {
 export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLibrary {
   const { name } = init;
   const typespecFileFolder = init.typespecFileFolder ?? "lib";
-  const jsFileFolder = init.jsFileFolder ?? "dist";
+  const jsFileFolder = init.jsFileFolder ?? "dist/src";
   return {
     name,
     packageRoot: init.packageRoot,
