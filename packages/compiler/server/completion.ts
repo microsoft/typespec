@@ -25,6 +25,7 @@ import {
   resolvePath,
 } from "../core/path-utils.js";
 import { findProjectRoot, loadFile } from "../core/util.js";
+import { printSv } from "../formatter/print/printer.js";
 import { isDeprecated } from "../lib/decorators.js";
 import { getTypeDetails } from "./type-details.js";
 
@@ -236,7 +237,7 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: key,
+      insertText: printSv(key),
     };
     if (deprecated) {
       item.tags = [CompletionItemTag.Deprecated];

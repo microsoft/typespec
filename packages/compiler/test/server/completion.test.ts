@@ -338,7 +338,10 @@ describe("compiler: server: completion", () => {
         label: "foo-bar",
         insertText: "`foo-bar`",
         kind: CompletionItemKind.EnumMember,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nenum.foo-bar\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(enum member)\n```typespec\n`enum`.`foo-bar`\n```",
+        },
       },
     ]);
   });

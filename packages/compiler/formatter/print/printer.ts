@@ -987,12 +987,11 @@ export function printModelProperty(
       tryInline: true,
     }
   );
-  const id = printIdentifier(node.id);
   return [
     multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
     decorators,
-    id,
+    printIdentifier(node.id),
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
@@ -1000,18 +999,22 @@ export function printModelProperty(
 }
 
 function printIdentifier(id: IdentifierNode) {
-  return needBacktick(id) ? `\`${id.sv}\`` : id.sv;
+  return printSv(id.sv);
 }
 
-function needBacktick(id: IdentifierNode) {
-  if (Keywords.has(id.sv)) {
+export function printSv(sv: string) {
+  return needBacktick(sv) ? `\`${sv}\`` : sv;
+}
+
+function needBacktick(sv: string) {
+  if (Keywords.has(sv)) {
     return true;
   }
-  if (!isIdentifierStart(id.sv.charCodeAt(0))) {
+  if (!isIdentifierStart(sv.charCodeAt(0))) {
     return true;
   }
-  for (let i = 1; i < id.sv.length; i++) {
-    if (!isIdentifierContinue(id.sv.charCodeAt(i))) {
+  for (let i = 1; i < sv.length; i++) {
+    if (!isIdentifierContinue(sv.charCodeAt(i))) {
       return true;
     }
   }

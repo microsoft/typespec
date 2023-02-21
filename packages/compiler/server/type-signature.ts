@@ -10,6 +10,7 @@ import {
   Type,
   UnionVariant,
 } from "../core/types.js";
+import { printSv } from "../formatter/print/printer.js";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -69,7 +70,7 @@ function getDecoratorSignature(type: Decorator) {
 function getFunctionSignature(type: FunctionType) {
   const ns = getQualifier(type.namespace);
   const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
+  return `fn ${ns}${printSv(type.name)}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
 }
 
 function getOperationSignature(type: Operation) {
@@ -81,12 +82,12 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${printSv(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
 }
 
 function getModelPropertySignature(property: ModelProperty) {
   const ns = getQualifier(property.model);
-  return `${ns}${property.name}: ${getTypeName(property.type)}`;
+  return `${ns}${printSv(property.name)}: ${getTypeName(property.type)}`;
 }
 
 function getUnionVariantSignature(variant: UnionVariant) {
@@ -94,13 +95,15 @@ function getUnionVariantSignature(variant: UnionVariant) {
     return getTypeName(variant.type);
   }
   const ns = getQualifier(variant.union);
-  return `${ns}${variant.name}: ${getTypeName(variant.type)}`;
+  return `${ns}${printSv(variant.name)}: ${getTypeName(variant.type)}`;
 }
 
 function getEnumMemberSignature(member: EnumMember) {
   const ns = getQualifier(member.enum);
   const value = typeof member.value === "string" ? `"${member.value}"` : member.value;
-  return value === undefined ? `${ns}${member.name}` : `${ns}${member.name}: ${value}`;
+  return value === undefined
+    ? `${ns}${printSv(member.name)}`
+    : `${ns}${printSv(member.name)}: ${value}`;
 }
 
 function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
@@ -113,7 +116,7 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
     return "";
   }
 
-  return parentName + ".";
+  return printSv(parentName) + ".";
 }
 
 function fence(code: string) {
