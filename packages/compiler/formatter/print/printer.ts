@@ -158,7 +158,7 @@ export function printNode(
       return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
-      return printIdentifier(node);
+      return printIdentifier(node, options);
     case SyntaxKind.StringLiteral:
       return printStringLiteral(path as AstPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
@@ -987,23 +987,34 @@ export function printModelProperty(
       tryInline: true,
     }
   );
+  const id = printIdentifier(node.id, options);
   return [
     multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
     decorators,
-    printIdentifier(node.id),
+    id,
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
   ];
 }
 
-function printIdentifier(id: IdentifierNode) {
+function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
   return printId(id.sv);
 }
 
 export function printId(sv: string) {
-  return needBacktick(sv) ? `\`${sv}\`` : sv;
+  if (needBacktick(sv)) {
+    const escapedString = sv
+      .replace(/\\/g, "\\\\")
+      .replace(/\n/g, "\\n")
+      .replace(/\r/g, "\\r")
+      .replace(/\t/g, "\\t")
+      .replace(/`/g, "\\`");
+    return `\`${escapedString}\``;
+  } else {
+    return sv;
+  }
 }
 
 function needBacktick(sv: string) {
