@@ -41,6 +41,7 @@ import {
   isTemplateDeclarationOrInstance,
   listServices,
   Model,
+  ModelIndexer,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
@@ -637,7 +638,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }));
       return {
         $ref: pending.ref,
-        description: getDoc(program, type),
       };
     }
   }
@@ -1336,14 +1336,24 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function getIndexer(model: Model): ModelIndexer | undefined {
+    const indexer = model.indexer;
+    if (indexer) {
+      return indexer;
+    } else if (model.baseModel) {
+      return getIndexer(model.baseModel);
+    }
+    return undefined;
+  }
+
   function validateAdditionalProperties(model: Model) {
-    const templateArg = model.baseModel?.templateMapper?.args[0];
-    if (!templateArg) {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
       return;
     }
     for (const [_, prop] of model.properties) {
       // ensure that the record type is compatible with any listed properties
-      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, templateArg, prop);
+      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, propType, prop);
       for (const diag of diagnostics) {
         program.reportDiagnostic(diag);
       }
@@ -1354,22 +1364,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    * Returns appropriate additional properties for Record types.
    */
   function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
-    if (model.name !== "Record" && !model.indexer) {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
       return undefined;
     }
-    const templateArg = model.templateMapper?.args.at(0) ?? model.indexer?.value;
-    if (!templateArg) {
-      return undefined;
-    }
-    switch (templateArg.kind) {
+    switch (propType.kind) {
       case "Intrinsic":
-        if (templateArg.name === "unknown") {
+        if (propType.name === "unknown") {
           return {};
         }
         break;
       case "Scalar":
       case "Model":
-        return getSchemaOrRef(templateArg, visibility);
+        return getSchemaOrRef(propType, visibility);
     }
     return undefined;
   }

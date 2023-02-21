@@ -22,23 +22,18 @@ paths:
           application/pdf:
             schema:
               $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
           application/json:
             schema:
               $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
           image/jpeg:
             schema:
               $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
           image/png:
             schema:
               $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
           image/tiff:
             schema:
               $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
   /mediatypes/contentTypeWithEncoding:
     post:
       operationId: contentTypeWithEncoding
@@ -59,7 +54,6 @@ paths:
           text/plain:
             schema:
               $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
 components:
   schemas:
     Input:
@@ -68,7 +62,6 @@ components:
         input:
           allOf:
             - $ref: '#/components/schemas/SourcePath'
-              description: Uri or local path to source data.
           description: Input parameter.
       required:
         - input

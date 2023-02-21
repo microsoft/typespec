@@ -32,14 +32,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RespWithDocs'
-                description: Response from @doc
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorWithDocs'
-                description: Error from @doc
   /foo/NotFoundDefaultDocs:
     get:
       operationId: Foo_withDefaultDescNotFound
@@ -51,7 +49,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RespWithDocs'
-                description: Response from @doc
         '404':
           description: The server cannot find the requested resource.
           content:
@@ -81,7 +78,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundWithDocsResp'
-                description: Not found
         default:
           description: An unexpected error response.
           content:

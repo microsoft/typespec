@@ -26,7 +26,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -42,7 +41,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -71,7 +69,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -87,7 +84,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -115,7 +111,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -131,7 +126,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -157,7 +151,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -173,7 +166,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -204,7 +196,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -222,7 +213,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -253,7 +243,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -269,7 +258,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -302,7 +290,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     put:
       tags:
         - String Operations
@@ -321,7 +308,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:

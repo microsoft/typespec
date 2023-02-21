@@ -199,7 +199,6 @@ describe("openapi3: return types", () => {
     ok(res.components.schemas.Error);
     deepStrictEqual(res.paths["/"].get.responses["default"].content["application/json"].schema, {
       $ref: "#/components/schemas/Error",
-      description: "Error",
     });
   });
 
@@ -228,7 +227,6 @@ describe("openapi3: return types", () => {
     ok(res.components.schemas.Error);
     deepStrictEqual(res.paths["/"].get.responses["default"].content["application/json"].schema, {
       $ref: "#/components/schemas/Error",
-      description: "Error",
     });
   });
 

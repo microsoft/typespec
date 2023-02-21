@@ -67,7 +67,7 @@ describe("openapi3: Additional properties", () => {
       "Pet",
       `
       @doc("value")
-      model Value {};
+      scalar Value;
       model Pet extends Record<Value> {};
       `
     );
@@ -75,7 +75,6 @@ describe("openapi3: Additional properties", () => {
     ok(res.isRef);
     ok(res.schemas.Pet, "expected definition named Pet");
     deepStrictEqual(res.schemas.Pet.additionalProperties, {
-      description: "value",
       $ref: "#/components/schemas/Value",
     });
   });

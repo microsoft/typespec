@@ -32,7 +32,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     post:
       operationId: Pets_create
       parameters: []
@@ -49,7 +48,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
       requestBody:
         content:
           application/json:
@@ -70,7 +68,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
     get:
       operationId: Pets_read
       description: Returns a pet. Supports eTags.
@@ -97,7 +94,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
   /pets/{petId}/toys:
     get:
       operationId: ListPetToysResponse_list
@@ -125,7 +121,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                description: Error
 components:
   parameters:
     PetId:
