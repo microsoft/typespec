@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Support having a shared versioning enum that is declared outside the versioned namespace.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
