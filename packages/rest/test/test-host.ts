@@ -1,11 +1,11 @@
-import { Diagnostic } from "@cadl-lang/compiler";
+import { Diagnostic } from "@typespec/compiler";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   TestHost,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import {
   getAllHttpServices,
   HttpOperation,
@@ -22,12 +22,12 @@ export async function createRestTestHost(): Promise<TestHost> {
 }
 export async function createHttpTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
-  return createTestWrapper(host, { autoUsings: ["Cadl.Http"] });
+  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http"] });
 }
 
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
-  return createTestWrapper(host, { autoUsings: ["Cadl.Http", "Cadl.Rest"] });
+  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"] });
 }
 
 export interface RouteDetails {

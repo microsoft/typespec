@@ -70,7 +70,7 @@ components:
           type: array
           items:
             type: string
-          x-cadl-name: string[]
+          x-typespec-name: string[]
       required:
         - type
         - nextWalkTime
@@ -99,7 +99,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Library.PetToy'
-          x-cadl-name: Library.PetToy[]
+          x-typespec-name: Library.PetToy[]
       discriminator:
         propertyName: type
         mapping:

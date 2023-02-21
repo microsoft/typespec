@@ -1,5 +1,5 @@
 // @ts-check
-import { runWatch } from "@cadl-lang/internal-build-utils";
+import { runWatch } from "@typespec/internal-build-utils";
 import ecmarkup from "ecmarkup";
 import { readFile, writeFile } from "fs/promises";
 import { resolve } from "path";

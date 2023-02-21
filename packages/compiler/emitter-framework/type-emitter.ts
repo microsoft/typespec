@@ -23,13 +23,13 @@ import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import {
   AssetEmitter,
-  CadlDeclaration,
   Context,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
   Scope,
   SourceFile,
+  TypeSpecDeclaration,
 } from "./types.js";
 
 export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
@@ -134,7 +134,7 @@ export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
  * times if we come across that type with different contexts. For example, if we
  * have a TypeSpec program like
  *
- * ```cadl
+ * ```typespec
  * model Pet { }
  * model Person {
  *   pet: Pet;
@@ -638,7 +638,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  declarationName(declarationType: CadlDeclaration): string {
+  declarationName(declarationType: TypeSpecDeclaration): string {
     compilerAssert(
       declarationType.name !== undefined,
       "Can't emit a declaration that doesn't have a name."

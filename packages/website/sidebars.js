@@ -48,7 +48,7 @@ const sidebars = {
     {
       type: "category",
       label: "Getting Started",
-      items: ["getting-started/getting-started", "getting-started/cadl-for-openapi-dev"],
+      items: ["getting-started/getting-started", "getting-started/typespec-for-openapi-dev"],
     },
     {
       type: "category",
@@ -73,7 +73,7 @@ const sidebars = {
     },
     {
       type: "category",
-      label: "Cadl Standard Library",
+      label: "TypeSpec Standard Library",
       items: [
         "standard-library/built-in-types",
         "standard-library/built-in-decorators",
@@ -102,15 +102,15 @@ const sidebars = {
     },
     {
       type: "category",
-      label: "Writing Cadl Libraries",
+      label: "Writing TypeSpec Libraries",
       items: [
-        "extending-cadl/basics",
-        "extending-cadl/create-decorators",
-        "extending-cadl/linters",
-        "extending-cadl/emitters",
-        "extending-cadl/emitter-framework",
-        "extending-cadl/emitter-metadata-handling",
-        "extending-cadl/writing-scaffolding-template",
+        "extending-typespec/basics",
+        "extending-typespec/create-decorators",
+        "extending-typespec/linters",
+        "extending-typespec/emitters",
+        "extending-typespec/emitter-framework",
+        "extending-typespec/emitter-metadata-handling",
+        "extending-typespec/writing-scaffolding-template",
       ],
     },
     {

@@ -42,7 +42,7 @@ components:
         scopes:
           type: array
           items: {}
-          x-cadl-name: '[read, write]'
+          x-typespec-name: '[read, write]'
       required:
         - type
         - authorizationUrl

@@ -8,9 +8,9 @@ import {
   Operation,
   Program,
   Scalar,
-  setCadlNamespace,
+  setTypeSpecNamespace,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
@@ -112,7 +112,7 @@ export function $actionSeparator(
 }
 
 /**
- * @param program the Cadl program
+ * @param program the TypeSpec program
  * @param entity the target entity
  * @returns the action separator string
  */
@@ -191,9 +191,9 @@ export function setResourceOperation(
 
 export function getResourceOperation(
   program: Program,
-  cadlOperation: Operation
+  typespecOperation: Operation
 ): ResourceOperation | undefined {
-  return program.stateMap(resourceOperationsKey).get(cadlOperation);
+  return program.stateMap(resourceOperationsKey).get(typespecOperation);
 }
 
 export function $readsResource(context: DecoratorContext, entity: Operation, resourceType: Model) {
@@ -333,4 +333,4 @@ export function getResourceLocationType(program: Program, entity: Scalar): Model
   return program.stateMap(resourceLocationsKey).get(entity);
 }
 
-setCadlNamespace("Private", $resourceLocation, $actionSegment, getActionSegment);
+setTypeSpecNamespace("Private", $resourceLocation, $actionSegment, getActionSegment);

@@ -1,30 +1,30 @@
-import { createCadlLibrary, Diagnostic } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, Diagnostic } from "@typespec/compiler";
 import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { createRule, getLinter, LibraryLinter } from "../src/index.js";
 
 describe("lint: linter", () => {
   let linter: LibraryLinter;
 
   beforeEach(() => {
-    linter = getLinter(createCadlLibrary({ name: "test-lib", diagnostics: {} }));
-    const linterSingletonKey = Symbol.for("@cadl-lang/lint.singleton");
+    linter = getLinter(createTypeSpecLibrary({ name: "test-lib", diagnostics: {} }));
+    const linterSingletonKey = Symbol.for("@typespec/lint.singleton");
     (globalThis as any)[linterSingletonKey] = undefined;
   });
 
   async function runLinter(code: string): Promise<readonly Diagnostic[]> {
     const host = await createTestHost();
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
       ${code};
     `
     );
 
-    await host.compile("main.cadl");
+    await host.compile("main.tsp");
     linter.lintProgram(host.program);
     return host.program.diagnostics;
   }

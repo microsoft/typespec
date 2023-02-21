@@ -45,8 +45,12 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { defaultConfig, findCadlConfigPath, loadCadlConfigFile } from "../config/config-loader.js";
-import { CadlConfig } from "../config/types.js";
+import {
+  defaultConfig,
+  findTypeSpecConfigPath,
+  loadTypeSpecConfigFile,
+} from "../config/config-loader.js";
+import { TypeSpecConfig } from "../config/types.js";
 import { codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
   compilerAssert,
@@ -54,7 +58,7 @@ import {
   formatDiagnostic,
   getSourceLocation,
 } from "../core/diagnostics.js";
-import { formatCadl } from "../core/formatter.js";
+import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
@@ -74,11 +78,10 @@ import {
 } from "../core/scanner.js";
 import {
   AugmentDecoratorStatementNode,
-  CadlScriptNode,
   CompilerHost,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
-  Diagnostic as CadlDiagnostic,
+  Diagnostic as TypeSpecDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
   Node,
@@ -86,6 +89,7 @@ import {
   StringLiteralNode,
   SyntaxKind,
   TextRange,
+  TypeSpecScriptNode,
 } from "../core/types.js";
 import { doIO, getNormalizedRealPath, getSourceFileKindFromExt, loadFile } from "../core/util.js";
 import { resolveCompletion } from "./completion.js";
@@ -345,7 +349,7 @@ export function createServer(host: ServerHost): Server {
   type CompileCallback<T> = (
     program: Program,
     document: TextDocument,
-    script: CadlScriptNode
+    script: TypeSpecScriptNode
   ) => (T | undefined) | Promise<T | undefined>;
 
   async function compile(
@@ -415,7 +419,7 @@ export function createServer(host: ServerHost): Server {
             severity: DiagnosticSeverity.Error,
             range: Range.create(0, 0, 0, 0),
             message:
-              `Internal compiler error!\nFile issue at https://github.com/microsoft/cadl\n\n` +
+              `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
               err.stack,
           },
         ],
@@ -425,8 +429,8 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getConfig(mainFile: string, path: string): Promise<CadlConfig> {
-    const configPath = await findCadlConfigPath(compilerHost, mainFile);
+  async function getConfig(mainFile: string, path: string): Promise<TypeSpecConfig> {
+    const configPath = await findTypeSpecConfigPath(compilerHost, mainFile);
     if (!configPath) {
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
@@ -436,7 +440,7 @@ export function createServer(host: ServerHost): Server {
       return cached.data;
     }
 
-    const config = await loadCadlConfigFile(compilerHost, configPath);
+    const config = await loadTypeSpecConfigFile(compilerHost, configPath);
     await fileSystemCache.setData(configPath, config);
     return config;
   }
@@ -444,7 +448,7 @@ export function createServer(host: ServerHost): Server {
   async function getScript(document: TextDocument | TextDocumentIdentifier) {
     const file = await compilerHost.readFile(await getPath(document));
     const cached = compilerHost.parseCache?.get(file);
-    return cached ?? (await compile<CadlScriptNode>(document, (_, __, script) => script));
+    return cached ?? (await compile<TypeSpecScriptNode>(document, (_, __, script) => script));
   }
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
@@ -575,7 +579,7 @@ export function createServer(host: ServerHost): Server {
       const end = document.positionAt(location?.end ?? 0);
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
-      const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "Cadl");
+      const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
@@ -697,7 +701,7 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = formatCadl(document.getText(), {
+    const formattedText = formatTypeSpec(document.getText(), {
       tabWidth: params.options.tabSize,
       useTabs: !params.options.insertSpaces,
     });
@@ -796,9 +800,9 @@ export function createServer(host: ServerHost): Server {
 
   function findReferenceIdentifiers(
     program: Program,
-    file: CadlScriptNode,
+    file: TypeSpecScriptNode,
     pos: number,
-    searchFiles: Iterable<CadlScriptNode> = program.sourceFiles.values()
+    searchFiles: Iterable<TypeSpecScriptNode> = program.sourceFiles.values()
   ): IdentifierNode[] {
     const id = getNodeAtPosition(file, pos);
     if (id?.kind !== SyntaxKind.Identifier) {
@@ -1096,8 +1100,8 @@ export function createServer(host: ServerHost): Server {
    * results can be obtained from compiling the same file with different entry
    * points.
    *
-   * Walk directory structure upwards looking for package.json with cadlMain or
-   * main.cadl file. Stop search when reaching a workspace root. If a root is
+   * Walk directory structure upwards looking for package.json with typespecMain or
+   * main.tsp file. Stop search when reaching a workspace root. If a root is
    * reached without finding an entry point, use the given path as its own
    * entry point.
    *
@@ -1114,7 +1118,7 @@ export function createServer(host: ServerHost): Server {
     const options = { allowFileNotFound: true };
 
     while (inWorkspace(dir)) {
-      let mainFile = "main.cadl";
+      let mainFile = "main.tsp";
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
       const cached = await fileSystemCache.get(pkgPath);
@@ -1132,8 +1136,8 @@ export function createServer(host: ServerHost): Server {
         await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
-      if (typeof pkg?.cadlMain === "string") {
-        mainFile = pkg.cadlMain;
+      if (typeof pkg?.typespecMain === "string") {
+        mainFile = pkg.typespecMain;
       }
 
       const candidate = joinPaths(dir, mainFile);
@@ -1157,7 +1161,7 @@ export function createServer(host: ServerHost): Server {
 
     return path;
 
-    function logMainFileSearchDiagnostic(diagnostic: CadlDiagnostic) {
+    function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
       log(
         `Unexpected diagnostic while looking for main file of ${path}`,
         formatDiagnostic(diagnostic)
@@ -1288,8 +1292,8 @@ export function createServer(host: ServerHost): Server {
 
     function getSourceFileKind(path: string) {
       const document = getOpenDocument(path);
-      if (document?.languageId === "cadl") {
-        return "cadl";
+      if (document?.languageId === "typespec") {
+        return "typespec";
       }
       return getSourceFileKindFromExt(path);
     }
@@ -1337,7 +1341,7 @@ function findDecoratorOrParameter(
  * @internal
  */
 export function getCompletionNodeAtPosition(
-  script: CadlScriptNode,
+  script: TypeSpecScriptNode,
   position: number,
   filter: (node: Node) => boolean = (node: Node) => true
 ): Node | undefined {

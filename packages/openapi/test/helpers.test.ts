@@ -1,5 +1,5 @@
-import { Operation } from "@cadl-lang/compiler";
-import { BasicTestRunner, createTestRunner } from "@cadl-lang/compiler/testing";
+import { Operation } from "@typespec/compiler";
+import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { resolveOperationId } from "../src/helpers.js";
 

@@ -1,5 +1,5 @@
 // pretend I just typed this file from scratch... and saved it
-import { $doc } from "@cadl-lang/compiler";
+import { $doc } from "@typespec/compiler";
 
 export function $fancyDoc(program, target, text) {
   text = `<blink>${text}</blink>`;

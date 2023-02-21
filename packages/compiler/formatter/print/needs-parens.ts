@@ -1,13 +1,13 @@
 import { AstPath } from "prettier";
 import { Node, SyntaxKind } from "../../core/types.js";
-import { CadlPrettierOptions } from "./types.js";
+import { TypeSpecPrettierOptions } from "./types.js";
 
 /**
  * Check if the current path should be wrapped in parentheses
  * @param path Prettier print path.
  * @param options Prettier options
  */
-export function needsParens(path: AstPath<Node>, options: CadlPrettierOptions): boolean {
+export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOptions): boolean {
   const parent = path.getParentNode();
   if (!parent) {
     return false;

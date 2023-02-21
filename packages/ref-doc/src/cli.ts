@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { normalizePath } from "@cadl-lang/compiler";
+import { normalizePath } from "@typespec/compiler";
 import { resolve } from "path";
 import { generateLibraryDocs } from "./index.js";
 

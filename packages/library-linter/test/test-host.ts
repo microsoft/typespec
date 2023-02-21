@@ -1,4 +1,4 @@
-import { createTestHost, createTestWrapper } from "@cadl-lang/compiler/testing";
+import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
 import { LibraryLinterTestLibrary } from "../src/testing/index.js";
 
 export async function createLibraryLinterTestHost() {

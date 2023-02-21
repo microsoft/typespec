@@ -1,4 +1,4 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
@@ -94,7 +94,7 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[0].style, "simple");
   });
 
-  // Regression test for https://github.com/microsoft/cadl/issues/414
+  // Regression test for https://github.com/microsoft/typespec/issues/414
   it("@doc set the description on the parameter not its schema", async () => {
     const res = await openApiFor(
       `
@@ -128,7 +128,7 @@ describe("openapi3: parameters", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "@cadl-lang/openapi/duplicate-type-name",
+        code: "@typespec/openapi/duplicate-type-name",
         message: /parameter/,
       },
     ]);

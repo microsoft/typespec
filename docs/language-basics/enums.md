@@ -10,9 +10,9 @@ Enums allow a developer to define a set of named constants. Using enums can make
 ## Basics
 
 Enums are declared using the `enum` keyword.
-The enums members are comma `,` separated and can be cadl `identifier`s or `string literal`s.
+The enums members are comma `,` separated and can be typespec `identifier`s or `string literal`s.
 
-```cadl
+```typespec
 enum Direction {
   North,
   East,
@@ -27,7 +27,7 @@ In this case, we haven't specified how the constants will be represented. Differ
 
 Enums members can have a custom value that can be assigned using the `:` operator.
 
-```cadl
+```typespec
 enum Direction {
   North: "north",
   East: "east",
@@ -38,7 +38,7 @@ enum Direction {
 
 Values can also be integers.
 
-```cadl
+```typespec
 enum Foo {
   One: 1,
   Ten: 10,
@@ -49,7 +49,7 @@ enum Foo {
 
 or float
 
-```cadl
+```typespec
 enum Hour {
   Zero = 0,
   Quarter = 0.25,
@@ -62,7 +62,7 @@ enum Hour {
 
 Enums can be reused using the spread `...` pattern. All the members of the source enums will be copied in the target enum but it doesn't create any reference between the source and target enums.
 
-```cadl
+```typespec
 enum DirectionExt {
   ...Direction,
   "North East",
@@ -76,6 +76,6 @@ enum DirectionExt {
 
 Enum members can be referenced using the `.` operator for identifiers.
 
-```cadl
+```typespec
 alias North = Direction.North;
 ```

@@ -4,7 +4,7 @@ const host = `http://localhost:5173`;
 const ctrlOrCmd = process.platform === "darwin" ? "Meta" : "Control";
 
 test.describe("playground UI tests", () => {
-  test.skip(process.platform === "win32", "https://github.com/microsoft/cadl/issues/1223");
+  test.skip(process.platform === "win32", "https://github.com/microsoft/typespec/issues/1223");
 
   test("compiled http sample", async ({ page }) => {
     await page.goto(host);
@@ -24,9 +24,9 @@ test.describe("playground UI tests", () => {
 
   test("save code with ctrl/cmd+S", async ({ page }) => {
     await page.goto(host);
-    const cadlEditorContainer = page.locator("_react=CadlEditor");
-    await cadlEditorContainer.click();
-    await cadlEditorContainer.type("op sharedCode(): string;");
+    const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
+    await typespecEditorContainer.click();
+    await typespecEditorContainer.type("op sharedCode(): string;");
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       // cspell:disable-next-line

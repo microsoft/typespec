@@ -1,4 +1,4 @@
-import { createDiagnosticCollector, Diagnostic, ModelProperty, Program } from "@cadl-lang/compiler";
+import { createDiagnosticCollector, Diagnostic, ModelProperty, Program } from "@typespec/compiler";
 import { createDiagnostic } from "../lib.js";
 import { getHeaderFieldName } from "./decorators.js";
 

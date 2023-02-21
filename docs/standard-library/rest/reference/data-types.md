@@ -6,11 +6,11 @@ toc_max_heading_level: 3
 
 # Data types
 
-## Cadl.Http
+## TypeSpec.Http
 
-### `Response` {#Cadl.Http.Response}
+### `Response` {#TypeSpec.Http.Response}
 
-```cadl
+```typespec
 model Response<Status>
 ```
 
@@ -20,14 +20,14 @@ model Response<Status>
 | ------ | ----------- |
 | Status |             |
 
-### `Body` {#Cadl.Http.Body}
+### `Body` {#TypeSpec.Http.Body}
 
 Defines a model with a single property of the given type, marked with `@body`.
 
 This can be useful in situations where you cannot use a bare T as the body
 and it is awkward to add a property.
 
-```cadl
+```typespec
 model Body<T>
 ```
 
@@ -37,92 +37,92 @@ model Body<T>
 | ---- | ----------- |
 | T    |             |
 
-### `LocationHeader` {#Cadl.Http.LocationHeader}
+### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
-```cadl
-model Cadl.Http.LocationHeader
+```typespec
+model TypeSpec.Http.LocationHeader
 ```
 
-### `HeaderOptions` {#Cadl.Http.HeaderOptions}
+### `HeaderOptions` {#TypeSpec.Http.HeaderOptions}
 
 Header options.
 
-```cadl
-model Cadl.Http.HeaderOptions
+```typespec
+model TypeSpec.Http.HeaderOptions
 ```
 
-### `OkResponse` {#Cadl.Http.OkResponse}
+### `OkResponse` {#TypeSpec.Http.OkResponse}
 
-```cadl
-model Cadl.Http.OkResponse
+```typespec
+model TypeSpec.Http.OkResponse
 ```
 
-### `CreatedResponse` {#Cadl.Http.CreatedResponse}
+### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
-```cadl
-model Cadl.Http.CreatedResponse
+```typespec
+model TypeSpec.Http.CreatedResponse
 ```
 
-### `AcceptedResponse` {#Cadl.Http.AcceptedResponse}
+### `AcceptedResponse` {#TypeSpec.Http.AcceptedResponse}
 
-```cadl
-model Cadl.Http.AcceptedResponse
+```typespec
+model TypeSpec.Http.AcceptedResponse
 ```
 
-### `NoContentResponse` {#Cadl.Http.NoContentResponse}
+### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
-```cadl
-model Cadl.Http.NoContentResponse
+```typespec
+model TypeSpec.Http.NoContentResponse
 ```
 
-### `MovedResponse` {#Cadl.Http.MovedResponse}
+### `MovedResponse` {#TypeSpec.Http.MovedResponse}
 
-```cadl
-model Cadl.Http.MovedResponse
+```typespec
+model TypeSpec.Http.MovedResponse
 ```
 
-### `NotModifiedResponse` {#Cadl.Http.NotModifiedResponse}
+### `NotModifiedResponse` {#TypeSpec.Http.NotModifiedResponse}
 
-```cadl
-model Cadl.Http.NotModifiedResponse
+```typespec
+model TypeSpec.Http.NotModifiedResponse
 ```
 
-### `BadRequestResponse` {#Cadl.Http.BadRequestResponse}
+### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
 
-```cadl
-model Cadl.Http.BadRequestResponse
+```typespec
+model TypeSpec.Http.BadRequestResponse
 ```
 
-### `UnauthorizedResponse` {#Cadl.Http.UnauthorizedResponse}
+### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
 
-```cadl
-model Cadl.Http.UnauthorizedResponse
+```typespec
+model TypeSpec.Http.UnauthorizedResponse
 ```
 
-### `ForbiddenResponse` {#Cadl.Http.ForbiddenResponse}
+### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
-```cadl
-model Cadl.Http.ForbiddenResponse
+```typespec
+model TypeSpec.Http.ForbiddenResponse
 ```
 
-### `NotFoundResponse` {#Cadl.Http.NotFoundResponse}
+### `NotFoundResponse` {#TypeSpec.Http.NotFoundResponse}
 
-```cadl
-model Cadl.Http.NotFoundResponse
+```typespec
+model TypeSpec.Http.NotFoundResponse
 ```
 
-### `ConflictResponse` {#Cadl.Http.ConflictResponse}
+### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
 
-```cadl
-model Cadl.Http.ConflictResponse
+```typespec
+model TypeSpec.Http.ConflictResponse
 ```
 
-### `PlainData` {#Cadl.Http.PlainData}
+### `PlainData` {#TypeSpec.Http.PlainData}
 
 Produces a new model with the same properties as T, but with `@query`,
 `@header`, `@body`, and `@path` decorators removed from all properties.
 
-```cadl
+```typespec
 model PlainData<T>
 ```
 
@@ -132,15 +132,15 @@ model PlainData<T>
 | ---- | ----------- |
 | T    |             |
 
-### `QueryOptions` {#Cadl.Http.QueryOptions}
+### `QueryOptions` {#TypeSpec.Http.QueryOptions}
 
 Query parameter options.
 
-```cadl
-model Cadl.Http.QueryOptions
+```typespec
+model TypeSpec.Http.QueryOptions
 ```
 
-### `BasicAuth` {#Cadl.Http.BasicAuth}
+### `BasicAuth` {#TypeSpec.Http.BasicAuth}
 
 Basic authentication is a simple authentication scheme built into the HTTP protocol.
 The client sends HTTP requests with the Authorization header that contains the word Basic word followed by a space and a base64-encoded string username:password.
@@ -150,11 +150,11 @@ For example, to authorize as demo / `p@55w0rd` the client would send
 Authorization: Basic ZGVtbzpwQDU1dzByZA==
 ```
 
-```cadl
-model Cadl.Http.BasicAuth
+```typespec
+model TypeSpec.Http.BasicAuth
 ```
 
-### `BearerAuth` {#Cadl.Http.BearerAuth}
+### `BearerAuth` {#TypeSpec.Http.BearerAuth}
 
 Bearer authentication (also called token authentication) is an HTTP authentication scheme that involves security tokens called bearer tokens.
 The name “Bearer authentication” can be understood as “give access to the bearer of this token.” The bearer token is a cryptic string, usually generated by the server in response to a login request.
@@ -164,11 +164,11 @@ The client must send this token in the Authorization header when making requests
 Authorization: Bearer <token>
 ```
 
-```cadl
-model Cadl.Http.BearerAuth
+```typespec
+model TypeSpec.Http.BearerAuth
 ```
 
-### `ApiKeyAuth` {#Cadl.Http.ApiKeyAuth}
+### `ApiKeyAuth` {#TypeSpec.Http.ApiKeyAuth}
 
 An API key is a token that a client provides when making API calls. The key can be sent in the query string:
 
@@ -190,7 +190,7 @@ GET /something HTTP/1.1
 Cookie: X-API-KEY=abcdef12345
 ```
 
-```cadl
+```typespec
 model ApiKeyAuth<TLocation, TName>
 ```
 
@@ -201,14 +201,14 @@ model ApiKeyAuth<TLocation, TName>
 | TLocation |             |
 | TName     |             |
 
-### `OAuth2Auth` {#Cadl.Http.OAuth2Auth}
+### `OAuth2Auth` {#TypeSpec.Http.OAuth2Auth}
 
 OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
 OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
 For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
-```cadl
+```typespec
 model OAuth2Auth<TFlows>
 ```
 
@@ -218,75 +218,75 @@ model OAuth2Auth<TFlows>
 | ------ | ----------- |
 | TFlows |             |
 
-### `AuthorizationCodeFlow` {#Cadl.Http.AuthorizationCodeFlow}
+### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
 
 Authorization Code flow
 
-```cadl
-model Cadl.Http.AuthorizationCodeFlow
+```typespec
+model TypeSpec.Http.AuthorizationCodeFlow
 ```
 
-### `ImplicitFlow` {#Cadl.Http.ImplicitFlow}
+### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
 Implicit flow
 
-```cadl
-model Cadl.Http.ImplicitFlow
+```typespec
+model TypeSpec.Http.ImplicitFlow
 ```
 
-### `PasswordFlow` {#Cadl.Http.PasswordFlow}
+### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 
 Resource Owner Password flow
 
-```cadl
-model Cadl.Http.PasswordFlow
+```typespec
+model TypeSpec.Http.PasswordFlow
 ```
 
-### `ClientCredentialsFlow` {#Cadl.Http.ClientCredentialsFlow}
+### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
 
 Client credentials flow
 
-```cadl
-model Cadl.Http.ClientCredentialsFlow
+```typespec
+model TypeSpec.Http.ClientCredentialsFlow
 ```
 
-### `AuthType` {#Cadl.Http.AuthType}
+### `AuthType` {#TypeSpec.Http.AuthType}
 
 Authentication type
 
-```cadl
-enum Cadl.Http.AuthType
+```typespec
+enum TypeSpec.Http.AuthType
 ```
 
-### `ApiKeyLocation` {#Cadl.Http.ApiKeyLocation}
+### `ApiKeyLocation` {#TypeSpec.Http.ApiKeyLocation}
 
 Describes the location of the API key
 
-```cadl
-enum Cadl.Http.ApiKeyLocation
+```typespec
+enum TypeSpec.Http.ApiKeyLocation
 ```
 
-### `OAuth2FlowType` {#Cadl.Http.OAuth2FlowType}
+### `OAuth2FlowType` {#TypeSpec.Http.OAuth2FlowType}
 
 Describes the OAuth2 flow type
 
-```cadl
-enum Cadl.Http.OAuth2FlowType
+```typespec
+enum TypeSpec.Http.OAuth2FlowType
 ```
 
-## Cadl.Rest.Resource
+## TypeSpec.Rest.Resource
 
-### `ResourceError` {#Cadl.Rest.Resource.ResourceError}
+### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
 
 The default error response for resource operations.
 
-```cadl
-model Cadl.Rest.Resource.ResourceError
+```typespec
+model TypeSpec.Rest.Resource.ResourceError
 ```
 
-### `KeysOf` {#Cadl.Rest.Resource.KeysOf}
+### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 
-```cadl
+```typespec
 model KeysOf<T>
 ```
 
@@ -296,9 +296,9 @@ model KeysOf<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ParentKeysOf` {#Cadl.Rest.Resource.ParentKeysOf}
+### `ParentKeysOf` {#TypeSpec.Rest.Resource.ParentKeysOf}
 
-```cadl
+```typespec
 model ParentKeysOf<T>
 ```
 
@@ -308,9 +308,9 @@ model ParentKeysOf<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceParameters` {#Cadl.Rest.Resource.ResourceParameters}
+### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
 
-```cadl
+```typespec
 model ResourceParameters<TResource>
 ```
 
@@ -320,9 +320,9 @@ model ResourceParameters<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCollectionParameters` {#Cadl.Rest.Resource.ResourceCollectionParameters}
+### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
 
-```cadl
+```typespec
 model ResourceCollectionParameters<TResource>
 ```
 
@@ -332,9 +332,9 @@ model ResourceCollectionParameters<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -344,9 +344,9 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -356,9 +356,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -368,21 +368,21 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceDeletedResponse` {#Cadl.Rest.Resource.ResourceDeletedResponse}
+### `ResourceDeletedResponse` {#TypeSpec.Rest.Resource.ResourceDeletedResponse}
 
 Resource deleted successfully.
 
-```cadl
-model Cadl.Rest.Resource.ResourceDeletedResponse
+```typespec
+model TypeSpec.Rest.Resource.ResourceDeletedResponse
 ```
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 
@@ -392,9 +392,9 @@ model CollectionWithNextLink<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -404,9 +404,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -416,9 +416,9 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -428,9 +428,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -440,9 +440,9 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -452,9 +452,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -464,9 +464,9 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -476,13 +476,13 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 
@@ -492,9 +492,9 @@ model CollectionWithNextLink<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -504,9 +504,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -516,9 +516,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -528,13 +528,13 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 
@@ -544,9 +544,9 @@ model CollectionWithNextLink<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -556,9 +556,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -568,9 +568,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -580,13 +580,13 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 
@@ -596,9 +596,9 @@ model CollectionWithNextLink<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -608,9 +608,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -620,9 +620,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -632,9 +632,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -644,9 +644,9 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -656,9 +656,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -668,9 +668,9 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -680,13 +680,13 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 
@@ -696,9 +696,9 @@ model CollectionWithNextLink<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -708,9 +708,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -720,9 +720,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -732,13 +732,13 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 
@@ -748,9 +748,9 @@ model CollectionWithNextLink<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
-```cadl
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
@@ -760,9 +760,9 @@ model ResourceCreateOrUpdateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
@@ -772,9 +772,9 @@ model ResourceCreateModel<TResource>
 | --------- | ----------- |
 | TResource |             |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
@@ -784,13 +784,13 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
+```typespec
 model CollectionWithNextLink<T>
 ```
 

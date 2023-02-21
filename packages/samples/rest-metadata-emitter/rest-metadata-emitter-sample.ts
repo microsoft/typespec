@@ -11,7 +11,7 @@ import {
   Program,
   projectProgram,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import {
   createMetadataInfo,
   getHttpService,
@@ -23,8 +23,8 @@ import {
   HttpOperationResponse,
   HttpVerb,
   Visibility,
-} from "@cadl-lang/rest/http";
-import { buildVersionProjections } from "@cadl-lang/versioning";
+} from "@typespec/rest/http";
+import { buildVersionProjections } from "@typespec/versioning";
 import assert from "assert";
 
 export async function $onEmit(context: EmitContext): Promise<void> {

@@ -1,4 +1,4 @@
-export const namespace = "Cadl.Http";
+export const namespace = "TypeSpec.Http";
 
 export * from "./content-types.js";
 export * from "./decorators.js";

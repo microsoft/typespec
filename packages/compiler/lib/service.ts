@@ -13,13 +13,13 @@ export interface Service extends ServiceDetails {
   type: Namespace;
 }
 
-const serviceDetailsKey = Symbol.for("@cadl-lang/compiler.services");
+const serviceDetailsKey = Symbol.for("@typespec/compiler.services");
 function getServiceMap(program: Program): Map<Namespace, Service> {
   return program.stateMap(serviceDetailsKey) as Map<Namespace, Service>;
 }
 
 /**
- * List all the services defined in the cadl program
+ * List all the services defined in the typespec program
  * @param program Program
  * @returns List of service.
  */

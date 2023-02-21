@@ -65,10 +65,10 @@ describe("compiler: semantic walker", () => {
     return [result, listener] as const;
   }
 
-  async function runNavigator(cadl: string, customListener?: SemanticNodeListener) {
-    host.addCadlFile("main.cadl", cadl);
+  async function runNavigator(typespec: string, customListener?: SemanticNodeListener) {
+    host.addTypeSpecFile("main.tsp", typespec);
 
-    await host.compile("main.cadl", { nostdlib: true });
+    await host.compile("main.tsp", { nostdlib: true });
 
     const [result, listener] = createCollector(customListener);
     navigateProgram(host.program, listener);
@@ -211,8 +211,8 @@ describe("compiler: semantic walker", () => {
 
   describe("findInNamespace", () => {
     async function runFindInNamespace(code: string) {
-      host.addCadlFile("main.cadl", code);
-      await host.compile("main.cadl", { nostdlib: true });
+      host.addTypeSpecFile("main.tsp", code);
+      await host.compile("main.tsp", { nostdlib: true });
 
       const TargetNs = host.program.getGlobalNamespaceType().namespaces.get("TargetNs");
       ok(TargetNs, "Should have a namespace called TargetNs");

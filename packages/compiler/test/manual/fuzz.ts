@@ -59,7 +59,7 @@ function fuzzTest(iterations: number) {
   let fileCount: number = 0;
 
   for (let i = 0; i < iterations; i++) {
-    const files = generateCadlProgram();
+    const files = generateTypeSpecProgram();
     maybe(() => {
       for (const f of files) {
         for (const [i] of f.contents.entries()) {
@@ -97,12 +97,12 @@ function fuzzTest(iterations: number) {
       }
     }
 
-    function generateCadlProgram(): FuzzedFile[] {
+    function generateTypeSpecProgram(): FuzzedFile[] {
       fileCount = 0;
       const files: FuzzedFile[] = [];
       repeatBinomial(
         () => {
-          files.push(generateCadlFile());
+          files.push(generateTypeSpecFile());
         },
         odds.newFileInProgram,
         { atLeastOnce: true }
@@ -111,9 +111,9 @@ function fuzzTest(iterations: number) {
       return files;
     }
 
-    function generateCadlFile(): FuzzedFile {
+    function generateTypeSpecFile(): FuzzedFile {
       const file: FuzzedFile = {
-        name: `f${fileCount++}.cadl`,
+        name: `f${fileCount++}.tsp`,
         contents: [],
         bindings: [],
         scopes: [],
@@ -121,7 +121,7 @@ function fuzzTest(iterations: number) {
 
       repeatBinomial(
         () => {
-          file.contents.push(...generateCadlScriptItem());
+          file.contents.push(...generateTypeSpecScriptItem());
         },
         odds.newStatementInFile,
         { atLeastOnce: true }
@@ -129,7 +129,7 @@ function fuzzTest(iterations: number) {
       return file;
     }
 
-    function generateCadlScriptItem(): string[] {
+    function generateTypeSpecScriptItem(): string[] {
       let stmt: string[] = [];
 
       roll(

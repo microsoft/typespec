@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/internal-build-utils",
+      "comment": "Rename to TypeSpec",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@typespec/internal-build-utils"
+}

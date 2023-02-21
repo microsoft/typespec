@@ -1,26 +1,26 @@
 {
-  "name": "@cadl-lang/openapi",
+  "name": "@typespec/openapi",
   "entries": [
     {
       "version": "0.40.0",
-      "tag": "@cadl-lang/openapi_v0.40.0",
+      "tag": "@typespec/openapi_v0.40.0",
       "date": "Tue, 07 Feb 2023 21:56:17 GMT",
       "comments": {}
     },
     {
       "version": "0.39.0",
-      "tag": "@cadl-lang/openapi_v0.39.0",
+      "tag": "@typespec/openapi_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",
       "comments": {}
     },
     {
       "version": "0.38.0",
-      "tag": "@cadl-lang/openapi_v0.38.0",
+      "tag": "@typespec/openapi_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
       "comments": {
         "patch": [
           {
-            "comment": "Add cadl docs on decorators"
+            "comment": "Add typespec docs on decorators"
           },
           {
             "comment": "Update dependencies"
@@ -39,48 +39,48 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.1` to `~0.5.0`"
           }
         ]
       }
     },
     {
       "version": "0.14.0",
-      "tag": "@cadl-lang/openapi_v0.14.0",
+      "tag": "@typespec/openapi_v0.14.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",
       "comments": {
         "minor": [
           {
-            "comment": "Declare decorators in cadl using `extern dec`"
+            "comment": "Declare decorators in typespec using `extern dec`"
           }
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.36.1` to `~0.37.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.18.0` to `~0.19.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.18.0` to `~0.19.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.1` to `~0.2.2`"
+            "comment": "Updating dependency \"@typespec/library-linter\" from `~0.2.1` to `~0.2.2`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.36.1` to `~0.37.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.18.0` to `~0.19.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.18.0` to `~0.19.0`"
           }
         ]
       }
     },
     {
       "version": "0.13.0",
-      "tag": "@cadl-lang/openapi_v0.13.0",
+      "tag": "@typespec/openapi_v0.13.0",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",
       "comments": {
         "patch": [
           {
-            "comment": "Remove workaround for issue with `KeysOf` https://github.com/microsoft/cadl/issues/462"
+            "comment": "Remove workaround for issue with `KeysOf` https://github.com/microsoft/typespec/issues/462"
           },
           {
             "comment": "Add/update docs for openapi3 emitter"
@@ -93,26 +93,26 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.35.0` to `~0.36.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.17.0` to `~0.18.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.17.0` to `~0.18.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.2.0` to `~0.2.1`"
+            "comment": "Updating dependency \"@typespec/library-linter\" from `~0.2.0` to `~0.2.1`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.35.0` to `~0.36.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.17.0` to `~0.18.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.17.0` to `~0.18.0`"
           }
         ]
       }
     },
     {
       "version": "0.12.0",
-      "tag": "@cadl-lang/openapi_v0.12.0",
+      "tag": "@typespec/openapi_v0.12.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",
       "comments": {
         "patch": [
@@ -130,29 +130,29 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.34.0` to `~0.35.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.16.0` to `~0.17.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.16.0` to `~0.17.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.0` to `~0.4.1`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.3` to `~0.2.0`"
+            "comment": "Updating dependency \"@typespec/library-linter\" from `~0.1.3` to `~0.2.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.34.0` to `~0.35.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.16.0` to `~0.17.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.16.0` to `~0.17.0`"
           }
         ]
       }
     },
     {
       "version": "0.11.0",
-      "tag": "@cadl-lang/openapi_v0.11.0",
+      "tag": "@typespec/openapi_v0.11.0",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",
       "comments": {
         "minor": [
@@ -171,56 +171,56 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.33.0` to `~0.34.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.1` to `~0.16.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.15.1` to `~0.16.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.3.0` to `~0.4.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.2` to `~0.1.3`"
+            "comment": "Updating dependency \"@typespec/library-linter\" from `~0.1.2` to `~0.1.3`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-plugin\" from `~0.1.0` to `~0.1.1`"
+            "comment": "Updating dependency \"@typespec/eslint-plugin\" from `~0.1.0` to `~0.1.1`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.33.0` to `~0.34.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.1` to `~0.16.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.15.1` to `~0.16.0`"
           }
         ]
       }
     },
     {
       "version": "0.10.1",
-      "tag": "@cadl-lang/openapi_v0.10.1",
+      "tag": "@typespec/openapi_v0.10.1",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",
       "comments": {
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.32.0` to `~0.33.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.0` to `~0.15.1`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.15.0` to `~0.15.1`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.1` to `~0.1.2`"
+            "comment": "Updating dependency \"@typespec/library-linter\" from `~0.1.1` to `~0.1.2`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.32.0` to `~0.33.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.0` to `~0.15.1`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.15.0` to `~0.15.1`"
           }
         ]
       }
     },
     {
       "version": "0.10.0",
-      "tag": "@cadl-lang/openapi_v0.10.0",
+      "tag": "@typespec/openapi_v0.10.0",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",
       "comments": {
         "minor": [
@@ -235,26 +235,26 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.31.0` to `~0.32.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.14.0` to `~0.15.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.14.0` to `~0.15.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.0` to `~0.1.1`"
+            "comment": "Updating dependency \"@typespec/library-linter\" from `~0.1.0` to `~0.1.1`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.31.0` to `~0.32.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.14.0` to `~0.15.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.14.0` to `~0.15.0`"
           }
         ]
       }
     },
     {
       "version": "0.9.0",
-      "tag": "@cadl-lang/openapi_v0.9.0",
+      "tag": "@typespec/openapi_v0.9.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",
       "comments": {
         "minor": [
@@ -270,23 +270,23 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.30.0` to `~0.31.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.30.0` to `~0.31.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.13.0` to `~0.14.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.13.0` to `~0.14.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.30.0` to `~0.31.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.30.0` to `~0.31.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.13.0` to `~0.14.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.13.0` to `~0.14.0`"
           }
         ]
       }
     },
     {
       "version": "0.8.0",
-      "tag": "@cadl-lang/openapi_v0.8.0",
+      "tag": "@typespec/openapi_v0.8.0",
       "date": "Thu, 31 Mar 2022 17:10:49 GMT",
       "comments": {
         "minor": [
@@ -299,26 +299,26 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.29.0` to `~0.30.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.12.0` to `~0.13.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.12.0` to `~0.13.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.2.0` to `~0.3.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.29.0` to `~0.30.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.12.0` to `~0.13.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.12.0` to `~0.13.0`"
           }
         ]
       }
     },
     {
       "version": "0.7.0",
-      "tag": "@cadl-lang/openapi_v0.7.0",
+      "tag": "@typespec/openapi_v0.7.0",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",
       "comments": {
         "minor": [
@@ -328,47 +328,47 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.28.0` to `~0.29.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.28.0` to `~0.29.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.11.0` to `~0.12.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.11.0` to `~0.12.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.1.0` to `~0.2.0`"
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.1.0` to `~0.2.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.28.0` to `~0.29.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.28.0` to `~0.29.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.11.0` to `~0.12.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.11.0` to `~0.12.0`"
           }
         ]
       }
     },
     {
       "version": "0.6.1",
-      "tag": "@cadl-lang/openapi_v0.6.1",
+      "tag": "@typespec/openapi_v0.6.1",
       "date": "Tue, 15 Feb 2022 22:35:02 GMT",
       "comments": {
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.27.0` to `~0.28.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.27.0` to `~0.28.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.10.0` to `~0.11.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.10.0` to `~0.11.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.27.0` to `~0.28.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.27.0` to `~0.28.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.10.0` to `~0.11.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.10.0` to `~0.11.0`"
           }
         ]
       }
     },
     {
       "version": "0.6.0",
-      "tag": "@cadl-lang/openapi_v0.6.0",
+      "tag": "@typespec/openapi_v0.6.0",
       "date": "Mon, 14 Feb 2022 03:01:07 GMT",
       "comments": {
         "minor": [
@@ -389,37 +389,37 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.26.0` to `~0.27.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.9.0` to `~0.10.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.9.0` to `~0.10.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.26.0` to `~0.27.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.9.0` to `~0.10.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.9.0` to `~0.10.0`"
           }
         ]
       }
     },
     {
       "version": "0.5.1",
-      "tag": "@cadl-lang/openapi_v0.5.1",
+      "tag": "@typespec/openapi_v0.5.1",
       "date": "Fri, 04 Feb 2022 18:00:18 GMT",
       "comments": {
         "dependency": [
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.25.0` to `~0.26.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.8.0` to `~0.9.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.8.0` to `~0.9.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.25.0` to `~0.26.0`"
           },
           {
-            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.8.0` to `~0.9.0`"
+            "comment": "Updating dependency \"@typespec/rest\" from `~0.8.0` to `~0.9.0`"
           }
         ]
       }

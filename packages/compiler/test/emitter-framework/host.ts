@@ -1,50 +1,50 @@
 import { fileURLToPath } from "url";
 import { resolvePath } from "../../core/index.js";
 import { createAssetEmitter, TypeEmitter } from "../../emitter-framework/index.js";
-import { CadlTestLibrary, createTestHost } from "../../testing/index.js";
+import { createTestHost, TypeSpecTestLibrary } from "../../testing/index.js";
 
 import assert from "assert";
 import { SinonSpy, spy } from "sinon";
 
-export const lib: CadlTestLibrary = {
-  name: "cadl-ts-interface-emitter",
+export const lib: TypeSpecTestLibrary = {
+  name: "typespec-ts-interface-emitter",
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../"),
   files: [
     {
       realDir: "",
       pattern: "package.json",
-      virtualPath: "./node_modules/cadl-ts-interface-emitter",
+      virtualPath: "./node_modules/typespec-ts-interface-emitter",
     },
     {
       realDir: "dist/src",
       pattern: "*.js",
-      virtualPath: "./node_modules/cadl-ts-interface-emitter/dist/src",
+      virtualPath: "./node_modules/typespec-ts-interface-emitter/dist/src",
     },
   ],
 };
 
-export async function getHostForCadlFile(contents: string, decorators?: Record<string, any>) {
+export async function getHostForTypeSpecFile(contents: string, decorators?: Record<string, any>) {
   const host = await createTestHost();
   if (decorators) {
     await host.addJsFile("dec.js", decorators);
     contents = `import "./dec.js";\n` + contents;
   }
-  await host.addCadlFile("main.cadl", contents);
-  await host.compile("main.cadl", {
-    outputDir: "cadl-output",
+  await host.addTypeSpecFile("main.tsp", contents);
+  await host.compile("main.tsp", {
+    outputDir: "typespec-output",
   });
   return host;
 }
 
-export async function emitCadl(
+export async function emitTypeSpec(
   Emitter: typeof TypeEmitter<any>,
   code: string,
   callCounts: Partial<Record<keyof TypeEmitter<any>, number>> = {},
   validateCallCounts = true
 ) {
-  const host = await getHostForCadlFile(code);
+  const host = await getHostForTypeSpecFile(code);
   const emitter = createAssetEmitter(host.program, Emitter, {
-    emitterOutputDir: "cadl-output",
+    emitterOutputDir: "typespec-output",
     options: {},
   } as any);
   const spies = emitterSpies(Emitter);

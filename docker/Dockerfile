@@ -7,10 +7,10 @@ RUN apk add --no-cache git
 COPY . /app
 
 WORKDIR /app
-ENV CADL_SKIP_VS_BUILD=1
+ENV TYPESPEC_SKIP_VS_BUILD=1
 RUN npm install -g @microsoft/rush
 RUN rush install
-RUN rush rebuild --to @cadl-lang/compiler
+RUN rush rebuild --to @typespec/compiler
 
 WORKDIR /app/packages/compiler
 RUN npm pack
@@ -24,4 +24,4 @@ COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
 RUN npm install -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
 
-ENTRYPOINT [ "cadl" ]
+ENTRYPOINT [ "typespec" ]

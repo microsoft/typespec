@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Rename to TypeSpec",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

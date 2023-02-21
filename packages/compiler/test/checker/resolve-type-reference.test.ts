@@ -88,7 +88,7 @@ describe("compiler: resolveTypeReference", () => {
     );
   });
 
-  // Remove skip when this is added https://github.com/microsoft/cadl/issues/1092
+  // Remove skip when this is added https://github.com/microsoft/typespec/issues/1092
   it.skip("resolve metainfo", async () => {
     await expectResolve(
       "Pet.home::type.street",

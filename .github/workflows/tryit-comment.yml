@@ -27,10 +27,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: [
-                `Changes in this PR will be published to the following url to try(check status of Cadl Pull Request Try It pipeline for publish status):`,
+                `Changes in this PR will be published to the following url to try(check status of TypeSpec Pull Request Try It pipeline for publish status):`,
                 `Playground: https://cadlplayground.z22.web.core.windows.net/prs/${prNumber}/`,
                 "",
-                `Website: https://cadlwebsite.z1.web.core.windows.net/prs/${prNumber}/`,
+                `Website: https://typespecwebsite.z1.web.core.windows.net/prs/${prNumber}/`,
 
               ].join("\n")
             })

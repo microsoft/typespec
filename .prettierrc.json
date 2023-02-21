@@ -8,14 +8,14 @@
   "tabWidth": 2,
   "pluginSearchDirs": ["./packages/compiler"],
   "plugins": [
-    "./packages/prettier-plugin-cadl",
+    "./packages/prettier-plugin-typespec",
     "./packages/compiler/node_modules/prettier-plugin-organize-imports"
   ],
   "overrides": [
     {
-      "files": "*.cadl",
+      "files": "*.tsp",
       "options": {
-        "parser": "cadl"
+        "parser": "typespec"
       }
     }
   ]

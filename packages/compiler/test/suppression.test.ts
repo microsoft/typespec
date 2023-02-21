@@ -13,10 +13,10 @@ describe("compiler: suppress", () => {
     host = await createTestHost();
   });
 
-  async function run(cadl: string) {
-    host.addCadlFile("main.cadl", cadl);
+  async function run(typespec: string) {
+    host.addTypeSpecFile("main.tsp", typespec);
 
-    await host.compile("main.cadl", { nostdlib: true });
+    await host.compile("main.tsp", { nostdlib: true });
 
     navigateProgram(host.program, {
       model: (model) => {

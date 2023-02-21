@@ -1,4 +1,4 @@
-name: Deploy Cadl Website to github pages
+name: Deploy TypeSpec Website to github pages
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -35,9 +35,9 @@ jobs:
         run: npx @microsoft/rush update
 
       - name: Build
-        run: npx @microsoft/rush build --to @cadl-lang/website
+        run: npx @microsoft/rush build --to @typespec/website
         env:
-          CADL_WEBSITE_BASE_PATH: "/cadl/"
+          TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
