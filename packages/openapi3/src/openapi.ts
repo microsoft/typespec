@@ -41,6 +41,7 @@ import {
   isTemplateDeclarationOrInstance,
   listServices,
   Model,
+  ModelIndexer,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
@@ -635,7 +636,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         visibility,
         ref: refs.getOrAdd(type, visibility, () => new Ref()),
       }));
-      return { $ref: pending.ref };
+      return {
+        $ref: pending.ref,
+      };
     }
   }
 
@@ -1091,8 +1094,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function includeDerivedModel(model: Model): boolean {
     return (
       !isTemplateDeclaration(model) &&
-      (model.templateArguments === undefined ||
-        model.templateArguments?.length === 0 ||
+      (model.templateMapper?.args === undefined ||
+        model.templateMapper.args?.length === 0 ||
         model.derivedModels.length > 0)
     );
   }
@@ -1166,7 +1169,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         description: modelSchema.description,
       };
     } else if (model.baseModel) {
-      modelSchema.allOf = [getSchemaOrRef(model.baseModel, visibility)];
+      const baseSchema = getSchemaOrRef(model.baseModel, visibility);
+      modelSchema.allOf = [baseSchema];
+      modelSchema.additionalProperties = baseSchema.additionalProperties;
+      if (modelSchema.additionalProperties) {
+        validateAdditionalProperties(model);
+      }
     }
 
     // Attach any OpenAPI extensions
@@ -1328,6 +1336,51 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function getIndexer(model: Model): ModelIndexer | undefined {
+    const indexer = model.indexer;
+    if (indexer) {
+      return indexer;
+    } else if (model.baseModel) {
+      return getIndexer(model.baseModel);
+    }
+    return undefined;
+  }
+
+  function validateAdditionalProperties(model: Model) {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
+      return;
+    }
+    for (const [_, prop] of model.properties) {
+      // ensure that the record type is compatible with any listed properties
+      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, propType, prop);
+      for (const diag of diagnostics) {
+        program.reportDiagnostic(diag);
+      }
+    }
+  }
+
+  /**
+   * Returns appropriate additional properties for Record types.
+   */
+  function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
+      return undefined;
+    }
+    switch (propType.kind) {
+      case "Intrinsic":
+        if (propType.name === "unknown") {
+          return {};
+        }
+        break;
+      case "Scalar":
+      case "Model":
+        return getSchemaOrRef(propType, visibility);
+    }
+    return undefined;
+  }
+
   /**
    * Map TypeSpec intrinsic models to open api definitions
    */
@@ -1342,7 +1395,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (name === "string") {
           return {
             type: "object",
-            additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
+            additionalProperties: processAdditionalProperties(typespecType, visibility),
           };
         } else if (name === "integer") {
           return {
