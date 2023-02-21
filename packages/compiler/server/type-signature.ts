@@ -10,7 +10,7 @@ import {
   Type,
   UnionVariant,
 } from "../core/types.js";
-import { printSv } from "../formatter/print/printer.js";
+import { printId } from "../formatter/print/printer.js";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -21,7 +21,7 @@ export function getTypeSignature(type: Type): string {
     case "Interface":
     case "Model":
     case "Namespace":
-      return fence(`${type.kind.toLowerCase()} ${getTypeName(type)}`);
+      return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
     case "Function":
@@ -70,40 +70,42 @@ function getDecoratorSignature(type: Decorator) {
 function getFunctionSignature(type: FunctionType) {
   const ns = getQualifier(type.namespace);
   const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${printSv(type.name)}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
+  return `fn ${ns}${printId(type.name)}(${parameters.join(", ")}): ${getPrintableTypeName(
+    type.returnType
+  )}`;
 }
 
 function getOperationSignature(type: Operation) {
   const ns = getQualifier(type.namespace) || getQualifier(type.interface);
   const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);
-  return `op ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
+  return `op ${ns}${type.name}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${printSv(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${printId(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
 }
 
 function getModelPropertySignature(property: ModelProperty) {
   const ns = getQualifier(property.model);
-  return `${ns}${printSv(property.name)}: ${getTypeName(property.type)}`;
+  return `${ns}${printId(property.name)}: ${getPrintableTypeName(property.type)}`;
 }
 
 function getUnionVariantSignature(variant: UnionVariant) {
   if (typeof variant.name !== "string") {
-    return getTypeName(variant.type);
+    return getPrintableTypeName(variant.type);
   }
   const ns = getQualifier(variant.union);
-  return `${ns}${printSv(variant.name)}: ${getTypeName(variant.type)}`;
+  return `${ns}${printId(variant.name)}: ${getPrintableTypeName(variant.type)}`;
 }
 
 function getEnumMemberSignature(member: EnumMember) {
   const ns = getQualifier(member.enum);
   const value = typeof member.value === "string" ? `"${member.value}"` : member.value;
   return value === undefined
-    ? `${ns}${printSv(member.name)}`
-    : `${ns}${printSv(member.name)}: ${value}`;
+    ? `${ns}${printId(member.name)}`
+    : `${ns}${printId(member.name)}: ${value}`;
 }
 
 function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
@@ -111,12 +113,18 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
     return "";
   }
 
-  const parentName = getTypeName(parent);
+  const parentName = getPrintableTypeName(parent);
   if (!parentName) {
     return "";
   }
 
-  return printSv(parentName) + ".";
+  return parentName + ".";
+}
+
+function getPrintableTypeName(type: Type) {
+  return getTypeName(type, {
+    printable: true,
+  });
 }
 
 function fence(code: string) {

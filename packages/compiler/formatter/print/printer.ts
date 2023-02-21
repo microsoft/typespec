@@ -1,5 +1,5 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
-import { isIdentifierContinue, isIdentifierStart } from "../../core/charcode.js";
+import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
 import { Keywords } from "../../core/scanner.js";
 import {
@@ -999,26 +999,29 @@ export function printModelProperty(
 }
 
 function printIdentifier(id: IdentifierNode) {
-  return printSv(id.sv);
+  return printId(id.sv);
 }
 
-export function printSv(sv: string) {
+export function printId(sv: string) {
   return needBacktick(sv) ? `\`${sv}\`` : sv;
 }
 
 function needBacktick(sv: string) {
+  if (sv.length === 0) {
+    return false;
+  }
   if (Keywords.has(sv)) {
     return true;
   }
-  if (!isIdentifierStart(sv.charCodeAt(0))) {
+  let cp = sv.codePointAt(0)!;
+  if (!isIdentifierStart(cp)) {
     return true;
   }
-  for (let i = 1; i < sv.length; i++) {
-    if (!isIdentifierContinue(sv.charCodeAt(i))) {
-      return true;
-    }
-  }
-  return false;
+  let pos = 0;
+  do {
+    pos += utf16CodeUnits(cp);
+  } while (pos < sv.length && isIdentifierContinue((cp = sv.codePointAt(pos)!)));
+  return pos < sv.length;
 }
 
 function isModelExpressionInBlock(
