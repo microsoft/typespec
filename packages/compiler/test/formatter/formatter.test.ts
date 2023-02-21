@@ -313,7 +313,7 @@ model Foo {
 model Foo {
   "abc": string;
   "this-needs-quotes": int32;
-  "foo\\nbar": int32;
+  "foo\\nbar\\\\not\`": int32;
 }
 enum \`2Colors\` {
   "red color",
@@ -324,7 +324,7 @@ enum \`2Colors\` {
 model Foo {
   abc: string;
   \`this-needs-quotes\`: int32;
-  \`foo\\nbar\`: int32;
+  \`foo\\nbar\\\\not\\\`\`: int32;
 }
 enum \`2Colors\` {
   \`red color\`,
