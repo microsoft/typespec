@@ -56,11 +56,11 @@ describe("compiler: server: completion", () => {
           },
         }),
         "test/node_modules/@typespec/library1/package.json": JSON.stringify({
-          typespecMain: "./foo.js",
+          tspMain: "./foo.js",
         }),
         "test/node_modules/non-typespec-library/package.json": JSON.stringify({}),
         "test/node_modules/@typespec/library2/package.json": JSON.stringify({
-          typespecMain: "./foo.js",
+          tspMain: "./foo.js",
         }),
       });
 

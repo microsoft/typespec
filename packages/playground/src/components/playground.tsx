@@ -149,7 +149,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
   );
 };
 
-const outputDir = "./typespec-output";
+const outputDir = "./tsp-output";
 
 async function compile(
   host: BrowserHost,
@@ -162,13 +162,13 @@ async function compile(
   try {
     const typespecCompiler = await importTypeSpecCompiler();
     const program = await typespecCompiler.compile(host, "main.tsp", {
-      outputDir: "typespec-output",
+      outputDir: "tsp-output",
       emit: [selectedEmitter],
       options: {
         ...emittersOptions,
         [selectedEmitter]: {
           ...emittersOptions[selectedEmitter],
-          "emitter-output-dir": "typespec-output",
+          "emitter-output-dir": "tsp-output",
         },
       },
     });
@@ -200,9 +200,9 @@ async function findOutputFiles(host: BrowserHost): Promise<string[]> {
 
 async function emptyOutputDir(host: BrowserHost) {
   // empty output directory
-  const dirs = await host.readDir("./typespec-output");
+  const dirs = await host.readDir("./tsp-output");
   for (const file of dirs) {
-    const path = "./typespec-output/" + file;
+    const path = "./tsp-output/" + file;
     const uri = Uri.parse(host.pathToFileURL(path));
     const model = editor.getModel(uri);
     if (model) {

@@ -79,7 +79,7 @@ If you do not wish to install the compiler globally with `-g` flag, you will nee
    tsp compile .
    ```
 
-   This will compile the TypeSpec files in the project folder into one output file: `.\typespec-output\openapi.json`.
+   This will compile the TypeSpec files in the project folder into one output file: `.\tsp-output\openapi.json`.
 
 ## Troubleshooting
 
@@ -119,7 +119,7 @@ You can compile it to OpenAPI 3.0 by using the following command:
 tsp compile sample.tsp --emit @typespec/openapi3
 ```
 
-Once it compiles, you can find the emitted OpenAPI document in `./typespec-output/openapi.json.
+Once it compiles, you can find the emitted OpenAPI document in `./tsp-output/openapi.json.
 
 You can also pass in a directory instead of a file to `tsp compile`. That's
 equivalent to passing `main.tsp` in that directory.

@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "typespecMain": "lib/versioning.tsp",
+  "tspMain": "lib/versioning.tsp",
   "exports": {
     ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"

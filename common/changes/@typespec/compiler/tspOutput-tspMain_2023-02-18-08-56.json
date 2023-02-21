@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Updating default output to tsp-output and package.json entrypoint to tspMain",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
