@@ -727,7 +727,7 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
-        type.constraint = getResolvedTypeParameterConstraint(node, mapper);
+        type.constraint = getResolvedTypeParameterConstraint(node, mapper, node.symbol);
         if (type.constraint) {
           type.constraint.templateParameter = type;
           links.declaredType = type.constraint;
@@ -747,17 +747,24 @@ export function createChecker(program: Program): Checker {
 
   function getResolvedTypeParameterConstraint(
     node: TemplateParameterDeclarationNode,
-    mapper: TypeMapper | undefined
+    mapper: TypeMapper | undefined,
+    containerSym: Sym
   ): Type | undefined {
     if (node.constraint === undefined) {
       return undefined;
     }
     const constraint = getTypeForNode(node.constraint!, mapper);
-    if (!("symbol" in constraint)) {
-      lateBindMemberContainer(constraint);
-    }
-    if ("symbol" in constraint && constraint.symbol) {
-      lateBindMembers(constraint, constraint.symbol);
+    if (constraint && containerSym) {
+      if (!("symbol" in constraint)) {
+        lateBindMemberContainer(constraint);
+        if ("symbol" in constraint && constraint.symbol)
+          lateBindMembers(constraint, constraint.symbol);
+      }
+      if ("symbol" in constraint && constraint.symbol && containerSym) {
+        mutate(containerSym).members ??= constraint.symbol.members;
+        mutate(containerSym).flags = constraint.symbol.flags;
+        mutate(containerSym).type = constraint;
+      }
     }
     return constraint;
   }
@@ -2157,27 +2164,38 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
     }
+    function getMappedTypeSymbol(type: Type | undefined) {
+      if (mapper && type) {
+        const mappedType = mapper.getMappedType(type);
+        if (!("symbol" in mappedType)) {
+          lateBindMemberContainer(mappedType);
+        }
+        if ("symbol" in mappedType && mappedType.symbol) {
+          if (mappedType.symbol?.members?.size === 0) {
+            lateBindMembers(type, mappedType.symbol);
+          }
+          return mappedType.symbol;
+        }
+      }
+      return undefined;
+    }
     if (node.kind === SyntaxKind.Identifier) {
       const sym = resolveIdentifierInScope(node, mapper, resolveDecorator);
       if (!sym) return undefined;
       if (
         sym.flags & SymbolFlags.TemplateParameter &&
         sym.declarations[0].kind === SyntaxKind.TemplateParameterDeclaration &&
-        sym.declarations[0].constraint
+        sym.declarations[0].constraint &&
+        !sym.type?.templateParameter
       ) {
-        const constraint = getResolvedTypeParameterConstraint(sym.declarations[0], mapper);
+        const constraint = getResolvedTypeParameterConstraint(sym.declarations[0], mapper, sym);
         if (constraint && "symbol" in constraint) {
-          if (mapper) {
-            const mappedType = mapper.getMappedType(constraint);
-            lateBindMemberContainer(mappedType);
-            if ("symbol" in mappedType) {
-              return mappedType.symbol;
-            }
-          }
-          return constraint.symbol;
+          return getMappedTypeSymbol(constraint) ?? sym;
         }
       }
-      return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
+      return sym.flags & SymbolFlags.Using
+        ? sym.symbolSource
+        : getMappedTypeSymbol(sym.type) ?? sym;
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
@@ -2538,6 +2556,16 @@ export function createChecker(program: Program): Checker {
           if (node.is && node.is.kind === SyntaxKind.TypeReference) {
             resolveAndCopyMembers(node.is);
           }
+          for (const prop of node.properties) {
+            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
+              resolveAndCopyMembers(prop.target);
+            } else {
+              const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+              bindMember(name, prop, SymbolFlags.ModelProperty);
+            }
+          }
+          break;
+        case SyntaxKind.ModelExpression:
           for (const prop of node.properties) {
             if (prop.kind === SyntaxKind.ModelSpreadProperty) {
               resolveAndCopyMembers(prop.target);
