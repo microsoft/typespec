@@ -1631,15 +1631,21 @@ model Foo {
   });
 
   describe("projections", () => {
-    it("format to and from", () => {
+    it("format preTo, to and, preFrom, and from", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to{} from {}}
+  {preTo{} to{} from {} preFrom {}}
 `,
         expected: `
 projection model#proj {
+  preTo {
+
+  }
   to {
+
+  }
+  preFrom {
 
   }
   from {

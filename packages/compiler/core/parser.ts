@@ -62,6 +62,7 @@ import {
   OperationStatementNode,
   ParseOptions,
   ProjectionBlockExpressionNode,
+  ProjectionEnumMemberSelectorNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
   ProjectionExpressionStatementNode,
@@ -71,6 +72,7 @@ import {
   ProjectionLambdaParameterDeclarationNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
+  ProjectionModelPropertySelectorNode,
   ProjectionModelSelectorNode,
   ProjectionModelSpreadPropertyNode,
   ProjectionNode,
@@ -80,6 +82,7 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
+  ProjectionUnionVariantSelectorNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -1547,29 +1550,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
 
     parseExpected(Token.OpenBrace);
-    let from, to;
-    let proj1, proj2;
-    if (token() === Token.Identifier) {
-      proj1 = parseProjection();
 
-      if (token() === Token.Identifier) {
-        proj2 = parseProjection();
+    const projectionMap = new Map<string, ProjectionNode>();
+    const projections: ProjectionNode[] = [];
+    while (token() === Token.Identifier) {
+      // TODO: Fixup error recovery
+      const projection = parseProjection();
+      if (projection.direction !== "<error>") {
+        if (projectionMap.has(projection.direction)) {
+          error({ code: "duplicate-symbol", target: projection, format: { name: "projection" } });
+        } else {
+          projectionMap.set(projection.direction, projection);
+        }
       }
+      // NOTE: Don't drop projections with errors from the AST.
+      projections.push(projection);
     }
-
-    if (proj1 && proj2 && proj1.direction === proj2.direction) {
-      error({ code: "duplicate-symbol", target: proj2, format: { name: "projection" } });
-    } else if (proj1) {
-      [to, from] = proj1.direction === "to" ? [proj1, proj2] : [proj2, proj1];
-    }
-
     parseExpected(Token.CloseBrace);
 
     return {
       kind: SyntaxKind.ProjectionStatement,
       selector,
-      from,
-      to,
+      projections,
+      preTo: projectionMap.get("preTo"),
+      preFrom: projectionMap.get("preFrom"),
+      from: projectionMap.get("from"),
+      to: projectionMap.get("to"),
       id,
       ...finishNode(pos),
     };
@@ -1578,10 +1584,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
     const directionId = parseIdentifier({ message: "projectionDirection" });
-    let direction: "to" | "from";
-    if (directionId.sv !== "from" && directionId.sv !== "to") {
+    let direction: "to" | "from" | "preTo" | "preFrom" | "<error>";
+
+    if (
+      directionId.sv !== "from" &&
+      directionId.sv !== "to" &&
+      directionId.sv !== "preTo" &&
+      directionId.sv !== "preFrom"
+    ) {
       error({ code: "token-expected", messageId: "projectionDirection" });
-      direction = "from";
+      direction = "<error>";
     } else {
       direction = directionId.sv;
     }
@@ -2088,9 +2100,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
+    | ProjectionModelPropertySelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
-    | ProjectionEnumSelectorNode {
+    | ProjectionUnionVariantSelectorNode
+    | ProjectionEnumSelectorNode
+    | ProjectionEnumMemberSelectorNode {
     const pos = tokenPos();
     const selectorTok = expectTokenIsOneOf(
       Token.Identifier,
@@ -2103,7 +2118,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseIdentifierOrMemberExpression(undefined, true);
+        const id = parseIdentifierOrMemberExpression(undefined, true);
+        if (id.kind === SyntaxKind.Identifier) {
+          switch (id.sv) {
+            case "modelproperty":
+              return {
+                kind: SyntaxKind.ProjectionModelPropertySelector,
+                ...finishNode(pos),
+              };
+            case "unionvariant":
+              return {
+                kind: SyntaxKind.ProjectionUnionVariantSelector,
+                ...finishNode(pos),
+              };
+            case "enummember":
+              return {
+                kind: SyntaxKind.ProjectionEnumMemberSelector,
+                ...finishNode(pos),
+              };
+          }
+        }
+        return id;
       case Token.ModelKeyword:
         nextToken();
         return {
@@ -2956,10 +2991,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.parameters) || visitNode(cb, node.body);
     case SyntaxKind.ProjectionStatement:
       return (
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.selector) ||
-        visitNode(cb, node.from) ||
-        visitNode(cb, node.to)
+        visitNode(cb, node.id) || visitNode(cb, node.selector) || visitEach(cb, node.projections)
       );
     case SyntaxKind.ProjectionDecoratorReferenceExpression:
       return visitNode(cb, node.target);
@@ -2993,10 +3025,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.Identifier:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
+    case SyntaxKind.ProjectionModelPropertySelector:
     case SyntaxKind.ProjectionUnionSelector:
+    case SyntaxKind.ProjectionUnionVariantSelector:
     case SyntaxKind.ProjectionInterfaceSelector:
     case SyntaxKind.ProjectionOperationSelector:
     case SyntaxKind.ProjectionEnumSelector:
+    case SyntaxKind.ProjectionEnumMemberSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
     case SyntaxKind.ExternKeyword:

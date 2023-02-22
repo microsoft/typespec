@@ -231,14 +231,20 @@ export function printNode(
       return printProjectionStatement(path as AstPath<ProjectionStatementNode>, options, print);
     case SyntaxKind.ProjectionModelSelector:
       return "model";
+    case SyntaxKind.ProjectionModelPropertySelector:
+      return "modelproperty";
     case SyntaxKind.ProjectionOperationSelector:
       return "op";
     case SyntaxKind.ProjectionUnionSelector:
       return "union";
+    case SyntaxKind.ProjectionUnionVariantSelector:
+      return "unionvariant";
     case SyntaxKind.ProjectionInterfaceSelector:
       return "interface";
     case SyntaxKind.ProjectionEnumSelector:
       return "enum";
+    case SyntaxKind.ProjectionEnumMemberSelector:
+      return "enummember";
     case SyntaxKind.Projection:
       return printProjection(path as AstPath<ProjectionNode>, options, print);
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -1351,9 +1357,11 @@ function printProjectionStatement(
   const node = path.getValue();
   const selector = path.call(print, "selector");
   const id = path.call(print, "id");
+  const preTo = node.preTo ? [hardline, path.call(print, "preTo")] : "";
   const to = node.to ? [hardline, path.call(print, "to")] : "";
+  const preFrom = node.preFrom ? [hardline, path.call(print, "preFrom")] : "";
   const from = node.from ? [hardline, path.call(print, "from")] : "";
-  const body = [to, from];
+  const body = [preTo, to, preFrom, from];
   return [
     "projection ",
     selector,
@@ -1361,7 +1369,7 @@ function printProjectionStatement(
     id,
     " {",
     indent(body),
-    node.to || node.from ? hardline : "",
+    node.preTo || node.to || node.preFrom || node.from ? hardline : "",
     "}",
   ];
 }

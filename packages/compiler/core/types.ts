@@ -694,10 +694,13 @@ export enum SyntaxKind {
   Projection,
   ProjectionParameterDeclaration,
   ProjectionModelSelector,
+  ProjectionModelPropertySelector,
   ProjectionOperationSelector,
   ProjectionUnionSelector,
+  ProjectionUnionVariantSelector,
   ProjectionInterfaceSelector,
   ProjectionEnumSelector,
+  ProjectionEnumMemberSelector,
   ProjectionExpressionStatement,
   ProjectionIfExpression,
   ProjectionBlockExpression,
@@ -796,10 +799,13 @@ export type Node =
   | ProjectionStatementItem
   | ProjectionExpression
   | ProjectionModelSelectorNode
+  | ProjectionModelPropertySelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
   | ProjectionEnumSelectorNode
+  | ProjectionEnumMemberSelectorNode
   | ProjectionUnionSelectorNode
+  | ProjectionUnionVariantSelectorNode
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
   | ProjectionStatementNode
@@ -1280,6 +1286,10 @@ export interface ProjectionModelSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelSelector;
 }
 
+export interface ProjectionModelPropertySelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionModelPropertySelector;
+}
+
 export interface ProjectionInterfaceSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionInterfaceSelector;
 }
@@ -1292,8 +1302,16 @@ export interface ProjectionUnionSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionUnionSelector;
 }
 
+export interface ProjectionUnionVariantSelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionUnionVariantSelector;
+}
+
 export interface ProjectionEnumSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionEnumSelector;
+}
+
+export interface ProjectionEnumMemberSelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionEnumMemberSelector;
 }
 
 export type ProjectionStatementItem = ProjectionExpressionStatementNode;
@@ -1404,7 +1422,7 @@ export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNod
 
 export interface ProjectionNode extends BaseNode {
   readonly kind: SyntaxKind.Projection;
-  readonly direction: "to" | "from";
+  readonly direction: "to" | "from" | "preTo" | "preFrom" | "<error>";
   readonly directionId: IdentifierNode;
   readonly parameters: ProjectionParameterDeclarationNode[];
   readonly body: ProjectionStatementItem[];
@@ -1415,14 +1433,20 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.ProjectionStatement;
   readonly selector:
     | ProjectionModelSelectorNode
+    | ProjectionModelPropertySelectorNode
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
+    | ProjectionUnionVariantSelectorNode
     | ProjectionEnumSelectorNode
+    | ProjectionEnumMemberSelectorNode
     | MemberExpressionNode
     | IdentifierNode;
   readonly to?: ProjectionNode;
   readonly from?: ProjectionNode;
+  readonly preTo?: ProjectionNode;
+  readonly preFrom?: ProjectionNode;
+  readonly projections: readonly ProjectionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
