@@ -528,7 +528,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      typespecMain: paramMessage`Library "${"path"}" has an invalid typespecMain file.`,
+      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },

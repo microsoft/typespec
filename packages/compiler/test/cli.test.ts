@@ -26,10 +26,10 @@ describe("compiler: cli", () => {
       return options;
     }
 
-    it("no args and config: return empty options with output-dir at {cwd}/typespec-output", async () => {
+    it("no args and config: return empty options with output-dir at {cwd}/tsp-output", async () => {
       const options = await resolveCompilerOptions({});
       deepStrictEqual(options, {
-        outputDir: `${cwd}/typespec-output`,
+        outputDir: `${cwd}/tsp-output`,
         options: {},
       });
     });
@@ -71,7 +71,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/typespec-output/custom`
+          `${cwd}/tsp-output/custom`
         );
       });
 

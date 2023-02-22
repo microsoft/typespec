@@ -51,7 +51,7 @@ jobs:
           sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "typespecplayground"
+          storage: "cadlplayground"
           containerName: "$web"
         displayName: "Update playground"
 
@@ -60,7 +60,7 @@ jobs:
           sourcePath: "packages/website/build/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "typespecwebsite"
+          storage: "cadlwebsite"
           containerName: "$web"
         displayName: "Update website"
 

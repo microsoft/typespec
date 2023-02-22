@@ -42,7 +42,7 @@ export interface TypeSpecBundleFile {
 interface PackageJson {
   name: string;
   main: string;
-  typespecMain?: string;
+  tspMain?: string;
   peerDependencies: string[];
   dependencies: string[];
   exports?: Record<string, string>;

@@ -13,8 +13,8 @@ export async function generateLibraryDocs(
   outputDir: string
 ) {
   const pkgJson = await readPackageJson(libraryPath);
-  if (pkgJson.typespecMain) {
-    const main = joinPaths(libraryPath, pkgJson.typespecMain);
+  if (pkgJson.tspMain) {
+    const main = joinPaths(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });

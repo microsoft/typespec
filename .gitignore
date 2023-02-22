@@ -173,7 +173,7 @@ common/temp/**
 package-deps.json
 
 # Default TypeSpec output
-typespec-output/
+tsp-output/
 
 # Visual Studio / C#
 bin/

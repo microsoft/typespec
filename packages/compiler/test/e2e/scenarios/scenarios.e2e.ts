@@ -47,7 +47,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
-        message: `Library "my-lib" has an invalid typespecMain file.`,
+        message: `Library "my-lib" has an invalid tspMain file.`,
       });
     });
 
