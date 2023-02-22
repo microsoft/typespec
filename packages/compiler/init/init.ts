@@ -2,7 +2,7 @@ import { readdir } from "fs/promises";
 import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
-import { OldTypeSpecConfigFilename, TypeSpecConfigFilename } from "../config/config-loader.js";
+import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { NodePackage } from "../core/module-resolver.js";
