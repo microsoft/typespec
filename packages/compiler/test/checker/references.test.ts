@@ -272,11 +272,27 @@ describe("compiler: references", () => {
             b: T.kind;
           }
           @test
-          model B is A<{kind:"string"}>;
+          model B is A<{
+            kind:"string"
+          }>;
           `
         );
         const { B } = await testHost.compile("main.tsp");
         strictEqual(((B as Model).properties.get("b")?.type as any).name, "kind");
+      });
+      it("resolve references property of template parameter with array model as constrint", async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A<TArray extends string[]> {
+          b: TArray;
+        }
+        @test
+        model B is A<string[]>;
+        `
+        );
+        const { B } = await testHost.compile("main.tsp");
+        strictEqual(((B as Model).properties.get("b")?.type as any).name, "Array");
       });
     });
   });

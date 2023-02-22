@@ -41,8 +41,6 @@ export interface BaseType {
   projectionSource?: Type;
   projectionBase?: Type;
   projector?: Projector;
-  /** indicates that this type is the constraint of the template parameter. */
-  templateParameter?: TemplateParameter;
 }
 
 export interface DecoratedType {

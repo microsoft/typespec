@@ -260,6 +260,8 @@ export function createChecker(program: Program): Checker {
     TypeReferenceNode | MemberExpressionNode | IdentifierNode | TemplateParameterDeclarationNode,
     Sym | undefined
   >();
+  const templateParameterForConstraint = new Map<Type, TemplateParameter>();
+
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -729,7 +731,7 @@ export function createChecker(program: Program): Checker {
       if (node.constraint) {
         type.constraint = getResolvedTypeParameterConstraint(node, mapper, node.symbol);
         if (type.constraint) {
-          type.constraint.templateParameter = type;
+          templateParameterForConstraint.set(type.constraint, type);
           links.declaredType = type.constraint;
         }
       }
@@ -756,6 +758,7 @@ export function createChecker(program: Program): Checker {
     const constraint = getTypeForNode(node.constraint!, mapper);
     if (constraint && containerSym) {
       if (!("symbol" in constraint)) {
+        // late bind the symbol for model expression in the template parameter constraint.
         lateBindMemberContainer(constraint);
         if ("symbol" in constraint && constraint.symbol)
           lateBindMembers(constraint, constraint.symbol);
@@ -784,8 +787,17 @@ export function createChecker(program: Program): Checker {
     return getTypeForNode(node.default!, mapper);
   }
 
-  function isTemplateParameter(type: Type) {
-    return !!type.templateParameter || type.kind === "TemplateParameter";
+  function isTemplateParameter(type: Type | undefined) {
+    return type && (templateParameterForConstraint.has(type) || type.kind === "TemplateParameter");
+  }
+
+  function getTemplateParameter(type: Type | undefined) {
+    return (
+      type &&
+      (templateParameterForConstraint.get(type) || type.kind === "TemplateParameter"
+        ? (type as TemplateParameter)
+        : undefined)
+    );
   }
 
   function checkTemplateParameterDefault(
@@ -800,7 +812,7 @@ export function createChecker(program: Program): Checker {
       if (isTemplateParameter(type)) {
         for (let i = index; i < templateParameters.length; i++) {
           if (
-            (type.templateParameter?.node.symbol || type.node?.symbol) ===
+            (templateParameterForConstraint.get(type)?.node.symbol || type.node?.symbol) ===
             templateParameters[i].symbol
           ) {
             reportCheckerDiagnostic(
@@ -916,9 +928,8 @@ export function createChecker(program: Program): Checker {
     for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
       const declaredType = getTypeForNode(declaration)! as TemplateParameter;
-      const constraint = declaredType.templateParameter?.constraint
-        ? declaredType
-        : declaredType.constraint;
+      const constraint =
+        declaredType.kind !== "TemplateParameter" ? declaredType : declaredType.constraint;
 
       params.push(declaredType);
 
@@ -933,7 +944,7 @@ export function createChecker(program: Program): Checker {
       } else {
         const mapper = createTypeMapper(params, values);
         const defaultValue = getResolvedTypeParameterDefault(
-          declaredType.templateParameter || declaredType,
+          getTemplateParameter(declaredType)!,
           declaration,
           mapper
         );
@@ -994,12 +1005,13 @@ export function createChecker(program: Program): Checker {
     const args = checkTypeReferenceArgs(node, mapper);
     if (
       sym.flags &
-      (SymbolFlags.Model |
-        SymbolFlags.Scalar |
-        SymbolFlags.Alias |
-        SymbolFlags.Interface |
-        SymbolFlags.Operation |
-        SymbolFlags.Union)
+        (SymbolFlags.Model |
+          SymbolFlags.Scalar |
+          SymbolFlags.Alias |
+          SymbolFlags.Interface |
+          SymbolFlags.Operation |
+          SymbolFlags.Union) &&
+      !isTemplateParameter(sym.type)
     ) {
       const decl = sym.declarations[0] as TemplateableNode;
       if (!isTemplatedNode(decl)) {
@@ -1051,15 +1063,14 @@ export function createChecker(program: Program): Checker {
           })
         );
       }
-
-      if (sym.flags & SymbolFlags.LateBound) {
-        compilerAssert(sym.type, "Expected late bound symbol to have type");
-        return sym.type;
-      } else if (sym.flags & SymbolFlags.TemplateParameter) {
+      if (sym.flags & SymbolFlags.TemplateParameter || isTemplateParameter(sym.type)) {
         baseType = checkTemplateParameterDeclaration(
           sym.declarations[0] as TemplateParameterDeclarationNode,
           mapper
         );
+      } else if (sym.flags & SymbolFlags.LateBound) {
+        compilerAssert(sym.type, "Expected late bound symbol to have type");
+        return sym.type;
       } else if (symbolLinks.type) {
         // Have a cached type for non-declarations
         baseType = symbolLinks.type;
@@ -1129,7 +1140,6 @@ export function createChecker(program: Program): Checker {
       : checkUnion(node as UnionStatementNode, mapper);
   }
 
-  // TBD
   function getOrInstantiateTemplate(
     templateNode: TemplateableNode,
     params: TemplateParameter[],
@@ -2164,7 +2174,7 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
     }
-    function getMappedTypeSymbol(type: Type | undefined) {
+    function resolveMappedTypeSymbol(type: Type | undefined) {
       if (mapper && type) {
         const mappedType = mapper.getMappedType(type);
         if (!("symbol" in mappedType)) {
@@ -2185,17 +2195,16 @@ export function createChecker(program: Program): Checker {
       if (
         sym.flags & SymbolFlags.TemplateParameter &&
         sym.declarations[0].kind === SyntaxKind.TemplateParameterDeclaration &&
-        sym.declarations[0].constraint &&
-        !sym.type?.templateParameter
+        sym.declarations[0].constraint
       ) {
         const constraint = getResolvedTypeParameterConstraint(sym.declarations[0], mapper, sym);
         if (constraint && "symbol" in constraint) {
-          return getMappedTypeSymbol(constraint) ?? sym;
+          return resolveMappedTypeSymbol(constraint) ?? sym;
         }
       }
       return sym.flags & SymbolFlags.Using
         ? sym.symbolSource
-        : getMappedTypeSymbol(sym.type) ?? sym;
+        : resolveMappedTypeSymbol(sym.type) ?? sym;
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
