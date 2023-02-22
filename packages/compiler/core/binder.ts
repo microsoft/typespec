@@ -1,3 +1,4 @@
+import { compilerAssert } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -343,16 +344,37 @@ export function createBinder(program: Program): Binder {
       node.selector.kind !== SyntaxKind.Identifier &&
       node.selector.kind !== SyntaxKind.MemberExpression
     ) {
-      const selectorString =
-        node.selector.kind === SyntaxKind.ProjectionModelSelector
-          ? "model"
-          : node.selector.kind === SyntaxKind.ProjectionOperationSelector
-          ? "op"
-          : node.selector.kind === SyntaxKind.ProjectionUnionSelector
-          ? "union"
-          : node.selector.kind === SyntaxKind.ProjectionEnumSelector
-          ? "enum"
-          : "interface";
+      let selectorString: string;
+      switch (node.selector.kind) {
+        case SyntaxKind.ProjectionModelSelector:
+          selectorString = "model";
+          break;
+        case SyntaxKind.ProjectionModelPropertySelector:
+          selectorString = "modelproperty";
+          break;
+        case SyntaxKind.ProjectionOperationSelector:
+          selectorString = "op";
+          break;
+        case SyntaxKind.ProjectionUnionSelector:
+          selectorString = "union";
+          break;
+        case SyntaxKind.ProjectionUnionVariantSelector:
+          selectorString = "unionvariant";
+          break;
+        case SyntaxKind.ProjectionEnumSelector:
+          selectorString = "enum";
+          break;
+        case SyntaxKind.ProjectionEnumMemberSelector:
+          selectorString = "enummember";
+          break;
+        case SyntaxKind.ProjectionInterfaceSelector:
+          selectorString = "interface";
+          break;
+        default:
+          const _never: never = node.selector;
+          compilerAssert(false, "Unreachable");
+      }
+
       let existingSelectors = projectionSymbolSelectors.get(sym);
       if (!existingSelectors) {
         existingSelectors = new Set();

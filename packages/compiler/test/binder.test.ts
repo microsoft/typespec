@@ -20,6 +20,7 @@ import {
   SyntaxKind,
   UnionStatementNode,
 } from "../core/types.js";
+import { expectDiagnosticEmpty } from "../testing/expect.js";
 
 describe("compiler: binder", () => {
   let binder: Binder;
@@ -90,7 +91,7 @@ describe("compiler: binder", () => {
 
         }
 
-        op get1() { }
+        op get1(): void;
       }
 
       namespace A {
@@ -98,7 +99,7 @@ describe("compiler: binder", () => {
 
         }
 
-        op get2() { }
+        op get2(): void;
       }
     `;
     const script = bindTypeSpec(code);
@@ -195,7 +196,7 @@ describe("compiler: binder", () => {
         op Foo(): void;
       }
 
-      op Foo(): void
+      op Foo(): void;
     `;
     const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
@@ -325,11 +326,11 @@ describe("compiler: binder", () => {
         to(a) { }
       }
       projection model#proj {
-        to(a) { },
+        to(a) { }
         from(a) { }
       }
       projection op#proj {
-        to(a) { },
+        to(a) { }
       }
     `;
     const script = bindTypeSpec(code);
@@ -354,7 +355,7 @@ describe("compiler: binder", () => {
     const code = `
       projection model#proj {
         to() {
-          (a) => 1;
+          (a) => { 1; };
         }
       }
     `;
@@ -420,6 +421,7 @@ describe("compiler: binder", () => {
 
   function bindTypeSpec(code: string) {
     const sourceFile = parse(code);
+    expectDiagnosticEmpty(sourceFile.parseDiagnostics);
     binder.bindSourceFile(sourceFile);
     return sourceFile;
   }

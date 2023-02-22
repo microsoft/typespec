@@ -211,6 +211,7 @@ const InterfaceUI: FunctionComponent<{ type: Interface }> = ({ type }) => {
       type={type}
       properties={{
         operations: "nested",
+        sourceInterfaces: "ref",
       }}
     />
   );
