@@ -406,6 +406,54 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return `${filenameWithoutExtension}.${suffix.join(".")}${extension}`;
   }
 
+  /**
+   * Combines the parameters of two operations.
+   */
+  function mergeParameters(src: HttpOperation, dest: HttpOperation): HttpOperationParameters {
+    const srcParam = src.parameters;
+    const destParam = dest.parameters;
+    if (
+      srcParam.body !== destParam.body ||
+      srcParam.verb !== destParam.verb ||
+      srcParam.bodyParameter !== destParam.bodyParameter ||
+      srcParam.bodyType !== destParam.bodyType
+    ) {
+      // FIMXE: issue propert linter error
+      throw Error("Blarg, the things don't match!");
+    }
+    const merged = destParam.parameters;
+    for (const param of srcParam.parameters) {
+      // TODO: merge them
+    }
+    destParam.parameters = merged;
+    return destParam;
+  }
+
+  /**
+   * Combines the responses of two operations.
+   */
+  function mergeReturnTypes(src: HttpOperation, dest: HttpOperation): HttpOperationResponse[] {
+    return src.responses;
+  }
+
+  /**
+   * Merges HttpOperations together if they share the same route.
+   */
+  function mergeSharedRouteOperations(operations: HttpOperation[]): HttpOperation[] {
+    const merged = new Map<string, HttpOperation>();
+    for (const op of operations) {
+      if (merged.has(op.path)) {
+        const existing = merged.get(op.path)!;
+        existing.parameters = mergeParameters(op, existing);
+        existing.responses = mergeReturnTypes(op, existing);
+        merged.set(op.path, existing);
+      } else {
+        merged.set(op.path, op);
+      }
+    }
+    return [...merged.values()];
+  }
+
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
@@ -416,7 +464,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       reportIfNoRoutes(program, httpService.operations);
 
-      for (const operation of httpService.operations) {
+      for (const operation of mergeSharedRouteOperations(httpService.operations)) {
         if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
           continue;
         } else {
