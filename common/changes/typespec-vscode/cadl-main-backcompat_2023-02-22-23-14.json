@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vscode",
+      "comment": "Adding .cadl file support",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vscode"
+}
