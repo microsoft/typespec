@@ -1,17 +1,51 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { ok } from "assert";
-import { openApiFor } from "./test-host.js";
+import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: shared routes", () => {
-  it("annotates shared routes correctly", async () => {
-    const result = await openApiFor(
+  it("emits warning for routes containing query parameters", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
       `
       @service({title: "My Service"})
       namespace Foo {
-        @route("/uploadImage", { shared: true })
-        op uploadImageBytes(@body body: bytes, @header contentType: "image/png"): void;
-        
-        @route("/uploadImage", { shared: true })
-        op uploadImageJson(@body body: {imageBase64: bytes}, @header contentType: "application/json"): void;
+        model Resource {
+          id: string;
+        }
+
+        @route("/sharedroutes/resources?filter=resourceGroup")
+        op listByResourceGroup(...Resource): Resource[];
+
+        @route("/sharedroutes/resources?filter=subscription")
+        op listBySubscription(...Resource): Resource[];
+      }
+      `
+    );
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/path-query",
+        message: "OpenAPI does not allow paths containing a query string.",
+      },
+      {
+        code: "@typespec/openapi3/path-query",
+        message: "OpenAPI does not allow paths containing a query string.",
+      },
+    ]);
+  });
+
+  it("allows shared routes that differ by query params in signature", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        model Resource {
+          id: string;
+        }
+
+        @route("/sharedroutes/resources", { shared: true })
+        op listByResourceGroup(...Resource, @query resourceGroup: string): Resource[];
+
+        @route("/sharedroutes/resources", { shared: true })
+        op listBySubscription(...Resource, @query subscription: string): Resource[];
       }
       `
     );
