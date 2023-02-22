@@ -52,7 +52,7 @@ describe("compiler: config file loading", () => {
             target: Symbol.for("NoTarget"),
           },
         ],
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["old-emitter"],
       });
     });
@@ -61,7 +61,7 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("backcompat/mixed");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["new-emitter"],
       });
     });
