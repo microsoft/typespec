@@ -27,7 +27,6 @@ export async function findTypeSpecConfigPath(
   while (true) {
     let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
     if (pkgPath === undefined) {
-      // TODO: Add info diagnostics
       pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
     }
     // if found either file in current folder, return it
@@ -55,7 +54,20 @@ export async function loadTypeSpecConfigForPath(
   if (typespecConfigPath === undefined) {
     return { ...deepClone(defaultConfig), projectRoot: directoryPath };
   }
-  return loadTypeSpecConfigFile(host, typespecConfigPath);
+  const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
+  // Add diagnostics if still using cadl-project.yaml
+  if (typespecConfigPath.endsWith(OldTypeSpecConfigFilename)) {
+    tsConfig.diagnostics.push(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message: "`cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
+        },
+        target: NoTarget,
+      })
+    );
+  }
+  return tsConfig;
 }
 
 /**
@@ -69,6 +81,20 @@ export async function loadTypeSpecConfigFile(
   if (config.diagnostics.length === 0 && config.extends) {
     const extendPath = resolvePath(getDirectoryPath(filePath), config.extends);
     const parent = await loadTypeSpecConfigFile(host, extendPath);
+
+    // Add diagnostics if still using cadl-project.yaml
+    if (filePath.endsWith(OldTypeSpecConfigFilename)) {
+      parent.diagnostics.push(
+        createDiagnostic({
+          code: "deprecated",
+          format: {
+            message: "`cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
+          },
+          target: NoTarget,
+        })
+      );
+    }
+
     if (parent.diagnostics.length > 0) {
       return {
         ...config,
