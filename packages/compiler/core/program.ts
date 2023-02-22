@@ -56,6 +56,12 @@ import {
   mutate,
 } from "./util.js";
 
+export function BackCompatSupportForCadlMain(packageJson: any) {
+  if (packageJson?.tspMain === undefined && packageJson?.cadlMain !== undefined) {
+    packageJson.tspMain = packageJson.cadlMain;
+  }
+}
+
 export interface ProjectedProgram extends Program {
   projector: Projector;
 }
@@ -798,6 +804,7 @@ export async function compile(
         baseDir,
         directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
         resolveMain(pkg) {
+          BackCompatSupportForCadlMain(pkg);
           // this lets us follow node resolve semantics more-or-less exactly
           // but using tspMain instead of main.
           return pkg.tspMain ?? pkg.main;
@@ -899,7 +906,19 @@ export async function compile(
     const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
     });
-    const mainFile = resolvePath(dir, typeof pkg?.tspMain === "string" ? pkg.tspMain : "main.tsp");
+    // Back Compat: if main.cadl exist, return main.cadl
+    let mainFile = resolvePath(dir, "main.cadl");
+    const stat = await doIO(
+      () => host.stat(mainFile),
+      mainFile,
+      () => {}
+    );
+    // if not found, use the normal resolution.
+    if (stat?.isFile() !== true) {
+      BackCompatSupportForCadlMain(pkg);
+      mainFile = resolvePath(dir, typeof pkg?.tspMain === "string" ? pkg.tspMain : "main.tsp");
+    }
+
     return mainFile;
   }
 

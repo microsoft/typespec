@@ -24,6 +24,7 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
+import { BackCompatSupportForCadlMain } from "../core/program.js";
 import { findProjectRoot, loadFile } from "../core/util.js";
 import { isDeprecated } from "../lib/decorators.js";
 import { getTypeDetails } from "./type-details.js";
@@ -140,6 +141,7 @@ async function addLibraryImportCompletion(
         JSON.parse,
         program.reportDiagnostic
       );
+      BackCompatSupportForCadlMain(libPackageJson);
       if (libPackageJson.tspMain !== undefined) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),

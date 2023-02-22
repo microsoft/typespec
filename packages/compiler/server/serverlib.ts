@@ -67,7 +67,11 @@ import {
   getDirectoryPath,
   joinPaths,
 } from "../core/path-utils.js";
-import { compile as compileProgram, Program } from "../core/program.js";
+import {
+  BackCompatSupportForCadlMain,
+  compile as compileProgram,
+  Program,
+} from "../core/program.js";
 import {
   createScanner,
   isKeyword,
@@ -1136,6 +1140,7 @@ export function createServer(host: ServerHost): Server {
         await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
+      BackCompatSupportForCadlMain(pkg);
       if (typeof pkg?.tspMain === "string") {
         mainFile = pkg.tspMain;
       }
