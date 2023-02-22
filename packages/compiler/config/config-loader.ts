@@ -11,7 +11,7 @@ export const OldTypeSpecConfigFilename = "cadl-project.yaml";
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
 export const defaultConfig = deepFreeze({
-  outputDir: "{cwd}/typespec-output",
+  outputDir: "{cwd}/tsp-output",
   diagnostics: [] as Diagnostic[],
 });
 
@@ -188,7 +188,7 @@ async function loadConfigFile(
     extends: data.extends,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
-    outputDir: data["output-dir"] ?? "{cwd}/typespec-output",
+    outputDir: data["output-dir"] ?? "{cwd}/tsp-output",
     warnAsError: data["warn-as-error"],
     imports: data.imports,
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,

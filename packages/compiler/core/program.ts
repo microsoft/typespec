@@ -799,8 +799,8 @@ export async function compile(
         directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
         resolveMain(pkg) {
           // this lets us follow node resolve semantics more-or-less exactly
-          // but using typespecMain instead of main.
-          return pkg.typespecMain ?? pkg.main;
+          // but using tspMain instead of main.
+          return pkg.tspMain ?? pkg.main;
         },
       });
     } catch (e: any) {
@@ -814,7 +814,7 @@ export async function compile(
           createDiagnostic({
             code: "library-invalid",
             format: { path: specifier },
-            messageId: "typespecMain",
+            messageId: "tspMain",
             target,
           })
         );
@@ -899,10 +899,7 @@ export async function compile(
     const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
     });
-    const mainFile = resolvePath(
-      dir,
-      typeof pkg?.typespecMain === "string" ? pkg.typespecMain : "main.tsp"
-    );
+    const mainFile = resolvePath(dir, typeof pkg?.tspMain === "string" ? pkg.tspMain : "main.tsp");
     return mainFile;
   }
 

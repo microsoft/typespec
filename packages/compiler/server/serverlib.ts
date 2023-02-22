@@ -1100,7 +1100,7 @@ export function createServer(host: ServerHost): Server {
    * results can be obtained from compiling the same file with different entry
    * points.
    *
-   * Walk directory structure upwards looking for package.json with typespecMain or
+   * Walk directory structure upwards looking for package.json with tspMain or
    * main.tsp file. Stop search when reaching a workspace root. If a root is
    * reached without finding an entry point, use the given path as its own
    * entry point.
@@ -1136,8 +1136,8 @@ export function createServer(host: ServerHost): Server {
         await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
-      if (typeof pkg?.typespecMain === "string") {
-        mainFile = pkg.typespecMain;
+      if (typeof pkg?.tspMain === "string") {
+        mainFile = pkg.tspMain;
       }
 
       const candidate = joinPaths(dir, mainFile);

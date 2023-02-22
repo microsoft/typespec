@@ -117,7 +117,7 @@ describe("compiler: imports", () => {
     host.addTypeSpecFile(
       "node_modules/my-lib/package.json",
       JSON.stringify({
-        typespecMain: "./main.tsp",
+        tspMain: "./main.tsp",
       })
     );
     host.addTypeSpecFile(

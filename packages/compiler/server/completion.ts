@@ -140,7 +140,7 @@ async function addLibraryImportCompletion(
         JSON.parse,
         program.reportDiagnostic
       );
-      if (libPackageJson.typespecMain !== undefined) {
+      if (libPackageJson.tspMain !== undefined) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),

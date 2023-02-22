@@ -25,7 +25,7 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
     });
@@ -35,7 +35,7 @@ describe("compiler: config file loading", () => {
       deepStrictEqual(config, {
         diagnostics: [],
         extends: "./typespec-base.yaml",
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
     });
@@ -70,7 +70,7 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
       });
     });
 
@@ -79,7 +79,7 @@ describe("compiler: config file loading", () => {
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
       });
     });
 
@@ -89,7 +89,7 @@ describe("compiler: config file loading", () => {
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/typespec-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
     });

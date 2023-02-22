@@ -2,5 +2,5 @@
   "name": "@typespec/test-typespec-lib",
   "type": "module",
   "main": "lib.js",
-  "typespecMain": "lib.tsp"
+  "tspMain": "lib.tsp"
 }

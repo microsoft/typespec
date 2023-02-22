@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "typespecMain": "dist/src/index.js",
+  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=16.0.0"
   },
