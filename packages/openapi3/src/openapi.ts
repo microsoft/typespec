@@ -412,20 +412,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function mergeParameters(src: HttpOperation, dest: HttpOperation): HttpOperationParameters {
     const srcParam = src.parameters;
     const destParam = dest.parameters;
-    if (
-      srcParam.body !== destParam.body ||
-      srcParam.verb !== destParam.verb ||
-      srcParam.bodyParameter !== destParam.bodyParameter ||
-      srcParam.bodyType !== destParam.bodyType
-    ) {
-      // FIMXE: issue propert linter error
-      throw Error("Blarg, the things don't match!");
+
+    const merged = new Map<string, HttpOperationParameter>();
+    for (const param of [...srcParam.parameters, ...destParam.parameters]) {
+      if (merged.has(param.name)) {
+        // TODO: Union the types here
+      } else {
+        // TODO: Make optional if different params, but required if required for both
+        param.param.optional = true;
+        merged.set(param.name, param);
+      }
     }
-    const merged = destParam.parameters;
-    for (const param of srcParam.parameters) {
-      // TODO: merge them
-    }
-    destParam.parameters = merged;
+    destParam.parameters = [...merged.values()];
     return destParam;
   }
 
