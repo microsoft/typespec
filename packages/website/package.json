@@ -6,7 +6,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run regen-ref-docs && docusaurus build",
+    "build": "npm run regen-ref-docs && node  .scripts/docusaurus-build.mjs",
     "swizzle": "docusaurus swizzle",
     "clear": "docusaurus clear",
     "clean": "docusaurus clear",
