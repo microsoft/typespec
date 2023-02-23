@@ -167,7 +167,7 @@ export function DefaultRouteProducer(
       : [...parentSegments, ...(routePath ? [routePath] : [])];
   const routeParams = segments.flatMap(extractParamsFromPath);
 
-  let parameters: HttpOperationParameters = diagnostics.pipe(
+  const parameters: HttpOperationParameters = diagnostics.pipe(
     getOperationParameters(program, operation, overloadBase, routeParams)
   );
 

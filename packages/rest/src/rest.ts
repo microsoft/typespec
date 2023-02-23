@@ -98,7 +98,7 @@ function autoRouteProducer(
   const segments = [...parentSegments, ...(routePath ? [routePath] : [])];
   const filteredParameters: HttpOperationParameter[] = [];
 
-  let parameters: HttpOperationParameters = diagnostics.pipe(
+  const parameters: HttpOperationParameters = diagnostics.pipe(
     getOperationParameters(program, operation)
   );
 

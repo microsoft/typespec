@@ -14,7 +14,10 @@
   "bugs": {
     "url": "https://github.com/Microsoft/typespec/issues"
   },
-  "keywords": ["typespec", "cli"],
+  "keywords": [
+    "typespec",
+    "cli"
+  ],
   "type": "module",
   "engines": {
     "node": ">=16.0.0"
@@ -25,7 +28,11 @@
     "watch": "tsc -p . --watch",
     "regen-samples": "node scripts/regen-samples.js"
   },
-  "files": ["lib/*.tsp", "dist/**", "!dist/test/**"],
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
   "dependencies": {
     "@typespec/versioning": "~0.40.0",
     "@typespec/compiler": "~0.40.0",

@@ -13,7 +13,9 @@
   "bugs": {
     "url": "https://github.com/Microsoft/typespec/issues"
   },
-  "keywords": ["typespec"],
+  "keywords": [
+    "typespec"
+  ],
   "type": "module",
   "main": "dist/src/index.js",
   "tspMain": "lib/http.tsp",
@@ -23,8 +25,12 @@
   },
   "typesVersions": {
     "*": {
-      "*": ["./dist/src/index.d.ts"],
-      "testing": ["./dist/src/testing/index.d.ts"]
+      "*": [
+        "./dist/src/index.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ]
     }
   },
   "engines": {
@@ -40,7 +46,11 @@
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
-  "files": ["lib/*.tsp", "dist/**", "!dist/test/**"],
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
   "peerDependencies": {
     "@typespec/compiler": "~0.40.0"
   },
