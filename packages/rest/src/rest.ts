@@ -1,53 +1,148 @@
 import {
   $list,
+  createDiagnosticCollector,
   DecoratorContext,
+  DiagnosticResult,
   Interface,
   Model,
   ModelProperty,
-  Namespace,
   Operation,
   Program,
   Scalar,
   setTypeSpecNamespace,
   Type,
 } from "@typespec/compiler";
+import {
+  getOperationParameters,
+  getRoutePath,
+  HttpOperation,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  RouteOptions,
+  RouteProducerResult,
+  setRouteProducer,
+} from "./http/index.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
 // ----------------- @autoRoute -----------------
 
+function addActionFragment(program: Program, target: Type, pathFragments: string[]) {
+  // add the action segment, if present
+  const defaultSeparator = "/";
+  const actionSegment = getActionSegment(program, target);
+  if (actionSegment && actionSegment !== "") {
+    const actionSeparator = getActionSeparator(program, target) ?? defaultSeparator;
+    pathFragments.push(`${actionSeparator}${actionSegment}`);
+  }
+}
+
+function addSegmentFragment(program: Program, target: Type, pathFragments: string[]) {
+  // Don't add the segment prefix if it is meant to be excluded
+  // (empty string means exclude the segment)
+  const segment = getSegment(program, target);
+
+  if (segment && segment !== "") {
+    pathFragments.push(`/${segment}`);
+  }
+}
+
+export interface FilteredRouteParam {
+  routeParamString?: string;
+  excludeFromOperationParams?: boolean;
+}
+
+export interface AutoRouteOptions {
+  routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
+}
+
+function autoRouteProducer(
+  program: Program,
+  operation: Operation,
+  parentSegments: string[],
+  overloadBase: HttpOperation | undefined,
+  options: RouteOptions
+): DiagnosticResult<RouteProducerResult> {
+  const diagnostics = createDiagnosticCollector();
+  const routePath = getRoutePath(program, operation)?.path;
+  const segments = [...parentSegments, ...(routePath ? [routePath] : [])];
+  const filteredParameters: HttpOperationParameter[] = [];
+
+  let parameters: HttpOperationParameters = diagnostics.pipe(
+    getOperationParameters(program, operation)
+  );
+
+  for (const httpParam of parameters.parameters) {
+    const { type, param } = httpParam;
+    if (type === "path") {
+      addSegmentFragment(program, param, segments);
+
+      const filteredParam = options.autoRouteOptions?.routeParamFilter?.(operation, param);
+      if (filteredParam?.routeParamString) {
+        segments.push(`/${filteredParam.routeParamString}`);
+
+        if (filteredParam?.excludeFromOperationParams === true) {
+          // Skip the rest of the loop so that we don't add the parameter to the final list
+          continue;
+        }
+      } else {
+        // Add the path variable for the parameter
+        if (param.type.kind === "String") {
+          segments.push(`/${param.type.value}`);
+          continue; // Skip adding to the parameter list
+        } else {
+          segments.push(`/{${param.name}}`);
+        }
+      }
+    }
+
+    // Push all usable parameters to the filtered list
+    filteredParameters.push(httpParam);
+  }
+
+  // Replace the original parameters with filtered set
+  parameters.parameters = filteredParameters;
+
+  // Add the operation's own segment if present
+  addSegmentFragment(program, operation, segments);
+
+  // Add the operation's action segment if present
+  addActionFragment(program, operation, segments);
+
+  return diagnostics.wrap({
+    segments,
+    parameters: {
+      ...parameters,
+      parameters: filteredParameters,
+    },
+  });
+}
+
 const autoRouteKey = createStateSymbol("autoRoute");
 
 /**
- * `@autoRoute` enables automatic route generation for an operation, namespace, or interface.
+ * `@autoRoute` enables automatic route generation for an operation or interface.
  *
  * When applied to an operation, it automatically generates the operation's route based on path parameter
- * metadata.  When applied to a namespace or interface, it causes all operations under that scope to have
+ * metadata.  When applied to an interface, it causes all operations under that scope to have
  * auto-generated routes.
  */
+export function $autoRoute(context: DecoratorContext, entity: Interface | Operation) {
+  if (entity.kind === "Operation") {
+    setRouteProducer(context.program, entity, autoRouteProducer);
+  } else {
+    for (const [_, op] of entity.operations) {
+      // Instantly apply the decorator to the operation
+      context.call($autoRoute, op);
 
-export function $autoRoute(context: DecoratorContext, entity: Namespace | Interface | Operation) {
-  context.program.stateSet(autoRouteKey).add(entity);
-}
-
-export function isAutoRoute(program: Program, target: Namespace | Interface | Operation): boolean {
-  // Loop up through parent scopes (interface, namespace) to see if
-  // @autoRoute was used anywhere
-  let current: Namespace | Interface | Operation | undefined = target;
-  while (current !== undefined) {
-    if (program.stateSet(autoRouteKey).has(current)) {
-      return true;
-    }
-
-    // Navigate up to the parent scope
-    if (current.kind === "Namespace" || current.kind === "Interface") {
-      current = current.namespace;
-    } else if (current.kind === "Operation") {
-      current = current.interface || current.namespace;
+      // Manually push the decorator onto the property so that it gets applied
+      // to operations which reference the operation with `is`
+      op.decorators.push({
+        decorator: $autoRoute,
+        args: [],
+      });
     }
   }
-
-  return false;
 }
 
 // ------------------ @segment ------------------

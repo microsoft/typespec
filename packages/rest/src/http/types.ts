@@ -1,9 +1,11 @@
 import {
+  DiagnosticResult,
   Interface,
   ListOperationOptions,
   ModelProperty,
   Namespace,
   Operation,
+  Program,
   Type,
 } from "@typespec/compiler";
 
@@ -168,22 +170,27 @@ export interface OAuth2Scope {
 
 export type OperationContainer = Namespace | Interface;
 
-export interface FilteredRouteParam {
-  routeParamString?: string;
-  excludeFromOperationParams?: boolean;
-}
-
-export interface AutoRouteOptions {
-  routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
-}
-
 export interface RouteOptions {
-  autoRouteOptions?: AutoRouteOptions;
+  // Other options can be passed through the interface
+  [prop: string]: any;
 }
 
 export interface RouteResolutionOptions extends RouteOptions {
   listOptions?: ListOperationOptions;
 }
+
+export interface RouteProducerResult {
+  segments: string[];
+  parameters: HttpOperationParameters;
+}
+
+export type RouteProducer = (
+  program: Program,
+  operation: Operation,
+  parentSegments: string[],
+  overloadBase: HttpOperation | undefined,
+  options: RouteOptions
+) => DiagnosticResult<RouteProducerResult>;
 
 export interface HeaderFieldOptions {
   type: "header";
@@ -296,7 +303,6 @@ export interface HttpOperation {
 
 export interface RoutePath {
   path: string;
-  isReset: boolean;
   shared: boolean;
 }
 

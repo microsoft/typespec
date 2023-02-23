@@ -40,8 +40,7 @@ describe("rest: overloads", () => {
       @route("/uploadString")
       @test op uploadString(data: string, @header contentType: "text/plain" ): void;
       @overload(upload)
-      @post
-      @test  op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+      @post @test op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
     `)) as { upload: Operation; uploadString: Operation; uploadBytes: Operation };
 
     const [uploadHttp] = getHttpOperation(runner.program, upload);

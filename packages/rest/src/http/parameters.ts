@@ -32,17 +32,9 @@ export function getOperationParameters(
   overloadBase?: HttpOperation,
   knownPathParamNames: string[] = []
 ): [HttpOperationParameters, readonly Diagnostic[]] {
-  const verb = getExplicitVerbForOperation(program, operation);
+  const verb = getExplicitVerbForOperation(program, operation) ?? overloadBase?.verb;
   if (verb) {
     return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
-  }
-  if (overloadBase) {
-    return getOperationParametersForVerb(
-      program,
-      operation,
-      overloadBase.verb,
-      knownPathParamNames
-    );
   }
 
   // If no verb is explicitly specified, it is POST if there is a body and

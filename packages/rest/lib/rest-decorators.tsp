@@ -3,7 +3,7 @@ namespace TypeSpec.Rest;
 using TypeSpec.Reflection;
 
 /**
- * This namespace, interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
+ * This interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
  *
  * @example
  *
@@ -14,7 +14,7 @@ using TypeSpec.Reflection;
  * }
  * ```
  */
-extern dec autoRoute(target: Namespace | Interface | Operation);
+extern dec autoRoute(target: Interface | Operation);
 
 /**
  * Defines the preceding path segment for a @path parameter in auto-generated routes.

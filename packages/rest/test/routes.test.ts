@@ -1,6 +1,7 @@
+import { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { HttpOperation } from "../src/http/types.js";
+import { HttpOperation } from "../src/http/index.js";
 import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
@@ -266,7 +267,7 @@ describe("rest: routes", () => {
       }
 
       @autoRoute
-      namespace Things {
+      interface Things {
         @get
         @action
         op ActionOne(...ThingId): string;
@@ -311,8 +312,8 @@ describe("rest: routes", () => {
         @autoRoute
         @get op GetThingWithParams(...KeysOf<Thing>): string;
 
-        @autoRoute
         namespace SubNamespace {
+          @autoRoute
           @put op CreateThing(...KeysOf<Thing>): string;
         }
 
@@ -352,7 +353,7 @@ describe("rest: routes", () => {
       }
 
       @autoRoute
-      namespace Things {
+      interface Things {
         @get
         op WithFilteredParam(
           @path
@@ -745,6 +746,7 @@ describe("rest: routes", () => {
         @service({title: "Test"})
         namespace Test {
           op my is Lib.action;
+
           @route("my")
           op my2 is Lib.action;
         }
@@ -794,9 +796,9 @@ describe("rest: routes", () => {
         }
       `);
       strictEqual(ops[0].verb, "get");
-      strictEqual(ops[0].path, "/{id}");
+      strictEqual(ops[0].path, "/pets/{id}");
       strictEqual(ops[1].verb, "get");
-      strictEqual(ops[1].path, "/my/{id}");
+      strictEqual(ops[1].path, "/my/pets/{id}");
     });
   });
 
@@ -817,7 +819,7 @@ describe("rest: routes", () => {
       `,
       {
         autoRouteOptions: {
-          routeParamFilter: (_, param) => {
+          routeParamFilter: (_: Operation, param: ModelProperty) => {
             return {
               routeParamString: param.name === "subThingId" ? "bar" : "{foo}",
               excludeFromOperationParams: true,
@@ -834,7 +836,7 @@ describe("rest: routes", () => {
     const routes = await getRoutesFor(
       `
       @autoRoute
-      namespace Things {
+      interface Things {
         @action
         @actionSeparator(":")
         @put op customAction(
@@ -854,7 +856,7 @@ describe("rest: routes", () => {
     const routes = await getRoutesFor(
       `
       @autoRoute
-      namespace Things {
+      interface Things {
         @action
         @actionSeparator(":")
         @put op customAction1(
@@ -889,7 +891,7 @@ describe("rest: routes", () => {
     const [_, diagnostics] = await compileOperations(
       `
       @autoRoute
-      namespace Things {
+      interface Things {
         @action
         @actionSeparator("x")
         @put op customAction(
