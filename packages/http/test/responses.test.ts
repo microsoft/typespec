@@ -3,7 +3,7 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/tes
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
-describe("rest: responses", () => {
+describe("http: responses", () => {
   it("issues diagnostics for duplicate body decorator", async () => {
     const [_, diagnostics] = await compileOperations(
       `
@@ -20,7 +20,7 @@ describe("rest: responses", () => {
       }
       `
     );
-    expectDiagnostics(diagnostics, [{ code: "@typespec/rest/duplicate-body" }]);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/http/duplicate-body" }]);
   });
 
   it("issues diagnostics for return type with duplicate status code", async () => {
@@ -40,7 +40,7 @@ describe("rest: responses", () => {
     `
     );
     expectDiagnostics(diagnostics, {
-      code: "@typespec/rest/duplicate-response",
+      code: "@typespec/http/duplicate-response",
       message: "Multiple return types for content type application/json and status code 200",
     });
   });
@@ -70,9 +70,9 @@ describe("rest: responses", () => {
     `
     );
     expectDiagnostics(diagnostics, [
-      { code: "@typespec/rest/content-type-string" },
-      { code: "@typespec/rest/content-type-string" },
-      { code: "@typespec/rest/content-type-string" },
+      { code: "@typespec/http/content-type-string" },
+      { code: "@typespec/http/content-type-string" },
+      { code: "@typespec/http/content-type-string" },
     ]);
   });
 

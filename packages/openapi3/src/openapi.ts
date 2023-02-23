@@ -60,17 +60,7 @@ import {
   UnionVariant,
 } from "@typespec/compiler";
 
-import {
-  checkDuplicateTypeName,
-  getExtensions,
-  getExternalDocs,
-  getOpenAPITypeName,
-  getParameterKey,
-  isReadonlyProperty,
-  resolveOperationId,
-  shouldInline,
-} from "@typespec/openapi";
-import { http } from "@typespec/rest";
+import * as http from "@typespec/http";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -89,7 +79,17 @@ import {
   reportIfNoRoutes,
   ServiceAuthentication,
   Visibility,
-} from "@typespec/rest/http";
+} from "@typespec/http";
+import {
+  checkDuplicateTypeName,
+  getExtensions,
+  getExternalDocs,
+  getOpenAPITypeName,
+  getParameterKey,
+  isReadonlyProperty,
+  resolveOperationId,
+  shouldInline,
+} from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
 import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";

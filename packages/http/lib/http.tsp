@@ -1,4 +1,4 @@
-import "../dist/src/http/index.js";
+import "../dist/src/index.js";
 import "./http-decorators.tsp";
 import "./auth.tsp";
 

@@ -1,10 +1,10 @@
 import { Operation } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { getHttpOperation, listHttpOperationsIn } from "../src/http/index.js";
+import { getHttpOperation, listHttpOperationsIn } from "../src/index.js";
 import { createHttpTestRunner } from "./test-host.js";
 
-describe("rest: overloads", () => {
+describe("http: overloads", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -95,11 +95,11 @@ describe("rest: overloads", () => {
     `);
     expectDiagnostics(diagnostics, [
       {
-        code: "@typespec/rest/duplicate-operation",
+        code: "@typespec/http/duplicate-operation",
         message: `Duplicate operation "otherUpload" routed at "post /upload".`,
       },
       {
-        code: "@typespec/rest/duplicate-operation",
+        code: "@typespec/http/duplicate-operation",
         message: `Duplicate operation "upload" routed at "post /upload".`,
       },
     ]);
@@ -120,11 +120,11 @@ describe("rest: overloads", () => {
     `);
     expectDiagnostics(diagnostics, [
       {
-        code: "@typespec/rest/duplicate-operation",
+        code: "@typespec/http/duplicate-operation",
         message: `Duplicate operation "otherUploadString" routed at "post /uploadString".`,
       },
       {
-        code: "@typespec/rest/duplicate-operation",
+        code: "@typespec/http/duplicate-operation",
         message: `Duplicate operation "uploadString" routed at "post /uploadString".`,
       },
     ]);

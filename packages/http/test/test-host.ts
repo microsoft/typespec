@@ -12,18 +12,17 @@ import {
   HttpOperationParameter,
   HttpVerb,
   RouteResolutionOptions,
-} from "@typespec/http";
-import { HttpTestLibrary } from "@typespec/http/testing";
-import { RestTestLibrary } from "../src/testing/index.js";
+} from "../src/index.js";
+import { HttpTestLibrary } from "../src/testing/index.js";
 
-export async function createRestTestHost(): Promise<TestHost> {
+export async function createHttpTestHost(): Promise<TestHost> {
   return createTestHost({
-    libraries: [HttpTestLibrary, RestTestLibrary],
+    libraries: [HttpTestLibrary],
   });
 }
-export async function createRestTestRunner(): Promise<BasicTestRunner> {
-  const host = await createRestTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"] });
+export async function createHttpTestRunner(): Promise<BasicTestRunner> {
+  const host = await createHttpTestHost();
+  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http"] });
 }
 
 export interface RouteDetails {
@@ -86,7 +85,7 @@ export async function getOperationsWithServiceNamespace(
   code: string,
   routeOptions?: RouteResolutionOptions
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
-  const runner = await createRestTestRunner();
+  const runner = await createHttpTestRunner();
   await runner.compileAndDiagnose(
     `@service({title: "Test Service"}) namespace TestService;
     ${code}`,
@@ -99,7 +98,7 @@ export async function getOperationsWithServiceNamespace(
 }
 
 export async function getOperations(code: string): Promise<HttpOperation[]> {
-  const runner = await createRestTestRunner();
+  const runner = await createHttpTestRunner();
   await runner.compile(code);
   const [services, diagnostics] = getAllHttpServices(runner.program);
 

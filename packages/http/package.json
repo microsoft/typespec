@@ -1,22 +1,22 @@
 {
-  "name": "@typespec/openapi",
+  "name": "@typespec/http",
   "version": "0.40.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpec library providing OpenAPI concepts",
-  "homepage": "https://github.com/Azure/typespec",
-  "readme": "https://github.com/Azure/typespec/blob/master/README.md",
+  "description": "TypeSpec HTTP protocol binding",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/typespec.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/typespec/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": ["typespec"],
   "type": "module",
   "main": "dist/src/index.js",
-  "tspMain": "lib/main.tsp",
+  "tspMain": "lib/http.tsp",
   "exports": {
     ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
@@ -42,16 +42,12 @@
   },
   "files": ["lib/*.tsp", "dist/**", "!dist/test/**"],
   "peerDependencies": {
-    "@typespec/compiler": "~0.40.0",
-    "@typespec/http": "~0.40.0",
-    "@typespec/rest": "~0.40.0"
+    "@typespec/compiler": "~0.40.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@typespec/compiler": "~0.40.0",
-    "@typespec/http": "~0.40.0",
-    "@typespec/rest": "~0.40.0",
     "@typespec/eslint-config-typespec": "~0.5.0",
     "@typespec/library-linter": "~0.40.0",
     "@typespec/eslint-plugin": "~0.40.0",

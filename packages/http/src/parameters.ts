@@ -7,8 +7,6 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { createDiagnostic } from "../lib.js";
-import { getAction, getCollectionAction, getResourceOperation } from "../rest.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
@@ -17,6 +15,7 @@ import {
   getQueryParamOptions,
   isBody,
 } from "./decorators.js";
+import { createDiagnostic } from "./lib.js";
 import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
 import {
   HttpOperation,
@@ -32,7 +31,7 @@ export function getOperationParameters(
   overloadBase?: HttpOperation,
   knownPathParamNames: string[] = []
 ): [HttpOperationParameters, readonly Diagnostic[]] {
-  const verb = getExplicitVerbForOperation(program, operation) ?? overloadBase?.verb;
+  const verb = getOperationVerb(program, operation) ?? overloadBase?.verb;
   if (verb) {
     return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
   }
@@ -206,25 +205,3 @@ function computeHttpOperationBody(
   };
   return [body, diagnostics];
 }
-
-function getExplicitVerbForOperation(program: Program, operation: Operation): HttpVerb | undefined {
-  const resourceOperation = getResourceOperation(program, operation);
-  const verb =
-    (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    getOperationVerb(program, operation) ??
-    // TODO: Enable this verb choice to be customized!
-    (getAction(program, operation) || getCollectionAction(program, operation) ? "post" : undefined);
-
-  return verb;
-}
-
-// TODO: Make this overridable by libraries
-const resourceOperationToVerb: any = {
-  read: "get",
-  create: "post",
-  createOrUpdate: "patch",
-  createOrReplace: "put",
-  update: "patch",
-  delete: "delete",
-  list: "get",
-};

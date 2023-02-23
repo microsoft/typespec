@@ -1,4 +1,4 @@
-import "./http.tsp";
+import "@typespec/http";
 import "./rest-decorators.tsp";
 import "./resource.tsp";
 

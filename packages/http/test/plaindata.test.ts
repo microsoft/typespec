@@ -1,20 +1,20 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http/decorators.js";
-import { createRestTestHost } from "./test-host.js";
+import { isBody, isHeader, isPathParam, isQueryParam } from "../src/decorators.js";
+import { createHttpTestHost } from "./test-host.js";
 
-describe("rest: plain data", () => {
+describe("http: plain data", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createRestTestHost();
+    testHost = await createHttpTestHost();
   });
 
   it("removes header/query/body/path", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-      import "@typespec/rest";
+      import "@typespec/http";
       using TypeSpec.Http;
 
       @test

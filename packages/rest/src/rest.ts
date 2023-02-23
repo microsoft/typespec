@@ -13,15 +13,19 @@ import {
   Type,
 } from "@typespec/compiler";
 import {
+  DefaultRouteProducer,
   getOperationParameters,
+  getOperationVerb,
   getRoutePath,
+  getRouteProducer,
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
+  HttpVerb,
   RouteOptions,
   RouteProducerResult,
   setRouteProducer,
-} from "./http/index.js";
+} from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
@@ -54,6 +58,32 @@ export interface FilteredRouteParam {
 
 export interface AutoRouteOptions {
   routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
+}
+
+// TODO: Make this overridable by libraries
+const resourceOperationToVerb: any = {
+  read: "get",
+  create: "post",
+  createOrUpdate: "patch",
+  createOrReplace: "put",
+  update: "patch",
+  delete: "delete",
+  list: "get",
+};
+
+function inferOperationHttpVerb(
+  program: Program,
+  operation: Operation,
+  originalVerb: HttpVerb | undefined
+): HttpVerb | undefined {
+  const resourceOperation = getResourceOperation(program, operation);
+  return (
+    getOperationVerb(program, operation) ??
+    (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
+    (getAction(program, operation) || getCollectionAction(program, operation)
+      ? "post"
+      : originalVerb)
+  );
 }
 
 function autoRouteProducer(
@@ -108,6 +138,9 @@ function autoRouteProducer(
 
   // Add the operation's action segment if present
   addActionFragment(program, operation, segments);
+
+  // Override the default verb if it's a resource operation
+  (parameters as any).verb = inferOperationHttpVerb(program, operation, (parameters as any).verb);
 
   return diagnostics.wrap({
     segments,
@@ -267,6 +300,33 @@ export interface ResourceOperation {
 
 const resourceOperationsKey = createStateSymbol("resourceOperations");
 
+function resourceRouteProducer(
+  program: Program,
+  operation: Operation,
+  parentSegments: string[],
+  overloadBase: HttpOperation | undefined,
+  options: RouteOptions
+): DiagnosticResult<RouteProducerResult> {
+  // NOTE: The purpose of this producer is to pass along the behavior of the
+  // DefaultRouteProducer while setting the appropriate HTTP verb based on any
+  // resource operation decorators that have been applied.  This behavior will
+  // be overridden by the `autoRouteProducer` if `autoRoute` is also applied to
+  // the same operation.
+
+  const diagnostics = createDiagnosticCollector();
+  const { segments, parameters } = diagnostics.pipe(
+    DefaultRouteProducer(program, operation, parentSegments, overloadBase, options)
+  );
+
+  // Override the default verb if it's a resource operation
+  (parameters as any).verb = inferOperationHttpVerb(program, operation, (parameters as any).verb);
+
+  return diagnostics.wrap({
+    segments,
+    parameters,
+  });
+}
+
 export function setResourceOperation(
   context: DecoratorContext,
   entity: Operation,
@@ -282,6 +342,13 @@ export function setResourceOperation(
     operation,
     resourceType,
   });
+
+  // Set a custom RouteProducer on the operation if one hasn't already been
+  // established yet.  This is intended to translate lifecycle operations to
+  // HTTP verbs.
+  if (!getRouteProducer(context.program, entity)) {
+    setRouteProducer(context.program, entity, resourceRouteProducer);
+  }
 }
 
 export function getResourceOperation(

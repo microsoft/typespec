@@ -17,7 +17,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { setRoute } from "./route.js";
 import {
   AuthenticationOption,

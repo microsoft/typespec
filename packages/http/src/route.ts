@@ -9,7 +9,7 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
@@ -118,7 +118,7 @@ function getRouteSegments(
     operation.interface ?? operation.namespace
   );
 
-  const routeProducer = getRouteProducer(program, operation);
+  const routeProducer = getRouteProducer(program, operation) ?? DefaultRouteProducer;
   const result = diagnostics.pipe(
     routeProducer(program, operation, parentSegments, overloadBase, {
       ...parentOptions,
@@ -152,7 +152,7 @@ export function includeInterfaceRoutesInNamespace(
 
 const routeProducerKey = createStateSymbol("routeProducer");
 
-function defaultRouteProducer(
+export function DefaultRouteProducer(
   program: Program,
   operation: Operation,
   parentSegments: string[],
@@ -201,7 +201,7 @@ export function setRouteProducer(
 }
 
 export function getRouteProducer(program: Program, operation: Operation): RouteProducer {
-  return program.stateMap(routeProducerKey).get(operation) ?? defaultRouteProducer;
+  return program.stateMap(routeProducerKey).get(operation);
 }
 
 const routesKey = createStateSymbol("routes");
