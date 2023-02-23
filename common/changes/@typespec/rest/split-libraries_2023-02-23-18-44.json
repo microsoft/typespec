@@ -1,0 +1,15 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Move core HTTP functionality from `@typespec/rest` into a new `@typespec/http` library",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/rest",
+      "comment": "**Breaking change:** The `@autoRoute` decorator can no longer be applied to namespaces",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}

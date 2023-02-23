@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi",
+      "comment": "Use new `@typespec/http` library",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi"
+}
