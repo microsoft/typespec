@@ -32,8 +32,14 @@ jobs:
       vmImage: $(imageName)
 
     steps:
-      - script: echo '##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true'
+      - script: |
+          echo ##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true
         displayName: Enable official Visual Studio extension build
+        condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+      - script: |
+          echo ##vso[task.setvariable variable=TYPESPEC_SKIP_DOCUSAURUS_BUILD;]true
+        displayName: Disable docusaurus build
         condition: eq(variables['Agent.OS'], 'Windows_NT')
 
       - template: pull-request-common.yml
