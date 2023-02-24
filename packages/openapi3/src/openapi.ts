@@ -398,15 +398,29 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     });
   }
 
+  function getCommonParams(one: HttpOperation, two: HttpOperation): string[] {
+    const intersection = new Set<string>();
+    const oneParams = new Set(one.parameters.parameters.map((x) => x.name));
+    const twoParams = new Set(two.parameters.parameters.map((x) => x.name));
+    for (const element of oneParams) {
+      if (twoParams.has(element)) {
+        intersection.add(element);
+      }
+    }
+    return [...intersection];
+  }
+
   /**
    * Combines the parameters of two operations.
    */
   function mergeParameters(src: HttpOperation, dest: HttpOperation): HttpOperationParameters {
     const srcParam = src.parameters;
     const destParam = dest.parameters;
+    const commonParams = getCommonParams(src, dest);
 
     const merged = new Map<string, HttpOperationParameter>();
     for (const param of [...srcParam.parameters, ...destParam.parameters]) {
+      // TODO: Behave differently based on whether the param is in commonParams or not
       if (merged.has(param.name)) {
         // TODO: Union the types here
       } else {
