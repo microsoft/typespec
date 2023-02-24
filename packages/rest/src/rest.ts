@@ -176,6 +176,12 @@ export function $autoRoute(context: DecoratorContext, entity: Interface | Operat
       });
     }
   }
+
+  context.program.stateSet(autoRouteKey).add(entity);
+}
+
+export function isAutoRoute(program: Program, entity: Operation | Interface): boolean {
+  return program.stateSet(autoRouteKey).has(entity);
 }
 
 // ------------------ @segment ------------------
