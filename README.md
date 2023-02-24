@@ -100,7 +100,7 @@ Here is a very small TypeSpec example that uses the `@typespec/openapi3` library
 #### sample.tsp
 
 ```typespec
-import "@typespec/rest";
+import "@typespec/http";
 
 using TypeSpec.Http;
 
@@ -183,6 +183,7 @@ Example
 // Stable setup
 "dependencies": {
   "@typespec/compiler": "~0.30.0",
+  "@typespec/http": "~0.14.0",
   "@typespec/rest": "~0.14.0",
   "@typespec/openapi": "~0.9.0",
 }
@@ -191,6 +192,7 @@ Example
 // In this example: compiler and openapi have changes but rest library has none
 "dependencies": {
   "@typespec/compiler": "~0.31.0-dev.5",
+  "@typespec/http": "~0.14.0",
   "@typespec/rest": "~0.14.0", // No changes to @typespec/rest library so need to stay the latest.
   "@typespec/openapi": "~0.10.0-dev.2",
 }
@@ -203,6 +205,7 @@ Example
 | Core functionality                                 |                                  |                                                                                                                                          |                                                                           |
 | [@typespec/compiler][compiler_src]                 | [Changelog][compiler_chg]        | [![](https://img.shields.io/npm/v/@typespec/compiler)](https://www.npmjs.com/package/@typespec/compiler)                                 | ![](https://img.shields.io/npm/v/@typespec/compiler/next)                 |
 | TypeSpec Libraries                                 |                                  |                                                                                                                                          |                                                                           |
+| [@typespec/http][http_src]                         | [Changelog][http_chg]            | [![](https://img.shields.io/npm/v/@typespec/http)](https://www.npmjs.com/package/@typespec/http)                                         | ![](https://img.shields.io/npm/v/@typespec/http/next)                     |
 | [@typespec/rest][rest_src]                         | [Changelog][rest_chg]            | [![](https://img.shields.io/npm/v/@typespec/rest)](https://www.npmjs.com/package/@typespec/rest)                                         | ![](https://img.shields.io/npm/v/@typespec/rest/next)                     |
 | [@typespec/openapi][openapi_src]                   | [Changelog][openapi_chg]         | [![](https://img.shields.io/npm/v/@typespec/openapi)](https://www.npmjs.com/package/@typespec/openapi)                                   | ![](https://img.shields.io/npm/v/@typespec/openapi/next)                  |
 | [@typespec/openapi3][openapi3_src]                 | [Changelog][openapi3_chg]        | [![](https://img.shields.io/npm/v/@typespec/openapi3)](https://www.npmjs.com/package/@typespec/openapi3)                                 | ![](https://img.shields.io/npm/v/@typespec/openapi3/next)                 |
@@ -215,6 +218,8 @@ Example
 
 [compiler_src]: packages/compiler
 [compiler_chg]: packages/compiler/CHANGELOG.md
+[http_src]: packages/http
+[http_chg]: packages/http/CHANGELOG.md
 [rest_src]: packages/rest
 [rest_chg]: packages/rest/CHANGELOG.md
 [openapi_src]: packages/openapi

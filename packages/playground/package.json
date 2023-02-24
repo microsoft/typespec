@@ -14,7 +14,9 @@
   "bugs": {
     "url": "https://github.com/Microsoft/typespec/issues"
   },
-  "keywords": ["typespec"],
+  "keywords": [
+    "typespec"
+  ],
   "type": "module",
   "main": "dist/src/lib.js",
   "engines": {
@@ -33,7 +35,11 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },
-  "files": ["lib/*.tsp", "dist/**", "!dist/test/**"],
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
   "dependencies": {
     "@typespec/versioning": "~0.40.0",
     "@typespec/compiler": "~0.40.0",
