@@ -23,15 +23,21 @@ import {
   HttpOperationParameters,
   HttpOperationRequestBody,
   HttpVerb,
+  OperationParameterOptions,
 } from "./types.js";
 
 export function getOperationParameters(
   program: Program,
   operation: Operation,
   overloadBase?: HttpOperation,
-  knownPathParamNames: string[] = []
+  knownPathParamNames: string[] = [],
+  options: OperationParameterOptions = {}
 ): [HttpOperationParameters, readonly Diagnostic[]] {
-  const verb = getOperationVerb(program, operation) ?? overloadBase?.verb;
+  const verb =
+    (options?.verbSelector && options.verbSelector(program, operation)) ??
+    getOperationVerb(program, operation) ??
+    overloadBase?.verb;
+
   if (verb) {
     return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
   }

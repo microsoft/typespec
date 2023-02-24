@@ -71,18 +71,15 @@ const resourceOperationToVerb: any = {
   list: "get",
 };
 
-function inferOperationHttpVerb(
+function getResourceOperationHttpVerb(
   program: Program,
-  operation: Operation,
-  originalVerb: HttpVerb | undefined
+  operation: Operation
 ): HttpVerb | undefined {
   const resourceOperation = getResourceOperation(program, operation);
   return (
     getOperationVerb(program, operation) ??
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    (getAction(program, operation) || getCollectionAction(program, operation)
-      ? "post"
-      : originalVerb)
+    (getAction(program, operation) || getCollectionAction(program, operation) ? "post" : undefined)
   );
 }
 
@@ -97,9 +94,13 @@ function autoRouteProducer(
   const routePath = getRoutePath(program, operation)?.path;
   const segments = [...parentSegments, ...(routePath ? [routePath] : [])];
   const filteredParameters: HttpOperationParameter[] = [];
+  const paramOptions = {
+    ...(options?.paramOptions ?? {}),
+    verbSelector: getResourceOperationHttpVerb,
+  };
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation)
+    getOperationParameters(program, operation, undefined, [], paramOptions)
   );
 
   for (const httpParam of parameters.parameters) {
@@ -138,9 +139,6 @@ function autoRouteProducer(
 
   // Add the operation's action segment if present
   addActionFragment(program, operation, segments);
-
-  // Override the default verb if it's a resource operation
-  (parameters as any).verb = inferOperationHttpVerb(program, operation, (parameters as any).verb);
 
   return diagnostics.wrap({
     segments,
@@ -319,17 +317,15 @@ function resourceRouteProducer(
   // be overridden by the `autoRouteProducer` if `autoRoute` is also applied to
   // the same operation.
 
-  const diagnostics = createDiagnosticCollector();
-  const { segments, parameters } = diagnostics.pipe(
-    DefaultRouteProducer(program, operation, parentSegments, overloadBase, options)
-  );
+  // Set the OperationVerbSelector to pick verbs based on resource operation type
+  const paramOptions = {
+    ...(options?.paramOptions ?? {}),
+    verbSelector: getResourceOperationHttpVerb,
+  };
 
-  // Override the default verb if it's a resource operation
-  (parameters as any).verb = inferOperationHttpVerb(program, operation, (parameters as any).verb);
-
-  return diagnostics.wrap({
-    segments,
-    parameters,
+  return DefaultRouteProducer(program, operation, parentSegments, overloadBase, {
+    ...options,
+    paramOptions,
   });
 }
 

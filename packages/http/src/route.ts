@@ -168,7 +168,7 @@ export function DefaultRouteProducer(
   const routeParams = segments.flatMap(extractParamsFromPath);
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, overloadBase, routeParams)
+    getOperationParameters(program, operation, overloadBase, routeParams, options.paramOptions)
   );
 
   // Pull out path parameters to verify what's in the path string

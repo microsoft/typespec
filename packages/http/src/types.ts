@@ -170,9 +170,20 @@ export interface OAuth2Scope {
 
 export type OperationContainer = Namespace | Interface;
 
+export type OperationVerbSelector = (
+  program: Program,
+  operation: Operation
+) => HttpVerb | undefined;
+
+export interface OperationParameterOptions {
+  verbSelector?: OperationVerbSelector;
+}
+
 export interface RouteOptions {
   // Other options can be passed through the interface
   [prop: string]: any;
+
+  paramOptions?: OperationParameterOptions;
 }
 
 export interface RouteResolutionOptions extends RouteOptions {
