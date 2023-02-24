@@ -1,4 +1,4 @@
-# Change Log - typespec-vs
+# Change Log - cadl-vs
 
 This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
 
@@ -24,7 +24,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Extension lookup for a local tsp compiler first instead of a global
+- Extension lookup for a local cadl compiler first instead of a global
 
 ## 0.8.0
 Thu, 08 Sep 2022 01:04:53 GMT
@@ -35,21 +35,21 @@ Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Patches
 
-- Fix issue with configured tsp-server location not being found when opening a solution.
+- Fix issue with configured cadl-server location not being found when opening a solution.
 
 ## 0.7.2
 Thu, 11 Aug 2022 19:05:23 GMT
 
 ### Patches
 
-- Providing `typespec.tsp-server.path` option will force the specified compiler to be used
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.7.1
 Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Patches
 
-- Improve error reporting when tsp-server is not found
+- Improve error reporting when cadl-server is not found
 
 ## 0.7.0
 Fri, 06 May 2022 17:19:57 GMT
@@ -78,14 +78,14 @@ Fri, 04 Feb 2022 18:00:18 GMT
 
 ### Minor changes
 
-- Add typespec project file to list of files watched
+- Add cadl project file to list of files watched
 
 ## 0.5.0
 Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Minor changes
 
-- **Fix** Issues with resolving `tsp-server` path + added support for passing `typespec.tsp-server.path` setting via `.vs/VSWorkspaceSettings.json` file
+- **Fix** Issues with resolving `cadl-server` path + added support for passing `cadl.cadl-server.path` setting via `.vs/VSWorkspaceSettings.json` file
 
 ## 0.4.3
 Wed, 01 Dec 2021 22:56:11 GMT
@@ -111,14 +111,14 @@ Tue, 10 Aug 2021 20:23:04 GMT
 
 ### Minor changes
 
-- Rename package to typespec-vs
+- Rename package to cadl-vs
 
 ## 0.3.0
 Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
 
-- Rename ADL to TypeSpec
+- Rename ADL to Cadl
 
 ## 0.2.0
 Fri, 09 Jul 2021 20:21:06 GMT

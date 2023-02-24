@@ -1,4 +1,4 @@
-# Change Log - @typespec/library-linter
+# Change Log - @cadl-lang/library-linter
 
 This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
 
