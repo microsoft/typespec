@@ -3,7 +3,7 @@
   "version": "0.3.3",
   "author": "Microsoft Corporation",
   "description": "Internal library to TypeSpec providing helpers to build.",
-  "homepage": "https://github.com/Azure/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Azure/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
