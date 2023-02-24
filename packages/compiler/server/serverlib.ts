@@ -67,11 +67,7 @@ import {
   getDirectoryPath,
   joinPaths,
 } from "../core/path-utils.js";
-import {
-  BackCompatSupportForCadlMain,
-  compile as compileProgram,
-  Program,
-} from "../core/program.js";
+import { compile as compileProgram, Program } from "../core/program.js";
 import {
   createScanner,
   isKeyword,
@@ -95,7 +91,13 @@ import {
   TextRange,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { doIO, getNormalizedRealPath, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import {
+  doIO,
+  getNormalizedRealPath,
+  getSourceFileKindFromExt,
+  loadFile,
+  resolveTspMain,
+} from "../core/util.js";
 import { resolveCompletion } from "./completion.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { getParameterDocumentation, getTypeDetails } from "./type-details.js";
@@ -1140,9 +1142,9 @@ export function createServer(host: ServerHost): Server {
         await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
-      BackCompatSupportForCadlMain(pkg);
-      if (typeof pkg?.tspMain === "string") {
-        mainFile = pkg.tspMain;
+      const tspMain = resolveTspMain(pkg);
+      if (typeof tspMain === "string") {
+        mainFile = tspMain;
       }
 
       const candidate = joinPaths(dir, mainFile);

@@ -1,3 +1,12 @@
+using EnvDTE;
+using Microsoft.VisualStudio.LanguageServer.Client;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.Utilities;
+using Microsoft.VisualStudio.Workspace;
+using Microsoft.VisualStudio.Workspace.Settings;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,15 +18,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using EnvDTE;
-using Microsoft.VisualStudio.LanguageServer.Client;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using Microsoft.VisualStudio.Utilities;
-using Microsoft.VisualStudio.Workspace;
-using Microsoft.VisualStudio.Workspace.Settings;
-using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
-using Newtonsoft.Json;
 using Debugger = System.Diagnostics.Debugger;
 using Process = System.Diagnostics.Process;
 using Task = System.Threading.Tasks.Task;
@@ -39,11 +39,6 @@ namespace Microsoft.TypeSpec.VisualStudio
         [FileExtension(".tsp")]
         [ContentType("typespec")]
         public FileExtensionToContentTypeDefinition? TypeSpecFileExtensionDefinition => null;
-
-        [Export]
-        [FileExtension(".cadl")]
-        [ContentType("typespec")]
-        public FileExtensionToContentTypeDefinition? CadlFileExtensionDefinition => null;
     }
 
     [Export(typeof(ILanguageClient))]
@@ -54,7 +49,7 @@ namespace Microsoft.TypeSpec.VisualStudio
         public IEnumerable<string>? ConfigurationSections { get; } = new[] { "typespec" };
         public object? InitializationOptions => null;
         public bool ShowNotificationOnInitializeFailed => true;
-        public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.cadl", "**/cadl-project.yaml", "**/*.tsp", "**/tspconfig.yaml", "**/package.json" };
+        public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.tsp", "**/tspconfig.yaml", "**/package.json" };
         public event AsyncEventHandler<EventArgs>? StartAsync;
         public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 
@@ -65,7 +60,8 @@ namespace Microsoft.TypeSpec.VisualStudio
 
         [ImportingConstructor]
         public LanguageClient(
-            [Import] IVsFolderWorkspaceService workspaceService, [Import] SVsServiceProvider serviceProvider)
+            [Import] IVsFolderWorkspaceService workspaceService,
+            [Import] SVsServiceProvider serviceProvider)
         {
             _workspaceService = workspaceService;
             _serviceProvider = serviceProvider;
@@ -100,8 +96,8 @@ namespace Microsoft.TypeSpec.VisualStudio
                 process.ErrorDataReceived += (_, e) => LogStderrMessage(e.Data);
 
                 return new Connection(
-                    process.StandardOutput.BaseStream,
-                    process.StandardInput.BaseStream);
+                  process.StandardOutput.BaseStream,
+                  process.StandardInput.BaseStream);
             }
             catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.ERROR_FILE_NOT_FOUND)
             {
@@ -121,9 +117,9 @@ namespace Microsoft.TypeSpec.VisualStudio
         public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState)
         {
             var exception = initializationState.InitializationException;
-            var message = exception is TypeSpecUserErrorException ?
-                exception.Message :
-                $"File issue at https://github.com/microsoft/typespec\r\n\r\n{exception}";
+            var message = exception is TypeSpecUserErrorException
+                ? exception.Message
+                : $"File issue at https://github.com/microsoft/typespec\r\n\r\n{exception}";
 
             Debug.Assert(
                 exception is TypeSpecUserErrorException,
@@ -152,21 +148,23 @@ namespace Microsoft.TypeSpec.VisualStudio
         }
 
 #if DEBUG
-        private static bool InDevelopmentMode () {
-            return string.Equals (
-                Environment.GetEnvironmentVariable ("TYPESPEC_DEVELOPMENT_MODE"),
-                "true",
-                StringComparison.OrdinalIgnoreCase);
+        private static bool InDevelopmentMode()
+        {
+            return string.Equals(
+              Environment.GetEnvironmentVariable("TYPESPEC_DEVELOPMENT_MODE"),
+              "true",
+              StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetDevelopmentTypeSpecServerPath () {
+        private static string GetDevelopmentTypeSpecServerPath()
+        {
             // Even when debugging, we get deployed to an extension folder outside the
             // source tree, so we stash the source directory in a file in debug builds
             // so we can use it to run tsp-server against the live developer build in
             // the source tree.
-            var thisDir = Path.GetDirectoryName (Assembly.GetExecutingAssembly ().Location);
-            var srcDir = File.ReadAllText (Path.Combine (thisDir, "DebugSourceDirectory.txt")).Trim ();
-            return Path.GetFullPath (Path.Combine (srcDir, "..", "..", "compiler", "cmd", "tsp-server.js"));
+            var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
+            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "cmd", "tsp-server.js"));
         }
 #endif
 
@@ -178,9 +176,10 @@ namespace Microsoft.TypeSpec.VisualStudio
 
 #if DEBUG
             // Use local build of tsp-server in development (launched from F5 in VS)
-            if (InDevelopmentMode ()) {
+            if (InDevelopmentMode())
+            {
                 // NOTE: --no-lazy is not supported as environment variable, so we pass it in command line.
-                var module = GetDevelopmentTypeSpecServerPath ();
+                var module = GetDevelopmentTypeSpecServerPath();
                 return ("node.exe", $"{options} {module} {args}", env);
             }
 #endif
@@ -310,3 +309,4 @@ namespace Microsoft.TypeSpec.VisualStudio
         }
     }
 }
+
