@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.VisualStudio
         public IEnumerable<string>? ConfigurationSections { get; } = new[] { "typespec" };
         public object? InitializationOptions => null;
         public bool ShowNotificationOnInitializeFailed => true;
-        public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.tsp", "**/tspconfig.yaml", "**/package.json" };
+        public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.tsp", "**/tspconfig.yaml", "**/package.json", "**/*.cadl", "**/cadl-project.yaml" };
         public event AsyncEventHandler<EventArgs>? StartAsync;
         public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 
