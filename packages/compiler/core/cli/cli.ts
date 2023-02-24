@@ -306,7 +306,8 @@ function compileInput(
         {
           recursive: true,
           filter: (f: string) =>
-            [".js", ".tsp"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
+            [".js", ".tsp", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 &&
+            !/node_modules/.test(f),
         },
         (e: any, name: string) => {
           runCompile();

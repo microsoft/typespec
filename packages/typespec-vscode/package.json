@@ -73,7 +73,7 @@
       {
         "language": "markdown-typespec",
         "scopeName": "markdown.tsp.codeblock",
-        "path": "./markdown-tsp.json",
+        "path": "./markdown-typespec.json",
         "injectTo": [
           "text.html.markdown"
         ],
