@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/html-program-viewer",
+      "comment": "Revert back changelog",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/html-program-viewer"
+}
