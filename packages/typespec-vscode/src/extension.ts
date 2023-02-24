@@ -39,6 +39,8 @@ async function launchLanguageClient(context: ExtensionContext) {
       // Synchronize the setting section 'typespec' to the server
       configurationSection: "typespec",
       fileEvents: [
+        workspace.createFileSystemWatcher("**/*.cadl"),
+        workspace.createFileSystemWatcher("**/cadl-project.yaml"),
         workspace.createFileSystemWatcher("**/*.tsp"),
         workspace.createFileSystemWatcher("**/tspconfig.yaml"),
         workspace.createFileSystemWatcher("**/package.json"),
