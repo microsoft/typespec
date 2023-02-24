@@ -1,12 +1,3 @@
-using EnvDTE;
-using Microsoft.VisualStudio.LanguageServer.Client;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using Microsoft.VisualStudio.Utilities;
-using Microsoft.VisualStudio.Workspace;
-using Microsoft.VisualStudio.Workspace.Settings;
-using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +9,15 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using EnvDTE;
+using Microsoft.VisualStudio.LanguageServer.Client;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.Utilities;
+using Microsoft.VisualStudio.Workspace;
+using Microsoft.VisualStudio.Workspace.Settings;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
+using Newtonsoft.Json;
 using Debugger = System.Diagnostics.Debugger;
 using Process = System.Diagnostics.Process;
 using Task = System.Threading.Tasks.Task;
@@ -39,6 +39,11 @@ namespace Microsoft.TypeSpec.VisualStudio
         [FileExtension(".tsp")]
         [ContentType("typespec")]
         public FileExtensionToContentTypeDefinition? TypeSpecFileExtensionDefinition => null;
+
+        [Export]
+        [FileExtension(".cadl")]
+        [ContentType("typespec")]
+        public FileExtensionToContentTypeDefinition? CadlFileExtensionDefinition => null;
     }
 
     [Export(typeof(ILanguageClient))]
@@ -60,8 +65,7 @@ namespace Microsoft.TypeSpec.VisualStudio
 
         [ImportingConstructor]
         public LanguageClient(
-            [Import] IVsFolderWorkspaceService workspaceService,
-            [Import] SVsServiceProvider serviceProvider)
+            [Import] IVsFolderWorkspaceService workspaceService, [Import] SVsServiceProvider serviceProvider)
         {
             _workspaceService = workspaceService;
             _serviceProvider = serviceProvider;
@@ -96,8 +100,8 @@ namespace Microsoft.TypeSpec.VisualStudio
                 process.ErrorDataReceived += (_, e) => LogStderrMessage(e.Data);
 
                 return new Connection(
-                  process.StandardOutput.BaseStream,
-                  process.StandardInput.BaseStream);
+                    process.StandardOutput.BaseStream,
+                    process.StandardInput.BaseStream);
             }
             catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.ERROR_FILE_NOT_FOUND)
             {
@@ -117,9 +121,9 @@ namespace Microsoft.TypeSpec.VisualStudio
         public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState)
         {
             var exception = initializationState.InitializationException;
-            var message = exception is TypeSpecUserErrorException
-                ? exception.Message
-                : $"File issue at https://github.com/microsoft/typespec\r\n\r\n{exception}";
+            var message = exception is TypeSpecUserErrorException ?
+                exception.Message :
+                $"File issue at https://github.com/microsoft/typespec\r\n\r\n{exception}";
 
             Debug.Assert(
                 exception is TypeSpecUserErrorException,
@@ -151,9 +155,9 @@ namespace Microsoft.TypeSpec.VisualStudio
         private static bool InDevelopmentMode()
         {
             return string.Equals(
-              Environment.GetEnvironmentVariable("TYPESPEC_DEVELOPMENT_MODE"),
-              "true",
-              StringComparison.OrdinalIgnoreCase);
+                Environment.GetEnvironmentVariable("TYPESPEC_DEVELOPMENT_MODE"),
+                "true",
+                StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GetDevelopmentTypeSpecServerPath()
@@ -309,4 +313,3 @@ namespace Microsoft.TypeSpec.VisualStudio
         }
     }
 }
-
