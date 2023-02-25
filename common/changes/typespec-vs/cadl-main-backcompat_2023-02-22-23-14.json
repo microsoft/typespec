@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vs",
+      "comment": "Adding .cadl file support and markdown code block fence support for tsp, cadl, and typespec",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vs"
+}

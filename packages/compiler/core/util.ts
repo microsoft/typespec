@@ -288,6 +288,22 @@ export async function findProjectRoot(
 }
 
 /**
+ * Extract package.json's tspMain entry point in a given path. Note, it takes into
+ * back compat for deprecated cadlMain
+ * @param path Path that contains package.json
+ * @param reportDiagnostic optional diagnostic handler.
+ */
+export function resolveTspMain(packageJson: any): string | undefined {
+  if (packageJson?.tspMain !== undefined) {
+    return packageJson.tspMain;
+  }
+  if (packageJson?.cadlMain !== undefined) {
+    return packageJson.cadlMain;
+  }
+  return undefined;
+}
+
+/**
  * A map keyed by a set of objects.
  *
  * This is likely non-optimal.
@@ -419,7 +435,7 @@ export function getSourceFileKindFromExt(path: string): SourceFileKind | undefin
   const ext = getAnyExtensionFromPath(path);
   if (ext === ".js" || ext === ".mjs") {
     return "js";
-  } else if (ext === ".tsp") {
+  } else if (ext === ".tsp" || ext === ".cadl") {
     return "typespec";
   } else {
     return undefined;

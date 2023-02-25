@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Adding .cadl & package.json cadlMain back compat support",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

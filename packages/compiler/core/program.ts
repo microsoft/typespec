@@ -54,6 +54,7 @@ import {
   loadFile,
   mapEquals,
   mutate,
+  resolveTspMain,
 } from "./util.js";
 
 export interface ProjectedProgram extends Program {
@@ -800,7 +801,7 @@ export async function compile(
         resolveMain(pkg) {
           // this lets us follow node resolve semantics more-or-less exactly
           // but using tspMain instead of main.
-          return pkg.tspMain ?? pkg.main;
+          return resolveTspMain(pkg) ?? pkg.main;
         },
       });
     } catch (e: any) {
@@ -899,7 +900,23 @@ export async function compile(
     const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
     });
-    const mainFile = resolvePath(dir, typeof pkg?.tspMain === "string" ? pkg.tspMain : "main.tsp");
+    const tspMain = resolveTspMain(pkg);
+    if (tspMain !== undefined) {
+      return resolvePath(dir, tspMain);
+    }
+
+    // Back Compat: if main.cadl exist, return main.cadl
+    let mainFile = resolvePath(dir, "main.cadl");
+    const stat = await doIO(
+      () => host.stat(mainFile),
+      mainFile,
+      () => {}
+    );
+    // if not found, use the normal resolution.
+    if (stat?.isFile() !== true) {
+      mainFile = resolvePath(dir, "main.tsp");
+    }
+
     return mainFile;
   }
 
