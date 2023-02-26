@@ -1,4 +1,4 @@
-# Change Log - @typespec/compiler
+# Change Log - @cadl-lang/compiler
 
 This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
 
@@ -28,7 +28,7 @@ Fri, 13 Jan 2023 00:05:26 GMT
 - Feature: Templated operation inside of interfaces
 - Feature: Add templated operation inside of interface
 - Fix: Alias cause types to be resolved before some binding
-- Fix `tsp format` works with windows backslash paths
+- Fix `cadl format` works with windows backslash paths
 - [Language Server] Fix: Completion of library imports replace import correctly"
 - Fix issue with using server lib at the root of filesystem
 - Fix: Projecting model property with type referencing sibling
@@ -86,19 +86,19 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Add opt-in support for parsing JSDoc-like developer documentation
 - Show developer docs in IDE features
 - Doc: Add Doc comments to built-in types and decorators
-- **Deprecation** Split `emitters` in tspconfig.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI
+- **Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI
 - Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function 
 - Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
-- Add variable interpolation functionality in the tspconfig.yaml
+- Add variable interpolation functionality in the cadl-project.yaml
 - Add built-in `emitter-output-dir` options for all emitter.
 - **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter.
 - Fix typing and export format command
 - **Api Breaking** Multiple `@service` per specs are now allowed.
-- Add new `program.resolveTypeReference` helper to resolve a type in the typespec program using fully qualified name
+- Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name
 - **Breaking** Add new `scalar` type and updated all intrinsic types to be a scalar type. `model MyString is string` changes to `scalar MyString extends string`
 - `LanguageServer` Feature: Add signature help for decorators
 - `Testing` Simplification of the testing framework
-- `tsp init` Initialize the package.json with `type: module`
+- `cadl init` Initialize the package.json with `type: module`
 - **Deprecation** Renamed `url` to `uri`. Old `uri` is deprecated
 
 ### Patches
@@ -119,8 +119,8 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Add `output-dir`, `trace`, `imports` option to tspconfig.yaml giving parity with cli arguments
-- **Feature** Add decorator and function declaration in typespec using `extern dec` and `extern fn`.
+- Add `output-dir`, `trace`, `imports` option to cadl-project.yaml giving parity with cli arguments
+- **Feature** Add decorator and function declaration in cadl using `extern dec` and `extern fn`.
 - Fix: crash with referencing global namespace
 - Added a new export to only import the module resolver
 - Debugging: adding tracing information for JS decorators and function binding
@@ -147,7 +147,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Emitter throwing exception will emit a new `emitter-uncaught-error` diagnostic with information on how to file issue for the given emitter.
 - Expose module resolver
 - Add support for augment decorators.
-- Language server provide document formatting using TypeSpec formatter
+- Language server provide document formatting using Cadl formatter
 - **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. 
 - `API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`.
 - Add `uri` built-in type
@@ -157,7 +157,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Expose helper to walk inherited properties and some helper data structures
 - Feature: `decorators` Add `@minItems` and `@maxItems` decorators
 - Add `navigateNamespace` helper letting user to navigate types under a namespace.(Similar to `navigateProgram`)
-- Include `@discriminator` decorator from "@typespec/rest" library
+- Include `@discriminator` decorator from "@cadl-lang/rest" library
 - Language Server: Improvement to outline, symbols correctly structured.
 - Rename `output-path` to `output-dir` and deprecate old name.
 - Add additional validation for `@overload` decorator: Make sure overloads are in the same container and that return types are compatible
@@ -191,7 +191,7 @@ Thu, 08 Sep 2022 01:04:53 GMT
 - Formatter: Comments in between decorators will stay between the decorators when formatting.
 - Hovering over a symbol gives the fully-qualified name and documentation
 - Enable loading multiple installation of the same library as long as the versions are the same
-- Internal: Remove `evalTypeSpecScript` from `Program`
+- Internal: Remove `evalCadlScript` from `Program`
 - Remove Type suffix from most Types and deprecate old names
 - Perf: Reuse unchanged files and programs in language server.
 
@@ -199,7 +199,7 @@ Thu, 08 Sep 2022 01:04:53 GMT
 
 - Api: `isGlobalNamespace` takes projection into account
 - Internal: Facilitate adding new tokens to scanner."
-- Formatter: TypeSpec doesn't include blank line at the end of embedded markdown codeblock
+- Formatter: Cadl doesn't include blank line at the end of embedded markdown codeblock
 - Fix issue with ever-increasing duplicate symbol errors in IDE
 - Formatter: Directive on model property with decorators will hug decorator.
 - Fix additional issues for decorators not running in projections in templated type instance
@@ -252,7 +252,7 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Internal: union variant type has reference to parent union.
 - Fix null reference in getTypeName API when called on anonymous models without a backing syntax node
 - Emit diagnostic when an optional property is marked with @key
-- Providing `typespec.tsp-server.path` option will force the specified compiler to be used
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 - Fix error location of duplicate property from spread
 
 ## 0.33.0
@@ -289,7 +289,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Remove @serviceHost decorator
 - Add ability to rename Models, Operations, Interface, Unions and Enums in projections.
 - Add compiler API to filter model properties and get try to find equivalent named models for anonymous models
-- Rename `setDecoratorNamespace` -> `setTypeSpecNamespace`
+- Rename `setDecoratorNamespace` -> `setCadlNamespace`
 - Add support for operation templates and operation signature reuse
 - Implement references to model, enum, union, and interface members
 - Add semantic colorization
@@ -300,16 +300,16 @@ Mon, 13 Jun 2022 23:42:28 GMT
 
 - Fix completion between `.` and `)`
 - Fix issue with compiling virtual editor files
-- Allow an emitter library to have `.tsp` files
+- Allow an emitter library to have `.cadl` files
 - Fix issue with resolving node position when inside string literal
 - Provide full namespace name in diagnostic
-- Fix issue with server not locating main.tsp in parent folder
+- Fix issue with server not locating main.cadl in parent folder
 - Improve tracking of open documents in language server
 - Fix issues with referencing enum from decorator on namespace
 
 ### Updates
 
-- Allow tsp compile . on the compiler itself
+- Allow cadl compile . on the compiler itself
 - `getTypeName` returns type name for more types
 - Upgrade to TS4.7
 
@@ -318,8 +318,8 @@ Fri, 06 May 2022 17:19:57 GMT
 
 ### Minor changes
 
-- Prompt on tsp vs install if multiple versions of VS are installed
-- Improve module resolution logic to allow compiling a typespec library
+- Prompt on cadl vs install if multiple versions of VS are installed
+- Improve module resolution logic to allow compiling a cadl library
 - Add code preview and coloring for diagnostics.
 - Add ability to import library or emitter defined in parent folder. Adds the ability to use the actual emitter name in a samples folder of that emitter
 - Formatter has ability to ignore patterns
@@ -356,14 +356,14 @@ Fri, 06 May 2022 17:19:57 GMT
 
 ### Updates
 
-- Add `TypeSpecLanguageConfiguration` containing the configuration used by editor (vscode, monaco)
+- Add `CadlLanguageConfiguration` containing the configuration used by editor (vscode, monaco)
 
 ## 0.30.0
 Thu, 31 Mar 2022 17:10:49 GMT
 
 ### Minor changes
 
-- Add new helper `typespecTypeToJson` to convert typespec type to a Json serializable type
+- Add new helper `cadlTypeToJson` to convert cadl type to a Json serializable type
 - Add helper methods to detect `void` and `never` types
 - Prevent decorators from running if arguments are errors.
 - Handle unknown identifier/error types used in spread operator.
@@ -389,7 +389,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 
 - Move @key decorator to core
 - Replace findChildModels with mapChildModels
-- **Exports** `NodeHost` for programmatic usage of TypeSpec 
+- **Exports** `NodeHost` for programmatic usage of Cadl 
 - **Added** `@knownValues` decorator providing set of known options for a string type
 - Using `extends` with intrinsic types will emit diagnostic.
 - Allow `op` in interfaces
@@ -400,7 +400,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 ### Patches
 
 - Improve list parsing error recovery
-- Use the proper symbol to use typespec exports in eval
+- Use the proper symbol to use cadl exports in eval
 - Fix issue with missing namespace name in certain cases
 - Fix issue using `is` with intrinsic types.
 - Fix decorator completion on namespaces
@@ -458,7 +458,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - **Fix** Diagnostic location for invalid use of templated models
 - Fix path normalization issue that caused diagnostics from language server to be dropped.
 - Fix error with file ending with mutline comment
-- **Fix** issue when loading typespec using a different casing than the actual casing in a case insensitive file system
+- **Fix** issue when loading cadl using a different casing than the actual casing in a case insensitive file system
 - Add @friendlyName decorator to customize model names for emitters
 - Fix issue where identifiers could be confused with keywords when they had common endings.
 - Renaming @format decorator to @pattern.
@@ -509,7 +509,7 @@ Thu, 18 Nov 2021 13:58:15 GMT
 
 ### Minor changes
 
-- **Added** `tsp install` command which shell out to `npm install`
+- **Added** `cadl install` command which shell out to `npm install`
 - Remove @list decorator
 - Show `@doc` info along with completions
 
@@ -525,11 +525,11 @@ Thu, 11 Nov 2021 21:46:21 GMT
 ### Minor changes
 
 - **Added** `duration` intrinsic type
-- **Added** `--check` option to `tsp format` command to verify files are formatted
-- **Added** log of the error and warning count at the end in case `tsp compile` failed.
+- **Added** `--check` option to `cadl format` command to verify files are formatted
+- **Added** log of the error and warning count at the end in case `cadl compile` failed.
 - **Added** Support for models with mutual references
 - Add completion ("IntelliSense") support to language server
-- `tsp init` generate `package.json` with `private: true`
+- `cadl init` generate `package.json` with `private: true`
 
 ### Patches
 
@@ -585,10 +585,10 @@ Fri, 17 Sep 2021 00:49:37 GMT
 
 ### Minor changes
 
-- Added `tsp init` command to scaffold new typespec project
+- Added `cadl init` command to scaffold new cadl project
 - Added semantic walker
 - Add IDE go-to definition support
-- Implement typespec namespace, don't merge namespaces until checking
+- Implement cadl namespace, don't merge namespaces until checking
 - Remove support for multiple inheritance
 - Definition for `bytes` and new number types
 
@@ -606,7 +606,7 @@ Sat, 21 Aug 2021 00:04:02 GMT
 
 ### Minor changes
 
-- Introduce naming convention `$name` for JavaScript-defined TypeSpec functions and decorators
+- Introduce naming convention `$name` for JavaScript-defined Cadl functions and decorators
 
 ### Patches
 
@@ -617,19 +617,19 @@ Fri, 13 Aug 2021 19:10:21 GMT
 
 ### Minor changes
 
-- Remove `typespec generate` command
+- Remove `cadl generate` command
 
 ### Patches
 
 - Add support for discovering updatable properties using visibility
-- Fix error in `tsp vs uninstall` command
+- Fix error in `cadl vs uninstall` command
 
 ## 0.17.0
 Tue, 10 Aug 2021 20:23:04 GMT
 
 ### Minor changes
 
-- Rename package to @typespec/compiler
+- Rename package to @cadl-lang/compiler
 
 ## 0.16.0
 Mon, 09 Aug 2021 21:14:12 GMT
@@ -649,7 +649,7 @@ Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
 
-- Rename ADL to TypeSpec
+- Rename ADL to Cadl
 
 ## 0.14.0
 Wed, 28 Jul 2021 19:40:06 GMT
