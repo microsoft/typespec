@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-plugin",
+      "comment": "Revert back changelog",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/eslint-plugin"
+}
