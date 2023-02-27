@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating typespec docs",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {

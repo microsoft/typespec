@@ -3,7 +3,7 @@
   "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "Helper ",
-  "homepage": "https://github.com/Azure/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Azure/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
