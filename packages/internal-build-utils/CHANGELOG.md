@@ -1,4 +1,4 @@
-# Change Log - @typespec/internal-build-utils
+# Change Log - @cadl-lang/internal-build-utils
 
 This log was last generated on Fri, 13 Jan 2023 00:05:26 GMT and should not be manually modified.
 

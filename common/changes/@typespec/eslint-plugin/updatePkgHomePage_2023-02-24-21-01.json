@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-plugin",
+      "comment": "Update homepage link",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/eslint-plugin"
+}

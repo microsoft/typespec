@@ -1,4 +1,4 @@
-# Change Log - @typespec/rest
+# Change Log - @cadl-lang/rest
 
 This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
 
@@ -42,7 +42,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Patches
 
-- Add typespec docs on decorators
+- Add cadl docs on decorators
 - Update docs.
 - Update dependencies
 
@@ -51,7 +51,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Declare decorators in typespec using `extern dec`
+- Declare decorators in cadl using `extern dec`
 - Add MetadataInfo.getEffectivePayloadType helper
 - Deprecate write visibility
 - Allow `@route` and `@resetRoute` to accept a `shared` property to suppress route uniqueness validation.
@@ -69,7 +69,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Empty object as a response will not produce a 204 response anymore
 - Feature: Add `isContentTypeHeader` helper.
 - Implement automatic visibility transformations
-- **BREAKING** Remove `@discriminator` decorator. (Moved to @typespec/compiler)
+- **BREAKING** Remove `@discriminator` decorator. (Moved to @cadl-lang/compiler)
 - Disallow optional path params even if they have a default value
 - Add support for overloads(Using `@overload` decorator)
 - Reorganization of http data accessor. `getAllRoutes` is now deprecated and replaced with `getAllHttpServices`
@@ -77,7 +77,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Patches
 
-- Remove workaround for issue https://github.com/microsoft/typespec/issues/1069
+- Remove workaround for issue https://github.com/microsoft/cadl/issues/1069
 - Detect unannotated path parameters that are specified in route path
 
 ## 0.17.0
@@ -232,11 +232,11 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Expose response template in Http library and refactor
 - Add statusCode decorator for http status code
 - **Validate `@route` decorator is used only once
-- Update typespec dependencies to peerDependencies
+- Update cadl dependencies to peerDependencies
 
 ### Patches
 
-- Move `@key`, `@parentResource`, and `@copyResourceKeyParameters` decorators into `TypeSpec.Rest`
+- Move `@key`, `@parentResource`, and `@copyResourceKeyParameters` decorators into `Cadl.Rest`
 - Operations marked with `@action` will now default to `POST` verb unless another verb has been explicitly specified
 - Add interfaces for modelling extension and singleton resources
 - **Fix** Duplicate @key on model properties will produce diagnostic instead of exception
@@ -246,7 +246,7 @@ Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Minor changes
 
-- Add TypeSpec.Http.PlainData<T>
+- Add Cadl.Http.PlainData<T>
 
 ### Patches
 
@@ -270,11 +270,11 @@ Thu, 18 Nov 2021 13:58:15 GMT
 
 ### Minor changes
 
-- Refactor REST and HTTP decorators and split them into TypeSpec.Rest and TypeSpec.Http, respectively
+- Refactor REST and HTTP decorators and split them into Cadl.Rest and Cadl.Http, respectively
 
 ### Patches
 
-- Add new TypeSpec.Rest.Resource namespace for new resource modelling pattern
+- Add new Cadl.Rest.Resource namespace for new resource modelling pattern
 - Add documentation strings to models and operations
 
 ## 0.6.4
@@ -306,7 +306,7 @@ Sat, 21 Aug 2021 00:04:02 GMT
 
 ### Minor changes
 
-- Introduce naming convention `$name` for JavaScript-defined TypeSpec functions and decorators
+- Introduce naming convention `$name` for JavaScript-defined Cadl functions and decorators
 
 ## 0.5.1
 Fri, 13 Aug 2021 19:10:21 GMT
@@ -320,7 +320,7 @@ Tue, 10 Aug 2021 20:23:04 GMT
 
 ### Minor changes
 
-- Rename package to @typespec/rest
+- Rename package to @cadl-lang/rest
 
 ## 0.4.1
 Mon, 09 Aug 2021 21:14:12 GMT
@@ -332,7 +332,7 @@ Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
 
-- Rename ADL to TypeSpec
+- Rename ADL to Cadl
 
 ## 0.3.2
 Wed, 28 Jul 2021 19:40:06 GMT

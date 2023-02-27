@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Revert back changelog",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

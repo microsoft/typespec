@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/internal-build-utils",
+      "comment": "Update homepage link",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/internal-build-utils"
+}

@@ -3,7 +3,7 @@
   "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/lint",
+      "comment": "Revert back changelog",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/lint"
+}

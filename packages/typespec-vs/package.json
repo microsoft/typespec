@@ -3,7 +3,7 @@
   "author": "Microsoft Corporation",
   "version": "0.40.0",
   "description": "TypeSpec Language Support for Visual Studio",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
