@@ -9,6 +9,11 @@
       "packageName": "@typespec/rest",
       "comment": "**Breaking change:** The `@autoRoute` decorator can no longer be applied to namespaces",
       "type": "none"
+    },
+    {
+      "packageName": "@typespec/rest",
+      "comment": "**Breaking change:** The unimplemented `@routeReset` decorator has been removed",
+      "type": "none"
     }
   ],
   "packageName": "@typespec/rest"
