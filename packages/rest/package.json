@@ -21,16 +21,12 @@
   "tspMain": "lib/rest.tsp",
   "exports": {
     ".": "./dist/src/index.js",
-    "./http": "./dist/src/http/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
         "./dist/src/index.d.ts"
-      ],
-      "http": [
-        "./dist/src/http/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"
@@ -62,6 +58,7 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@typespec/compiler": "~0.40.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/eslint-config-typespec": "~0.5.0",
     "@typespec/library-linter": "~0.40.0",
     "@typespec/eslint-plugin": "~0.40.0",

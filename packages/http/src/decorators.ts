@@ -4,7 +4,6 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getDoc,
-  Interface,
   Model,
   ModelProperty,
   Namespace,
@@ -18,8 +17,8 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
-import { extractParamsFromPath } from "../utils.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { setRoute } from "./route.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
@@ -27,10 +26,9 @@ import {
   HttpVerb,
   PathParameterOptions,
   QueryParameterOptions,
-  RouteOptions,
-  RoutePath,
   ServiceAuthentication,
 } from "./types.js";
+import { extractParamsFromPath } from "./utils.js";
 
 export const namespace = "TypeSpec.Http";
 
@@ -587,69 +585,8 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
 
   setRoute(context, entity, {
     path,
-    isReset: false,
     shared: extractSharedValue(context, parameters),
   });
-}
-
-export function $routeReset(
-  context: DecoratorContext,
-  entity: Type,
-  path: string,
-  parameters?: Model
-) {
-  setRoute(context, entity, {
-    path,
-    isReset: true,
-    shared: extractSharedValue(context, parameters),
-  });
-}
-
-const routeOptionsKey = createStateSymbol("routeOptions");
-export function setRouteOptionsForNamespace(
-  program: Program,
-  namespace: Namespace,
-  options: RouteOptions
-) {
-  program.stateMap(routeOptionsKey).set(namespace, options);
-}
-
-export function getRouteOptionsForNamespace(
-  program: Program,
-  namespace: Namespace
-): RouteOptions | undefined {
-  return program.stateMap(routeOptionsKey).get(namespace);
-}
-
-const routesKey = createStateSymbol("routes");
-function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
-  if (
-    !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
-  ) {
-    return;
-  }
-
-  const state = context.program.stateMap(routesKey);
-
-  if (state.has(entity) && entity.kind === "Namespace") {
-    const existingValue: RoutePath = state.get(entity);
-    if (existingValue.path !== details.path) {
-      reportDiagnostic(context.program, {
-        code: "duplicate-route-decorator",
-        messageId: "namespace",
-        target: entity,
-      });
-    }
-  } else {
-    state.set(entity, details);
-  }
-}
-
-export function getRoutePath(
-  program: Program,
-  entity: Namespace | Interface | Operation
-): RoutePath | undefined {
-  return program.stateMap(routesKey).get(entity);
 }
 
 const includeInapplicableMetadataInPayloadKey = createStateSymbol(

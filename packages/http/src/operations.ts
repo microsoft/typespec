@@ -15,10 +15,9 @@ import {
   Program,
   SyntaxKind,
 } from "@typespec/compiler";
-import { createDiagnostic, reportDiagnostic } from "../lib.js";
-import { getRoutePath } from "./decorators.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
-import { resolvePathAndParameters } from "./route.js";
+import { isSharedRoute, resolvePathAndParameters } from "./route.js";
 import {
   HttpOperation,
   HttpService,
@@ -140,8 +139,7 @@ export function validateRouteUnique(
     if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
       continue;
     }
-    const pathShared = getRoutePath(program, operation.operation)?.shared ?? false;
-    if (pathShared) {
+    if (isSharedRoute(program, operation.operation)) {
       continue;
     }
     let map = grouped.get(path);

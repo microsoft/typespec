@@ -91,6 +91,12 @@
       "versionPolicyName": "typespec"
     },
     {
+      "packageName": "@typespec/http",
+      "projectFolder": "packages/http",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
+    },
+    {
       "packageName": "@typespec/rest",
       "projectFolder": "packages/rest",
       "reviewCategory": "production",

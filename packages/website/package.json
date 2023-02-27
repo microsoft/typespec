@@ -33,6 +33,7 @@
   "devDependencies": {
     "@typespec/ref-doc": "^0.1.0",
     "@typespec/spec": "0.1.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/rest": "~0.40.0",
     "@typespec/openapi": "~0.40.0",
     "@docusaurus/module-type-aliases": "^2.2.0",

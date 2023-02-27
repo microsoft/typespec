@@ -1,4 +1,4 @@
-import "@typespec/rest";
+import "@typespec/http";
 
 using TypeSpec.Http;
 @service({

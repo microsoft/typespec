@@ -20,10 +20,10 @@ import {
   isPathParam,
   isQueryParam,
   isStatusCode,
-} from "../src/http/decorators.js";
+} from "../src/decorators.js";
 import { createHttpTestRunner } from "./test-host.js";
 
-describe("rest: http decorators", () => {
+describe("http: decorators", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -233,11 +233,11 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "@typespec/rest/duplicate-operation",
+          code: "@typespec/http/duplicate-operation",
           message: `Duplicate operation "test" routed at "get /test".`,
         },
         {
-          code: "@typespec/rest/duplicate-operation",
+          code: "@typespec/http/duplicate-operation",
           message: `Duplicate operation "test2" routed at "get /test".`,
         },
       ]);
@@ -258,7 +258,7 @@ describe("rest: http decorators", () => {
       `);
       expectDiagnostics(diagnostics, [
         {
-          code: "@typespec/rest/shared-boolean",
+          code: "@typespec/http/shared-boolean",
           message: `shared parameter must be a boolean.`,
         },
       ]);
@@ -293,7 +293,7 @@ describe("rest: http decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@typespec/rest/optional-path-param",
+        code: "@typespec/http/optional-path-param",
         message: "Path parameter 'myPath' cannot be optional.",
       });
     });
@@ -482,7 +482,7 @@ describe("rest: http decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@typespec/rest/missing-server-param",
+        code: "@typespec/http/missing-server-param",
         message: "Server url contains parameter 'name' but wasn't found in given parameters",
       });
     });
@@ -703,7 +703,7 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           severity: "warning",
-          code: "@typespec/rest/write-visibility-not-supported",
+          code: "@typespec/http/write-visibility-not-supported",
         },
       ]);
     });

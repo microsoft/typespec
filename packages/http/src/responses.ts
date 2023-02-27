@@ -14,7 +14,6 @@ import {
   Type,
   walkPropertiesInherited,
 } from "@typespec/compiler";
-import { createDiagnostic } from "../lib.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
@@ -24,6 +23,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
+import { createDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
 import { HttpOperationResponse } from "./types.js";
 

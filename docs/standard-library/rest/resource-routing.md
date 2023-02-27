@@ -44,9 +44,7 @@ interface MyPetOps extends PetOps {
 
 ### Automatic route generation
 
-Instead of manually specifying routes using the `@route` decorator, you automatically generate
-routes from operation parameters by applying the `@autoRoute` decorator to an operation, namespace,
-or interface containing operations.
+Instead of manually specifying routes using the `@route` decorator, you automatically generate routes from operation parameters by applying the `@autoRoute` decorator to an operation or interface containing operations.
 
 For this to work, an operation's path parameters (those marked with `@path`) must also be marked with
 the `@segment` decorator to define the preceding path segment.

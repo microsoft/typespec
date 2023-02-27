@@ -10,7 +10,7 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { $path } from "./http/decorators.js";
+import { $path } from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 export interface ResourceKey {

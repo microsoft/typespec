@@ -1,7 +1,6 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-@autoRoute
 @service({
   title: "Pet Store Service",
   version: "2021-03-25",
@@ -72,12 +71,14 @@ interface PetCheckups
 interface PetInsurance extends SingletonResourceOperations<Insurance, Pet, PetStoreError> {}
 
 interface Toys extends ResourceRead<Toy, PetStoreError> {
+  @autoRoute
   @listsResource(Toy)
   list(
     ...ParentKeysOf<Toy>,
     @query nameFilter: string
   ): CollectionWithNextLink<Toy> | PetStoreError;
 }
+
 interface ToyInsurance extends SingletonResourceOperations<Insurance, Toy, PetStoreError> {}
 
 interface Checkups

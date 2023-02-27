@@ -53,12 +53,14 @@
   ],
   "peerDependencies": {
     "@typespec/compiler": "~0.40.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/rest": "~0.40.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@typespec/compiler": "~0.40.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/rest": "~0.40.0",
     "@typespec/eslint-config-typespec": "~0.5.0",
     "@typespec/library-linter": "~0.40.0",

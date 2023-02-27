@@ -4,6 +4,7 @@ import {
   expectDiagnosticEmpty,
   resolveVirtualPath,
 } from "@typespec/compiler/testing";
+import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
@@ -12,7 +13,13 @@ import { OpenAPI3TestLibrary } from "../src/testing/index.js";
 
 export async function createOpenAPITestHost() {
   return createTestHost({
-    libraries: [RestTestLibrary, VersioningTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
+    libraries: [
+      HttpTestLibrary,
+      RestTestLibrary,
+      VersioningTestLibrary,
+      OpenAPITestLibrary,
+      OpenAPI3TestLibrary,
+    ],
   });
 }
 
@@ -21,7 +28,9 @@ export async function createOpenAPITestRunner({
 }: { withVersioning?: boolean } = {}) {
   const host = await createOpenAPITestHost();
   const importAndUsings = `
-  import "@typespec/rest"; import "@typespec/openapi";
+  import "@typespec/http";
+  import "@typespec/rest";
+  import "@typespec/openapi";
   import "@typespec/openapi3"; 
   ${withVersioning ? `import "@typespec/versioning"` : ""};
   using TypeSpec.Rest;
@@ -47,7 +56,7 @@ export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterO
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": options as any },
   });
-  return diagnostics.filter((x) => x.code !== "@typespec/rest/no-routes");
+  return diagnostics.filter((x) => x.code !== "@typespec/http/no-routes");
 }
 
 export async function openApiFor(
@@ -59,7 +68,7 @@ export async function openApiFor(
   const outPath = resolveVirtualPath("openapi.json");
   host.addTypeSpecFile(
     "./main.tsp",
-    `import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3"; ${
+    `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3"; ${
       versions ? `import "@typespec/versioning"; using TypeSpec.Versioning;` : ""
     }using TypeSpec.Rest;using TypeSpec.Http;using OpenAPI;${code}`
   );
@@ -68,7 +77,7 @@ export async function openApiFor(
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/rest/no-routes"));
+  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
 
   if (!versions) {
     return JSON.parse(host.fs.get(outPath)!);
