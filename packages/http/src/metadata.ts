@@ -33,6 +33,7 @@ export enum Visibility {
   Delete = 1 << 3,
   Query = 1 << 4,
 
+  None = 0,
   All = Read | Create | Update | Delete | Query,
 
   /**
@@ -67,7 +68,7 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
       result.push("query");
     }
 
-    compilerAssert(result.length > 0, "invalid visibility");
+    compilerAssert(result.length > 0 || visibility === Visibility.None, "invalid visibility");
     visibilityToArrayMap.set(visibility, result);
   }
 
@@ -78,20 +79,24 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
  * Provides a naming suffix to create a unique name for a type with this
  * visibility.
  *
- * `Visibility.All` gets empty suffix, otherwise visibilities are joined in
- * pascal-case with `Or`. And `Item` is if `Visibility.Item` is produced.
+ * The canonical visibility (default Visibility.Read) gets empty suffix,
+ * otherwise visibilities are joined in pascal-case with `Or`. And `Item` is
+ * if `Visibility.Item` is produced.
  *
- * Examples:
- *  - Visibility.All => ""
- *  - Visibility.Read => "Read"
+ * Examples (with canonicalVisibility = Visibility.Read):
+ *  - Visibility.Read => ""
+ *  - Visibility.Update => "Update"
  *  - Visibility.Create | Visibility.Update => "CreateOrUpdate"
  *  - Visibility.Create | Visibility.Item => "CreateItem"
- *  - Visibility.Create | Visibility.Update | Visibility.Item =>  "CreateOrUpdateItem"
+ *  - Visibility.Create | Visibility.Update | Visibility.Item => "CreateOrUpdateItem"
  *  */
-export function getVisibilitySuffix(visibility: Visibility) {
+export function getVisibilitySuffix(
+  visibility: Visibility,
+  canonicalVisibility: Visibility | undefined = Visibility.None
+) {
   let suffix = "";
 
-  if ((visibility & ~Visibility.Item) !== Visibility.All) {
+  if ((visibility & ~Visibility.Item) !== canonicalVisibility) {
     const visibilities = visibilityToArray(visibility);
     suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
   }
@@ -296,7 +301,7 @@ export interface MetadataInfo {
 
   /**
    * Determines if the given property is part of the request or response
-   * payload and not applicable metadata (@see isApplicableMetadata) or
+   * payload and not applicable metadata {@link isApplicableMetadata} or
    * filtered out by the given visibility.
    */
   isPayloadProperty(property: ModelProperty, visibility: Visibility): boolean;
@@ -316,18 +321,27 @@ export interface MetadataInfo {
 
 export interface MetadataInfoOptions {
   /**
-   * Optional callback to indicate that a property can be shared with
-   * `Visibility.All` representation even for visibilities where it is not
-   * visible.
+   * The visibility to be used as the baseline against which
+   * {@link MetadataInfo.isEmptied} and {@link MetadataInfo.isTransformed}
+   * are computed. If not specified, {@link Visibility.None} is used, which
+   * will consider that any model that has fields that are only visible to
+   * some visibilities as transformed.
+   */
+  canonicalVisibility?: Visibility;
+
+  /**
+   * Optional callback to indicate that a property can be shared with the
+   * canonical representation even for visibilities where it is not visible.
    *
    * This is used, for example, in OpenAPI emit where a property can be
    * marked `readOnly: true` to represent @visibility("read") without
-   * creating a separate schema schema for Visibility.Read.
+   * creating a separate schema schema for {@link Visibility.Read}.
    */
   canShareProperty?(property: ModelProperty): boolean;
 }
 
 export function createMetadataInfo(program: Program, options?: MetadataInfoOptions): MetadataInfo {
+  const canonicalVisibility = options?.canonicalVisibility ?? Visibility.None;
   const enum State {
     NotTransformed,
     Transformed,
@@ -362,7 +376,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       case State.Transformed:
         return true;
       case State.Emptied:
-        return visibility === Visibility.All || !isEmptied(type, Visibility.All);
+        return visibility === canonicalVisibility || !isEmptied(type, canonicalVisibility);
       default:
         return false;
     }
@@ -419,15 +433,15 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   }
 
   function isAddedRemovedOrMadeOptional(property: ModelProperty, visibility: Visibility) {
-    if (visibility === Visibility.All) {
+    if (visibility === canonicalVisibility) {
       return false;
     }
-    if (isOptional(property, Visibility.All) !== isOptional(property, visibility)) {
+    if (isOptional(property, canonicalVisibility) !== isOptional(property, visibility)) {
       return true;
     }
     return (
       isPayloadProperty(property, visibility, /* keep shared */ true) !==
-      isPayloadProperty(property, Visibility.All, /*keep shared*/ true)
+      isPayloadProperty(property, canonicalVisibility, /*keep shared*/ true)
     );
   }
 
@@ -464,7 +478,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     if (!isVisible(program, property, visibility)) {
       // NOTE: When we check if a model is transformed for a given
       // visibility, we retain shared properties. It is not considered
-      // transformed if the only removed properties are shareable. However,,
+      // transformed if the only removed properties are shareable. However,
       // if we do create a unique schema for a visibility, then we still
       // drop invisible shareable properties from other uses of
       // isPayloadProperty.
@@ -472,6 +486,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       // For OpenAPI emit, for example, this means that we won't put a
       // readOnly: true property into a specialized schema for a non-read
       // visibility.
+      keepShareableProperties ||= visibility === canonicalVisibility;
       return !!(keepShareableProperties && options?.canShareProperty?.(property));
     }
 

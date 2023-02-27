@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Make canonical visibility configurable and default to none.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
