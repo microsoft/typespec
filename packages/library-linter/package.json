@@ -3,7 +3,7 @@
   "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for linting another library.",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
@@ -32,7 +32,7 @@
       ]
     }
   },
-  "typespecMain": "dist/src/index.js",
+  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=14.0.0"
   },

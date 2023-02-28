@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Revert back changelog",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

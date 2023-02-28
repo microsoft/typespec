@@ -12,19 +12,15 @@ import {
   HttpOperationParameter,
   HttpVerb,
   RouteResolutionOptions,
-} from "../src/http/index.js";
+} from "@typespec/http";
+import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
   return createTestHost({
-    libraries: [RestTestLibrary],
+    libraries: [HttpTestLibrary, RestTestLibrary],
   });
 }
-export async function createHttpTestRunner(): Promise<BasicTestRunner> {
-  const host = await createRestTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http"] });
-}
-
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
   return createTestWrapper(host, { autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"] });

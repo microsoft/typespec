@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/lint",
+      "comment": "Update homepage link",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/lint"
+}

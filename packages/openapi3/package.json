@@ -3,7 +3,7 @@
   "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
@@ -32,7 +32,7 @@
       ]
     }
   },
-  "typespecMain": "dist/src/index.js",
+  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -57,6 +57,7 @@
   "peerDependencies": {
     "@typespec/versioning": "~0.40.0",
     "@typespec/compiler": "~0.40.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/rest": "~0.40.0",
     "@typespec/openapi": "~0.40.0"
   },
@@ -65,6 +66,7 @@
     "@types/node": "~18.11.9",
     "@types/js-yaml": "~4.0.1",
     "@typespec/compiler": "~0.40.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/rest": "~0.40.0",
     "@typespec/openapi": "~0.40.0",
     "@typespec/versioning": "~0.40.0",

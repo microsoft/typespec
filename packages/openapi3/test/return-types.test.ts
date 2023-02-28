@@ -268,9 +268,9 @@ describe("openapi3: return types", () => {
     `
     );
     expectDiagnostics(diagnostics, [
-      { code: "@typespec/rest/status-code-invalid" },
-      { code: "@typespec/rest/status-code-invalid" },
-      { code: "@typespec/rest/status-code-invalid" },
+      { code: "@typespec/http/status-code-invalid" },
+      { code: "@typespec/http/status-code-invalid" },
+      { code: "@typespec/http/status-code-invalid" },
     ]);
     ok(diagnostics[0].message.includes("must be a numeric or string literal"));
     ok(diagnostics[1].message.includes("must be a three digit code between 100 and 599"));

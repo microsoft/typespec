@@ -1,3 +1,4 @@
+import "@typespec/http";
 import "@typespec/rest";
 
 @service({

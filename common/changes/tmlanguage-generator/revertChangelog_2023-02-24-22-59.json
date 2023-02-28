@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "Revert back changelog",
+      "type": "none"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}

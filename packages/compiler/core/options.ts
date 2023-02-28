@@ -6,7 +6,7 @@ export interface CompilerOptions {
   /**
    * Default output directory used by emitters.
    *
-   * @default ./typespec-output
+   * @default ./tsp-output
    */
   outputDir?: string;
 

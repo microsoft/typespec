@@ -1,4 +1,4 @@
 {
-  "typespecMain": "petstore.tsp",
+  "tspMain": "petstore.tsp",
   "type": "module"
 }

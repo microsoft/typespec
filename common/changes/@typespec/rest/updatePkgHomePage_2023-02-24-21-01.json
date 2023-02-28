@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Update homepage link",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}

@@ -20,7 +20,7 @@ describe("openapi3: types included", () => {
       options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
     });
 
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/rest/no-routes"));
+    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
 
     const content = runner.fs.get(outPath)!;
     return JSON.parse(content);

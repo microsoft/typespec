@@ -47,7 +47,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
-        message: `Library "my-lib" has an invalid typespecMain file.`,
+        message: `Library "my-lib" has an invalid tspMain file.`,
       });
     });
 
@@ -115,6 +115,46 @@ describe("compiler: entrypoints", () => {
           `  - Version: "2.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@typespec/lib2"`,
         ].join("\n"),
       });
+    });
+
+    it("Back compat: succeed if main.cadl exists", async () => {
+      const program = await compileScenario("backcompat-cadl-file-only", {
+        emit: [],
+        additionalImports: [],
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("Back compat: succeed if package.json has cadlMain", async () => {
+      const program = await compileScenario("backcompat-package-cadlMain", {
+        emit: [],
+        additionalImports: [],
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("Back compat: succeed if main.cadl exists and package.json with no tsp/cadlMain", async () => {
+      const program = await compileScenario("backcompat-package-no_main", {
+        emit: [],
+        additionalImports: [],
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("Back compat: succeed if package.json tspMain points to custom lib.cadl", async () => {
+      const program = await compileScenario("backcompat-package-tspMain-customCadl", {
+        emit: [],
+        additionalImports: [],
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("Back compat: succeed if package.json tspMain points to main.cadl", async () => {
+      const program = await compileScenario("backcompat-package-tspMain-mainCadl", {
+        emit: [],
+        additionalImports: [],
+      });
+      expectDiagnosticEmpty(program.diagnostics);
     });
   });
 });

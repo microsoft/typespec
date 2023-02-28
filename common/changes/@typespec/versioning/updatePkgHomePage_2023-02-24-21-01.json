@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Update homepage link",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

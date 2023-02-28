@@ -3,3 +3,6 @@
 
 [$RootKey$\ShellFileAssociations\.tsp]
 "DefaultIconMoniker"="KnownMonikers.ClassFile"
+
+[$RootKey$\ShellFileAssociations\.cadl]
+"DefaultIconMoniker"="KnownMonikers.ClassFile"

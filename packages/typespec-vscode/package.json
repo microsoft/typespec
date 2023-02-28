@@ -3,7 +3,7 @@
   "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Support for VS Code",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
@@ -73,7 +73,7 @@
       {
         "language": "markdown-typespec",
         "scopeName": "markdown.tsp.codeblock",
-        "path": "./markdown-tsp.json",
+        "path": "./markdown-typespec.json",
         "injectTo": [
           "text.html.markdown"
         ],

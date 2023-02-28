@@ -1,9 +1,9 @@
 {
-  "name": "@typespec/internal-build-utils",
+  "name": "@cadl-lang/internal-build-utils",
   "entries": [
     {
       "version": "0.3.3",
-      "tag": "@typespec/internal-build-utils_v0.3.3",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.3",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",
       "comments": {
         "patch": [
@@ -15,7 +15,7 @@
     },
     {
       "version": "0.3.2",
-      "tag": "@typespec/internal-build-utils_v0.3.2",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.2",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
       "comments": {
         "patch": [
@@ -28,26 +28,26 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.1` to `~0.5.0`"
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
           }
         ]
       }
     },
     {
       "version": "0.3.1",
-      "tag": "@typespec/internal-build-utils_v0.3.1",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.1",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",
       "comments": {
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.3.0` to `~0.4.0`"
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
           }
         ]
       }
     },
     {
       "version": "0.3.0",
-      "tag": "@typespec/internal-build-utils_v0.3.0",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.0",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",
       "comments": {
         "patch": [
@@ -75,7 +75,7 @@
     },
     {
       "version": "0.2.0",
-      "tag": "@typespec/internal-build-utils_v0.2.0",
+      "tag": "@cadl-lang/internal-build-utils_v0.2.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",
       "comments": {
         "minor": [

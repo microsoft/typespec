@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add loading cadl-project.yaml for back compat",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

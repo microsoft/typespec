@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vscode",
+      "comment": "Update homepage link",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vscode"
+}

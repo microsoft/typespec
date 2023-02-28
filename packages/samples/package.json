@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "Microsoft Corporation",
   "description": "Samples for TypeSpec",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/readme.md",
   "license": "MIT",
   "repository": {
@@ -36,6 +36,7 @@
   "dependencies": {
     "@typespec/versioning": "~0.40.0",
     "@typespec/compiler": "~0.40.0",
+    "@typespec/http": "~0.40.0",
     "@typespec/rest": "~0.40.0",
     "@typespec/openapi": "~0.40.0",
     "@typespec/openapi3": "~0.40.0",
