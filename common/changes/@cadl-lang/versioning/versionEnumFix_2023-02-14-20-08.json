@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Remove restriction that version enums must be declared within the versioned namespace.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
