@@ -750,6 +750,9 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
+/** @deprecated Use TypeSpecScriptNode */
+export type CadlScriptNode = TypeSpecScriptNode;
+
 export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
   readonly statements: readonly Statement[];
@@ -1660,6 +1663,12 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
   ? D
   : never;
 
+/** @deprecated Use TypeSpecLibraryDef */
+export type CadlLibraryDef<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends Record<string, any> = Record<string, never>
+> = TypeSpecLibraryDef<T, E>;
+
 /**
  * Definition of a TypeSpec library
  */
@@ -1703,6 +1712,12 @@ export interface JSONSchemaValidator {
    */
   validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
 }
+
+/** @deprecated Use TypeSpecLibrary */
+export type CadlLibrary<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends Record<string, any> = Record<string, never>
+> = TypeSpecLibrary<T, E>;
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
