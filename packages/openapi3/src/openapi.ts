@@ -860,11 +860,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
-        if (
-          !processedSchemas.has(type) &&
-          !paramModels.has(type) &&
-          !shouldInline(program, type)
-        ) {
+        if (!processedSchemas.has(type) && !paramModels.has(type) && !shouldInline(program, type)) {
           getSchemaOrRef(type, Visibility.All);
         }
       };
