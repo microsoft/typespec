@@ -228,6 +228,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   // this map.
   let params: Map<ModelProperty, any>;
 
+  // Keep track of models that have had properties spread into parameters. We won't
+  // consider these unreferenced when emitting unreferenced types.
+  let paramModels: Set<Type>;
+
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
@@ -278,6 +282,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     });
     inProgressInlineTypes = new Set();
     params = new Map();
+    paramModels = new Set();
     tags = new Set();
   }
 
@@ -686,6 +691,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
     if (spreadParam && property.model && !shouldInline(program, property.model)) {
       params.set(property, placeholder);
+      paramModels.add(property.model);
     }
 
     return placeholder;
@@ -854,7 +860,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
-        if (!processedSchemas.has(type) && !shouldInline(program, type)) {
+        if (
+          !processedSchemas.has(type) &&
+          !paramModels.has(type) &&
+          !shouldInline(program, type)
+        ) {
           getSchemaOrRef(type, Visibility.All);
         }
       };

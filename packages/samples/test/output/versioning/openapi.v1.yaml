@@ -36,9 +36,6 @@ components:
           - v1
           - v2
   schemas:
-    ApiVersionParam:
-      type: object
-      properties: {}
     Dog:
       type: object
       properties:
