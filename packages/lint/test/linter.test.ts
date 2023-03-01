@@ -56,7 +56,7 @@ describe("lint: linter", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("registering with enabling a rule shouldn't emit diagnostic unless autoEnableMyRules is called", async () => {
+  it("registering with enabling a rule shouldn't emit diagnostic unless autoEnableRules is called", async () => {
     linter.registerRule(noModelFoo, { autoEnable: true });
 
     const diagnostics = await runLinter(`
@@ -65,7 +65,7 @@ describe("lint: linter", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("registering with enabling a rule should emit diagnostics iof autoEnableMyRules is called", async () => {
+  it("registering with enabling a rule should emit diagnostics iof autoEnableRules is called", async () => {
     linter.registerRule(noModelFoo, { autoEnable: true });
     linter.autoEnableRules();
 
