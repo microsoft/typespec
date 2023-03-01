@@ -299,6 +299,52 @@ describe("compiler: scanner", () => {
     ]);
   });
 
+  it("scans backticked identifiers", () => {
+    const all = tokens(
+      "`a` `01-01`\n`aa x`\r\n`1+1=2` `1!=2` `x\\`x` `\\\\x`\u{2028}`3.14`\u{2029}`import` `a\\n\\t\\`b`"
+    );
+    verify(all, [
+      [Token.Identifier, "`a`", { pos: 0, value: "a", line: 0, character: 0 }],
+      [Token.Whitespace, " ", { pos: 3, value: " ", line: 0, character: 3 }],
+      [Token.Identifier, "`01-01`", { pos: 4, value: "01-01", line: 0, character: 4 }],
+      [Token.NewLine, "\n", { pos: 11, value: "\n", line: 0, character: 11 }],
+
+      [Token.Identifier, "`aa x`", { pos: 12, value: "aa x", line: 1, character: 0 }],
+      [Token.NewLine, "\r\n", { pos: 18, value: "\r\n", line: 1, character: 6 }],
+      [Token.Identifier, "`1+1=2`", { pos: 20, value: "1+1=2", line: 2, character: 0 }],
+      [Token.Whitespace, " ", { pos: 27, value: " ", line: 2, character: 7 }],
+
+      [Token.Identifier, "`1!=2`", { pos: 28, value: "1!=2", line: 2, character: 8 }],
+      [Token.Whitespace, " ", { pos: 34, value: " ", line: 2, character: 14 }],
+      [Token.Identifier, "`x\\`x`", { pos: 35, value: "x`x", line: 2, character: 15 }],
+      [Token.Whitespace, " ", { pos: 41, value: " ", line: 2, character: 21 }],
+
+      [Token.Identifier, "`\\\\x`", { pos: 42, value: "\\x", line: 2, character: 22 }],
+      [Token.Whitespace, "\u{2028}", { pos: 47, value: "\u{2028}", line: 2, character: 27 }],
+      [Token.Identifier, "`3.14`", { pos: 48, value: "3.14", line: 2, character: 28 }],
+      [Token.Whitespace, "\u{2029}", { pos: 54, value: "\u{2029}", line: 2, character: 34 }],
+
+      [Token.Identifier, "`import`", { pos: 55, value: "import", line: 2, character: 35 }],
+      [Token.Whitespace, " ", { pos: 63, value: " ", line: 2, character: 43 }],
+      [Token.Identifier, "`a\\n\\t\\`b`", { pos: 64, value: "a\n\t`b", line: 2, character: 44 }],
+    ]);
+  });
+
+  it("normalizes non-ASCII characters in backticked identifiers", () => {
+    const all = tokens("`\u{d83d}\u{de0d}` `\u{00f1} is \u{006e}\u{0303}` \u{00f1}");
+    verify(all, [
+      [
+        Token.Identifier,
+        "`\u{d83d}\u{de0d}`",
+        { pos: 0, value: "\u{d83d}\u{de0d}", line: 0, character: 0 },
+      ],
+      [Token.Whitespace, " ", { pos: 4, value: " ", line: 0, character: 4 }],
+      [Token.Identifier, "`ñ is ñ`", { pos: 5, value: "ñ is ñ", line: 0, character: 5 }],
+      [Token.Whitespace, " ", { pos: 14, value: " ", line: 0, character: 14 }],
+      [Token.Identifier, "ñ", { pos: 15, value: "ñ", line: 0, character: 15 }],
+    ]);
+  });
+
   // https://github.com/microsoft/typespec/issues/168
   it("scan file ending with multi-line comment", () => {
     const multiLineComment = "/* foo\n*bar\n*/";

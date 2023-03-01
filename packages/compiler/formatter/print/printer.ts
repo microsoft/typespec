@@ -1,6 +1,7 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
+import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
-import { createScanner, Token } from "../../core/scanner.js";
+import { Keywords } from "../../core/scanner.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -16,6 +17,7 @@ import {
   EnumStatementNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  IdentifierNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -156,7 +158,7 @@ export function printNode(
       return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
-      return node.sv;
+      return printIdentifier(node, options);
     case SyntaxKind.StringLiteral:
       return printStringLiteral(path as AstPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
@@ -985,12 +987,7 @@ export function printModelProperty(
       tryInline: true,
     }
   );
-  let id: Doc;
-  if (node.id.kind === SyntaxKind.StringLiteral && isStringSafeToUnquote(node.id, options)) {
-    id = node.id.value;
-  } else {
-    id = path.call(print, "id");
-  }
+  const id = printIdentifier(node.id, options);
   return [
     multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
@@ -1002,22 +999,40 @@ export function printModelProperty(
   ];
 }
 
-function isStringSafeToUnquote(id: StringLiteralNode, options: TypeSpecPrettierOptions): boolean {
-  const unquotedRawText = getRawText(id, options).slice(1, -1);
-  if (id.value !== unquotedRawText) {
-    return false;
-  }
-  let hasError = false;
-  const scanner = createScanner(id.value, (d) => (hasError = true));
-  if (scanner.scan() !== Token.Identifier) {
-    return false;
-  }
+function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
+  return printId(id.sv);
+}
 
-  if (scanner.scan() !== Token.EndOfFile) {
+export function printId(sv: string) {
+  if (needBacktick(sv)) {
+    const escapedString = sv
+      .replace(/\\/g, "\\\\")
+      .replace(/\n/g, "\\n")
+      .replace(/\r/g, "\\r")
+      .replace(/\t/g, "\\t")
+      .replace(/`/g, "\\`");
+    return `\`${escapedString}\``;
+  } else {
+    return sv;
+  }
+}
+
+function needBacktick(sv: string) {
+  if (sv.length === 0) {
     return false;
   }
-
-  return !hasError;
+  if (Keywords.has(sv)) {
+    return true;
+  }
+  let cp = sv.codePointAt(0)!;
+  if (!isIdentifierStart(cp)) {
+    return true;
+  }
+  let pos = 0;
+  do {
+    pos += utf16CodeUnits(cp);
+  } while (pos < sv.length && isIdentifierContinue((cp = sv.codePointAt(pos)!)));
+  return pos < sv.length;
 }
 
 function isModelExpressionInBlock(
