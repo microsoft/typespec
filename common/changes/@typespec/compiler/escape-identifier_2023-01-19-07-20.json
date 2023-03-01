@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Allow escaping identifiers using backticks",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
