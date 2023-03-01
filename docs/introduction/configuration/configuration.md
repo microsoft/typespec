@@ -157,14 +157,15 @@ options:
 
 ## TypeSpec Configuration Options
 
-| Config          | Cli                       | Description                    |
-| --------------- | ------------------------- | ------------------------------ |
-| `output-dir`    | `--output-dir`            | Default output directory       |
-| `trace`         | `--trace`                 | Specify tracing area to enable |
-| `warn-as-error` | `--warn-as-error`         | Treat warning as error         |
-| `imports`       | `--import`                | Additional imports to include  |
-| `emit`          | `--emit`                  | Emitter configuration          |
-| `options`       | `--option` or `--options` | Emitter configuration          |
+| Config          | Cli                       | Description                      |
+| --------------- | ------------------------- | -------------------------------- |
+| `output-dir`    | `--output-dir`            | Default output directory         |
+| `tspconfig-dir` | `--tspconfig-dir`         | Folder containing tspconfig.yaml |
+| `trace`         | `--trace`                 | Specify tracing area to enable   |
+| `warn-as-error` | `--warn-as-error`         | Treat warning as error           |
+| `imports`       | `--import`                | Additional imports to include    |
+| `emit`          | `--emit`                  | Emitter configuration            |
+| `options`       | `--option` or `--options` | Emitter configuration            |
 
 ### `output-dir` - Configure the default output dir
 

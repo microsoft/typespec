@@ -103,6 +103,11 @@ async function main() {
             string: true,
             describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
           })
+          .option("tspconfig-dir", {
+            type: "string",
+            describe:
+              "The location of the folder containing tspconfig.yaml. Defaults to cwd. If not found, the CLI will attempt to search for the file by moving up the folder hierarchy.",
+          })
           .option("warn-as-error", {
             type: "boolean",
             default: false,
