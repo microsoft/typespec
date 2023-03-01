@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Stop treating models spread into parameters as unreferenced.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
