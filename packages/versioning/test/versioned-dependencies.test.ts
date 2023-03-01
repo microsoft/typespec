@@ -884,6 +884,32 @@ describe("versioning: dependencies", () => {
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
+
+  it("have a service namespace that indirectly depends on multiple versioned libraries", async () => {
+    const { MyService } = (await runner.compile(`
+        @service({title: "Test"})
+        @useDependency(Azure.ResourceManager.Versions.v1)
+        @test("MyService")
+        namespace MyOrg.MyService {
+        }
+        
+        @versioned(Versions)
+        namespace Azure.Core {
+          enum Versions { v1: "v1" }
+        }
+        
+        @versioned(Versions)
+        namespace Azure.ResourceManager { 
+          enum Versions { 
+            @useDependency(Azure.Core.Versions.v1)
+            v1: "v1" 
+          }
+        }
+      `)) as { MyService: Namespace };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
+  });
 });
 
 function runProjections(program: Program, rootNs: Namespace) {
