@@ -19,7 +19,6 @@ import { createStateSymbol, reportDiagnostic } from "./lib.js";
 const addedOnKey = createStateSymbol("addedOn");
 const removedOnKey = createStateSymbol("removedOn");
 const versionsKey = createStateSymbol("versions");
-const reverseVersionsKey = createStateSymbol("reverseVersions");
 const versionDependencyKey = createStateSymbol("versionDependency");
 const useDependencyNamespaceKey = createStateSymbol("useDependencyNamespace");
 const useDependencyEnumKey = createStateSymbol("useDependencyEnum");
@@ -342,15 +341,8 @@ export class VersionMap {
   }
 }
 
-export function $versioned(context: DecoratorContext, namespace: Namespace, versions: Enum) {
-  context.program.stateMap(versionsKey).set(namespace, new VersionMap(namespace, versions));
-  // store a reverse map of enums to namespaces
-  const reverseMap = [namespace];
-  const existing = context.program.stateMap(reverseVersionsKey).get(versions);
-  if (existing) {
-    reverseMap.push(...existing);
-  }
-  context.program.stateMap(reverseVersionsKey).set(versions, reverseMap);
+export function $versioned(context: DecoratorContext, t: Namespace, versions: Enum) {
+  context.program.stateMap(versionsKey).set(t, new VersionMap(t, versions));
 }
 
 /**
@@ -725,12 +717,7 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
 }
 
 export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
-  const namespaces = program.stateMap(reverseVersionsKey).get(en);
-  if (!namespaces) {
-    return [];
-  }
-  // if there are multiple namespaces, it doesn't matter which one we use
-  const namespace = namespaces.at(0);
+  const namespace = en.namespace;
 
   if (namespace === undefined) {
     return [];
@@ -940,7 +927,7 @@ export function getVersionForEnumMember(program: Program, member: EnumMember): V
   if (!parentEnum) {
     return undefined;
   }
-  const [_, versions] = getVersionsForEnum(program, parentEnum);
+  const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);
 }
 
