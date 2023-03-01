@@ -535,6 +535,8 @@ export interface TypeInstantiationMap {
  */
 export enum SyntaxKind {
   TypeSpecScript,
+  /** @deprecated Use TypeSpecScript */
+  CadlScript = TypeSpecScript,
   JsSourceFile,
   ImportStatement,
   Identifier,
