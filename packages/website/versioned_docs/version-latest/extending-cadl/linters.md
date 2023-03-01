@@ -24,7 +24,7 @@ npm install @cadl-lang/lint
 ### 2. Define the rules
 
 ```ts
-import { createRule } from "@typespec/lint";
+import { createRule } from "@cadl-lang/lint";
 import { reportDiagnostic } from "../lib.js";
 
 export const modelDocRule = createRule({
@@ -34,7 +34,6 @@ export const modelDocRule = createRule({
       model: (model) => {
         if (!getDoc(program, model)) {
           reportDiagnostic(program, {
-            // Note 1
             code: "no-model-doc",
             target: model,
           });
@@ -44,8 +43,6 @@ export const modelDocRule = createRule({
   },
 });
 ```
-
-Note 1: `code` refers to they key of a diagnostic defined when you `createTypeSpecLibrary` [See](./basics.md#4-create-libts)
 
 ### Register the rules
 
@@ -66,7 +63,7 @@ linter.registerRule(modelDocRule);
 Or multiple rules at once
 
 ```ts
-linter.registerRules([modelDocRule, interfaceDocRule]);
+linter.registerRule([modelDocRule, interfaceDocRule]);
 ```
 
 When registering a rule, its name will be prefixed by the library named defined in `$lib`.
@@ -84,10 +81,10 @@ Alternatively rules can be automatically enabled when registered.
 
 ```ts
 // With single registration
-linter.registerRule(modelDocRule, { autoEnable: true });
+linter.registerRule(modelDocRule, { enable: true });
 
 // With multi registration
-linter.registerRules([modelDocRule, interfaceDocRule], { autoEnable: true });
+linter.registerRule([modelDocRule, interfaceDocRule], { enable: true });
 ```
 
 ### Register the linter hook
@@ -96,7 +93,7 @@ The lint library still depends on `$onValidate` to run. For that each library pr
 
 ```ts
 export function $onValidate(program: Program) {
-  linter.autoEnableRules(); // Optional if you want to automatically enable your rules
+  linter.autoEnableMyRules(); // Optional if you want to automatically enable your rules
   linter.enableRules(["<library-name>/<rule-name>"]); // Alternatively enable rules explicitly. Must be the rule fully qualified name.
   linter.lintOnValidate(program);
 }
