@@ -643,7 +643,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier({
+      message: "property",
+      allowStringLiteral: true,
+    });
 
     parseExpected(Token.Colon);
 
@@ -837,7 +840,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier({
+      message: "property",
+      allowStringLiteral: true,
+    });
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
@@ -926,8 +932,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
-    const id =
-      token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("enumMember");
+    const id = parseIdentifier({
+      message: "enumMember",
+      allowStringLiteral: true,
+    });
 
     let value: StringLiteralNode | NumericLiteralNode | undefined;
     if (parseOptional(Token.Colon)) {
@@ -1195,7 +1203,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     recoverFromKeyword = true
   ): IdentifierNode | MemberExpressionNode {
     const pos = tokenPos();
-    let base: IdentifierNode | MemberExpressionNode = parseIdentifier(message, recoverFromKeyword);
+    let base: IdentifierNode | MemberExpressionNode = parseIdentifier({
+      message,
+      recoverFromKeyword,
+    });
     while (parseOptional(Token.Dot)) {
       base = {
         kind: SyntaxKind.MemberExpression,
@@ -1205,7 +1216,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         // parse `@Outer.<missing identifier> model M{}` as having decorator
         // `@Outer.model` applied to invalid statement `M {}` instead of
         // having incomplete decorator `@Outer.` applied to `model M {}`.
-        id: parseIdentifier(undefined, false),
+        id: parseIdentifier({
+          recoverFromKeyword: false,
+        }),
         ...finishNode(pos),
       };
     }
@@ -1350,16 +1363,20 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseIdentifier(
-    message?: keyof CompilerDiagnostics["token-expected"],
-    recoverFromKeyword = true
-  ): IdentifierNode {
-    if (recoverFromKeyword && isKeyword(token())) {
+  function parseIdentifier(options?: {
+    message?: keyof CompilerDiagnostics["token-expected"];
+    allowStringLiteral?: boolean; // Allow string literals to be used as identifiers for backward-compatibility, but convert to an identifier node.
+    recoverFromKeyword?: boolean;
+  }): IdentifierNode {
+    if (options?.recoverFromKeyword !== false && isKeyword(token())) {
       error({ code: "reserved-identifier" });
-    } else if (token() !== Token.Identifier) {
+    } else if (
+      token() !== Token.Identifier &&
+      (!options?.allowStringLiteral || token() !== Token.StringLiteral)
+    ) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
-      error({ code: "token-expected", messageId: message ?? "identifier" });
+      error({ code: "token-expected", messageId: options?.message ?? "identifier" });
       return createMissingIdentifier();
     }
 
@@ -1493,7 +1510,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseFunctionParameter(): FunctionParameterNode {
     const pos = tokenPos();
     const rest = parseOptional(Token.Ellipsis);
-    const id = parseIdentifier("property");
+    const id = parseIdentifier({ message: "property" });
 
     const optional = parseOptional(Token.Question);
     let type;
@@ -1560,7 +1577,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
-    const directionId = parseIdentifier("projectionDirection");
+    const directionId = parseIdentifier({ message: "projectionDirection" });
     let direction: "to" | "from";
     if (directionId.sv !== "from" && directionId.sv !== "to") {
       error({ code: "token-expected", messageId: "projectionDirection" });
@@ -1898,7 +1915,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       case Token.UnknownKeyword:
         return parseUnknownKeyword();
       default:
-        return parseIdentifier("expression");
+        return parseIdentifier({ message: "expression" });
     }
   }
 
@@ -2000,7 +2017,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier({ message: "property", allowStringLiteral: true });
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
