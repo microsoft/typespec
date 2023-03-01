@@ -1,6 +1,9 @@
 import { Program, SemanticNodeListener } from "@typespec/compiler";
 
 export interface RegisterRuleOptions {
+  /**
+   * Allows a rule to be automatically enabled when `autoEnableRules` is called.
+   */
   autoEnable?: boolean;
 }
 
