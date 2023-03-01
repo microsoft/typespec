@@ -37,6 +37,8 @@ function checkIsVersion(
 ): Version | undefined {
   const version = getVersionForEnumMember(program, enumMember);
   if (!version) {
+    // FIXME: Debugging stuff. Remove.
+    let test = getVersionForEnumMember(program, enumMember);
     reportDiagnostic(program, {
       code: "version-not-found",
       target: diagnosticTarget,
@@ -725,6 +727,8 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
 }
 
 export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
+  // FIXME: Debugging. Remove.
+  const statemap = program.stateMap(reverseVersionsKey);
   const namespaces = program.stateMap(reverseVersionsKey).get(en);
   if (!namespaces) {
     return [];
