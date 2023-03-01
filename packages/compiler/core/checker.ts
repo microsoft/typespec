@@ -224,6 +224,9 @@ interface TypePrototype {
   projectionsByName(name: string): ProjectionStatementNode[];
 }
 
+/** @deprecated Use TypeSpecCompletionItem */
+export type CadlCompletionItem = TypeSpecCompletionItem;
+
 export interface TypeSpecCompletionItem {
   sym: Sym;
 
