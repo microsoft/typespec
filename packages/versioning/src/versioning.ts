@@ -386,6 +386,7 @@ export function $useDependency(
   const versions: Array<Version> = [];
   // ensure only valid versions are passed in
   for (const record of versionRecords) {
+    // FIXME: This needs to run during compilation... but NOT run during projection???
     const ver = checkIsVersion(context.program, record, context.getArgumentTarget(0)!);
     if (ver) {
       versions.push(ver);

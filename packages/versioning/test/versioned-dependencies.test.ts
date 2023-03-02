@@ -907,8 +907,35 @@ describe("versioning: dependencies", () => {
         }
       `)) as { MyService: Namespace };
 
+    // FIXME: How to pick up the diagnostics that are issued here?
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
+  });
+
+  it("emits diagnostic if versioned library is not marked with `@versioned`", async () => {
+    const diagnostics = await runner.diagnose(`
+      @service({
+        title: "Test",
+      })
+      @useDependency(Lib.One.Versions.v1)
+      @test("MyService")
+      namespace MyOrg.MyService {
+      }
+      
+      namespace Lib.One {
+        enum Versions {
+          v1: "v1",
+        }
+      }      
+      `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/versioning/version-not-found",
+        severity: "error",
+        message:
+          "The provided version 'v1' from 'Versions' is not declared as a version enum. Use '@versioned(Versions)' on the containing namespace.",
+      },
+    ]);
   });
 });
 
