@@ -37,8 +37,6 @@ function checkIsVersion(
 ): Version | undefined {
   const version = getVersionForEnumMember(program, enumMember);
   if (!version) {
-    // FIXME: Debugging stuff. Remove.
-    let test = getVersionForEnumMember(program, enumMember);
     reportDiagnostic(program, {
       code: "version-not-found",
       target: diagnosticTarget,
@@ -386,7 +384,6 @@ export function $useDependency(
   const versions: Array<Version> = [];
   // ensure only valid versions are passed in
   for (const record of versionRecords) {
-    // FIXME: This needs to run during compilation... but NOT run during projection???
     const ver = checkIsVersion(context.program, record, context.getArgumentTarget(0)!);
     if (ver) {
       versions.push(ver);
@@ -728,8 +725,6 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
 }
 
 export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
-  // FIXME: Debugging. Remove.
-  const statemap = program.stateMap(reverseVersionsKey);
   const namespaces = program.stateMap(reverseVersionsKey).get(en);
   if (!namespaces) {
     return [];

@@ -907,7 +907,6 @@ describe("versioning: dependencies", () => {
         }
       `)) as { MyService: Namespace };
 
-    // FIXME: How to pick up the diagnostics that are issued here?
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
