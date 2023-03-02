@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Adding back all compiler exported public artifacts contains Cadl that got renamed to TypeSpec.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

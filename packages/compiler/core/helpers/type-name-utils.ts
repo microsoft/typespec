@@ -1,3 +1,4 @@
+import { printId } from "../../formatter/print/printer.js";
 import {
   Enum,
   Interface,
@@ -11,7 +12,8 @@ import {
 } from "../types.js";
 
 export interface TypeNameOptions {
-  namespaceFilter: (ns: Namespace) => boolean;
+  namespaceFilter?: (ns: Namespace) => boolean;
+  printable?: boolean;
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
@@ -19,7 +21,7 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "Namespace":
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
-      return type.node.id.sv;
+      return getIdentifierName(type.node.id.sv, options);
     case "Scalar":
       return getScalarName(type, options);
     case "Model":
@@ -33,9 +35,11 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "Enum":
       return getEnumName(type, options);
     case "EnumMember":
-      return `${getEnumName(type.enum, options)}.${type.name}`;
+      return `${getEnumName(type.enum, options)}.${getIdentifierName(type.name, options)}`;
     case "Union":
-      return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
+      return type.name
+        ? getIdentifierName(type.name, options)
+        : type.options.map((x) => getTypeName(x, options)).join(" | ");
     case "UnionVariant":
       return getTypeName(type.type, options);
     case "Tuple":
@@ -63,7 +67,7 @@ export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions)
     return "";
   }
 
-  return `${getNamespacePrefix(type.namespace, options)}${type.name}`;
+  return `${getNamespacePrefix(type.namespace, options)}${getIdentifierName(type.name, options)}`;
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
@@ -72,11 +76,14 @@ function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptio
 }
 
 function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(e.namespace, options)}${e.name}`;
+  return `${getNamespacePrefix(e.namespace, options)}${getIdentifierName(e.name, options)}`;
 }
 
 function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(scalar.namespace, options)}${scalar.name}`;
+  return `${getNamespacePrefix(scalar.namespace, options)}${getIdentifierName(
+    scalar.name,
+    options
+  )}`;
 }
 
 function getModelName(model: Model, options: TypeNameOptions | undefined) {
@@ -93,14 +100,16 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   if (model.name === "") {
     return nsPrefix + "(anonymous model)";
   }
-  const modelName = nsPrefix + model.name;
+  const modelName = nsPrefix + getIdentifierName(model.name, options);
   if (model.templateArguments && model.templateArguments.length > 0) {
     // template instantiation
     const args = model.templateArguments.map((x) => getTypeName(x, options));
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
-    const params = (model.node as ModelStatementNode).templateParameters.map((t) => t.id.sv);
+    const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
+      getIdentifierName(t.id.sv, options)
+    );
     return `${model.name}<${params.join(", ")}>`;
   } else {
     // regular old model.
@@ -131,7 +140,7 @@ function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | un
 }
 
 function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {
-  let interfaceName = iface.name;
+  let interfaceName = getIdentifierName(iface.name, options);
   if (iface.templateArguments && iface.templateArguments.length > 0) {
     interfaceName += `<${iface.templateArguments.map((x) => getTypeName(x, options)).join(", ")}>`;
   }
@@ -139,5 +148,9 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
 }
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
-  return `${getNamespacePrefix(op.namespace, options)}${op.name}`;
+  return `${getNamespacePrefix(op.namespace, options)}${getIdentifierName(op.name, options)}`;
+}
+
+function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
+  return options?.printable ? printId(name) : name;
 }

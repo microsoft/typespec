@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Format `StringLiteral` to `Identifier` (backticked when necessary)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
