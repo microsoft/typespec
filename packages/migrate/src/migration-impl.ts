@@ -1,11 +1,12 @@
 import { TextRange } from "@typespec/compiler";
 import { readFile, writeFile } from "fs/promises";
+import { TypeSpecCompilers } from "./migration-config.js";
 import {
+  contentMigrateAction,
   Migration,
   TypeSpecCompiler,
-  TypeSpecCompilers,
   TypeSpecCompilerVersion,
-} from "./migrations/migration.js";
+} from "./migration-types.js";
 export interface MigrationResult {
   fileChanged: string[];
 }
@@ -75,10 +76,17 @@ function migrateTypeSpecContentInternal(
   migration: Migration<any>
 ): [string, boolean] {
   const parsed = fromCompiler.parse(content);
-  const actions = migration
-    .migrate(createMigrationContext(parsed), fromCompiler, parsed as any)
-    .sort((a, b) => a.target.pos - b.target.pos);
+  const actions = migration.migrate(createMigrationContext(parsed), fromCompiler, parsed as any);
+  // .filter(a)
+  // .sort((a, b) => a.target.pos - b.target.pos);
+  return ["", true];
+}
 
+function ContentMigration(
+  toCompiler: TypeSpecCompiler,
+  content: string,
+  actions: contentMigrateAction[]
+) {
   if (actions.length === 0) {
     return [content, false];
   }
@@ -101,6 +109,10 @@ function migrateTypeSpecContentInternal(
     return [newContent, true];
   }
 }
+
+function RenameMigration() {}
+
+function PackageVersionMigration() {}
 
 function createMigrationContext(root: any) {
   function printNode(node: TextRange) {
