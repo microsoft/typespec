@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import jsyaml from "js-yaml";
 import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
@@ -23,26 +24,32 @@ export async function findTypeSpecConfigPath(
   host: CompilerHost,
   path: string
 ): Promise<string | undefined> {
-  const filename = path.split("\\").pop()?.split("/").pop();
-  if (filename) {
-    return path;
-  } else {
-    let current = path;
-    while (true) {
-      let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
-      if (pkgPath === undefined) {
-        pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+  try {
+    const stats = fs.statSync(path);
+    if (stats.isFile()) {
+      return path;
+    } else if (stats.isDirectory()) {
+      let current = path;
+      while (true) {
+        let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
+        if (pkgPath === undefined) {
+          pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+        }
+        // if found either file in current folder, return it
+        if (pkgPath !== undefined) {
+          return pkgPath;
+        }
+        const parent = getDirectoryPath(current);
+        if (parent === current) {
+          return undefined;
+        }
+        current = parent;
       }
-      // if found either file in current folder, return it
-      if (pkgPath !== undefined) {
-        return pkgPath;
-      }
-      const parent = getDirectoryPath(current);
-      if (parent === current) {
-        return undefined;
-      }
-      current = parent;
     }
+    return undefined;
+  } catch (error) {
+    console.error(`ERROR: --config '${path}' not found. Using default configuration.`);
+    return undefined;
   }
 }
 
