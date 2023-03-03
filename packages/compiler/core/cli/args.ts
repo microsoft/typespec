@@ -72,8 +72,8 @@ export async function getCompilerOptions(
     watchForChanges: args["watch"],
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
-
     outputDir: expandedConfig.outputDir,
+    tspconfigDir: args["tspconfig-dir"],
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,

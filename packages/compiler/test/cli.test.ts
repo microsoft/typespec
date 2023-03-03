@@ -34,6 +34,15 @@ describe("compiler: cli", () => {
       });
     });
 
+    it("--tspconfig-dir plumbs through", async () => {
+      const options = await resolveCompilerOptions({ "tspconfig-dir": `${cwd}/myconfigdir` });
+      deepStrictEqual(options, {
+        outputDir: `${cwd}/tsp-output`,
+        tspconfigDir: `${cwd}/myconfigdir`,
+        options: {},
+      });
+    });
+
     it("--option without an emitter are moved to miscOptions", async () => {
       const options = await resolveCompilerOptions({
         options: [`test-debug=true`],

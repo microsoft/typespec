@@ -11,6 +11,11 @@ export interface CompilerOptions {
   outputDir?: string;
 
   /**
+   * Directory in which to search for the tspconfig.yaml file.
+   */
+  tspconfigDir?: string;
+
+  /**
    * @deprecated use outputDir.
    */
   outputPath?: string;
