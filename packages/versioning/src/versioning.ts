@@ -716,19 +716,6 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
   return versions;
 }
 
-export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
-  const namespace = en.namespace;
-  if (namespace === undefined) {
-    return [];
-  }
-  const nsVersion = getVersion(program, namespace);
-
-  if (nsVersion === undefined) {
-    return [];
-  }
-  return [namespace, nsVersion];
-}
-
 export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
   if (versionCache.has(t)) {
     return versionCache.get(t)!;
@@ -922,12 +909,15 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
-  const parentEnum = member.enum;
-  if (!parentEnum) {
-    return undefined;
+  const globalNs = program.checker.getGlobalNamespaceType();
+  for (const [_, ns] of globalNs.namespaces) {
+    const [_, versionMap] = getVersions(program, ns);
+    const version = versionMap?.getVersionForEnumMember(member);
+    if (version) {
+      return version;
+    }
   }
-  const [_, versions] = getVersionsForEnum(program, parentEnum);
-  return versions?.getVersionForEnumMember(member);
+  return undefined;
 }
 
 /**
