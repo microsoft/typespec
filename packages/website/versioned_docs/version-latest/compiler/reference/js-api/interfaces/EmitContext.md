@@ -34,7 +34,7 @@ ___
 
 • **options**: `TOptions`
 
-Emitter custom options defined in createCadlLibrary
+Emitter custom options defined in createTypeSpecLibrary
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **program**: [`Program`](Program.md)
 
-Cadl Program.
+TypeSpec Program.
 
 ## Methods
 

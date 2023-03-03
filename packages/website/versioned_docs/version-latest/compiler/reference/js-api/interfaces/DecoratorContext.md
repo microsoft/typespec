@@ -76,7 +76,7 @@ Function that can be used to retrieve the target for a parameter at the given in
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `paramIndex` | `number` | Parameter index in the cadl |
+| `paramIndex` | `number` | Parameter index in the typespec |
 
 #### Returns
 

@@ -87,7 +87,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`CadlScriptNode`](CadlScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
+• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
 
 #### Overrides
 
@@ -123,7 +123,7 @@ ___
 
 ### target
 
-• `Readonly` **target**: [`IdentifierNode`](IdentifierNode.md) \| [`MemberExpressionNode`](MemberExpressionNode.md)
+• `Readonly` **target**: [`MemberExpressionNode`](MemberExpressionNode.md) \| [`IdentifierNode`](IdentifierNode.md)
 
 ___
 

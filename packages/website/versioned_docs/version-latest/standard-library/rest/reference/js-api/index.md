@@ -4,12 +4,10 @@ JS Api
 
 ## Table of contents
 
-### Namespaces
-
-- [http](modules/http.md)
-
 ### Interfaces
 
+- [AutoRouteOptions](interfaces/AutoRouteOptions.md)
+- [FilteredRouteParam](interfaces/FilteredRouteParam.md)
 - [ResourceKey](interfaces/ResourceKey.md)
 - [ResourceOperation](interfaces/ResourceOperation.md)
 
@@ -67,7 +65,7 @@ JS Api
 
 ### namespace
 
-• `Const` **namespace**: ``"Cadl.Rest"``
+• `Const` **namespace**: ``"TypeSpec.Rest"``
 
 ## Functions
 
@@ -134,10 +132,10 @@ ___
 
 ▸ **$autoRoute**(`context`, `entity`): `void`
 
-`@autoRoute` enables automatic route generation for an operation, namespace, or interface.
+`@autoRoute` enables automatic route generation for an operation or interface.
 
 When applied to an operation, it automatically generates the operation's route based on path parameter
-metadata.  When applied to a namespace or interface, it causes all operations under that scope to have
+metadata.  When applied to an interface, it causes all operations under that scope to have
 auto-generated routes.
 
 #### Parameters
@@ -145,7 +143,7 @@ auto-generated routes.
 | Name | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Interface` \| `Namespace` \| `Operation` |
+| `entity` | `Interface` \| `Operation` |
 
 #### Returns
 
@@ -505,7 +503,7 @@ ___
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `program` | `Program` | the Cadl program |
+| `program` | `Program` | the TypeSpec program |
 | `entity` | `Type` | the target entity |
 
 #### Returns
@@ -569,14 +567,14 @@ ___
 
 ### getResourceOperation
 
-▸ **getResourceOperation**(`program`, `cadlOperation`): [`ResourceOperation`](interfaces/ResourceOperation.md) \| `undefined`
+▸ **getResourceOperation**(`program`, `typespecOperation`): [`ResourceOperation`](interfaces/ResourceOperation.md) \| `undefined`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `cadlOperation` | `Operation` |
+| `typespecOperation` | `Operation` |
 
 #### Returns
 
@@ -637,14 +635,14 @@ ___
 
 ### isAutoRoute
 
-▸ **isAutoRoute**(`program`, `target`): `boolean`
+▸ **isAutoRoute**(`program`, `entity`): `boolean`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `target` | `Interface` \| `Namespace` \| `Operation` |
+| `entity` | `Interface` \| `Operation` |
 
 #### Returns
 

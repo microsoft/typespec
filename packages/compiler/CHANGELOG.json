@@ -1,6 +1,71 @@
 {
-  "name": "@cadl-lang/compiler",
+  "name": "@typespec/compiler",
   "entries": [
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/compiler_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Adding back all compiler exported public artifacts contains Cadl that got renamed to TypeSpec."
+          },
+          {
+            "comment": "Fix ambiguous references diagnostic for decorators"
+          },
+          {
+            "comment": "Add loading cadl-project.yaml for back compat"
+          },
+          {
+            "comment": "Remove support for Visual Studio 2019"
+          },
+          {
+            "comment": "Allow escaping identifiers using backticks"
+          },
+          {
+            "comment": "Format `StringLiteral` to `Identifier` (backticked when necessary)"
+          },
+          {
+            "comment": "Apply augmented decorator at last."
+          },
+          {
+            "comment": "Adding .cadl & package.json cadlMain back compat support"
+          },
+          {
+            "comment": "Fix projection of template arguments"
+          },
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Revert PR #1634."
+          },
+          {
+            "comment": "Fix issue with projectedName decorator not working correctly when multiple copies of the compiler are loaded."
+          },
+          {
+            "comment": "Updating default output to tsp-output and package.json entrypoint to tspMain"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          },
+          {
+            "comment": "Fixing cli help message, package homepage link"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.3.3` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.2` to `~0.4.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.40.0",
       "tag": "@cadl-lang/compiler_v0.40.0",

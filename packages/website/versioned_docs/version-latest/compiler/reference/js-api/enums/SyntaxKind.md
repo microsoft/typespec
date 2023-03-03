@@ -81,6 +81,7 @@ AST types
 - [TemplateParameterDeclaration](SyntaxKind.md#templateparameterdeclaration)
 - [TupleExpression](SyntaxKind.md#tupleexpression)
 - [TypeReference](SyntaxKind.md#typereference)
+- [TypeSpecScript](SyntaxKind.md#typespecscript)
 - [UnionExpression](SyntaxKind.md#unionexpression)
 - [UnionStatement](SyntaxKind.md#unionstatement)
 - [UnionVariant](SyntaxKind.md#unionvariant)
@@ -123,6 +124,10 @@ ___
 ### CadlScript
 
 • **CadlScript** = ``0``
+
+**`Deprecated`**
+
+Use TypeSpecScript
 
 ___
 
@@ -525,6 +530,12 @@ ___
 ### TypeReference
 
 • **TypeReference** = ``39``
+
+___
+
+### TypeSpecScript
+
+• **TypeSpecScript** = ``0``
 
 ___
 
