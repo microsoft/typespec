@@ -1,6 +1,41 @@
 {
-  "name": "@cadl-lang/openapi3",
+  "name": "@typespec/openapi3",
   "entries": [
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/openapi3_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Support additionalProperties"
+          },
+          {
+            "comment": "Stop treating models spread into parameters as unreferenced."
+          },
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Use new `@typespec/http` library"
+          },
+          {
+            "comment": "Update package.json entrypoint to tspMain"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          },
+          {
+            "comment": "Update homepage link"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.40.0",
       "tag": "@cadl-lang/openapi3_v0.40.0",

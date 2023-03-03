@@ -1,6 +1,27 @@
-# Change Log - @cadl-lang/compiler
+# Change Log - @typespec/compiler
 
-This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Mar 2023 19:59:17 GMT and should not be manually modified.
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Adding back all compiler exported public artifacts contains Cadl that got renamed to TypeSpec.
+- Fix ambiguous references diagnostic for decorators
+- Add loading cadl-project.yaml for back compat
+- Remove support for Visual Studio 2019
+- Allow escaping identifiers using backticks
+- Format `StringLiteral` to `Identifier` (backticked when necessary)
+- Apply augmented decorator at last.
+- Adding .cadl & package.json cadlMain back compat support
+- Fix projection of template arguments
+- Revert back changelog
+- Revert PR #1634.
+- Fix issue with projectedName decorator not working correctly when multiple copies of the compiler are loaded.
+- Updating default output to tsp-output and package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Fixing cli help message, package homepage link
 
 ## 0.40.0
 Tue, 07 Feb 2023 21:56:17 GMT

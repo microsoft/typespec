@@ -1,4 +1,22 @@
 {
   "name": "@typespec/http",
-  "entries": []
+  "entries": [
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/http_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Move core HTTP functionality from `@typespec/rest` into a new `@typespec/http` library"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          }
+        ]
+      }
+    }
+  ]
 }

@@ -1,6 +1,16 @@
-# Change Log - cadl-vscode
+# Change Log - typespec-vscode
 
-This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Mar 2023 19:59:17 GMT and should not be manually modified.
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Adding .cadl file support
+- Revert back changelog
+- Rename to TypeSpec
+- Update homepage link
 
 ## 0.40.0
 Tue, 07 Feb 2023 21:56:17 GMT

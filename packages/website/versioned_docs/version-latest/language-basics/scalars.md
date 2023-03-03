@@ -8,7 +8,7 @@ These are types without any fields(For example `string`, `int32`, `boolean`, etc
 
 Scalar can be declared using the `scalar` keyword
 
-```cadl
+```typespec
 scalar ternary;
 ```
 
@@ -16,7 +16,7 @@ scalar ternary;
 
 Scalar can be extended using the `extends` keyword.
 
-```cadl
+```typespec
 scalar Password extends string;
 ```
 
@@ -24,7 +24,7 @@ scalar Password extends string;
 
 Scalar support template parameters. Note: the only use for those template are decorators.
 
-```cadl
+```typespec
 @doc(T)
 scalar Unreal<T extends string>;
 ```

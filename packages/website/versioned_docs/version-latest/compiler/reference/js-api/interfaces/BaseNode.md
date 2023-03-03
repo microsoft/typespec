@@ -8,7 +8,7 @@
 
   ↳ **`BaseNode`**
 
-  ↳↳ [`CadlScriptNode`](CadlScriptNode.md)
+  ↳↳ [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 
   ↳↳ [`ImportStatementNode`](ImportStatementNode.md)
 

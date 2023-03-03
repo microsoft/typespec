@@ -1,6 +1,23 @@
 {
-  "name": "@cadl-lang/eslint-config-cadl",
+  "name": "@typespec/eslint-config-typespec",
   "entries": [
+    {
+      "version": "0.6.0",
+      "tag": "@typespec/eslint-config-typespec_v0.6.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Revert back changelog"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Rename to TypeSpec"
+          }
+        ]
+      }
+    },
     {
       "version": "0.5.0",
       "tag": "@cadl-lang/eslint-config-cadl_v0.5.0",

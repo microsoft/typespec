@@ -90,7 +90,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `file` | [`CadlScriptNode`](CadlScriptNode.md) |
+| `file` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) |
 
 #### Returns
 
@@ -384,7 +384,7 @@ ___
 
 **`Deprecated`**
 
-use `import { getNamespaceFullName } from "@cadl-lang/compiler";`
+use `import { getNamespaceFullName } from "@typespec/compiler";`
 
 #### Parameters
 
@@ -409,7 +409,7 @@ Std type
 
 | Name | Type |
 | :------ | :------ |
-| `T` | extends ``"Array"`` \| [`IntrinsicScalarName`](../index.md#intrinsicscalarname) \| ``"Record"`` |
+| `T` | extends [`IntrinsicScalarName`](../index.md#intrinsicscalarname) \| ``"Array"`` \| ``"Record"`` |
 
 #### Parameters
 
@@ -445,7 +445,7 @@ ___
 
 **`Deprecated`**
 
-use `import { getTypeName } from "@cadl-lang/compiler";`
+use `import { getTypeName } from "@typespec/compiler";`
 
 #### Parameters
 
@@ -464,7 +464,7 @@ ___
 
 ▸ **isStdType**(`type`, `stdType?`): type is Scalar & Object
 
-Check if the given type is one of the built-in standard Cadl Types.
+Check if the given type is one of the built-in standard TypeSpec Types.
 
 #### Parameters
 
@@ -522,7 +522,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `file` | [`CadlScriptNode`](CadlScriptNode.md) \| [`JsSourceFileNode`](JsSourceFileNode.md) |
+| `file` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`JsSourceFileNode`](JsSourceFileNode.md) |
 
 #### Returns
 
@@ -550,7 +550,7 @@ ___
 
 ### resolveCompletions
 
-▸ **resolveCompletions**(`node`): `Map`<`string`, [`CadlCompletionItem`](CadlCompletionItem.md)\>
+▸ **resolveCompletions**(`node`): `Map`<`string`, [`TypeSpecCompletionItem`](TypeSpecCompletionItem.md)\>
 
 #### Parameters
 
@@ -560,7 +560,7 @@ ___
 
 #### Returns
 
-`Map`<`string`, [`CadlCompletionItem`](CadlCompletionItem.md)\>
+`Map`<`string`, [`TypeSpecCompletionItem`](TypeSpecCompletionItem.md)\>
 
 ___
 
@@ -608,7 +608,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `file` | [`CadlScriptNode`](CadlScriptNode.md) |
+| `file` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) |
 
 #### Returns
 

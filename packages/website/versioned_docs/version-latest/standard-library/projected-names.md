@@ -5,7 +5,7 @@ title: Projected names
 
 # Projected Names
 
-There is some cases where the name you have in Cadl might differ from the name over the wire or for a certain language.
+There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.
 
 ## Known targets
 
@@ -29,14 +29,14 @@ List of known targets.
 
 ### With decorator
 
-To update the name of a Cadl entity you can use the `@projectedName` decorator. This decorator takes 2 parameters:
+To update the name of a TypeSpec entity you can use the `@projectedName` decorator. This decorator takes 2 parameters:
 
 - `string` target name. See [known targets](#known-targets)
 - `string` projected name. Whatever the name should be in the given target.
 
 Example:
 
-```cadl
+```typespec
 model Foo {
   // Specify that when serializing to JSON `expireAt` property should be named `exp`
   @projectedName("json", "exp")
@@ -48,7 +48,7 @@ model Foo {
 
 The decorator is just a syntax sugar for the `target` projection behind the scenes. In more complex cases you might want to just implement the projection manually.
 
-```cadl
+```typespec
 model Foo {
   expireAt: string;
 }
@@ -64,7 +64,7 @@ projection Foo#target {
 
 ## Example
 
-```cadl
+```typespec
 model CertificateAttributes {
   @projectedName("json", "nbf")
   @projectedName("csharp", "ValidAfter")

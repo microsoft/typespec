@@ -77,7 +77,7 @@ ___
 
 ### id
 
-• `Readonly` **id**: [`IdentifierNode`](IdentifierNode.md) \| [`StringLiteralNode`](StringLiteralNode.md)
+• `Readonly` **id**: [`IdentifierNode`](IdentifierNode.md)
 
 ___
 
