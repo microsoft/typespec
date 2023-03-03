@@ -921,13 +921,31 @@ export function hasDifferentReturnTypeAtVersion(
   return getReturnTypeBeforeVersion(p, type, version) !== "";
 }
 
+function findVersionMapForNamespace(program: Program, ns: Namespace): VersionMap | undefined {
+  const [_, versionMap] = getVersions(program, ns);
+  if (versionMap) {
+    return versionMap;
+  }
+  for (const [_, subNs] of ns.namespaces) {
+    const versionMap = findVersionMapForNamespace(program, subNs);
+    if (versionMap) {
+      return versionMap;
+    }
+  }
+  return undefined;
+}
+
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
   const globalNs = program.checker.getGlobalNamespaceType();
   for (const [_, ns] of globalNs.namespaces) {
-    const [_, versionMap] = getVersions(program, ns);
-    const version = versionMap?.getVersionForEnumMember(member);
-    if (version) {
-      return version;
+    const versionMap = findVersionMapForNamespace(program, ns);
+    if (versionMap) {
+      for (const ver of versionMap.getVersions()) {
+        // FIXME: Relies on name comparisons...
+        if (member.name === ver.name) {
+          return ver;
+        }
+      }
     }
   }
   return undefined;

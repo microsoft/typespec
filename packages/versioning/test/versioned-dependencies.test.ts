@@ -906,7 +906,6 @@ describe("versioning: dependencies", () => {
           }
         }
       `)) as { MyService: Namespace };
-
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
