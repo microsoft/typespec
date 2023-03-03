@@ -34,11 +34,11 @@ describe("compiler: cli", () => {
       });
     });
 
-    it("--tspconfig-dir plumbs through", async () => {
-      const options = await resolveCompilerOptions({ "tspconfig-dir": `${cwd}/myconfigdir` });
+    it("--config plumbs through", async () => {
+      const options = await resolveCompilerOptions({ config: `${cwd}/myConfigDir` });
       deepStrictEqual(options, {
         outputDir: `${cwd}/tsp-output`,
-        tspconfigDir: `${cwd}/myconfigdir`,
+        config: `${cwd}/myConfigDir`,
         options: {},
       });
     });

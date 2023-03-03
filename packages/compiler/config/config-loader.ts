@@ -17,42 +17,47 @@ export const defaultConfig = deepFreeze({
 
 /**
  * Look for the project root by looking up until a `tspconfig.yaml` is found.
- * @param path Path to start looking
+ * @param path Path to the file or the folder to start looking
  */
 export async function findTypeSpecConfigPath(
   host: CompilerHost,
   path: string
 ): Promise<string | undefined> {
-  let current = path;
-  while (true) {
-    let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
-    if (pkgPath === undefined) {
-      pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+  const filename = path.split("\\").pop()?.split("/").pop();
+  if (filename) {
+    return path;
+  } else {
+    let current = path;
+    while (true) {
+      let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
+      if (pkgPath === undefined) {
+        pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+      }
+      // if found either file in current folder, return it
+      if (pkgPath !== undefined) {
+        return pkgPath;
+      }
+      const parent = getDirectoryPath(current);
+      if (parent === current) {
+        return undefined;
+      }
+      current = parent;
     }
-    // if found either file in current folder, return it
-    if (pkgPath !== undefined) {
-      return pkgPath;
-    }
-    const parent = getDirectoryPath(current);
-    if (parent === current) {
-      return undefined;
-    }
-    current = parent;
   }
 }
 
 /**
- * Load the typespec configuration for the provided directory
+ * Load the typespec configuration for the provided path or directory
  * @param host
- * @param directoryPath
+ * @param path
  */
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
-  directoryPath: string
+  path: string
 ): Promise<TypeSpecConfig> {
-  const typespecConfigPath = await findTypeSpecConfigPath(host, directoryPath);
+  const typespecConfigPath = await findTypeSpecConfigPath(host, path);
   if (typespecConfigPath === undefined) {
-    return { ...deepClone(defaultConfig), projectRoot: directoryPath };
+    return { ...deepClone(defaultConfig), projectRoot: path };
   }
   const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
   // Add diagnostics if still using cadl-project.yaml

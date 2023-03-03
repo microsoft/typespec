@@ -20,7 +20,7 @@ export interface CompileCliArgs {
   emit?: string[];
   trace?: string[];
   debug?: boolean;
-  "tspconfig-dir"?: string;
+  config?: string;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
   args?: string[];
@@ -34,9 +34,9 @@ export async function getCompilerOptions(
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
-  const tspconfigDir = args["tspconfig-dir"] ?? cwd;
+  const configPath = args["config"] ?? cwd;
 
-  const config = await loadTypeSpecConfigForPath(host, tspconfigDir);
+  const config = await loadTypeSpecConfigForPath(host, configPath);
   if (config.diagnostics.length > 0) {
     if (config.diagnostics.some((d) => d.severity === "error")) {
       return [undefined, config.diagnostics];
@@ -73,7 +73,7 @@ export async function getCompilerOptions(
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
     outputDir: expandedConfig.outputDir,
-    tspconfigDir: args["tspconfig-dir"],
+    config: args["config"],
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,
