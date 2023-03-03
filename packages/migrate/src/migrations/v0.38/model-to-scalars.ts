@@ -4,13 +4,18 @@ import type {
   TemplateParameterDeclarationNode,
 } from "@typespec/compiler-v0.37";
 import { TypeSpecCompilerV0_37 } from "../../migration-config.js";
-import { contentMigrateAction, createMigration, MigrationContext } from "../../migration-types.js";
+import {
+  ContentMigrateAction,
+  createMigration,
+  MigrationContext,
+  MigrationKind,
+} from "../../migration-types.js";
 
 export const migrateModelToScalar = createMigration({
   name: "Migrate Model To scalar",
   kind: "Syntax",
-  from: "0.37",
-  to: "0.38",
+  from: "0.37.0",
+  to: "0.38.0",
   migrate: (
     { printNode, printNodes }: MigrationContext,
     compilerV37: TypeSpecCompilerV0_37,
@@ -23,7 +28,7 @@ export const migrateModelToScalar = createMigration({
       return `<${parameters.map((x) => printNode(x)).join(", ")}>`;
     }
 
-    const actions: contentMigrateAction[] = [];
+    const actions: ContentMigrateAction[] = [];
     visitRecursive(compilerV37, root, (node) => {
       if (
         node.kind === compilerV37.SyntaxKind.ModelStatement &&
@@ -35,6 +40,7 @@ export const migrateModelToScalar = createMigration({
       ) {
         const decorators = printNodes(node.decorators);
         actions.push({
+          kind: MigrationKind.Content,
           target: node,
           content: `${decorators ? decorators + " " : ""}scalar ${
             node.id.sv

@@ -2,7 +2,10 @@ import { globby } from "globby";
 import { join } from "path";
 
 export async function findTypeSpecFiles(root: string, ignore: string[] = []) {
-  return findFiles([normalizePath(join(root, "**/*.tsp"))], ignore);
+  return findFiles(
+    [normalizePath(join(root, "**/*.tsp")), normalizePath(join(root, "**/*.cadl"))],
+    ignore
+  );
 }
 
 export async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {

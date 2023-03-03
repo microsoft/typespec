@@ -8,13 +8,13 @@ export type TypeSpecCompiler = TypeSpecCompilers[keyof TypeSpecCompilers];
 export type TypeSpecCompilerVersion = keyof TypeSpecCompilers;
 
 /** Defines individual config entries that consists list of migration functions */
-export interface MigrationSteps<TFrom extends TypeSpecCompilerVersion> {
-  [index: number]: Migration<TFrom>;
-}
+// export interface MigrationSteps<TFrom extends TypeSpecCompilerVersion> {
+//   [index: number]: Migration<TFrom>;
+// }
 
 /** Defines the configuration dictionary  */
 export interface MigrationStepsDictionary {
-  [key: string]: MigrationSteps<TypeSpecCompilerVersion>;
+  [key: string]: Migration<TypeSpecCompilerVersion>[];
 }
 
 /** Migration Context type that contains some helper functions */
@@ -53,14 +53,25 @@ export interface Migration<TFrom extends TypeSpecCompilerVersion> {
     context: MigrationContext,
     compilerInstance: TypeSpecCompilers[TFrom],
     script: unknown
-  ): MigrateActionBase[];
+  ): MigrateAction[];
 }
 
+export enum MigrationKind {
+  Content,
+  FileRename,
+  PackageVersionUpdate,
+}
 /** Base class for migration actions */
-export interface MigrateActionBase {}
+export interface MigrateActionBase {
+  kind: MigrationKind;
+}
+
+export type MigrateAction = ContentMigrateAction | fileRenameAction | packageVersionUpdateAction;
 
 /** Migration action that modifies contents */
-export interface contentMigrateAction extends MigrateActionBase {
+export interface ContentMigrateAction extends MigrateActionBase {
+  kind: MigrationKind.Content;
+
   target: TextRange; // TypeSpec  compiler node
   /**
    * Replaced content
@@ -70,12 +81,14 @@ export interface contentMigrateAction extends MigrateActionBase {
 
 /** Migration action that renames a file */
 export interface fileRenameAction extends MigrateActionBase {
+  kind: MigrationKind.FileRename;
   sourceFileName: string;
   targetFileName: string;
 }
 
 /** Migration action that updates a package version */
 export interface packageVersionUpdateAction extends MigrateActionBase {
+  kind: MigrationKind.PackageVersionUpdate;
   packageName: string;
   fromVersion: string;
   toVersion: string;

@@ -2,8 +2,9 @@ import { TextRange } from "@typespec/compiler";
 import { readFile, writeFile } from "fs/promises";
 import { TypeSpecCompilers } from "./migration-config.js";
 import {
-  contentMigrateAction,
+  ContentMigrateAction,
   Migration,
+  MigrationKind,
   TypeSpecCompiler,
   TypeSpecCompilerVersion,
 } from "./migration-types.js";
@@ -76,16 +77,19 @@ function migrateTypeSpecContentInternal(
   migration: Migration<any>
 ): [string, boolean] {
   const parsed = fromCompiler.parse(content);
-  const actions = migration.migrate(createMigrationContext(parsed), fromCompiler, parsed as any);
-  // .filter(a)
-  // .sort((a, b) => a.target.pos - b.target.pos);
+  const actions = migration
+    .migrate(createMigrationContext(parsed), fromCompiler, parsed as any)
+    .filter((action): action is ContentMigrateAction => action.kind === MigrationKind.Content)
+    .sort((a, b) => a.target.pos - b.target.pos);
+
+  ContentMigration(toCompiler, content, actions);
   return ["", true];
 }
 
 function ContentMigration(
   toCompiler: TypeSpecCompiler,
   content: string,
-  actions: contentMigrateAction[]
+  actions: ContentMigrateAction[]
 ) {
   if (actions.length === 0) {
     return [content, false];
