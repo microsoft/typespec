@@ -716,6 +716,19 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
   return versions;
 }
 
+export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
+  const namespace = en.namespace;
+  if (namespace === undefined) {
+    return [];
+  }
+  const nsVersion = getVersion(program, namespace);
+
+  if (nsVersion === undefined) {
+    return [];
+  }
+  return [namespace, nsVersion];
+}
+
 export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
   if (versionCache.has(t)) {
     return versionCache.get(t)!;
