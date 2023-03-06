@@ -1,6 +1,19 @@
-# Change Log - @cadl-lang/openapi3
+# Change Log - @typespec/openapi3
 
-This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Mar 2023 19:59:17 GMT and should not be manually modified.
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Support additionalProperties
+- Stop treating models spread into parameters as unreferenced.
+- Revert back changelog
+- Use new `@typespec/http` library
+- Update package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Update homepage link
 
 ## 0.40.0
 Tue, 07 Feb 2023 21:56:17 GMT

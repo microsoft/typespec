@@ -36,7 +36,7 @@ ___
 
 ### parseCache
 
-• `Optional` **parseCache**: `WeakMap`<[`SourceFile`](SourceFile.md), [`CadlScriptNode`](CadlScriptNode.md)\>
+• `Optional` **parseCache**: `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 Optional cache to reuse the results of parsing and binding across programs.
 

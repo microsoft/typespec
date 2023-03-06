@@ -27,7 +27,7 @@
 | Name | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](DecoratorContext.md) |
-| `target` | [`InferredCadlValue`](../index.md#inferredcadlvalue)<`T`\> |
+| `target` | [`InferredTypeSpecValue`](../index.md#inferredtypespecvalue)<`T`\> |
 | `parameters` | `InferParameters`<`P`, `S`\> |
 
 #### Returns

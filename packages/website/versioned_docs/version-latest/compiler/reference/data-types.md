@@ -6,21 +6,21 @@ toc_max_heading_level: 3
 
 # Data types
 
-## Cadl
+## TypeSpec
 
 ### `object` {#object}
 
 Represent any structured model.(With properties)
 
-```cadl
-model Cadl.object
+```typespec
+model TypeSpec.object
 ```
 
 ### `Array` {#Array}
 
 Array model type, equivalent to `T[]`
 
-```cadl
+```typespec
 model Array<T>
 ```
 
@@ -34,7 +34,7 @@ model Array<T>
 
 Model with string properties where all the properties have type `T`
 
-```cadl
+```typespec
 model Record<T>
 ```
 
@@ -46,7 +46,7 @@ model Record<T>
 
 ### `OptionalProperties` {#OptionalProperties}
 
-```cadl
+```typespec
 model OptionalProperties<T>
 ```
 
@@ -58,7 +58,7 @@ model OptionalProperties<T>
 
 ### `UpdateableProperties` {#UpdateableProperties}
 
-```cadl
+```typespec
 model UpdateableProperties<T>
 ```
 
@@ -70,7 +70,7 @@ model UpdateableProperties<T>
 
 ### `OmitProperties` {#OmitProperties}
 
-```cadl
+```typespec
 model OmitProperties<T, TKeys>
 ```
 
@@ -83,7 +83,7 @@ model OmitProperties<T, TKeys>
 
 ### `OmitDefaults` {#OmitDefaults}
 
-```cadl
+```typespec
 model OmitDefaults<T>
 ```
 
@@ -95,7 +95,7 @@ model OmitDefaults<T>
 
 ### `DefaultKeyVisibility` {#DefaultKeyVisibility}
 
-```cadl
+```typespec
 model DefaultKeyVisibility<T, Visibility>
 ```
 
@@ -110,6 +110,6 @@ model DefaultKeyVisibility<T, Visibility>
 
 Service options.
 
-```cadl
-model Cadl.ServiceOptions
+```typespec
+model TypeSpec.ServiceOptions
 ```

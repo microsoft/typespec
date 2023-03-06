@@ -909,5 +909,7 @@ describe("versioning: dependencies", () => {
 
 function runProjections(program: Program, rootNs: Namespace) {
   const versions = buildVersionProjections(program, rootNs);
-  return versions.map((x) => projectProgram(program, x.projections).projector);
+  const projectedPrograms = versions.map((x) => projectProgram(program, x.projections));
+  projectedPrograms.forEach((p) => expectDiagnosticEmpty(p.diagnostics));
+  return projectedPrograms.map((p) => p.projector);
 }
