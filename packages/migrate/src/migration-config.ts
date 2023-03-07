@@ -1,6 +1,11 @@
 import { MigrationStepsDictionary } from "./migration-types.js";
 import { migrateModelToScalar } from "./migrations/v0.38/model-to-scalars.js";
-import { renameCadlFileNames, updatePackageVersion } from "./migrations/v0.41/typespec-rename.js";
+import {
+  migrateCadlNameToTypeSpec,
+  renameCadlFileNames,
+  updatePackageVersion,
+} from "./migrations/v0.41/typespec-rename.js";
+
 // Update here before release.
 export type TypeSpecCompilerCurrent = typeof import("@typespec/compiler");
 export type TypeSpecCompilerV0_37 = typeof import("@typespec/compiler-v0.37");
@@ -19,5 +24,5 @@ export type TypeSpecCompilers = {
 /** Please define the list of migration steps for each version */
 export const migrationConfigurations: MigrationStepsDictionary = {
   "0.38.0": [migrateModelToScalar],
-  "0.40.0": [renameCadlFileNames, updatePackageVersion],
+  "0.41.0": [migrateCadlNameToTypeSpec, renameCadlFileNames, updatePackageVersion],
 };

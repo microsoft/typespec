@@ -1,8 +1,9 @@
 import { getAnyExtensionFromPath, NodePackage } from "@typespec/compiler";
-import type { CadlScriptNode } from "@typespec/compiler-v0.37";
+import type { CadlScriptNode, Node } from "@typespec/compiler-v0.40";
 import * as path from "path";
-import type { TypeSpecCompilerV0_38 } from "../../migration-config.js";
+import type { TypeSpecCompilerV0_40 } from "../../migration-config.js";
 import {
+  ContentMigrateAction,
   createContentMigration,
   createFileRenameMigration,
   createPackageVersionMigration,
@@ -104,15 +105,49 @@ export const updatePackageVersion = createPackageVersionMigration({
 export const migrateCadlNameToTypeSpec = createContentMigration({
   name: "Migrate Model To scalar",
   kind: MigrationKind.Content,
-  from: "0.38.0",
-  to: "0.40.0",
+  from: "0.40.0",
+  to: "0.41.0",
   migrate: (
     { printNode, printNodes }: MigrationContext,
-    compilerV38: TypeSpecCompilerV0_38,
+    compilerV40: TypeSpecCompilerV0_40,
     root: CadlScriptNode
   ) => {
-    // let migrationResult: MigrateActionBase[];
-    return [];
+    const actions: ContentMigrateAction[] = [];
+    visitRecursive(compilerV40, root, (node) => {
+      if (node.kind === compilerV40.SyntaxKind.ImportStatement && node.path.value.length > 0) {
+        let newContent = "";
+
+        if (node.path.value.includes("/cadl-dpg")) {
+          newContent = node.path.value.replace("/cadl-dpg", "/typespec-client-generator-core");
+        } else if (node.path.value.includes("@cadl-lang")) {
+          newContent = node.path.value.replace("@cadl-lang", "@typespec");
+        } else if (node.path.value.includes("@azure-tools/cadl")) {
+          newContent = node.path.value.replace("@azure-tools/cadl", "@azure-tools/typespec");
+        }
+
+        if (newContent.length > 0) {
+          actions.push({
+            kind: MigrationKind.Content,
+            target: node,
+            content: `import "${newContent}";`,
+          });
+        }
+      } else if (
+        node.kind === compilerV40.SyntaxKind.UsingStatement &&
+        node.name !== undefined &&
+        node.name.kind === compilerV40.SyntaxKind.MemberExpression &&
+        node.name.base !== undefined &&
+        node.name.base.kind === compilerV40.SyntaxKind.Identifier &&
+        node.name.base.sv === "Cadl"
+      ) {
+        actions.push({
+          kind: MigrationKind.Content,
+          target: node.name.base,
+          content: `TypeSpec`,
+        });
+      }
+    });
+    return actions;
   },
 });
 
@@ -144,3 +179,11 @@ export const renameCadlFileNames = createFileRenameMigration({
     return actions;
   },
 });
+
+function visitRecursive(compiler: any, root: Node, callback: (node: Node) => void) {
+  const visit = (node: Node) => {
+    callback(node);
+    compiler.visitChildren(node, visit);
+  };
+  visit(root);
+}
