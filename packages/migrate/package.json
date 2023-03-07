@@ -41,13 +41,13 @@
     "@types/prettier": "^2.7.2",
     "@types/semver": "^7.3.13",
     "@types/yargs": "^17.0.22",
-    "@typespec/compiler-v0.38": "npm:@cadl-lang/compiler@0.38.0",
-    "@typespec/compiler-v0.40": "npm:@cadl-lang/compiler@0.40.0",
     "semver": "^7.3.8",
     "yargs": "^17.7.1",
     "globby": "~13.1.1",
     "@typespec/compiler": "~0.41.0",
-    "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0"
+    "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0",
+    "@typespec/compiler-v0.38": "npm:@cadl-lang/compiler@0.38.0",
+    "@typespec/compiler-v0.40": "npm:@cadl-lang/compiler@0.40.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",

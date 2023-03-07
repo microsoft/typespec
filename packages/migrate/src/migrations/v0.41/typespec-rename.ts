@@ -135,16 +135,27 @@ export const migrateCadlNameToTypeSpec = createContentMigration({
       } else if (
         node.kind === compilerV40.SyntaxKind.UsingStatement &&
         node.name !== undefined &&
-        node.name.kind === compilerV40.SyntaxKind.MemberExpression &&
-        node.name.base !== undefined &&
-        node.name.base.kind === compilerV40.SyntaxKind.Identifier &&
-        node.name.base.sv === "Cadl"
+        node.name.kind === compilerV40.SyntaxKind.MemberExpression
       ) {
-        actions.push({
-          kind: MigrationKind.Content,
-          target: node.name.base,
-          content: `TypeSpec`,
-        });
+        if (node.name.id.sv === "DPG") {
+          actions.push({
+            kind: MigrationKind.Content,
+            target: node.name,
+            content: `Azure.ClientGenerator.Core`,
+          });
+        }
+
+        if (
+          node.name.base !== undefined &&
+          node.name.base.kind === compilerV40.SyntaxKind.Identifier &&
+          node.name.base.sv === "Cadl"
+        ) {
+          actions.push({
+            kind: MigrationKind.Content,
+            target: node.name.base,
+            content: `TypeSpec`,
+          });
+        }
       }
     });
     return actions;
