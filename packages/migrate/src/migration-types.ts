@@ -6,7 +6,7 @@ export interface MigrationStepsDictionary {
   [key: string]: Migration[];
 }
 
-/** This is the list of migration types are supported */
+/** This is the list of supported migration steps */
 export enum MigrationKind {
   Content,
   FileRename,
@@ -16,16 +16,17 @@ export enum MigrationKind {
 /** Defines all migration actions */
 export type MigrateAction = ContentMigrateAction | fileRenameAction | packageVersionUpdateAction;
 
-/** Defines all migration functions */
+/** Defines all migration functions that can be implemented by version specific migration functions.
+ * These functions should return corresponding array migration actions to be performed.*/
 export type Migration =
   | ContentMigration<TypeSpecCompilerVersion>
   | FileRenameMigration
   | PackageVersionUpdateMigration;
 
-/** Type of imported versions of tsp compilers */
+/** Type of imported versions of tsp compilers defined in migration-config.ts. */
 export type TypeSpecCompiler = TypeSpecCompilers[keyof TypeSpecCompilers];
 
-/** Key type of all compiler versions */
+/** Key type of all compiler versions defined in migration-config.ts. */
 export type TypeSpecCompilerVersion = keyof TypeSpecCompilers;
 
 /** Migration Context type that contains some helper functions */
@@ -46,7 +47,7 @@ export interface MigrationBase {
   kind: MigrationKind;
 }
 
-/** The main */
+/** ContentMigration interface definition. */
 export interface ContentMigration<TFrom extends TypeSpecCompilerVersion> extends MigrationBase {
   kind: MigrationKind.Content;
 
@@ -72,12 +73,14 @@ export interface ContentMigration<TFrom extends TypeSpecCompilerVersion> extends
   ): MigrateAction[];
 }
 
+/** File Rename migration interface definition. */
 export interface FileRenameMigration extends MigrationBase {
   kind: MigrationKind.FileRename;
 
   migrate(fileNames: string[]): fileRenameAction[];
 }
 
+/** Package version update migration interface definition. */
 export interface PackageVersionUpdateMigration extends MigrationBase {
   kind: MigrationKind.PackageVersionUpdate;
 

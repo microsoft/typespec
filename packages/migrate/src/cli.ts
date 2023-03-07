@@ -20,15 +20,24 @@ async function main() {
   // Locate current package.json
   const pkgFile = resolvePath(workingFolder, "package.json");
   const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
+
+  // Locate current compiler version
+  const CadlCompiler = "@cadl-lang/compiler";
+  const TypeSpecCompiler = "@typespec/compiler";
   let packageTypeSpecVersion: string;
   if (
-    packageJson?.devDependencies === undefined ||
-    packageJson?.devDependencies["@cadl-lang/compiler"] === undefined
+    packageJson?.devDependencies !== undefined &&
+    packageJson?.devDependencies[CadlCompiler] !== undefined
   ) {
-    console.error("Unable to find TypeSpec compiler version in package.json");
-    return;
+    packageTypeSpecVersion = packageJson.devDependencies[CadlCompiler];
+  } else if (
+    packageJson?.devDependencies !== undefined &&
+    packageJson?.devDependencies[TypeSpecCompiler] !== undefined
+  ) {
+    packageTypeSpecVersion = packageJson.devDependencies[TypeSpecCompiler];
   } else {
-    packageTypeSpecVersion = packageJson.devDependencies["@cadl-lang/compiler"];
+    console.error("Unable to find TypeSpec compiler version in package.json.");
+    return;
   }
 
   // Iterate thru migration configuration and invoke
@@ -62,18 +71,24 @@ async function main() {
             await migratePackageVersion(pkgFile, migrationStep);
             break;
           default:
-            console.log("Unknown color");
+            console.log(`Unexpected error: unknown migration kind: ${migrationStep} `);
         }
       }
 
       packageTypeSpecVersion = key;
+    } else {
+      console.log(
+        `${packageTypeSpecVersion} is already greater than or equal to ${key}. Migration step skipped...`
+      );
     }
   }
 
   if (changesMake) {
-    console.log("This is a best effort migration, double check everything was migrated correctly.");
+    console.log(
+      "\nThis is a best effort migration, double check everything was migrated correctly."
+    );
   } else {
-    console.log("No typespec files migrated since no change was detected.");
+    console.log("\nNo typespec files has been migrated.");
   }
 }
 

@@ -17,12 +17,77 @@ export interface MigrationResult {
   fileChanged: string[];
 }
 
+/** Main function for migrating typespec file content */
 export async function migrateTypeSpecFiles(files: string[], migration: ContentMigration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
   return migrateTypeSpecFilesInternal(fromCompiler, toCompiler, files, migration);
 }
 
+/** Main function for rename files */
+export async function migrateFileRename(files: string[], migration: FileRenameMigration) {
+  const renameActions = migration.migrate(files);
+  if (renameActions.length === 0) return;
+
+  console.log(`Renaming ${renameActions.length} file(s):`);
+  for (const action of renameActions) {
+    console.log(` - ${action.sourceFileName} -> ${action.targetFileName}`);
+    fs.rename(action.sourceFileName, action.targetFileName, (err) => {
+      if (err) {
+        console.error(
+          `Error renaming file from ${action.sourceFileName} to ${action.targetFileName}`,
+          err
+        );
+      }
+    });
+  }
+}
+
+/** Main function for migrating package versions in the package.json */
+export async function migratePackageVersion(
+  pkgFile: string,
+  migration: PackageVersionUpdateMigration
+) {
+  const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
+  const actions = migration.migrate(packageJson);
+  if (actions.length === 0) return;
+
+  console.log(`Updating ${actions.length} package(s):`);
+
+  let changeMade = false;
+  for (const action of actions) {
+    if (
+      packageJson.dependencies !== undefined &&
+      packageJson.dependencies[action.packageName] !== undefined
+    ) {
+      if (action.renamePackageName !== undefined) {
+        delete packageJson.dependencies[action.packageName];
+        packageJson.dependencies[action.renamePackageName] = action.toVersion;
+      } else packageJson.dependencies[action.packageName] = action.toVersion;
+
+      console.log(` - dependencies: ${action.renamePackageName} -> ${action.toVersion}.`);
+      changeMade = true;
+    }
+    if (
+      packageJson.devDependencies !== undefined &&
+      packageJson.devDependencies[action.packageName] !== undefined
+    ) {
+      if (action.renamePackageName !== undefined) {
+        delete packageJson.devDependencies[action.packageName];
+        packageJson.devDependencies[action.renamePackageName] = action.toVersion;
+      } else packageJson.devDependencies[action.packageName] = action.toVersion;
+
+      console.log(` - devDependencies: ${action.renamePackageName} -> ${action.toVersion}.`);
+      changeMade = true;
+    }
+  }
+  if (changeMade) {
+    const prettyJsonString = prettier.format(JSON.stringify(packageJson), { parser: "json" });
+    fs.writeFileSync(pkgFile, prettyJsonString);
+  }
+}
+
+/** This is used by test code to migrate single file content */
 export async function migrateTypeSpecContent(content: string, migration: ContentMigration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
@@ -115,58 +180,6 @@ function ContentMigration(
     // eslint-disable-next-line no-console
     console.error("Failed to format new code", e);
     return [newContent, true];
-  }
-}
-
-export async function migrateFileRename(files: string[], migration: FileRenameMigration) {
-  const renameActions = migration.migrate(files);
-  for (const action of renameActions) {
-    fs.rename(action.sourceFileName, action.targetFileName, (err) => {
-      if (err) {
-        console.error(
-          `Error renaming file from ${action.sourceFileName} to ${action.targetFileName}`,
-          err
-        );
-      }
-    });
-  }
-}
-
-export async function migratePackageVersion(
-  pkgFile: string,
-  migration: PackageVersionUpdateMigration
-) {
-  const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
-  const actions = migration.migrate(packageJson);
-
-  let changeMade = false;
-  for (const action of actions) {
-    if (
-      packageJson.dependencies !== undefined &&
-      packageJson.dependencies[action.packageName] !== undefined
-    ) {
-      if (action.renamePackageName !== undefined) {
-        delete packageJson.dependencies[action.packageName];
-        packageJson.dependencies[action.renamePackageName] = action.toVersion;
-      } else packageJson.dependencies[action.packageName] = action.toVersion;
-
-      changeMade = true;
-    }
-    if (
-      packageJson.devDependencies !== undefined &&
-      packageJson.devDependencies[action.packageName] !== undefined
-    ) {
-      if (action.renamePackageName !== undefined) {
-        delete packageJson.devDependencies[action.packageName];
-        packageJson.devDependencies[action.renamePackageName] = action.toVersion;
-      } else packageJson.devDependencies[action.packageName] = action.toVersion;
-
-      changeMade = true;
-    }
-  }
-  if (changeMade) {
-    const prettyJsonString = prettier.format(JSON.stringify(packageJson), { parser: "json" });
-    fs.writeFileSync(pkgFile, prettyJsonString);
   }
 }
 
