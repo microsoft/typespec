@@ -35,7 +35,8 @@ async function main() {
       describe: "Specifies the version of TypeSpec doc. Default will be loading from package.json",
       type: "string",
       default: "",
-    }).argv;
+    })
+    .help().argv;
 
   const PackageJsonFile = "package.json";
   if (cliOptions.tspVersion.length === 0) {
