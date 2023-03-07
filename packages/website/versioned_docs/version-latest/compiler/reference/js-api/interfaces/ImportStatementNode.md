@@ -79,7 +79,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`CadlScriptNode`](CadlScriptNode.md)
+• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 
 #### Overrides
 

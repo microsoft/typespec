@@ -331,16 +331,6 @@ components:
       description: A single book in the library.
       required:
         - name
-    CreateBookRequest:
-      type: object
-      properties:
-        book:
-          allOf:
-            - $ref: '#/components/schemas/Book'
-          description: The book to create.
-      description: Request message for LibraryService.CreateBook.
-      required:
-        - book
     CreateShelfRequest:
       type: object
       properties:
@@ -351,30 +341,10 @@ components:
       description: Request message for LibraryService.CreateShelf.
       required:
         - body
-    DeleteBookRequest:
-      type: object
-      properties: {}
-      description: Request message for LibraryService.DeleteBook.
-    DeleteShelfRequest:
-      type: object
-      properties: {}
-      description: Request message for LibraryService.DeleteShelf.
     Empty:
       type: object
       properties: {}
       description: No body returned
-    GetBookRequest:
-      type: object
-      properties: {}
-      description: Request message for LibraryService.GetBook.
-    GetShelfRequest:
-      type: object
-      properties: {}
-      description: Request message for LibraryService.GetShelf.
-    ListBooksRequest:
-      type: object
-      properties: {}
-      description: Request message for LibraryService.ListBooks.
     ListBooksResponse:
       type: object
       properties:
@@ -400,9 +370,6 @@ components:
       description: Response message for LibraryService.ListBooks.
       required:
         - books
-    ListRequestBase:
-      type: object
-      properties: {}
     ListResponseBase:
       type: object
       properties:
@@ -444,18 +411,6 @@ components:
       description: Response message for LibraryService.ListShelves.
       required:
         - shelves
-    MergeShelvesRequest:
-      type: object
-      properties:
-        other_shelf_name:
-          allOf:
-            - $ref: '#/components/schemas/shelf_name'
-          description: The name of the shelf we're removing books from and deleting.
-      description: |-
-        Describes the shelf being removed (other_shelf_name) and updated
-        (name) in this merge
-      required:
-        - other_shelf_name
     MoveBookRequest:
       type: object
       properties:

@@ -1,6 +1,47 @@
 {
-  "name": "@cadl-lang/rest",
+  "name": "@typespec/rest",
   "entries": [
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/rest_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Fix issue with filtering of visibility decorator on resource key not working when multiple copies of the compiler are loaded."
+          },
+          {
+            "comment": "Move core HTTP functionality from `@typespec/rest` into a new `@typespec/http` library"
+          },
+          {
+            "comment": "**Breaking change:** The `@autoRoute` decorator can no longer be applied to namespaces"
+          },
+          {
+            "comment": "**Breaking change:** The unimplemented `@routeReset` decorator has been removed"
+          },
+          {
+            "comment": "Update package.json entrypoint to tspMain"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          },
+          {
+            "comment": "Readme.md update"
+          },
+          {
+            "comment": "Update homepage link"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.40.0",
       "tag": "@cadl-lang/rest_v0.40.0",

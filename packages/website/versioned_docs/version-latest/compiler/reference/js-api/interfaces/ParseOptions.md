@@ -15,7 +15,7 @@
 
 • `Optional` `Readonly` **comments**: `boolean`
 
-When true, collect comment ranges in [comments](CadlScriptNode.md#comments).
+When true, collect comment ranges in [comments](TypeSpecScriptNode.md#comments).
 
 ___
 

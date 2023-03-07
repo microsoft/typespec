@@ -31,7 +31,7 @@
 - [getGlobalNamespaceType](ProjectedProgram.md#getglobalnamespacetype)
 - [getOption](ProjectedProgram.md#getoption)
 - [hasError](ProjectedProgram.md#haserror)
-- [loadCadlScript](ProjectedProgram.md#loadcadlscript)
+- [loadTypeSpecScript](ProjectedProgram.md#loadtypespecscript)
 - [onValidate](ProjectedProgram.md#onvalidate)
 - [reportDiagnostic](ProjectedProgram.md#reportdiagnostic)
 - [reportDiagnostics](ProjectedProgram.md#reportdiagnostics)
@@ -115,7 +115,7 @@ ___
 
 ### mainFile
 
-• `Optional` **mainFile**: [`CadlScriptNode`](CadlScriptNode.md)
+• `Optional` **mainFile**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 
 #### Inherited from
 
@@ -131,7 +131,7 @@ ___
 
 ### sourceFiles
 
-• **sourceFiles**: `Map`<`string`, [`CadlScriptNode`](CadlScriptNode.md)\>
+• **sourceFiles**: `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 All source files in the program, keyed by their file path.
 
@@ -219,23 +219,23 @@ ___
 
 ___
 
-### loadCadlScript
+### loadTypeSpecScript
 
-▸ **loadCadlScript**(`cadlScript`): `Promise`<[`CadlScriptNode`](CadlScriptNode.md)\>
+▸ **loadTypeSpecScript**(`typespecScript`): `Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `cadlScript` | [`SourceFile`](SourceFile.md) |
+| `typespecScript` | [`SourceFile`](SourceFile.md) |
 
 #### Returns
 
-`Promise`<[`CadlScriptNode`](CadlScriptNode.md)\>
+`Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 #### Inherited from
 
-[Program](Program.md).[loadCadlScript](Program.md#loadcadlscript)
+[Program](Program.md).[loadTypeSpecScript](Program.md#loadtypespecscript)
 
 ___
 

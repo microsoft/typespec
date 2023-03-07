@@ -6,7 +6,7 @@
 
 - **`DeclarationNode`**
 
-  ↳ [`CadlScriptNode`](CadlScriptNode.md)
+  ↳ [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 
   ↳ [`NamespaceStatementNode`](NamespaceStatementNode.md)
 

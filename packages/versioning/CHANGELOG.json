@@ -1,6 +1,32 @@
 {
-  "name": "@cadl-lang/versioning",
+  "name": "@typespec/versioning",
   "entries": [
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/versioning_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Update package.json entrypoint to tspMain"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          },
+          {
+            "comment": "Update homepage link"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.40.0",
       "tag": "@cadl-lang/versioning_v0.40.0",

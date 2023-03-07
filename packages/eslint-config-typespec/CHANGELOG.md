@@ -1,6 +1,13 @@
-# Change Log - @cadl-lang/eslint-config-cadl
+# Change Log - @typespec/eslint-config-typespec
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Mar 2023 19:59:17 GMT and should not be manually modified.
+
+## 0.6.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Minor changes
+
+- Rename to TypeSpec
 
 ## 0.5.0
 Wed, 07 Dec 2022 17:21:52 GMT

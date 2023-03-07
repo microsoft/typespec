@@ -4,47 +4,47 @@ title: Overview
 
 # The OpenAPI v3 emitter
 
-Cadl has an OpenAPI emitter called `@cadl-lang/openapi3` that emits a standard OpenAPI v3 description from Cadl source.
+TypeSpec has an OpenAPI emitter called `@typespec/openapi3` that emits a standard OpenAPI v3 description from TypeSpec source.
 This can then be used as input in to any OpenAPI tooling.
 
 ## Install
 
-In your Cadl project root
+In your TypeSpec project root
 
 ```bash
-npm install @cadl-lang/openapi3
+npm install @typespec/openapi3
 ```
 
-The OpenAPI emitter requires certain features of the Cadl HTTP library in the `@cadl-lang/rest` package, so this also
-needs to be installed and imported somewhere in your Cadl source.
+The OpenAPI emitter requires certain features of the TypeSpec HTTP library in the `@typespec/rest` package, so this also
+needs to be installed and imported somewhere in your TypeSpec source.
 
 ```bash
-npm install @cadl-lang/rest
+npm install @typespec/rest
 ```
 
 ## Usage
 
-There are several ways to emit an OpenAPI 3.0 definition for your Cadl source file.
+There are several ways to emit an OpenAPI 3.0 definition for your TypeSpec source file.
 
 1. Via the command line
 
 ```bash
-cadl compile . --emit @cadl-lang/openapi3
+tsp compile . --emit @typespec/openapi3
 ```
 
 2. Via the config
 
-Add the following to the `cadl-project.yaml` file.
+Add the following to the `tspconfig.yaml` file.
 
 ```yaml
 emitters:
-  @cadl-lang/openapi3: true
+  @typespec/openapi3: true
 ```
 
 This will generate the OpenAPI 3.0 definition every time you compile:
 
 ```bash
-cadl compile .
+tsp compile .
 ```
 
 ### Emitter options
@@ -52,22 +52,22 @@ cadl compile .
 Emitter options can be passed on the command line with
 
 ```bash
---option "@cadl-lang/openapi3.<optionName>=<value>"
+--option "@typespec/openapi3.<optionName>=<value>"
 
 # For example
---option "@cadl-lang/openapi3.output-file=my-custom-openapi.json"
+--option "@typespec/openapi3.output-file=my-custom-openapi.json"
 ```
 
-or configured via the `cadl-project.yaml` configuration:
+or configured via the `tspconfig.yaml` configuration:
 
 ```yaml
 emitters:
-  '@cadl-lang/openapi3':
+  '@typespec/openapi3':
     <optionName>: <value>
 
 # For example
 emitters:
-  '@cadl-lang/openapi3':
+  '@typespec/openapi3':
     outputFile: my-custom-openapi.json
 ```
 
@@ -88,5 +88,5 @@ Only include types references via an operation.
 
 ## See also
 
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec for the OpenAPI Developer](https://github.com/microsoft/typespec/blob/main/docs/typespec-for-openapi-dev.md)

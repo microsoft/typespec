@@ -6,33 +6,33 @@ toc_max_heading_level: 3
 
 # Decorators
 
-## Cadl
+## TypeSpec
 
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
 This differ from the
 
-```cadl
-dec format(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, format: Cadl.string)
+```typespec
+dec format(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty, format: TypeSpec.string)
 ```
 
 #### Target
 
-`union Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty`
+`union TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name   | Type                 | Description  |
-| ------ | -------------------- | ------------ |
-| format | `scalar Cadl.string` | format name. |
+| Name   | Type                     | Description  |
+| ------ | ------------------------ | ------------ |
+| format | `scalar TypeSpec.string` | format name. |
 
 ### `@doc` {#@doc}
 
 Attach a documentation string.
 
-```cadl
-dec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)
+```typespec
+dec doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)
 ```
 
 #### Target
@@ -41,20 +41,20 @@ dec doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)
 
 #### Parameters
 
-| Name       | Type                 | Description                                                     |
-| ---------- | -------------------- | --------------------------------------------------------------- |
-| doc        | `scalar Cadl.string` | Documentation string                                            |
-| formatArgs | `model Cadl.object`  | Record with key value pair that can be interpolated in the doc. |
+| Name       | Type                     | Description                                                     |
+| ---------- | ------------------------ | --------------------------------------------------------------- |
+| doc        | `scalar TypeSpec.string` | Documentation string                                            |
+| formatArgs | `model TypeSpec.object`  | Record with key value pair that can be interpolated in the doc. |
 
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
-```cadl
-dec withUpdateableProperties(target: Cadl.object)
+```typespec
+dec withUpdateableProperties(target: TypeSpec.object)
 ```
 
 #### Target
 
-`model Cadl.object`
+`model TypeSpec.object`
 
 #### Parameters
 
@@ -63,29 +63,29 @@ dec withUpdateableProperties(target: Cadl.object)
 
 ### `@withoutOmittedProperties` {#@withoutOmittedProperties}
 
-```cadl
-dec withoutOmittedProperties(target: Cadl.object, omit: Cadl.string | Cadl.Reflection.Union)
+```typespec
+dec withoutOmittedProperties(target: TypeSpec.object, omit: TypeSpec.string | TypeSpec.Reflection.Union)
 ```
 
 #### Target
 
-`model Cadl.object`
+`model TypeSpec.object`
 
 #### Parameters
 
-| Name | Type                                         | Description |
-| ---- | -------------------------------------------- | ----------- |
-| omit | `union Cadl.string \| Cadl.Reflection.Union` |             |
+| Name | Type                                                 | Description |
+| ---- | ---------------------------------------------------- | ----------- |
+| omit | `union TypeSpec.string \| TypeSpec.Reflection.Union` |             |
 
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
-```cadl
-dec withoutDefaultValues(target: Cadl.object)
+```typespec
+dec withoutDefaultValues(target: TypeSpec.object)
 ```
 
 #### Target
 
-`model Cadl.object`
+`model TypeSpec.object`
 
 #### Parameters
 
@@ -94,13 +94,13 @@ dec withoutDefaultValues(target: Cadl.object)
 
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
-```cadl
-dec withDefaultKeyVisibility(target: Cadl.object, visibility: unknown)
+```typespec
+dec withDefaultKeyVisibility(target: TypeSpec.object, visibility: unknown)
 ```
 
 #### Target
 
-`model Cadl.object`
+`model TypeSpec.object`
 
 #### Parameters
 
@@ -112,8 +112,8 @@ dec withDefaultKeyVisibility(target: Cadl.object, visibility: unknown)
 
 Typically a short, single-line description.
 
-```cadl
-dec summary(target: unknown, summary: Cadl.string)
+```typespec
+dec summary(target: unknown, summary: TypeSpec.string)
 ```
 
 #### Target
@@ -122,16 +122,16 @@ dec summary(target: unknown, summary: Cadl.string)
 
 #### Parameters
 
-| Name    | Type                 | Description     |
-| ------- | -------------------- | --------------- |
-| summary | `scalar Cadl.string` | Summary string. |
+| Name    | Type                     | Description     |
+| ------- | ------------------------ | --------------- |
+| summary | `scalar TypeSpec.string` | Summary string. |
 
 ### `@deprecated` {#@deprecated}
 
 Mark this type as deprecated
 
-```cadl
-dec deprecated(target: unknown, message: Cadl.string)
+```typespec
+dec deprecated(target: unknown, message: TypeSpec.string)
 ```
 
 #### Target
@@ -140,16 +140,16 @@ dec deprecated(target: unknown, message: Cadl.string)
 
 #### Parameters
 
-| Name    | Type                 | Description          |
-| ------- | -------------------- | -------------------- |
-| message | `scalar Cadl.string` | Deprecation message. |
+| Name    | Type                     | Description          |
+| ------- | ------------------------ | -------------------- |
+| message | `scalar TypeSpec.string` | Deprecation message. |
 
 ### `@service` {#@service}
 
 Mark this namespace as describing a service and configure service properties.
 
-```cadl
-dec service(target: Cadl.Reflection.Namespace, options?: Cadl.ServiceOptions)
+```typespec
+dec service(target: TypeSpec.Reflection.Namespace, options?: TypeSpec.ServiceOptions)
 ```
 
 #### Target
@@ -158,21 +158,21 @@ dec service(target: Cadl.Reflection.Namespace, options?: Cadl.ServiceOptions)
 
 #### Parameters
 
-| Name    | Type                        | Description                             |
-| ------- | --------------------------- | --------------------------------------- |
-| options | `model Cadl.ServiceOptions` | Optional configuration for the service. |
+| Name    | Type                            | Description                             |
+| ------- | ------------------------------- | --------------------------------------- |
+| options | `model TypeSpec.ServiceOptions` | Optional configuration for the service. |
 
 ### `@error` {#@error}
 
 Specify that this model is an error type. Operations return error types when the operation has failed.
 
-```cadl
-dec error(target: Cadl.object)
+```typespec
+dec error(target: TypeSpec.object)
 ```
 
 #### Target
 
-`model Cadl.object`
+`model TypeSpec.object`
 
 #### Parameters
 
@@ -181,7 +181,7 @@ dec error(target: Cadl.object)
 
 #### Examples
 
-```cadl
+```typespec
 @error
 model PetStoreError {
 code: string;
@@ -195,177 +195,177 @@ Specify the the pattern this string should respect using simple regular expressi
 The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
 Advanced features like look-around, capture groups, and references are not supported.
 
-```cadl
-dec pattern(target: Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty, pattern: Cadl.string)
+```typespec
+dec pattern(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty, pattern: TypeSpec.string)
 ```
 
 #### Target
 
-`union Cadl.string | Cadl.bytes | Cadl.Reflection.ModelProperty`
+`union TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name    | Type                 | Description         |
-| ------- | -------------------- | ------------------- |
-| pattern | `scalar Cadl.string` | Regular expression. |
+| Name    | Type                     | Description         |
+| ------- | ------------------------ | ------------------- |
+| pattern | `scalar TypeSpec.string` | Regular expression. |
 
 ### `@minLength` {#@minLength}
 
 Specify the minimum length this string type should be.
 
-```cadl
-dec minLength(target: Cadl.string | Cadl.Reflection.ModelProperty, value: Cadl.integer)
+```typespec
+dec minLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
 ```
 
 #### Target
 
-`union Cadl.string | Cadl.Reflection.ModelProperty`
+`union TypeSpec.string | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
-| value | `scalar Cadl.integer` | Minimum length |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
+| value | `scalar TypeSpec.integer` | Minimum length |
 
 ### `@maxLength` {#@maxLength}
 
 Specify the maximum length this string type should be.
 
-```cadl
-dec maxLength(target: Cadl.string | Cadl.Reflection.ModelProperty, value: Cadl.integer)
+```typespec
+dec maxLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
 ```
 
 #### Target
 
-`union Cadl.string | Cadl.Reflection.ModelProperty`
+`union TypeSpec.string | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
-| value | `scalar Cadl.integer` | Maximum length |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
+| value | `scalar TypeSpec.integer` | Maximum length |
 
 ### `@minItems` {#@minItems}
 
 Specify the minimum number of items this array should have.
 
-```cadl
-dec minItems(target: unknown[] | Cadl.Reflection.ModelProperty, value: Cadl.integer)
+```typespec
+dec minItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
 ```
 
 #### Target
 
-`union unknown[] | Cadl.Reflection.ModelProperty`
+`union unknown[] | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
-| value | `scalar Cadl.integer` | Minimum number |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
+| value | `scalar TypeSpec.integer` | Minimum number |
 
 ### `@maxItems` {#@maxItems}
 
 Specify the maximum number of items this array should have.
 
-```cadl
-dec maxItems(target: unknown[] | Cadl.Reflection.ModelProperty, value: Cadl.integer)
+```typespec
+dec maxItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
 ```
 
 #### Target
 
-`union unknown[] | Cadl.Reflection.ModelProperty`
+`union unknown[] | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
-| value | `scalar Cadl.integer` | Maximum number |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
+| value | `scalar TypeSpec.integer` | Maximum number |
 
 ### `@minValue` {#@minValue}
 
 Specify the minimum value this numeric type should be.
 
-```cadl
-dec minValue(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.numeric)
+```typespec
+dec minValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
 ```
 
 #### Target
 
-`union Cadl.numeric | Cadl.Reflection.ModelProperty`
+`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
-| value | `scalar Cadl.numeric` | Minimum value |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
+| value | `scalar TypeSpec.numeric` | Minimum value |
 
 ### `@maxValue` {#@maxValue}
 
 Specify the maximum value this numeric type should be.
 
-```cadl
-dec maxValue(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.numeric)
+```typespec
+dec maxValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
 ```
 
 #### Target
 
-`union Cadl.numeric | Cadl.Reflection.ModelProperty`
+`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
-| value | `scalar Cadl.numeric` | Maximum value |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
+| value | `scalar TypeSpec.numeric` | Maximum value |
 
 ### `@minValueExclusive` {#@minValueExclusive}
 
 Specify the minimum value this numeric type should be, exclusive of the given
 value.
 
-```cadl
-dec minValueExclusive(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.numeric)
+```typespec
+dec minValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
 ```
 
 #### Target
 
-`union Cadl.numeric | Cadl.Reflection.ModelProperty`
+`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
-| value | `scalar Cadl.numeric` | Minimum value |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
+| value | `scalar TypeSpec.numeric` | Minimum value |
 
 ### `@maxValueExclusive` {#@maxValueExclusive}
 
 Specify the maximum value this numeric type should be, exclusive of the given
 value.
 
-```cadl
-dec maxValueExclusive(target: Cadl.numeric | Cadl.Reflection.ModelProperty, value: Cadl.numeric)
+```typespec
+dec maxValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
 ```
 
 #### Target
 
-`union Cadl.numeric | Cadl.Reflection.ModelProperty`
+`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
-| Name  | Type                  | Description   |
-| ----- | --------------------- | ------------- |
-| value | `scalar Cadl.numeric` | Maximum value |
+| Name  | Type                      | Description   |
+| ----- | ------------------------- | ------------- |
+| value | `scalar TypeSpec.numeric` | Maximum value |
 
 ### `@secret` {#@secret}
 
 Mark this string as a secret value that should be treated carefully to avoid exposure
 
-```cadl
-dec secret(target: Cadl.string | Cadl.Reflection.ModelProperty)
+```typespec
+dec secret(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty)
 ```
 
 #### Target
 
-`union Cadl.string | Cadl.Reflection.ModelProperty`
+`union TypeSpec.string | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
@@ -374,35 +374,35 @@ dec secret(target: Cadl.string | Cadl.Reflection.ModelProperty)
 
 #### Examples
 
-```cadl
+```typespec
 @secret
 scalar Password is string;
 ```
 
 ### `@tag` {#@tag}
 
-Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a Cadl element.
+Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
 
-```cadl
-dec tag(target: Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Reflection.Operation, tag: Cadl.string)
+```typespec
+dec tag(target: TypeSpec.Reflection.Namespace | TypeSpec.Reflection.Interface | TypeSpec.Reflection.Operation, tag: TypeSpec.string)
 ```
 
 #### Target
 
-`union Cadl.Reflection.Namespace | Cadl.Reflection.Interface | Cadl.Reflection.Operation`
+`union TypeSpec.Reflection.Namespace | TypeSpec.Reflection.Interface | TypeSpec.Reflection.Operation`
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
-| tag  | `scalar Cadl.string` | Tag value   |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
+| tag  | `scalar TypeSpec.string` | Tag value   |
 
 ### `@friendlyName` {#@friendlyName}
 
 Specifies how a templated type should name their instances.
 
-```cadl
-dec friendlyName(target: unknown, name: Cadl.string, formatArgs?: unknown)
+```typespec
+dec friendlyName(target: unknown, name: TypeSpec.string, formatArgs?: unknown)
 ```
 
 #### Target
@@ -411,22 +411,22 @@ dec friendlyName(target: unknown, name: Cadl.string, formatArgs?: unknown)
 
 #### Parameters
 
-| Name       | Type                  | Description                            |
-| ---------- | --------------------- | -------------------------------------- |
-| name       | `scalar Cadl.string`  | name the template instance should take |
-| formatArgs | `(intrinsic) unknown` |                                        |
+| Name       | Type                     | Description                            |
+| ---------- | ------------------------ | -------------------------------------- |
+| name       | `scalar TypeSpec.string` | name the template instance should take |
+| formatArgs | `(intrinsic) unknown`    |                                        |
 
 ### `@knownValues` {#@knownValues}
 
 Provide a set of known values to a string type.
 
-```cadl
-dec knownValues(target: Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty, values: Cadl.Reflection.Enum)
+```typespec
+dec knownValues(target: TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, values: TypeSpec.Reflection.Enum)
 ```
 
 #### Target
 
-`union Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty`
+`union TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
 
 #### Parameters
 
@@ -438,8 +438,8 @@ dec knownValues(target: Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProper
 
 Mark a model property as the key to identify instances of that type
 
-```cadl
-dec key(target: Cadl.Reflection.ModelProperty, altName?: Cadl.string)
+```typespec
+dec key(target: TypeSpec.Reflection.ModelProperty, altName?: TypeSpec.string)
 ```
 
 #### Target
@@ -448,13 +448,13 @@ dec key(target: Cadl.Reflection.ModelProperty, altName?: Cadl.string)
 
 #### Parameters
 
-| Name    | Type                 | Description |
-| ------- | -------------------- | ----------- |
-| altName | `scalar Cadl.string` |             |
+| Name    | Type                     | Description |
+| ------- | ------------------------ | ----------- |
+| altName | `scalar TypeSpec.string` |             |
 
 #### Examples
 
-```cadl
+```typespec
 model Pet {
 @key id: string;
 }
@@ -464,8 +464,8 @@ model Pet {
 
 Specify this operation is an overload of the given operation.
 
-```cadl
-dec overload(target: Cadl.Reflection.Operation, overloadbase: Cadl.Reflection.Operation)
+```typespec
+dec overload(target: TypeSpec.Reflection.Operation, overloadbase: TypeSpec.Reflection.Operation)
 ```
 
 #### Target
@@ -482,8 +482,8 @@ dec overload(target: Cadl.Reflection.Operation, overloadbase: Cadl.Reflection.Op
 
 Provide an alternative name for this type.
 
-```cadl
-dec projectedName(target: unknown, targetName: Cadl.string, projectedName: Cadl.string)
+```typespec
+dec projectedName(target: unknown, targetName: TypeSpec.string, projectedName: TypeSpec.string)
 ```
 
 #### Target
@@ -492,32 +492,32 @@ dec projectedName(target: unknown, targetName: Cadl.string, projectedName: Cadl.
 
 #### Parameters
 
-| Name          | Type                 | Description       |
-| ------------- | -------------------- | ----------------- |
-| targetName    | `scalar Cadl.string` | Projection target |
-| projectedName | `scalar Cadl.string` | Alternative name  |
+| Name          | Type                     | Description       |
+| ------------- | ------------------------ | ----------------- |
+| targetName    | `scalar TypeSpec.string` | Projection target |
+| projectedName | `scalar TypeSpec.string` | Alternative name  |
 
 ### `@discriminator` {#@discriminator}
 
 Specify the property to be used to discriminate this type.
 
-```cadl
-dec discriminator(target: Cadl.object | Cadl.Reflection.Union, propertyName: Cadl.string)
+```typespec
+dec discriminator(target: TypeSpec.object | TypeSpec.Reflection.Union, propertyName: TypeSpec.string)
 ```
 
 #### Target
 
-`union Cadl.object | Cadl.Reflection.Union`
+`union TypeSpec.object | TypeSpec.Reflection.Union`
 
 #### Parameters
 
-| Name         | Type                 | Description |
-| ------------ | -------------------- | ----------- |
-| propertyName | `scalar Cadl.string` |             |
+| Name         | Type                     | Description |
+| ------------ | ------------------------ | ----------- |
+| propertyName | `scalar TypeSpec.string` |             |
 
 #### Examples
 
-```cadl
+```typespec
 @discriminator("kind")
 union Pet{ cat: Cat, dog: Dog }
 
@@ -525,7 +525,7 @@ model Cat {kind: "cat", meow: boolean}
 model Dog {kind: "dog", bark: boolean}
 ```
 
-```cadl
+```typespec
 @discriminator("kind")
 model Pet{ kind: string }
 
@@ -539,7 +539,7 @@ Indicates that a property is only considered to be present or applicable ("visib
 the in the given named contexts ("visibilities"). When a property has no visibilities applied
 to it, it is implicitly visible always.
 
-As far as the Cadl core library is concerned, visibilities are open-ended and can be arbitrary
+As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
 strings, but the following visibilities are well-known to standard libraries and should be used
 with standard emitters that interpret them as follows:
 
@@ -549,10 +549,10 @@ with standard emitters that interpret them as follows:
 - "update": input to operations that update data.
 - "delete": input to operations that delete data.
 
-See also: [Automatic visibility](https://microsoft.github.io/cadl/standard-library/rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
-```cadl
-dec visibility(target: Cadl.Reflection.ModelProperty, ...visibilities: Cadl.string[])
+```typespec
+dec visibility(target: TypeSpec.Reflection.ModelProperty, ...visibilities: TypeSpec.string[])
 ```
 
 #### Target
@@ -561,13 +561,13 @@ dec visibility(target: Cadl.Reflection.ModelProperty, ...visibilities: Cadl.stri
 
 #### Parameters
 
-| Name         | Type                  | Description |
-| ------------ | --------------------- | ----------- |
-| visibilities | `model Cadl.string[]` |             |
+| Name         | Type                      | Description |
+| ------------ | ------------------------- | ----------- |
+| visibilities | `model TypeSpec.string[]` |             |
 
 #### Examples
 
-```cadl
+```typespec
 model Dog {
 // the service will generate an ID, so you don't need to send it.
 @visibility("read") id: int32;
@@ -585,28 +585,28 @@ Removes properties that are not considered to be present or applicable
 together with spread to effectively spread only visible properties into
 a new model.
 
-See also: [Automatic visibility](https://microsoft.github.io/cadl/standard-library/rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
-```cadl
-dec withVisibility(target: Cadl.object, ...visibilities: Cadl.string[])
+```typespec
+dec withVisibility(target: TypeSpec.object, ...visibilities: TypeSpec.string[])
 ```
 
 #### Target
 
-`model Cadl.object`
+`model TypeSpec.object`
 
 #### Parameters
 
-| Name         | Type                  | Description |
-| ------------ | --------------------- | ----------- |
-| visibilities | `model Cadl.string[]` |             |
+| Name         | Type                      | Description |
+| ------------ | ------------------------- | ----------- |
+| visibilities | `model TypeSpec.string[]` |             |
 
 #### Examples
 
-```cadl
+```typespec
 model Dog {
 @visibility("read") id: int32;
 @visibility("create", "update") secretName: string;
@@ -634,8 +634,8 @@ model DogRead {
 
 ### `@inspectType` {#@inspectType}
 
-```cadl
-dec inspectType(target: unknown, text: Cadl.string)
+```typespec
+dec inspectType(target: unknown, text: TypeSpec.string)
 ```
 
 #### Target
@@ -644,14 +644,14 @@ dec inspectType(target: unknown, text: Cadl.string)
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
-| text | `scalar Cadl.string` |             |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
+| text | `scalar TypeSpec.string` |             |
 
 ### `@inspectTypeName` {#@inspectTypeName}
 
-```cadl
-dec inspectTypeName(target: unknown, text: Cadl.string)
+```typespec
+dec inspectTypeName(target: unknown, text: TypeSpec.string)
 ```
 
 #### Target
@@ -660,6 +660,6 @@ dec inspectTypeName(target: unknown, text: Cadl.string)
 
 #### Parameters
 
-| Name | Type                 | Description |
-| ---- | -------------------- | ----------- |
-| text | `scalar Cadl.string` |             |
+| Name | Type                     | Description |
+| ---- | ------------------------ | ----------- |
+| text | `scalar TypeSpec.string` |             |

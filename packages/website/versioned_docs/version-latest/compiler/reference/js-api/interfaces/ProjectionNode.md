@@ -36,7 +36,7 @@ ___
 
 ### direction
 
-• `Readonly` **direction**: ``"to"`` \| ``"from"``
+• `Readonly` **direction**: ``"from"`` \| ``"to"``
 
 ___
 

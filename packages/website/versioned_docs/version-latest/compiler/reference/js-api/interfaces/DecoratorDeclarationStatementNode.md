@@ -6,7 +6,7 @@ Represent a decorator declaration
 
 **`Example`**
 
-```cadl
+```typespec
 extern dec doc(target: Type, value: StringLiteral);
 ```
 
@@ -123,7 +123,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`CadlScriptNode`](CadlScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
+• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
 
 #### Overrides
 

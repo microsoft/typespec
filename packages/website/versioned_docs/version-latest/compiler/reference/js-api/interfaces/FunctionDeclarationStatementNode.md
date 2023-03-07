@@ -6,7 +6,7 @@ Represent a function declaration
 
 **`Example`**
 
-```cadl
+```typespec
 extern fn camelCase(value: StringLiteral): StringLiteral;
 ```
 
@@ -121,7 +121,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`CadlScriptNode`](CadlScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
+• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
 
 #### Overrides
 

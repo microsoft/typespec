@@ -5,47 +5,47 @@ title: Imports
 
 # Import
 
-Imports add files or libraries to your Cadl program. When you compile a Cadl file, you provide a path to your root Cadl file, by convention called "main.cadl". From there, any files you import are added to your program. If you import a directory, Cadl will look for a `main.cadl` file inside that directory.
+Imports add files or libraries to your TypeSpec program. When you compile a TypeSpec file, you provide a path to your root TypeSpec file, by convention called "main.tsp". From there, any files you import are added to your program. If you import a directory, TypeSpec will look for a `main.tsp` file inside that directory.
 
-The path you import must either begin with `"./"` or `"../"` or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".cadl" or ".js". The following demonstrates how to use imports to assemble a Cadl program from multiple files:
+The path you import must either begin with `"./"` or `"../"` or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".tsp" or ".js". The following demonstrates how to use imports to assemble a TypeSpec program from multiple files:
 
-## Import Cadl file
+## Import TypeSpec file
 
-```cadl
-import "./models/foo.cadl";
+```typespec
+import "./models/foo.tsp";
 ```
 
 ## Import Js file
 
-```cadl
+```typespec
 import "./decorators.js";
 ```
 
 ## Import a library
 
-The import value can be name one of the package dependencies. In that case cadl will lookup for the `package.json` file and check the `cadlMain` entry (or default to `main` if absent) to decide what is the library entrypoint to load.
+The import value can be name one of the package dependencies. In that case typespec will lookup for the `package.json` file and check the `tspMain` entry (or default to `main` if absent) to decide what is the library entrypoint to load.
 
-```cadl
-import "@cadl-lang/rest";
+```typespec
+import "@typespec/rest";
 ```
 
 ```json
-// ./node_modules/@cadl-lang/rest/package.json
+// ./node_modules/@typespec/rest/package.json
 {
-  "cadlMain": "./lib/main.cadl"
+  "tspMain": "./lib/main.tsp"
 }
 ```
 
-which result in `./node_modules/@cadl-lang/rest/lib/main.cadl` to be imported
+which result in `./node_modules/@typespec/rest/lib/main.tsp` to be imported
 
 ## Import a directory
 
-If the import value is a directory it will lookup if that directory is a node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.cadl`.
+If the import value is a directory it will lookup if that directory is a node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.tsp`.
 
-```cadl
-import "./models"; // same as `import "./models/main.cadl";
+```typespec
+import "./models"; // same as `import "./models/main.tsp";
 ```
 
-```cadl
-import "./path/to/local/module"; // Assuming this path is a cadl package, it will load it using the cadlMain file.
+```typespec
+import "./path/to/local/module"; // Assuming this path is a typespec package, it will load it using the tspMain file.
 ```

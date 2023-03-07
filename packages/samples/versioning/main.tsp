@@ -13,10 +13,10 @@ namespace VersionedApi;
 using TypeSpec.Http;
 
 enum Versions {
-  @useDependency(Library.Versions.v1_0)
+  @useDependency(Library.Versions.`1.0`)
   v1,
 
-  @useDependency(Library.Versions.v1_1)
+  @useDependency(Library.Versions.`1.1`)
   v2,
 }
 
