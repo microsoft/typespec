@@ -5,7 +5,12 @@ import { NodePackage, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import * as semver from "semver";
 import { migrationConfigurations } from "./migration-config.js";
-import { migrateTypeSpecFiles } from "./migration-impl.js";
+import {
+  migrateFileRename,
+  migratePackageVersion,
+  migrateTypeSpecFiles,
+} from "./migration-impl.js";
+import { MigrationKind } from "./migration-types.js";
 import { findTypeSpecFiles } from "./utils.js";
 
 async function main() {
@@ -20,7 +25,7 @@ async function main() {
     packageJson?.devDependencies === undefined ||
     packageJson?.devDependencies["@cadl-lang/compiler"] === undefined
   ) {
-    console.log("Unable to find TypeSpec compiler version in package.json");
+    console.error("Unable to find TypeSpec compiler version in package.json");
     return;
   } else {
     packageTypeSpecVersion = packageJson.devDependencies["@cadl-lang/compiler"];
@@ -28,7 +33,6 @@ async function main() {
 
   // Iterate thru migration configuration and invoke
   console.log(`Current Typespec version ${packageTypeSpecVersion}.`);
-  //  Object.keys(migrationConfigurations).forEach(async (key) => {
   const stepKeys = Object.keys(migrationConfigurations);
   for (const key of stepKeys) {
     if (semver.gt(key, packageTypeSpecVersion)) {
@@ -36,22 +40,33 @@ async function main() {
         `Migration step found to upgrade from ${packageTypeSpecVersion} to ${key}. Migrating...`
       );
 
-      for (const item of migrationConfigurations[key]) {
-        const files = await findTypeSpecFiles(workingFolder);
-        const result = await migrateTypeSpecFiles(files, item);
-
-        // If migration has been performed log status
-        if (result.fileChanged.length > 0) {
-          changesMake = true;
-          console.log(`Updated ${result.fileChanged.length} typespec files:`);
-          for (const file of result.fileChanged) {
-            console.log(` - ${file}`);
-          }
+      for (const migrationStep of migrationConfigurations[key]) {
+        switch (migrationStep.kind) {
+          case MigrationKind.Content:
+            const files = await findTypeSpecFiles(workingFolder);
+            const result = await migrateTypeSpecFiles(files, migrationStep);
+            // If migration has been performed log status
+            if (result.fileChanged.length > 0) {
+              changesMake = true;
+              console.log(`Updated ${result.fileChanged.length} typespec files:`);
+              for (const file of result.fileChanged) {
+                console.log(` - ${file}`);
+              }
+            }
+            break;
+          case MigrationKind.FileRename:
+            const srcFiles = await findTypeSpecFiles(workingFolder);
+            await migrateFileRename(srcFiles, migrationStep);
+            break;
+          case MigrationKind.PackageVersionUpdate:
+            await migratePackageVersion(pkgFile, migrationStep);
+            break;
+          default:
+            console.log("Unknown color");
         }
       }
 
       packageTypeSpecVersion = key;
-      return;
     }
   }
 

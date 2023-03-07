@@ -3,7 +3,12 @@ import { join } from "path";
 
 export async function findTypeSpecFiles(root: string, ignore: string[] = []) {
   return findFiles(
-    [normalizePath(join(root, "**/*.tsp")), normalizePath(join(root, "**/*.cadl"))],
+    [
+      normalizePath(join(root, "**/*.tsp")),
+      normalizePath(join(root, "**/*.cadl")),
+      normalizePath(join(root, "**/cadl-project.yaml")),
+      normalizePath(join(root, "**/tspconfig.yaml")),
+    ],
     ignore
   );
 }

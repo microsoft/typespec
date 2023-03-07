@@ -1,24 +1,29 @@
-import { TextRange } from "@typespec/compiler";
+import { NodePackage, TextRange } from "@typespec/compiler";
+import * as fs from "fs";
 import { readFile, writeFile } from "fs/promises";
+import prettier from "prettier";
 import { TypeSpecCompilers } from "./migration-config.js";
 import {
   ContentMigrateAction,
-  Migration,
+  ContentMigration,
+  FileRenameMigration,
   MigrationKind,
+  PackageVersionUpdateMigration,
   TypeSpecCompiler,
   TypeSpecCompilerVersion,
 } from "./migration-types.js";
+
 export interface MigrationResult {
   fileChanged: string[];
 }
 
-export async function migrateTypeSpecFiles(files: string[], migration: Migration<any>) {
+export async function migrateTypeSpecFiles(files: string[], migration: ContentMigration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
   return migrateTypeSpecFilesInternal(fromCompiler, toCompiler, files, migration);
 }
 
-export async function migrateTypeSpecContent(content: string, migration: Migration<any>) {
+export async function migrateTypeSpecContent(content: string, migration: ContentMigration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
   return migrateTypeSpecContentInternal(fromCompiler, toCompiler, content, migration);
@@ -38,7 +43,7 @@ async function migrateTypeSpecFilesInternal(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   files: string[],
-  migration: Migration<any>
+  migration: ContentMigration<any>
 ): Promise<MigrationResult> {
   const result: MigrationResult = {
     fileChanged: [],
@@ -55,7 +60,7 @@ async function migrateTypeSpecFile(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   filename: string,
-  migration: Migration<any>
+  migration: ContentMigration<any>
 ): Promise<boolean> {
   const buffer = await readFile(filename);
   const content = buffer.toString();
@@ -74,7 +79,7 @@ function migrateTypeSpecContentInternal(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   content: string,
-  migration: Migration<any>
+  migration: ContentMigration<any>
 ): [string, boolean] {
   const parsed = fromCompiler.parse(content);
   const actions = migration
@@ -82,15 +87,14 @@ function migrateTypeSpecContentInternal(
     .filter((action): action is ContentMigrateAction => action.kind === MigrationKind.Content)
     .sort((a, b) => a.target.pos - b.target.pos);
 
-  ContentMigration(toCompiler, content, actions);
-  return ["", true];
+  return ContentMigration(toCompiler, content, actions);
 }
 
 function ContentMigration(
   toCompiler: TypeSpecCompiler,
   content: string,
   actions: ContentMigrateAction[]
-) {
+): [string, boolean] {
   if (actions.length === 0) {
     return [content, false];
   }
@@ -114,9 +118,57 @@ function ContentMigration(
   }
 }
 
-function RenameMigration() {}
+export async function migrateFileRename(files: string[], migration: FileRenameMigration) {
+  const renameActions = migration.migrate(files);
+  for (const action of renameActions) {
+    fs.rename(action.sourceFileName, action.targetFileName, (err) => {
+      if (err) {
+        console.error(
+          `Error renaming file from ${action.sourceFileName} to ${action.targetFileName}`,
+          err
+        );
+      }
+    });
+  }
+}
 
-function PackageVersionMigration() {}
+export async function migratePackageVersion(
+  pkgFile: string,
+  migration: PackageVersionUpdateMigration
+) {
+  const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
+  const actions = migration.migrate(packageJson);
+
+  let changeMade = false;
+  for (const action of actions) {
+    if (
+      packageJson.dependencies !== undefined &&
+      packageJson.dependencies[action.packageName] !== undefined
+    ) {
+      if (action.renamePackageName !== undefined) {
+        delete packageJson.dependencies[action.packageName];
+        packageJson.dependencies[action.renamePackageName] = action.toVersion;
+      } else packageJson.dependencies[action.packageName] = action.toVersion;
+
+      changeMade = true;
+    }
+    if (
+      packageJson.devDependencies !== undefined &&
+      packageJson.devDependencies[action.packageName] !== undefined
+    ) {
+      if (action.renamePackageName !== undefined) {
+        delete packageJson.devDependencies[action.packageName];
+        packageJson.devDependencies[action.renamePackageName] = action.toVersion;
+      } else packageJson.devDependencies[action.packageName] = action.toVersion;
+
+      changeMade = true;
+    }
+  }
+  if (changeMade) {
+    const prettyJsonString = prettier.format(JSON.stringify(packageJson), { parser: "json" });
+    fs.writeFileSync(pkgFile, prettyJsonString);
+  }
+}
 
 function createMigrationContext(root: any) {
   function printNode(node: TextRange) {

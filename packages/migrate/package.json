@@ -38,6 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@types/prettier": "^2.7.2",
     "@types/semver": "^7.3.13",
     "@typespec/compiler": "~0.40.0",
     "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0",
