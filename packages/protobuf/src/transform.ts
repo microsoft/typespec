@@ -434,6 +434,7 @@ function tspToProto(program: Program): ProtoFile[] {
   }
 
   function getProtoScalarsMap(program: Program): Map<Type, ProtoScalar> {
+    // Lazy initialize this map of known proto scalars.
     return (_protoScalarsMap ??= new Map<Type, ProtoScalar>(
       (
         [
@@ -738,7 +739,7 @@ function tspToProto(program: Program): ProtoFile[] {
         program,
         pt,
         dependent,
-        (dependency as Model).templateArguments![0] as NamespaceTraversable
+        (dependency as Model).templateMapper!.args[0] as NamespaceTraversable
       );
     }
     try {
@@ -812,6 +813,8 @@ function capitalize<S extends string>(s: S) {
 }
 
 /**
+ * Gets the syntactic return type target for an operation.
+ *
  * Helps us squiggle the right things for operation return types.
  */
 function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
@@ -830,6 +833,9 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
   }
 }
 
+/**
+ * Gets the syntactic type position for a model or enum field.
+ */
 function getMemberTypeSyntaxTarget(property: ModelProperty | EnumMember): DiagnosticTarget {
   const node = property.node;
 
@@ -851,6 +857,9 @@ function getMemberTypeSyntaxTarget(property: ModelProperty | EnumMember): Diagno
   }
 }
 
+/**
+ * Gets the syntactic position of a model property name.
+ */
 function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
   const node = property.node;
 
