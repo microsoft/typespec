@@ -14,7 +14,7 @@ import {
 } from "./migration-types.js";
 
 export interface MigrationResult {
-  fileChanged: string[];
+  filesChanged: string[];
 }
 
 /** Main function for migrating typespec file content */
@@ -25,12 +25,17 @@ export async function migrateTypeSpecFiles(files: string[], migration: ContentMi
 }
 
 /** Main function for rename files */
-export async function migrateFileRename(files: string[], migration: FileRenameMigration) {
+export async function migrateFileRename(
+  files: string[],
+  migration: FileRenameMigration
+): Promise<boolean> {
   const renameActions = migration.migrate(files);
-  if (renameActions.length === 0) return;
+  let changesMade = false;
+  if (renameActions.length === 0) return changesMade;
 
   console.log(`Renaming ${renameActions.length} file(s):`);
   for (const action of renameActions) {
+    changesMade = true;
     console.log(` - ${action.sourceFileName} -> ${action.targetFileName}`);
     fs.rename(action.sourceFileName, action.targetFileName, (err) => {
       if (err) {
@@ -41,20 +46,22 @@ export async function migrateFileRename(files: string[], migration: FileRenameMi
       }
     });
   }
+  return changesMade;
 }
 
 /** Main function for migrating package versions in the package.json */
 export async function migratePackageVersion(
   pkgFile: string,
   migration: PackageVersionUpdateMigration
-) {
+): Promise<boolean> {
   const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
   const actions = migration.migrate(packageJson);
-  if (actions.length === 0) return;
+  let changeMade = false;
+
+  if (actions.length === 0) return changeMade;
 
   console.log(`Updating ${actions.length} package(s):`);
 
-  let changeMade = false;
   for (const action of actions) {
     if (
       packageJson.dependencies !== undefined &&
@@ -85,6 +92,8 @@ export async function migratePackageVersion(
     const prettyJsonString = prettier.format(JSON.stringify(packageJson), { parser: "json" });
     fs.writeFileSync(pkgFile, prettyJsonString);
   }
+
+  return changeMade;
 }
 
 /** This is used by test code to migrate single file content */
@@ -111,11 +120,11 @@ async function migrateTypeSpecFilesInternal(
   migration: ContentMigration<any>
 ): Promise<MigrationResult> {
   const result: MigrationResult = {
-    fileChanged: [],
+    filesChanged: [],
   };
   for (const file of files) {
     if (await migrateTypeSpecFile(fromCompiler, toCompiler, file, migration)) {
-      result.fileChanged.push(file);
+      result.filesChanged.push(file);
     }
   }
   return result;

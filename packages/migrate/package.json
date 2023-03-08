@@ -38,11 +38,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@types/prettier": "^2.7.2",
+    "@types/prettier": "^2.6.0",
     "@types/semver": "^7.3.13",
-    "@types/yargs": "^17.0.22",
+    "@types/yargs": "^17.0.2",
     "semver": "^7.3.8",
-    "yargs": "^17.7.1",
+    "yargs": "^17.6.2",
     "globby": "~13.1.1",
     "@typespec/compiler": "~0.41.0",
     "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0",

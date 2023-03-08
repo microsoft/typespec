@@ -14,7 +14,7 @@ export enum MigrationKind {
 }
 
 /** Defines all migration actions */
-export type MigrateAction = ContentMigrateAction | fileRenameAction | packageVersionUpdateAction;
+export type MigrateAction = ContentMigrateAction | FileRenameAction | PackageVersionUpdateAction;
 
 /** Defines all migration functions that can be implemented by version specific migration functions.
  * These functions should return corresponding array migration actions to be performed.*/
@@ -77,14 +77,14 @@ export interface ContentMigration<TFrom extends TypeSpecCompilerVersion> extends
 export interface FileRenameMigration extends MigrationBase {
   kind: MigrationKind.FileRename;
 
-  migrate(fileNames: string[]): fileRenameAction[];
+  migrate(fileNames: string[]): FileRenameAction[];
 }
 
 /** Package version update migration interface definition. */
 export interface PackageVersionUpdateMigration extends MigrationBase {
   kind: MigrationKind.PackageVersionUpdate;
 
-  migrate(pkg: NodePackage): packageVersionUpdateAction[];
+  migrate(pkg: NodePackage): PackageVersionUpdateAction[];
 }
 
 /** Base class for migration actions */
@@ -104,14 +104,14 @@ export interface ContentMigrateAction extends MigrateActionBase {
 }
 
 /** Migration action that renames a file */
-export interface fileRenameAction extends MigrateActionBase {
+export interface FileRenameAction extends MigrateActionBase {
   kind: MigrationKind.FileRename;
   sourceFileName: string;
   targetFileName: string;
 }
 
 /** Migration action that updates a package version */
-export interface packageVersionUpdateAction extends MigrateActionBase {
+export interface PackageVersionUpdateAction extends MigrateActionBase {
   kind: MigrationKind.PackageVersionUpdate;
   packageName: string;
   renamePackageName?: string;

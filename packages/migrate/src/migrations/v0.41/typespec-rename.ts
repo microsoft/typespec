@@ -7,17 +7,17 @@ import {
   createContentMigration,
   createFileRenameMigration,
   createPackageVersionMigration,
-  fileRenameAction,
+  FileRenameAction,
   MigrationContext,
   MigrationKind,
-  packageVersionUpdateAction,
+  PackageVersionUpdateAction,
 } from "../../migration-types.js";
 
 export const updatePackageVersion = createPackageVersionMigration({
   name: "Update package version",
   kind: MigrationKind.PackageVersionUpdate,
   migrate: (pkg: NodePackage) => {
-    const actions: Array<packageVersionUpdateAction> = [];
+    const actions: Array<PackageVersionUpdateAction> = [];
 
     actions.push({
       kind: MigrationKind.PackageVersionUpdate,
@@ -166,7 +166,7 @@ export const renameCadlFileNames = createFileRenameMigration({
   name: "Rename cadl file names",
   kind: MigrationKind.FileRename,
   migrate: (fileNames: string[]) => {
-    const actions: Array<fileRenameAction> = [];
+    const actions: Array<FileRenameAction> = [];
     for (let i = 0; i < fileNames.length; i++) {
       let toName: string | undefined = undefined;
       const pathOnly = path.dirname(fileNames[i]);

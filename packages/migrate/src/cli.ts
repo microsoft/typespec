@@ -26,13 +26,14 @@ async function main() {
   const cliOptions: Options = await yargs(process.argv.slice(2))
     .option("path", {
       alias: "p",
-      describe: "Path to the input file. Default to current folder.",
+      describe: "Path to the input directory. Defaults to the current directory.",
       type: "string",
       default: process.cwd(),
     })
     .option("tspVersion", {
       alias: "t",
-      describe: "Specifies the version of TypeSpec doc. Default will be loading from package.json",
+      describe:
+        "Specifies the TypeSpec compiler version used by the input. Defaults to the version of the compiler package in package.json.",
       type: "string",
       default: "",
     })
@@ -68,9 +69,9 @@ async function main() {
     return;
   }
 
-  let changesMake = false;
+  let changesMade = false;
 
-  // Iterate thru migration configuration and invoke
+  // Iterate thru migration configuration and invoke migration functions
   console.log(`Current Typespec version ${cliOptions.tspVersion}.`);
   const stepKeys = Object.keys(migrationConfigurations);
   for (const key of stepKeys) {
@@ -85,21 +86,21 @@ async function main() {
             const files = await findTypeSpecFiles(cliOptions.path);
             const result = await migrateTypeSpecFiles(files, migrationStep);
             // If migration has been performed log status
-            if (result.fileChanged.length > 0) {
-              changesMake = true;
-              console.log(`Updated ${result.fileChanged.length} typespec files:`);
-              for (const file of result.fileChanged) {
+            if (result.filesChanged.length > 0) {
+              changesMade = true;
+              console.log(`Updated ${result.filesChanged.length} TypeSpec files:`);
+              for (const file of result.filesChanged) {
                 console.log(` - ${file}`);
               }
             }
             break;
           case MigrationKind.FileRename:
             const srcFiles = await findTypeSpecFiles(cliOptions.path);
-            await migrateFileRename(srcFiles, migrationStep);
+            changesMade = await migrateFileRename(srcFiles, migrationStep);
             break;
           case MigrationKind.PackageVersionUpdate:
             const pkgFile = resolvePath(cliOptions.path, PackageJsonFile);
-            await migratePackageVersion(pkgFile, migrationStep);
+            changesMade = await migratePackageVersion(pkgFile, migrationStep);
             break;
           default:
             console.log(`Unexpected error: unknown migration kind: ${migrationStep} `);
@@ -114,12 +115,12 @@ async function main() {
     }
   }
 
-  if (changesMake) {
+  if (changesMade) {
     console.log(
-      "\nThis is a best effort migration, double check everything was migrated correctly."
+      "\nThis is a best effort migration, double check that everything was migrated correctly."
     );
   } else {
-    console.log("\nNo typespec files has been migrated.");
+    console.log("\nNo typespec files have been migrated.");
   }
 }
 

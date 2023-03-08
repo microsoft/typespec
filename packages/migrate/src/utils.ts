@@ -21,15 +21,3 @@ export async function findFiles(include: string[], ignore: string[] = []): Promi
 export function normalizePath(path: string): string {
   return path.replace(/\\/g, "/");
 }
-
-export function renameFile(sourceFileName: string, targetFileName: string) {
-  return;
-}
-
-export function updatePackageVersion(
-  packageJso: any,
-  packageName: string,
-  newVersionNumber: string
-): string {
-  return "old";
-}
