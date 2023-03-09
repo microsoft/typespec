@@ -10,6 +10,7 @@ import { migrationConfigurations } from "./migration-config.js";
 import {
   migrateFileRename,
   migratePackageVersion,
+  migrateTextFiles,
   migrateTypeSpecFiles,
 } from "./migration-impl.js";
 import { MigrationKind } from "./migration-types.js";
@@ -81,9 +82,9 @@ async function main() {
       );
 
       for (const migrationStep of migrationConfigurations[key]) {
+        const files = await findTypeSpecFiles(cliOptions.path);
         switch (migrationStep.kind) {
-          case MigrationKind.Content:
-            const files = await findTypeSpecFiles(cliOptions.path);
+          case MigrationKind.AstContentMigration:
             const result = await migrateTypeSpecFiles(files, migrationStep);
             // If migration has been performed log status
             if (result.filesChanged.length > 0) {
@@ -94,9 +95,11 @@ async function main() {
               }
             }
             break;
+          case MigrationKind.FileContentMigration:
+            changesMade = await migrateTextFiles(files, migrationStep);
+            break;
           case MigrationKind.FileRename:
-            const srcFiles = await findTypeSpecFiles(cliOptions.path);
-            changesMade = await migrateFileRename(srcFiles, migrationStep);
+            changesMade = await migrateFileRename(files, migrationStep);
             break;
           case MigrationKind.PackageVersionUpdate:
             const pkgFile = resolvePath(cliOptions.path, PackageJsonFile);

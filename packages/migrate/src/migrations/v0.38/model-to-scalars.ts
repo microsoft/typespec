@@ -5,7 +5,7 @@ import type {
 } from "@typespec/compiler-v0.37";
 import { TypeSpecCompilerV0_37 } from "../../migration-config.js";
 import {
-  ContentMigrateAction,
+  AstContentMigrateAction,
   createContentMigration,
   MigrationContext,
   MigrationKind,
@@ -13,7 +13,7 @@ import {
 
 export const migrateModelToScalar = createContentMigration({
   name: "Migrate Model To scalar",
-  kind: MigrationKind.Content,
+  kind: MigrationKind.AstContentMigration,
   from: "0.37.0",
   to: "0.38.0",
   migrate: (
@@ -28,7 +28,7 @@ export const migrateModelToScalar = createContentMigration({
       return `<${parameters.map((x) => printNode(x)).join(", ")}>`;
     }
 
-    const actions: ContentMigrateAction[] = [];
+    const actions: AstContentMigrateAction[] = [];
     visitRecursive(compilerV37, root, (node) => {
       if (
         node.kind === compilerV37.SyntaxKind.ModelStatement &&
@@ -40,7 +40,7 @@ export const migrateModelToScalar = createContentMigration({
       ) {
         const decorators = printNodes(node.decorators);
         actions.push({
-          kind: MigrationKind.Content,
+          kind: MigrationKind.AstContentMigration,
           target: node,
           content: `${decorators ? decorators + " " : ""}scalar ${
             node.id.sv

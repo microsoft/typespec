@@ -4,8 +4,9 @@ import { readFile, writeFile } from "fs/promises";
 import prettier from "prettier";
 import { TypeSpecCompilers } from "./migration-config.js";
 import {
-  ContentMigrateAction,
-  ContentMigration,
+  AstContentMigrateAction,
+  AstContentMigration,
+  FileContentMigration,
   FileRenameMigration,
   MigrationKind,
   PackageVersionUpdateMigration,
@@ -17,8 +18,22 @@ export interface MigrationResult {
   filesChanged: string[];
 }
 
+/** Main function for migrating text file content */
+export async function migrateTextFiles(files: string[], migration: FileContentMigration) {
+  const actions = await migration.migrate(files);
+
+  if (actions.length > 0) {
+    console.log(`Updating text content of ${actions.length} file(s):`);
+    for (const action of actions) {
+      console.log(` - ${action.fileName}`);
+      await writeFile(action.fileName, action.newContent);
+    }
+  }
+  return actions.length > 0 ? true : false;
+}
+
 /** Main function for migrating typespec file content */
-export async function migrateTypeSpecFiles(files: string[], migration: ContentMigration<any>) {
+export async function migrateTypeSpecFiles(files: string[], migration: AstContentMigration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
   return migrateTypeSpecFilesInternal(fromCompiler, toCompiler, files, migration);
@@ -97,7 +112,7 @@ export async function migratePackageVersion(
 }
 
 /** This is used by test code to migrate single file content */
-export async function migrateTypeSpecContent(content: string, migration: ContentMigration<any>) {
+export async function migrateTypeSpecContent(content: string, migration: AstContentMigration<any>) {
   const fromCompiler = await loadCompiler(migration.from);
   const toCompiler = await loadCompiler(migration.to);
   return migrateTypeSpecContentInternal(fromCompiler, toCompiler, content, migration);
@@ -117,7 +132,7 @@ async function migrateTypeSpecFilesInternal(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   files: string[],
-  migration: ContentMigration<any>
+  migration: AstContentMigration<any>
 ): Promise<MigrationResult> {
   const result: MigrationResult = {
     filesChanged: [],
@@ -134,7 +149,7 @@ async function migrateTypeSpecFile(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   filename: string,
-  migration: ContentMigration<any>
+  migration: AstContentMigration<any>
 ): Promise<boolean> {
   const buffer = await readFile(filename);
   const content = buffer.toString();
@@ -153,12 +168,15 @@ function migrateTypeSpecContentInternal(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   content: string,
-  migration: ContentMigration<any>
+  migration: AstContentMigration<any>
 ): [string, boolean] {
   const parsed = fromCompiler.parse(content);
   const actions = migration
     .migrate(createMigrationContext(parsed), fromCompiler, parsed as any)
-    .filter((action): action is ContentMigrateAction => action.kind === MigrationKind.Content)
+    .filter(
+      (action): action is AstContentMigrateAction =>
+        action.kind === MigrationKind.AstContentMigration
+    )
     .sort((a, b) => a.target.pos - b.target.pos);
 
   return ContentMigration(toCompiler, content, actions);
@@ -167,7 +185,7 @@ function migrateTypeSpecContentInternal(
 function ContentMigration(
   toCompiler: TypeSpecCompiler,
   content: string,
-  actions: ContentMigrateAction[]
+  actions: AstContentMigrateAction[]
 ): [string, boolean] {
   if (actions.length === 0) {
     return [content, false];

@@ -1,12 +1,16 @@
+import type { Node, TypeSpecScriptNode } from "@typespec/compiler";
 import { getAnyExtensionFromPath, NodePackage } from "@typespec/compiler";
-import type { CadlScriptNode, Node } from "@typespec/compiler-v0.40";
+import { readFile } from "fs/promises";
+import * as yaml from "js-yaml";
 import * as path from "path";
 import type { TypeSpecCompilerV0_40 } from "../../migration-config.js";
 import {
-  ContentMigrateAction,
+  AstContentMigrateAction,
   createContentMigration,
+  createFileContentMigration,
   createFileRenameMigration,
   createPackageVersionMigration,
+  FileContentMigrationAction,
   FileRenameAction,
   MigrationContext,
   MigrationKind,
@@ -104,15 +108,15 @@ export const updatePackageVersion = createPackageVersionMigration({
 
 export const migrateCadlNameToTypeSpec = createContentMigration({
   name: "Migrate Model To scalar",
-  kind: MigrationKind.Content,
+  kind: MigrationKind.AstContentMigration,
   from: "0.40.0",
   to: "0.41.0",
   migrate: (
     { printNode, printNodes }: MigrationContext,
     compilerV40: TypeSpecCompilerV0_40,
-    root: CadlScriptNode
+    root: TypeSpecScriptNode
   ) => {
-    const actions: ContentMigrateAction[] = [];
+    const actions: AstContentMigrateAction[] = [];
     visitRecursive(compilerV40, root, (node) => {
       if (node.kind === compilerV40.SyntaxKind.ImportStatement && node.path.value.length > 0) {
         let newContent = "";
@@ -127,7 +131,7 @@ export const migrateCadlNameToTypeSpec = createContentMigration({
 
         if (newContent.length > 0) {
           actions.push({
-            kind: MigrationKind.Content,
+            kind: MigrationKind.AstContentMigration,
             target: node,
             content: `import "${newContent}";`,
           });
@@ -139,7 +143,7 @@ export const migrateCadlNameToTypeSpec = createContentMigration({
       ) {
         if (node.name.id.sv === "DPG") {
           actions.push({
-            kind: MigrationKind.Content,
+            kind: MigrationKind.AstContentMigration,
             target: node.name,
             content: `Azure.ClientGenerator.Core`,
           });
@@ -151,7 +155,7 @@ export const migrateCadlNameToTypeSpec = createContentMigration({
           node.name.base.sv === "Cadl"
         ) {
           actions.push({
-            kind: MigrationKind.Content,
+            kind: MigrationKind.AstContentMigration,
             target: node.name.base,
             content: `TypeSpec`,
           });
@@ -191,6 +195,70 @@ export const renameCadlFileNames = createFileRenameMigration({
   },
 });
 
+export const migrateTspConfigFile = createFileContentMigration({
+  name: "Migrate cadl-project.yaml and tspConfig.yaml",
+  kind: MigrationKind.FileContentMigration,
+  migrate: async (fileNames: string[]) => {
+    // Old cadl-project.yaml file would have been migrated already.
+    // So we only need to deal with new config file name.
+    const TspConfigFileName = "tspconfig.yaml";
+    const actions: Array<FileContentMigrationAction> = [];
+
+    for (let i = 0; i < fileNames.length; i++) {
+      const fileName = path.basename(fileNames[i]);
+
+      if (fileName === TspConfigFileName) {
+        // loading content
+        const buffer = await readFile(fileName);
+        let content = buffer.toString();
+
+        // replacing cadl with typespec
+        const replaceKeys = Object.keys(CadlToTypeSpecReplacement);
+        for (const key of replaceKeys) {
+          content = content.replace(key, CadlToTypeSpecReplacement[key]);
+        }
+
+        // load data & convert to new format if needed to
+        let tspConfig: any;
+        try {
+          tspConfig = yaml.load(content);
+          // if config has older deprecated emitters format, convert to new format
+          if (tspConfig?.emitters !== undefined) {
+            (tspConfig as { emit: Array<string> }).emit = [];
+            (tspConfig as { options: Record<string, any> }).options = {};
+
+            // convert each emitters to new emit format
+            for (const key in tspConfig.emitters) {
+              tspConfig.emit.push(key);
+              if (typeof tspConfig.emitters[key] !== "boolean") {
+                tspConfig.options[key] = tspConfig.emitters[key];
+              }
+            }
+
+            // clean up config object for minimal output
+            tspConfig.emitters = undefined;
+            if (tspConfig.options.length === 0) tspConfig.options = undefined;
+
+            content = yaml.dump(tspConfig);
+          }
+        } catch (err) {
+          console.warn(
+            `Failed to load ${fileNames[i]}. File may not have been migrated correctly. Error details: ${err}`
+          );
+        }
+
+        // Create replacement action
+        actions.push({
+          kind: MigrationKind.FileContentMigration,
+          fileName: fileNames[i],
+          newContent: content,
+        });
+      }
+    }
+    return actions;
+  },
+});
+
 function visitRecursive(compiler: any, root: Node, callback: (node: Node) => void) {
   const visit = (node: Node) => {
     callback(node);
@@ -198,3 +266,8 @@ function visitRecursive(compiler: any, root: Node, callback: (node: Node) => voi
   };
   visit(root);
 }
+
+const CadlToTypeSpecReplacement: { [key: string]: string } = {
+  "@cadl-lang/": "@typespec/",
+  "@azure-tools/cadl-": "@azure-tools/typespec-",
+};
