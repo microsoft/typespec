@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Export formatIdentifier function from the lib",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
