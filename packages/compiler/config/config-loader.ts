@@ -24,32 +24,28 @@ export async function findTypeSpecConfigPath(
   host: CompilerHost,
   path: string
 ): Promise<string | undefined> {
-  try {
-    const stats = fs.statSync(path);
+  // if the path is a file, return immediately
+  if (fs.existsSync(path)) {
+    const stats = await fs.statSync(path);
     if (stats.isFile()) {
       return path;
-    } else if (stats.isDirectory()) {
-      let current = path;
-      while (true) {
-        let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
-        if (pkgPath === undefined) {
-          pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
-        }
-        // if found either file in current folder, return it
-        if (pkgPath !== undefined) {
-          return pkgPath;
-        }
-        const parent = getDirectoryPath(current);
-        if (parent === current) {
-          return undefined;
-        }
-        current = parent;
-      }
     }
-    return undefined;
-  } catch (error) {
-    console.error(`ERROR: --config '${path}' not found. Using default configuration.`);
-    return undefined;
+  }
+  let current = path;
+  while (true) {
+    let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
+    if (pkgPath === undefined) {
+      pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+    }
+    // if found either file in current folder, return it
+    if (pkgPath !== undefined) {
+      return pkgPath;
+    }
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      return undefined;
+    }
+    current = parent;
   }
 }
 
@@ -60,11 +56,25 @@ export async function findTypeSpecConfigPath(
  */
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
-  path: string
+  path: string,
+  errorIfNotFound: boolean = false
 ): Promise<TypeSpecConfig> {
   const typespecConfigPath = await findTypeSpecConfigPath(host, path);
   if (typespecConfigPath === undefined) {
-    return { ...deepClone(defaultConfig), projectRoot: path };
+    const projectRoot = getDirectoryPath(path);
+    const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };
+    if (errorIfNotFound) {
+      tsConfig.diagnostics.push(
+        createDiagnostic({
+          code: "config-path-not-found",
+          format: {
+            path: path,
+          },
+          target: NoTarget,
+        })
+      );
+    }
+    return tsConfig;
   }
   const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
   // Add diagnostics if still using cadl-project.yaml

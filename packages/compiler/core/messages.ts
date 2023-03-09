@@ -498,6 +498,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "config-path-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Config path "${"path"}" not found.`,
+    },
+  },
   /**
    * Program
    */

@@ -36,7 +36,7 @@ export async function getCompilerOptions(
   const pathArg = args["output-dir"] ?? args["output-path"];
   const configPath = args["config"] ?? cwd;
 
-  const config = await loadTypeSpecConfigForPath(host, configPath);
+  const config = await loadTypeSpecConfigForPath(host, configPath, "config" in args);
   if (config.diagnostics.length > 0) {
     if (config.diagnostics.some((d) => d.severity === "error")) {
       return [undefined, config.diagnostics];
