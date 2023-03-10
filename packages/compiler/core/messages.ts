@@ -501,7 +501,7 @@ const diagnostics = {
   "config-path-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Config path "${"path"}" not found.`,
+      default: paramMessage`No configuration file found at config path "${"path"}".`,
     },
   },
   /**
