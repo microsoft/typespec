@@ -124,6 +124,7 @@ import {
 } from "./types.js";
 import { isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
+/** Some comment */
 export interface Checker {
   typePrototype: TypePrototype;
 
