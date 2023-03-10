@@ -135,6 +135,16 @@
       "presentation": {
         "hidden": true
       }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug TypeSpec Migrate",
+      "program": "${workspaceFolder}/packages/migrate/dist/src/cli.js",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "cwd": "C:/Github/Sandbox/playground/cadl/migrate/0.37"
     }
   ],
   "compounds": [
