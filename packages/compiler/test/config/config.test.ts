@@ -23,7 +23,7 @@ describe("compiler: config file loading", () => {
     };
 
     it("loads full path to custom config file", async () => {
-      const config = await loadTestConfig("custom/myconfig.yaml");
+      const config = await loadTestConfig("custom/myConfig.yaml");
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/tsp-output",
@@ -32,7 +32,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("emits diagnostic for bad custom config file path", async () => {
-      const config = await loadTestConfig("custom/myconfigy.yaml");
+      const config = await loadTestConfig("custom/myConfigY.yaml");
       strictEqual(config.diagnostics.length, 1);
       strictEqual(config.diagnostics[0].code, "config-path-not-found");
       strictEqual(config.diagnostics[0].severity, "error");
