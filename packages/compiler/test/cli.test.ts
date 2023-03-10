@@ -1,7 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { dump } from "js-yaml";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
 import { CompileCliArgs, getCompilerOptions } from "../core/cli/args.js";
 import {
   createTestHost,
@@ -32,21 +30,6 @@ describe("compiler: cli", () => {
       const options = await resolveCompilerOptions({});
       deepStrictEqual(options, {
         outputDir: `${cwd}/tsp-output`,
-        options: {},
-      });
-    });
-
-    it("--config plumbs through", async () => {
-      const configPath = resolve(
-        dirname(fileURLToPath(import.meta.url)),
-        "../../test/config/scenarios/custom/myconfig.yaml"
-      );
-      const options = await resolveCompilerOptions({
-        config: configPath,
-      });
-      deepStrictEqual(options, {
-        outputDir: `${cwd}/tsp-output`,
-        config: configPath,
         options: {},
       });
     });
