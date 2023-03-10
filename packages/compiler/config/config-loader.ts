@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import jsyaml from "js-yaml";
 import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
@@ -25,11 +24,16 @@ export async function findTypeSpecConfigPath(
   path: string
 ): Promise<string | undefined> {
   // if the path is a file, return immediately
-  if (fs.existsSync(path)) {
-    const stats = await fs.statSync(path);
-    if (stats.isFile()) {
-      return path;
-    }
+  const stats = await doIO(
+    () => host.stat(path),
+    path,
+    () => {},
+    { allowFileNotFound: true }
+  );
+  if (!stats) {
+    return undefined;
+  } else if (stats.isFile()) {
+    return path;
   }
   let current = path;
   while (true) {
