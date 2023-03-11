@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add `--config` option to `tsp compile`.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

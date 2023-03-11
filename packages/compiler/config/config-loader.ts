@@ -17,12 +17,24 @@ export const defaultConfig = deepFreeze({
 
 /**
  * Look for the project root by looking up until a `tspconfig.yaml` is found.
- * @param path Path to start looking
+ * @param path Path to the file or the folder to start looking
  */
 export async function findTypeSpecConfigPath(
   host: CompilerHost,
   path: string
 ): Promise<string | undefined> {
+  // if the path is a file, return immediately
+  const stats = await doIO(
+    () => host.stat(path),
+    path,
+    () => {},
+    { allowFileNotFound: true }
+  );
+  if (!stats) {
+    return undefined;
+  } else if (stats.isFile()) {
+    return path;
+  }
   let current = path;
   while (true) {
     let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
@@ -42,17 +54,31 @@ export async function findTypeSpecConfigPath(
 }
 
 /**
- * Load the typespec configuration for the provided directory
+ * Load the typespec configuration for the provided path or directory
  * @param host
- * @param directoryPath
+ * @param path
  */
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
-  directoryPath: string
+  path: string,
+  errorIfNotFound: boolean = false
 ): Promise<TypeSpecConfig> {
-  const typespecConfigPath = await findTypeSpecConfigPath(host, directoryPath);
+  const typespecConfigPath = await findTypeSpecConfigPath(host, path);
   if (typespecConfigPath === undefined) {
-    return { ...deepClone(defaultConfig), projectRoot: directoryPath };
+    const projectRoot = getDirectoryPath(path);
+    const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };
+    if (errorIfNotFound) {
+      tsConfig.diagnostics.push(
+        createDiagnostic({
+          code: "config-path-not-found",
+          format: {
+            path: path,
+          },
+          target: NoTarget,
+        })
+      );
+    }
+    return tsConfig;
   }
   const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
   // Add diagnostics if still using cadl-project.yaml
