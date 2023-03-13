@@ -241,6 +241,43 @@ describe("compiler: using statements", () => {
     ]);
   });
 
+  it("report ambiguous diagnostics when symbol exists in using namespace and global namespace", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      `
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
+      `
+      model M {}
+
+      using B;
+      
+      model Q extends M {}
+      `
+    );
+    testHost.addTypeSpecFile(
+      "b.tsp",
+      `
+      namespace B {
+        model M { }
+      }
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "ambiguous-symbol",
+        message:
+          '"M" is an ambiguous name between B.M, global::M. Try using fully qualified name instead: B.M, global::M',
+      },
+    ]);
+  });
+
   it("reports ambiguous symbol for decorator", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",

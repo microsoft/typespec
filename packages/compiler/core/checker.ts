@@ -320,6 +320,8 @@ export function createChecker(program: Program): Checker {
     setUsingsForFile(file);
   }
 
+  applyGlobalNamespace(globalNamespaceNode);
+
   const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
     // the typespec namespace binding will be absent if we've passed
@@ -418,6 +420,16 @@ export function createChecker(program: Program): Checker {
 
   function mergeSourceFile(file: TypeSpecScriptNode | JsSourceFileNode) {
     mergeSymbolTable(file.symbol.exports!, mutate(globalNamespaceNode.symbol.exports!));
+  }
+
+  function applyGlobalNamespace(ns: NamespaceStatementNode) {
+    const sym = resolveTypeReferenceSym(ns.id, undefined);
+    if (!sym) {
+      return;
+    }
+
+    const namespaceSym = getMergedSymbol(sym)!;
+    addUsingSymbols(namespaceSym.exports!, ns.locals!);
   }
 
   function setUsingsForFile(file: TypeSpecScriptNode) {
@@ -1736,7 +1748,6 @@ export function createChecker(program: Program): Checker {
     if (!table) {
       return undefined;
     }
-
     table = augmentedSymbolTables.get(table) ?? table;
     let sym;
     if (resolveDecorator) {
