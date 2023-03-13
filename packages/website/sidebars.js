@@ -98,6 +98,14 @@ const sidebars = {
             "standard-library/openapi/openapi",
           ],
         },
+        {
+          type: "category",
+          label: "Versioning",
+          items: [
+            "standard-library/versioning/overview",
+            createLibraryReferenceStructure("versioning"),
+          ],
+        },
       ],
     },
     {
