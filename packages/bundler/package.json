@@ -38,7 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "~0.41.0",
+    "@typespec/compiler": "~0.42.0",
     "@rollup/plugin-virtual": "~3.0.1",
     "@rollup/plugin-commonjs": "~23.0.2",
     "@rollup/plugin-json": "~5.0.1",

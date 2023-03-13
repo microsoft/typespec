@@ -358,6 +358,7 @@ JS Api
 - [filterModelProperties](index.md#filtermodelproperties)
 - [finishTypeForProgram](index.md#finishtypeforprogram)
 - [formatDiagnostic](index.md#formatdiagnostic)
+- [formatIdentifier](index.md#formatidentifier)
 - [formatTypeSpec](index.md#formattypespec)
 - [getAllTags](index.md#getalltags)
 - [getAnyExtensionFromPath](index.md#getanyextensionfrompath)
@@ -2414,6 +2415,22 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](interfaces/Diagnostic.md) |
+
+#### Returns
+
+`string`
+
+___
+
+### formatIdentifier
+
+▸ **formatIdentifier**(`sv`): `string`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `sv` | `string` |
 
 #### Returns
 
