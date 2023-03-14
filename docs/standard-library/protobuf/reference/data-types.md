@@ -6,9 +6,9 @@ toc_max_heading_level: 3
 
 # Data types
 
-## Cadl.Protobuf
+## TypeSpec.Protobuf
 
-### `Extern` {#Cadl.Protobuf.Extern}
+### `Extern` {#TypeSpec.Protobuf.Extern}
 
 A model that represents an external Protobuf reference. This type can be used to import and utilize Protobuf
 declarations that are not declared in TypeSpec within TypeSpec sources. When the emitter encounters an `Extern`, it
@@ -23,18 +23,18 @@ the example below.
 When the TypeSpec definition of `Widget` is encountered, the Protobuf emitter will represent it as a reference to
 `test.Widget` and insert an import for it, rather than attempt to convert the model to an equivalent message.
 
-```cadl
+```typespec
 model Extern<Path, Name>
 ```
 
 #### Template Parameters
 
-| Name | Description                                                                                                  |
-| ---- | ------------------------------------------------------------------------------------------------------------ |
-| Path | the relative path to a `.proto` file to import                                                               |
-| Name | a string containing the fully-qualified reference to the type this model represents within the `.proto` file |
+| Name | Description                                                                              |
+| ---- | ---------------------------------------------------------------------------------------- |
+| Path | the relative path to a `.proto` file to import                                           |
+| Name | the fully-qualified reference to the type this model represents within the `.proto` file |
 
-### `Map` {#Cadl.Protobuf.Map}
+### `Map` {#TypeSpec.Protobuf.Map}
 
 A type representing a Protobuf `map`. Instances of this type in models will be converted to the built-in `map` type
 in Protobuf.
@@ -42,29 +42,36 @@ in Protobuf.
 The key type of a Protobuf `map` must be any integral type or `string`. The value type can be any type other than
 another `Map`.
 
-```cadl
+```typespec
 model Map<K, V>
 ```
 
 #### Template Parameters
 
-| Name | Description                                |
-| ---- | ------------------------------------------ |
-| K    | the key type (any integral type or string) |
-| V    | the value type                             |
+| Name | Description                                      |
+| ---- | ------------------------------------------------ |
+| K    | the key type (any integral type or string)       |
+| V    | the value type (any type other than another map) |
 
-### `PackageDetails` {#Cadl.Protobuf.PackageDetails}
+### `PackageDetails` {#TypeSpec.Protobuf.PackageDetails}
 
-Details applied to a package definition by the [
+Details applied to a package definition by the [`@package`](#TODO) decorator.
 
-```cadl
-model Cadl.Protobuf.PackageDetails
+```typespec
+model TypeSpec.Protobuf.PackageDetails
 ```
 
-### `StreamMode` {#Cadl.Protobuf.StreamMode}
+### `StreamMode` {#TypeSpec.Protobuf.StreamMode}
 
-The streaming mode of an operation.
+The streaming mode of an operation. One of:
 
-```cadl
-enum Cadl.Protobuf.StreamMode
+- `Duplex`: both the input and output of the operation are streaming.
+- `In`: the input of the operation is streaming.
+- `Out`: the output of the operation is streaming.
+- `None`: neither the input nor the output are streaming.
+
+See the [`@stream`](#TODO) decorator.
+
+```typespec
+enum TypeSpec.Protobuf.StreamMode
 ```

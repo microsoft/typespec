@@ -5,18 +5,18 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 
-## Cadl.Protobuf
+## TypeSpec.Protobuf
 
 ### Decorators
 
-- [`@field`](./decorators.md#@Cadl.Protobuf.field)
-- [`@reserve`](./decorators.md#@Cadl.Protobuf.reserve)
-- [`@service`](./decorators.md#@Cadl.Protobuf.service)
-- [`@package`](./decorators.md#@Cadl.Protobuf.package)
-- [`@stream`](./decorators.md#@Cadl.Protobuf.stream)
+- [`@field`](./decorators.md#@TypeSpec.Protobuf.field)
+- [`@reserve`](./decorators.md#@TypeSpec.Protobuf.reserve)
+- [`@service`](./decorators.md#@TypeSpec.Protobuf.service)
+- [`@package`](./decorators.md#@TypeSpec.Protobuf.package)
+- [`@stream`](./decorators.md#@TypeSpec.Protobuf.stream)
 
 ### Models
 
-- [`Extern`](./data-types.md#Cadl.Protobuf.Extern)
-- [`Map`](./data-types.md#Cadl.Protobuf.Map)
-- [`PackageDetails`](./data-types.md#Cadl.Protobuf.PackageDetails)
+- [`Extern`](./data-types.md#TypeSpec.Protobuf.Extern)
+- [`Map`](./data-types.md#TypeSpec.Protobuf.Map)
+- [`PackageDetails`](./data-types.md#TypeSpec.Protobuf.PackageDetails)

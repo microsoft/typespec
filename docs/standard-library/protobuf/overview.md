@@ -23,19 +23,19 @@ The `@typespec/protobuf` package provides an emitter that must be enabled in ord
 1. Via the CLI
 
 ```bash
-typespec compile . --emit @typespec/protobuf
+tsp compile . --emit @typespec/protobuf
 ```
 
 2. Via the project configuration
 
-Add the Protobuf emitter to the `emitters` entry (or create one if it does not exist) in `typespec-project.yaml`:
+Add the Protobuf emitter to the `emitters` entry (or create one if it does not exist) in `tsp-project.yaml`:
 
 ```yaml
 emitters:
   @typespec/protobuf: true
 ```
 
-With this configuration entry, Protobuf files will be generated every time the project is compiled using `typespec compile .`.
+With this configuration entry, Protobuf files will be generated every time the project is compiled using `tsp compile .`.
 
 ## Core concepts
 
@@ -49,7 +49,7 @@ The following TypeSpec model:
 
 ```typespec
 model TestMessage {
-  @field(1) n: int32
+  @field(1) n: int32;
 }
 ```
 
@@ -70,7 +70,8 @@ The following TypeSpec namespace results in a Protobuf file named `test.proto` t
 ```typespec
 @package
 namespace Test {
-  // ...
+// ...
+
 }
 ```
 
@@ -78,10 +79,11 @@ Package names may be explicitly overridden by providing an optional `PackageDeta
 
 ```typespec
 @package({
-  name: "com.example.test"
+  name: "com.example.test",
 })
 namespace Test {
-  // ...
+// ...
+
 }
 ```
 
@@ -150,3 +152,5 @@ emitters:
 #### `noEmit`
 
 If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.
+
+[protobuf-package]: reference/decorators#@TypeSpec.Protobuf.package

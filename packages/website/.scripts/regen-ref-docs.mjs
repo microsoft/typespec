@@ -29,6 +29,6 @@ await generateLibraryDocs(
 
 await generateLibraryDocs(
   join(repoRoot, "packages/protobuf"),
-  ["Cadl.Protobuf"],
+  ["TypeSpec.Protobuf"],
   join(repoRoot, "docs/standard-library/protobuf/reference")
 );

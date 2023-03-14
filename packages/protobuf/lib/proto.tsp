@@ -49,8 +49,7 @@ namespace WellKnown {
    *
    * This model references `google.protobuf.Timestamp` from `google/protobuf/timestamp.proto`.
    */
-  model Timestamp
-    is Extern<"google/protobuf/timestamp.proto", "google.protobuf.Timestamp">;
+  model Timestamp is Extern<"google/protobuf/timestamp.proto", "google.protobuf.Timestamp">;
 }
 
 /**
@@ -172,8 +171,7 @@ extern dec field(target: TypeSpec.Reflection.ModelProperty, index: uint32);
  * from utilizing the field index at runtime in a way that may break compatibility with users of older specifications.
  *
  * See _[Protobuf Language Guide - Reserved Fields](https://protobuf.dev/programming-guides/proto3/#reserved)_ for more
- *
- * Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int3
+ * information.
  *
  * @param reservations a list of field reservations
  *
@@ -187,19 +185,16 @@ extern dec field(target: TypeSpec.Reflection.ModelProperty, index: uint32);
  * }
  * ```
  */
-extern dec reserve(
-  target: object,
-  ...reservations: (string | [uint32, uint32] | uint32)[]
-);
+extern dec reserve(target: object, ...reservations: (string | [uint32, uint32] | uint32)[]);
 
 /**
- * Declares that a TypeSPec interface constitutes a Protobuf service. The contents of the interface will be converted to
+ * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to
  * a `service` declaration in the resulting Protobuf file.
  */
 extern dec service(target: TypeSpec.Reflection.Interface);
 
 /**
- * Details applied to a package definition by the [@package](#TODO) decorator.
+ * Details applied to a package definition by the [`@package`](#TODO) decorator.
  */
 model PackageDetails {
   /**
@@ -216,13 +211,17 @@ model PackageDetails {
  *
  * @param details the optional details of the package
  */
-extern dec package(
-  target: TypeSpec.Reflection.Namespace,
-  details?: PackageDetails
-);
+extern dec package(target: TypeSpec.Reflection.Namespace, details?: PackageDetails);
 
 /**
- * The streaming mode of an operation.
+ * The streaming mode of an operation. One of:
+ *
+ * - `Duplex`: both the input and output of the operation are streaming.
+ * - `In`: the input of the operation is streaming.
+ * - `Out`: the output of the operation is streaming.
+ * - `None`: neither the input nor the output are streaming.
+ *
+ * See the [`@stream`](#TODO) decorator.
  */
 enum StreamMode {
   /**
