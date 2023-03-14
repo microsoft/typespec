@@ -90,7 +90,7 @@ ___
 ▸ **isPayloadProperty**(`property`, `visibility`): `boolean`
 
 Determines if the given property is part of the request or response
-payload and not applicable metadata (@see isApplicableMetadata) or
+payload and not applicable metadata [isApplicableMetadata](../index.md#isapplicablemetadata) or
 filtered out by the given visibility.
 
 #### Parameters

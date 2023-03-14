@@ -13,6 +13,7 @@ REST API.
 - [Create](Visibility.md#create)
 - [Delete](Visibility.md#delete)
 - [Item](Visibility.md#item)
+- [None](Visibility.md#none)
 - [Query](Visibility.md#query)
 - [Read](Visibility.md#read)
 - [Update](Visibility.md#update)
@@ -43,6 +44,12 @@ ___
 
 Additional flag to indicate when something is nested in a collection
 and therefore no metadata is applicable.
+
+___
+
+### None
+
+• **None** = ``0``
 
 ___
 

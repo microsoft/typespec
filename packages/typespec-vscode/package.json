@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.41.0",
+  "version": "0.42.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Support for VS Code",
   "homepage": "https://microsoft.github.io/typespec",
@@ -121,7 +121,7 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.53.0",
-    "@typespec/compiler": "~0.41.0",
+    "@typespec/compiler": "~0.42.0",
     "@typespec/eslint-config-typespec": "~0.6.0",
     "@typespec/internal-build-utils": "~0.4.0",
     "eslint": "^8.12.0",

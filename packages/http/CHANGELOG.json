@@ -2,6 +2,18 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.42.0",
+      "tag": "@typespec/http_v0.42.0",
+      "date": "Mon, 13 Mar 2023 21:30:44 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Make canonical visibility configurable and default to none."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.41.0",
       "tag": "@typespec/http_v0.41.0",
       "date": "Fri, 03 Mar 2023 19:59:17 GMT",
