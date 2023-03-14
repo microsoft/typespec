@@ -7,7 +7,13 @@ export * from "./diagnostics.js";
 export * from "./emitter-utils.js";
 export * from "./formatter.js";
 export * from "./helpers/index.js";
-export { createTypeSpecLibrary, paramMessage, setTypeSpecNamespace } from "./library.js";
+export {
+  createCadlLibrary,
+  createTypeSpecLibrary,
+  paramMessage,
+  setCadlNamespace,
+  setTypeSpecNamespace,
+} from "./library.js";
 export * from "./manifest.js";
 export * from "./module-resolver.js";
 export * from "./node-host.js";
@@ -21,3 +27,6 @@ export * from "./types.js";
 export { DuplicateTracker, getSourceFileKindFromExt, Queue, TwoLevelMap } from "./util.js";
 import * as formatter from "../formatter/index.js";
 export const TypeSpecPrettierPlugin = formatter;
+
+/** @deprecated Use TypeSpecPrettierPlugin */
+export const CadlPrettierPlugin = TypeSpecPrettierPlugin;

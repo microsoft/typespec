@@ -76,7 +76,7 @@ ___
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `extensionName` | `string` |
-| `value` | `CadlValue` |
+| `value` | `TypeSpecValue` |
 
 #### Returns
 
@@ -188,11 +188,11 @@ ___
 
 Gets the name of a type to be used in OpenAPI.
 
-For inlined types: this is the Cadl-native name written to `x-cadl-name`.
+For inlined types: this is the TypeSpec-native name written to `x-typespec-name`.
 
-For non-inlined types: this is either the friendly name or the Cadl-native name.
+For non-inlined types: this is either the friendly name or the TypeSpec-native name.
 
-Cadl-native names are shortened to exclude root `Cadl` namespace and service
+TypeSpec-native names are shortened to exclude root `TypeSpec` namespace and service
 namespace using the provided `TypeNameOptions`.
 
 #### Parameters
@@ -265,7 +265,7 @@ Check if the given model has been mark as a default response.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `program` | `Program` | Cadl Program |
+| `program` | `Program` | TypeSpec Program |
 | `entity` | `Type` | Model to check. |
 
 #### Returns
@@ -317,7 +317,7 @@ was specified use that value
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `program` | `Program` | Cadl Program |
+| `program` | `Program` | TypeSpec Program |
 | `operation` | `Operation` | Operation |
 
 #### Returns

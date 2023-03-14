@@ -151,14 +151,14 @@ describe("rest: resources", () => {
       `
       using TypeSpec.Rest.Resource;
 
-      @autoRoute
-      namespace Things {
-        model Thing {
-          @key
-          @segment("things")
-          thingId: string;
-        }
+      model Thing {
+        @key
+        @segment("things")
+        thingId: string;
+      }
 
+      @autoRoute
+      interface Things {
         @post
         @collectionAction(Thing, "export1")
         op exportThing(): {};

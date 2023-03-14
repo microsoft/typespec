@@ -24,7 +24,8 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { findProjectRoot, loadFile } from "../core/util.js";
+import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
+import { printId } from "../formatter/print/printer.js";
 import { isDeprecated } from "../lib/decorators.js";
 import { getTypeDetails } from "./type-details.js";
 
@@ -140,7 +141,8 @@ async function addLibraryImportCompletion(
         JSON.parse,
         program.reportDiagnostic
       );
-      if (libPackageJson.typespecMain !== undefined) {
+
+      if (resolveTspMain(libPackageJson) !== undefined) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),
@@ -236,7 +238,7 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: key,
+      insertText: printId(key),
     };
     if (deprecated) {
       item.tags = [CompletionItemTag.Deprecated];

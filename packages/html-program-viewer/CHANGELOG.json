@@ -2,8 +2,40 @@
   "name": "@typespec/html-program-viewer",
   "entries": [
     {
+      "version": "0.42.0",
+      "tag": "@typespec/html-program-viewer_v0.42.0",
+      "date": "Mon, 13 Mar 2023 21:30:44 GMT",
+      "comments": {}
+    },
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/html-program-viewer_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Update package.json entrypoint to tspMain"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          },
+          {
+            "comment": "Update homepage link"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.40.0",
-      "tag": "@typespec/html-program-viewer_v0.40.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.40.0",
       "date": "Tue, 07 Feb 2023 21:56:17 GMT",
       "comments": {
         "none": [
@@ -15,7 +47,7 @@
     },
     {
       "version": "0.39.0",
-      "tag": "@typespec/html-program-viewer_v0.39.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.39.0",
       "date": "Fri, 13 Jan 2023 00:05:26 GMT",
       "comments": {
         "none": [
@@ -27,7 +59,7 @@
     },
     {
       "version": "0.38.0",
-      "tag": "@typespec/html-program-viewer_v0.38.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.38.0",
       "date": "Wed, 07 Dec 2022 17:21:52 GMT",
       "comments": {
         "minor": [
@@ -48,14 +80,14 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.1` to `~0.5.0`"
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.1` to `~0.5.0`"
           }
         ]
       }
     },
     {
       "version": "0.5.0",
-      "tag": "@typespec/html-program-viewer_v0.5.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.5.0",
       "date": "Sat, 12 Nov 2022 00:14:04 GMT",
       "comments": {
         "minor": [
@@ -65,17 +97,17 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.36.1` to `~0.37.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.36.1` to `~0.37.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.36.1` to `~0.37.0`"
           }
         ]
       }
     },
     {
       "version": "0.4.0",
-      "tag": "@typespec/html-program-viewer_v0.4.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.4.0",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",
       "comments": {
         "minor": [
@@ -85,17 +117,17 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.35.0` to `~0.36.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.35.0` to `~0.36.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
           }
         ]
       }
     },
     {
       "version": "0.3.0",
-      "tag": "@typespec/html-program-viewer_v0.3.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.3.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",
       "comments": {
         "minor": [
@@ -113,53 +145,53 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.34.0` to `~0.35.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.4.0` to `~0.4.1`"
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
           },
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.34.0` to `~0.35.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
           }
         ]
       }
     },
     {
       "version": "0.2.2",
-      "tag": "@typespec/html-program-viewer_v0.2.2",
+      "tag": "@cadl-lang/html-program-viewer_v0.2.2",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",
       "comments": {
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.33.0` to `~0.34.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.3.0` to `~0.4.0`"
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.33.0` to `~0.34.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
           }
         ]
       }
     },
     {
       "version": "0.2.1",
-      "tag": "@typespec/html-program-viewer_v0.2.1",
+      "tag": "@cadl-lang/html-program-viewer_v0.2.1",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",
       "comments": {
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.32.0` to `~0.33.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.32.0` to `~0.33.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
           }
         ]
       }
     },
     {
       "version": "0.2.0",
-      "tag": "@typespec/html-program-viewer_v0.2.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.2.0",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",
       "comments": {
         "minor": [
@@ -174,10 +206,10 @@
         ],
         "dependency": [
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.31.0` to `~0.32.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
           },
           {
-            "comment": "Updating dependency \"@typespec/compiler\" from `~0.30.0` to `~0.32.0`"
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.30.0` to `~0.32.0`"
           }
         ]
       }

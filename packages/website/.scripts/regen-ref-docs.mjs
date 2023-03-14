@@ -13,10 +13,17 @@ await generateLibraryDocs(
   join(repoRoot, "docs/compiler/reference")
 );
 
+// Http
+await generateLibraryDocs(
+  join(repoRoot, "packages/http"),
+  ["TypeSpec.Http"],
+  join(repoRoot, "docs/standard-library/http/reference")
+);
+
 // Rest
 await generateLibraryDocs(
   join(repoRoot, "packages/rest"),
-  ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Rest.Resource"],
+  ["TypeSpec.Rest", "TypeSpec.Rest.Resource"],
   join(repoRoot, "docs/standard-library/rest/reference")
 );
 

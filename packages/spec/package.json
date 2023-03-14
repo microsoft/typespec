@@ -4,7 +4,7 @@
   "private": true,
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Specification Source Code",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "bugs": {
@@ -24,6 +24,6 @@
     "@types/mkdirp": "~1.0.1",
     "@types/node": "~18.11.9",
     "ecmarkup": "~12.0.3",
-    "@typespec/internal-build-utils": "~0.3.3"
+    "@typespec/internal-build-utils": "~0.4.0"
   }
 }

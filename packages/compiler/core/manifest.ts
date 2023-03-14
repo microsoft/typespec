@@ -4,6 +4,12 @@ import manifest from "../manifest.js";
 
 export const typespecVersion = manifest.version;
 
+/** @deprecated Use typespecVersion */
+export const cadlVersion = typespecVersion;
+
+/** @deprecated Use TypeSpecManifest */
+export type CadlManifest = TypeSpecManifest;
+
 export interface TypeSpecManifest {
   /**
    * Version of the tsp compiler.

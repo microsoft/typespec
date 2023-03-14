@@ -7,7 +7,7 @@ import {
   typespecTypeToJson,
   TypeSpecValue,
 } from "@typespec/compiler";
-import { http } from "@typespec/rest";
+import { setStatusCode } from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
 
@@ -82,7 +82,7 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
 export function $defaultResponse(context: DecoratorContext, entity: Model) {
-  http.setStatusCode(context.program, entity, ["*"]);
+  setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 }
 

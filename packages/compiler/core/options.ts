@@ -6,9 +6,14 @@ export interface CompilerOptions {
   /**
    * Default output directory used by emitters.
    *
-   * @default ./typespec-output
+   * @default ./tsp-output
    */
   outputDir?: string;
+
+  /**
+   * Path to config YAML file or folder in which to search for default tspconfig.yaml file.
+   */
+  config?: string;
 
   /**
    * @deprecated use outputDir.

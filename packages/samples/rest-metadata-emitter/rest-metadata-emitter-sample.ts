@@ -23,7 +23,7 @@ import {
   HttpOperationResponse,
   HttpVerb,
   Visibility,
-} from "@typespec/rest/http";
+} from "@typespec/http";
 import { buildVersionProjections } from "@typespec/versioning";
 import assert from "assert";
 

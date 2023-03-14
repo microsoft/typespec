@@ -22,7 +22,8 @@ jobs:
         inputs:
           version: 6.0.x
 
-      - script: echo '##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true'
+      - script: |
+          echo ##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true
         displayName: Enable official Visual Studio extension build
 
       - script: npx @microsoft/rush install
@@ -50,7 +51,7 @@ jobs:
           sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "typespecplayground"
+          storage: "cadlplayground"
           containerName: "$web"
         displayName: "Update playground"
 
@@ -59,7 +60,7 @@ jobs:
           sourcePath: "packages/website/build/*"
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
-          storage: "typespecwebsite"
+          storage: "cadlwebsite"
           containerName: "$web"
         displayName: "Update website"
 

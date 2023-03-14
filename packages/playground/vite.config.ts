@@ -5,6 +5,7 @@ const config = definePlaygroundViteConfig({
   defaultEmitter: "@typespec/openapi3",
   libraries: [
     "@typespec/compiler",
+    "@typespec/http",
     "@typespec/rest",
     "@typespec/openapi",
     "@typespec/versioning",

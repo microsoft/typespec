@@ -15,12 +15,12 @@ npm --version
 
 It is recommended to have npm 7+. To update npm run `npm install -g npm`
 
-## Install cadl compiler
+## Install tsp compiler
 
-First step is to install the cadl compiler/cli
+First step is to install the tsp compiler/cli
 
 ```bash
-npm install -g @cadl-lang/compiler
+npm install -g @typespec/compiler
 ```
 
 ## Install the VS and VSCode extensions
@@ -28,38 +28,38 @@ npm install -g @cadl-lang/compiler
 The cli comes bundled with extensions for VS and VSCode. Install them via:
 
 ```bash
-cadl code install
-cadl vs install
+tsp code install
+tsp vs install
 ```
 
-If you are using the VSCode insiders build, pass the `--insiders` option to the `cadl code install` command.
+If you are using the VSCode insiders build, pass the `--insiders` option to the `tsp code install` command.
 
-## Create first Cadl Project
+## Create first TypeSpec Project
 
-To get your first Cadl project started run in a fresh directory
+To get your first TypeSpec project started run in a fresh directory
 
 ```bash
-cadl init
+tsp init
 ```
 
-This will prompt you with a few question, pick the `Generic Rest API` template, your project name, and select the `@cadl-lang/openapi3` library.
+This will prompt you with a few question, pick the `Generic Rest API` template, your project name, and select the `@typespec/openapi3` library.
 
 Next, you can install the dependencies
 
 ```bash
-cadl install
+tsp install
 ```
 
-You should now have a basic Cadl project setup with a structure looking like
+You should now have a basic TypeSpec project setup with a structure looking like
 
 ```bash
-package.json      # Package manifest defining your cadl project as a node package.
-cadl-project.yaml # Cadl project configuration letting you configure emitters, emitter options, compiler options, etc.
-main.cadl         # Cadl entrypoint
+package.json      # Package manifest defining your typespec project as a node package.
+tspconfig.yaml # TypeSpec project configuration letting you configure emitters, emitter options, compiler options, etc.
+main.tsp         # TypeSpec entrypoint
 ```
 
 ## Compile project
 
 ```bash
-cadl compile .
+tsp compile .
 ```

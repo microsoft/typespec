@@ -56,11 +56,11 @@ describe("compiler: server: completion", () => {
           },
         }),
         "test/node_modules/@typespec/library1/package.json": JSON.stringify({
-          typespecMain: "./foo.js",
+          tspMain: "./foo.js",
         }),
         "test/node_modules/non-typespec-library/package.json": JSON.stringify({}),
         "test/node_modules/@typespec/library2/package.json": JSON.stringify({
-          typespecMain: "./foo.js",
+          tspMain: "./foo.js",
         }),
       });
 
@@ -317,6 +317,30 @@ describe("compiler: server: completion", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value: "```typespec\nscalar TypeSpec.string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes partial backticked identifiers", async () => {
+    const completions = await complete(
+      `
+      enum \`enum\` {
+        \`foo-bar\`
+      }
+      model M {
+        s: \`enum\`.f┆
+      }
+      `
+    );
+    check(completions, [
+      {
+        label: "foo-bar",
+        insertText: "`foo-bar`",
+        kind: CompletionItemKind.EnumMember,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(enum member)\n```typespec\n`enum`.`foo-bar`\n```",
         },
       },
     ]);

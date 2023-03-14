@@ -5,7 +5,7 @@ title: Built-in Decorators
 
 # Built-in decorators
 
-Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
+TypeSpec comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
 [Documentation](#documentation-decorators)
 
@@ -63,7 +63,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 
 **Syntax:**
 
-```cadl
+```typespec
 @doc(text [, object])
 ```
 
@@ -78,7 +78,7 @@ which are replaced with an attribute for the type (commonly "name") passed as th
 
 **Syntax:**
 
-```cadl
+```typespec
 @summary(text [, object])
 ```
 
@@ -94,7 +94,7 @@ which are replaced with an attribute for the type (commonly "name") passed as th
 
 **Syntax:**
 
-```cadl
+```typespec
 @deprecated("<message>")
 ```
 
@@ -108,7 +108,7 @@ Mark a namespace as service namespace.
 
 **Syntax:**
 
-```cadl
+```typespec
 @service(serviceConfig?: {title?: string, version?: string})
 ```
 
@@ -145,16 +145,16 @@ namespace MyService
 
 **Syntax:**
 
-```cadl
+```typespec
 @format(formatName)
 ```
 
 `@format` - specify the data format hint for a string type
 
 The first argument is a string that identifies the format that the string type expects. Any string
-can be entered here, but a Cadl emitter must know how to interpret
+can be entered here, but a TypeSpec emitter must know how to interpret
 
-For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes
+For TypeSpec specs that will be used with an OpenAPI emitter, the OpenAPI specification describes
 possible valid values for a [string type's format](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes).
 
 `@format` can be applied to a type that extends from `string` or a `string`-typed model property.
@@ -163,7 +163,7 @@ possible valid values for a [string type's format](https://github.com/OAI/OpenAP
 
 **Syntax:**
 
-```cadl
+```typespec
 @pattern(regularExpressionText)
 ```
 
@@ -173,7 +173,7 @@ possible valid values for a [string type's format](https://github.com/OAI/OpenAP
 
 **Syntax:**
 
-```cadl
+```typespec
 @knownValues(enumTypeReference)
 ```
 
@@ -186,7 +186,7 @@ type accepts.
 
 Example:
 
-```cadl
+```typespec
 enum OperationStateValues {
   Running,
   Completed,
@@ -201,13 +201,13 @@ scalar OperationState extends string;
 
 **Syntax:**
 
-```cadl
+```typespec
 @secret
 ```
 
 `@secret` mark a string as a secret value that should be treated carefully to avoid exposure
 
-```cadl
+```typespec
 @secret
 scalar Password extends string;
 ```
@@ -216,7 +216,7 @@ scalar Password extends string;
 
 ### `@minLength` and `@maxLength`
 
-```cadl
+```typespec
 @minLength(<integer>)
 @maxLength(<integer>)
 scalar Name extends string;
@@ -224,7 +224,7 @@ scalar Name extends string;
 
 Specify the min and max length of the string.
 
-```cadl
+```typespec
 // Say that the name must be between 2 and 20 charchater long
 @minLength(2)
 @maxLength(20)
@@ -233,7 +233,7 @@ scalar Name extends string;
 
 The decorators can also be used on model properties
 
-```cadl
+```typespec
 model Dog {
   @minLength(2)
   @maxLength(20)
@@ -245,7 +245,7 @@ model Dog {
 
 ### `@minValue` and `@maxValue`
 
-```cadl
+```typespec
 @minValue(<number>)
 @maxValue(<number>)
 model Name is int32;
@@ -253,7 +253,7 @@ model Name is int32;
 
 Specify the min and max value for an integer or float.
 
-```cadl
+```typespec
 // Say that the Floor must be between 1 and 100
 @minValue(1)
 @maxValue(100)
@@ -262,7 +262,7 @@ model Floor is int32;
 
 The decorators can also be used on model properties
 
-```cadl
+```typespec
 model Building {
   @minValue(1)
   @maxValue(100)
@@ -274,7 +274,7 @@ model Building {
 
 ### `@minItems` and `@maxItems`
 
-```cadl
+```typespec
 @minItems(<number>)
 @maxItems(<number>)
 model Names is string[];
@@ -282,7 +282,7 @@ model Names is string[];
 
 Specify the min and max number of items in an array type.
 
-```cadl
+```typespec
 // Say that the the Names array type can have have between 1 and 3 items.
 @minItems(1)
 @maxItems(3)
@@ -291,7 +291,7 @@ model Names is string[];
 
 The decorators can also be used on model properties
 
-```cadl
+```typespec
 model Person {
   @minItems(1)
   @maxItems(3)
@@ -305,7 +305,7 @@ model Person {
 
 **Syntax:**
 
-```cadl
+```typespec
 @error
 ```
 
@@ -317,7 +317,7 @@ For HTTP API this can be used to represent a failure.
 
 **Syntax:**
 
-```cadl
+```typespec
 @key([keyName])
 ```
 
@@ -334,7 +334,7 @@ Otherwise, the name of the target property will be used.
 
 **Syntax:**
 
-```cadl
+```typespec
 @inspectType(message)
 @inspectTypeName(message)
 ```
@@ -349,7 +349,7 @@ They can be specified on any language element -- a model, an operation, a namesp
 
 **Syntax:**
 
-```cadl
+```typespec
 @friendlyName(string)
 ```
 
@@ -357,7 +357,7 @@ They can be specified on any language element -- a model, an operation, a namesp
 
 Example:
 
-```cadl
+```typespec
 @friendlyName("{name}List", T)
 model List<T> {}
 
@@ -369,12 +369,12 @@ alias B = List<Person>; // Instance friendly name would be `PersonList`
 
 **Syntax:**
 
-```cadl
+```typespec
 @tag(text)
 ```
 
 `@tag` attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified
-to attach multiple tags to a Cadl element.
+to attach multiple tags to a TypeSpec element.
 
 The argument to `@tag` is a string tag value.
 
@@ -386,7 +386,7 @@ Additionally, the decorators `@visibility` and `@withVisibility` provide an exte
 
 Indicates that a property is only considered to be present or applicable ("visible") with the in the given named contexts ("visibilities"). When a property has no visibilities applied to it, it is implicitly visible always.
 
-As far as the Cadl core library is concerned, visibilities are open-ended and can be arbitrary strings, but the following visibilities are well-known to standard libraries and should be used with standard emitters that interpret them as follows:
+As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary strings, but the following visibilities are well-known to standard libraries and should be used with standard emitters that interpret them as follows:
 
 - "read": output of any operation.
 - "create": input to operations that create an entity..
@@ -398,7 +398,7 @@ See also: [Automatic visibility](./rest/operations#automatic-visibility)
 
 #### Example
 
-```cadl
+```typespec
 model Dog {
   // the service will generate an ID, so you don't need to send it.
   @visibility("read") id: int32;
@@ -418,7 +418,7 @@ See also: [Automatic visibility](./rest/operations#automatic-visibility)
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
-```cadl
+```typespec
 model Dog {
   @visibility("read") id: int32;
   @visibility("create", "update") secretName: string;
@@ -450,7 +450,7 @@ Those decorators shouldn't be need to be used directly, there is a template prov
 
 **Syntax:**
 
-```cadl
+```typespec
 @withDefaultKeyVisibility(string)
 ```
 
@@ -464,7 +464,7 @@ If a key property already has a `visibility` decorator then the default visibili
 
 **Syntax:**
 
-```cadl
+```typespec
 @withOptionalProperties()
 ```
 
@@ -476,7 +476,7 @@ If a key property already has a `visibility` decorator then the default visibili
 
 **Syntax:**
 
-```cadl
+```typespec
 @withoutDefaultValues()
 ```
 
@@ -488,7 +488,7 @@ If a key property already has a `visibility` decorator then the default visibili
 
 **Syntax:**
 
-```cadl
+```typespec
 @withoutOmittedProperties(type)
 ```
 
@@ -500,7 +500,7 @@ If a key property already has a `visibility` decorator then the default visibili
 
 **Syntax:**
 
-```cadl
+```typespec
 @withUpdateableProperties()
 ```
 

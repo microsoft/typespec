@@ -41,6 +41,7 @@ import {
   isTemplateDeclarationOrInstance,
   listServices,
   Model,
+  ModelIndexer,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
@@ -60,17 +61,7 @@ import {
   UnionVariant,
 } from "@typespec/compiler";
 
-import {
-  checkDuplicateTypeName,
-  getExtensions,
-  getExternalDocs,
-  getOpenAPITypeName,
-  getParameterKey,
-  isReadonlyProperty,
-  resolveOperationId,
-  shouldInline,
-} from "@typespec/openapi";
-import { http } from "@typespec/rest";
+import * as http from "@typespec/http";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -89,7 +80,17 @@ import {
   reportIfNoRoutes,
   ServiceAuthentication,
   Visibility,
-} from "@typespec/rest/http";
+} from "@typespec/http";
+import {
+  checkDuplicateTypeName,
+  getExtensions,
+  getExternalDocs,
+  getOpenAPITypeName,
+  getParameterKey,
+  isReadonlyProperty,
+  resolveOperationId,
+  shouldInline,
+} from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
 import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";
@@ -227,6 +228,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   // this map.
   let params: Map<ModelProperty, any>;
 
+  // Keep track of models that have had properties spread into parameters. We won't
+  // consider these unreferenced when emitting unreferenced types.
+  let paramModels: Set<Type>;
+
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
@@ -273,10 +278,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
     metadataInfo = createMetadataInfo(program, {
+      canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
     });
     inProgressInlineTypes = new Set();
     params = new Map();
+    paramModels = new Set();
     tags = new Set();
   }
 
@@ -333,7 +340,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.All).enum;
+          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -626,16 +633,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
       return schema;
     } else {
-      // Use shared schema when type is not transformed by visibility.
+      // Use shared schema when type is not transformed by visibility from the canonical read visibility.
       if (!metadataInfo.isTransformed(type, visibility)) {
-        visibility = Visibility.All;
+        visibility = Visibility.Read;
       }
       const pending = pendingSchemas.getOrAdd(type, visibility, () => ({
         type,
         visibility,
         ref: refs.getOrAdd(type, visibility, () => new Ref()),
       }));
-      return { $ref: pending.ref };
+      return {
+        $ref: pending.ref,
+      };
     }
   }
 
@@ -683,6 +692,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
     if (spreadParam && property.model && !shouldInline(program, property.model)) {
       params.set(property, placeholder);
+      paramModels.add(property.model);
     }
 
     return placeholder;
@@ -822,7 +832,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       for (const [visibility, processed] of group) {
         let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
         if (group.size > 1) {
-          name += getVisibilitySuffix(visibility);
+          name += getVisibilitySuffix(visibility, Visibility.Read);
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
@@ -851,8 +861,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
-        if (!processedSchemas.has(type) && !shouldInline(program, type)) {
-          getSchemaOrRef(type, Visibility.All);
+        if (!processedSchemas.has(type) && !paramModels.has(type) && !shouldInline(program, type)) {
+          getSchemaOrRef(type, Visibility.Read);
         }
       };
       const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
@@ -1091,8 +1101,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function includeDerivedModel(model: Model): boolean {
     return (
       !isTemplateDeclaration(model) &&
-      (model.templateArguments === undefined ||
-        model.templateArguments?.length === 0 ||
+      (model.templateMapper?.args === undefined ||
+        model.templateMapper.args?.length === 0 ||
         model.derivedModels.length > 0)
     );
   }
@@ -1166,7 +1176,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         description: modelSchema.description,
       };
     } else if (model.baseModel) {
-      modelSchema.allOf = [getSchemaOrRef(model.baseModel, visibility)];
+      const baseSchema = getSchemaOrRef(model.baseModel, visibility);
+      modelSchema.allOf = [baseSchema];
+      modelSchema.additionalProperties = baseSchema.additionalProperties;
+      if (modelSchema.additionalProperties) {
+        validateAdditionalProperties(model);
+      }
     }
 
     // Attach any OpenAPI extensions
@@ -1328,6 +1343,51 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function getIndexer(model: Model): ModelIndexer | undefined {
+    const indexer = model.indexer;
+    if (indexer) {
+      return indexer;
+    } else if (model.baseModel) {
+      return getIndexer(model.baseModel);
+    }
+    return undefined;
+  }
+
+  function validateAdditionalProperties(model: Model) {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
+      return;
+    }
+    for (const [_, prop] of model.properties) {
+      // ensure that the record type is compatible with any listed properties
+      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, propType, prop);
+      for (const diag of diagnostics) {
+        program.reportDiagnostic(diag);
+      }
+    }
+  }
+
+  /**
+   * Returns appropriate additional properties for Record types.
+   */
+  function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
+      return undefined;
+    }
+    switch (propType.kind) {
+      case "Intrinsic":
+        if (propType.name === "unknown") {
+          return {};
+        }
+        break;
+      case "Scalar":
+      case "Model":
+        return getSchemaOrRef(propType, visibility);
+    }
+    return undefined;
+  }
+
   /**
    * Map TypeSpec intrinsic models to open api definitions
    */
@@ -1342,7 +1402,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (name === "string") {
           return {
             type: "object",
-            additionalProperties: getSchemaOrRef(typespecType.indexer.value!, visibility),
+            additionalProperties: processAdditionalProperties(typespecType, visibility),
           };
         } else if (name === "integer") {
           return {

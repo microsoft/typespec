@@ -24,7 +24,7 @@ CODE_OF_CONDUCT.md
 packages/compiler/test/formatter/**/*.tsp
 
 # That is an example with error and can't be formatted
-packages/samples/local.tsp/test.tsp
+packages/samples/local-typespec/test.tsp
 packages/website/build/
 packages/website/versioned_sidebars/
 packages/website/versions.json

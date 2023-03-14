@@ -1,3 +1,4 @@
+import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/versioning";
 
@@ -10,8 +11,8 @@ using TypeSpec.Versioning;
 namespace DemoService;
 
 enum Versions {
-  "v1",
-  "v2",
+  v1,
+  v2,
 }
 
 using TypeSpec.Http;

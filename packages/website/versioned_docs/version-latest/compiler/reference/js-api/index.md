@@ -43,11 +43,6 @@ JS Api
 - [BlockComment](interfaces/BlockComment.md)
 - [BooleanLiteral](interfaces/BooleanLiteral.md)
 - [BooleanLiteralNode](interfaces/BooleanLiteralNode.md)
-- [CadlCompletionItem](interfaces/CadlCompletionItem.md)
-- [CadlLibrary](interfaces/CadlLibrary.md)
-- [CadlLibraryDef](interfaces/CadlLibraryDef.md)
-- [CadlManifest](interfaces/CadlManifest.md)
-- [CadlScriptNode](interfaces/CadlScriptNode.md)
 - [CallableMessage](interfaces/CallableMessage.md)
 - [Checker](interfaces/Checker.md)
 - [CompilerHost](interfaces/CompilerHost.md)
@@ -205,6 +200,11 @@ JS Api
 - [TypeMapper](interfaces/TypeMapper.md)
 - [TypeNameOptions](interfaces/TypeNameOptions.md)
 - [TypeReferenceNode](interfaces/TypeReferenceNode.md)
+- [TypeSpecCompletionItem](interfaces/TypeSpecCompletionItem.md)
+- [TypeSpecLibrary](interfaces/TypeSpecLibrary.md)
+- [TypeSpecLibraryDef](interfaces/TypeSpecLibraryDef.md)
+- [TypeSpecManifest](interfaces/TypeSpecManifest.md)
+- [TypeSpecScriptNode](interfaces/TypeSpecScriptNode.md)
 - [Union](interfaces/Union.md)
 - [UnionExpressionNode](interfaces/UnionExpressionNode.md)
 - [UnionStatementNode](interfaces/UnionStatementNode.md)
@@ -218,6 +218,11 @@ JS Api
 
 ### Type Aliases
 
+- [CadlCompletionItem](index.md#cadlcompletionitem)
+- [CadlLibrary](index.md#cadllibrary)
+- [CadlLibraryDef](index.md#cadllibrarydef)
+- [CadlManifest](index.md#cadlmanifest)
+- [CadlScriptNode](index.md#cadlscriptnode)
 - [CadlValue](index.md#cadlvalue)
 - [Comment](index.md#comment)
 - [Declaration](index.md#declaration)
@@ -239,6 +244,7 @@ JS Api
 - [EmitterFunc](index.md#emitterfunc)
 - [Expression](index.md#expression)
 - [InferredCadlValue](index.md#inferredcadlvalue)
+- [InferredTypeSpecValue](index.md#inferredtypespecvalue)
 - [IntrinsicScalarName](index.md#intrinsicscalarname)
 - [JSONSchemaType](index.md#jsonschematype)
 - [LiteralNode](index.md#literalnode)
@@ -273,6 +279,7 @@ JS Api
 - [TypeListeners](index.md#typelisteners)
 - [TypeOfDiagnostics](index.md#typeofdiagnostics)
 - [TypeOrReturnRecord](index.md#typeorreturnrecord)
+- [TypeSpecValue](index.md#typespecvalue)
 - [WriteLine](index.md#writeline)
 
 ### Variables
@@ -284,10 +291,13 @@ JS Api
 - [NoTarget](index.md#notarget)
 - [NodeHost](index.md#nodehost)
 - [TokenDisplay](index.md#tokendisplay)
+- [TypeSpecLanguageConfiguration](index.md#typespeclanguageconfiguration)
+- [TypeSpecPrettierPlugin](index.md#typespecprettierplugin)
 - [altDirectorySeparator](index.md#altdirectoryseparator)
 - [cadlVersion](index.md#cadlversion)
 - [directorySeparator](index.md#directoryseparator)
 - [namespace](index.md#namespace)
+- [typespecVersion](index.md#typespecversion)
 
 ### Functions
 
@@ -329,6 +339,7 @@ JS Api
 - [assertType](index.md#asserttype)
 - [cadlTypeToJson](index.md#cadltypetojson)
 - [checkFormatCadl](index.md#checkformatcadl)
+- [checkFormatTypeSpec](index.md#checkformattypespec)
 - [compile](index.md#compile)
 - [compilerAssert](index.md#compilerassert)
 - [createCadlLibrary](index.md#createcadllibrary)
@@ -341,12 +352,14 @@ JS Api
 - [createServer](index.md#createserver)
 - [createSourceFile](index.md#createsourcefile)
 - [createStateAccessors](index.md#createstateaccessors)
+- [createTypeSpecLibrary](index.md#createtypespeclibrary)
 - [emitFile](index.md#emitfile)
 - [ensureTrailingDirectorySeparator](index.md#ensuretrailingdirectoryseparator)
 - [filterModelProperties](index.md#filtermodelproperties)
 - [finishTypeForProgram](index.md#finishtypeforprogram)
-- [formatCadl](index.md#formatcadl)
 - [formatDiagnostic](index.md#formatdiagnostic)
+- [formatIdentifier](index.md#formatidentifier)
+- [formatTypeSpec](index.md#formattypespec)
 - [getAllTags](index.md#getalltags)
 - [getAnyExtensionFromPath](index.md#getanyextensionfrompath)
 - [getBaseFileName](index.md#getbasefilename)
@@ -431,6 +444,7 @@ JS Api
 - [isTemplateDeclarationOrInstance](index.md#istemplatedeclarationorinstance)
 - [isTemplateInstance](index.md#istemplateinstance)
 - [isTrivia](index.md#istrivia)
+- [isTypeSpecValueTypeOf](index.md#istypespecvaluetypeof)
 - [isUnknownType](index.md#isunknowntype)
 - [isUrl](index.md#isurl)
 - [isVisible](index.md#isvisible)
@@ -458,8 +472,10 @@ JS Api
 - [resolveUsages](index.md#resolveusages)
 - [scopeNavigationToNamespace](index.md#scopenavigationtonamespace)
 - [setCadlNamespace](index.md#setcadlnamespace)
+- [setTypeSpecNamespace](index.md#settypespecnamespace)
 - [skipTrivia](index.md#skiptrivia)
 - [skipWhiteSpace](index.md#skipwhitespace)
+- [typespecTypeToJson](index.md#typespectypetojson)
 - [validateDecoratorNotOnType](index.md#validatedecoratornotontype)
 - [validateDecoratorParamCount](index.md#validatedecoratorparamcount)
 - [validateDecoratorParamType](index.md#validatedecoratorparamtype)
@@ -471,9 +487,77 @@ JS Api
 
 ## Type Aliases
 
+### CadlCompletionItem
+
+Ƭ **CadlCompletionItem**: [`TypeSpecCompletionItem`](interfaces/TypeSpecCompletionItem.md)
+
+**`Deprecated`**
+
+Use TypeSpecCompletionItem
+
+___
+
+### CadlLibrary
+
+Ƭ **CadlLibrary**<`T`, `E`\>: [`TypeSpecLibrary`](interfaces/TypeSpecLibrary.md)<`T`, `E`\>
+
+**`Deprecated`**
+
+Use TypeSpecLibrary
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends `Object` |
+| `E` | extends `Record`<`string`, `any`\> = `Record`<`string`, `never`\> |
+
+___
+
+### CadlLibraryDef
+
+Ƭ **CadlLibraryDef**<`T`, `E`\>: [`TypeSpecLibraryDef`](interfaces/TypeSpecLibraryDef.md)<`T`, `E`\>
+
+**`Deprecated`**
+
+Use TypeSpecLibraryDef
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends `Object` |
+| `E` | extends `Record`<`string`, `any`\> = `Record`<`string`, `never`\> |
+
+___
+
+### CadlManifest
+
+Ƭ **CadlManifest**: [`TypeSpecManifest`](interfaces/TypeSpecManifest.md)
+
+**`Deprecated`**
+
+Use TypeSpecManifest
+
+___
+
+### CadlScriptNode
+
+Ƭ **CadlScriptNode**: [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md)
+
+**`Deprecated`**
+
+Use TypeSpecScriptNode
+
+___
+
 ### CadlValue
 
-Ƭ **CadlValue**: [`Type`](index.md#type) \| `string` \| `number` \| `boolean`
+Ƭ **CadlValue**: [`TypeSpecValue`](index.md#typespecvalue)
+
+**`Deprecated`**
+
+Use TypeSpecValue
 
 ___
 
@@ -575,7 +659,7 @@ ___
 
 Ƭ **DiagnosticResult**<`T`\>: [`T`, readonly [`Diagnostic`](interfaces/Diagnostic.md)[]]
 
-Return type of accessor functions in CADL.
+Return type of accessor functions in TypeSpec.
 Tuple composed of:
 - 0: Actual result of an accessor function
 - 1: List of diagnostics that were emitted while retrieving the data.
@@ -632,7 +716,7 @@ ___
 
 ### EmitOptionsFor
 
-Ƭ **EmitOptionsFor**<`C`\>: `C` extends [`CadlLibrary`](interfaces/CadlLibrary.md)<infer \_T, infer E\> ? `E` : `never`
+Ƭ **EmitOptionsFor**<`C`\>: `C` extends [`TypeSpecLibrary`](interfaces/TypeSpecLibrary.md)<infer \_T, infer E\> ? `E` : `never`
 
 Get the options for the onEmit of this library.
 
@@ -672,7 +756,23 @@ ___
 
 ### InferredCadlValue
 
-Ƭ **InferredCadlValue**<`K`\>: `K` extends ``"Any"`` ? [`CadlValue`](index.md#cadlvalue) : `K` extends infer T[] ? [`InferredCadlValue`](index.md#inferredcadlvalue)<`T`\> : `K` extends ``"String"`` ? `string` : `K` extends ``"Number"`` ? `number` : `K` extends ``"Boolean"`` ? `boolean` : [`Type`](index.md#type) & { `kind`: `K`  }
+Ƭ **InferredCadlValue**<`K`\>: [`InferredTypeSpecValue`](index.md#inferredtypespecvalue)<`K`\>
+
+**`Deprecated`**
+
+Use InferredTypeSpecValue
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends [`TypeKind`](index.md#typekind) |
+
+___
+
+### InferredTypeSpecValue
+
+Ƭ **InferredTypeSpecValue**<`K`\>: `K` extends ``"Any"`` ? [`TypeSpecValue`](index.md#typespecvalue) : `K` extends infer T[] ? [`InferredTypeSpecValue`](index.md#inferredtypespecvalue)<`T`\> : `K` extends ``"String"`` ? `string` : `K` extends ``"Number"`` ? `number` : `K` extends ``"Boolean"`` ? `boolean` : [`Type`](index.md#type) & { `kind`: `K`  }
 
 #### Type parameters
 
@@ -804,7 +904,7 @@ ___
 
 ### Node
 
-Ƭ **Node**: [`CadlScriptNode`](interfaces/CadlScriptNode.md) \| [`JsSourceFileNode`](interfaces/JsSourceFileNode.md) \| [`TemplateParameterDeclarationNode`](interfaces/TemplateParameterDeclarationNode.md) \| [`ProjectionParameterDeclarationNode`](interfaces/ProjectionParameterDeclarationNode.md) \| [`ProjectionLambdaParameterDeclarationNode`](interfaces/ProjectionLambdaParameterDeclarationNode.md) \| [`ModelPropertyNode`](interfaces/ModelPropertyNode.md) \| [`UnionVariantNode`](interfaces/UnionVariantNode.md) \| [`OperationStatementNode`](interfaces/OperationStatementNode.md) \| [`OperationSignatureDeclarationNode`](interfaces/OperationSignatureDeclarationNode.md) \| [`OperationSignatureReferenceNode`](interfaces/OperationSignatureReferenceNode.md) \| [`EnumMemberNode`](interfaces/EnumMemberNode.md) \| [`EnumSpreadMemberNode`](interfaces/EnumSpreadMemberNode.md) \| [`ModelSpreadPropertyNode`](interfaces/ModelSpreadPropertyNode.md) \| [`DecoratorExpressionNode`](interfaces/DecoratorExpressionNode.md) \| [`DirectiveExpressionNode`](interfaces/DirectiveExpressionNode.md) \| [`Statement`](index.md#statement) \| [`Expression`](index.md#expression) \| [`FunctionParameterNode`](interfaces/FunctionParameterNode.md) \| [`Modifier`](index.md#modifier) \| [`DocNode`](interfaces/DocNode.md) \| [`DocContent`](index.md#doccontent) \| [`DocTag`](index.md#doctag) \| [`ProjectionStatementItem`](index.md#projectionstatementitem) \| [`ProjectionExpression`](index.md#projectionexpression) \| [`ProjectionModelSelectorNode`](interfaces/ProjectionModelSelectorNode.md) \| [`ProjectionInterfaceSelectorNode`](interfaces/ProjectionInterfaceSelectorNode.md) \| [`ProjectionOperationSelectorNode`](interfaces/ProjectionOperationSelectorNode.md) \| [`ProjectionEnumSelectorNode`](interfaces/ProjectionEnumSelectorNode.md) \| [`ProjectionUnionSelectorNode`](interfaces/ProjectionUnionSelectorNode.md) \| [`ProjectionModelPropertyNode`](interfaces/ProjectionModelPropertyNode.md) \| [`ProjectionModelSpreadPropertyNode`](interfaces/ProjectionModelSpreadPropertyNode.md) \| [`ProjectionStatementNode`](interfaces/ProjectionStatementNode.md) \| [`ProjectionNode`](interfaces/ProjectionNode.md)
+Ƭ **Node**: [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md) \| [`JsSourceFileNode`](interfaces/JsSourceFileNode.md) \| [`TemplateParameterDeclarationNode`](interfaces/TemplateParameterDeclarationNode.md) \| [`ProjectionParameterDeclarationNode`](interfaces/ProjectionParameterDeclarationNode.md) \| [`ProjectionLambdaParameterDeclarationNode`](interfaces/ProjectionLambdaParameterDeclarationNode.md) \| [`ModelPropertyNode`](interfaces/ModelPropertyNode.md) \| [`UnionVariantNode`](interfaces/UnionVariantNode.md) \| [`OperationStatementNode`](interfaces/OperationStatementNode.md) \| [`OperationSignatureDeclarationNode`](interfaces/OperationSignatureDeclarationNode.md) \| [`OperationSignatureReferenceNode`](interfaces/OperationSignatureReferenceNode.md) \| [`EnumMemberNode`](interfaces/EnumMemberNode.md) \| [`EnumSpreadMemberNode`](interfaces/EnumSpreadMemberNode.md) \| [`ModelSpreadPropertyNode`](interfaces/ModelSpreadPropertyNode.md) \| [`DecoratorExpressionNode`](interfaces/DecoratorExpressionNode.md) \| [`DirectiveExpressionNode`](interfaces/DirectiveExpressionNode.md) \| [`Statement`](index.md#statement) \| [`Expression`](index.md#expression) \| [`FunctionParameterNode`](interfaces/FunctionParameterNode.md) \| [`Modifier`](index.md#modifier) \| [`DocNode`](interfaces/DocNode.md) \| [`DocContent`](index.md#doccontent) \| [`DocTag`](index.md#doctag) \| [`ProjectionStatementItem`](index.md#projectionstatementitem) \| [`ProjectionExpression`](index.md#projectionexpression) \| [`ProjectionModelSelectorNode`](interfaces/ProjectionModelSelectorNode.md) \| [`ProjectionInterfaceSelectorNode`](interfaces/ProjectionInterfaceSelectorNode.md) \| [`ProjectionOperationSelectorNode`](interfaces/ProjectionOperationSelectorNode.md) \| [`ProjectionEnumSelectorNode`](interfaces/ProjectionEnumSelectorNode.md) \| [`ProjectionUnionSelectorNode`](interfaces/ProjectionUnionSelectorNode.md) \| [`ProjectionModelPropertyNode`](interfaces/ProjectionModelPropertyNode.md) \| [`ProjectionModelSpreadPropertyNode`](interfaces/ProjectionModelSpreadPropertyNode.md) \| [`ProjectionStatementNode`](interfaces/ProjectionStatementNode.md) \| [`ProjectionNode`](interfaces/ProjectionNode.md)
 
 ___
 
@@ -866,7 +966,7 @@ ___
 
 ### ScopeNode
 
-Ƭ **ScopeNode**: [`NamespaceStatementNode`](interfaces/NamespaceStatementNode.md) \| [`ModelStatementNode`](interfaces/ModelStatementNode.md) \| [`InterfaceStatementNode`](interfaces/InterfaceStatementNode.md) \| [`AliasStatementNode`](interfaces/AliasStatementNode.md) \| [`CadlScriptNode`](interfaces/CadlScriptNode.md) \| [`JsSourceFileNode`](interfaces/JsSourceFileNode.md) \| [`ProjectionLambdaExpressionNode`](interfaces/ProjectionLambdaExpressionNode.md) \| [`ProjectionNode`](interfaces/ProjectionNode.md)
+Ƭ **ScopeNode**: [`NamespaceStatementNode`](interfaces/NamespaceStatementNode.md) \| [`ModelStatementNode`](interfaces/ModelStatementNode.md) \| [`InterfaceStatementNode`](interfaces/InterfaceStatementNode.md) \| [`AliasStatementNode`](interfaces/AliasStatementNode.md) \| [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md) \| [`JsSourceFileNode`](interfaces/JsSourceFileNode.md) \| [`ProjectionLambdaExpressionNode`](interfaces/ProjectionLambdaExpressionNode.md) \| [`ProjectionNode`](interfaces/ProjectionNode.md)
 
 ___
 
@@ -878,9 +978,9 @@ ___
 
 ### SourceFileKind
 
-Ƭ **SourceFileKind**: ``"cadl"`` \| ``"js"``
+Ƭ **SourceFileKind**: ``"typespec"`` \| ``"js"``
 
-Type of the source file that can be loaded via cadl
+Type of the source file that can be loaded via typespec
 
 ___
 
@@ -948,6 +1048,12 @@ ___
 
 ___
 
+### TypeSpecValue
+
+Ƭ **TypeSpecValue**: [`Type`](index.md#type) \| `string` \| `number` \| `boolean`
+
+___
+
 ### WriteLine
 
 Ƭ **WriteLine**: (`text?`: `string`) => `void`
@@ -970,9 +1076,11 @@ ___
 
 ### CadlLanguageConfiguration
 
-• `Const` **CadlLanguageConfiguration**: `Object`
+• `Const` **CadlLanguageConfiguration**: `Object` = `TypeSpecLanguageConfiguration`
 
-Cadl Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+**`Deprecated`**
+
+Use TypeSpecLanguageConfiguration
 
 #### Type declaration
 
@@ -997,7 +1105,11 @@ ___
 
 ### CadlPrettierPlugin
 
-• `Const` **CadlPrettierPlugin**: `__module` = `formatter`
+• `Const` **CadlPrettierPlugin**: `__module` = `TypeSpecPrettierPlugin`
+
+**`Deprecated`**
+
+Use TypeSpecPrettierPlugin
 
 ___
 
@@ -1009,7 +1121,7 @@ ___
 
 ### MANIFEST
 
-• `Const` **MANIFEST**: [`CadlManifest`](interfaces/CadlManifest.md) = `manifest`
+• `Const` **MANIFEST**: [`TypeSpecManifest`](interfaces/TypeSpecManifest.md) = `manifest`
 
 ___
 
@@ -1028,13 +1140,46 @@ Implementation of the
 **`See`**
 
 CompilerHost using the real file system.
-This is the the CompilerHost used by Cadl CLI.
+This is the the CompilerHost used by TypeSpec CLI.
 
 ___
 
 ### TokenDisplay
 
 • `Const` **TokenDisplay**: readonly `string`[]
+
+___
+
+### TypeSpecLanguageConfiguration
+
+• `Const` **TypeSpecLanguageConfiguration**: `Object`
+
+TypeSpec Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `autoClosingPairs` | readonly [{ `close`: ``"}"`` = "}"; `open`: ``"{"`` = "{" }, { `close`: ``"]"`` = "]"; `open`: ``"["`` = "[" }, { `close`: ``")"`` = ")"; `open`: ``"("`` = "(" }, { `close`: ``"\""`` = '"'; `open`: ``"\""`` = '"' }, { `close`: ``" */"`` = " */"; `notIn`: readonly [``"string"``] ; `open`: ``"/**"`` = "/**" }] |
+| `brackets` | readonly [readonly [``"{"``, ``"}"``], readonly [``"["``, ``"]"``], readonly [``"("``, ``")"``]] |
+| `comments` | { `blockComment`: readonly [``"/*"``, ``"*/"``] ; `lineComment`: ``"//"`` = "//" } |
+| `comments.blockComment` | readonly [``"/*"``, ``"*/"``] |
+| `comments.lineComment` | ``"//"`` |
+| `indentationRules` | { `decreaseIndentPattern`: { `pattern`: ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$" } ; `increaseIndentPattern`: { `pattern`: ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` = "^((?!//).)*(\\{([^}\"'\`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'\`/]*\|\\[[^\\]\"'\`/]*)$" } ; `unIndentedLinePattern`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" }  } |
+| `indentationRules.decreaseIndentPattern` | { `pattern`: ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$" } |
+| `indentationRules.decreaseIndentPattern.pattern` | ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` |
+| `indentationRules.increaseIndentPattern` | { `pattern`: ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` = "^((?!//).)*(\\{([^}\"'\`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'\`/]*\|\\[[^\\]\"'\`/]*)$" } |
+| `indentationRules.increaseIndentPattern.pattern` | ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` |
+| `indentationRules.unIndentedLinePattern` | { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" } |
+| `indentationRules.unIndentedLinePattern.pattern` | ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` |
+| `onEnterRules` | readonly [{ `action`: { `appendText`: ``" * "`` = " * "; `indent`: ``"indentOutdent"`` = "indentOutdent" } ; `afterText`: { `pattern`: ``"^\\s*\\*/$"`` = "^\\s*\\*/$" } ; `beforeText`: { `pattern`: ``"^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$"`` = "^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$" }  }, { `action`: { `appendText`: ``" * "`` = " * "; `indent`: ``"none"`` = "none" } ; `beforeText`: { `pattern`: ``"^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$"`` = "^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$" }  }, { `action`: { `appendText`: ``"* "`` = "* "; `indent`: ``"none"`` = "none" } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" } ; `previousLineText`: { `pattern`: ``"(?=^(\\s*(/\\*\\*\|\\*)).*)(?=(?!(\\s*\\*/)))"`` = "(?=^(\\s*(/\\*\\*\|\\*)).*)(?=(?!(\\s*\\*/)))" }  }, { `action`: { `indent`: ``"none"`` = "none"; `removeText`: ``1`` = 1 } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*/\\s*$"`` = "^(\\t\|[ ])*[ ]\\*/\\s*$" }  }, { `action`: { `indent`: ``"none"`` = "none"; `removeText`: ``1`` = 1 } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$" }  }] |
+| `surroundingPairs` | readonly [{ `close`: ``"}"`` = "}"; `open`: ``"{"`` = "{" }, { `close`: ``"]"`` = "]"; `open`: ``"["`` = "[" }, { `close`: ``")"`` = ")"; `open`: ``"("`` = "(" }, { `close`: ``"\""`` = '"'; `open`: ``"\""`` = '"' }] |
+
+___
+
+### TypeSpecPrettierPlugin
+
+• `Const` **TypeSpecPrettierPlugin**: `__module` = `formatter`
 
 ___
 
@@ -1046,7 +1191,11 @@ ___
 
 ### cadlVersion
 
-• `Const` **cadlVersion**: `any` = `manifest.version`
+• `Const` **cadlVersion**: `any` = `typespecVersion`
+
+**`Deprecated`**
+
+Use typespecVersion
 
 ___
 
@@ -1062,7 +1211,13 @@ ___
 
 ### namespace
 
-• `Const` **namespace**: ``"Cadl"``
+• `Const` **namespace**: ``"TypeSpec"``
+
+___
+
+### typespecVersion
+
+• `Const` **typespecVersion**: `any` = `manifest.version`
 
 ## Functions
 
@@ -1172,9 +1327,9 @@ ___
 `@format` - specify the data format hint for a string type
 
 The first argument is a string that identifies the format that the string type expects.  Any string
-can be entered here, but a Cadl emitter must know how to interpret
+can be entered here, but a TypeSpec emitter must know how to interpret
 
-For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
+For TypeSpec specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
 valid values for a string type's format:
 
 https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes
@@ -1621,7 +1776,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Namespace`](interfaces/Namespace.md) \| [`Interface`](interfaces/Interface.md) \| [`Operation`](interfaces/Operation.md) |
+| `target` | [`Interface`](interfaces/Interface.md) \| [`Namespace`](interfaces/Namespace.md) \| [`Operation`](interfaces/Operation.md) |
 | `tag` | `string` |
 
 #### Returns
@@ -1791,7 +1946,7 @@ Assert that the input type has one of the kinds provided
 
 | Name | Type |
 | :------ | :------ |
-| `TKind` | extends (``"Namespace"`` \| ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"``)[] |
+| `TKind` | extends (``"Projection"`` \| ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"``)[] |
 
 #### Parameters
 
@@ -1809,10 +1964,11 @@ ___
 
 ### cadlTypeToJson
 
-▸ **cadlTypeToJson**<`T`\>(`cadlType`, `target`): [`T` \| `undefined`, [`Diagnostic`](interfaces/Diagnostic.md)[]]
+▸ **cadlTypeToJson**<`T`\>(`typespecType`, `target`): [`T` \| `undefined`, [`Diagnostic`](interfaces/Diagnostic.md)[]]
 
-Convert a cadl type to a serializable Json object.
-Emits diagnostics if the given type is invalid
+**`Deprecated`**
+
+use typespecTypeToJson
 
 #### Type parameters
 
@@ -1822,10 +1978,10 @@ Emits diagnostics if the given type is invalid
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `cadlType` | [`CadlValue`](index.md#cadlvalue) | The type to convert to Json data |
-| `target` | [`DiagnosticTarget`](index.md#diagnostictarget) | The diagnostic target in case of errors. |
+| Name | Type |
+| :------ | :------ |
+| `typespecType` | [`TypeSpecValue`](index.md#typespecvalue) |
+| `target` | [`DiagnosticTarget`](index.md#diagnostictarget) |
 
 #### Returns
 
@@ -1836,6 +1992,27 @@ ___
 ### checkFormatCadl
 
 ▸ **checkFormatCadl**(`code`, `prettierConfig?`): `Promise`<`boolean`\>
+
+**`Deprecated`**
+
+use checkFormatTypeSpec
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `code` | `string` |
+| `prettierConfig?` | `Options` |
+
+#### Returns
+
+`Promise`<`boolean`\>
+
+___
+
+### checkFormatTypeSpec
+
+▸ **checkFormatTypeSpec**(`code`, `prettierConfig?`): `Promise`<`boolean`\>
 
 Check the given is correctly formatted.
 
@@ -1896,26 +2073,11 @@ ___
 
 ### createCadlLibrary
 
-▸ **createCadlLibrary**<`T`, `E`\>(`lib`): [`CadlLibrary`](interfaces/CadlLibrary.md)<`T`, `E`\>
+▸ **createCadlLibrary**<`T`, `E`\>(`lib`): [`TypeSpecLibrary`](interfaces/TypeSpecLibrary.md)<`T`, `E`\>
 
-Create a new Cadl library definition.
+**`Deprecated`**
 
-**`Tutorial`**
-
-Create the lib object with `as const` to get the full typing.
-
-**`Example`**
-
-```ts
-const libDef = {
-  name: "myLib",
-  diagnostics: {
-   "my-code": {serverity: "error", messages: {default: "Foo bar"}}
-  },
-} as const;
-
-const lib = createCadlLibrary(libDef);
-```
+use createTypeSpecLibrary
 
 #### Type parameters
 
@@ -1926,15 +2088,13 @@ const lib = createCadlLibrary(libDef);
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `lib` | `Readonly`<[`CadlLibraryDef`](interfaces/CadlLibraryDef.md)<`T`, `E`\>\> | Library definition. |
+| Name | Type |
+| :------ | :------ |
+| `lib` | `Readonly`<[`TypeSpecLibraryDef`](interfaces/TypeSpecLibraryDef.md)<`T`, `E`\>\> |
 
 #### Returns
 
-[`CadlLibrary`](interfaces/CadlLibrary.md)<`T`, `E`\>
-
-Library with utility functions.
+[`TypeSpecLibrary`](interfaces/TypeSpecLibrary.md)<`T`, `E`\>
 
 ___
 
@@ -1960,7 +2120,7 @@ ___
 
 **`Deprecated`**
 
-use extern dec definition in cadl instead.
+use extern dec definition in typespec instead.
 
 #### Type parameters
 
@@ -2121,6 +2281,50 @@ ___
 
 ___
 
+### createTypeSpecLibrary
+
+▸ **createTypeSpecLibrary**<`T`, `E`\>(`lib`): [`TypeSpecLibrary`](interfaces/TypeSpecLibrary.md)<`T`, `E`\>
+
+Create a new TypeSpec library definition.
+
+**`Tutorial`**
+
+Create the lib object with `as const` to get the full typing.
+
+**`Example`**
+
+```ts
+const libDef = {
+  name: "myLib",
+  diagnostics: {
+   "my-code": {serverity: "error", messages: {default: "Foo bar"}}
+  },
+} as const;
+
+const lib = createTypeSpecLibrary(libDef);
+```
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends `Object` |
+| `E` | extends `Record`<`string`, `any`\> |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `lib` | `Readonly`<[`TypeSpecLibraryDef`](interfaces/TypeSpecLibraryDef.md)<`T`, `E`\>\> | Library definition. |
+
+#### Returns
+
+[`TypeSpecLibrary`](interfaces/TypeSpecLibrary.md)<`T`, `E`\>
+
+Library with utility functions.
+
+___
+
 ### emitFile
 
 ▸ **emitFile**(`program`, `options`): `Promise`<`void`\>
@@ -2131,7 +2335,7 @@ Helper to emit a file.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Cadl Program |
+| `program` | [`Program`](interfaces/Program.md) | TypeSpec Program |
 | `options` | [`EmitFileOptions`](interfaces/EmitFileOptions.md) | File Emitter options |
 
 #### Returns
@@ -2202,23 +2406,6 @@ ___
 
 ___
 
-### formatCadl
-
-▸ **formatCadl**(`code`, `prettierConfig?`): `string`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `code` | `string` |
-| `prettierConfig?` | `Options` |
-
-#### Returns
-
-`string`
-
-___
-
 ### formatDiagnostic
 
 ▸ **formatDiagnostic**(`diagnostic`): `string`
@@ -2235,6 +2422,39 @@ ___
 
 ___
 
+### formatIdentifier
+
+▸ **formatIdentifier**(`sv`): `string`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `sv` | `string` |
+
+#### Returns
+
+`string`
+
+___
+
+### formatTypeSpec
+
+▸ **formatTypeSpec**(`code`, `prettierConfig?`): `string`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `code` | `string` |
+| `prettierConfig?` | `Options` |
+
+#### Returns
+
+`string`
+
+___
+
 ### getAllTags
 
 ▸ **getAllTags**(`program`, `target`): `string`[] \| `undefined`
@@ -2244,7 +2464,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Namespace`](interfaces/Namespace.md) \| [`Interface`](interfaces/Interface.md) \| [`Operation`](interfaces/Operation.md) |
+| `target` | [`Interface`](interfaces/Interface.md) \| [`Namespace`](interfaces/Namespace.md) \| [`Operation`](interfaces/Operation.md) |
 
 #### Returns
 
@@ -2333,7 +2553,7 @@ It will try to guess what node it could be as during auto complete the ast might
 
 | Name | Type |
 | :------ | :------ |
-| `script` | [`CadlScriptNode`](interfaces/CadlScriptNode.md) |
+| `script` | [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md) |
 | `position` | `number` |
 | `filter` | (`node`: [`Node`](index.md#node)) => `boolean` |
 
@@ -2774,7 +2994,7 @@ Resolve the node in the syntax tree that that is at the given position.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `script` | [`CadlScriptNode`](interfaces/CadlScriptNode.md) | Cadl Script node |
+| `script` | [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md) | TypeSpec Script node |
 | `position` | `number` | Position |
 | `filter` | (`node`: [`Node`](index.md#node)) => `boolean` | Filter if wanting to return a parent containing node early. |
 
@@ -3393,9 +3613,11 @@ ___
 
 ### isCadlValueTypeOf
 
-▸ **isCadlValueTypeOf**<`K`\>(`target`, `expectedType`): target is InferredCadlValue<K\>
+▸ **isCadlValueTypeOf**<`K`\>(`target`, `expectedType`): target is InferredTypeSpecValue<K\>
 
-Check if the given target is of any of the cadl types.
+**`Deprecated`**
+
+use isTypeSpecValueTypeOf
 
 #### Type parameters
 
@@ -3405,16 +3627,14 @@ Check if the given target is of any of the cadl types.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `target` | [`CadlValue`](index.md#cadlvalue) | Target to validate. |
-| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed cadl types. |
+| Name | Type |
+| :------ | :------ |
+| `target` | [`TypeSpecValue`](index.md#typespecvalue) |
+| `expectedType` | `K` \| readonly `K`[] |
 
 #### Returns
 
-target is InferredCadlValue<K\>
-
-boolean if the target is of one of the allowed types.
+target is InferredTypeSpecValue<K\>
 
 ___
 
@@ -3444,7 +3664,7 @@ Check if the given type is declared in the specified namespace or, optionally, i
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `type` | [`Namespace`](interfaces/Namespace.md) \| [`Model`](interfaces/Model.md) \| [`Interface`](interfaces/Interface.md) \| [`Enum`](interfaces/Enum.md) \| [`Operation`](interfaces/Operation.md) | Type |
+| `type` | [`Model`](interfaces/Model.md) \| [`Interface`](interfaces/Interface.md) \| [`Enum`](interfaces/Enum.md) \| [`Namespace`](interfaces/Namespace.md) \| [`Operation`](interfaces/Operation.md) | Type |
 | `namespace` | [`Namespace`](interfaces/Namespace.md) | Namespace |
 | `options` | `Object` | - |
 | `options.recursive?` | `boolean` | - |
@@ -3865,6 +4085,33 @@ ___
 
 ___
 
+### isTypeSpecValueTypeOf
+
+▸ **isTypeSpecValueTypeOf**<`K`\>(`target`, `expectedType`): target is InferredTypeSpecValue<K\>
+
+Check if the given target is of any of the typespec types.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends [`TypeKind`](index.md#typekind) |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `target` | [`TypeSpecValue`](index.md#typespecvalue) | Target to validate. |
+| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed typespec types. |
+
+#### Returns
+
+target is InferredTypeSpecValue<K\>
+
+boolean if the target is of one of the allowed types.
+
+___
+
 ### isUnknownType
 
 ▸ **isUnknownType**(`type`): type is UnknownType
@@ -3977,7 +4224,7 @@ List operations in the given container. Will list operation recursively by defau
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `container` | [`Namespace`](interfaces/Namespace.md) \| [`Interface`](interfaces/Interface.md) | Container. |
+| `container` | [`Interface`](interfaces/Interface.md) \| [`Namespace`](interfaces/Namespace.md) | Container. |
 | `options` | [`ListOperationOptions`](interfaces/ListOperationOptions.md) | Options. |
 
 #### Returns
@@ -3990,7 +4237,7 @@ ___
 
 ▸ **listServices**(`program`): [`Service`](interfaces/decorators.Service.md)[]
 
-List all the services defined in the cadl program
+List all the services defined in the typespec program
 
 #### Parameters
 
@@ -4116,7 +4363,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `namespace` | [`Namespace`](interfaces/Namespace.md) |
-| `listeners` | { `exitNamespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\> ; `namespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\>  } & { `exitModel`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\> ; `model`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\>  } & { `exitModelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\> ; `modelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\>  } & { `exitScalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\> ; `scalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\>  } & { `exitInterface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\> ; `interface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\>  } & { `enum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\> ; `exitEnum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\>  } & { `enumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\> ; `exitEnumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\>  } & { `exitTemplateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\> ; `templateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\>  } & { `exitOperation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\> ; `operation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\>  } & { `exitString`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\> ; `string`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\>  } & { `exitNumber`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\> ; `number`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\>  } & { `boolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\> ; `exitBoolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\>  } & { `exitTuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\> ; `tuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\>  } & { `exitUnion`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\> ; `union`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\>  } & { `exitUnionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\> ; `unionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\>  } & { `exitIntrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\> ; `intrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\>  } & { `exitFunction`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\> ; `function`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\>  } & { `decorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\> ; `exitDecorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\>  } & { `exitFunctionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\> ; `functionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\>  } & { `exitObject`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\> ; `object`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\>  } & { `exitProjection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\> ; `projection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\>  } |
+| `listeners` | { `exitModel`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\> ; `model`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\>  } & { `exitModelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\> ; `modelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\>  } & { `exitScalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\> ; `scalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\>  } & { `exitInterface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\> ; `interface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\>  } & { `enum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\> ; `exitEnum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\>  } & { `enumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\> ; `exitEnumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\>  } & { `exitTemplateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\> ; `templateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\>  } & { `exitNamespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\> ; `namespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\>  } & { `exitOperation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\> ; `operation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\>  } & { `exitString`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\> ; `string`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\>  } & { `exitNumber`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\> ; `number`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\>  } & { `boolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\> ; `exitBoolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\>  } & { `exitTuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\> ; `tuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\>  } & { `exitUnion`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\> ; `union`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\>  } & { `exitUnionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\> ; `unionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\>  } & { `exitIntrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\> ; `intrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\>  } & { `exitFunction`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\> ; `function`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\>  } & { `decorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\> ; `exitDecorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\>  } & { `exitFunctionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\> ; `functionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\>  } & { `exitObject`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\> ; `object`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\>  } & { `exitProjection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\> ; `projection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\>  } |
 | `options` | [`NamespaceNavigationOptions`](interfaces/NamespaceNavigationOptions.md) & [`NavigationOptions`](interfaces/NavigationOptions.md) |
 
 #### Returns
@@ -4184,7 +4431,7 @@ ___
 
 ### parse
 
-▸ **parse**(`code`, `options?`): [`CadlScriptNode`](interfaces/CadlScriptNode.md)
+▸ **parse**(`code`, `options?`): [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md)
 
 #### Parameters
 
@@ -4195,7 +4442,7 @@ ___
 
 #### Returns
 
-[`CadlScriptNode`](interfaces/CadlScriptNode.md)
+[`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md)
 
 ___
 
@@ -4285,7 +4532,7 @@ Report a deprecated diagnostic.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Cadl Program. |
+| `program` | [`Program`](interfaces/Program.md) | TypeSpec Program. |
 | `message` | `string` | Message describing the deprecation. |
 | `target` | [`DiagnosticTarget`](index.md#diagnostictarget) \| typeof [`NoTarget`](index.md#notarget) | Target of the deprecation. |
 
@@ -4372,7 +4619,7 @@ Scope the current navigation to the given namespace.
 
 | Name | Type |
 | :------ | :------ |
-| `T` | extends { `exitNamespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\> ; `namespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\>  } & { `exitModel`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\> ; `model`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\>  } & { `exitModelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\> ; `modelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\>  } & { `exitScalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\> ; `scalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\>  } & { `exitInterface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\> ; `interface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\>  } & { `enum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\> ; `exitEnum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\>  } & { `enumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\> ; `exitEnumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\>  } & { `exitTemplateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\> ; `templateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\>  } & { `exitOperation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\> ; `operation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\>  } & { `exitString`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\> ; `string`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\>  } & { `exitNumber`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\> ; `number`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\>  } & { `boolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\> ; `exitBoolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\>  } & { `exitTuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\> ; `tuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\>  } & { `exitUnion`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\> ; `union`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\>  } & { `exitUnionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\> ; `unionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\>  } & { `exitIntrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\> ; `intrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\>  } & { `exitFunction`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\> ; `function`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\>  } & { `decorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\> ; `exitDecorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\>  } & { `exitFunctionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\> ; `functionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\>  } & { `exitObject`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\> ; `object`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\>  } & { `exitProjection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\> ; `projection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\>  } |
+| `T` | extends { `exitModel`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\> ; `model`: `undefined` \| `TypeListener`<[`Model`](interfaces/Model.md)\>  } & { `exitModelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\> ; `modelProperty`: `undefined` \| `TypeListener`<[`ModelProperty`](interfaces/ModelProperty.md)\>  } & { `exitScalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\> ; `scalar`: `undefined` \| `TypeListener`<[`Scalar`](interfaces/Scalar.md)\>  } & { `exitInterface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\> ; `interface`: `undefined` \| `TypeListener`<[`Interface`](interfaces/Interface.md)\>  } & { `enum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\> ; `exitEnum`: `undefined` \| `TypeListener`<[`Enum`](interfaces/Enum.md)\>  } & { `enumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\> ; `exitEnumMember`: `undefined` \| `TypeListener`<[`EnumMember`](interfaces/EnumMember.md)\>  } & { `exitTemplateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\> ; `templateParameter`: `undefined` \| `TypeListener`<[`TemplateParameter`](interfaces/TemplateParameter.md)\>  } & { `exitNamespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\> ; `namespace`: `undefined` \| `TypeListener`<[`Namespace`](interfaces/Namespace.md)\>  } & { `exitOperation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\> ; `operation`: `undefined` \| `TypeListener`<[`Operation`](interfaces/Operation.md)\>  } & { `exitString`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\> ; `string`: `undefined` \| `TypeListener`<[`StringLiteral`](interfaces/StringLiteral.md)\>  } & { `exitNumber`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\> ; `number`: `undefined` \| `TypeListener`<[`NumericLiteral`](interfaces/NumericLiteral.md)\>  } & { `boolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\> ; `exitBoolean`: `undefined` \| `TypeListener`<[`BooleanLiteral`](interfaces/BooleanLiteral.md)\>  } & { `exitTuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\> ; `tuple`: `undefined` \| `TypeListener`<[`Tuple`](interfaces/Tuple.md)\>  } & { `exitUnion`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\> ; `union`: `undefined` \| `TypeListener`<[`Union`](interfaces/Union.md)\>  } & { `exitUnionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\> ; `unionVariant`: `undefined` \| `TypeListener`<[`UnionVariant`](interfaces/UnionVariant.md)\>  } & { `exitIntrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\> ; `intrinsic`: `undefined` \| `TypeListener`<[`IntrinsicType`](interfaces/IntrinsicType.md)\>  } & { `exitFunction`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\> ; `function`: `undefined` \| `TypeListener`<[`FunctionType`](interfaces/FunctionType.md)\>  } & { `decorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\> ; `exitDecorator`: `undefined` \| `TypeListener`<[`Decorator`](interfaces/Decorator.md)\>  } & { `exitFunctionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\> ; `functionParameter`: `undefined` \| `TypeListener`<[`FunctionParameter`](interfaces/FunctionParameter.md)\>  } & { `exitObject`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\> ; `object`: `undefined` \| `TypeListener`<[`ObjectType`](interfaces/ObjectType.md)\>  } & { `exitProjection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\> ; `projection`: `undefined` \| `TypeListener`<[`Projection`](interfaces/Projection.md)\>  } |
 
 #### Parameters
 
@@ -4394,7 +4641,28 @@ ___
 
 ▸ **setCadlNamespace**(`namespace`, `...functions`): `void`
 
-Set the Cadl namespace for that function.
+**`Deprecated`**
+
+use setTypeSpecNamespace
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `namespace` | `string` |
+| `...functions` | (...`args`: `any`[]) => `any`[] |
+
+#### Returns
+
+`void`
+
+___
+
+### setTypeSpecNamespace
+
+▸ **setTypeSpecNamespace**(`namespace`, `...functions`): `void`
+
+Set the TypeSpec namespace for that function.
 
 #### Parameters
 
@@ -4445,6 +4713,32 @@ ___
 
 ___
 
+### typespecTypeToJson
+
+▸ **typespecTypeToJson**<`T`\>(`typespecType`, `target`): [`T` \| `undefined`, [`Diagnostic`](interfaces/Diagnostic.md)[]]
+
+Convert a typespec type to a serializable Json object.
+Emits diagnostics if the given type is invalid
+
+#### Type parameters
+
+| Name |
+| :------ |
+| `T` |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `typespecType` | [`TypeSpecValue`](index.md#typespecvalue) | The type to convert to Json data |
+| `target` | [`DiagnosticTarget`](index.md#diagnostictarget) | The diagnostic target in case of errors. |
+
+#### Returns
+
+[`T` \| `undefined`, [`Diagnostic`](interfaces/Diagnostic.md)[]]
+
+___
+
 ### validateDecoratorNotOnType
 
 ▸ **validateDecoratorNotOnType**(`context`, `type`, `badDecorator`, `givenDecorator`): `boolean`
@@ -4490,7 +4784,7 @@ ___
 
 ### validateDecoratorParamType
 
-▸ **validateDecoratorParamType**<`K`\>(`program`, `target`, `value`, `expectedType`): value is InferredCadlValue<K\>
+▸ **validateDecoratorParamType**<`K`\>(`program`, `target`, `value`, `expectedType`): value is InferredTypeSpecValue<K\>
 
 Validate a decorator parameter has the correct type.
 
@@ -4506,7 +4800,7 @@ createDecoratorDefinition#validate instead.
 
 | Name | Type |
 | :------ | :------ |
-| `K` | extends ``"Namespace"`` \| ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"`` |
+| `K` | extends ``"Projection"`` \| ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` |
 
 #### Parameters
 
@@ -4514,12 +4808,12 @@ createDecoratorDefinition#validate instead.
 | :------ | :------ | :------ |
 | `program` | [`Program`](interfaces/Program.md) | Program |
 | `target` | [`Type`](index.md#type) | Decorator target |
-| `value` | [`CadlValue`](index.md#cadlvalue) | Value of the parameter. |
+| `value` | [`TypeSpecValue`](index.md#typespecvalue) | Value of the parameter. |
 | `expectedType` | `K` \| `K`[] | Expected type or list of expected type |
 
 #### Returns
 
-value is InferredCadlValue<K\>
+value is InferredTypeSpecValue<K\>
 
 true if the value is of one of the type in the list of expected types. If not emit a diagnostic.
 

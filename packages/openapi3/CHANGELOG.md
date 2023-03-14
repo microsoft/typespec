@@ -1,6 +1,26 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+
+## 0.42.0
+Mon, 13 Mar 2023 21:30:44 GMT
+
+### Updates
+
+- Avoid Read suffix in schemas split by visibility.
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Support additionalProperties
+- Stop treating models spread into parameters as unreferenced.
+- Revert back changelog
+- Use new `@typespec/http` library
+- Update package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Update homepage link
 
 ## 0.40.0
 Tue, 07 Feb 2023 21:56:17 GMT
@@ -58,7 +78,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Declare decorators in typespec using `extern dec`
+- Declare decorators in cadl using `extern dec`
 - Feature: Add support for `unknown`
 
 ### Patches
@@ -149,7 +169,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Minor changes
 
-- Uptake changes to @typespec/rest libraries around accessor
+- Uptake changes to @cadl-lang/rest libraries around accessor
 - Uptake changes to decorator context
 - Add support for new @server decorator used to specify api endpoints.
 - Find good names where possible for anonymous models that differ from named models only by properties that are not part of the schema
@@ -183,7 +203,7 @@ Thu, 31 Mar 2022 17:10:49 GMT
 
 - Include discriminator property in base schema with a boilerplace description
 - Add support for `void` type
-- Moved http response interpretation to @typespec/rest library.
+- Moved http response interpretation to @cadl-lang/rest library.
 - implement multiple response content types
 - Uptake change to allow versioned dependency with unversioned service
 
@@ -204,7 +224,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 - Added support for `@knownValues` decorator
 - @doc on service namespace set openapi description
 - Uptake change to intrinsic types
-- Fix issue where a model name the same as TypeSpec Intrinsic type would be treated the same.
+- Fix issue where a model name the same as Cadl Intrinsic type would be treated the same.
 
 ### Patches
 
@@ -244,9 +264,9 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - openapi3 emitter support for @error decorator
 - Configure for new emitter syntax
 - Internals: switch to internal path manipulation
-- Extracted decorators into own library `@typespec/openapi`
-- Uptake changes in @typespec/rest library improving operation parameter handling
-- Update typespec dependencies to peerDependencies
+- Extracted decorators into own library `@cadl-lang/openapi`
+- Uptake changes in @cadl-lang/rest library improving operation parameter handling
+- Update cadl dependencies to peerDependencies
 - Add support for versioned services
 - Add statusCode decorator for http status code
 
@@ -266,11 +286,11 @@ Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Minor changes
 
-- Generate anyOf or oneOf schemas for TypeSpec unions in openapi3
+- Generate anyOf or oneOf schemas for Cadl unions in openapi3
 
 ### Patches
 
-- Update openapi3 emitter to consume new TypeSpec.Rest route generation API
+- Update openapi3 emitter to consume new Cadl.Rest route generation API
 
 ## 0.4.2
 Wed, 01 Dec 2021 22:56:11 GMT
@@ -278,7 +298,7 @@ Wed, 01 Dec 2021 22:56:11 GMT
 ### Patches
 
 - Add support for extension decorator on parameters and tests
-- Add openapi3 support for TypeSpec safeint
+- Add openapi3 support for Cadl safeint
 - Add README
 
 ## 0.4.1
@@ -327,7 +347,7 @@ Fri, 17 Sep 2021 00:49:37 GMT
 ### Patches
 
 - Adding changelog for openapi3 package
-- Updates for typespec namespace addition
+- Updates for cadl namespace addition
 - This is a test
 - Support for emitting `bytes` and new number types
 

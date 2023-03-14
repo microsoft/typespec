@@ -7,7 +7,6 @@ import {
   navigateTypesInNamespace,
   Program,
 } from "@typespec/compiler";
-import { getAllHttpServices } from "./http/operations.js";
 import { reportDiagnostic } from "./lib.js";
 import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";
 
@@ -65,10 +64,4 @@ export function $onValidate(program: Program) {
   // Make sure any defined resource types don't have any conflicts with parent
   // resource type key names
   checkForDuplicateResourceKeyNames(program);
-
-  // Pass along any diagnostics that might be returned from the HTTP library
-  const [, diagnostics] = getAllHttpServices(program);
-  if (diagnostics.length > 0) {
-    program.reportDiagnostics(diagnostics);
-  }
 }

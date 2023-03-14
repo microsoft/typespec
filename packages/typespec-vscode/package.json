@@ -1,9 +1,9 @@
 {
   "name": "typespec-vscode",
-  "version": "0.40.0",
+  "version": "0.42.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Support for VS Code",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
@@ -73,7 +73,7 @@
       {
         "language": "markdown-typespec",
         "scopeName": "markdown.tsp.codeblock",
-        "path": "./markdown-tsp.json",
+        "path": "./markdown-typespec.json",
         "injectTo": [
           "text.html.markdown"
         ],
@@ -121,9 +121,9 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.53.0",
-    "@typespec/compiler": "~0.40.0",
-    "@typespec/eslint-config-typespec": "~0.5.0",
-    "@typespec/internal-build-utils": "~0.3.3",
+    "@typespec/compiler": "~0.42.0",
+    "@typespec/eslint-config-typespec": "~0.6.0",
+    "@typespec/internal-build-utils": "~0.4.0",
     "eslint": "^8.12.0",
     "c8": "~7.12.0",
     "mkdirp": "~1.0.4",

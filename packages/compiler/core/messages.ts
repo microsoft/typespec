@@ -498,6 +498,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "config-path-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`No configuration file found at config path "${"path"}".`,
+    },
+  },
   /**
    * Program
    */
@@ -528,7 +534,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      typespecMain: paramMessage`Library "${"path"}" has an invalid typespecMain file.`,
+      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },

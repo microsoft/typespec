@@ -6,7 +6,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run regen-ref-docs && docusaurus build",
+    "build": "npm run regen-ref-docs && node  .scripts/docusaurus-build.mjs 2>&1",
     "swizzle": "docusaurus swizzle",
     "clear": "docusaurus clear",
     "clean": "docusaurus clear",
@@ -31,10 +31,11 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@typespec/ref-doc": "^0.1.0",
+    "@typespec/ref-doc": "~0.1.0",
     "@typespec/spec": "0.1.0",
-    "@typespec/rest": "~0.40.0",
-    "@typespec/openapi": "~0.40.0",
+    "@typespec/http": "~0.42.0",
+    "@typespec/rest": "~0.42.0",
+    "@typespec/openapi": "~0.42.0",
     "@docusaurus/module-type-aliases": "^2.2.0",
     "@docusaurus/types": "^2.2.0",
     "@tsconfig/docusaurus": "^1.0.5",
@@ -44,7 +45,7 @@
     "playwright": "~1.28.1",
     "mermaid": "~9.1.6",
     "mdx-mermaid": "1.3.2",
-    "@typespec/eslint-config-typespec": "~0.5.0",
+    "@typespec/eslint-config-typespec": "~0.6.0",
     "eslint": "^8.12.0",
     "rimraf": "~3.0.2"
   },

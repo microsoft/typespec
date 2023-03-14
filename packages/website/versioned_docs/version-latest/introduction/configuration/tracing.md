@@ -4,23 +4,23 @@ title: Tracing
 
 # Tracing
 
-By default the Cadl Compiler will build without any debug information. The standard output will be minimal and limited to any `warning` or `error` diagnostics emitted during compilation.
+By default the TypeSpec Compiler will build without any debug information. The standard output will be minimal and limited to any `warning` or `error` diagnostics emitted during compilation.
 
 Some additional information is however being collected and can be revealed using the `--trace` cli flag.
 
 ```bash
-cadl compile . --trace import-resolution
+tsp compile . --trace import-resolution
 ```
 
 You can use the `--trace` option multiple times if there is multiple areas that should be logged from.
 
 ```bash
-cadl compile . --trace import-resolution  --trace projection
+tsp compile . --trace import-resolution  --trace projection
 ```
 
 Using `--trace *` will log everything. This might be a bit overwhelming but you can [pick and choose which trace area to include](#trace-selection)
 
-It can also be provided via the `cadl-project.yaml` file:
+It can also be provided via the `tspconfig.yaml` file:
 
 ```yaml
 trace: *
@@ -32,7 +32,7 @@ trace:
 
 ## Trace selection
 
-The tracing system in the cadl compiler works by having each trace under an area. The area name is a dot `.` separated string of area segments.
+The tracing system in the tsp compiler works by having each trace under an area. The area name is a dot `.` separated string of area segments.
 
 When filtering which area to select you can use this area path to select which area is going to be revealed.
 The filter follow the same naming style, except the last segment could be a wildcard `*`. This is however the same result as omitting the last segment all together. In other words, those filter have the exact same behavior:
@@ -65,9 +65,9 @@ This is a list of the trace area used in the compiler
 | `projection.log`            | Debug information logged by the `log()` function used in projections |
 | `bind.js`                   | Information when binding JS files                                    |
 
-## Tracing in Cadl library
+## Tracing in TypeSpec library
 
-Cadl libraries can emit their own tracing that can be collected using the same mechanism. It is recommended that a library scope their tracing area under the library name to prevent collision. This can be achieved by calling the `sub(subArea: string)` method on the tracer.
+TypeSpec libraries can emit their own tracing that can be collected using the same mechanism. It is recommended that a library scope their tracing area under the library name to prevent collision. This can be achieved by calling the `sub(subArea: string)` method on the tracer.
 
 ```ts
 const tracer = program.tracer.sub("my-library");

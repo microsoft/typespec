@@ -32,7 +32,7 @@ async function main() {
   console.log(`TypeSpec compiler v${typespecVersion}\n`);
 
   await yargs(process.argv.slice(2))
-    .scriptName("typespec")
+    .scriptName("tsp")
     .help()
     .strict()
     .parserConfiguration({
@@ -102,6 +102,11 @@ async function main() {
             type: "array",
             string: true,
             describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
+          })
+          .option("config", {
+            type: "string",
+            describe:
+              "The path to a TypeSpec config YAML file. If a folder is specified, the CLI will attempt to search for 'tspconfig.yaml' by moving up the folder hierarchy. Defaults to {cwd}.",
           })
           .option("warn-as-error", {
             type: "boolean",
@@ -306,7 +311,8 @@ function compileInput(
         {
           recursive: true,
           filter: (f: string) =>
-            [".js", ".tsp"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
+            [".js", ".tsp", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 &&
+            !/node_modules/.test(f),
         },
         (e: any, name: string) => {
           runCompile();

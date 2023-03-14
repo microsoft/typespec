@@ -23,6 +23,9 @@ export function getLibraryUrlsLoaded(): Set<string> {
   return loadedUrls;
 }
 
+/** @deprecated use createTypeSpecLibrary */
+export const createCadlLibrary = createTypeSpecLibrary;
+
 /**
  * Create a new TypeSpec library definition.
  * @param lib Library definition.
@@ -95,6 +98,9 @@ export function paramMessage<T extends string[]>(
   template.keys = keys;
   return template;
 }
+
+/** @deprecated use setTypeSpecNamespace */
+export const setCadlNamespace = setTypeSpecNamespace;
 
 /**
  * Set the TypeSpec namespace for that function.

@@ -18,8 +18,8 @@ using the preview.
 
 You can try TypeSpec on the web without installing anything.
 
-- [TypeSpec playground](https://typespecplayground.z22.web.core.windows.net)
-- [TypeSpec playground for Azure services](https://typespecplayground.z22.web.core.windows.net/typespec-azure/)
+- [TypeSpec playground](https://cadlplayground.z22.web.core.windows.net)
+- [TypeSpec playground for Azure services](https://cadlplayground.z22.web.core.windows.net/typespec-azure/)
 
 ## Getting Started
 
@@ -79,7 +79,7 @@ If you do not wish to install the compiler globally with `-g` flag, you will nee
    tsp compile .
    ```
 
-   This will compile the TypeSpec files in the project folder into one output file: `.\typespec-output\openapi.json`.
+   This will compile the TypeSpec files in the project folder into one output file: `.\tsp-output\openapi.json`.
 
 ## Troubleshooting
 
@@ -100,7 +100,7 @@ Here is a very small TypeSpec example that uses the `@typespec/openapi3` library
 #### sample.tsp
 
 ```typespec
-import "@typespec/rest";
+import "@typespec/http";
 
 using TypeSpec.Http;
 
@@ -119,7 +119,7 @@ You can compile it to OpenAPI 3.0 by using the following command:
 tsp compile sample.tsp --emit @typespec/openapi3
 ```
 
-Once it compiles, you can find the emitted OpenAPI document in `./typespec-output/openapi.json.
+Once it compiles, you can find the emitted OpenAPI document in `./tsp-output/openapi.json.
 
 You can also pass in a directory instead of a file to `tsp compile`. That's
 equivalent to passing `main.tsp` in that directory.
@@ -183,6 +183,7 @@ Example
 // Stable setup
 "dependencies": {
   "@typespec/compiler": "~0.30.0",
+  "@typespec/http": "~0.14.0",
   "@typespec/rest": "~0.14.0",
   "@typespec/openapi": "~0.9.0",
 }
@@ -191,6 +192,7 @@ Example
 // In this example: compiler and openapi have changes but rest library has none
 "dependencies": {
   "@typespec/compiler": "~0.31.0-dev.5",
+  "@typespec/http": "~0.14.0",
   "@typespec/rest": "~0.14.0", // No changes to @typespec/rest library so need to stay the latest.
   "@typespec/openapi": "~0.10.0-dev.2",
 }
@@ -203,6 +205,7 @@ Example
 | Core functionality                                 |                                  |                                                                                                                                          |                                                                           |
 | [@typespec/compiler][compiler_src]                 | [Changelog][compiler_chg]        | [![](https://img.shields.io/npm/v/@typespec/compiler)](https://www.npmjs.com/package/@typespec/compiler)                                 | ![](https://img.shields.io/npm/v/@typespec/compiler/next)                 |
 | TypeSpec Libraries                                 |                                  |                                                                                                                                          |                                                                           |
+| [@typespec/http][http_src]                         | [Changelog][http_chg]            | [![](https://img.shields.io/npm/v/@typespec/http)](https://www.npmjs.com/package/@typespec/http)                                         | ![](https://img.shields.io/npm/v/@typespec/http/next)                     |
 | [@typespec/rest][rest_src]                         | [Changelog][rest_chg]            | [![](https://img.shields.io/npm/v/@typespec/rest)](https://www.npmjs.com/package/@typespec/rest)                                         | ![](https://img.shields.io/npm/v/@typespec/rest/next)                     |
 | [@typespec/openapi][openapi_src]                   | [Changelog][openapi_chg]         | [![](https://img.shields.io/npm/v/@typespec/openapi)](https://www.npmjs.com/package/@typespec/openapi)                                   | ![](https://img.shields.io/npm/v/@typespec/openapi/next)                  |
 | [@typespec/openapi3][openapi3_src]                 | [Changelog][openapi3_chg]        | [![](https://img.shields.io/npm/v/@typespec/openapi3)](https://www.npmjs.com/package/@typespec/openapi3)                                 | ![](https://img.shields.io/npm/v/@typespec/openapi3/next)                 |
@@ -215,6 +218,8 @@ Example
 
 [compiler_src]: packages/compiler
 [compiler_chg]: packages/compiler/CHANGELOG.md
+[http_src]: packages/http
+[http_chg]: packages/http/CHANGELOG.md
 [rest_src]: packages/rest
 [rest_chg]: packages/rest/CHANGELOG.md
 [openapi_src]: packages/openapi

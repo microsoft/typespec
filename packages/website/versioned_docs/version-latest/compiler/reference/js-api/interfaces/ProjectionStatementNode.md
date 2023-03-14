@@ -100,7 +100,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`CadlScriptNode`](CadlScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
+• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
 
 #### Overrides
 
@@ -123,7 +123,7 @@ ___
 
 ### selector
 
-• `Readonly` **selector**: [`IdentifierNode`](IdentifierNode.md) \| [`MemberExpressionNode`](MemberExpressionNode.md) \| [`ProjectionModelSelectorNode`](ProjectionModelSelectorNode.md) \| [`ProjectionInterfaceSelectorNode`](ProjectionInterfaceSelectorNode.md) \| [`ProjectionOperationSelectorNode`](ProjectionOperationSelectorNode.md) \| [`ProjectionEnumSelectorNode`](ProjectionEnumSelectorNode.md) \| [`ProjectionUnionSelectorNode`](ProjectionUnionSelectorNode.md)
+• `Readonly` **selector**: [`MemberExpressionNode`](MemberExpressionNode.md) \| [`IdentifierNode`](IdentifierNode.md) \| [`ProjectionModelSelectorNode`](ProjectionModelSelectorNode.md) \| [`ProjectionInterfaceSelectorNode`](ProjectionInterfaceSelectorNode.md) \| [`ProjectionOperationSelectorNode`](ProjectionOperationSelectorNode.md) \| [`ProjectionEnumSelectorNode`](ProjectionEnumSelectorNode.md) \| [`ProjectionUnionSelectorNode`](ProjectionUnionSelectorNode.md)
 
 ___
 

@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { migrateTypeSpecContent } from "../src/migrate.js";
+import { migrateTypeSpecContent } from "../src/migration-impl.js";
 import { migrateModelToScalar } from "../src/migrations/v0.38/model-to-scalars.js";
 
 describe("migration: model to scalars", () => {

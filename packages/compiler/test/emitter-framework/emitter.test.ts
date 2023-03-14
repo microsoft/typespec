@@ -88,7 +88,7 @@ class SingleFileEmitter extends TypeScriptInterfaceEmitter {
 async function emitTypeSpecToTs(code: string) {
   const emitter = await emitTypeSpec(SingleFileEmitter, code, {}, false);
 
-  const sf = await emitter.getProgram().host.readFile("./typespec-output/output.ts");
+  const sf = await emitter.getProgram().host.readFile("./tsp-output/output.ts");
   return sf.text;
 }
 
@@ -265,9 +265,9 @@ describe("typescript emitter", () => {
     emitter.emitProgram();
     await emitter.writeOutput();
 
-    const files = await host.program.host.readDir("./typespec-output");
+    const files = await host.program.host.readDir("./tsp-output");
     assert.strictEqual(files.length, 1);
-    const contents = (await host.program.host.readFile("./typespec-output/output.ts")).text;
+    const contents = (await host.program.host.readFile("./tsp-output/output.ts")).text;
     // some light assertions
     assert.match(contents, /export interface Basic/);
     assert.match(contents, /export interface HasRef/);
@@ -325,7 +325,7 @@ describe("typescript emitter", () => {
 
     await emitter.writeOutput();
 
-    const files = new Set(await host.program.host.readDir("./typespec-output"));
+    const files = new Set(await host.program.host.readDir("./tsp-output"));
     [
       "Basic.ts",
       "RefsOtherModel.ts",
@@ -406,7 +406,7 @@ describe("typescript emitter", () => {
     } as any);
     emitter.emitProgram();
     await emitter.writeOutput();
-    const contents = (await host.compilerHost.readFile("typespec-output/output.ts")).text;
+    const contents = (await host.compilerHost.readFile("tsp-output/output.ts")).text;
     assert.match(contents, /namespace B/);
     assert.match(contents, /namespace R/);
     assert.match(contents, /namespace H/);
@@ -434,7 +434,7 @@ describe("typescript emitter", () => {
     } as any);
     emitter.emitProgram();
     await emitter.writeOutput();
-    const contents = (await host.compilerHost.readFile("typespec-output/output.ts")).text;
+    const contents = (await host.compilerHost.readFile("tsp-output/output.ts")).text;
     assert.match(contents, /prop: Foo/);
     assert.match(contents, /prop: Baz/);
   });
@@ -676,9 +676,7 @@ describe("Object emitter", () => {
     } as any);
     assetEmitter.emitProgram();
     await assetEmitter.writeOutput();
-    const contents = JSON.parse(
-      (await host.compilerHost.readFile("typespec-output/test.json")!).text
-    );
+    const contents = JSON.parse((await host.compilerHost.readFile("tsp-output/test.json")!).text);
     assert.strictEqual(contents.declarations.length, 2);
   });
 });

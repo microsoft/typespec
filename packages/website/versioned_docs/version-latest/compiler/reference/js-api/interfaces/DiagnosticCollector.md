@@ -70,7 +70,7 @@ ___
 
 ▸ **wrap**<`T`\>(`value`): [`DiagnosticResult`](../index.md#diagnosticresult)<`T`\>
 
-Wrap the given value in a tuple including the diagnostics following the Cadl accessor pattern.
+Wrap the given value in a tuple including the diagnostics following the TypeSpec accessor pattern.
 
 **`Example`**
 

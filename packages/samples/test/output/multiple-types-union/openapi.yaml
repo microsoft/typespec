@@ -25,9 +25,6 @@ components:
       schema:
         type: string
   schemas:
-    ApiVersionParam:
-      type: object
-      properties: {}
     Cat:
       type: object
       properties:

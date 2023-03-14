@@ -63,7 +63,7 @@ function runTypeSpec(compilerTgz, args, options) {
 
 function testBasicLatest(packages) {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
-  const outputDir = join(basicLatestDir, "typespec-output");
+  const outputDir = join(basicLatestDir, "tsp-output");
   console.log("Clearing basic-latest output");
   rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-latest output");
@@ -87,7 +87,7 @@ function testBasicLatest(packages) {
 
 function testBasicCurrentTgz(packages) {
   const basicCurrentDir = join(e2eTestDir, "basic-current");
-  const outputDir = join(basicCurrentDir, "typespec-output");
+  const outputDir = join(basicCurrentDir, "tsp-output");
   console.log("Clearing basic-current");
   rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-current");

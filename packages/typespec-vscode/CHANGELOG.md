@@ -1,6 +1,21 @@
 # Change Log - typespec-vscode
 
-This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+
+## 0.42.0
+Mon, 13 Mar 2023 21:30:44 GMT
+
+_Version update only_
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Adding .cadl file support
+- Revert back changelog
+- Rename to TypeSpec
+- Update homepage link
 
 ## 0.40.0
 Tue, 07 Feb 2023 21:56:17 GMT
@@ -27,7 +42,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
 
-- Extension lookup for a local tsp compiler first instead of a global
+- Extension lookup for a local cadl compiler first instead of a global
 
 ### Patches
 
@@ -38,7 +53,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Patches
 
-- Fix preference documentation for tsp-server path configuration
+- Fix preference documentation for cadl-server path configuration
 
 ## 0.16.0
 Thu, 08 Sep 2022 01:04:53 GMT
@@ -49,14 +64,14 @@ Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Patches
 
-- Allow typespec.restartServer command to work when no .tsp file has been opened
+- Allow cadl.restartServer command to work when no .cadl file has been opened
 
 ## 0.15.2
 Thu, 11 Aug 2022 19:05:23 GMT
 
 ### Patches
 
-- Providing `typespec.tsp-server.path` option will force the specified compiler to be used
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.15.1
 Fri, 08 Jul 2022 23:22:58 GMT
@@ -73,7 +88,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Patches
 
-- Improve error reporting when tsp-server is not found
+- Improve error reporting when cadl-server is not found
 - Resolve issue with `language-configuration.json` being excluded from extension
 
 ### Updates
@@ -87,7 +102,7 @@ Fri, 06 May 2022 17:19:57 GMT
 
 - Color decorators differently than operations
 - Uptake `mixes` -> `extends` rename
-- Update `language-configuration.json` to newer format and generate it from typespec language server data
+- Update `language-configuration.json` to newer format and generate it from cadl language server data
 - Remove node 14 support
 - Add command to restart language server
 
@@ -116,14 +131,14 @@ Fri, 04 Feb 2022 18:00:18 GMT
 
 ### Minor changes
 
-- Add typespec project file to list of files watched
+- Add cadl project file to list of files watched
 
 ## 0.11.0
 Wed, 01 Dec 2021 22:56:11 GMT
 
 ### Minor changes
 
-- Add syntax highlighting code-fenced typespec blocks in markdown
+- Add syntax highlighting code-fenced cadl blocks in markdown
 
 ### Patches
 
@@ -136,7 +151,7 @@ Thu, 11 Nov 2021 21:46:21 GMT
 
 ### Minor changes
 
-- **Change** `typespec.tsp-server.path` should point to the `@typespec/compiler` package instead of `tsp-server` binary.
+- **Change** `cadl.cadl-server.path` should point to the `@cadl-lang/compiler` package instead of `cadl-server` binary.
 
 ## 0.9.0
 Fri, 15 Oct 2021 21:33:37 GMT
@@ -159,7 +174,7 @@ Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
 
-- Rename ADL to TypeSpec
+- Rename ADL to Cadl
 
 ## 0.6.0
 Fri, 09 Jul 2021 20:21:06 GMT

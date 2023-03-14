@@ -91,7 +91,13 @@ import {
   TextRange,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { doIO, getNormalizedRealPath, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import {
+  doIO,
+  getNormalizedRealPath,
+  getSourceFileKindFromExt,
+  loadFile,
+  resolveTspMain,
+} from "../core/util.js";
 import { resolveCompletion } from "./completion.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { getParameterDocumentation, getTypeDetails } from "./type-details.js";
@@ -1100,7 +1106,7 @@ export function createServer(host: ServerHost): Server {
    * results can be obtained from compiling the same file with different entry
    * points.
    *
-   * Walk directory structure upwards looking for package.json with typespecMain or
+   * Walk directory structure upwards looking for package.json with tspMain or
    * main.tsp file. Stop search when reaching a workspace root. If a root is
    * reached without finding an entry point, use the given path as its own
    * entry point.
@@ -1136,8 +1142,9 @@ export function createServer(host: ServerHost): Server {
         await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
-      if (typeof pkg?.typespecMain === "string") {
-        mainFile = pkg.typespecMain;
+      const tspMain = resolveTspMain(pkg);
+      if (typeof tspMain === "string") {
+        mainFile = tspMain;
       }
 
       const candidate = joinPaths(dir, mainFile);
