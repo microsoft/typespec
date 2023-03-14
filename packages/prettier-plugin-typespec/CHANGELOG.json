@@ -1,6 +1,32 @@
 {
-  "name": "@cadl-lang/prettier-plugin-cadl",
+  "name": "@typespec/prettier-plugin-typespec",
   "entries": [
+    {
+      "version": "0.42.0",
+      "tag": "@typespec/prettier-plugin-typespec_v0.42.0",
+      "date": "Mon, 13 Mar 2023 21:30:44 GMT",
+      "comments": {}
+    },
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/prettier-plugin-typespec_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.3.3` to `~0.4.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.40.0",
       "tag": "@cadl-lang/prettier-plugin-cadl_v0.40.0",

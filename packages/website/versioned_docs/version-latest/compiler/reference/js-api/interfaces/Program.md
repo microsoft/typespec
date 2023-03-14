@@ -30,7 +30,7 @@
 - [getGlobalNamespaceType](Program.md#getglobalnamespacetype)
 - [getOption](Program.md#getoption)
 - [hasError](Program.md#haserror)
-- [loadCadlScript](Program.md#loadcadlscript)
+- [loadTypeSpecScript](Program.md#loadtypespecscript)
 - [onValidate](Program.md#onvalidate)
 - [reportDiagnostic](Program.md#reportdiagnostic)
 - [reportDiagnostics](Program.md#reportdiagnostics)
@@ -86,13 +86,13 @@ ___
 
 ### mainFile
 
-• `Optional` **mainFile**: [`CadlScriptNode`](CadlScriptNode.md)
+• `Optional` **mainFile**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 
 ___
 
 ### sourceFiles
 
-• **sourceFiles**: `Map`<`string`, [`CadlScriptNode`](CadlScriptNode.md)\>
+• **sourceFiles**: `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 All source files in the program, keyed by their file path.
 
@@ -152,19 +152,19 @@ ___
 
 ___
 
-### loadCadlScript
+### loadTypeSpecScript
 
-▸ **loadCadlScript**(`cadlScript`): `Promise`<[`CadlScriptNode`](CadlScriptNode.md)\>
+▸ **loadTypeSpecScript**(`typespecScript`): `Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `cadlScript` | [`SourceFile`](SourceFile.md) |
+| `typespecScript` | [`SourceFile`](SourceFile.md) |
 
 #### Returns
 
-`Promise`<[`CadlScriptNode`](CadlScriptNode.md)\>
+`Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 ___
 

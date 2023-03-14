@@ -1,5 +1,6 @@
 import prettier from "prettier";
 import * as typespecPrettierPlugin from "../formatter/index.js";
+export { printId as formatIdentifier } from "../formatter/print/printer.js";
 
 export function formatTypeSpec(code: string, prettierConfig?: prettier.Options): string {
   const output = prettier.format(code, {

@@ -14,7 +14,7 @@ Unions describe a type that must be exactly one of the union's constituents. The
 
 Unnamed unions can be declared by joining the variants using the `|` operator
 
-```cadl
+```typespec
 alias Breed = Beagle | GermanShepherd | GoldenRetriever;
 ```
 
@@ -24,7 +24,7 @@ Here it says that `Breed` can accept either a `Beagle`, a `GermanShepherd` or a 
 
 Named unions provide a way to specify a name for the union as well as explicit variant reference. Named unions are in a way similar to [enums](./enums.md) but instead of having `string` or `numeric` values it is a [record models](./models.md)
 
-```cadl
+```typespec
 union Breed {
   beagle: Beagle,
   shepherd: GermanShepherd,

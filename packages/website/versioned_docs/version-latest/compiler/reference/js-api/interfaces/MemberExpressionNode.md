@@ -27,7 +27,7 @@
 
 ### base
 
-• `Readonly` **base**: [`IdentifierNode`](IdentifierNode.md) \| [`MemberExpressionNode`](MemberExpressionNode.md)
+• `Readonly` **base**: [`MemberExpressionNode`](MemberExpressionNode.md) \| [`IdentifierNode`](IdentifierNode.md)
 
 ___
 

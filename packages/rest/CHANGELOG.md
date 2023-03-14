@@ -1,6 +1,26 @@
-# Change Log - @cadl-lang/rest
+# Change Log - @typespec/rest
 
-This log was last generated on Tue, 07 Feb 2023 21:56:17 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+
+## 0.42.0
+Mon, 13 Mar 2023 21:30:44 GMT
+
+_Version update only_
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Revert back changelog
+- Fix issue with filtering of visibility decorator on resource key not working when multiple copies of the compiler are loaded.
+- Move core HTTP functionality from `@typespec/rest` into a new `@typespec/http` library
+- **Breaking change:** The `@autoRoute` decorator can no longer be applied to namespaces
+- **Breaking change:** The unimplemented `@routeReset` decorator has been removed
+- Update package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Readme.md update
+- Update homepage link
 
 ## 0.40.0
 Tue, 07 Feb 2023 21:56:17 GMT

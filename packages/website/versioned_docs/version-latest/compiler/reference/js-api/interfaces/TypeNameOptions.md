@@ -7,12 +7,13 @@
 ### Properties
 
 - [namespaceFilter](TypeNameOptions.md#namespacefilter)
+- [printable](TypeNameOptions.md#printable)
 
 ## Properties
 
 ### namespaceFilter
 
-• **namespaceFilter**: (`ns`: [`Namespace`](Namespace.md)) => `boolean`
+• `Optional` **namespaceFilter**: (`ns`: [`Namespace`](Namespace.md)) => `boolean`
 
 #### Type declaration
 
@@ -27,3 +28,9 @@
 ##### Returns
 
 `boolean`
+
+___
+
+### printable
+
+• `Optional` **printable**: `boolean`

@@ -6,6 +6,7 @@
 
 ### Enumeration Members
 
+- [Backticked](TokenFlags.md#backticked)
 - [DocComment](TokenFlags.md#doccomment)
 - [Escaped](TokenFlags.md#escaped)
 - [NonAscii](TokenFlags.md#nonascii)
@@ -14,6 +15,12 @@
 - [Unterminated](TokenFlags.md#unterminated)
 
 ## Enumeration Members
+
+### Backticked
+
+• **Backticked** = ``32``
+
+___
 
 ### DocComment
 

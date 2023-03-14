@@ -103,6 +103,11 @@ async function main() {
             string: true,
             describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
           })
+          .option("config", {
+            type: "string",
+            describe:
+              "The path to a TypeSpec config YAML file. If a folder is specified, the CLI will attempt to search for 'tspconfig.yaml' by moving up the folder hierarchy. Defaults to {cwd}.",
+          })
           .option("warn-as-error", {
             type: "boolean",
             default: false,

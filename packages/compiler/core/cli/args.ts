@@ -20,6 +20,7 @@ export interface CompileCliArgs {
   emit?: string[];
   trace?: string[];
   debug?: boolean;
+  config?: string;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
   args?: string[];
@@ -33,8 +34,9 @@ export async function getCompilerOptions(
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
+  const configPath = args["config"] ?? cwd;
 
-  const config = await loadTypeSpecConfigForPath(host, cwd);
+  const config = await loadTypeSpecConfigForPath(host, configPath, "config" in args);
   if (config.diagnostics.length > 0) {
     if (config.diagnostics.some((d) => d.severity === "error")) {
       return [undefined, config.diagnostics];
@@ -70,8 +72,8 @@ export async function getCompilerOptions(
     watchForChanges: args["watch"],
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
-
     outputDir: expandedConfig.outputDir,
+    config: args["config"],
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,

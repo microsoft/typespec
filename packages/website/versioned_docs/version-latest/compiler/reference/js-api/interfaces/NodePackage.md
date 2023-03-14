@@ -9,7 +9,6 @@ Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
 ### Properties
 
 - [bugs](NodePackage.md#bugs)
-- [cadlMain](NodePackage.md#cadlmain)
 - [dependencies](NodePackage.md#dependencies)
 - [devDependencies](NodePackage.md#devdependencies)
 - [homepage](NodePackage.md#homepage)
@@ -17,6 +16,7 @@ Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
 - [name](NodePackage.md#name)
 - [peerDependencies](NodePackage.md#peerdependencies)
 - [private](NodePackage.md#private)
+- [tspMain](NodePackage.md#tspmain)
 - [type](NodePackage.md#type)
 - [version](NodePackage.md#version)
 
@@ -32,12 +32,6 @@ Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
 | :------ | :------ |
 | `email?` | `string` |
 | `url?` | `string` |
-
-___
-
-### cadlMain
-
-• `Optional` **cadlMain**: `string`
 
 ___
 
@@ -80,6 +74,12 @@ ___
 ### private
 
 • `Optional` **private**: `boolean`
+
+___
+
+### tspMain
+
+• `Optional` **tspMain**: `string`
 
 ___
 

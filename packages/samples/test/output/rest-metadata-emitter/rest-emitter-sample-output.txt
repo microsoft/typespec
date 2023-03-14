@@ -6,7 +6,7 @@ service: UserService
     op: POST /users/{id}
       request:
         path id: TypeSpec.string
-        body: UserService.User
+        body: UserService.User (Create)
       response: 200
         body: UserService.User (Read)
     op: GET /users/{id}
@@ -28,7 +28,7 @@ service: UserService
       op: POST /users/{id}
         request:
           path id: TypeSpec.string
-          body: UserService.User
+          body: UserService.User (Create)
         response: 200
           body: UserService.User (Read)
       op: GET /users/{id}

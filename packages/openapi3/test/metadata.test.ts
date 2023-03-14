@@ -65,7 +65,7 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(request, { $ref: "#/components/schemas/MCreate" });
 
     const response = res.paths["/"].post.responses["200"].content["application/json"].schema;
-    deepStrictEqual(response, { $ref: "#/components/schemas/MRead" });
+    deepStrictEqual(response, { $ref: "#/components/schemas/M" });
 
     deepStrictEqual(res.components.schemas, {
       MCreate: {
@@ -74,7 +74,7 @@ describe("openapi3: metadata", () => {
           c: { type: "string" },
         },
       },
-      MRead: {
+      M: {
         type: "object",
         properties: {
           r: { type: "string", readOnly: true },
@@ -152,90 +152,156 @@ describe("openapi3: metadata", () => {
     );
 
     deepStrictEqual(res.components.schemas, {
-      MQuery: {
-        type: "object",
-        properties: { q: { type: "string" } },
-      },
-      MRead: {
+      M: {
         type: "object",
         properties: {
-          r: { type: "string", readOnly: true },
+          r: {
+            type: "string",
+            readOnly: true,
+          },
         },
       },
       MCreate: {
         type: "object",
-        properties: { c: { type: "string" } },
+        properties: {
+          c: {
+            type: "string",
+          },
+        },
       },
       MCreateOrUpdate: {
         type: "object",
         properties: {
-          c: { type: "string" },
-          u: { type: "string" },
-        },
-      },
-      MUpdate: {
-        type: "object",
-        properties: {
-          u: { type: "string" },
+          c: {
+            type: "string",
+          },
+          u: {
+            type: "string",
+          },
         },
       },
       MDelete: {
         type: "object",
         properties: {
-          d: { type: "string" },
+          d: {
+            type: "string",
+          },
         },
       },
-      DRead: {
+      MQuery: {
         type: "object",
-        properties: {},
-        allOf: [{ $ref: "#/components/schemas/MRead" }],
+        properties: {
+          q: {
+            type: "string",
+          },
+        },
       },
-      DQuery: {
+      MUpdate: {
+        type: "object",
+        properties: {
+          u: {
+            type: "string",
+          },
+        },
+      },
+      D: {
         type: "object",
         properties: {},
-        allOf: [{ $ref: "#/components/schemas/MQuery" }],
+        allOf: [
+          {
+            $ref: "#/components/schemas/M",
+          },
+        ],
       },
       DCreate: {
         type: "object",
         properties: {},
-        allOf: [{ $ref: "#/components/schemas/MCreate" }],
+        allOf: [
+          {
+            $ref: "#/components/schemas/MCreate",
+          },
+        ],
       },
       DCreateOrUpdate: {
         type: "object",
         properties: {},
-        allOf: [{ $ref: "#/components/schemas/MCreateOrUpdate" }],
-      },
-      DUpdate: {
-        type: "object",
-        properties: {},
-        allOf: [{ $ref: "#/components/schemas/MUpdate" }],
+        allOf: [
+          {
+            $ref: "#/components/schemas/MCreateOrUpdate",
+          },
+        ],
       },
       DDelete: {
         type: "object",
         properties: {},
-        allOf: [{ $ref: "#/components/schemas/MDelete" }],
+        allOf: [
+          {
+            $ref: "#/components/schemas/MDelete",
+          },
+        ],
       },
-      RRead: {
+      DQuery: {
         type: "object",
-        properties: { m: { $ref: "#/components/schemas/MRead" } },
+        properties: {},
+        allOf: [
+          {
+            $ref: "#/components/schemas/MQuery",
+          },
+        ],
+      },
+      DUpdate: {
+        type: "object",
+        properties: {},
+        allOf: [
+          {
+            $ref: "#/components/schemas/MUpdate",
+          },
+        ],
+      },
+      R: {
+        type: "object",
+        properties: {
+          m: {
+            $ref: "#/components/schemas/M",
+          },
+        },
       },
       RCreate: {
         type: "object",
-        properties: { m: { $ref: "#/components/schemas/MCreate" } },
+        properties: {
+          m: {
+            $ref: "#/components/schemas/MCreate",
+          },
+        },
       },
       RCreateOrUpdate: {
         type: "object",
-        properties: { m: { $ref: "#/components/schemas/MCreateOrUpdate" } },
+        properties: {
+          m: {
+            $ref: "#/components/schemas/MCreateOrUpdate",
+          },
+        },
       },
       RUpdate: {
         type: "object",
-        properties: { m: { $ref: "#/components/schemas/MUpdate" } },
+        properties: {
+          m: {
+            $ref: "#/components/schemas/MUpdate",
+          },
+        },
       },
-      URead: {
+      U: {
         type: "object",
         properties: {
           e: {
-            anyOf: [{ $ref: "#/components/schemas/MRead" }, { type: "string" }],
+            anyOf: [
+              {
+                $ref: "#/components/schemas/M",
+              },
+              {
+                type: "string",
+              },
+            ],
             "x-typespec-name": "M | string",
           },
         },
@@ -244,7 +310,14 @@ describe("openapi3: metadata", () => {
         type: "object",
         properties: {
           e: {
-            anyOf: [{ $ref: "#/components/schemas/MCreate" }, { type: "string" }],
+            anyOf: [
+              {
+                $ref: "#/components/schemas/MCreate",
+              },
+              {
+                type: "string",
+              },
+            ],
             "x-typespec-name": "M | string",
           },
         },
@@ -253,16 +326,14 @@ describe("openapi3: metadata", () => {
         type: "object",
         properties: {
           e: {
-            anyOf: [{ $ref: "#/components/schemas/MCreateOrUpdate" }, { type: "string" }],
-            "x-typespec-name": "M | string",
-          },
-        },
-      },
-      UUpdate: {
-        type: "object",
-        properties: {
-          e: {
-            anyOf: [{ $ref: "#/components/schemas/MUpdate" }, { type: "string" }],
+            anyOf: [
+              {
+                $ref: "#/components/schemas/MCreateOrUpdate",
+              },
+              {
+                type: "string",
+              },
+            ],
             "x-typespec-name": "M | string",
           },
         },
@@ -271,7 +342,30 @@ describe("openapi3: metadata", () => {
         type: "object",
         properties: {
           e: {
-            anyOf: [{ $ref: "#/components/schemas/MDelete" }, { type: "string" }],
+            anyOf: [
+              {
+                $ref: "#/components/schemas/MDelete",
+              },
+              {
+                type: "string",
+              },
+            ],
+            "x-typespec-name": "M | string",
+          },
+        },
+      },
+      UUpdate: {
+        type: "object",
+        properties: {
+          e: {
+            anyOf: [
+              {
+                $ref: "#/components/schemas/MUpdate",
+              },
+              {
+                type: "string",
+              },
+            ],
             "x-typespec-name": "M | string",
           },
         },
@@ -386,12 +480,12 @@ describe("openapi3: metadata", () => {
     );
 
     const request = res.paths["/"].post.requestBody.content["application/json"].schema;
-    deepStrictEqual(request, { $ref: "#/components/schemas/ThingCreate" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/Thing" });
 
     const response = res.paths["/"].post.responses["200"].content["application/json"].schema;
     deepStrictEqual(response, {
       type: "array",
-      items: { $ref: "#/components/schemas/ThingReadItem" },
+      items: { $ref: "#/components/schemas/ThingItem" },
       "x-typespec-name": "Thing[]",
     });
 
@@ -405,14 +499,14 @@ describe("openapi3: metadata", () => {
         },
       },
       schemas: {
-        ThingCreate: {
+        Thing: {
           type: "object",
           properties: {
             name: { type: "string" },
           },
           required: ["name"],
         },
-        ThingReadItem: {
+        ThingItem: {
           type: "object",
           properties: {
             etag: { type: "string" },
@@ -466,13 +560,13 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(request, { $ref: "#/components/schemas/ThingCreate" });
 
     const response = res.paths["/"].post.responses["200"].content["application/json"].schema;
-    deepStrictEqual(response, { $ref: "#/components/schemas/ThingRead" });
+    deepStrictEqual(response, { $ref: "#/components/schemas/Thing" });
 
     deepStrictEqual(res.components.schemas, {
-      ThingRead: {
+      Thing: {
         type: "object",
         properties: {
-          inner: { $ref: "#/components/schemas/ThingRead" },
+          inner: { $ref: "#/components/schemas/Thing" },
         },
       },
       ThingCreate: {
@@ -551,7 +645,7 @@ describe("openapi3: metadata", () => {
               content: {
                 "application/json": {
                   schema: {
-                    $ref: "#/components/schemas/PetRead",
+                    $ref: "#/components/schemas/Pet",
                   },
                 },
               },
@@ -561,7 +655,7 @@ describe("openapi3: metadata", () => {
             content: {
               "application/json": {
                 schema: {
-                  $ref: "#/components/schemas/Pet",
+                  $ref: "#/components/schemas/PetCreate",
                 },
               },
             },
@@ -571,7 +665,7 @@ describe("openapi3: metadata", () => {
     });
 
     deepStrictEqual(res.components.schemas, {
-      Pet: {
+      PetCreate: {
         type: "object",
         properties: {
           name: {
@@ -580,7 +674,7 @@ describe("openapi3: metadata", () => {
         },
         required: ["name"],
       },
-      PetRead: {
+      Pet: {
         type: "object",
         properties: {
           id: {

@@ -4,4 +4,7 @@ module.exports = {
   plugins: ["@typespec/eslint-plugin"],
   extends: ["@typespec/eslint-config-typespec", "plugin:@typespec/eslint-plugin/recommended"],
   parserOptions: { tsconfigRootDir: __dirname },
+  rules: {
+    "no-console": "off",
+  },
 };

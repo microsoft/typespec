@@ -49,7 +49,7 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PersonReadItem'
+                      $ref: '#/components/schemas/Person'
                     x-typespec-name: Person[]
                 required:
                   - items
@@ -102,8 +102,6 @@ components:
         id:
           type: string
           readOnly: true
-        secret:
-          type: string
         name:
           type: string
         test:
@@ -121,8 +119,6 @@ components:
         id:
           type: string
           readOnly: true
-        secret:
-          type: string
         name:
           type: string
         test:
@@ -136,7 +132,6 @@ components:
           x-typespec-name: PersonRelative[]
       required:
         - id
-        - secret
         - name
         - test
         - other
@@ -160,12 +155,11 @@ components:
         - name
         - test
         - relatives
-    PersonReadItem:
+    PersonCreateOrUpdateItem:
       type: object
       properties:
-        id:
+        secret:
           type: string
-          readOnly: true
         name:
           type: string
         test:
@@ -175,10 +169,10 @@ components:
         relatives:
           type: array
           items:
-            $ref: '#/components/schemas/PersonRelativeReadItem'
+            $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
           x-typespec-name: PersonRelative[]
       required:
-        - id
+        - secret
         - name
         - test
         - other
@@ -203,11 +197,11 @@ components:
       required:
         - person
         - relationship
-    PersonRelativeReadItem:
+    PersonRelativeCreateOrUpdateItem:
       type: object
       properties:
         person:
-          $ref: '#/components/schemas/PersonReadItem'
+          $ref: '#/components/schemas/PersonCreateOrUpdateItem'
         relationship:
           type: string
       required:
@@ -266,7 +260,7 @@ components:
         relatives:
           type: array
           items:
-            $ref: '#/components/schemas/PersonRelativeReadItem'
+            $ref: '#/components/schemas/PersonRelative'
           x-typespec-name: PersonRelative[]
       required:
         - id
@@ -305,5 +299,5 @@ components:
         relatives:
           type: array
           items:
-            $ref: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
           x-typespec-name: PersonRelative[]

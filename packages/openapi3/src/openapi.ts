@@ -278,6 +278,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
     metadataInfo = createMetadataInfo(program, {
+      canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
     });
     inProgressInlineTypes = new Set();
@@ -339,7 +340,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.All).enum;
+          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -632,9 +633,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
       return schema;
     } else {
-      // Use shared schema when type is not transformed by visibility.
+      // Use shared schema when type is not transformed by visibility from the canonical read visibility.
       if (!metadataInfo.isTransformed(type, visibility)) {
-        visibility = Visibility.All;
+        visibility = Visibility.Read;
       }
       const pending = pendingSchemas.getOrAdd(type, visibility, () => ({
         type,
@@ -831,7 +832,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       for (const [visibility, processed] of group) {
         let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
         if (group.size > 1) {
-          name += getVisibilitySuffix(visibility);
+          name += getVisibilitySuffix(visibility, Visibility.Read);
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
@@ -861,7 +862,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
         if (!processedSchemas.has(type) && !paramModels.has(type) && !shouldInline(program, type)) {
-          getSchemaOrRef(type, Visibility.All);
+          getSchemaOrRef(type, Visibility.Read);
         }
       };
       const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);

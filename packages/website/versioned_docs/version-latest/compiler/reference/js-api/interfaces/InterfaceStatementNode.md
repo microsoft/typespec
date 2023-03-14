@@ -126,7 +126,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`CadlScriptNode`](CadlScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
+• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
 
 #### Overrides
 
