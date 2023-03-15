@@ -80,12 +80,20 @@ const sidebars = {
         "standard-library/projected-names",
         {
           type: "category",
-          label: "Http And Rest",
+          label: "Http",
+          items: [
+            "standard-library/http/overview",
+            createLibraryReferenceStructure("http"),
+            "standard-library/http/authentication",
+          ],
+        },
+        {
+          type: "category",
+          label: "Rest",
           items: [
             "standard-library/rest/overview",
             createLibraryReferenceStructure("rest"),
             "standard-library/rest/operations",
-            "standard-library/rest/authentication",
             "standard-library/rest/resource-routing",
           ],
         },
