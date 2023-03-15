@@ -41,13 +41,13 @@ import {
   ScalarIntegralName,
   StreamingMode,
   unreachable,
-} from "./ast.js";
-import { ProtobufEmitterOptions, reportDiagnostic, state } from "./lib.js";
-import { $field, isMap, Reservation } from "./proto.js";
-import { writeProtoFile } from "./write.js";
+} from "../ast.js";
+import { ProtobufEmitterOptions, reportDiagnostic, state } from "../lib.js";
+import { $field, isMap, Reservation } from "../proto.js";
+import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
-let _protoScalarsMap: Map<Type, ProtoScalar>;
+let _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
 
 /**
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
@@ -434,28 +434,40 @@ function tspToProto(program: Program): ProtoFile[] {
   }
 
   function getProtoScalarsMap(program: Program): Map<Type, ProtoScalar> {
+    // The type references are different object identities in different programs, so we need to cache the map per program.
+    // This really only affects tests in our current use case, but someone could be using the compiler API to compile
+    // multiple programs and it also affects that.
+    let scalarMap;
+    if (_protoScalarsMap.has(program)) {
+      scalarMap = _protoScalarsMap.get(program)!;
+    } else {
+      scalarMap = new Map<Type, ProtoScalar>(
+        (
+          [
+            [program.resolveTypeReference("TypeSpec.bytes"), scalar("bytes")],
+            [program.resolveTypeReference("TypeSpec.boolean"), scalar("bool")],
+            [program.resolveTypeReference("TypeSpec.string"), scalar("string")],
+            [program.resolveTypeReference("TypeSpec.int32"), scalar("int32")],
+            [program.resolveTypeReference("TypeSpec.int64"), scalar("int64")],
+            [program.resolveTypeReference("TypeSpec.uint32"), scalar("uint32")],
+            [program.resolveTypeReference("TypeSpec.uint64"), scalar("uint64")],
+            [program.resolveTypeReference("TypeSpec.float32"), scalar("float")],
+            [program.resolveTypeReference("TypeSpec.float64"), scalar("double")],
+            [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), scalar("sfixed32")],
+            [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), scalar("sfixed64")],
+            [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), scalar("sint32")],
+            [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), scalar("sint64")],
+            [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), scalar("fixed32")],
+            [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), scalar("fixed64")],
+          ] as [[Type, unknown], ProtoScalar][]
+        ).map(([[type], scalar]) => [type, scalar])
+      );
+
+      _protoScalarsMap.set(program, scalarMap);
+    }
     // Lazy initialize this map of known proto scalars.
-    return (_protoScalarsMap ??= new Map<Type, ProtoScalar>(
-      (
-        [
-          [program.resolveTypeReference("TypeSpec.bytes"), scalar("bytes")],
-          [program.resolveTypeReference("TypeSpec.boolean"), scalar("bool")],
-          [program.resolveTypeReference("TypeSpec.string"), scalar("string")],
-          [program.resolveTypeReference("TypeSpec.int32"), scalar("int32")],
-          [program.resolveTypeReference("TypeSpec.int64"), scalar("int64")],
-          [program.resolveTypeReference("TypeSpec.uint32"), scalar("uint32")],
-          [program.resolveTypeReference("TypeSpec.uint64"), scalar("uint64")],
-          [program.resolveTypeReference("TypeSpec.float32"), scalar("float")],
-          [program.resolveTypeReference("TypeSpec.float64"), scalar("double")],
-          [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), scalar("sfixed32")],
-          [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), scalar("sfixed64")],
-          [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), scalar("sint32")],
-          [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), scalar("sint64")],
-          [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), scalar("fixed32")],
-          [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), scalar("fixed64")],
-        ] as [[Type, unknown], ProtoScalar][]
-      ).map(([[type], scalar]) => [type, scalar])
-    ));
+
+    return scalarMap;
   }
 
   function scalarToProto(t: Scalar): ProtoType {

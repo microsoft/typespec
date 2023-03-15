@@ -20,7 +20,7 @@ import {
 
 import { StreamingMode } from "./ast.js";
 import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
-import { createProtobufEmitter } from "./transform.js";
+import { createProtobufEmitter } from "./transform/index.js";
 
 /**
  * # @typespec/protobuf : Protobuf/gRPC Emitter and Decorators for TypeSpec

@@ -1,5 +1,5 @@
 /test/main.tsp:12:5 - error @typespec/protobuf/field-index: field index 0 is invalid (must be an integer greater than zero)
 /test/main.tsp:13:5 - error @typespec/protobuf/field-index: field index 536870912 is out of bounds (must be less than 536870912)
-/test/main.tsp:14:5 - error @typespec/protobuf/field-index: field index 19000 falls within the implementation-reserved range of 19000-19999 (try an index value of 20,000 or higher)
-/test/main.tsp:15:5 - error @typespec/protobuf/field-index: field index 19123 falls within the implementation-reserved range of 19000-19999 (try an index value of 20,000 or higher)
-/test/main.tsp:16:5 - error @typespec/protobuf/field-index: field index 19999 falls within the implementation-reserved range of 19000-19999 (try an index value of 20,000 or higher)
+/test/main.tsp:14:5 - error @typespec/protobuf/field-index: field index 19000 falls within the implementation-reserved range of 19000-19999 inclusive
+/test/main.tsp:15:5 - error @typespec/protobuf/field-index: field index 19123 falls within the implementation-reserved range of 19000-19999 inclusive
+/test/main.tsp:16:5 - error @typespec/protobuf/field-index: field index 19999 falls within the implementation-reserved range of 19000-19999 inclusive

@@ -1,5 +1,8 @@
 import "../dist/src/proto.js";
 
+/**
+ * Documentation?
+ */
 namespace TypeSpec.Protobuf;
 
 /**
@@ -50,6 +53,13 @@ namespace WellKnown {
    * This model references `google.protobuf.Timestamp` from `google/protobuf/timestamp.proto`.
    */
   model Timestamp is Extern<"google/protobuf/timestamp.proto", "google.protobuf.Timestamp">;
+
+  /**
+   * Any value.
+   *
+   * This model references `google.protobuf.Any` from `google/protobuf/any.proto`.
+   */
+  model Any is Extern<"google/protobuf/any.proto", "google.protobuf.Any">;
 }
 
 /**
