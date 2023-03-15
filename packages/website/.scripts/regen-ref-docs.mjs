@@ -37,6 +37,6 @@ await generateLibraryDocs(
 // Versioning
 await generateLibraryDocs(
   join(repoRoot, "packages/versioning"),
-  ["Versioning"],
+  ["TypeSpec.Versioning"],
   join(repoRoot, "docs/standard-library/versioning/reference")
 );
