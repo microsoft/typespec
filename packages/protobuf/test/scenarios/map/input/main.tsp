@@ -11,5 +11,5 @@ interface Service {
 }
 
 model Input {
-  @field(1) testInputField: TypeSpec.Protobuf.Map<sfixed32, string>;
+  @field(1) testInputField: Map<sfixed32, string>;
 }

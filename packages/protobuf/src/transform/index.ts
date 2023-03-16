@@ -429,7 +429,7 @@ function tspToProto(program: Program): ProtoFile[] {
     // This is a core compile error.
     if (!keyType || !valueType) return unreachable("nonexistent map key or value type");
 
-    // TODO: key can be any integral or string type only
+    // Key constraint (integral | string) is enforced by the type constraint on the `Map<>` type.
     const keyProto = addType(keyType, relativeSource);
     const valueProto = addType(valueType, relativeSource) as ProtoRef | ProtoScalar;
 

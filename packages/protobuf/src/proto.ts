@@ -78,7 +78,6 @@ export function isMap(program: Program, m: Type): boolean {
 }
 
 export function $_map(ctx: DecoratorContext, target: Model) {
-  // TODO: validate map here.
   ctx.program.stateSet(mapState).add(target);
 }
 
