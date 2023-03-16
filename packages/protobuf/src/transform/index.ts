@@ -368,6 +368,7 @@ function tspToProto(program: Program): ProtoFile[] {
     // Exit early if this type is an extern.
     const extern = program.stateMap(state.externRef).get(t) as [string, string] | undefined;
     if (extern) {
+      typeWantsImport(program, relativeSource, extern[0]);
       return ref(extern[1]);
     }
 
@@ -607,7 +608,6 @@ function tspToProto(program: Program): ProtoFile[] {
 
     const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;
     const fieldIndexNode = property.decorators.find((d) => d.decorator === $field)?.args[0].node;
-    if (!fieldIndexNode) throw new Error("Failed to recover field decorator argument.");
 
     if (fieldIndex === undefined) {
       reportDiagnostic(program, {
@@ -619,6 +619,9 @@ function tspToProto(program: Program): ProtoFile[] {
         target: property,
       });
     }
+
+    if (fieldIndex && !fieldIndexNode)
+      throw new Error("Failed to recover field decorator argument.");
 
     const reservations = program.stateMap(state.reserve).get(model) as Reservation[] | undefined;
 
@@ -644,7 +647,9 @@ function tspToProto(program: Program): ProtoFile[] {
             format: {
               index: fieldIndex.toString(),
             },
-            target: fieldIndexNode,
+            // Fail over to using the model if the field index node is missing... this should never occur but it's the
+            // simplest way to satisfy the type system.
+            target: fieldIndexNode ?? model,
           });
         } else if (
           fieldIndex !== undefined &&
@@ -658,7 +663,7 @@ function tspToProto(program: Program): ProtoFile[] {
             format: {
               index: fieldIndex.toString(),
             },
-            target: fieldIndexNode,
+            target: fieldIndexNode ?? model,
           });
         }
       }
