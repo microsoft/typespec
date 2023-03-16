@@ -117,6 +117,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
           "reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range",
       },
     },
+    "model-not-in-package": {
+      severity: "error",
+      messages: {
+        default: paramMessage`model ${"name"} is not in a namespace that uses the '@Protobuf.package' decorator`,
+      },
+    },
   },
   emitter: { options: EmitterOptionsSchema },
 });

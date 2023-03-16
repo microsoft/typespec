@@ -100,9 +100,18 @@ function tspToProto(program: Program): ProtoFile[] {
    * Visits a model type, converting it into a message definition and adding it if it has not already been visited.
    * @param model - the model type to consider
    */
-  function visitModel(model: Model) {
+  function visitModel(model: Model, source: Type) {
     const modelPackage = getPackageOfType(program, model);
     const declarations = modelPackage && declarationMap.get(modelPackage);
+
+    if (!declarations) {
+      reportDiagnostic(program, {
+        target: source,
+        code: "model-not-in-package",
+        format: { name: model.name },
+      });
+    }
+
     if (!visitedTypes.has(model)) {
       visitedTypes.add(model);
       declarations?.push(toMessage(model));
@@ -373,7 +382,7 @@ function tspToProto(program: Program): ProtoFile[] {
 
     switch (t.kind) {
       case "Model":
-        visitModel(t);
+        visitModel(t, relativeSource);
         return ref(t.name);
       case "Enum":
         visitEnum(t);
@@ -502,7 +511,7 @@ function tspToProto(program: Program): ProtoFile[] {
     }
 
     if (!program.stateMap(state.externRef).has(effectiveModel)) {
-      visitModel(effectiveModel);
+      visitModel(effectiveModel, model);
     }
 
     effectiveModelCache.set(model, effectiveModel);
@@ -681,11 +690,7 @@ function tspToProto(program: Program): ProtoFile[] {
 
   type NamespaceTraversable = Enum | Model | Interface | Union | Operation | Namespace;
 
-  function getPackageOfType(
-    program: Program,
-    t: NamespaceTraversable,
-    quiet: boolean = false
-  ): Namespace | null {
+  function getPackageOfType(program: Program, t: NamespaceTraversable): Namespace | null {
     /* c8 ignore start */
 
     // Most of this should be unreachable, but we'll guard it with diagnostics anyway in case of eventual synthetic types.
@@ -696,7 +701,6 @@ function tspToProto(program: Program): ProtoFile[] {
       case "Union":
       case "Interface":
         if (!t.namespace) {
-          !quiet && reportDiagnostic(program, { code: "no-package", target: t });
           return null;
         } else {
           return getPackageOfType(program, t.namespace);
@@ -704,7 +708,6 @@ function tspToProto(program: Program): ProtoFile[] {
       case "Operation": {
         const logicalParent = t.interface ?? t.namespace;
         if (!logicalParent) {
-          !quiet && reportDiagnostic(program, { code: "no-package", target: t });
           return null;
         } else {
           return getPackageOfType(program, logicalParent);
@@ -714,7 +717,6 @@ function tspToProto(program: Program): ProtoFile[] {
         if (packages.has(t)) return t;
 
         if (!t.namespace) {
-          !quiet && reportDiagnostic(program, { code: "no-package", target: t });
           return null;
         } else {
           return getPackageOfType(program, t.namespace);
@@ -771,8 +773,8 @@ function tspToProto(program: Program): ProtoFile[] {
         },
         ref(r) {
           const [dependentPackage, dependencyPackage] = [
-            getPackageOfType(program, dependent, true),
-            getPackageOfType(program, dependency, true),
+            getPackageOfType(program, dependent),
+            getPackageOfType(program, dependency),
           ];
 
           if (

@@ -45,7 +45,7 @@ The Protobuf emitter enables you to write TypeSpec and convert it into equivalen
 
 A protobuf package is defined by the [`TypeSpec.Protobuf.package` decorator][protobuf-package], which applies to a TypeSpec namespace. A package essentially defines a `.proto` file, and everything within the decorated namespace will be emitted to a single file.
 
-The following TypeSpec namespace results in a Protobuf file named `test.proto` that has the line `package test;` within it.
+The following TypeSpec namespace results in a Protobuf file named `main.proto` that contains the contents of the `Test` namespace converted into Protobuf.
 
 ```typespec
 @package
@@ -55,7 +55,7 @@ namespace Test {
 }
 ```
 
-Package names may be explicitly overridden by providing an optional `PackageDetails` item to the `@package` decorator. The following TypeSpec namespace will result in a file `com/example/test.proto` that has the line `package com.example.test;` within it:
+Package names may be provided using the optional `PackageDetails` argument to the `@package` decorator. The following TypeSpec namespace will result in a file `com/example/test.proto` that has the line `package com.example.test;` within it:
 
 ```typespec
 @package({
@@ -67,7 +67,7 @@ namespace Test {
 }
 ```
 
-The TypeSpec program's root namespace is implicitly a package that has no name and will be emitted to `main.proto` if it is not empty. TypeSpec objects (models, enums, etc.) are converted to Protobuf declarations within their nearest ancestor that has a package annotation. As a result, unlike in Protobuf, TypeSpec declarations of packages may be nested arbitrarily.
+TypeSpec objects (models, enums, etc.) are converted to Protobuf declarations within their nearest ancestor that has a package annotation. As a result, unlike in Protobuf, TypeSpec declarations of packages may be nested arbitrarily.
 
 ### Services
 
