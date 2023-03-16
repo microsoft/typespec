@@ -4,7 +4,6 @@
 import {
   DiagnosticTarget,
   Enum,
-  EnumMember,
   getEffectiveModelType,
   getTypeName,
   Interface,
@@ -47,7 +46,7 @@ import { $field, isMap, Reservation } from "../proto.js";
 import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
-let _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
+const _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
 
 /**
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
@@ -136,7 +135,7 @@ function tspToProto(program: Program): ProtoFile[] {
       // we also only support enums where the first value is zero.
       if (members[0].value !== 0) {
         reportDiagnostic(program, {
-          target: getMemberTypeSyntaxTarget(members[0]),
+          target: members[0],
           code: "unconvertible-enum",
           messageId: "no-zero-first",
         });
@@ -845,26 +844,28 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
 /**
  * Gets the syntactic type position for a model or enum field.
  */
-function getMemberTypeSyntaxTarget(property: ModelProperty | EnumMember): DiagnosticTarget {
-  const node = property.node;
+// This function was used to get the syntactic position for enum members, and it's still here in case we want to use it
+// for model properties.
+// function getMemberTypeSyntaxTarget(property: ModelProperty | EnumMember): DiagnosticTarget {
+//   const node = property.node;
 
-  switch (node.kind) {
-    case SyntaxKind.ModelProperty:
-      return node.value;
-    case SyntaxKind.ModelSpreadProperty:
-      return node;
-    case SyntaxKind.EnumMember:
-      return node.value ?? node;
-    case SyntaxKind.ProjectionModelProperty:
-    case SyntaxKind.ProjectionModelSpreadProperty:
-      return property;
-    default:
-      const __exhaust: never = node;
-      throw new Error(
-        `Internal Emitter Error: reached unreachable member node: ${property.node.kind}`
-      );
-  }
-}
+//   switch (node.kind) {
+//     case SyntaxKind.ModelProperty:
+//       return node.value;
+//     case SyntaxKind.ModelSpreadProperty:
+//       return node;
+//     case SyntaxKind.EnumMember:
+//       return node.value ?? node;
+//     case SyntaxKind.ProjectionModelProperty:
+//     case SyntaxKind.ProjectionModelSpreadProperty:
+//       return property;
+//     default:
+//       const __exhaust: never = node;
+//       throw new Error(
+//         `Internal Emitter Error: reached unreachable member node: ${property.node.kind}`
+//       );
+//   }
+// }
 
 /**
  * Gets the syntactic position of a model property name.
