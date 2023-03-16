@@ -20,7 +20,7 @@
   ],
   "main": "dist/src/lib.js",
   "type": "module",
-  "typespecMain": "lib/proto.tsp",
+  "tspMain": "lib/proto.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",

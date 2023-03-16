@@ -310,7 +310,6 @@ function tspToProto(program: Program): ProtoFile[] {
         }
       /* eslint-ignore-next-line no-fallthrough */
       default:
-        // TODO: logic is duplicated in addReturnModel
         reportDiagnostic(program, {
           code: "unsupported-return-type",
           target: getOperationReturnSyntaxTarget(operation),
@@ -586,8 +585,6 @@ function tspToProto(program: Program): ProtoFile[] {
 
       return oneof;
     }
-    // TODO: all fields must have an index.
-    // TODO: validate that the type is OK _before_ calling addImportSourceForProtoIfNeeded
 
     const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;
     const fieldIndexNode = property.decorators.find((d) => d.decorator === $field)?.args[0].node;

@@ -123,7 +123,6 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
 
 export const { reportDiagnostic } = TypeSpecProtobufLibrary;
 
-// TODO: onValidate?
 export { $onEmit } from "./proto.js";
 
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
@@ -133,5 +132,5 @@ const keys = ["fieldIndex", "package", "service", "externRef", "stream", "reserv
 export const state = Object.fromEntries(
   keys.map((k) => [k, Symbol(`@typespec/protobuf.${k}`)])
 ) as {
-  [K in typeof keys[number]]: symbol;
+  [K in (typeof keys)[number]]: symbol;
 };

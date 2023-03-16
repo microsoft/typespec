@@ -1,8 +1,5 @@
 import "../dist/src/proto.js";
 
-/**
- * Documentation?
- */
 namespace TypeSpec.Protobuf;
 
 /**
