@@ -41,26 +41,6 @@ With this configuration entry, Protobuf files will be generated every time the p
 
 The Protobuf emitter enables you to write TypeSpec and convert it into equivalent Protocol Buffers for use with Protobuf-enabled systems (such as gRPC). Your TypeSpec models and interfaces must adhere to certain requirements and restrictions in order for the emitter to convert them to Protobuf.
 
-### Field indices
-
-Protobuf requires that the offset of each field within a Protobuf message be manually specified. In TypeSpec, the field indices are specified using the [`TypeSpec.Protobuf.field` decorator][protobuf-field]. All fields within a model must have an attached `@field` decorator to be converted into a Protobuf message.
-
-The following TypeSpec model:
-
-```typespec
-model TestMessage {
-  @field(1) n: int32;
-}
-```
-
-will be converted into the following Protobuf message:
-
-```proto3
-message TestMessage {
-  int32 n = 1;
-}
-```
-
 ### Packages
 
 A protobuf package is defined by the [`TypeSpec.Protobuf.package` decorator][protobuf-package], which applies to a TypeSpec namespace. A package essentially defines a `.proto` file, and everything within the decorated namespace will be emitted to a single file.
@@ -117,13 +97,69 @@ service Test {
 }
 ```
 
+### Field indices
+
+Protobuf requires that the offset of each field within a Protobuf message be manually specified. In TypeSpec, the field indices are specified using the [`TypeSpec.Protobuf.field` decorator][protobuf-field]. All fields within a model must have an attached `@field` decorator to be converted into a Protobuf message.
+
+The following TypeSpec model:
+
+```typespec
+model TestMessage {
+  @field(1) n: int32;
+}
+```
+
+will be converted into the following Protobuf message:
+
+```proto3
+message TestMessage {
+  int32 n = 1;
+}
+```
+
 ### Operations
 
-Within a [service interface](#services), TypeSpec operations represent Protobuf service methods. Each operation in the service interface is converted into an equivalent Protobuf method declaration.
+Within a [service interface](#services), TypeSpec operations represent Protobuf service methods. Each operation in the service interface is converted into an equivalent Protobuf method declaration. For example, the following specification:
+
+```typespec
+model Input {
+  @field(1) exampleField: string;
+}
+
+model Output {
+  @field(1) parsed: uint32;
+}
+
+@Protobuf.service
+interface Example {
+  testOperation(...Input): Output;
+}
+```
+
+Results in the following `.proto` file:
+
+```proto3
+message Input {
+  string exampleField = 1;
+}
+
+message Output {
+  uint32 parsed = 1;
+}
+
+service Example {
+  rpc TestOperation(Input) returns (Output);
+}
+```
 
 ### Streams
 
-The Protobuf emitter supports declaring the streaming mode of an operation using the [`TypeSpec.Protobuf.stream` decorator][protobuf-stream]. The streaming mode is specified by the
+The Protobuf emitter supports declaring the streaming mode of an operation using the [`TypeSpec.Protobuf.stream` decorator][protobuf-stream]. The streaming mode is specified using the [`StreamMode`][protobuf-stream-mode] enum. An operation can have one of four streaming modes:
+
+- `None`: this is the default mode and indicates that neither the request nor response are streamed (`rpc Example(In) returns (Out);`).
+- `In`: indicates that the request is streamed, but the response is received synchronously (`rpc Example(stream In) returns (Out);`).
+- `Out`: indicates that the request is sent synchronously, but the response is streamed (`rpc Example(In) returns (stream Out);`).
+- `Duplex`: indicates that both the request and response are streamed (`rpc Example(stream In) returns (stream Out);`).
 
 ## Emitter options
 
