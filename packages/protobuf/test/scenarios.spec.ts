@@ -97,7 +97,13 @@ describe("protobuf scenarios", function () {
             expectedDiagnostics = "";
           }
 
-          const diagnostics = emitResult.diagnostics.join("\n");
+          // Fix the start of lines on Windows
+          const processedDiagnostics =
+            process.platform === "win32"
+              ? emitResult.diagnostics.map((d) => d.replace(/^Z:/, ""))
+              : emitResult.diagnostics;
+
+          const diagnostics = processedDiagnostics.join("\n");
 
           assert.strictEqual(diagnostics, expectedDiagnostics, "expected equivalent diagnostics");
 
@@ -196,7 +202,12 @@ async function readdirRecursive(dir: string, base: string = dir): Promise<Record
     } else if (stat.isFile()) {
       const content = (await fs.promises.readFile(entry)).toString("utf-8");
 
-      res[path.relative(base, entry)] = content;
+      const relativePath = path.relative(base, entry);
+
+      const correctedPath =
+        process.platform === "win32" ? relativePath.replace(/\\/g, "/") : relativePath;
+
+      res[correctedPath] = content;
     } else {
       throw new Error("Unsupported file type.");
     }
