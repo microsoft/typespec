@@ -103,13 +103,6 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         default: paramMessage`${"name"} is not a valid package name (must consist of letters and numbers separated by ".")`,
       },
     },
-    "no-package": {
-      severity: "error",
-      messages: {
-        default:
-          "this type was used in a Protobuf service, but was outside the scope of any package namespace",
-      },
-    },
     "illegal-reservation": {
       severity: "error",
       messages: {
@@ -121,6 +114,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`model ${"name"} is not in a namespace that uses the '@Protobuf.package' decorator`,
+      },
+    },
+    "anonymous-model": {
+      severity: "error",
+      messages: {
+        default: "anonymous models cannot be used in Protobuf messages",
       },
     },
   },

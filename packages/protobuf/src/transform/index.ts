@@ -185,8 +185,9 @@ function tspToProto(program: Program): ProtoFile[] {
           | undefined
       )?.value,
 
-      // TODO: The language guide is really unclear about how to handle these. We may also need a facility for
+      // TODO: The language guide is really unclear about how to handle options. We may also need a facility for
       // allowing packages to declare extensions, as extensions may be target/compiler specific.
+      // https://protobuf.dev/programming-guides/proto3/#options
       options: {},
 
       imports: [...(importMap.get(namespace) ?? [])],
@@ -278,16 +279,20 @@ function tspToProto(program: Program): ProtoFile[] {
     }
     /* c8 ignore stop */
 
-    // TODO: I've written this way too many times
-    const extern = program.stateMap(state.externRef).get(effectiveModel) as
-      | [string, string]
-      | undefined;
+    return checkExtern(effectiveModel, operation);
+  }
+
+  /**
+   * Returns an extern ref if the given type is an instance of `Extern`, otherwise returns a ref to the model's name.
+   */
+  function checkExtern(model: Model, relativeSource: Model | Operation): ProtoRef {
+    const extern = program.stateMap(state.externRef).get(model) as [string, string] | undefined;
     if (extern) {
-      typeWantsImport(program, operation, extern[0]);
+      typeWantsImport(program, relativeSource, extern[0]);
       return ref(extern[1]);
     }
 
-    return ref(effectiveModel.name);
+    return ref(model.name);
   }
 
   /**
@@ -360,7 +365,7 @@ function tspToProto(program: Program): ProtoFile[] {
    * @returns a Protobuf type corresponding to the given type
    */
   function addType(t: Type, relativeSource: Model | Operation): ProtoType {
-    // TODO: too much duplication with addReturnModel
+    // Exit early if this type is an extern.
     const extern = program.stateMap(state.externRef).get(t) as [string, string] | undefined;
     if (extern) {
       return ref(extern[1]);
@@ -378,10 +383,16 @@ function tspToProto(program: Program): ProtoFile[] {
       return arrayToProto(t as Model, relativeSource);
     }
 
-    // TODO: reject anonymous models at this stage
-
     switch (t.kind) {
       case "Model":
+        // If we came from another model and this model is anonymous, then we can't reference it by name.
+        if (t.name === "" && relativeSource.kind === "Model") {
+          reportDiagnostic(program, {
+            code: "anonymous-model",
+            target: t,
+          });
+          return unreachable("anonymous model");
+        }
         visitModel(t, relativeSource);
         return ref(t.name);
       case "Enum":
