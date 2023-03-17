@@ -6,7 +6,6 @@ namespace TypeSpec.Versioning;
 
 extern dec versioned(target: Namespace, versions: Enum);
 extern dec useDependency(target: EnumMember | Namespace, ...versionRecords: EnumMember[]);
-extern dec versionedDependency(target: Namespace, mapping: EnumMember | [EnumMember, EnumMember][]);
 
 extern dec added(target: unknown, version: EnumMember);
 extern dec removed(target: unknown, version: EnumMember);
