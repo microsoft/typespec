@@ -1,20 +1,20 @@
 {
-  "name": "@cadl-lang/json-schema",
+  "name": "@typespec/json-schema",
   "version": "0.1.0",
   "author": "Microsoft Corporation",
-  "description": "Cadl library for emitting Cadl to JSON Schema and converting JSON Schema to Cadl",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
+  "homepage": "https://github.com/Microsoft/TypeSpec",
+  "readme": "https://github.com/Microsoft/TypeSpec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/TypeSpec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/TypeSpec/issues"
   },
   "keywords": [
-    "cadl",
+    "TypeSpec",
     "json schema"
   ],
   "type": "module",
@@ -22,35 +22,35 @@
   "exports": {
     ".": "./dist/src/index.js"
   },
-  "cadlMain": "dist/src/index.js",
+  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-cadl-library",
+    "build": "tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint:fix": "eslint . --fix --ext .ts",
+    "compile-samples": "tsp compile "
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.39.0"
+    "@typespec/compiler": "~0.42.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.39.0",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/library-linter": "~0.39.0",
-    "@cadl-lang/eslint-plugin": "~0.39.0",
+    "@typespec/compiler": "~0.42.0",
+    "@typespec/library-linter": "~0.42.0",
+    "@typespec/eslint-plugin": "~0.42.0",
     "eslint": "^8.12.0",
     "mocha": "~10.1.0",
     "mocha-junit-reporter": "~2.2.0",
@@ -59,9 +59,10 @@
     "rimraf": "~3.0.2",
     "typescript": "~4.9.3",
     "ajv": "~8.11.2",
-    "@cadl-lang/openapi3": "~0.39.0",
+    "@typespec/openapi3": "~0.42.0",
     "@types/relateurl": "~0.2.29",
-    "@types/js-yaml": "~4.0.1"
+    "@types/js-yaml": "~4.0.1",
+    "@typespec/internal-build-utils": "~0.4.0"
   },
   "dependencies": {
     "relateurl": "~0.2.7",

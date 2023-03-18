@@ -1,4 +1,4 @@
-import { EmitContext } from "@cadl-lang/compiler";
+import { EmitContext } from "@typespec/compiler";
 import "./lib.js";
 import { JSONSchemaEmitterOptions } from "./lib.js";
 import { SchemaPerFileEmitter } from "./schema-per-file-emitter.js";

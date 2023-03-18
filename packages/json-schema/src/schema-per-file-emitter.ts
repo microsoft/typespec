@@ -1,5 +1,5 @@
-import { Enum, Model, Union } from "@cadl-lang/compiler";
-import { Context } from "@cadl-lang/compiler/emitter-framework";
+import { Enum, Model, Union } from "@typespec/compiler";
+import { Context } from "@typespec/compiler/emitter-framework";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 
 export class SchemaPerFileEmitter extends JsonSchemaEmitter {

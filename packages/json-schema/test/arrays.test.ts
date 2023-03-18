@@ -2,7 +2,7 @@ import assert from "assert";
 import { emitSchema } from "./utils.js";
 
 describe("arrays", () => {
-  it.only("works with declarations", async () => {
+  it("works with declarations", async () => {
     const schemas = await emitSchema(`
       model Foo is Array<string>;
       model Bar is Array<Foo>;
@@ -19,7 +19,7 @@ describe("arrays", () => {
     assert.deepStrictEqual(Bar.items, { $ref: "Foo.json" });
   });
 
-  it.only("works with literals", async () => {
+  it("works with literals", async () => {
     const schemas = await emitSchema(`
       model M { }
       model Foo {

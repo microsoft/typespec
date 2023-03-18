@@ -1,5 +1,5 @@
-import { createAssetEmitter } from "@cadl-lang/compiler/emitter-framework";
-import { createTestHost } from "@cadl-lang/compiler/testing";
+import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
+import { createTestHost } from "@typespec/compiler/testing";
 import yaml from "js-yaml";
 import { SchemaPerFileEmitter } from "../src/schema-per-file-emitter.js";
 
@@ -9,7 +9,7 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
     await host.addJsFile("dec.js", decorators);
     contents = `import "./dec.js";\n` + contents;
   }
-  await host.addCadlFile("main.cadl", contents);
+  await host.addTypeSpecFile("main.cadl", contents);
   await host.compile("main.cadl", {
     outputDir: "cadl-output",
   });

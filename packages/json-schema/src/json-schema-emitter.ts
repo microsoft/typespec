@@ -11,7 +11,7 @@ import {
   Type,
   Union,
   UnionVariant,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import {
   ArrayBuilder,
   Declaration,
@@ -23,7 +23,7 @@ import {
   SourceFile,
   SourceFileScope,
   TypeEmitter,
-} from "@cadl-lang/compiler/emitter-framework";
+} from "@typespec/compiler/emitter-framework";
 import yaml from "js-yaml";
 import path from "path";
 import relateurl from "relateurl";
@@ -284,6 +284,8 @@ function isSomeInt64Subtype(program: Program, type: Type) {
   if (program.checker.isStdType(base) && (base.name === "int64" || base.name === "uint64")) {
     return true;
   }
+
+  return false;
 }
 
 function scalarBaseType(scalar: Scalar): Scalar {

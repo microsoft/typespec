@@ -1,4 +1,4 @@
-import { createCadlLibrary, JSONSchemaType } from "@cadl-lang/compiler";
+import { createCadlLibrary, JSONSchemaType } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type Int64Strategy = "string" | "number";

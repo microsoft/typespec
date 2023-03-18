@@ -194,7 +194,7 @@
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/json-schema",
+      "packageName": "@typespec/json-schema",
       "projectFolder": "packages/json-schema",
       "reviewCategory": "production",
       "shouldPublish": true
