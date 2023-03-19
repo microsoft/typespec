@@ -22,7 +22,7 @@
   "exports": {
     ".": "./dist/src/index.js"
   },
-  "tspMain": "dist/src/index.js",
+  "tspMain": "lib/main.tsp",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -62,7 +62,8 @@
     "@typespec/openapi3": "~0.42.0",
     "@types/relateurl": "~0.2.29",
     "@types/js-yaml": "~4.0.1",
-    "@typespec/internal-build-utils": "~0.4.0"
+    "@typespec/internal-build-utils": "~0.4.0",
+    "js-yaml": "~4.1.0"
   },
   "dependencies": {
     "relateurl": "~0.2.7",

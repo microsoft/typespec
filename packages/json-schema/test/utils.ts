@@ -2,9 +2,12 @@ import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost } from "@typespec/compiler/testing";
 import yaml from "js-yaml";
 import { SchemaPerFileEmitter } from "../src/schema-per-file-emitter.js";
+import { JsonSchemaTestLibrary } from "../src/testing/index.js";
 
 export async function getHostForCadlFile(contents: string, decorators?: Record<string, any>) {
-  const host = await createTestHost();
+  const host = await createTestHost({
+    libraries: [JsonSchemaTestLibrary],
+  });
   if (decorators) {
     await host.addJsFile("dec.js", decorators);
     contents = `import "./dec.js";\n` + contents;
@@ -20,6 +23,7 @@ export async function emitSchema(
   code: string,
   options: { "file-type"?: "yaml" | "json" } = { "file-type": "json" }
 ) {
+  code = `import "@typespec/json-schema"; @JsonSchema.JsonSchema namespace example;` + code;
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, SchemaPerFileEmitter, {
     emitterOutputDir: "cadl-output",

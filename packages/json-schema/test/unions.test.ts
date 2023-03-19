@@ -6,14 +6,14 @@ describe("emitting unions", () => {
     const schemas = await emitSchema(`
       union Foo {
         x: string;
-        y: int32;
+        y: boolean;
       }
     `);
     const Foo = schemas["Foo.json"];
 
     assert.strictEqual(Foo.$id, "Foo.json");
     assert.strictEqual(Foo.$schema, "https://json-schema.org/draft/2020-12/schema");
-    assert.deepStrictEqual(Foo.anyOf, [{ type: "string" }, { type: "integer" }]);
+    assert.deepStrictEqual(Foo.anyOf, [{ type: "string" }, { type: "boolean" }]);
   });
 
   it("works with references", async () => {

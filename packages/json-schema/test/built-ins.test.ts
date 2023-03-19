@@ -9,13 +9,13 @@ describe("emitting built-in types", () => {
     ["float", { type: "number" }],
     ["float32", { type: "number" }],
     ["float64", { type: "number" }],
-    ["int8", { type: "integer" }],
-    ["int16", { type: "integer" }],
-    ["int32", { type: "integer" }],
+    ["int8", { type: "integer", minimum: -128, maximum: 127 }],
+    ["int16", { type: "integer", minimum: -32768, maximum: 32767 }],
+    ["int32", { type: "integer", minimum: -2147483648, maximum: 2147483647 }],
     ["int64", { type: "string" }],
-    ["uint8", { type: "integer" }],
-    ["uint16", { type: "integer" }],
-    ["uint32", { type: "integer" }],
+    ["uint8", { type: "integer", minimum: 0, maximum: 255 }],
+    ["uint16", { type: "integer", minimum: 0, maximum: 65535 }],
+    ["uint32", { type: "integer", minimum: 0, maximum: 4294967295 }],
     ["uint64", { type: "string" }],
     ["safeint", { type: "integer" }],
 
@@ -29,7 +29,7 @@ describe("emitting built-in types", () => {
 
     // others
     ["string", { type: "string" }],
-    ["url", { type: "string", format: "uri" }],
+    ["url", { type: "string", format: "url" }],
     ["null", { type: "null" }],
     ["bytes", { type: "string", contentEncoding: "base64" }],
     ["boolean", { type: "boolean" }],

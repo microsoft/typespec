@@ -1,4 +1,4 @@
-import { Enum, Model, Union } from "@typespec/compiler";
+import { Enum, Model, Scalar, Type, Union } from "@typespec/compiler";
 import { Context } from "@typespec/compiler/emitter-framework";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 
@@ -22,6 +22,18 @@ export class SchemaPerFileEmitter extends JsonSchemaEmitter {
 
   unionDeclarationContext(union: Union): Context {
     return this.#newFileScope(union.name!);
+  }
+
+  scalarDeclarationContext(scalar: Scalar): Context {
+    if (this.#isStdType(scalar)) {
+      return {};
+    }
+
+    return this.#newFileScope(scalar.name);
+  }
+
+  #isStdType(type: Type) {
+    return this.emitter.getProgram().checker.isStdType(type);
   }
 
   #newFileScope(name: string) {

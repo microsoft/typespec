@@ -1,6 +1,14 @@
 import {
   BooleanLiteral,
   Enum,
+  getFormat,
+  getMaxLength,
+  getMaxValue,
+  getMaxValueExclusive,
+  getMinLength,
+  getMinValue,
+  getMinValueExclusive,
+  getPattern,
   IntrinsicType,
   Model,
   ModelProperty,
@@ -28,9 +36,10 @@ import yaml from "js-yaml";
 import path from "path";
 import relateurl from "relateurl";
 import { pathToFileURL } from "url";
+import { getMultipleOf } from "./index.js";
 import { JSONSchemaEmitterOptions } from "./lib.js";
 
-export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOptions> {
+export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     if (this.emitter.getProgram().checker.isStdType(model) && model.name === "object") {
       return { type: "object" };
@@ -104,7 +113,15 @@ export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOpti
 
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<object> {
     const result = this.emitter.emitTypeReference(property.type);
-    return result;
+
+    if (result.kind !== "code") {
+      throw new Error("Unexpected non-code result from emit reference");
+    }
+
+    const withConstraints = new ObjectBuilder(result.value);
+    this.#applyConstraints(property, withConstraints);
+
+    return withConstraints;
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
@@ -191,47 +208,139 @@ export class JsonSchemaEmitter extends TypeEmitter<object, JSONSchemaEmitterOpti
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
-    // horrible.
-    if (this.emitter.getProgram().checker.isStdType(scalar)) {
-      switch (name) {
-        case "uint8":
-        case "uint16":
-        case "uint32":
-        case "int8":
-        case "int16":
-        case "int32":
-        case "integer":
-        case "safeint":
-          return { type: "integer" };
-        case "float":
-        case "float32":
-        case "float64":
-        case "numeric":
-          return { type: "number" };
-        case "string":
-          return { type: "string" };
-        case "boolean":
-          return { type: "boolean" };
-        case "uint64":
-        case "int64":
-          const strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
-          return { type: strategy };
-        case "plainDate":
-          return { type: "string", format: "date" };
-        case "plainTime":
-          return { type: "string", format: "time" };
-        case "zonedDateTime":
-          return { type: "string", format: "date-time" };
-        case "duration":
-          return { type: "string", format: "duration" };
-        case "url":
-          return { type: "string", format: "uri" };
-        case "bytes":
-          return { type: "string", contentEncoding: "base64" };
-      }
+    const baseBuiltIn = this.#scalarBuiltinBaseType(scalar);
+
+    if (baseBuiltIn === null) {
+      throw new Error(`Can't emit custom scalar type ${scalar.name}`);
     }
 
-    throw new Error("Can't emit custom scalars");
+    let schema: Record<string, any>;
+    switch (baseBuiltIn.name) {
+      case "uint8":
+        schema = { type: "integer", minimum: 0, maximum: 255 };
+        break;
+      case "uint16":
+        schema = { type: "integer", minimum: 0, maximum: 65535 };
+        break;
+      case "uint32":
+        schema = { type: "integer", minimum: 0, maximum: 4294967295 };
+        break;
+      case "int8":
+        schema = { type: "integer", minimum: -128, maximum: 127 };
+        break;
+      case "int16":
+        schema = { type: "integer", minimum: -32768, maximum: 32767 };
+        break;
+      case "int32":
+        schema = { type: "integer", minimum: -2147483648, maximum: 2147483647 };
+        break;
+      case "int64":
+        const int64Strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
+        if (int64Strategy === "string") {
+          schema = { type: "string" };
+        } else {
+          schema = { type: "integer", minimum: 0, maximum: 18446744073709551615 };
+        }
+        break;
+      case "uint64":
+        const uint64Strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
+        if (uint64Strategy === "string") {
+          schema = { type: "string" };
+        } else {
+          schema = { type: "integer", minimum: -9223372036854775808, maximum: 9223372036854775807 };
+        }
+        break;
+      case "integer":
+        schema = { type: "integer" };
+        break;
+      case "safeint":
+        schema = { type: "integer" };
+        break;
+      case "float":
+        schema = { type: "number" };
+        break;
+      case "float32":
+        schema = { type: "number" };
+        break;
+      case "float64":
+        schema = { type: "number" };
+        break;
+      case "numeric":
+        schema = { type: "number" };
+        break;
+      case "string":
+        schema = { type: "string" };
+        break;
+      case "boolean":
+        schema = { type: "boolean" };
+        break;
+      case "plainDate":
+        schema = { type: "string", format: "date" };
+        break;
+      case "plainTime":
+        schema = { type: "string", format: "time" };
+        break;
+      case "zonedDateTime":
+        schema = { type: "string", format: "date-time" };
+        break;
+      case "duration":
+        schema = { type: "string", format: "duration" };
+        break;
+      case "url":
+        schema = { type: "string", format: "uri" };
+        break;
+      case "bytes":
+        schema = { type: "string", contentEncoding: "base64" };
+        break;
+      default:
+        throw new Error("Unknown scalar type " + baseBuiltIn.name);
+    }
+
+    this.#applyConstraints(scalar, schema);
+
+    if (baseBuiltIn === scalar) {
+      return schema;
+    }
+
+    return this.emitter.result.declaration(name, schema);
+  }
+
+  #applyConstraints(type: Scalar | Model | ModelProperty, schema: Record<string, any>) {
+    const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
+      const value = fn(this.emitter.getProgram(), type);
+      if (value !== undefined) {
+        schema[key] = value;
+      }
+    };
+
+    applyConstraint(getMinLength, "minLength");
+    applyConstraint(getMaxLength, "maxLength");
+    applyConstraint(getMinValue, "minimum");
+    applyConstraint(getMinValueExclusive, "exclusiveMinimum");
+    applyConstraint(getMaxValue, "maximum");
+    applyConstraint(getMaxValueExclusive, "exclusiveMinimum");
+    applyConstraint(getPattern, "pattern");
+    applyConstraint(getMinLength, "minItems");
+    applyConstraint(getMaxLength, "maxItems");
+    applyConstraint(getFormat, "format");
+    applyConstraint(getMultipleOf, "multipleOf");
+  }
+
+  #scalarBuiltinBaseType(scalar: Scalar): Scalar | null {
+    let current = scalar;
+    while (current.baseScalar && !this.#isStdType(current)) {
+      current = current.baseScalar;
+    }
+
+    if (this.#isStdType(current)) {
+      return current;
+    }
+
+    return null;
+  }
+
+  #isStdType(type: Type) {
+    return this.emitter.getProgram().checker.isStdType(type);
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
