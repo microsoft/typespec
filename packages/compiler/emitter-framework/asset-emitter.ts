@@ -378,6 +378,10 @@ export function createAssetEmitter<T, TOptions extends object>(
           this.emitType(iface);
         }
       }
+
+      for (const scalar of namespace.scalars.values()) {
+        this.emitType(scalar);
+      }
     },
 
     emitModelProperties(model) {
