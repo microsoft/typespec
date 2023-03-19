@@ -3,7 +3,7 @@ import "../dist/src/index.js";
 namespace JsonSchema;
 
 extern dec JsonSchema(target: Reflection.Namespace | object);
-extern dec multipleOf(target: numeric, value: numeric);
+extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: numeric);
 
 enum Format {
   dateTime: "date-time",

@@ -63,7 +63,8 @@
     "@types/relateurl": "~0.2.29",
     "@types/js-yaml": "~4.0.1",
     "@typespec/internal-build-utils": "~0.4.0",
-    "js-yaml": "~4.1.0"
+    "js-yaml": "~4.1.0",
+    "ajv-formats": "~2.1.1"
   },
   "dependencies": {
     "relateurl": "~0.2.7",

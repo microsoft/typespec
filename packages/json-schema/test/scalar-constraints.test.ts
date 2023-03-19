@@ -23,11 +23,13 @@ describe("emitting scalars with constraints", () => {
         const schemas = await emitSchema(`
           @minValue(1)
           @maxValue(2)
+          @multipleOf(10)
           scalar Test extends ${numType};
         `);
 
         assert.strictEqual(schemas["Test.json"].minimum, 1);
         assert.strictEqual(schemas["Test.json"].maximum, 2);
+        assert.strictEqual(schemas["Test.json"].multipleOf, 10);
       });
     }
   });
@@ -39,12 +41,14 @@ describe("emitting scalars with constraints", () => {
           model Test {
             @minValue(1)
             @maxValue(2)
+            @multipleOf(10)
             prop: ${numType};
           }
         `);
 
         assert.strictEqual(schemas["Test.json"].properties.prop.minimum, 1);
         assert.strictEqual(schemas["Test.json"].properties.prop.maximum, 2);
+        assert.strictEqual(schemas["Test.json"].properties.prop.multipleOf, 10);
       });
     }
   });

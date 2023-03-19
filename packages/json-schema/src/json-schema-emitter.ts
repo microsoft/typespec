@@ -2,9 +2,11 @@ import {
   BooleanLiteral,
   Enum,
   getFormat,
+  getMaxItems,
   getMaxLength,
   getMaxValue,
   getMaxValueExclusive,
+  getMinItems,
   getMinLength,
   getMinValue,
   getMinValueExclusive,
@@ -45,16 +47,21 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       return { type: "object" };
     }
 
-    return this.emitter.result.declaration(
-      name,
-      new ObjectBuilder({
-        $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(),
-        type: "object",
-        properties: this.emitter.emitModelProperties(model),
-        required: this.#requiredModelProperties(model),
-      })
-    );
+    const schema = new ObjectBuilder({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(),
+      type: "object",
+      properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model),
+    });
+
+    if (model.baseModel) {
+      const allOf = new ArrayBuilder();
+      allOf.push(this.emitter.emitTypeReference(model.baseModel));
+      schema.set("allOf", allOf);
+    }
+
+    return this.emitter.result.declaration(name, schema);
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -67,6 +74,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       properties: this.emitter.emitModelProperties(model),
       required: this.#requiredModelProperties(model),
     };
+  }
+
+  modelInstantiation(model: Model, name: string): EmitterOutput<Record<string, any>> {
+    return this.modelDeclaration(model, name);
   }
 
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
@@ -186,6 +197,20 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   unionVariant(variant: UnionVariant): EmitterOutput<object> {
     return this.emitter.emitTypeReference(variant.type);
+  }
+
+  modelPropertyReference(property: ModelProperty): EmitterOutput<object> {
+    // this is interesting - model property references will generally need to inherit
+    // the relevant decorators from the property they are referencing. I wonder if this
+    // could be made easier, as it's a bit subtle.
+
+    const refSchema = this.emitter.emitTypeReference(property.type);
+    if (refSchema.kind !== "code") {
+      throw new Error("Unexpected non-code result from emit reference");
+    }
+    const schema = new ObjectBuilder(refSchema.value);
+    this.#applyConstraints(property, schema);
+    return schema;
   }
 
   reference(
@@ -320,8 +345,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     applyConstraint(getMaxValue, "maximum");
     applyConstraint(getMaxValueExclusive, "exclusiveMinimum");
     applyConstraint(getPattern, "pattern");
-    applyConstraint(getMinLength, "minItems");
-    applyConstraint(getMaxLength, "maxItems");
+    applyConstraint(getMinItems, "minItems");
+    applyConstraint(getMaxItems, "maxItems");
     applyConstraint(getFormat, "format");
     applyConstraint(getMultipleOf, "multipleOf");
   }
@@ -378,7 +403,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return scope.sourceFile;
   }
 
-  // there is probably a more pedant way to do this.
   #getDeclId() {
     const base = pathToFileURL(this.emitter.getOptions().emitterOutputDir);
     const file = pathToFileURL(this.#getCurrentSourceFile().path);

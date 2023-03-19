@@ -1,3 +1,4 @@
+import addFormats from "ajv-formats";
 import Ajv from "ajv/dist/2020.js";
 import fs from "fs/promises";
 import yaml from "js-yaml";
@@ -9,8 +10,18 @@ for (const file of dir) {
 }
 
 const ajv = new Ajv({ schemas });
-const validate = ajv.getSchema("Pet.yaml");
-console.log(validate({ name: "Bizmarck", age: 200, type: "dog" }));
+addFormats(ajv);
+const validate = ajv.getSchema("User.yaml");
+console.log(
+  validate({
+    username: "Brian",
+    email: "brian.terlson@microsoft.com",
+    posts: {
+      nextLink: "/foo/bar.json",
+      items: [{ contents: "hi how are u", createdAt: "2020-10-10" }],
+    },
+  })
+);
 console.log(validate.errors);
 /*
 const schema = new Ajv().compile({
