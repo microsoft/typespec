@@ -404,8 +404,10 @@ describe("compiler: using statements", () => {
       "b.tsp",
       `
       using N;
-      model A { a: int32 | string }
-      @test model B { ... A }
+      namespace B {
+        model A { a: int32 | string }
+        @test model B { ... A }
+      }
       `
     );
 

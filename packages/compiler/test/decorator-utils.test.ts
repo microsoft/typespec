@@ -154,8 +154,8 @@ describe("compiler: decorator utils", () => {
 
     it("emit diagnostics if using the same decorator on the same node", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
-        @tag
+        @global.tag
+        @global.tag
         model Foo {}
       `);
 
@@ -173,7 +173,7 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is used once only", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @global.tag
         model Foo {}
       `);
 
@@ -182,9 +182,9 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is defined twice via `model is`", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @global.tag
         model Bar {}
-        @tag
+        @global.tag
         model Foo is Bar;
       `);
 
@@ -193,10 +193,10 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is used again as augment decorator", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @global.tag
         model Foo {}
 
-        @@tag(Foo)
+        @@global.tag(Foo)
       `);
 
       expectDiagnosticEmpty(diagnostics);

@@ -22,13 +22,16 @@ describe("openapi3: return types", () => {
   it("defines responses with status codes", async () => {
     const res = await openApiFor(
       `
-      model CreatedResponse {
-        @statusCode code: "201";
+      @service({ name:"Test" })
+      namespace Test {
+        model CreatedResponse {
+          @statusCode code: "201";
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedResponse & Key;  
       }
-      model Key {
-        key: string;
-      }
-      @put op create(): CreatedResponse & Key;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -38,13 +41,16 @@ describe("openapi3: return types", () => {
   it("defines responses with numeric status codes", async () => {
     const res = await openApiFor(
       `
-      model CreatedResponse {
-        @statusCode code: 201;
+      @service({ name:"Test" })
+      namespace Test {
+        model CreatedResponse {
+          @statusCode code: 201;
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedResponse & Key;
       }
-      model Key {
-        key: string;
-      }
-      @put op create(): CreatedResponse & Key;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -54,16 +60,19 @@ describe("openapi3: return types", () => {
   it("defines responses with headers and status codes", async () => {
     const res = await openApiFor(
       `
-      model ETagHeader {
-        @header eTag: string;
+      @service({ name:"Test" })
+      namespace Test {
+        model ETagHeader {
+          @header eTag: string;
+        }
+        model CreatedResponse {
+          @statusCode code: "201";
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       }
-      model CreatedResponse {
-        @statusCode code: "201";
-      }
-      model Key {
-        key: string;
-      }
-      @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -98,18 +107,21 @@ describe("openapi3: return types", () => {
   it("defines responses with headers and status codes in base model", async () => {
     const res = await openApiFor(
       `
-      model CreatedResponse {
-        @statusCode code: "201";
-        @header contentType: "text/html";
-        @header location: string;
+      @service({ name:"Test" })
+      namespace Test {
+        model CreatedResponse {
+          @statusCode code: "201";
+          @header contentType: "text/html";
+          @header location: string;
+        }
+        model Page {
+          content: string;
+        }
+        model CreatePageResponse extends CreatedResponse {
+          @body body: Page;
+        }
+        @put op create(): CreatePageResponse;
       }
-      model Page {
-        content: string;
-      }
-      model CreatePageResponse extends CreatedResponse {
-        @body body: Page;
-      }
-      @put op create(): CreatePageResponse;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
