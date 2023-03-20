@@ -15,15 +15,6 @@ namespace TypeSpec {
     extern dec useDependency(target: EnumMember | Namespace, ...versionRecords: EnumMember[]);
 
     /**
-     * Identifies a mapping of versions to versioned dependencies for a namespace.
-     * @deprecated
-     */
-    extern dec versionedDependency(
-      target: Namespace,
-      mapping: EnumMember | [EnumMember, EnumMember][]
-    );
-
-    /**
      * Identifies when the target was added.
      */
     extern dec added(target: unknown, version: EnumMember);
@@ -44,7 +35,7 @@ namespace TypeSpec {
     extern dec madeOptional(target: unknown, version: EnumMember);
 
     /**
-     * Identies when the target type changed.
+     * Identifies when the target type changed.
      */
     extern dec typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown);
 

@@ -137,7 +137,7 @@ dec TypeSpec.Versioning.madeOptional(target: unknown, version: TypeSpec.Reflecti
 
 ### `@typeChangedFrom` {#@TypeSpec.Versioning.typeChangedFrom}
 
-Identies when the target type changed.
+Identifies when the target type changed.
 
 ```typespec
 dec TypeSpec.Versioning.typeChangedFrom(target: unknown, version: TypeSpec.Reflection.EnumMember, oldType: unknown)
