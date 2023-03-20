@@ -273,7 +273,7 @@ describe("compiler: using statements", () => {
       {
         code: "ambiguous-symbol",
         message:
-          '"M" is an ambiguous name between B.M, global::M. Try using fully qualified name instead: B.M, global::M',
+          '"M" is an ambiguous name between global.M, B.M. Try using fully qualified name instead: global.M, B.M',
       },
     ]);
   });

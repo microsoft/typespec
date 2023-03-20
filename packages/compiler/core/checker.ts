@@ -320,8 +320,6 @@ export function createChecker(program: Program): Checker {
     setUsingsForFile(file);
   }
 
-  applyGlobalNamespace(globalNamespaceNode);
-
   const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
     // the typespec namespace binding will be absent if we've passed
@@ -420,16 +418,6 @@ export function createChecker(program: Program): Checker {
 
   function mergeSourceFile(file: TypeSpecScriptNode | JsSourceFileNode) {
     mergeSymbolTable(file.symbol.exports!, mutate(globalNamespaceNode.symbol.exports!));
-  }
-
-  function applyGlobalNamespace(ns: NamespaceStatementNode) {
-    const sym = resolveTypeReferenceSym(ns.id, undefined);
-    if (!sym) {
-      return;
-    }
-
-    const namespaceSym = getMergedSymbol(sym)!;
-    addUsingSymbols(namespaceSym.exports!, ns.locals!);
   }
 
   function setUsingsForFile(file: TypeSpecScriptNode) {
@@ -1766,7 +1754,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols.map(getFullyQualifiedSymbolName).join(", ");
+    const duplicateNames = symbols
+      .map(getFullyQualifiedSymbolName)
+      .map((name) => (name.includes(".") ? name : `global.${name}`))
+      .join(", ");
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "ambiguous-symbol",
@@ -1904,6 +1895,7 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
+
       table = augmentedSymbolTables.get(table) ?? table;
       for (const [key, sym] of table) {
         if (sym.flags & SymbolFlags.DuplicateUsing) {
@@ -1996,17 +1988,23 @@ export function createChecker(program: Program): Checker {
       }
 
       // check "global scope" declarations
-      binding = resolveIdentifierInTable(
+      const globalBinding = resolveIdentifierInTable(
         node,
         globalNamespaceNode.symbol.exports,
         resolveDecorator
       );
 
-      if (binding) return binding;
-
       // check using types
-      binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-      if (binding) return binding.flags & SymbolFlags.DuplicateUsing ? undefined : binding;
+      const usingBinding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+
+      if (globalBinding && usingBinding) {
+        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
+        return globalBinding;
+      } else if (globalBinding) {
+        return globalBinding;
+      } else if (usingBinding) {
+        return usingBinding.flags & SymbolFlags.DuplicateUsing ? undefined : usingBinding;
+      }
     }
 
     if (mapper === undefined) {

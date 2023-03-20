@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Emit diagnostic when ambiguous symbol exists between global and usings.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
