@@ -328,12 +328,6 @@ const diagnostics = {
       default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
     },
   },
-  "override-property-intrinsic": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which can only override an intrinsic type on the parent property, not ${"parentType"}`,
-    },
-  },
   "extend-scalar": {
     severity: "error",
     messages: {

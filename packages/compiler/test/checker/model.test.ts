@@ -254,6 +254,40 @@ describe("compiler: models", () => {
       await testHost.compile("main.tsp");
     });
 
+    it("alllow subtype overriding of union", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { x: 1 | 2 | 3 }
+        model B extends A { x: 2 };
+
+        model Car { kind: "Ford" | "Toyota" };
+        model Ford extends Car { kind: "Ford" };
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("alllow subtype overriding of Record", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Named {
+          name: string;
+        }
+
+        model A { x: Named }
+        model B extends A { x: {name: "B"} };
+
+        model C { kind: "C" }
+        model D extends C { kind: "D"}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("disallow subtype overriding parent property if subtype is not assignable to parent type", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
@@ -276,36 +310,6 @@ describe("compiler: models", () => {
           code: "override-property-mismatch",
           message:
             "Model has an inherited property named kind of type TypeSpec.int32 which cannot override type TypeSpec.string",
-        },
-      ]);
-    });
-
-    it("disallow subtype overriding parent property if parent property type is not intrinsic", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        model Named {
-          name: string;
-        }
-
-        model A { x: Named }
-        model B extends A { x: {name: "B"} };
-
-        model C { kind: "C" }
-        model D extends C { kind: "D"}
-        `
-      );
-      const diagnostics = await testHost.diagnose("main.tsp");
-      expectDiagnostics(diagnostics, [
-        {
-          code: "override-property-intrinsic",
-          message:
-            "Model has an inherited property named x of type (anonymous model) which can only override an intrinsic type on the parent property, not Named",
-        },
-        {
-          code: "override-property-intrinsic",
-          message:
-            "Model has an inherited property named kind of type D which can only override an intrinsic type on the parent property, not C",
         },
       ]);
     });
