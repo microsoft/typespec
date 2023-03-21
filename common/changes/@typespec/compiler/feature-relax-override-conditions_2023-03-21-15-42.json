@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Relax constraint on derived type overrides",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
