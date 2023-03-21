@@ -443,7 +443,7 @@ async function installVSCodeExtension(insiders: boolean, debug: boolean) {
 }
 
 async function uninstallVSCodeExtension(insiders: boolean, debug: boolean) {
-  await runCode(["--uninstall-extension", "microsoft.tsp-vscode"], insiders, debug);
+  await runCode(["--uninstall-extension", "microsoft.typespec-vscode"], insiders, debug);
 }
 
 function getVsixInstallerPath(): string {
