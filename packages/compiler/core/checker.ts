@@ -1753,15 +1753,21 @@ export function createChecker(program: Program): Checker {
     return getMergedSymbol(sym);
   }
 
-  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols
-      .map(getFullyQualifiedSymbolName)
-      .map((name) => (name.includes(".") ? name : `global.${name}`))
-      .join(", ");
+  function reportAmbiguousIdentifier(
+    node: IdentifierNode,
+    symbols: Sym[],
+    prefixForEmpty?: string
+  ) {
+    let duplicateNames = symbols.map(getFullyQualifiedSymbolName);
+    if (prefixForEmpty) {
+      duplicateNames = duplicateNames.map((name) =>
+        name.includes(".") ? name : `${prefixForEmpty}.${name}`
+      );
+    }
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "ambiguous-symbol",
-        format: { name: node.sv, duplicateNames },
+        format: { name: node.sv, duplicateNames: duplicateNames.join(", ") },
         target: node,
       })
     );
@@ -1998,7 +2004,7 @@ export function createChecker(program: Program): Checker {
       const usingBinding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
 
       if (globalBinding && usingBinding) {
-        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
+        reportAmbiguousIdentifier(node, [globalBinding, usingBinding], "global");
         return globalBinding;
       } else if (globalBinding) {
         return globalBinding;
