@@ -1,4 +1,4 @@
-import { createCadlLibrary, JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type Int64Strategy = "string" | "number";
@@ -17,6 +17,12 @@ export interface JSONSchemaEmitterOptions {
    * * number: serialize as a number (not widely interoperable)
    */
   "int64-strategy"?: Int64Strategy;
+
+  /**
+   * When true, bundle all the schemas into a single json schema document
+   * with schemas under $defs.
+   */
+  bundle?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
@@ -25,6 +31,7 @@ const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   properties: {
     "file-type": { type: "string", enum: ["yaml", "json"], nullable: true },
     "int64-strategy": { type: "string", enum: ["string", "number"], nullable: true },
+    bundle: { type: "boolean", nullable: true },
   },
   required: [],
 };
@@ -34,7 +41,7 @@ export const libDef = {
   diagnostics: {},
 } as const;
 
-export const $lib = createCadlLibrary(libDef);
+export const $lib = createTypeSpecLibrary(libDef);
 export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type JsonSchemaLibrary = typeof $lib;

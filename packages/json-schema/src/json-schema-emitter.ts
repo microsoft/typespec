@@ -1,6 +1,7 @@
 import {
   BooleanLiteral,
   Enum,
+  getDirectoryPath,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -11,6 +12,7 @@ import {
   getMinValue,
   getMinValueExclusive,
   getPattern,
+  getRelativePathFromDirectory,
   IntrinsicType,
   Model,
   ModelProperty,
@@ -24,23 +26,21 @@ import {
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
+  Context,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
   EmitterOutput,
   ObjectBuilder,
+  Placeholder,
   Scope,
   SourceFile,
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
 import yaml from "js-yaml";
-import path from "path";
-import relateurl from "relateurl";
-import { pathToFileURL } from "url";
-import { getMultipleOf } from "./index.js";
+import { findBaseUri, getId, getMultipleOf, JsonSchemaDeclaration } from "./index.js";
 import { JSONSchemaEmitterOptions } from "./lib.js";
-
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     if (this.emitter.getProgram().checker.isStdType(model) && model.name === "object") {
@@ -49,7 +49,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const schema = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: this.#getDeclId(),
+      $id: this.#getDeclId(model),
       type: "object",
       properties: this.emitter.emitModelProperties(model),
       required: this.#requiredModelProperties(model),
@@ -85,7 +85,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       name,
       new ObjectBuilder({
         $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(),
+        $id: this.#getDeclId(array),
         type: "array",
         items: this.emitter.emitTypeReference(elementType),
       })
@@ -162,7 +162,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       name,
       new ObjectBuilder({
         $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(),
+        $id: this.#getDeclId(en),
         type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
         enum: [...enumValues],
       })
@@ -174,7 +174,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       name,
       new ObjectBuilder({
         $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(),
+        $id: this.#getDeclId(union),
         anyOf: this.emitter.emitUnionVariants(union),
       })
     );
@@ -214,17 +214,27 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   reference(
-    targetDeclaration: Declaration<object>,
-    pathUp: Scope<object>[],
-    pathDown: Scope<object>[],
-    commonScope: Scope<object> | null
-  ): object | EmitEntity<object> {
+    targetDeclaration: Declaration<Record<string, unknown>>,
+    pathUp: Scope<Record<string, unknown>>[],
+    pathDown: Scope<Record<string, unknown>>[],
+    commonScope: Scope<Record<string, unknown>> | null
+  ): object | EmitEntity<Record<string, unknown>> {
+    if (targetDeclaration.value instanceof Placeholder) {
+      // I don't think this is possible, confirm.
+      throw new Error("Can't form reference to declaration that hasn't been created yet");
+    }
+
+    if (targetDeclaration.value.$id) {
+      return { $ref: targetDeclaration.value.$id };
+    }
+
     if (!commonScope) {
       let currentSfScope = pathUp[pathUp.length - 1] as SourceFileScope<object>;
       let targetSfScope = pathDown[0] as SourceFileScope<object>;
-      const resolved = path.relative(
-        path.dirname(currentSfScope.sourceFile.path),
-        targetSfScope.sourceFile.path
+      const resolved = getRelativePathFromDirectory(
+        getDirectoryPath(currentSfScope.sourceFile.path),
+        targetSfScope.sourceFile.path,
+        false
       );
       return { $ref: resolved };
     }
@@ -378,14 +388,38 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   sourceFile(sourceFile: SourceFile<object>): EmittedSourceFile {
-    let contents: string;
-    if (this.emitter.getOptions()["file-type"] === "json") {
-      contents = JSON.stringify(sourceFile.globalScope.declarations[0].value, null, 4);
+    let serializedContent: string;
+    const decls = sourceFile.globalScope.declarations;
+
+    let content: object;
+    if (this.emitter.getOptions().bundle) {
+      const base = this.emitter.getOptions().emitterOutputDir;
+      const file = sourceFile.path;
+      const id = getRelativePathFromDirectory(base, file, false);
+      content = {
+        $schema: "https://json-schema.org/draft/2020-12/schema",
+        $id: id,
+        $defs: decls.reduce((prev, decl) => {
+          prev[decl.name] = decl.value;
+          return prev;
+        }, {} as Record<string, any>),
+      };
     } else {
-      contents = yaml.dump(sourceFile.globalScope.declarations[0].value);
+      if (decls.length > 1) {
+        throw new Error("Emit error - multiple decls in single schema per file mode");
+      }
+
+      content = decls[0].value;
     }
+
+    if (this.emitter.getOptions()["file-type"] === "json") {
+      serializedContent = JSON.stringify(content, null, 4);
+    } else {
+      serializedContent = yaml.dump(content);
+    }
+
     return {
-      contents,
+      contents: serializedContent,
       path: sourceFile.path,
     };
   }
@@ -403,11 +437,115 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return scope.sourceFile;
   }
 
-  #getDeclId() {
-    const base = pathToFileURL(this.emitter.getOptions().emitterOutputDir);
-    const file = pathToFileURL(this.#getCurrentSourceFile().path);
-    return relateurl.relate(base.href + "/", file.href);
+  #getDeclId(type: JsonSchemaDeclaration): string {
+    const baseUri = findBaseUri(this.emitter.getProgram(), type);
+    const explicitId = getId(this.emitter.getProgram(), type);
+    if (explicitId) {
+      return idWithBaseURI(explicitId, baseUri);
+    }
+
+    // generate an id
+    if (this.emitter.getOptions().bundle) {
+      if (!type.name) {
+        throw new Error("Type needs a name to emit a declaration id");
+      }
+      return idWithBaseURI(this.declarationName(type), baseUri);
+    } else {
+      // generate the ID based on the file path
+      const base = this.emitter.getOptions().emitterOutputDir;
+      const file = this.#getCurrentSourceFile().path;
+      const relative = getRelativePathFromDirectory(base, file, false);
+
+      if (baseUri) {
+        return new URL(relative, baseUri).href;
+      } else {
+        return relative;
+      }
+    }
+
+    function idWithBaseURI(id: string, baseUri: string | undefined): string {
+      if (baseUri) {
+        return new URL(id, baseUri).href;
+      } else {
+        return id;
+      }
+    }
   }
+
+  // #region context emitters
+  programContext(program: Program): Context {
+    if (this.emitter.getOptions().bundle) {
+      return this.#newFileScope("types");
+    } else {
+      return {};
+    }
+  }
+  modelDeclarationContext(model: Model, name: string): Context {
+    if (this.emitter.getOptions().bundle) {
+      return {};
+    } else {
+      if (this.#isStdType(model) && model.name === "object") {
+        return {};
+      }
+
+      return this.#newFileScope(model.name);
+    }
+  }
+
+  modelInstantiationContext(model: Model): Context {
+    if (this.emitter.getOptions().bundle) {
+      return {};
+    } else {
+      return this.#newFileScope(this.declarationName(model));
+    }
+  }
+
+  arrayDeclarationContext(array: Model): Context {
+    if (this.emitter.getOptions().bundle) {
+      return {};
+    } else {
+      return this.#newFileScope(array.name);
+    }
+  }
+
+  enumDeclarationContext(en: Enum): Context {
+    if (this.emitter.getOptions().bundle) {
+      return {};
+    } else {
+      return this.#newFileScope(en.name);
+    }
+  }
+
+  unionDeclarationContext(union: Union): Context {
+    if (this.emitter.getOptions().bundle) {
+      return {};
+    } else {
+      return this.#newFileScope(union.name!);
+    }
+  }
+
+  scalarDeclarationContext(scalar: Scalar): Context {
+    if (this.emitter.getOptions().bundle) {
+      return {};
+    } else if (this.#isStdType(scalar)) {
+      return {};
+    } else {
+      return this.#newFileScope(scalar.name);
+    }
+  }
+
+  #newFileScope(name: string) {
+    const sourceFile = this.emitter.createSourceFile(`${name}.${this.#fileExtension()}`);
+    return {
+      scope: sourceFile.globalScope,
+    };
+  }
+
+  #fileExtension() {
+    return this.emitter.getOptions()["file-type"] === "json" ? "json" : "yaml";
+  }
+
+  // #endregion
 }
 
 // better way to do this?

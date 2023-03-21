@@ -2,7 +2,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { definePlaygroundViteConfig } from "./src/build-utils/index.js";
 
 const config = definePlaygroundViteConfig({
-  defaultEmitter: "@typespec/openapi3",
+  defaultEmitter: "@typespec/json-schema",
   libraries: [
     "@typespec/compiler",
     "@typespec/http",
@@ -10,6 +10,7 @@ const config = definePlaygroundViteConfig({
     "@typespec/openapi",
     "@typespec/versioning",
     "@typespec/openapi3",
+    "@typespec/json-schema",
   ],
   samples: {
     "API versioning": "samples/versioning.tsp",

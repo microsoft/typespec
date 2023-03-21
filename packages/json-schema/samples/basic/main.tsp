@@ -4,6 +4,7 @@ using JsonSchema;
 @JsonSchema
 namespace Example;
 
+@id("user")
 model User {
   @format("uuid")
   id: string;
@@ -17,6 +18,7 @@ model User {
   posts: Page<Post>;
 }
 
+@id("postUnion")
 union Post {
   blog: BlogPost,
   link: LinkPost,

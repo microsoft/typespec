@@ -469,7 +469,174 @@ export function normalizeSlashes(path: string): string {
 }
 
 //#endregion
+// #region relative paths
+type GetCanonicalFileName = (fileName: string) => string;
 
+/** @internal */
+function equateValues<T>(a: T, b: T) {
+  return a === b;
+}
+
+/**
+ * Compare the equality of two strings using a case-sensitive ordinal comparison.
+ *
+ * Case-sensitive comparisons compare both strings one code-point at a time using the integer
+ * value of each code-point after applying `toUpperCase` to each string. We always map both
+ * strings to their upper-case form as some unicode characters do not properly round-trip to
+ * lowercase (such as `ẞ` (German sharp capital s)).
+ *
+ * @internal
+ */
+function equateStringsCaseInsensitive(a: string, b: string) {
+  return a === b || (a !== undefined && b !== undefined && a.toUpperCase() === b.toUpperCase());
+}
+
+/**
+ * Compare the equality of two strings using a case-sensitive ordinal comparison.
+ *
+ * Case-sensitive comparisons compare both strings one code-point at a time using the
+ * integer value of each code-point.
+ *
+ * @internal
+ */
+function equateStringsCaseSensitive(a: string, b: string) {
+  return equateValues(a, b);
+}
+
+/**
+ * Returns its argument.
+ *
+ * @internal
+ */
+function identity<T>(x: T) {
+  return x;
+}
+
+/**
+ * Determines whether a path is an absolute disk path (e.g. starts with `/`, or a dos path
+ * like `c:`, `c:\` or `c:/`).
+ *
+ * @internal
+ */
+function isRootedDiskPath(path: string) {
+  return getEncodedRootLength(path) > 0;
+}
+
+/**
+ * Determines whether a path starts with an absolute path component (i.e. `/`, `c:/`, `file://`, etc.).
+ *
+ * ```ts
+ * // POSIX
+ * pathIsAbsolute("/path/to/file.ext") === true
+ * // DOS
+ * pathIsAbsolute("c:/path/to/file.ext") === true
+ * // URL
+ * pathIsAbsolute("file:///path/to/file.ext") === true
+ * // Non-absolute
+ * pathIsAbsolute("path/to/file.ext") === false
+ * pathIsAbsolute("./path/to/file.ext") === false
+ * ```
+ *
+ * @internal
+ */
+function pathIsAbsolute(path: string): boolean {
+  return getEncodedRootLength(path) !== 0;
+}
+
+/**
+ * Determines whether a path starts with a relative path component (i.e. `.` or `..`).
+ *
+ * @internal
+ */
+function pathIsRelative(path: string): boolean {
+  return /^\.\.?($|[\\/])/.test(path);
+}
+
+/**
+ * Ensures a path is either absolute (prefixed with `/` or `c:`) or dot-relative (prefixed
+ * with `./` or `../`) so as not to be confused with an unprefixed module name.
+ *
+ * ```ts
+ * ensurePathIsNonModuleName("/path/to/file.ext") === "/path/to/file.ext"
+ * ensurePathIsNonModuleName("./path/to/file.ext") === "./path/to/file.ext"
+ * ensurePathIsNonModuleName("../path/to/file.ext") === "../path/to/file.ext"
+ * ensurePathIsNonModuleName("path/to/file.ext") === "./path/to/file.ext"
+ * ```
+ *
+ * @internal
+ */
+function ensurePathIsNonModuleName(path: string): string {
+  return !pathIsAbsolute(path) && !pathIsRelative(path) ? "./" + path : path;
+}
+
+/** @internal */
+function getPathComponentsRelativeTo(
+  from: string,
+  to: string,
+  stringEqualityComparer: (a: string, b: string) => boolean,
+  getCanonicalFileName: GetCanonicalFileName
+) {
+  const fromComponents = reducePathComponents(getPathComponents(from));
+  const toComponents = reducePathComponents(getPathComponents(to));
+
+  let start: number;
+  for (start = 0; start < fromComponents.length && start < toComponents.length; start++) {
+    const fromComponent = getCanonicalFileName(fromComponents[start]);
+    const toComponent = getCanonicalFileName(toComponents[start]);
+    const comparer = start === 0 ? equateStringsCaseInsensitive : stringEqualityComparer;
+    if (!comparer(fromComponent, toComponent)) break;
+  }
+
+  if (start === 0) {
+    return toComponents;
+  }
+
+  const components = toComponents.slice(start);
+  const relative: string[] = [];
+  for (; start < fromComponents.length; start++) {
+    relative.push("..");
+  }
+  return ["", ...relative, ...components];
+}
+
+/**
+ * Gets a relative path that can be used to traverse between `from` and `to`.
+ */
+export function getRelativePathFromDirectory(from: string, to: string, ignoreCase: boolean): string;
+/**
+ * Gets a relative path that can be used to traverse between `from` and `to`.
+ */
+export function getRelativePathFromDirectory(
+  fromDirectory: string,
+  to: string,
+  getCanonicalFileName: GetCanonicalFileName
+): string; // eslint-disable-line @typescript-eslint/unified-signatures
+export function getRelativePathFromDirectory(
+  fromDirectory: string,
+  to: string,
+  getCanonicalFileNameOrIgnoreCase: GetCanonicalFileName | boolean
+) {
+  if (getRootLength(fromDirectory) > 0 !== getRootLength(to) > 0) {
+    throw new Error("Paths must either both be absolute or both be relative");
+  }
+  const getCanonicalFileName =
+    typeof getCanonicalFileNameOrIgnoreCase === "function"
+      ? getCanonicalFileNameOrIgnoreCase
+      : identity;
+  const ignoreCase =
+    typeof getCanonicalFileNameOrIgnoreCase === "boolean"
+      ? getCanonicalFileNameOrIgnoreCase
+      : false;
+  const pathComponents = getPathComponentsRelativeTo(
+    fromDirectory,
+    to,
+    ignoreCase ? equateStringsCaseInsensitive : equateStringsCaseSensitive,
+    getCanonicalFileName
+  );
+  return getPathFromPathComponents(pathComponents);
+}
+
+// #endregion
 const enum CharacterCodes {
   nullCharacter = 0,
   maxAsciiCharacter = 0x7f,

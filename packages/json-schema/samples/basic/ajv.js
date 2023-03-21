@@ -1,4 +1,3 @@
-import addFormats from "ajv-formats";
 import Ajv from "ajv/dist/2020.js";
 import fs from "fs/promises";
 import yaml from "js-yaml";
@@ -10,15 +9,32 @@ for (const file of dir) {
 }
 
 const ajv = new Ajv({ schemas });
-addFormats(ajv);
-const validate = ajv.getSchema("User.yaml");
+const validate = ajv.getSchema("user");
 console.log(
   validate({
     username: "Brian",
     email: "brian.terlson@microsoft.com",
     posts: {
       nextLink: "/foo/bar.json",
-      items: [{ contents: "hi how are u", createdAt: "2020-10-10" }],
+      items: [{ contents: "hi how are u", createdAt: "2020-10-10", author: 1 }],
+    },
+  })
+);
+console.log(validate.errors);
+/*
+const ajv = new Ajv({
+  schemas: [yaml.load(await fs.readFile(`./tsp-output/@typespec/json-schema/types.yaml`))],
+});
+addFormats(ajv);
+const validate = ajv.getSchema("https://example.org/user");
+
+console.log(
+  validate({
+    username: "Brian",
+    email: "brian.terlson@microsoft.com",
+    posts: {
+      nextLink: "/foo/bar.json",
+      items: [{ contents: "hi how are u", createdAt: "2020-10-10", author: 1 }],
     },
   })
 );
