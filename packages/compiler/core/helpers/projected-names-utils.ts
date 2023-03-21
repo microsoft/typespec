@@ -31,10 +31,14 @@ export function createProjectedNameProgram(program: Program, target: string): Pr
   };
 
   function getProjectedName(type: Type & { name: string }): string {
-    const baseType = findTypeInProjector(projectedProgram.projector.parentProjector, type);
+    const baseType = findTypeInProjector(projectedProgram.projector, type);
     const projectedType = projectedProgram.projector.projectedTypes.get(baseType);
-    if (projectedType === undefined || !("name" in projectedType)) {
-      return baseType.name;
+    if (
+      projectedType === undefined ||
+      !("name" in projectedType) ||
+      projectedType.name === baseType.name
+    ) {
+      return type.name;
     }
     return projectedType.name as string;
   }

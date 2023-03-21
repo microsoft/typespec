@@ -2436,20 +2436,8 @@ export function createChecker(program: Program): Checker {
     const overriddenProp = getOverriddenProperty(newProp);
     if (overriddenProp) {
       const [isAssignable, _] = isTypeAssignableTo(newProp.type, overriddenProp.type, newProp);
-      const parentScalar = overriddenProp.type.kind === "Scalar";
       const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
-
-      if (!parentScalar) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "override-property-intrinsic",
-            format: { propName: newProp.name, propType: newPropType, parentType: parentType },
-            target: diagnosticTarget ?? newProp,
-          })
-        );
-        return;
-      }
 
       if (!isAssignable) {
         reportCheckerDiagnostic(
