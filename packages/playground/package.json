@@ -48,6 +48,7 @@
     "@typespec/openapi3": "~0.42.0",
     "@typespec/openapi": "~0.42.0",
     "@typespec/html-program-viewer": "~0.42.0",
+    "@typespec/json-schema": "~0.42.0",
     "@emotion/react": "^11.10.4",
     "@vitejs/plugin-react": "~2.2.0",
     "es-module-shims": "~1.6.2",
