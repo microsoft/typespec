@@ -155,9 +155,9 @@ const config = {
       mermaid: {},
       algolia: {
         // cspell:disable-next-line
-        appId: "WQXW45O51C",
-        apiKey: "9bfd71f94d516117e3022e788f2cc83c",
-        indexName: "cadl",
+        appId: "V3T9EUVLJR",
+        apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
+        indexName: "typespec",
       },
     }),
 };
