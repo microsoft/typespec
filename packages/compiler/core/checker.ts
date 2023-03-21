@@ -2417,7 +2417,6 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  
   function defineProperty(
     properties: Map<string, ModelProperty>,
     newProp: ModelProperty,
