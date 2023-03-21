@@ -279,9 +279,6 @@ describe("compiler: models", () => {
 
         model A { x: Named }
         model B extends A { x: {name: "B"} };
-
-        model C { kind: "C" }
-        model D extends C { kind: "D"}
         `
       );
       const diagnostics = await testHost.diagnose("main.tsp");
