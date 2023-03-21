@@ -1756,12 +1756,12 @@ export function createChecker(program: Program): Checker {
   function reportAmbiguousIdentifier(
     node: IdentifierNode,
     symbols: Sym[],
-    prefixForEmpty?: string
+    notFullyQualifiedPrefix?: string
   ) {
     let duplicateNames = symbols.map(getFullyQualifiedSymbolName);
-    if (prefixForEmpty) {
+    if (notFullyQualifiedPrefix) {
       duplicateNames = duplicateNames.map((name) =>
-        name.includes(".") ? name : `${prefixForEmpty}.${name}`
+        name.includes(".") ? name : `${notFullyQualifiedPrefix}.${name}`
       );
     }
     reportCheckerDiagnostic(
