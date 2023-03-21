@@ -4,6 +4,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getDoc,
+  isArrayModelType,
   Model,
   ModelProperty,
   Namespace,
@@ -60,10 +61,13 @@ export function $header(
   }
   if (
     entity.type.kind === "Model" &&
-    entity.type.name === "Array" &&
+    isArrayModelType(context.program, entity.type) &&
     options.format === undefined
   ) {
-    options.format = "csv";
+    reportDiagnostic(context.program, {
+      code: "header-format-required",
+      target: context.decoratorTarget,
+    });
   }
   context.program.stateMap(headerFieldsKey).set(entity, options);
 }
@@ -108,10 +112,13 @@ export function $query(
   }
   if (
     entity.type.kind === "Model" &&
-    entity.type.name === "Array" &&
+    isArrayModelType(context.program, entity.type) &&
     options.format === undefined
   ) {
-    options.format = "multi";
+    reportDiagnostic(context.program, {
+      code: "query-format-required",
+      target: context.decoratorTarget,
+    });
   }
   context.program.stateMap(queryFieldsKey).set(entity, options);
 }

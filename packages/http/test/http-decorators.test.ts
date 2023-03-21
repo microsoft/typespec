@@ -93,6 +93,17 @@ describe("http: decorators", () => {
       ]);
     });
 
+    it("emit diagnostics when header is not specifing format but is an array", async () => {
+      const diagnostics = await runner.diagnose(`
+          op test(@header MyHeader: string[]): string;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/header-format-required",
+        message: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
+      });
+    });
+
     it("generate header name from property name", async () => {
       const { MyHeader } = await runner.compile(`
           op test(@test @header MyHeader: string): string;
@@ -111,25 +122,14 @@ describe("http: decorators", () => {
     });
 
     it("override header with HeaderOptions", async () => {
-      const { MyHeader, SingleString } = await runner.compile(`
-          @get op test(@test @header("x-my-header") MyHeader: string[]): string;
-          @put op test2(@test @header({name: "x-single-string"}) SingleString: string): string;
+      const { SingleString } = await runner.compile(`
+          @put op test(@test @header({name: "x-single-string"}) SingleString: string): string;
         `);
 
-      deepStrictEqual(
-        getHeaderFieldOptions(runner.program, MyHeader),
-        {
-          type: "header",
-          name: "x-my-header",
-          format: "csv",
-        },
-        "default format for array type is csv"
-      );
       deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
         type: "header",
         name: "x-single-string",
       });
-      strictEqual(getHeaderFieldName(runner.program, MyHeader), "x-my-header");
       strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
     });
   });
@@ -182,6 +182,17 @@ describe("http: decorators", () => {
       ]);
     });
 
+    it("emit diagnostics when query is not specifing format but is an array", async () => {
+      const diagnostics = await runner.diagnose(`
+          op test(@query select: string[]): string;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/query-format-required",
+        message: `A format must be specified for @query when type is an array. e.g. @query({format: "multi"})`,
+      });
+    });
+
     it("generate query name from property name", async () => {
       const { select } = await runner.compile(`
           op test(@test @query select: string): string;
@@ -200,26 +211,14 @@ describe("http: decorators", () => {
     });
 
     it("override query with QueryOptions", async () => {
-      const { foo, selects } = await runner.compile(`
-          op test(@test @query foo: string[]): string;
-          @put op test2(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
+      const { selects } = await runner.compile(`
+          @put op test(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
         `);
-
-      deepStrictEqual(
-        getQueryParamOptions(runner.program, foo),
-        {
-          type: "query",
-          name: "foo",
-          format: "multi",
-        },
-        "default format is multi for array type"
-      );
       deepStrictEqual(getQueryParamOptions(runner.program, selects), {
         type: "query",
         name: "$select",
         format: "csv",
       });
-      strictEqual(getQueryParamName(runner.program, foo), "foo");
       strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });

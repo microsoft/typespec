@@ -41,7 +41,7 @@ model QueryOptions {
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "multi" | "csv";
+  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes";
 }
 
 /**

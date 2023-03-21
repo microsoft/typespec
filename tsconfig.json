@@ -2,6 +2,7 @@
   "references": [
     { "path": "packages/compiler/tsconfig.json" },
     { "path": "packages/versioning/tsconfig.json" },
+    { "path": "packages/http/tsconfig.json" },
     { "path": "packages/rest/tsconfig.json" },
     { "path": "packages/library-linter/tsconfig.json" },
     { "path": "packages/eslint-plugin-typespec/tsconfig.json" },
