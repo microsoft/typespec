@@ -14,6 +14,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   NoTarget,
+  RekeyableMap,
   SourceFile,
   SourceFileKind,
   Sym,
@@ -493,13 +494,17 @@ export class DuplicateTracker<K, V> {
   }
 }
 
-interface OrderedMapKey<K> {
+export function createRekeyableMap<K, V>(entries?: [K, V][]): RekeyableMap<K, V> {
+  return new RekeyableMapImpl<K, V>(entries);
+}
+
+interface RekeyableMapKey<K> {
   key: K;
 }
 
-export class OrderedMap<K, V> implements Map<K, V> {
-  #keys = new Map<K, OrderedMapKey<K>>();
-  #values = new Map<OrderedMapKey<K>, V>();
+class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
+  #keys = new Map<K, RekeyableMapKey<K>>();
+  #values = new Map<RekeyableMapKey<K>, V>();
 
   constructor(entries?: [K, V][]) {
     if (entries) {
@@ -524,23 +529,23 @@ export class OrderedMap<K, V> implements Map<K, V> {
   }
 
   forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void {
-    this.#values.forEach((value, keyItem, map) => {
+    this.#values.forEach((value, keyItem) => {
       callbackfn(value, keyItem.key, this);
     }, thisArg);
   }
+
   get(key: K): V | undefined {
     const keyItem = this.#keys.get(key);
     return keyItem ? this.#values.get(keyItem) : undefined;
   }
 
   has(key: K): boolean {
-    const keyItem = this.#keys.get(key);
-    return keyItem ? this.#values.has(keyItem) : false;
+    return this.#keys.has(key);
   }
 
   set(key: K, value: V): this {
     let keyItem = this.#keys.get(key);
-    if (keyItem === undefined) {
+    if (!keyItem) {
       keyItem = { key };
       this.#keys.set(key, keyItem);
     }
@@ -572,15 +577,10 @@ export class OrderedMap<K, V> implements Map<K, V> {
   [Symbol.iterator](): IterableIterator<[K, V]> {
     return this.entries();
   }
-  [Symbol.toStringTag] = "OrderedMap";
 
-  /**
-   * Update the key but keep the order.
-   * @param existingKey Existing key
-   * @param newKey New key
-   * @returns boolean if updated successfully.
-   */
-  updateKey(existingKey: K, newKey: K): boolean {
+  [Symbol.toStringTag] = "RekeyableMap";
+
+  rekey(existingKey: K, newKey: K): boolean {
     const keyItem = this.#keys.get(existingKey);
     if (!keyItem) {
       return false;

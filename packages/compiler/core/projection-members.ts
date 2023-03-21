@@ -59,8 +59,7 @@ export function createProjectionMembers(checker: Checker): {
           }
 
           prop.name = newName;
-          base.properties.delete(oldName);
-          base.properties.set(newName, prop);
+          base.properties.rekey(oldName, newName);
 
           return voidType;
         });
@@ -165,11 +164,8 @@ export function createProjectionMembers(checker: Checker): {
           if (!variant) {
             throw new ProjectionError(`Couldn't find variant ${variant}`);
           }
-          base.variants.delete(oldName);
-          base.variants.set(newName, variant);
-          if (variant.kind === "UnionVariant") {
-            variant.name = newName;
-          }
+          base.variants.rekey(oldName, newName);
+          variant.name = newName;
 
           return voidType;
         });
@@ -260,11 +256,8 @@ export function createProjectionMembers(checker: Checker): {
           if (!op) {
             throw new ProjectionError(`Couldn't find operation named ${oldName}`);
           }
-          const clone = cloneType(op);
-          clone.name = newName;
-          base.operations.delete(oldName);
-          base.operations.set(newName, clone);
-
+          op.name = newName;
+          base.operations.rekey(oldName, newName);
           return voidType;
         });
       },
@@ -372,20 +365,19 @@ export function createProjectionMembers(checker: Checker): {
         });
       },
       renameMember(base) {
-        return createFunctionType((nameT: Type, newNameT: Type) => {
-          assertType("enum member", nameT, "String");
+        return createFunctionType((oldNameT: Type, newNameT: Type) => {
+          assertType("enum member", oldNameT, "String");
           assertType("enum member", newNameT, "String");
 
-          const name = nameT.value;
+          const oldName = oldNameT.value;
           const newName = newNameT.value;
 
-          const member = base.members.get(name);
+          const member = base.members.get(oldName);
           if (!member) {
-            throw new ProjectionError(`Enum doesn't have member ${name}`);
+            throw new ProjectionError(`Enum doesn't have member ${oldName}`);
           }
           member.name = newName;
-          base.members.delete(name);
-          base.members.set(newName, member);
+          base.members.rekey(oldName, newName);
           return voidType;
         });
       },

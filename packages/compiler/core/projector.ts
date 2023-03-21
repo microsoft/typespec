@@ -21,7 +21,7 @@ import {
   Union,
   UnionVariant,
 } from "./types.js";
-import { mutate } from "./util.js";
+import { createRekeyableMap, mutate } from "./util.js";
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
@@ -171,13 +171,13 @@ export function createProjector(
     }
 
     const projectedNs = shallowClone(ns, {
-      namespaces: new Map<string, Namespace>(),
-      scalars: new Map<string, Scalar>(),
-      models: new Map<string, Model>(),
-      operations: new Map<string, Operation>(),
-      interfaces: new Map<string, Interface>(),
-      unions: new Map<string, Union>(),
-      enums: new Map<string, Enum>(),
+      namespaces: createRekeyableMap(),
+      scalars: createRekeyableMap(),
+      models: createRekeyableMap(),
+      operations: createRekeyableMap(),
+      interfaces: createRekeyableMap(),
+      unions: createRekeyableMap(),
+      enums: createRekeyableMap(),
       decorators: [],
     });
 
@@ -256,7 +256,7 @@ export function createProjector(
   }
 
   function projectModel(model: Model): Type {
-    const properties = new Map<string, ModelProperty>();
+    const properties = createRekeyableMap<string, ModelProperty>();
 
     const projectedModel = shallowClone(model, {
       properties,
@@ -411,7 +411,7 @@ export function createProjector(
   }
 
   function projectInterface(iface: Interface): Type {
-    const operations = new Map<string, Operation>();
+    const operations = createRekeyableMap<string, Operation>();
     const decorators = projectDecorators(iface.decorators);
     const projectedIface = shallowClone(iface, {
       decorators,
@@ -438,7 +438,7 @@ export function createProjector(
   }
 
   function projectUnion(union: Union) {
-    const variants = new Map<string | symbol, UnionVariant>();
+    const variants = createRekeyableMap<string | symbol, UnionVariant>();
     const decorators = projectDecorators(union.decorators);
 
     const projectedUnion = shallowClone(union, {
@@ -493,7 +493,7 @@ export function createProjector(
   }
 
   function projectEnum(e: Enum) {
-    const members = new Map<string, EnumMember>();
+    const members = createRekeyableMap<string, EnumMember>();
     const decorators = projectDecorators(e.decorators);
     const projectedEnum = shallowClone(e, {
       members,

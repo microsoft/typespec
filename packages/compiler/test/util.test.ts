@@ -1,10 +1,11 @@
 import { deepStrictEqual } from "assert";
-import { OrderedMap } from "../core/util.js";
+import { RekeyableMap } from "../core/index.js";
+import { createRekeyableMap } from "../core/util.js";
 
 describe("compiler: util", () => {
-  describe("OrderedMap", () => {
-    it("contrstruct map in order", () => {
-      const map = new OrderedMap([
+  describe("RekeyableMap", () => {
+    it("construct map in order", () => {
+      const map = createRekeyableMap([
         ["a", "pos 1"],
         ["b", "pos 2"],
         ["c", "pos 3"],
@@ -21,9 +22,9 @@ describe("compiler: util", () => {
     });
 
     describe("set() should add items at the end", () => {
-      let map: OrderedMap<string, string>;
+      let map: RekeyableMap<string, string>;
       beforeEach(() => {
-        map = new OrderedMap([
+        map = createRekeyableMap([
           ["a", "pos 1"],
           ["b", "pos 2"],
           ["c", "pos 3"],
@@ -52,14 +53,14 @@ describe("compiler: util", () => {
     });
 
     it("keep order when renaming keys", () => {
-      const map = new OrderedMap([
+      const map = createRekeyableMap([
         ["a", "pos 1"],
         ["b", "pos 2"],
         ["c", "pos 3"],
         ["d", "pos 4"],
       ]);
 
-      map.updateKey("b", "renamed");
+      map.rekey("b", "renamed");
 
       deepStrictEqual(
         [...map.entries()],
