@@ -33,6 +33,12 @@ const libDefinition = {
         default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which conflicts with the key name of a parent or child resource.`,
       },
     },
+    "invalid-action-name": {
+      severity: "error",
+      messages: {
+        default: "Action name cannot be empty string.",
+      },
+    },
   },
 } as const;
 

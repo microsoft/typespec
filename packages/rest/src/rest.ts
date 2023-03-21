@@ -437,6 +437,13 @@ export function getActionSegment(program: Program, entity: Type): string | undef
 
 const actionsKey = createStateSymbol("actions");
 export function $action(context: DecoratorContext, entity: Operation, name?: string) {
+  if (name === "") {
+    reportDiagnostic(context.program, {
+      code: "invalid-action-name",
+      target: entity,
+    });
+    return;
+  }
   const action = makeActionName(entity, name);
   context.call($actionSegment, entity, action);
   context.program.stateMap(actionsKey).set(entity, action);
