@@ -56,6 +56,30 @@ describe("rest: routes", () => {
     ]);
   });
 
+  it("emit diagnostic when @action is empty string", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      model ThingId {
+        @path
+        @segment("things")
+        thingId: string;
+      }
+
+      @autoRoute
+      interface Things {
+        @action("")
+        @put op MyAction(...ThingId): string;
+      }
+      `
+    );
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/rest/invalid-action-name",
+        message: "Action name cannot be empty string.",
+      },
+    ]);
+  });
+
   it("automatically generates routes for operations in various scopes when specified", async () => {
     const routes = await getRoutesFor(
       `

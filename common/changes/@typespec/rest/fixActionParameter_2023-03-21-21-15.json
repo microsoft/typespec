@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Fix issue where `@action(\"\")` was treated the same as `@action`. Now this emits an error.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}
