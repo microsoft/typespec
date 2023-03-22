@@ -63,7 +63,7 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
-    "editor.defaultFormatter": "Microsoft.typespec-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[csharp]": {
     "editor.insertSpaces": true,
