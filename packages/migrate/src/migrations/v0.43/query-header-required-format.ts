@@ -28,10 +28,8 @@ export const migrateQueryHeaderRequiredFormat = createContentMigration({
             decorator.target.kind === SyntaxKind.Identifier
               ? decorator.target.sv
               : decorator.target.id.sv;
-          console.log("Dec", decName);
           if (decName === "header" || decName === "query") {
             const decId = printNode(decorator.target);
-            console.log("rename", decId);
             const defaultFormat = decName === "header" ? "csv" : "multi";
             if (decorator.arguments.length === 0) {
               actions.push({
