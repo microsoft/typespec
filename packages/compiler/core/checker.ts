@@ -656,14 +656,23 @@ export function createChecker(program: Program): Checker {
     return errorType;
   }
 
-  function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
+  function getFullyQualifiedSymbolName(
+    sym: Sym | undefined,
+    options?: { useGlobalPrefixAtTopLevel?: boolean }
+  ): string {
     if (!sym) return "";
     if (sym.symbolSource) sym = sym.symbolSource;
-    const parent = sym.parent;
+    const parent =
+      sym.parent && !(sym.parent.flags & SymbolFlags.SourceFile) ? sym.parent : undefined;
     const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
-    return parent && parent.name !== "" && !(parent.flags & SymbolFlags.SourceFile)
-      ? `${getFullyQualifiedSymbolName(parent)}.${name}`
-      : name;
+
+    if (parent?.name) {
+      return `${getFullyQualifiedSymbolName(parent)}.${name}`;
+    } else if (options?.useGlobalPrefixAtTopLevel) {
+      return `global.${name}`;
+    } else {
+      return name;
+    }
   }
 
   /**
@@ -1753,17 +1762,10 @@ export function createChecker(program: Program): Checker {
     return getMergedSymbol(sym);
   }
 
-  function reportAmbiguousIdentifier(
-    node: IdentifierNode,
-    symbols: Sym[],
-    notFullyQualifiedPrefix?: string
-  ) {
-    let duplicateNames = symbols.map(getFullyQualifiedSymbolName);
-    if (notFullyQualifiedPrefix) {
-      duplicateNames = duplicateNames.map((name) =>
-        name.includes(".") ? name : `${notFullyQualifiedPrefix}.${name}`
-      );
-    }
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+    const duplicateNames = symbols.map((s) =>
+      getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true })
+    );
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "ambiguous-symbol",
@@ -2004,7 +2006,7 @@ export function createChecker(program: Program): Checker {
       const usingBinding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
 
       if (globalBinding && usingBinding) {
-        reportAmbiguousIdentifier(node, [globalBinding, usingBinding], "global");
+        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
         return globalBinding;
       } else if (globalBinding) {
         return globalBinding;
