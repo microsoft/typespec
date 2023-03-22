@@ -28,7 +28,7 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(
-        @query({name: "$select"}) selects: string[],
+        @query({name: "$select", format: "multi"}) selects: string[],
         @query({name: "$order", format: "csv"}) orders: string[],
       ): void;
       `
@@ -86,7 +86,7 @@ describe("openapi3: parameters", () => {
   it("create an header param of array type", async () => {
     const res = await openApiFor(
       `
-      op test(@header("foo-bar") foo: string[]): void;
+      op test(@header({"foo-bar", format: "csv"}) foo: string[]): void;
       `
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "header");
