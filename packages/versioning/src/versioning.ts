@@ -10,8 +10,6 @@ import {
   Operation,
   Program,
   ProjectionApplication,
-  reportDeprecated,
-  Tuple,
   Type,
 } from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
@@ -195,36 +193,10 @@ function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
 }
 
 /**
- * @deprecated since version 0.39.0. Use getRenamedFromVersions
- * @returns version when the given type was added if applicable.
- */
-export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
-  reportDeprecated(
-    p,
-    "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
-    t
-  );
-  return p.stateMap(renamedFromKey).get(t)?.[0].version;
-}
-
-/**
  * @returns the list of versions for which this decorator has been applied
  */
 export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefined {
   return getRenamedFrom(p, t)?.map((x) => x.version);
-}
-
-/**
- * @deprecated since version 0.39.0. Use getNameAtVersion instead.
- * @returns get old renamed name if applicable.
- */
-export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
-  reportDeprecated(
-    p,
-    "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
-    t
-  );
-  return p.stateMap(renamedFromKey).get(t)?.[0].oldName ?? "";
 }
 
 /**
@@ -276,24 +248,6 @@ export function getReturnTypeBeforeVersion(p: Program, t: Type, v: ObjectType): 
     }
   }
   return "";
-}
-
-/**
- * @deprecated since version 0.39.0.
- * @returns version when the given type was added if applicable.
- */
-export function getAddedOn(p: Program, t: Type): Version | undefined {
-  reportDeprecated(p, "Deprecated: getAddedOn is deprecated. Use getAddedOnVersions.", t);
-  return p.stateMap(addedOnKey).get(t)?.[0];
-}
-
-/**
- * @deprecated since version 0.39.0.
- * @returns version when the given type was removed if applicable.
- */
-export function getRemovedOn(p: Program, t: Type): Version | undefined {
-  reportDeprecated(p, "Deprecated: getRemovedOn is deprecated. Use getRemovedOnVersions.", t);
-  return p.stateMap(removedOnKey).get(t)?.[0];
 }
 
 export function getAddedOnVersions(p: Program, t: Type): Version[] | undefined {
@@ -467,86 +421,6 @@ export function getUseDependencies(
     }
   }
   return result;
-}
-
-export function $versionedDependency(
-  context: DecoratorContext,
-  referenceNamespace: Namespace,
-  versionRecord: Tuple | EnumMember
-) {
-  const { program } = context;
-
-  reportDeprecated(
-    program,
-    "@versionedDependency is deprecated. Use @useDependency instead.",
-    context.decoratorTarget
-  );
-
-  let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
-    Namespace,
-    Version | Map<EnumMember, Version>
-  >;
-
-  if (!state) {
-    state = new Map();
-    context.program.stateMap(versionDependencyKey).set(referenceNamespace, state);
-  }
-
-  if (versionRecord.kind === "EnumMember") {
-    const v = checkIsVersion(program, versionRecord, context.getArgumentTarget(0)!);
-    if (v) {
-      state.set(v.namespace, v);
-    }
-  } else {
-    let targetNamespace: Namespace | undefined;
-    const versionMap = new Map<EnumMember, Version>();
-
-    for (const entry of versionRecord.values) {
-      if (entry.kind !== "Tuple") {
-        reportDiagnostic(context.program, { code: "versioned-dependency-tuple", target: entry });
-        continue;
-      }
-      const [sourceMember, targetMember] = entry.values;
-
-      if (sourceMember === undefined || sourceMember.kind !== "EnumMember") {
-        reportDiagnostic(context.program, {
-          code: "versioned-dependency-tuple-enum-member",
-          target: sourceMember ?? entry,
-        });
-        continue;
-      }
-      if (targetMember === undefined || targetMember.kind !== "EnumMember") {
-        reportDiagnostic(context.program, {
-          code: "versioned-dependency-tuple-enum-member",
-          target: targetMember ?? entry,
-        });
-        continue;
-      }
-
-      const targetVersion = checkIsVersion(program, targetMember, targetMember);
-      if (!targetVersion) {
-        continue;
-      }
-      if (targetNamespace === undefined) {
-        targetNamespace = targetVersion.namespace;
-      } else if (targetNamespace !== targetVersion.namespace) {
-        reportDiagnostic(context.program, {
-          code: "versioned-dependency-same-namespace",
-          format: {
-            namespace1: getNamespaceFullName(targetNamespace),
-            namespace2: getNamespaceFullName(targetVersion.namespace),
-          },
-          target: targetMember,
-        });
-        return;
-      }
-
-      versionMap.set(sourceMember, targetVersion);
-    }
-    if (targetNamespace) {
-      state.set(targetNamespace, versionMap);
-    }
-  }
 }
 
 function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
@@ -776,38 +650,6 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
   }
 }
 
-// these decorators take a `versionSource` parameter because not all types can walk up to
-// the containing namespace. Model properties, for example.
-/**
- * @deprecated since version 0.39.0. Use existsAtVersion instead.
- * @param p
- * @param type
- * @param version
- * @returns
- */
-export function addedAfter(p: Program, type: Type, version: ObjectType): boolean {
-  reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsAtVersion instead.", type);
-  const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
-  return appliesAt === null ? false : !appliesAt;
-}
-
-/**
- * @deprecated since version 0.39.0. Use existsAtVersion instead.
- * @param p
- * @param type
- * @param version
- * @returns
- */
-export function removedOnOrBefore(p: Program, type: Type, version: ObjectType): boolean {
-  reportDeprecated(
-    p,
-    "Deprecated: removedOnOrBefore is deprecated. Use existsAtVersion instead.",
-    type
-  );
-  const appliesAt = appliesAtVersion(getRemovedOn, p, type, version);
-  return appliesAt === null ? false : appliesAt;
-}
-
 function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
@@ -882,23 +724,6 @@ export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType):
 
   const isAvail = availability.get(version.name)!;
   return [Availability.Added, Availability.Available].includes(isAvail);
-}
-
-/**
- * @deprecated since version 0.39.0. Use hasDifferentNameAtVersion instead.
- * @param p
- * @param type
- * @param version
- * @returns
- */
-export function renamedAfter(p: Program, type: Type, version: ObjectType): boolean {
-  reportDeprecated(
-    p,
-    "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
-    type
-  );
-  const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
-  return appliesAt === null ? false : !appliesAt;
 }
 
 export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType): boolean {
