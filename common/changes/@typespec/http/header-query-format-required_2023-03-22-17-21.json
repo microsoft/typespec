@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "**Breaking change** `@header` and `@query` no longer default the `format` to `csv` and `multi` respectively. A value must now be provided when the type is an array.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
