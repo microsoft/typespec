@@ -656,14 +656,23 @@ export function createChecker(program: Program): Checker {
     return errorType;
   }
 
-  function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
+  function getFullyQualifiedSymbolName(
+    sym: Sym | undefined,
+    options?: { useGlobalPrefixAtTopLevel?: boolean }
+  ): string {
     if (!sym) return "";
     if (sym.symbolSource) sym = sym.symbolSource;
-    const parent = sym.parent;
+    const parent =
+      sym.parent && !(sym.parent.flags & SymbolFlags.SourceFile) ? sym.parent : undefined;
     const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
-    return parent && parent.name !== "" && !(parent.flags & SymbolFlags.SourceFile)
-      ? `${getFullyQualifiedSymbolName(parent)}.${name}`
-      : name;
+
+    if (parent?.name) {
+      return `${getFullyQualifiedSymbolName(parent)}.${name}`;
+    } else if (options?.useGlobalPrefixAtTopLevel) {
+      return `global.${name}`;
+    } else {
+      return name;
+    }
   }
 
   /**
@@ -1736,7 +1745,6 @@ export function createChecker(program: Program): Checker {
     if (!table) {
       return undefined;
     }
-
     table = augmentedSymbolTables.get(table) ?? table;
     let sym;
     if (resolveDecorator) {
@@ -1755,11 +1763,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols.map(getFullyQualifiedSymbolName).join(", ");
+    const duplicateNames = symbols.map((s) =>
+      getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true })
+    );
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "ambiguous-symbol",
-        format: { name: node.sv, duplicateNames },
+        format: { name: node.sv, duplicateNames: duplicateNames.join(", ") },
         target: node,
       })
     );
@@ -1893,6 +1903,7 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
+
       table = augmentedSymbolTables.get(table) ?? table;
       for (const [key, sym] of table) {
         if (sym.flags & SymbolFlags.DuplicateUsing) {
@@ -1985,17 +1996,23 @@ export function createChecker(program: Program): Checker {
       }
 
       // check "global scope" declarations
-      binding = resolveIdentifierInTable(
+      const globalBinding = resolveIdentifierInTable(
         node,
         globalNamespaceNode.symbol.exports,
         resolveDecorator
       );
 
-      if (binding) return binding;
-
       // check using types
-      binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-      if (binding) return binding.flags & SymbolFlags.DuplicateUsing ? undefined : binding;
+      const usingBinding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+
+      if (globalBinding && usingBinding) {
+        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
+        return globalBinding;
+      } else if (globalBinding) {
+        return globalBinding;
+      } else if (usingBinding) {
+        return usingBinding.flags & SymbolFlags.DuplicateUsing ? undefined : usingBinding;
+      }
     }
 
     if (mapper === undefined) {
