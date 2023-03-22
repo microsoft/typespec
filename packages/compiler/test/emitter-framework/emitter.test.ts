@@ -7,6 +7,7 @@ import {
   ModelProperty,
   Operation,
   Program,
+  Scalar,
   Type,
   Union,
 } from "../../core/index.js";
@@ -253,6 +254,24 @@ describe("typescript emitter", () => {
     `);
 
     assert.match(contents, /x: \[string, number\]/);
+  });
+
+  it("emits scalars", async () => {
+    class TestEmitter extends CodeTypeEmitter {
+      scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<string> {
+        return super.scalarDeclaration(scalar, name);
+      }
+    }
+    await emitTypeSpec(
+      TestEmitter,
+      `
+      scalar X extends string;
+      scalar Y extends numeric;
+    `,
+      {
+        scalarDeclaration: 4,
+      }
+    );
   });
 
   it("emits models to a single file", async () => {

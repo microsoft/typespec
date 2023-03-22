@@ -203,6 +203,11 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
         this.emitter.emitType(iface);
       }
     }
+
+    for (const scalar of namespace.scalars.values()) {
+      this.emitter.emitType(scalar);
+    }
+
     return this.emitter.result.none();
   }
 
