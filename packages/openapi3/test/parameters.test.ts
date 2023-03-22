@@ -86,7 +86,7 @@ describe("openapi3: parameters", () => {
   it("create an header param of array type", async () => {
     const res = await openApiFor(
       `
-      op test(@header({"foo-bar", format: "csv"}) foo: string[]): void;
+      op test(@header({name: "foo-bar", format: "csv"}) foo: string[]): void;
       `
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "header");
