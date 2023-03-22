@@ -900,6 +900,7 @@ export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
   readonly id: IdentifierNode;
   readonly base: MemberExpressionNode | IdentifierNode;
+  readonly selector: "." | "::";
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {

@@ -2062,83 +2062,10 @@ export function createChecker(program: Program): Checker {
         base = getAliasedSymbol(base, mapper);
       }
 
-      if (base.flags & SymbolFlags.Namespace) {
-        const symbol = resolveIdentifierInTable(node.id, base.exports, resolveDecorator);
-        if (!symbol) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "underNamespace",
-              format: {
-                namespace: getFullyQualifiedSymbolName(base),
-                id: node.id.sv,
-              },
-              target: node,
-            })
-          );
-          return undefined;
-        }
-        return symbol;
-      } else if (base.flags & SymbolFlags.Decorator) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-ref",
-            messageId: "inDecorator",
-            format: { id: node.id.sv },
-            target: node,
-          })
-        );
-        return undefined;
-      } else if (base.flags & SymbolFlags.Function) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-ref",
-            messageId: "node",
-            format: { id: node.id.sv, nodeName: "function" },
-            target: node,
-          })
-        );
-
-        return undefined;
-      } else if (base.flags & SymbolFlags.MemberContainer) {
-        if (isTemplatedNode(base.declarations[0])) {
-          const type =
-            base.flags & SymbolFlags.LateBound
-              ? base.type!
-              : getTypeForNode(base.declarations[0], mapper);
-          if (isTemplateInstance(type)) {
-            lateBindMembers(type, base);
-          }
-        }
-        const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
-        if (!sym) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "underContainer",
-              format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
-              target: node,
-            })
-          );
-          return undefined;
-        }
-        return sym;
+      if (node.selector === ".") {
+        return resolveMemberInContainer(node, base, mapper, resolveDecorator);
       } else {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-ref",
-            messageId: "node",
-            format: {
-              id: node.id.sv,
-              nodeName: base.declarations[0]
-                ? SyntaxKind[base.declarations[0].kind]
-                : "Unknown node",
-            },
-            target: node,
-          })
-        );
-
-        return undefined;
+        return resolveMetaProperty(node, base);
       }
     }
 
@@ -2150,6 +2077,98 @@ export function createChecker(program: Program): Checker {
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
+  }
+
+  function resolveMemberInContainer(
+    node: MemberExpressionNode,
+    base: Sym,
+    mapper: TypeMapper | undefined,
+    resolveDecorator: boolean
+  ) {
+    if (base.flags & SymbolFlags.Namespace) {
+      const symbol = resolveIdentifierInTable(node.id, base.exports, resolveDecorator);
+      if (!symbol) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "underNamespace",
+            format: {
+              namespace: getFullyQualifiedSymbolName(base),
+              id: node.id.sv,
+            },
+            target: node,
+          })
+        );
+        return undefined;
+      }
+      return symbol;
+    } else if (base.flags & SymbolFlags.Decorator) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "inDecorator",
+          format: { id: node.id.sv },
+          target: node,
+        })
+      );
+      return undefined;
+    } else if (base.flags & SymbolFlags.Function) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "node",
+          format: { id: node.id.sv, nodeName: "function" },
+          target: node,
+        })
+      );
+
+      return undefined;
+    } else if (base.flags & SymbolFlags.MemberContainer) {
+      if (isTemplatedNode(base.declarations[0])) {
+        const type =
+          base.flags & SymbolFlags.LateBound
+            ? base.type!
+            : getTypeForNode(base.declarations[0], mapper);
+        if (isTemplateInstance(type)) {
+          lateBindMembers(type, base);
+        }
+      }
+      const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
+      if (!sym) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "underContainer",
+            format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+            target: node,
+          })
+        );
+        return undefined;
+      }
+      return sym;
+    } else {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "node",
+          format: {
+            id: node.id.sv,
+            nodeName: base.declarations[0] ? SyntaxKind[base.declarations[0].kind] : "Unknown node",
+          },
+          target: node,
+        })
+      );
+
+      return undefined;
+    }
+  }
+
+  function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
+    if (base.flags & SymbolFlags.ModelProperty) {
+      console.log("Base", base);
+    }
+    // TODO-TIM logic here
+    return undefined;
   }
 
   function getMemberKindName(node: Node) {
