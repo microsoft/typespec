@@ -466,6 +466,7 @@ export function createChecker(program: Program): Checker {
 
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
+      console.log("Ref for augment dec", ref);
       if (ref) {
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
@@ -2164,11 +2165,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
-    if (base.flags & SymbolFlags.ModelProperty) {
-      console.log("Base", base);
-    }
-    // TODO-TIM logic here
-    return undefined;
+    const resolved = resolveIdentifierInTable(node.id, base.metatypes);
+    console.log("Found sym link", resolved);
+    return resolved;
   }
 
   function getMemberKindName(node: Node) {
@@ -2523,6 +2522,16 @@ export function createChecker(program: Program): Checker {
             }
           }
           break;
+        case SyntaxKind.ModelExpression:
+          for (const prop of node.properties) {
+            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
+              resolveAndCopyMembers(prop.target);
+            } else {
+              const name = prop.id.sv;
+              bindMember(name, prop, SymbolFlags.ModelProperty);
+            }
+          }
+          break;
         case SyntaxKind.EnumStatement:
           for (const member of node.members.values()) {
             if (member.kind === SyntaxKind.EnumSpreadMember) {
@@ -2549,6 +2558,12 @@ export function createChecker(program: Program): Checker {
             bindMember(name, variant, SymbolFlags.UnionVariant);
           }
           break;
+        case SyntaxKind.ModelProperty:
+          const sym = getSymbolForMember(node);
+          if (sym) {
+            const table = getOrCreateAugmentedSymbolTable(sym.metatypes!);
+            table.set("type", node.value.symbol);
+          }
       }
 
       function resolveAndCopyMembers(node: TypeReferenceNode) {

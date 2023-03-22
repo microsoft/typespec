@@ -9,6 +9,8 @@ import {
   FunctionParameterNode,
   InterfaceStatementNode,
   JsSourceFileNode,
+  ModelExpressionNode,
+  ModelPropertyNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -227,6 +229,12 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
         break;
+      case SyntaxKind.ModelExpression:
+        bindModelExpression(node);
+        break;
+      case SyntaxKind.ModelProperty:
+        bindModelProperty(node);
+        break;
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
         break;
@@ -392,6 +400,14 @@ export function createBinder(program: Program): Binder {
     mutate(node).locals = new SymbolTable();
   }
 
+  function bindModelExpression(node: ModelExpressionNode) {
+    declareSymbol(node as any, SymbolFlags.Model);
+  }
+
+  function bindModelProperty(node: ModelPropertyNode) {
+    declareSymbol(node as any, SymbolFlags.ModelProperty);
+  }
+
   function bindScalarStatement(node: ScalarStatementNode) {
     declareSymbol(node, SymbolFlags.Scalar);
     // Initialize locals for type parameters
@@ -476,10 +492,12 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags, name);
       default:
-        const key = name ?? node.id.sv;
+        const key = name ?? node.id?.sv;
         const symbol = createSymbol(node, key, flags, scope.symbol);
         mutate(node).symbol = symbol;
-        mutate(scope.locals!).set(key, symbol);
+        if (key) {
+          mutate(scope.locals!).set(key, symbol);
+        }
         return symbol;
     }
   }
@@ -568,5 +586,6 @@ export function createSymbol(
     flags,
     value,
     parent,
+    metatypes: createSymbolTable(),
   };
 }
