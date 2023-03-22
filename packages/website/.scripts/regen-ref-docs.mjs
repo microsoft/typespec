@@ -33,3 +33,10 @@ await generateLibraryDocs(
   ["OpenAPI"],
   join(repoRoot, "docs/standard-library/openapi/reference")
 );
+
+// Versioning
+await generateLibraryDocs(
+  join(repoRoot, "packages/versioning"),
+  ["TypeSpec.Versioning"],
+  join(repoRoot, "docs/standard-library/versioning/reference")
+);
