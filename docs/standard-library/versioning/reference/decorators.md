@@ -44,24 +44,6 @@ dec TypeSpec.Versioning.useDependency(target: TypeSpec.Reflection.EnumMember | T
 | -------------- | ---------------------------------------- | ----------- |
 | versionRecords | `model TypeSpec.Reflection.EnumMember[]` |             |
 
-### `@versionedDependency` {#@TypeSpec.Versioning.versionedDependency}
-
-Identifies a mapping of versions to versioned dependencies for a namespace.
-
-```typespec
-dec TypeSpec.Versioning.versionedDependency(target: TypeSpec.Reflection.Namespace, mapping: TypeSpec.Reflection.EnumMember | [TypeSpec.Reflection.EnumMember, TypeSpec.Reflection.EnumMember][])
-```
-
-#### Target
-
-`Namespace`
-
-#### Parameters
-
-| Name    | Type                                                                                                         | Description |
-| ------- | ------------------------------------------------------------------------------------------------------------ | ----------- |
-| mapping | `union TypeSpec.Reflection.EnumMember \| [TypeSpec.Reflection.EnumMember, TypeSpec.Reflection.EnumMember][]` |             |
-
 ### `@added` {#@TypeSpec.Versioning.added}
 
 Identifies when the target was added.
