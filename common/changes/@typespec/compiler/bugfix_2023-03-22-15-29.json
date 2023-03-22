@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Bug: Emitter framework will now visit scalar declarations",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
