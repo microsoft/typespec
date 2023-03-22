@@ -118,6 +118,18 @@ const libDefinition = {
         default: "Multipart request body must be a model.",
       },
     },
+    "header-format-required": {
+      severity: "error",
+      messages: {
+        default: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
+      },
+    },
+    "query-format-required": {
+      severity: "error",
+      messages: {
+        default: `A format must be specified for @query when type is an array. e.g. @query({format: "multi"})`,
+      },
+    },
   },
 } as const;
 
