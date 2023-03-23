@@ -466,7 +466,6 @@ export function createChecker(program: Program): Checker {
 
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
-      console.log("Ref for augment dec", ref);
       if (ref) {
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
@@ -2166,7 +2165,6 @@ export function createChecker(program: Program): Checker {
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
     const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
-    console.log("Found sym link", resolved);
     return resolved;
   }
 
@@ -2226,6 +2224,9 @@ export function createChecker(program: Program): Checker {
     program.reportDuplicateSymbols(globalNamespaceNode.symbol.exports);
     for (const file of program.sourceFiles.values()) {
       bindAllMembers(file);
+    }
+    for (const file of program.sourceFiles.values()) {
+      bindMetaTypes(file);
     }
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
@@ -2558,34 +2559,6 @@ export function createChecker(program: Program): Checker {
             bindMember(name, variant, SymbolFlags.UnionVariant);
           }
           break;
-        case SyntaxKind.ModelProperty: {
-          const sym = getSymbolForMember(node);
-          if (sym) {
-            const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-            table.set("type", node.value.symbol);
-          }
-          break;
-        }
-        case SyntaxKind.OperationStatement: {
-          const sym = node.symbol ?? getSymbolForMember(node);
-          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-          if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
-            table.set("parameters", node.signature.parameters.symbol);
-            table.set("returnType", node.signature.returnType.symbol);
-          } else {
-            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined)!;
-            table.set(
-              "parameters",
-              getOrCreateAugmentedSymbolTable(sig.metatypeMembers!).get("parameters")!
-            );
-            table.set(
-              "returnType",
-              getOrCreateAugmentedSymbolTable(sig.metatypeMembers!).get("returnType")!
-            );
-          }
-
-          break;
-        }
       }
 
       function resolveAndCopyMembers(node: TypeReferenceNode) {
@@ -2629,6 +2602,39 @@ export function createChecker(program: Program): Checker {
         containerMembers.set(name, sym);
       }
     }
+  }
+
+  function bindMetaTypes(node: Node) {
+    switch (node.kind) {
+      case SyntaxKind.ModelProperty: {
+        const sym = getSymbolForMember(node);
+        if (sym) {
+          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+          table.set("type", node.value.symbol);
+        }
+        break;
+      }
+      case SyntaxKind.OperationStatement: {
+        const sym = node.symbol ?? getSymbolForMember(node);
+        const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+        if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
+          table.set("parameters", node.signature.parameters.symbol);
+          table.set("returnType", node.signature.returnType.symbol);
+        } else {
+          const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined)!;
+          if (sig) {
+            const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
+            table.set("parameters", sigTable.get("parameters")!);
+            table.set("returnType", sigTable.get("returnType")!);
+          }
+        }
+
+        break;
+      }
+    }
+    visitChildren(node, (child) => {
+      bindMetaTypes(child);
+    });
   }
 
   /**

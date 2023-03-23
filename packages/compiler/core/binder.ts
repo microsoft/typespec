@@ -401,11 +401,11 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindModelExpression(node: ModelExpressionNode) {
-    declareSymbol(node as any, SymbolFlags.Model);
+    bindSymbol(node, SymbolFlags.Model);
   }
 
   function bindModelProperty(node: ModelPropertyNode) {
-    declareSymbol(node as any, SymbolFlags.ModelProperty);
+    // bindSymbol(node, SymbolFlags.ModelProperty);
   }
 
   function bindScalarStatement(node: ScalarStatementNode) {
@@ -484,6 +484,13 @@ export function createBinder(program: Program): Binder {
     mutate(node).symbol = symbol;
   }
 
+  /**
+   * Declare a symbole for the given node in the current scope.
+   * @param node Node
+   * @param flags Symbol flags
+   * @param name Optional symbol name, default to the node id.
+   * @returns Created Symbol
+   */
   function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
@@ -492,14 +499,18 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags, name);
       default:
-        const key = name ?? node.id?.sv;
-        const symbol = createSymbol(node, key, flags, scope.symbol);
+        const key = name ?? node.id.sv;
+        const symbol = createSymbol(node, key, flags, scope?.symbol);
         mutate(node).symbol = symbol;
-        if (key) {
-          mutate(scope.locals!).set(key, symbol);
-        }
+        mutate(scope.locals!).set(key, symbol);
         return symbol;
     }
+  }
+
+  function bindSymbol(node: Node, flags: SymbolFlags): Sym {
+    const symbol = createSymbol(node, "-", flags, scope?.symbol);
+    mutate(node).symbol = symbol;
+    return symbol;
   }
 
   function declareNamespaceMember(node: Declaration, flags: SymbolFlags, name?: string) {
@@ -509,7 +520,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const key = name ?? node.id.sv;
+    const key = name ?? node.id?.sv;
     const symbol = createSymbol(node, key, flags, scope.symbol);
     mutate(node).symbol = symbol;
     mutate(scope.symbol.exports)!.set(key, symbol);
@@ -524,7 +535,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const key = name ?? node.id.sv;
+    const key = name ?? node.id?.sv;
     const symbol = createSymbol(node, key, flags, fileNamespace?.symbol);
     mutate(node).symbol = symbol;
     mutate(effectiveScope.symbol.exports!).set(key, symbol);
