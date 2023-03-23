@@ -2165,7 +2165,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
-    const resolved = resolveIdentifierInTable(node.id, base.metatypes);
+    const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
     console.log("Found sym link", resolved);
     return resolved;
   }
@@ -2558,12 +2558,34 @@ export function createChecker(program: Program): Checker {
             bindMember(name, variant, SymbolFlags.UnionVariant);
           }
           break;
-        case SyntaxKind.ModelProperty:
+        case SyntaxKind.ModelProperty: {
           const sym = getSymbolForMember(node);
           if (sym) {
-            const table = getOrCreateAugmentedSymbolTable(sym.metatypes!);
+            const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
             table.set("type", node.value.symbol);
           }
+          break;
+        }
+        case SyntaxKind.OperationStatement: {
+          const sym = node.symbol ?? getSymbolForMember(node);
+          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+          if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
+            table.set("parameters", node.signature.parameters.symbol);
+            table.set("returnType", node.signature.returnType.symbol);
+          } else {
+            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined)!;
+            table.set(
+              "parameters",
+              getOrCreateAugmentedSymbolTable(sig.metatypeMembers!).get("parameters")!
+            );
+            table.set(
+              "returnType",
+              getOrCreateAugmentedSymbolTable(sig.metatypeMembers!).get("returnType")!
+            );
+          }
+
+          break;
+        }
       }
 
       function resolveAndCopyMembers(node: TypeReferenceNode) {

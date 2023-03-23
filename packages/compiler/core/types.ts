@@ -450,9 +450,9 @@ export interface Sym {
   readonly members?: SymbolTable;
 
   /**
-   * TODO-TIM add docs + rename?
+   * Symbol table
    */
-  readonly metatypes?: SymbolTable;
+  readonly metatypeMembers?: SymbolTable;
 
   /**
    * For using symbols, this is the used symbol.

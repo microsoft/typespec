@@ -586,6 +586,6 @@ export function createSymbol(
     flags,
     value,
     parent,
-    metatypes: createSymbolTable(),
+    metatypeMembers: createSymbolTable(),
   };
 }
