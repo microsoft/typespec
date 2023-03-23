@@ -10,7 +10,6 @@ import {
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelExpressionNode,
-  ModelPropertyNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -232,9 +231,6 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelExpression:
         bindModelExpression(node);
         break;
-      case SyntaxKind.ModelProperty:
-        bindModelProperty(node);
-        break;
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
         break;
@@ -402,10 +398,6 @@ export function createBinder(program: Program): Binder {
 
   function bindModelExpression(node: ModelExpressionNode) {
     bindSymbol(node, SymbolFlags.Model);
-  }
-
-  function bindModelProperty(node: ModelPropertyNode) {
-    // bindSymbol(node, SymbolFlags.ModelProperty);
   }
 
   function bindScalarStatement(node: ScalarStatementNode) {
