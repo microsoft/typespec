@@ -200,7 +200,20 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
     | ProjectionModelExpressionNode;
   namespace?: Namespace;
   indexer?: ModelIndexer;
-  properties: Map<string, ModelProperty>;
+
+  /**
+   * The properties of the model.
+   *
+   * Properties are ordered in the order that they appear in source.
+   * Properties obtained via `model is` appear before properties defined in
+   * the model body. Properties obtained via `...` are inserted where the
+   * spread appears in source.
+   *
+   * Properties inherited via `model extends` are not included. Use
+   * {@link walkPropertiesInherited} to enumerate all properties in the
+   * inheritance hierarchy.
+   */
+  properties: RekeyableMap<string, ModelProperty>;
 
   /**
    * Model this model extends. This represent inheritance.
@@ -267,7 +280,16 @@ export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   name: string;
   node: InterfaceStatementNode;
   namespace?: Namespace;
-  operations: Map<string, Operation>;
+
+  /**
+   * The operations of the interface.
+   *
+   * Operations are ordered in the order that they appear in the source.
+   * Operations obtained via `interface extends` appear before operations
+   * declared in the interface body.
+   */
+  operations: RekeyableMap<string, Operation>;
+
   /**
    * Late-bound symbol of this interface type.
    * @internal
@@ -280,7 +302,14 @@ export interface Enum extends BaseType, DecoratedType {
   name: string;
   node: EnumStatementNode;
   namespace?: Namespace;
-  members: Map<string, EnumMember>;
+
+  /**
+   * The members of the enum.
+   *
+   * Members are ordered in the order that they appear in source. Members
+   * obtained via `...` are inserted where the spread appears in source.
+   */
+  members: RekeyableMap<string, EnumMember>;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {
@@ -311,15 +340,68 @@ export interface Namespace extends BaseType, DecoratedType {
   name: string;
   namespace?: Namespace;
   node: NamespaceStatementNode;
+
+  /**
+   * The models in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   models: Map<string, Model>;
+
+  /**
+   * The scalars in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   scalars: Map<string, Scalar>;
+
+  /**
+   * The operations in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   operations: Map<string, Operation>;
+
+  /**
+   * The scalars in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   namespaces: Map<string, Namespace>;
+
+  /**
+   * The scalars in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   interfaces: Map<string, Interface>;
+
+  /**
+   * The enums in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   enums: Map<string, Enum>;
+
+  /**
+   * The unions in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   unions: Map<string, Union>;
 
+  /**
+   * The decorators declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   decoratorDeclarations: Map<string, Decorator>;
+
+  /**
+   * The functions declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
   functionDeclarations: Map<string, FunctionType>;
 }
 
@@ -354,7 +436,14 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;
   namespace?: Namespace;
-  variants: Map<string | symbol, UnionVariant>;
+
+  /**
+   * The variants of the union.
+   *
+   * Variants are ordered in order that they appear in source.
+   */
+  variants: RekeyableMap<string | symbol, UnionVariant>;
+
   expression: boolean;
   /**
    * @deprecated use variants
@@ -533,6 +622,20 @@ export const enum SymbolFlags {
 export interface TypeInstantiationMap {
   get(args: readonly Type[]): Type | undefined;
   set(args: readonly Type[], type: Type): void;
+}
+
+/**
+ * A map where keys can be changed without changing enumeration order.
+ */
+export interface RekeyableMap<K, V> extends Map<K, V> {
+  /**
+   * Change the given key without impacting enumeration order.
+   *
+   * @param existingKey Existing key
+   * @param newKey New key
+   * @returns boolean if updated successfully.
+   */
+  rekey(existingKey: K, newKey: K): boolean;
 }
 
 /**

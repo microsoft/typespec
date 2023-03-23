@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Add migration script for `@header` and `@query` format required",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

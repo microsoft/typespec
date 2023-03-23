@@ -6,13 +6,16 @@ import {
   renameCadlFileNames,
   updatePackageVersion,
 } from "./migrations/v0.41/typespec-rename.js";
+import { migrateQueryHeaderRequiredFormat } from "./migrations/v0.43/query-header-required-format.js";
 
 // Update here before release.
 export type TypeSpecCompilerCurrent = typeof import("@typespec/compiler");
 export type TypeSpecCompilerV0_37 = typeof import("@typespec/compiler-v0.37");
 export type TypeSpecCompilerV0_38 = typeof import("@typespec/compiler-v0.38");
 export type TypeSpecCompilerV0_40 = typeof import("@typespec/compiler-v0.40");
-export type TypeSpecCompilerV0_41 = TypeSpecCompilerCurrent;
+export type TypeSpecCompilerV0_41 = typeof import("@typespec/compiler-v0.41");
+export type TypeSpecCompilerV0_42 = typeof import("@typespec/compiler-v0.42");
+export type TypeSpecCompilerV0_43 = TypeSpecCompilerCurrent;
 
 /** Defines the list of compiler versions will be used */
 export type TypeSpecCompilers = {
@@ -20,6 +23,8 @@ export type TypeSpecCompilers = {
   "0.38.0": TypeSpecCompilerV0_38;
   "0.40.0": TypeSpecCompilerV0_40;
   "0.41.0": TypeSpecCompilerV0_41;
+  "0.42.0": TypeSpecCompilerV0_42;
+  "0.43.0": TypeSpecCompilerV0_43;
 };
 
 /** Please define the list of migration steps for each version.
@@ -32,4 +37,5 @@ export const migrationConfigurations: MigrationStepsDictionary = {
     updatePackageVersion,
     migrateTspConfigFile,
   ],
+  "0.43.0": [migrateQueryHeaderRequiredFormat],
 };

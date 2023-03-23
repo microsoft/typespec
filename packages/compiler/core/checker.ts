@@ -122,7 +122,7 @@ import {
   UnknownType,
   VoidType,
 } from "./types.js";
-import { isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
+import { createRekeyableMap, isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -1182,7 +1182,7 @@ export function createChecker(program: Program): Checker {
         return Array.from(this.variants.values()).map((v) => v.type);
       },
       expression: true,
-      variants: new Map(),
+      variants: createRekeyableMap(),
       decorators: [],
     });
 
@@ -1352,7 +1352,7 @@ export function createChecker(program: Program): Checker {
     options: [Node, Type][],
     mapper: TypeMapper | undefined
   ) {
-    const properties = new Map<string, ModelProperty>();
+    const properties = createRekeyableMap<string, ModelProperty>();
 
     const intersection: Model = createType({
       kind: "Model",
@@ -2301,7 +2301,7 @@ export function createChecker(program: Program): Checker {
       kind: "Model",
       name: node.id.sv,
       node: node,
-      properties: new Map<string, ModelProperty>(),
+      properties: createRekeyableMap<string, ModelProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
       derivedModels: [],
@@ -2393,7 +2393,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkModelExpression(node: ModelExpressionNode, mapper: TypeMapper | undefined) {
-    const properties = new Map();
+    const properties = createRekeyableMap<string, ModelProperty>();
     const type: Model = createType({
       kind: "Model",
       name: "",
@@ -3263,7 +3263,7 @@ export function createChecker(program: Program): Checker {
         kind: "Enum",
         name: node.id.sv,
         node,
-        members: new Map(),
+        members: createRekeyableMap(),
         decorators: [],
       }));
 
@@ -3317,7 +3317,7 @@ export function createChecker(program: Program): Checker {
       decorators: [],
       node,
       namespace: getParentNamespaceType(node),
-      operations: new Map(),
+      operations: createRekeyableMap(),
       name: node.id.sv,
     });
 
@@ -3405,7 +3405,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as Union;
     }
 
-    const variants = new Map<string, UnionVariant>();
+    const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({
       kind: "Union",
       decorators: [],
@@ -3768,7 +3768,7 @@ export function createChecker(program: Program): Checker {
           ...additionalProps,
         });
         if (!("properties" in additionalProps)) {
-          newModel.properties = new Map(
+          newModel.properties = createRekeyableMap(
             Array.from(type.properties.entries()).map(([key, prop]) => [
               key,
               cloneType(prop, { model: newModel }),
@@ -3789,7 +3789,7 @@ export function createChecker(program: Program): Checker {
           ...additionalProps,
         });
         if (!("variants" in additionalProps)) {
-          newUnion.variants = new Map(
+          newUnion.variants = createRekeyableMap(
             Array.from(type.variants.entries()).map(([key, prop]) => [
               key,
               cloneType(prop, { union: newUnion }),
@@ -3807,7 +3807,7 @@ export function createChecker(program: Program): Checker {
           ...additionalProps,
         });
         if (!("operations" in additionalProps)) {
-          newInterface.operations = new Map(
+          newInterface.operations = createRekeyableMap(
             Array.from(type.operations.entries()).map(([key, prop]) => [
               key,
               cloneType(prop, { interface: newInterface }),
@@ -3825,7 +3825,7 @@ export function createChecker(program: Program): Checker {
           ...additionalProps,
         });
         if (!("members" in additionalProps)) {
-          newEnum.members = new Map(
+          newEnum.members = createRekeyableMap(
             Array.from(type.members.entries()).map(([key, prop]) => [
               key,
               cloneType(prop, { enum: newEnum }),
@@ -3989,7 +3989,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       node: node,
       decorators: [],
-      properties: new Map(),
+      properties: createRekeyableMap(),
       derivedModels: [],
     });
 
@@ -5115,7 +5115,7 @@ export function filterModelProperties(
     return model;
   }
 
-  const properties = new Map<string, ModelProperty>();
+  const properties = createRekeyableMap<string, ModelProperty>();
   const newModel: Model = program.checker.createType({
     kind: "Model",
     node: undefined,

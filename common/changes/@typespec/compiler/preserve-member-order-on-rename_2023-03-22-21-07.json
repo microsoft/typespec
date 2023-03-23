@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Document member ordering and fix projection rename reordering.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
