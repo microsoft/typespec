@@ -14,6 +14,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   NoTarget,
+  RekeyableMap,
   SourceFile,
   SourceFileKind,
   Sym,
@@ -490,5 +491,103 @@ export class DuplicateTracker<K, V> {
         yield [k, v];
       }
     }
+  }
+}
+
+export function createRekeyableMap<K, V>(entries?: [K, V][]): RekeyableMap<K, V> {
+  return new RekeyableMapImpl<K, V>(entries);
+}
+
+interface RekeyableMapKey<K> {
+  key: K;
+}
+
+class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
+  #keys = new Map<K, RekeyableMapKey<K>>();
+  #values = new Map<RekeyableMapKey<K>, V>();
+
+  constructor(entries?: [K, V][]) {
+    if (entries) {
+      for (const [key, value] of entries) {
+        this.set(key, value);
+      }
+    }
+  }
+
+  clear(): void {
+    this.#keys.clear();
+    this.#values.clear();
+  }
+
+  delete(key: K): boolean {
+    const keyItem = this.#keys.get(key);
+    if (keyItem) {
+      this.#keys.delete(key);
+      return this.#values.delete(keyItem);
+    }
+    return false;
+  }
+
+  forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void {
+    this.#values.forEach((value, keyItem) => {
+      callbackfn(value, keyItem.key, this);
+    }, thisArg);
+  }
+
+  get(key: K): V | undefined {
+    const keyItem = this.#keys.get(key);
+    return keyItem ? this.#values.get(keyItem) : undefined;
+  }
+
+  has(key: K): boolean {
+    return this.#keys.has(key);
+  }
+
+  set(key: K, value: V): this {
+    let keyItem = this.#keys.get(key);
+    if (!keyItem) {
+      keyItem = { key };
+      this.#keys.set(key, keyItem);
+    }
+
+    this.#values.set(keyItem, value);
+    return this;
+  }
+
+  get size() {
+    return this.#values.size;
+  }
+
+  *entries(): IterableIterator<[K, V]> {
+    for (const [k, v] of this.#values) {
+      yield [k.key, v];
+    }
+  }
+
+  *keys(): IterableIterator<K> {
+    for (const k of this.#values.keys()) {
+      yield k.key;
+    }
+  }
+
+  values(): IterableIterator<V> {
+    return this.#values.values();
+  }
+
+  [Symbol.iterator](): IterableIterator<[K, V]> {
+    return this.entries();
+  }
+
+  [Symbol.toStringTag] = "RekeyableMap";
+
+  rekey(existingKey: K, newKey: K): boolean {
+    const keyItem = this.#keys.get(existingKey);
+    if (!keyItem) {
+      return false;
+    }
+    this.#keys.delete(existingKey);
+    keyItem.key = newKey;
+    this.#keys.set(newKey, keyItem);
+    return true;
   }
 }
