@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
