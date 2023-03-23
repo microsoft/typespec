@@ -25,20 +25,20 @@ components:
     WithProjectedNames:
       type: object
       properties:
-        created:
-          type: integer
-          format: int32
-        updated:
-          type: integer
-          format: int32
         nbf:
           type: integer
           format: int32
         exp:
           type: integer
           format: int32
+        created:
+          type: integer
+          format: int32
+        updated:
+          type: integer
+          format: int32
       required:
-        - created
-        - updated
         - nbf
         - exp
+        - created
+        - updated
