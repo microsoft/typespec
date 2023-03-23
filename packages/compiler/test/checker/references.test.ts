@@ -535,4 +535,34 @@ describe("compiler: references", () => {
       },
     ]);
   });
+
+  describe("Meta types", () => {
+    describe("ModelProperty::type", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: {
+              @test("target") city: string
+            }
+          }
+        `,
+        ref: "Person.address::type.city",
+      }));
+
+    describe("Operation::returnType", () =>
+      itCanReference({
+        code: `
+          op testOp(): {@test("target")status: 200};
+        `,
+        ref: "testOp::returnType.status",
+      }));
+
+    describe("Operation::parameters", () =>
+      itCanReference({
+        code: `
+          op testOp(@test("target") select: string): void;
+        `,
+        ref: "testOp::parameters.select",
+      }));
+  });
 });
