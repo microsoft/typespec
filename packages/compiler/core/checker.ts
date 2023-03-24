@@ -2076,7 +2076,7 @@ export function createChecker(program: Program): Checker {
       return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
     }
 
-    compilerAssert(false, "Unknown type reference kind", node);
+    compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
   }
 
   function resolveMemberInContainer(
@@ -2191,7 +2191,7 @@ export function createChecker(program: Program): Checker {
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
   function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym {
-    const aliasType = checkAlias(aliasSymbol.declarations[0] as AliasStatementNode, mapper);
+    const aliasType = getTypeForNode(aliasSymbol.declarations[0] as AliasStatementNode, mapper);
     switch (aliasType.kind) {
       case "Model":
       case "Interface":
@@ -2610,7 +2610,13 @@ export function createChecker(program: Program): Checker {
         const sym = getSymbolForMember(node);
         if (sym) {
           const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-          table.set("type", node.value.symbol);
+
+          table.set(
+            "type",
+            node.value.kind === SyntaxKind.TypeReference
+              ? createSymbol(node.value, "", SymbolFlags.Alias)
+              : node.value.symbol
+          );
         }
         break;
       }

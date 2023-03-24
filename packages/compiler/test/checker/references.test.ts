@@ -537,7 +537,7 @@ describe("compiler: references", () => {
   });
 
   describe("Meta types", () => {
-    describe("ModelProperty::type", () =>
+    describe("ModelProperty::type that is an expression", () =>
       itCanReference({
         code: `
           model Person {
@@ -549,6 +549,18 @@ describe("compiler: references", () => {
         ref: "Person.address::type.city",
       }));
 
+    describe("ModelProperty::type that is a type reference", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: Address
+          }
+          model Address {
+            @test("target") city: string
+          }
+        `,
+        ref: "Person.address::type.city",
+      }));
     describe("Operation::returnType", () =>
       itCanReference({
         code: `
