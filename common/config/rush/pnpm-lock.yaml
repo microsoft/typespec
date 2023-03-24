@@ -26,6 +26,7 @@ specifiers:
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/http': file:./projects/http.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
+  '@rush-temp/json-schema': file:./projects/json-schema.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
   '@rush-temp/lint': file:./projects/lint.tgz
   '@rush-temp/migrate': file:./projects/migrate.tgz
@@ -73,6 +74,7 @@ specifiers:
   '@vitejs/plugin-react': ~2.2.0
   '@vscode/vsce': ~2.15.0
   ajv: ~8.11.2
+  ajv-formats: ~2.1.1
   autorest: ~3.3.2
   c8: ~7.12.0
   change-case: ~4.1.2
@@ -160,6 +162,7 @@ dependencies:
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/http': file:projects/http.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
+  '@rush-temp/json-schema': file:projects/json-schema.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
   '@rush-temp/lint': file:projects/lint.tgz
   '@rush-temp/migrate': file:projects/migrate.tgz
@@ -207,6 +210,7 @@ dependencies:
   '@vitejs/plugin-react': 2.2.0_vite@3.2.5
   '@vscode/vsce': 2.15.0
   ajv: 8.11.2
+  ajv-formats: 2.1.1
   autorest: 3.3.2
   c8: 7.12.0
   change-case: 4.1.2
@@ -15570,6 +15574,28 @@ packages:
       - supports-color
     dev: false
 
+  file:projects/json-schema.tgz:
+    resolution: {integrity: sha512-UHyPnA4HlpM3lhnYTJFRfxQS3VllRHEjl0ah2I2mtoEnjZn1EJwOOzL5tSzj9F2eWN92/OBJo3Hrae5dxOGEGQ==, tarball: file:projects/json-schema.tgz}
+    name: '@rush-temp/json-schema'
+    version: 0.0.0
+    dependencies:
+      '@types/js-yaml': 4.0.5
+      '@types/mocha': 10.0.1
+      '@types/node': 18.11.18
+      ajv: 8.11.2
+      ajv-formats: 2.1.1
+      c8: 7.12.0
+      eslint: 8.33.0
+      js-yaml: 4.1.0
+      mocha: 10.1.0
+      mocha-junit-reporter: 2.2.0_mocha@10.1.0
+      mocha-multi-reporters: 1.5.1_mocha@10.1.0
+      rimraf: 3.0.2
+      typescript: 4.9.5
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   file:projects/library-linter.tgz:
     resolution: {integrity: sha512-j33F2uYSllGEb7ShFHKV0XNpiAHoSVRbhHGVgYnVqlMhLhg0Rd+36XhKp+CN/0DN4i35OSVaExQnzszMV/pRiw==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
@@ -15677,7 +15703,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-MM8wkObp5BN/oLziwtzHJpAdmMYze7Lj6Q6lH22pK7o7VSiIbOqrFo/rd1NglwfJb4blzQCYB07AB3MbkSokUw==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-F+UcdLpmsgGTAoxELUmn+Neo9+KNXonCFXH0yMj5UEARbOaUkEnrZTz/b1wUffaqRVqQ8X/8ej+vzVySgdSm9Q==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
