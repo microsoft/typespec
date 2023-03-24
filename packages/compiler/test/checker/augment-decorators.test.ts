@@ -170,6 +170,36 @@ describe("compiler: checker: augment decorators", () => {
     it("interface", () => expectTarget(`@test("target") interface Foo { }`, "Foo"));
     it("operation in interface", () =>
       expectTarget(`interface Foo { @test("target") list(): void }`, "Foo.list"));
+    it("emit diagnostic if target is instantiated template", async () => {
+      let customName: string | undefined;
+      let runOnTarget: Type | undefined;
+
+      testHost.addJsFile("test.js", {
+        $customName(_: any, t: Type, n: string) {
+          runOnTarget = t;
+          customName = n;
+        },
+      });
+
+      testHost.addTypeSpecFile(
+        "test.tsp",
+        `
+        import "./test.js";
+
+        model Foo<T> {
+          testProp: T;
+        };
+
+        @test
+        op stringTest(): Foo<string>;
+
+        @@customName(Foo<string>, "A string Foo");
+        `
+      );
+      const diagnostics = await testHost.diagnose("test.tsp");
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].message, "Cannot reference template instances");
+    });
   });
 
   describe("augment location", () => {

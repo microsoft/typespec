@@ -483,6 +483,18 @@ export function createChecker(program: Program): Checker {
               target: decNode.target,
             })
           );
+        }
+        if (ref.declarations.at(0)?.kind === SyntaxKind.ModelStatement) {
+          const node = ref.declarations.at(0) as ModelStatementNode;
+          if (node.templateParameters.length > 0) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "augment-decorator-target",
+                messageId: "noInstance",
+                target: decNode.target,
+              })
+            );
+          }
         } else {
           let list = augmentDecoratorsForSym.get(ref);
           if (list === undefined) {
