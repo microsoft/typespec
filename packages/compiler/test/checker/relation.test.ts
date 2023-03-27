@@ -636,6 +636,16 @@ describe("compiler: checker: type relations", () => {
         }
       );
     });
+
+    it("emit diagnostic assigning empty model expression", async () => {
+      await expectTypeNotAssignable(
+        { source: `{}`, target: "string[]" },
+        {
+          code: "missing-index",
+          message: "Index signature for type 'TypeSpec.integer' is missing in type '{}'.",
+        }
+      );
+    });
   });
 
   describe("Tuple target", () => {
@@ -663,6 +673,16 @@ describe("compiler: checker: type relations", () => {
             "Type '[TypeSpec.string]' is not assignable to type '[TypeSpec.string, TypeSpec.string]'",
             "  Source has 1 element(s) but target requires 2.",
           ].join("\n"),
+        }
+      );
+    });
+    it("emit diagnostic when assigning a non tuple to a tuple", async () => {
+      await expectTypeNotAssignable(
+        { source: `string`, target: "[string, string]" },
+        {
+          code: "unassignable",
+          message:
+            "Type 'TypeSpec.string' is not assignable to type '[TypeSpec.string, TypeSpec.string]'",
         }
       );
     });

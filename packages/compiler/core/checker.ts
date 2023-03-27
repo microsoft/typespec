@@ -4700,7 +4700,7 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     // Model expressions should be able to be assigned.
-    if (source.name === "") {
+    if (source.name === "" && target.indexer.key.name !== "integer") {
       return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget);
     } else {
       if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
@@ -4792,8 +4792,8 @@ export function createChecker(program: Program): Checker {
     target: Union,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
-    for (const option of target.options) {
-      const [related] = isTypeAssignableTo(source, option, diagnosticTarget);
+    for (const option of target.variants.values()) {
+      const [related] = isTypeAssignableTo(source, option.type, diagnosticTarget);
       if (related) {
         return [true, []];
       }
