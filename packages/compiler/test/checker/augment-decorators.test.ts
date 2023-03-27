@@ -170,14 +170,16 @@ describe("compiler: checker: augment decorators", () => {
     it("interface", () => expectTarget(`@test("target") interface Foo { }`, "Foo"));
     it("operation in interface", () =>
       expectTarget(`interface Foo { @test("target") list(): void }`, "Foo.list"));
+    it("uninstantiated template", () => expectTarget(`@test("target") model Foo<T> { }`, "Foo"));
     it("emit diagnostic if target is instantiated template", async () => {
-      let customName: string | undefined;
-      let runOnTarget: Type | undefined;
-
       testHost.addJsFile("test.js", {
         $customName(_: any, t: Type, n: string) {
-          runOnTarget = t;
-          customName = n;
+          const runOnTarget: Type | undefined = t;
+          const customName: string | undefined = n;
+          if (runOnTarget) {
+          }
+          if (customName) {
+          }
         },
       });
 

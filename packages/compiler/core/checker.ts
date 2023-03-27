@@ -467,6 +467,21 @@ export function createChecker(program: Program): Checker {
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
+        // disallow augmenting instantiated templates
+        if (ref.declarations.at(0)?.kind === SyntaxKind.ModelStatement) {
+          const node = ref.declarations.at(0) as ModelStatementNode;
+          if (node.templateParameters.length > 0) {
+            // TODO: distinguish between a template placeholder and actual type value
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "augment-decorator-target",
+                messageId: "noInstance",
+                target: decNode.target,
+              })
+            );
+          }
+        }
+
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
           const type: Type & DecoratedType = links.type! as any;
@@ -483,18 +498,6 @@ export function createChecker(program: Program): Checker {
               target: decNode.target,
             })
           );
-        }
-        if (ref.declarations.at(0)?.kind === SyntaxKind.ModelStatement) {
-          const node = ref.declarations.at(0) as ModelStatementNode;
-          if (node.templateParameters.length > 0) {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "augment-decorator-target",
-                messageId: "noInstance",
-                target: decNode.target,
-              })
-            );
-          }
         } else {
           let list = augmentDecoratorsForSym.get(ref);
           if (list === undefined) {
