@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Removed deprecated decorator @versionedDependency and deprecated versioning helper methods: getRenamedFromVersion, getRenamedFromOldName, getAddedOn, getRemovedOn, addedAfter, removedOnOrBefore, and renamedAfter.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

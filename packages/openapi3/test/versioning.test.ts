@@ -50,10 +50,10 @@ describe("openapi3: versioning", () => {
       properties: {
         prop1: { type: "string" },
         prop3: { type: "string" },
-        prop5: { type: "string" },
         prop4: { type: "string" },
+        prop5: { type: "string" },
       },
-      required: ["prop1", "prop3", "prop5", "prop4"],
+      required: ["prop1", "prop3", "prop4", "prop5"],
     });
 
     deepStrictEqual(v1.components.schemas["MyLibrary.Foo"], {
@@ -70,10 +70,10 @@ describe("openapi3: versioning", () => {
       properties: {
         prop1: { type: "string" },
         prop2: { type: "string" },
-        prop5: { type: "string" },
         prop4: { type: "string" },
+        prop5: { type: "string" },
       },
-      required: ["prop1", "prop2", "prop5", "prop4"],
+      required: ["prop1", "prop2", "prop4", "prop5"],
     });
     deepStrictEqual(v2.components.schemas["MyLibrary.Foo"], {
       type: "object",
@@ -90,8 +90,8 @@ describe("openapi3: versioning", () => {
       properties: {
         prop1: { type: "string" },
         prop2: { type: "string" },
-        prop5: { type: "string" },
         prop4new: { type: "string" },
+        prop5: { type: "string" },
       },
       required: ["prop1", "prop2", "prop4new"],
     });

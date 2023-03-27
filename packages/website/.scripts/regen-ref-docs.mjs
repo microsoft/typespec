@@ -34,8 +34,16 @@ await generateLibraryDocs(
   join(repoRoot, "docs/standard-library/openapi/reference")
 );
 
+// Protobuf
 await generateLibraryDocs(
   join(repoRoot, "packages/protobuf"),
   ["TypeSpec.Protobuf"],
   join(repoRoot, "docs/standard-library/protobuf/reference")
+);
+
+// Versioning
+await generateLibraryDocs(
+  join(repoRoot, "packages/versioning"),
+  ["TypeSpec.Versioning"],
+  join(repoRoot, "docs/standard-library/versioning/reference")
 );

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix `tsp code uninstall` not finding extension to uninstall.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

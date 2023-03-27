@@ -24,7 +24,13 @@ export * from "./scanner.js";
 export * from "./semantic-walker.js";
 export * from "./type-utils.js";
 export * from "./types.js";
-export { DuplicateTracker, getSourceFileKindFromExt, Queue, TwoLevelMap } from "./util.js";
+export {
+  createRekeyableMap,
+  DuplicateTracker,
+  getSourceFileKindFromExt,
+  Queue,
+  TwoLevelMap,
+} from "./util.js";
 import * as formatter from "../formatter/index.js";
 export const TypeSpecPrettierPlugin = formatter;
 
