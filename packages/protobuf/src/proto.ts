@@ -67,7 +67,6 @@ export interface PackageDetails {
  * @param target - target decorator namespace
  */
 export function $package(ctx: DecoratorContext, target: Namespace, details?: Model) {
-  // TODO: need to convert details from Model to PackageDetails
   ctx.program.stateMap(state.package).set(target, details);
 }
 
@@ -126,6 +125,10 @@ export function $reserve(
     .filter((v) => v != null);
 
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
+}
+
+export function $message(ctx: DecoratorContext, target: Model) {
+  ctx.program.stateSet(state.message).add(target);
 }
 
 /**
@@ -190,6 +193,7 @@ export async function $onEmit(ctx: EmitContext<EmitOptionsFor<TypeSpecProtobufLi
  * Validation function
  */
 export async function $onValidate(program: Program) {
+  /* c8 ignore next 6 */
   if (program.compilerOptions.noEmit) {
     const options = program.emitters.find((e) => e.emitFunction === $onEmit)
       ?.options as ProtobufEmitterOptions;
@@ -197,5 +201,6 @@ export async function $onValidate(program: Program) {
     await emitter("", options);
   }
 }
+
 export const namespace = "TypeSpec.Protobuf";
 export { TypeSpecProtobufLibrary as $lib };

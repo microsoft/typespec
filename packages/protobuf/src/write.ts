@@ -44,7 +44,7 @@ export function writeProtoFile(file: ProtoFile): string {
   const opts = Object.entries(file.options);
   for (const [name, valueData] of opts) {
     const value = typeof valueData === "string" ? `"${valueData}"` : valueData.toString();
-    result += `\noption (${name}) = ${value}`;
+    result += `\noption ${name} = ${value};`;
   }
 
   // Give the declarations a little breathing room if options were provided
@@ -125,7 +125,7 @@ function* writeService(decl: ProtoServiceDeclaration): Iterable<string> {
 
   if (decl.operations.length > 0) {
     yield head;
-    yield* indent(flatMap(decl.operations, writeMethod));
+    yield* indent(flatMap(decl.operations, writeDeclaration));
     yield tail;
   } else yield head + tail;
 }

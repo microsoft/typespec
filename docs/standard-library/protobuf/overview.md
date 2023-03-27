@@ -67,7 +67,51 @@ namespace Test {
 }
 ```
 
-TypeSpec objects (models, enums, etc.) are converted to Protobuf declarations within their nearest ancestor that has a package annotation. As a result, unlike in Protobuf, TypeSpec declarations of packages may be nested arbitrarily.
+TypeSpec objects (models, enums, etc.) are converted to Protobuf declarations within their nearest ancestor that has a package annotation. As a result, unlike in Protobuf, TypeSpec declarations of packages may be nested arbitrarily.p
+
+### Messages
+
+TypeSpec models are converted into Protobuf messages. The following TypeSpec model:
+
+```typespec
+model TestMessage {
+  @field(1) n: int32;
+}
+```
+
+will be converted into the following Protobuf message:
+
+```proto3
+message TestMessage {
+  int32 n = 1;
+}
+```
+
+Models are converted into messages and included in the Protobuf file if any of the following conditions are met:
+
+- The model is explicitly annotated with the [`TypeSpec.Protobuf.message` decorator][protobuf-message].
+- The model is referenced by any service operation (see [Services](#services) below).
+- The model is a direct child of a [package namespace](#packages) and has _every_ field annotated with the [`TypeSpec.Protobuf.field` decorator][protobuf-field].
+
+#### Field indices
+
+Protobuf requires that the offset of each field within a Protobuf message be manually specified. In TypeSpec, the field indices are specified using the [`TypeSpec.Protobuf.field` decorator][protobuf-field]. All fields within a model must have an attached `@field` decorator to be converted into a Protobuf message.
+
+The following TypeSpec model:
+
+```typespec
+model TestMessage {
+  @field(1) n: int32;
+}
+```
+
+will be converted into the following Protobuf message:
+
+```proto3
+message TestMessage {
+  int32 n = 1;
+}
+```
 
 ### Services
 
@@ -97,27 +141,7 @@ service Test {
 }
 ```
 
-### Field indices
-
-Protobuf requires that the offset of each field within a Protobuf message be manually specified. In TypeSpec, the field indices are specified using the [`TypeSpec.Protobuf.field` decorator][protobuf-field]. All fields within a model must have an attached `@field` decorator to be converted into a Protobuf message.
-
-The following TypeSpec model:
-
-```typespec
-model TestMessage {
-  @field(1) n: int32;
-}
-```
-
-will be converted into the following Protobuf message:
-
-```proto3
-message TestMessage {
-  int32 n = 1;
-}
-```
-
-### Operations
+#### Operations
 
 Within a [service interface](#services), TypeSpec operations represent Protobuf service methods. Each operation in the service interface is converted into an equivalent Protobuf method declaration. For example, the following specification:
 
@@ -152,14 +176,25 @@ service Example {
 }
 ```
 
-### Streams
+#### Streams
 
 The Protobuf emitter supports declaring the streaming mode of an operation using the [`TypeSpec.Protobuf.stream` decorator][protobuf-stream]. The streaming mode is specified using the [`StreamMode`][protobuf-stream-mode] enum. An operation can have one of four streaming modes:
 
-- `None`: this is the default mode and indicates that neither the request nor response are streamed (`rpc Example(In) returns (Out);`).
-- `In`: indicates that the request is streamed, but the response is received synchronously (`rpc Example(stream In) returns (Out);`).
-- `Out`: indicates that the request is sent synchronously, but the response is streamed (`rpc Example(In) returns (stream Out);`).
-- `Duplex`: indicates that both the request and response are streamed (`rpc Example(stream In) returns (stream Out);`).
+- `None`: this is the default mode and indicates that neither the request nor response are streamed.
+
+  Example: `rpc Example(In) returns (Out);`
+
+- `In`: indicates that the request is streamed, but the response is received synchronously.
+
+  Example: `rpc Example(stream In) returns (Out);`
+
+- `Out`: indicates that the request is sent synchronously, but the response is streamed.
+
+  Example: `rpc Example(In) returns (stream Out);`
+
+- `Duplex`: indicates that both the request and response are streamed.
+
+  Example: `rpc Example(stream In) returns (stream Out);`
 
 ## Emitter options
 
@@ -189,4 +224,10 @@ emitters:
 
 If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.
 
+[native-service]: ../built-in-decorators#service
+[protobuf-service]: reference/decorators#@TypeSpec.Protobuf.service
 [protobuf-package]: reference/decorators#@TypeSpec.Protobuf.package
+[protobuf-field]: reference/decorators#@TypeSpec.Protobuf.field
+[protobuf-stream]: reference/decorators#@TypeSpec.Protobuf.stream
+[protobuf-stream-mode]: reference/data-types#TypeSpec.Protobuf.StreamMode
+[protobuf-message]: reference/decorators#@TypeSpec.Protobuf.message

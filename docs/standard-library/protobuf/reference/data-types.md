@@ -55,7 +55,7 @@ model Map<K, V>
 
 ### `PackageDetails` {#TypeSpec.Protobuf.PackageDetails}
 
-Details applied to a package definition by the [`@package`](#TODO) decorator.
+Details applied to a package definition by the [`@package`](./decorators#
 
 ```typespec
 model TypeSpec.Protobuf.PackageDetails
@@ -70,7 +70,7 @@ The streaming mode of an operation. One of:
 - `Out`: the output of the operation is streaming.
 - `None`: neither the input nor the output are streaming.
 
-See the [`@stream`](#TODO) decorator.
+See the [`@stream`](./decorators#
 
 ```typespec
 enum TypeSpec.Protobuf.StreamMode

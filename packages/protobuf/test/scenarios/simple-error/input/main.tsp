@@ -16,3 +16,7 @@ interface Service {
     @field(19999) testInputField5: string
   ): {};
 }
+
+// Cannot apply @message to interface
+@message
+interface Test {}

@@ -9,6 +9,7 @@ toc_max_heading_level: 3
 
 ### Decorators
 
+- [`@message`](./decorators.md#@TypeSpec.Protobuf.message)
 - [`@field`](./decorators.md#@TypeSpec.Protobuf.field)
 - [`@reserve`](./decorators.md#@TypeSpec.Protobuf.reserve)
 - [`@service`](./decorators.md#@TypeSpec.Protobuf.service)

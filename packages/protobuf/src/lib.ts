@@ -122,6 +122,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         default: "anonymous models cannot be used in Protobuf messages",
       },
     },
+    package: {
+      severity: "error",
+      messages: {
+        "disallowed-option-type": paramMessage`option '${"name"}' with type '${"type"}' is not allowed in a package declaration (only string, boolean, and number values are allowed)`,
+      },
+    },
   },
   emitter: { options: EmitterOptionsSchema },
 });
@@ -132,7 +138,15 @@ export { $onEmit } from "./proto.js";
 
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 
-const keys = ["fieldIndex", "package", "service", "externRef", "stream", "reserve"] as const;
+const keys = [
+  "fieldIndex",
+  "package",
+  "service",
+  "externRef",
+  "stream",
+  "reserve",
+  "message",
+] as const;
 
 export const state = Object.fromEntries(
   keys.map((k) => [k, Symbol(`@typespec/protobuf.${k}`)])

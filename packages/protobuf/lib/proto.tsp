@@ -127,6 +127,18 @@ alias integral = int32 | int64 | uint32 | uint64 | boolean;
 model Map<K extends integral | string, V> {}
 
 /**
+ * Declares that a model is a Protobuf message.
+ *
+ * Messages can be detected automatically if either of the following two conditions are met:
+ *
+ * - The model has a `@field` annotation on all of its properties.
+ * - The model is referenced by any service operation.
+ *
+ * This decorator will force the emitter to check and emit a model.
+ */
+extern dec message(target: object);
+
+/**
  * Defines the field index of a model property for conversion to a Protobuf
  * message.
  *
@@ -200,8 +212,9 @@ extern dec reserve(target: object, ...reservations: (string | [uint32, uint32] |
  */
 extern dec service(target: TypeSpec.Reflection.Interface);
 
+// FIXME: cannot link to the package decorator directly because it is detected as a broken link.
 /**
- * Details applied to a package definition by the [`@package`](#TODO) decorator.
+ * Details applied to a package definition by the [`@package`](./decorators#@TypeSpec.Protobuf.package) decorator.
  */
 model PackageDetails {
   /**
@@ -210,6 +223,14 @@ model PackageDetails {
    * By default, the package's name is constructed from the namespace it is applied to.
    */
   name?: string;
+  /**
+   * The package's top-level options.
+   *
+   * See the [Protobuf Language Guide - Options](https://protobuf.dev/programming-guides/proto3/#options) for more information.
+   *
+   * Currently, only string, boolean, and numeric options are supported.
+   */
+  options?: Record<string | boolean | numeric>;
 }
 
 /**
@@ -228,7 +249,7 @@ extern dec package(target: TypeSpec.Reflection.Namespace, details?: PackageDetai
  * - `Out`: the output of the operation is streaming.
  * - `None`: neither the input nor the output are streaming.
  *
- * See the [`@stream`](#TODO) decorator.
+ * See the [`@stream`](./decorators#@TypeSpec.Protobuf.stream) decorator.
  */
 enum StreamMode {
   /**
@@ -254,7 +275,7 @@ enum StreamMode {
 }
 
 /**
- * Set the streaming mode of an operation. See [StreamMode](#TODO) for more information.
+ * Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
  *
  * @param mode The streaming mode to apply to this operation.
  *

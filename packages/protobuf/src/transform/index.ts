@@ -178,6 +178,17 @@ function tspToProto(program: Program): ProtoFile[] {
   // Emit a file per package.
   const files = [...packages].map((namespace) => {
     const details = program.stateMap(state.package).get(namespace) as Model | undefined;
+    const packageOptionsRaw = details?.properties.get("options")?.type as Model | undefined;
+
+    const packageOptions = [...(packageOptionsRaw?.properties.entries() ?? [])]
+      .map(([k, { type }]) => {
+        // This condition is enforced by the definition of `dec package`
+        if (type.kind === "Boolean" || type.kind === "String" || type.kind === "Number") {
+          return [k, type.value] as [string, unknown];
+        } else throw new Error(`Unexpected option type ${type.kind}`);
+      })
+      .filter((v) => !!v) as [string, unknown][];
+
     return {
       package: (
         (details?.properties.get("name") as ModelProperty | undefined)?.type as
@@ -185,10 +196,7 @@ function tspToProto(program: Program): ProtoFile[] {
           | undefined
       )?.value,
 
-      // TODO: The language guide is really unclear about how to handle options. We may also need a facility for
-      // allowing packages to declare extensions, as extensions may be target/compiler specific.
-      // https://protobuf.dev/programming-guides/proto3/#options
-      options: {},
+      options: Object.fromEntries(packageOptions),
 
       imports: [...(importMap.get(namespace) ?? [])],
 
@@ -208,6 +216,23 @@ function tspToProto(program: Program): ProtoFile[] {
    * @returns an array of declarations
    */
   function addDeclarationsOfPackage(namespace: Namespace) {
+    const models = [...namespace.models.values()];
+
+    // Eagerly visit all models in the namespace.
+    for (const model of models) {
+      // Don't eagerly visit externs
+      if (
+        // Don't eagerly visit externs
+        !program.stateMap(state.externRef).has(model) &&
+        // Only eagerly visit models where every field has a field index annotation.
+        ([...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+          // OR where the model has been explicitly marked as a message.
+          program.stateSet(state.message).has(model))
+      ) {
+        visitModel(model, model);
+      }
+    }
+
     const interfacesInNamespace = new Set(
       serviceInterfaces.filter((iface) => isDeclaredInNamespace(iface, namespace))
     );

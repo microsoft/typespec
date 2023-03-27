@@ -8,6 +8,30 @@ toc_max_heading_level: 3
 
 ## TypeSpec.Protobuf
 
+### `@message` {#@TypeSpec.Protobuf.message}
+
+Declares that a model is a Protobuf message.
+
+Messages can be detected automatically if either of the following two conditions are met:
+
+- The model has a `@field` annotation on all of its properties.
+- The model is referenced by any service operation.
+
+This decorator will force the emitter to check and emit a model.
+
+```typespec
+dec TypeSpec.Protobuf.message(target: TypeSpec.object)
+```
+
+#### Target
+
+`model TypeSpec.object`
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
 ### `@field` {#@TypeSpec.Protobuf.field}
 
 Defines the field index of a model property for conversion to a Protobuf
@@ -109,7 +133,7 @@ dec TypeSpec.Protobuf.package(target: TypeSpec.Reflection.Namespace, details?: T
 
 ### `@stream` {#@TypeSpec.Protobuf.stream}
 
-Set the streaming mode of an operation. See [StreamMode](#TODO) for more information.
+Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
 
 ```typespec
 dec TypeSpec.Protobuf.stream(target: TypeSpec.Reflection.Operation, mode: TypeSpec.Protobuf.StreamMode)
