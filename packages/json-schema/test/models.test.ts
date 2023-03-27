@@ -57,4 +57,36 @@ describe("emitting models", () => {
     assert.deepStrictEqual(schemas["Foo.json"].properties.prop, { $ref: "TemplateFoo.json" });
     assert(schemas["TemplateFoo.json"]);
   });
+
+  it("works with minProperties and maxProperties", async () => {
+    const { "Foo.json": Foo } = await emitSchema(`
+      @minProperties(1)
+      @maxProperties(2)
+      model Foo is Record<unknown>;
+    `);
+
+    assert.strictEqual(Foo.minProperties, 1);
+    assert.strictEqual(Foo.maxProperties, 2);
+  });
+
+  it("works with @doc, @summary, and @deprecated", async () => {
+    const { "Foo.json": Foo } = await emitSchema(`
+      @doc("a")
+      @summary("a")
+      @deprecated("bad api")
+      model Foo {
+        @doc("b")
+        @summary("b")
+        @deprecated("bad api")
+        b: string;
+      }
+    `);
+
+    assert.strictEqual(Foo.description, "a");
+    assert.strictEqual(Foo.title, "a");
+    assert.strictEqual(Foo.deprecated, true);
+    assert.strictEqual(Foo.properties.b.description, "b");
+    assert.strictEqual(Foo.properties.b.title, "b");
+    assert.strictEqual(Foo.properties.b.deprecated, true);
+  });
 });

@@ -29,7 +29,7 @@ describe("emitting built-in types", () => {
 
     // others
     ["string", { type: "string" }],
-    ["url", { type: "string", format: "url" }],
+    ["url", { type: "string", format: "uri" }],
     ["null", { type: "null" }],
     ["bytes", { type: "string", contentEncoding: "base64" }],
     ["boolean", { type: "boolean" }],

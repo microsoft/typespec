@@ -387,7 +387,6 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   }
 
   arrayDeclarationReferenceContext(array: Model): Context {
-    this.emitter.emitType(array.indexer!.value);
     return {};
   }
 

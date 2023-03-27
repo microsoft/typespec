@@ -1,7 +1,9 @@
 import {
   BooleanLiteral,
   Enum,
+  getDeprecated,
   getDirectoryPath,
+  getDoc,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -13,6 +15,7 @@ import {
   getMinValueExclusive,
   getPattern,
   getRelativePathFromDirectory,
+  getSummary,
   IntrinsicType,
   Model,
   ModelProperty,
@@ -39,7 +42,22 @@ import {
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
 import yaml from "js-yaml";
-import { findBaseUri, getId, getMultipleOf, JsonSchemaDeclaration } from "./index.js";
+import {
+  findBaseUri,
+  getContains,
+  getContentEncoding,
+  getContentMediaType,
+  getContentSchema,
+  getId,
+  getMaxContains,
+  getMaxProperties,
+  getMinContains,
+  getMinProperties,
+  getMultipleOf,
+  getPrefixItems,
+  getUniqueItems,
+  JsonSchemaDeclaration,
+} from "./index.js";
 import { JSONSchemaEmitterOptions } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
@@ -61,6 +79,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       schema.set("allOf", allOf);
     }
 
+    this.#applyConstraints(model, schema);
+
     return this.emitter.result.declaration(name, schema);
   }
 
@@ -69,11 +89,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       return { type: "object" };
     }
 
-    return {
+    const schema = new ObjectBuilder({
       type: "object",
       properties: this.emitter.emitModelProperties(model),
       required: this.#requiredModelProperties(model),
-    };
+    });
+
+    return schema;
   }
 
   modelInstantiation(model: Model, name: string): EmitterOutput<Record<string, any>> {
@@ -81,15 +103,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
-    return this.emitter.result.declaration(
-      name,
-      new ObjectBuilder({
-        $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(array),
-        type: "array",
-        items: this.emitter.emitTypeReference(elementType),
-      })
-    );
+    const schema = new ObjectBuilder({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(array),
+      type: "array",
+      items: this.emitter.emitTypeReference(elementType),
+    });
+
+    this.#applyConstraints(array, schema);
+
+    return this.emitter.result.declaration(name, schema);
   }
 
   arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
@@ -136,15 +159,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
-    return { type: "boolean", enum: [boolean.value] };
+    return { type: "boolean", const: boolean.value };
   }
 
   stringLiteral(string: StringLiteral): EmitterOutput<object> {
-    return { type: "string", enum: [string.value] };
+    return { type: "string", const: string.value };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {
-    return { type: "number", enum: [number.value] };
+    return { type: "number", const: number.value };
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
@@ -331,20 +354,32 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         throw new Error("Unknown scalar type " + baseBuiltIn.name);
     }
 
-    this.#applyConstraints(scalar, schema);
+    let builderSchema = new ObjectBuilder(schema);
+    this.#applyConstraints(scalar, builderSchema);
 
     if (baseBuiltIn === scalar) {
-      return schema;
+      return builderSchema;
     }
 
-    return this.emitter.result.declaration(name, schema);
+    return this.emitter.result.declaration(name, builderSchema);
   }
 
-  #applyConstraints(type: Scalar | Model | ModelProperty, schema: Record<string, any>) {
+  #applyConstraints(type: Scalar | Model | ModelProperty, schema: ObjectBuilder<unknown>) {
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
       const value = fn(this.emitter.getProgram(), type);
       if (value !== undefined) {
         schema[key] = value;
+      }
+    };
+
+    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type, key: string) => {
+      const constraintType = fn(this.emitter.getProgram(), type);
+      if (constraintType) {
+        const ref = this.emitter.emitTypeReference(constraintType);
+        if (ref.kind !== "code") {
+          throw new Error("Couldn't get reference to contains type");
+        }
+        schema.set(key, ref.value);
       }
     };
 
@@ -357,8 +392,38 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
-    applyConstraint(getFormat, "format");
+
+    // the stdlib applies a format of "url" but json schema wants "uri",
+    // so ignore this format if it's the built-in type.
+    if (!this.#isStdType(type) || type.name !== "url") {
+      applyConstraint(getFormat, "format");
+    }
+
     applyConstraint(getMultipleOf, "multipleOf");
+    applyTypeConstraint(getContains, "contains");
+    applyConstraint(getMinContains, "minContains");
+    applyConstraint(getMaxContains, "maxContains");
+    applyConstraint(getUniqueItems, "uniqueItems");
+    applyConstraint(getMinProperties, "minProperties");
+    applyConstraint(getMaxProperties, "maxProperties");
+    applyConstraint(getContentEncoding, "contentEncoding");
+    applyConstraint(getContentMediaType, "contentMediaType");
+    applyTypeConstraint(getContentSchema, "contentSchema");
+    applyConstraint(getDoc, "description");
+    applyConstraint(getSummary, "title");
+    applyConstraint(
+      (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
+      "deprecated"
+    );
+
+    const prefixItems = getPrefixItems(this.emitter.getProgram(), type);
+    if (prefixItems) {
+      const prefixItemsSchema = new ArrayBuilder<Record<string, unknown>>();
+      for (const item of prefixItems.values) {
+        prefixItemsSchema.push(this.emitter.emitTypeReference(item));
+      }
+      schema.set("prefixItems", prefixItemsSchema);
+    }
   }
 
   #scalarBuiltinBaseType(scalar: Scalar): Scalar | null {
@@ -382,6 +447,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     switch (name) {
       case "null":
         return { type: "null" };
+      case "unknown":
+        return {};
     }
 
     throw new Error("Unknown intrinsic type " + name);

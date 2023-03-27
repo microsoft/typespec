@@ -59,13 +59,22 @@ describe("emitting scalars with constraints", () => {
       @maxLength(2)
       @pattern("a|b")
       @format("ipv4")
+      @contentEncoding("base64url")
+      @contentMediaType("application/jwt")
+      @contentSchema(JwtToken)
       scalar shortString extends string;
-    `);
 
+      model JwtToken is Array<object>;
+    `);
     assert.strictEqual(schemas["shortString.json"].minLength, 1);
     assert.strictEqual(schemas["shortString.json"].maxLength, 2);
     assert.strictEqual(schemas["shortString.json"].pattern, "a|b");
     assert.strictEqual(schemas["shortString.json"].format, "ipv4");
+    assert.strictEqual(schemas["shortString.json"].contentEncoding, "base64url");
+    assert.strictEqual(schemas["shortString.json"].contentMediaType, "application/jwt");
+    assert.deepStrictEqual(schemas["shortString.json"].contentSchema, {
+      $ref: "JwtToken.json",
+    });
   });
 
   it("handles string property constraints", async () => {
@@ -75,13 +84,22 @@ describe("emitting scalars with constraints", () => {
         @maxLength(2)
         @pattern("a|b")
         @format("ipv4")
+        @contentEncoding("base64url")
+        @contentMediaType("application/jwt")
+        @contentSchema(JwtToken)
         prop: string;
       }
-    `);
 
+      model JwtToken is Array<object>;
+    `);
     assert.strictEqual(schemas["Test.json"].properties.prop.minLength, 1);
     assert.strictEqual(schemas["Test.json"].properties.prop.maxLength, 2);
     assert.strictEqual(schemas["Test.json"].properties.prop.pattern, "a|b");
     assert.strictEqual(schemas["Test.json"].properties.prop.format, "ipv4");
+    assert.strictEqual(schemas["Test.json"].properties.prop.contentEncoding, "base64url");
+    assert.strictEqual(schemas["Test.json"].properties.prop.contentMediaType, "application/jwt");
+    assert.deepStrictEqual(schemas["Test.json"].properties.prop.contentSchema, {
+      $ref: "JwtToken.json",
+    });
   });
 });

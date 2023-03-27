@@ -10,8 +10,8 @@ describe("literals", () => {
       }
     `);
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.a, { type: "boolean", enum: [true] });
-    assert.deepStrictEqual(schemas["Test.json"].properties.b, { type: "boolean", enum: [false] });
+    assert.deepStrictEqual(schemas["Test.json"].properties.a, { type: "boolean", const: true });
+    assert.deepStrictEqual(schemas["Test.json"].properties.b, { type: "boolean", const: false });
   });
 
   it("handles strings", async () => {
@@ -21,7 +21,7 @@ describe("literals", () => {
       }
     `);
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.a, { type: "string", enum: ["hi"] });
+    assert.deepStrictEqual(schemas["Test.json"].properties.a, { type: "string", const: "hi" });
   });
 
   it("handles numbers", async () => {
@@ -31,6 +31,6 @@ describe("literals", () => {
       }
     `);
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.a, { type: "number", enum: [1] });
+    assert.deepStrictEqual(schemas["Test.json"].properties.a, { type: "number", const: 1 });
   });
 });

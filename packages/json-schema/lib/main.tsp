@@ -37,6 +37,62 @@ extern dec id(target: unknown, id: string);
  */
 extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: numeric);
 
+/**
+ * Specify that the array must contain at least one instance of the provided type.
+ * Use `@minContains` and `@maxContains` to customize how many instances to expect.
+ *
+ * @param value The type the array must contain.
+ */
+extern dec contains(target: object | Reflection.ModelProperty, value: unknown);
+
+/**
+ * Specify that the array must contain at least some number of the types provided
+ * by the contains decorator.
+ *
+ * @param value The minimum number of instances the array must contain
+ */
+extern dec minContains(target: object | Reflection.ModelProperty, value: int32);
+
+/**
+ * Specify that the array must contain at most some number of the types provided
+ * by the contains decorator.
+ *
+ * @param value The maximum number of instances the array must contain
+ */
+extern dec maxContains(target: object | Reflection.ModelProperty, value: int32);
+
+/**
+ * Specify that every item in the array must be unique.
+ */
+extern dec uniqueItems(target: object | Reflection.ModelProperty);
+
+/**
+ * Specify the minimum number of properties this object can have.
+ *
+ * @param value The minimum number of properties this object can have.
+ */
+extern dec minProperties(target: object | Reflection.ModelProperty, value: int32);
+
+/**
+ * Specify the maximum number of properties this object can have.
+ *
+ * @param value The maximum number of properties this object can have.
+ */
+extern dec maxProperties(target: object | Reflection.ModelProperty, value: int32);
+
+/**
+ * Specify
+ * @param value
+ */
+extern dec contentEncoding(target: string | Reflection.ModelProperty, value: string);
+
+/**
+ * Specify that the target array must begin with the provided types.
+ *
+ * @param value a tuple containing the types that must be present at the start of the array
+ */
+extern dec prefixItems(target: object | Reflection.ModelProperty, value: unknown[]);
+
 enum Format {
   dateTime: "date-time",
   date: "date",

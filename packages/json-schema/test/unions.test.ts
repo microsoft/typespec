@@ -41,8 +41,8 @@ describe("emitting unions", () => {
     const Foo = schemas["Foo.json"];
 
     assert.deepStrictEqual(Foo.properties.x.anyOf, [
-      { type: "number", enum: [1] },
-      { type: "string", enum: ["hello"] },
+      { type: "number", const: 1 },
+      { type: "string", const: "hello" },
     ]);
   });
 });

@@ -1,7 +1,23 @@
 import Ajv from "ajv/dist/2020.js";
-import fs from "fs/promises";
-import yaml from "js-yaml";
 
+const ajv = new Ajv({
+  schemas: [
+    {
+      $id: "hi",
+      type: "array",
+      contains: {
+        type: ["string", "number"],
+      },
+      minContains: 2,
+      maxContains: 3,
+    },
+  ],
+});
+
+const validate = ajv.getSchema("hi");
+console.log(validate([1, 1]));
+
+/*
 const schemas = [];
 const dir = await fs.readdir("./tsp-output/@typespec/json-schema");
 for (const file of dir) {
