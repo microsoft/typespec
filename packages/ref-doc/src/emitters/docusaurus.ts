@@ -63,30 +63,42 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
     content.push(headings.h2(namespace.id), "");
     if (namespace.decorators.length > 0) {
       content.push(headings.h3("Decorators"), "");
+      const listContent = [];
       for (const decorator of namespace.decorators) {
-        content.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
+        listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
+        listContent.sort();
       }
+      content.push(...listContent);
     }
 
     if (namespace.interfaces.length > 0) {
       content.push(headings.h3("Interfaces"), "");
+      const listContent = [];
       for (const iface of namespace.interfaces) {
-        content.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
+        listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
+        listContent.sort();
       }
+      content.push(...listContent);
     }
 
     if (namespace.operations.length > 0) {
       content.push(headings.h3("Operations"), "");
+      const listContent = [];
       for (const operation of namespace.operations) {
-        content.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
+        listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
+        listContent.sort();
       }
+      content.push(...listContent);
     }
 
     if (namespace.models.length > 0) {
       content.push(headings.h3("Models"), "");
+      const listContent = [];
       for (const model of namespace.models) {
-        content.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
+        listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
+        listContent.sort();
       }
+      content.push(...listContent);
     }
   }
   return content.join("\n");
