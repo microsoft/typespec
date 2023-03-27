@@ -150,11 +150,15 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     ""
   );
 
-  const paramTable: string[][] = [["Name", "Type", "Description"]];
-  for (const param of dec.parameters) {
-    paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+  if (dec.parameters.length > 0) {
+    const paramTable: string[][] = [["Name", "Type", "Description"]];
+    for (const param of dec.parameters) {
+      paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+    }
+    content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
+  } else {
+    content.push(headings.hx(headingLevel + 1, "Parameters"), "None", "");
   }
-  content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
 
   if (dec.examples.length > 0) {
     content.push(headings.hx(headingLevel + 1, "Examples"));

@@ -22,8 +22,7 @@ dec TypeSpec.Http.statusCode(target: TypeSpec.Reflection.ModelProperty)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -46,8 +45,7 @@ dec TypeSpec.Http.body(target: TypeSpec.Reflection.ModelProperty)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -124,8 +122,7 @@ dec TypeSpec.Http.get(target: TypeSpec.Reflection.Operation)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -147,8 +144,7 @@ dec TypeSpec.Http.put(target: TypeSpec.Reflection.Operation)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -170,8 +166,7 @@ dec TypeSpec.Http.post(target: TypeSpec.Reflection.Operation)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -193,8 +188,7 @@ dec TypeSpec.Http.patch(target: TypeSpec.Reflection.Operation)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -216,8 +210,7 @@ dec TypeSpec.Http.delete(target: TypeSpec.Reflection.Operation)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -239,8 +232,7 @@ dec TypeSpec.Http.head(target: TypeSpec.Reflection.Operation)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
