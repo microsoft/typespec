@@ -93,7 +93,7 @@ async function emitTypeSpecToTs(code: string) {
   return sf.text;
 }
 
-describe("typescript emitter", () => {
+describe("emitter-framework: typescript emitter", () => {
   it("emits models", async () => {
     const contents = await emitTypeSpecToTs(`
       model A {
@@ -599,7 +599,7 @@ it("can get options", async () => {
   assert(called, "program context should be called");
 });
 
-describe("Object emitter", () => {
+describe("emitter-framework: object emitter", () => {
   class TestEmitter extends TypeEmitter<object> {
     programContext(program: Program): Context {
       const sourceFile = this.emitter.createSourceFile("test.json");
