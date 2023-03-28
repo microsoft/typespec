@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Empty model expression assignable to array",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
