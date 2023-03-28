@@ -1860,14 +1860,16 @@ export function createChecker(program: Program): Checker {
         if (base.flags & SymbolFlags.Alias) {
           base = getAliasedSymbol(base, undefined);
         }
-        if (isTemplatedNode(base.declarations[0])) {
-          const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
-          if (isTemplateInstance(type)) {
-            lateBindMemberContainer(type);
-            lateBindMembers(type, base);
+        if (base) {
+          if (isTemplatedNode(base.declarations[0])) {
+            const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
+            if (isTemplateInstance(type)) {
+              lateBindMemberContainer(type);
+              lateBindMembers(type, base);
+            }
           }
+          addCompletions(base.exports ?? base.members);
         }
-        addCompletions(base.exports ?? base.members);
       }
     } else {
       let scope: Node | undefined = identifier.parent;
@@ -2060,6 +2062,9 @@ export function createChecker(program: Program): Checker {
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
         base = getAliasedSymbol(base, mapper);
+        if (!base) {
+          return undefined;
+        }
       }
 
       if (base.flags & SymbolFlags.Namespace) {
@@ -2174,8 +2179,11 @@ export function createChecker(program: Program): Checker {
    * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
-  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym {
+  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym | undefined {
     const aliasType = checkAlias(aliasSymbol.declarations[0] as AliasStatementNode, mapper);
+    if (isErrorType(aliasType)) {
+      return undefined;
+    }
     switch (aliasType.kind) {
       case "Model":
       case "Interface":

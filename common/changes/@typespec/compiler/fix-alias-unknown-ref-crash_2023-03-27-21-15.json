@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Alias unknown ref crash",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
