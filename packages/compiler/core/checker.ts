@@ -4514,11 +4514,10 @@ export function createChecker(program: Program): Checker {
     target: Type,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
-    if (source === target) return [true, []];
-
     if (source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
+    if (source === target) return [true, []];
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
 
