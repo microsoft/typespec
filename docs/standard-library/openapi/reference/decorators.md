@@ -60,8 +60,7 @@ dec OpenAPI.defaultResponse(target: TypeSpec.object)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 

@@ -22,8 +22,7 @@ dec TypeSpec.Rest.autoRoute(target: TypeSpec.Reflection.Interface | TypeSpec.Ref
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
