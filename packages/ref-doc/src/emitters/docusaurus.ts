@@ -66,8 +66,8 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       const listContent = [];
       for (const decorator of namespace.decorators) {
         listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
-        listContent.sort();
       }
+      listContent.sort();
       content.push(...listContent);
     }
 
@@ -76,8 +76,8 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       const listContent = [];
       for (const iface of namespace.interfaces) {
         listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
-        listContent.sort();
       }
+      listContent.sort();
       content.push(...listContent);
     }
 
@@ -86,8 +86,8 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       const listContent = [];
       for (const operation of namespace.operations) {
         listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
-        listContent.sort();
       }
+      listContent.sort();
       content.push(...listContent);
     }
 
@@ -96,8 +96,8 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       const listContent = [];
       for (const model of namespace.models) {
         listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
-        listContent.sort();
       }
+      listContent.sort();
       content.push(...listContent);
     }
   }
