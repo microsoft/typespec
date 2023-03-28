@@ -45,7 +45,7 @@ async function generateCompilerDocs() {
   const outputDir = join(repoRoot, "docs/standard-library");
   const refDoc = await resolveLibraryRefDocs(compilerPath, ["TypeSpec"]);
   assert(refDoc, "Unexpected ref doc should have been resolved for compiler.");
-  const decoratorContent = renderDecoratorFile(refDoc);
+  const decoratorContent = renderDecoratorFile(refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
 
