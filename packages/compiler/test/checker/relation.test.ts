@@ -741,4 +741,20 @@ describe("compiler: checker: type relations", () => {
       );
     });
   });
+
+  describe("Template constraint", () => {
+    it("validate template usage using template constraint", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Test<T extends TypeSpec.Reflection.EnumMember> {
+          t: Target<T>;
+        }
+        
+        model Target<T extends TypeSpec.Reflection.EnumMember> {
+          t: T;
+        }
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
 });
