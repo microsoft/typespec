@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
 import { extractRefDocs } from "./extractor.js";
+import { TypeSpecRefDoc } from "./types.js";
 
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
@@ -28,6 +29,21 @@ export async function generateLibraryDocs(
   if (pkgJson.main) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
   }
+}
+
+export async function resolveLibraryRefDocs(
+  libraryPath: string,
+  namespaces: string[]
+): Promise<TypeSpecRefDoc | undefined> {
+  const pkgJson = await readPackageJson(libraryPath);
+  if (pkgJson.tspMain) {
+    const main = joinPaths(libraryPath, pkgJson.tspMain);
+    const program = await compile(NodeHost, main, {
+      parseOptions: { comments: true, docs: true },
+    });
+    return extractRefDocs(program, namespaces);
+  }
+  return undefined;
 }
 
 async function readPackageJson(libraryPath: string): Promise<NodePackage> {
