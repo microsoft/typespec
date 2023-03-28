@@ -1,12 +1,12 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { isArrayModelType, Operation } from "../../core/index.js";
+import { Operation, isArrayModelType } from "../../core/index.js";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../core/types.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: models", () => {
@@ -442,7 +442,7 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateMapper?.args);
       strictEqual(Pet.derivedModels[1].templateMapper?.args[0].kind, "Scalar");
-      strictEqual((Pet.derivedModels[1].templateMapper?.args[0] as Model).name, "string");
+      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
       strictEqual(Pet.derivedModels[3], Dog);

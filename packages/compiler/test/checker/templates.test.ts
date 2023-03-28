@@ -3,12 +3,12 @@ import { getSourceLocation } from "../../core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: templates", () => {
@@ -124,7 +124,7 @@ describe("compiler: templates", () => {
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const a = A.properties.get("a")!;
     strictEqual(a.type.kind, "Scalar");
-    strictEqual((a.type as Model).name, "string");
+    strictEqual(a.type.name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
