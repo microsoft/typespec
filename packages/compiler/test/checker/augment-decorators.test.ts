@@ -1,6 +1,6 @@
-import { strictEqual } from "assert";
-import { Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { deepEqual, strictEqual } from "assert";
+import { Model, Operation, Type } from "../../core/types.js";
+import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
 
 describe("compiler: checker: augment decorators", () => {
   let testHost: TestHost;
@@ -144,9 +144,10 @@ describe("compiler: checker: augment decorators", () => {
       `
       );
 
-      const { target } = await testHost.compile("test.tsp");
-      strictEqual(runOnTarget?.kind, target.kind);
-      strictEqual(runOnTarget, target);
+      const [result, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
+      expectDiagnosticEmpty(diagnostics);
+      strictEqual(runOnTarget?.kind, result.target.kind);
+      strictEqual(runOnTarget, result.target);
       strictEqual(customName, "FooCustom");
     }
 
@@ -170,7 +171,43 @@ describe("compiler: checker: augment decorators", () => {
     it("interface", () => expectTarget(`@test("target") interface Foo { }`, "Foo"));
     it("operation in interface", () =>
       expectTarget(`interface Foo { @test("target") list(): void }`, "Foo.list"));
-    it("uninstantiated template", () => expectTarget(`@test("target") model Foo<T> { }`, "Foo"));
+    it("uninstantiated template", async () => {
+      testHost.addJsFile("test.js", {
+        $customName(_: any, t: Type, n: string) {
+          const runOnTarget: Type | undefined = t;
+          const customName: string | undefined = n;
+          if (runOnTarget) {
+          }
+          if (customName) {
+          }
+        },
+      });
+
+      testHost.addTypeSpecFile(
+        "test.tsp",
+        `
+          import "./test.js";
+  
+          model Foo<T> {
+            testProp: T;
+          };
+  
+          @test
+          op stringTest(): Foo<string>;
+  
+          @@customName(Foo<T>, "Some foo thing");
+          `
+      );
+      const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
+      expectDiagnosticEmpty(diagnostics);
+      const stringTest = results.stringTest as Operation;
+      strictEqual(stringTest.kind, "Operation");
+      deepEqual((stringTest.returnType as Model).decorators[0].args[0].value, {
+        kind: "String",
+        value: "Some foo thing",
+      });
+    });
+
     it("emit diagnostic if target is instantiated template", async () => {
       testHost.addJsFile("test.js", {
         $customName(_: any, t: Type, n: string) {

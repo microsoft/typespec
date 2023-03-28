@@ -465,23 +465,10 @@ export function createChecker(program: Program): Checker {
     );
 
     for (const decNode of augmentDecorators) {
+      const args = decNode.arguments;
+      const isTemplate = isTemplatedNode(decNode.targetType);
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
-        // disallow augmenting instantiated templates
-        if (ref.declarations.at(0)?.kind === SyntaxKind.ModelStatement) {
-          const node = ref.declarations.at(0) as ModelStatementNode;
-          if (node.templateParameters.length > 0) {
-            // TODO: distinguish between a template placeholder and actual type value
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "augment-decorator-target",
-                messageId: "noInstance",
-                target: decNode.target,
-              })
-            );
-          }
-        }
-
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
           const type: Type & DecoratedType = links.type! as any;
@@ -3085,8 +3072,21 @@ export function createChecker(program: Program): Checker {
   ) {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
+    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+    // // TODO: How to distinguish between instantiation and not?
+    // if (augmentDecoratorNodes.length > 0) {
+    //   if (isTemplatedNode(node)) {
+    //     reportCheckerDiagnostic(
+    //       createDiagnostic({
+    //         code: "augment-decorator-target",
+    //         messageId: "noInstance",
+    //         target: targetType,
+    //       })
+    //     );
+    //   }
+    // }
     const decoratorNodes = [
-      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []), // the first decorator will be executed at last, so augmented decorator should be placed at first.
+      ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
     ];
     for (const decNode of decoratorNodes) {
