@@ -58,8 +58,7 @@ dec withUpdateableProperties(target: TypeSpec.object)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `@withoutOmittedProperties` {#@withoutOmittedProperties}
 
@@ -89,8 +88,7 @@ dec withoutDefaultValues(target: TypeSpec.object)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
@@ -176,8 +174,7 @@ dec error(target: TypeSpec.object)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 
@@ -369,8 +366,7 @@ dec secret(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 #### Examples
 

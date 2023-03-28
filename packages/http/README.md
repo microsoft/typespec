@@ -18,7 +18,7 @@ import "@typespec/http";
 using TypeSpec.Http;
 ```
 
-For more information, consult the [HTTP and REST](https://microsoft.github.io/typespec/docs/standard-library/http/) section of the TypeSpec guide.
+For more information, consult the [HTTP](https://microsoft.github.io/typespec/docs/standard-library/http/) section of the TypeSpec guide.
 
 ## Library Tour
 
