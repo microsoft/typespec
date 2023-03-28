@@ -60,12 +60,12 @@
     "@typespec/eslint-config-typespec": "~0.6.0",
     "@typespec/library-linter": "~0.42.0",
     "@typespec/eslint-plugin": "~0.42.0",
-    "eslint": "^8.12.0",
-    "mocha": "~10.1.0",
+    "eslint": "^8.36.0",
+    "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.12.0",
-    "rimraf": "~3.0.2",
-    "typescript": "~4.9.3"
+    "c8": "~7.13.0",
+    "rimraf": "~4.4.1",
+    "typescript": "~5.0.2"
   }
 }
