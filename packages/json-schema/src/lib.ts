@@ -37,7 +37,7 @@ const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
 };
 
 export const libDef = {
-  name: "@cadl-lang/json-schema",
+  name: "@typespec/json-schema",
   diagnostics: {},
 } as const;
 
