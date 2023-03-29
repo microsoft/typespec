@@ -465,8 +465,6 @@ export function createChecker(program: Program): Checker {
     );
 
     for (const decNode of augmentDecorators) {
-      const args = decNode.arguments;
-      const isTemplate = isTemplatedNode(decNode.targetType);
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
         if (ref.flags & SymbolFlags.Namespace) {
@@ -477,7 +475,7 @@ export function createChecker(program: Program): Checker {
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
-        } else if (ref.flags & SymbolFlags.LateBound) {
+        } else if (decNode.targetType.arguments.length > 0 || ref.flags & SymbolFlags.LateBound) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "augment-decorator-target",
@@ -3073,18 +3071,6 @@ export function createChecker(program: Program): Checker {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
     const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
-    // // TODO: How to distinguish between instantiation and not?
-    // if (augmentDecoratorNodes.length > 0) {
-    //   if (isTemplatedNode(node)) {
-    //     reportCheckerDiagnostic(
-    //       createDiagnostic({
-    //         code: "augment-decorator-target",
-    //         messageId: "noInstance",
-    //         target: targetType,
-    //       })
-    //     );
-    //   }
-    // }
     const decoratorNodes = [
       ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,

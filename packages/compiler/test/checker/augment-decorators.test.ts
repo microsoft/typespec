@@ -195,7 +195,7 @@ describe("compiler: checker: augment decorators", () => {
           @test
           op stringTest(): Foo<string>;
   
-          @@customName(Foo<T>, "Some foo thing");
+          @@customName(Foo, "Some foo thing");
           `
       );
       const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
