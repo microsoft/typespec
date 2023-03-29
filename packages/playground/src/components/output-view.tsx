@@ -38,7 +38,7 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
   useEffect(() => {
     if (viewSelection.type === "file") {
       if (outputFiles.length > 0) {
-        const fileStillThere = outputFiles.find(x=> x === viewSelection.filename)
+        const fileStillThere = outputFiles.find((x) => x === viewSelection.filename);
         void loadOutputFile(fileStillThere ?? outputFiles[0]);
       } else {
         setViewSelection({ type: "file", filename: viewSelection.filename, content: "" });
