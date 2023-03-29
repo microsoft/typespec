@@ -467,6 +467,15 @@ export function createChecker(program: Program): Checker {
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
+        let args: readonly Expression[] = [];
+        if (ref.declarations[0].kind === SyntaxKind.AliasStatement) {
+          const aliasNode = ref.declarations[0] as AliasStatementNode;
+          if (aliasNode.value.kind === SyntaxKind.TypeReference) {
+            args = aliasNode.value.arguments;
+          }
+        } else {
+          args = decNode.targetType.arguments;
+        }
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
           const type: Type & DecoratedType = links.type! as any;
@@ -475,7 +484,7 @@ export function createChecker(program: Program): Checker {
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
-        } else if (decNode.targetType.arguments.length > 0 || ref.flags & SymbolFlags.LateBound) {
+        } else if (args.length > 0 || ref.flags & SymbolFlags.LateBound) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "augment-decorator-target",

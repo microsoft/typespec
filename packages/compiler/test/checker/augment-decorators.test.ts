@@ -196,6 +196,7 @@ describe("compiler: checker: augment decorators", () => {
           op stringTest(): Foo<string>;
   
           @@customName(Foo, "Some foo thing");
+          @@customName(Foo.testProp, "Some test prop");
           `
       );
       const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
@@ -206,6 +207,12 @@ describe("compiler: checker: augment decorators", () => {
         kind: "String",
         value: "Some foo thing",
       });
+      for (const prop of (stringTest.returnType as Model).properties) {
+        deepEqual(prop[1].decorators[0].args[0].value, {
+          kind: "String",
+          value: "Some test prop",
+        });
+      }
     });
 
     it("emit diagnostic if target is instantiated template", async () => {
@@ -229,47 +236,51 @@ describe("compiler: checker: augment decorators", () => {
           testProp: T;
         };
 
+        alias StringFoo = Foo<string>;
+
         @test
         op stringTest(): Foo<string>;
 
         @@customName(Foo<string>, "A string Foo");
+        @@customName(StringFoo, "A string Foo");
         `
       );
       const diagnostics = await testHost.diagnose("test.tsp");
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].message, "Cannot reference template instances");
+      strictEqual(diagnostics.length, 2);
+      for (const diagnostic of diagnostics) {
+        strictEqual(diagnostic.message, "Cannot reference template instances");
+      }
     });
-  });
 
-  describe("augment location", () => {
-    async function expectAugmentTarget(code: string) {
-      let customName: string | undefined;
-      let runOnTarget: Type | undefined;
+    describe("augment location", () => {
+      async function expectAugmentTarget(code: string) {
+        let customName: string | undefined;
+        let runOnTarget: Type | undefined;
 
-      testHost.addJsFile("test.js", {
-        $customName(_: any, t: Type, n: string) {
-          runOnTarget = t;
-          customName = n;
-        },
-      });
+        testHost.addJsFile("test.js", {
+          $customName(_: any, t: Type, n: string) {
+            runOnTarget = t;
+            customName = n;
+          },
+        });
 
-      testHost.addTypeSpecFile(
-        "test.tsp",
-        `
+        testHost.addTypeSpecFile(
+          "test.tsp",
+          `
       import "./test.js";
 
       ${code}
       `
-      );
+        );
 
-      const { target } = await testHost.compile("test.tsp");
-      strictEqual(runOnTarget?.kind, target.kind);
-      strictEqual(runOnTarget, target);
-      strictEqual(customName, "FooCustom");
-    }
+        const { target } = await testHost.compile("test.tsp");
+        strictEqual(runOnTarget?.kind, target.kind);
+        strictEqual(runOnTarget, target);
+        strictEqual(customName, "FooCustom");
+      }
 
-    it("augment type in another namespace", async () => {
-      await expectAugmentTarget(`
+      it("augment type in another namespace", async () => {
+        await expectAugmentTarget(`
         namespace Lib {
           @test("target") model Foo {}
         }
@@ -278,72 +289,73 @@ describe("compiler: checker: augment decorators", () => {
           @@customName(Lib.Foo, "FooCustom")
         }
       `);
-    });
+      });
 
-    it("augment type in another file checked before", async () => {
-      testHost.addTypeSpecFile("lib.tsp", `@test("target") model Foo {} `);
+      it("augment type in another file checked before", async () => {
+        testHost.addTypeSpecFile("lib.tsp", `@test("target") model Foo {} `);
 
-      await expectAugmentTarget(`
+        await expectAugmentTarget(`
         import "./lib.tsp";
         @@customName(Foo, "FooCustom")
       `);
-    });
+      });
 
-    it("augment type in another file checked after", async () => {
-      testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom") `);
+      it("augment type in another file checked after", async () => {
+        testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom") `);
 
-      await expectAugmentTarget(`
+        await expectAugmentTarget(`
         import "./lib.tsp";
 
         @test("target") model Foo {}
       `);
-    });
-  });
-
-  describe("augment order", () => {
-    async function expectAugmentTarget(code: string) {
-      let customName: string | undefined;
-      let runOnTarget: Type | undefined;
-
-      testHost.addJsFile("test.js", {
-        $customName(_: any, t: Type, n: string) {
-          runOnTarget = t;
-          customName = n;
-        },
       });
+    });
 
-      testHost.addTypeSpecFile(
-        "test.tsp",
-        `
+    describe("augment order", () => {
+      async function expectAugmentTarget(code: string) {
+        let customName: string | undefined;
+        let runOnTarget: Type | undefined;
+
+        testHost.addJsFile("test.js", {
+          $customName(_: any, t: Type, n: string) {
+            runOnTarget = t;
+            customName = n;
+          },
+        });
+
+        testHost.addTypeSpecFile(
+          "test.tsp",
+          `
       import "./test.js";
 
       ${code}
       `
-      );
+        );
 
-      const { target } = await testHost.compile("test.tsp");
-      strictEqual(runOnTarget?.kind, target.kind);
-      strictEqual(runOnTarget, target);
-      strictEqual(customName, "FooCustom");
-    }
+        const { target } = await testHost.compile("test.tsp");
+        strictEqual(runOnTarget?.kind, target.kind);
+        strictEqual(runOnTarget, target);
+        strictEqual(customName, "FooCustom");
+      }
 
-    it("augment decorator should be applied at last", async () => {
-      await expectAugmentTarget(`
+      it("augment decorator should be applied at last", async () => {
+        await expectAugmentTarget(`
           @test("target") 
           @customName("Foo")
           model Foo {}
           @@customName(Foo, "FooCustom")
       `);
-    });
+      });
 
-    it("augment decorator - last win", async () => {
-      await expectAugmentTarget(`
+      it("augment decorator - last win", async () => {
+        await expectAugmentTarget(`
           @test("target") 
           @customName("Foo")
           model Foo {}
           @@customName(Foo, "NonCustom")
           @@customName(Foo, "FooCustom")
       `);
+      });
     });
   });
 });
