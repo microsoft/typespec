@@ -49,5 +49,5 @@ async function generateCompilerDocs() {
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
 
-  await generateJsApiDocs(compilerPath, join(outputDir, "js-api"));
+  await generateJsApiDocs(compilerPath, join(outputDir, "reference/js-api"));
 }
