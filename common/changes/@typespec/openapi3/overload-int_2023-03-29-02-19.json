@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Add tests for overloads within interfaces",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}

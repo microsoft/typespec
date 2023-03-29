@@ -934,8 +934,26 @@ export function $overload(context: DecoratorContext, target: Operation, overload
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
   return op1.interface || op2.interface
-    ? op1.interface === op2.interface
+    ? equalsWithoutProjection(op1.interface, op2.interface)
     : op1.namespace === op2.namespace;
+}
+
+// note: because the 'interface' property of Operation types is projected after the
+// type is finalized, the target operation or overloadBase may reference an un-projected
+// interface at the time of decorator execution during projections.  This normalizes
+// the interfaces to their unprojected form before comparison.
+function equalsWithoutProjection(
+  interface1: Interface | undefined,
+  interface2: Interface | undefined
+): boolean {
+  if (interface1 === undefined || interface2 === undefined) return false;
+  return getBaseInterface(interface1) === getBaseInterface(interface2);
+}
+
+function getBaseInterface(int1: Interface): Interface {
+  return int1.projectionSource === undefined
+    ? int1
+    : getBaseInterface(int1.projectionSource as Interface);
 }
 
 /**
