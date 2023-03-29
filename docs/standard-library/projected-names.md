@@ -5,7 +5,18 @@ title: Projected names
 
 # Projected Names
 
-There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.
+There may be situations where the name of a concept in your TypeSpec does not match the value sent over-the-wire or is not ideal for a specific language for which you plan to generate an SDK. The `@projectedName` decorator allows you to specify these customizations in a targeted way, by providing a `target` string along with the desired `name`.
+
+For example:
+
+```typespec
+model Foo {
+  @projectedName("json", "exp")
+  expireAt: string;
+}
+```
+
+Here the `expireAt` property will be serialized to JSON as `exp` instead of `expireAt`. This is because the service requires the property to be named `exp` when serialized to JSON, but the name `expireAt` is more appropriate for the TypeSpec model as it is more descriptive.
 
 ## Known targets
 
@@ -38,7 +49,7 @@ Example:
 
 ```typespec
 model Foo {
-  // Specify that when serializing to JSON `expireAt` property should be named `exp`
+  // Specify that when serializing to JSON `expireAt` property should be serialized to `exp`
   @projectedName("json", "exp")
   expireAt: string;
 }
@@ -139,3 +150,30 @@ class CertificateAttributes
 </td>
 </tr>
 </table>
+
+## Order of Operations
+
+For consistency when generating code, the order in which projections are applied is important. Code emitters should apply projections in the following order.
+
+### Over-the-Wire JSON Names
+
+For determining the final name of a TypeSpec entity when sent over-the-wire in JSON:
+
+1. Run the `#target("json")` projection
+2. Run the `#customTarget("json")` projection, if it exists
+3. Apply the `@projectedName` decorator using the `getProjectedName` helper method.
+
+### Client SDK Names
+
+For determining the final name of a TypeSpec entity when used in a client SDK (e.g. Python):
+
+1. Determine the name based on the client target:
+   1. Run the `#target("client")` projection
+   1. Run the `#customTarget("client")` projection, if it exists
+   1. Apply the `@projectedName` decorator using the `getProjectedName` helper method.
+1. Determine the name based on the language target:
+   1. Run the `#target("python")` projection
+   1. Run the `#customTarget("python")` projection, if it exists
+   1. Apply the `@projectedName` decorator using the `getProjectedName` helper method.
+1. If the language target name is different from the client target name, use the language target name. Otherwise, use the client name.
+1. For names based on language target projections, do not alter the casing. For names based on the client target projections, apply casing heuristics appropriate for the language (for example, snake case, Pascal case, etc.).
