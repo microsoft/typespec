@@ -48,7 +48,7 @@ jobs:
         run: node common/scripts/install-run-rush.js update
 
       - name: Build necessary packages
-        run: node common/scripts/install-run-rush.js build  --to @typespec/prettier-plugin-typespec
+        run: node common/scripts/install-run-rush.js build --to @typespec/prettier-plugin-typespec
 
       - name: Format
         run: node common/scripts/install-run-rush.js format
