@@ -398,64 +398,57 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     });
   }
 
-  function getCommonParams(one: HttpOperation, two: HttpOperation): string[] {
-    const intersection = new Set<string>();
-    const oneParams = new Set(one.parameters.parameters.map((x) => x.name));
-    const twoParams = new Set(two.parameters.parameters.map((x) => x.name));
-    for (const element of oneParams) {
-      if (twoParams.has(element)) {
-        intersection.add(element);
-      }
-    }
-    return [...intersection];
-  }
-
-  /**
-   * Combines the parameters of two operations.
-   */
-  function mergeParameters(src: HttpOperation, dest: HttpOperation): HttpOperationParameters {
-    const srcParam = src.parameters;
-    const destParam = dest.parameters;
-    const commonParams = getCommonParams(src, dest);
-
-    const merged = new Map<string, HttpOperationParameter>();
-    for (const param of [...srcParam.parameters, ...destParam.parameters]) {
-      // TODO: Behave differently based on whether the param is in commonParams or not
-      if (merged.has(param.name)) {
-        // TODO: Union the types here
-      } else {
-        // TODO: Make optional if different params, but required if required for both
-        param.param.optional = true;
-        merged.set(param.name, param);
-      }
-    }
-    destParam.parameters = [...merged.values()];
-    return destParam;
-  }
-
-  /**
-   * Combines the responses of two operations.
-   */
-  function mergeReturnTypes(src: HttpOperation, dest: HttpOperation): HttpOperationResponse[] {
-    return src.responses;
-  }
-
   /**
    * Merges HttpOperations together if they share the same route.
    */
   function mergeSharedRouteOperations(operations: HttpOperation[]): HttpOperation[] {
-    const merged = new Map<string, HttpOperation>();
+    const pathMap = new Map<string, HttpOperation[]>();
+    const paramMap = new Map<string, Map<string, HttpOperation[]>>();
+
+    // group operations by path
     for (const op of operations) {
-      if (merged.has(op.path)) {
-        const existing = merged.get(op.path)!;
-        existing.parameters = mergeParameters(op, existing);
-        existing.responses = mergeReturnTypes(op, existing);
-        merged.set(op.path, existing);
+      if (pathMap.has(op.path)) {
+        pathMap.get(op.path)!.push(op);
       } else {
-        merged.set(op.path, op);
+        pathMap.set(op.path, [op]);
+        paramMap.set(op.path, new Map());
       }
     }
-    return [...merged.values()];
+
+    // determine which parameters are shared by all shared route operations
+    for (const [path, ops] of pathMap) {
+      for (const op of ops) {
+        for (const param of op.parameters.parameters) {
+          if (paramMap.get(path)!.has(param.name)) {
+            paramMap.get(path)!.get(param.name)!.push(op);
+          } else {
+            paramMap.get(path)!.set(param.name, [op]);
+          }
+        }
+      }
+    }
+
+    for (const path of pathMap.keys()) {
+      const numOps = pathMap.get(path)!.length;
+      for (const [paramName, ops] of paramMap.get(path)!) {
+        if (ops.length === numOps) {
+          // TODO: all operations share this parameter
+          let test = "best";
+        } else {
+          // TODO: not all operations share this parameter
+          let test = "best";
+        }
+      }
+    }
+
+    //     existing.parameters.parameters.push(...op.parameters.parameters);
+    //     existing.responses.push(...op.responses);
+    //     merged.set(op.path, existing);
+    //   } else {
+    //     merged.set(op.path, op);
+    //   }
+    // }
+    return [] as HttpOperation[];
   }
 
   async function emitOpenAPIFromVersion(
