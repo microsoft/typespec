@@ -409,6 +409,37 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   /**
+   * Validates that common parameters are consistent and returns the minimal set that describes the differences.
+   */
+  function validateCommonParameters(ops: HttpOperation[], name: string): HttpOperationParameter[] {
+    const finalParams: HttpOperationParameter[] = [];
+    const commonParams: HttpOperationParameter[] = [];
+    for (const op of ops) {
+      const param = getParameterWithName(op.parameters.parameters, name);
+      if (param) {
+        commonParams.push(param);
+      }
+    }
+    const reference = commonParams[0];
+    if (!reference) {
+      return [];
+    }
+    if (!commonParams.every((p) => p.type === reference.type)) {
+      // TODO: report error
+      throw new Error("TODO: report error");
+    }
+    if (
+      commonParams.every((p) => p.param.optional === reference.param.optional) &&
+      commonParams.every((p) => p.param.type === reference.param.type)
+    ) {
+      finalParams.push(reference);
+    } else {
+      finalParams.push(...commonParams);
+    }
+    return finalParams;
+  }
+
+  /**
    * Merges HttpOperations together if they share the same route.
    */
   function mergeSharedRouteOperations(operations: HttpOperation[]): HttpOperation[] {
@@ -446,22 +477,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const numOps = pathMap.get(path)!.length;
       for (const [paramName, ops] of paramMap.get(path)!) {
         if (ops.length === numOps) {
-          // all operations share this parameter so include it once in the final params
-          // TODO: should we validate that all copies of the parameter are equivalent?
-          const parameters = pathMap.get(path)![0].parameters.parameters;
-          const match = getParameterWithName(parameters!, paramName);
-          if (match) {
-            finalParams.push(match);
-          }
+          const commonParams = validateCommonParameters(ops, paramName);
+          finalParams.push(...commonParams);
         } else {
           // if not all operations share this parameter, then we need to make it optional
-          // TODO: should we validate that all copies of the parameter are equivalent?
-          const parameters = paramMap.get(path)!.get(paramName)![0].parameters.parameters;
-          const match = getParameterWithName(parameters!, paramName);
-          if (match) {
+          const commonParams = validateCommonParameters(ops, paramName);
+          for (const match of commonParams) {
             match.param.optional = true;
-            finalParams.push(match);
           }
+          finalParams.push(...commonParams);
         }
       }
       finalOp.parameters.parameters = finalParams;
@@ -805,12 +829,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (isNeverType(parameter.param.type)) {
       return;
     }
-    const ph = getParamPlaceholder(parameter.param);
-    currentEndpoint.parameters.push(ph);
+    const existing = currentEndpoint.parameters.find((p) => p.name === parameter.name);
+    if (existing) {
+      populateParameter(existing, parameter, visibility);
+    } else {
+      const ph = getParamPlaceholder(parameter.param);
+      currentEndpoint.parameters.push(ph);
 
-    // If the parameter already has a $ref, don't bother populating it
-    if (!("$ref" in ph)) {
-      populateParameter(ph, parameter, visibility);
+      // If the parameter already has a $ref, don't bother populating it
+      if (!("$ref" in ph)) {
+        populateParameter(ph, parameter, visibility);
+      }
     }
   }
 
@@ -840,6 +869,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return oaiParam;
   }
 
+  function mergeOpenApiParameters(
+    param: OpenAPI3Parameter,
+    base: OpenAPI3ParameterBase
+  ): OpenAPI3Parameter {
+    if (param.schema) {
+      const schema = param.schema;
+      if (schema.enum && base.schema.enum) {
+        schema.enum = [...new Set([...schema.enum, ...base.schema.enum])];
+      }
+      param.schema = schema;
+    } else {
+      Object.assign(param, base);
+    }
+    return param;
+  }
+
   function populateParameter(
     ph: OpenAPI3Parameter,
     parameter: HttpOperationParameter,
@@ -859,7 +904,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         ph.style = "simple";
       }
     }
-    Object.assign(ph, getOpenAPIParameterBase(parameter.param, visibility));
+    const openApiParam = getOpenAPIParameterBase(parameter.param, visibility);
+    if (openApiParam) {
+      ph = mergeOpenApiParameters(ph, openApiParam);
+    }
   }
 
   function emitParameters() {

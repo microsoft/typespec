@@ -79,11 +79,17 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[0].name, "filter");
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[0].required, true);
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[0].schema, {
+    const params = results.paths["/sharedroutes/resources"].post.parameters as {
+      name: string;
+      required: boolean;
+      schema: any;
+    }[];
+    params.sort((a, b) => a.name.localeCompare(b.name));
+    deepStrictEqual(params[0].name, "filter");
+    deepStrictEqual(params[0].required, true);
+    deepStrictEqual(params[0].schema, {
       type: "string",
-      enum: ["subscription", "resourceGroup"],
+      enum: ["resourceGroup", "subscription"],
     });
   });
 });
