@@ -45,13 +45,13 @@ jobs:
           node-version: 18.x
 
       - name: Install dependencies
-        run: npx @microsoft/rush update
+        run: node common/scripts/install-run-rush.js update
 
       - name: Build necessary packages
-        run: npx @microsoft/rush build  --to @typespec/prettier-plugin-typespec
+        run: node common/scripts/install-run-rush.js build  --to @typespec/prettier-plugin-typespec
 
       - name: Format
-        run: npx @microsoft/rush format
+        run: node common/scripts/install-run-rush.js format
 
       - name: Commit
         run: |
