@@ -30,7 +30,7 @@ steps:
     displayName: Restore .NET Dependencies
     workingDirectory: packages/typespec-vs
 
-  - script: node common/scripts/install-run-rush.js rebuild --verbose
+  - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
     displayName: Build
 
   - script: node common/scripts/install-run-rush.js test-official
@@ -57,7 +57,7 @@ steps:
     displayName: Check Formatting
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: node common/scripts/install-run-rush.js lint --verbose
+  - script: node common/scripts/install-run-rush.js lint --parallelism max --verbose
     displayName: Lint
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 

@@ -22,7 +22,7 @@ jobs:
       - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
-      - script: node common/scripts/install-run-rush.js rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
       - task: AzureCLI@1

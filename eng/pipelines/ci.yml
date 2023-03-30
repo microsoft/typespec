@@ -34,7 +34,7 @@ jobs:
         displayName: Restore .NET Dependencies
         workingDirectory: packages/typespec-vs
 
-      - script: node common/scripts/install-run-rush.js rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
       - script: node common/scripts/install-run-rush.js test-official
@@ -87,7 +87,7 @@ jobs:
         displayName: Restore .NET Dependencies
         workingDirectory: packages/typespec-vs
 
-      - script: node common/scripts/install-run-rush.js rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
