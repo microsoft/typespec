@@ -49,18 +49,17 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
-    deepStrictEqual(
-      results.paths["/sharedroutes/resources"].post.parameters[0].name,
-      "subscription"
-    );
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[0].required, false);
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[1].name, "foo");
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[1].required, true);
-    deepStrictEqual(
-      results.paths["/sharedroutes/resources"].post.parameters[2].name,
-      "resourceGroup"
-    );
-    deepStrictEqual(results.paths["/sharedroutes/resources"].post.parameters[2].required, false);
+    const params = results.paths["/sharedroutes/resources"].post.parameters as {
+      name: string;
+      required: boolean;
+    }[];
+    params.sort((a, b) => a.name.localeCompare(b.name));
+    deepStrictEqual(params[0].name, "foo");
+    deepStrictEqual(params[0].required, true);
+    deepStrictEqual(params[1].name, "resourceGroup");
+    deepStrictEqual(params[1].required, false);
+    deepStrictEqual(params[2].name, "subscription");
+    deepStrictEqual(params[2].required, false);
   });
 
   it("model shared routes that differ by query param values as an enum", async () => {

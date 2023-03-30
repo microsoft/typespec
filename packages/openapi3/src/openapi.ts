@@ -399,9 +399,20 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   /**
+   * Returns the parameter with the given name, if found.
+   */
+  function getParameterWithName(
+    parameters: HttpOperationParameter[],
+    name: string
+  ): HttpOperationParameter | undefined {
+    return parameters.find((p) => p.name === name);
+  }
+
+  /**
    * Merges HttpOperations together if they share the same route.
    */
   function mergeSharedRouteOperations(operations: HttpOperation[]): HttpOperation[] {
+    const finalOps: HttpOperation[] = [];
     const pathMap = new Map<string, HttpOperation[]>();
     const paramMap = new Map<string, Map<string, HttpOperation[]>>();
 
@@ -429,26 +440,34 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
 
     for (const path of pathMap.keys()) {
+      // copy the first shared route operation and add the final parameters
+      const finalOp = pathMap.get(path)![0];
+      const finalParams: HttpOperationParameter[] = [];
       const numOps = pathMap.get(path)!.length;
       for (const [paramName, ops] of paramMap.get(path)!) {
         if (ops.length === numOps) {
-          // TODO: all operations share this parameter
-          let test = "best";
+          // all operations share this parameter so include it once in the final params
+          // TODO: should we validate that all copies of the parameter are equivalent?
+          const parameters = pathMap.get(path)![0].parameters.parameters;
+          const match = getParameterWithName(parameters!, paramName);
+          if (match) {
+            finalParams.push(match);
+          }
         } else {
-          // TODO: not all operations share this parameter
-          let test = "best";
+          // if not all operations share this parameter, then we need to make it optional
+          // TODO: should we validate that all copies of the parameter are equivalent?
+          const parameters = paramMap.get(path)!.get(paramName)![0].parameters.parameters;
+          const match = getParameterWithName(parameters!, paramName);
+          if (match) {
+            match.param.optional = true;
+            finalParams.push(match);
+          }
         }
       }
+      finalOp.parameters.parameters = finalParams;
+      finalOps.push(finalOp);
     }
-
-    //     existing.parameters.parameters.push(...op.parameters.parameters);
-    //     existing.responses.push(...op.responses);
-    //     merged.set(op.path, existing);
-    //   } else {
-    //     merged.set(op.path, op);
-    //   }
-    // }
-    return [] as HttpOperation[];
+    return finalOps;
   }
 
   async function emitOpenAPIFromVersion(
