@@ -11,7 +11,8 @@ jobs:
   - job: npm_stable
     displayName: Npm publish
     pool:
-      vmImage: windows-latest
+      name: azsdk-pool-mms-win-2022-general
+      vmImage: windows-2022
     steps:
       - task: NodeTool@0
         inputs:
@@ -68,7 +69,8 @@ jobs:
     dependsOn: npm_stable
     displayName: Npm publish dev version
     pool:
-      vmImage: windows-latest
+      name: azsdk-pool-mms-win-2022-general
+      vmImage: windows-2022
     steps:
       - task: NodeTool@0
         inputs:
@@ -102,6 +104,7 @@ jobs:
       imageName: "azsdkengsys.azurecr.io/typespec"
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
     steps:
       - task: Docker@1
         displayName: login
