@@ -480,13 +480,9 @@ describe("versioning: dependencies", () => {
           b: string;
         }
       }
+      @versioned(Versions)
       @test namespace MyService {
-        enum Versions {
-          @useDependency(VersionedLib.Versions.l1)
-          v1, 
-          @useDependency(VersionedLib.Versions.l2)
-          v2
-        }
+        enum Versions { v1, v2 }
         @test model Test extends NonVersionedLib.VersionedProp<Versions.v2> {}
       }
       `)) as { MyService: Namespace; Test: Model };

@@ -783,18 +783,10 @@ function debugVersionMap(versions: Map<Namespace, Version>) {
   return [...versions.entries()].map(([k, v]) => [k.name, v.name]);
 }
 export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
-  const version = toVersion(p, type, versionKey);
-
   // if unversioned then everything exists
-  if (version === undefined) return true;
   const selectedVersions = getProjectedVersion(p, versionKey);
   if ((type as any).name === "customAdded") {
-    console.log(
-      "Apply at version",
-      (type as any).name,
-      version.name,
-      debugVersionMap(selectedVersions)
-    );
+    console.log("Apply at version", (type as any).name, debugVersionMap(selectedVersions));
   }
 
   const availability = getAvailabilityMapV2(p, type);
