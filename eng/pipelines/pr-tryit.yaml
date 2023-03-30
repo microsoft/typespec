@@ -19,10 +19,10 @@ jobs:
           versionSpec: 16.x
         displayName: Install Node.js
 
-      - script: npx @microsoft/rush install
+      - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
-      - script: npx @microsoft/rush rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
       - task: AzureCLI@1
