@@ -36,21 +36,6 @@ steps:
   - script: node common/scripts/install-run-rush.js test-official
     displayName: Test
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFormat: "JUnit"
-      testResultsFiles: "packages/*/test-results.xml"
-      mergeTestResults: true
-      failTaskOnFailedTests: true
-      testRunTitle: "Test os: ${{ parameters.poolName }}, node: ${{ parameters.nodeVersion }}"
-    displayName: Publish test results
-    condition: or(failed(), ne(variables['Build.Reason'], 'PullRequest'))
-
-  - publish: ./packages/playground/test-results
-    artifact: "uitestresults-${{ parameters.poolName }}-node-${{ parameters.nodeVersion }}"
-    displayName: Publish UI tests artifacts
-    condition: failed()
-
   - template: ./upload-coverage.yml
 
   - script: node common/scripts/install-run-rush.js check-format
@@ -77,3 +62,26 @@ steps:
     # causing npx to try to download the unpublished version of the cli.
     condition: eq('${{ parameters.nodeVersion }}', '18.x')
     # condition: and(not(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))
+
+  # Unlink node_modules folders to significantly improve performance of subsequent tasks
+  # which need to walk the directory tree (and are hardcoded to follow symlinks).
+  - script: node common/scripts/install-run-rush.js unlink
+    displayName: "Unlink dependencies"
+
+  # It's important for performance to pass "packages" as "searchFolder" to avoid looking under root "node_modules".
+  # PublishTestResults.searchFolder only supports absolute paths, not relative.
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: "JUnit"
+      searchFolder: "$(System.DefaultWorkingDirectory)/packages"
+      testResultsFiles: "*/test-results.xml"
+      mergeTestResults: true
+      failTaskOnFailedTests: true
+      testRunTitle: "Test os: ${{ parameters.poolName }}, node: ${{ parameters.nodeVersion }}"
+    displayName: Publish test results
+    condition: always()
+
+  - publish: ./packages/playground/test-results
+    artifact: "uitestresults-${{ parameters.poolName }}-node-${{ parameters.nodeVersion }}"
+    displayName: Publish UI tests artifacts
+    condition: always()
