@@ -412,7 +412,6 @@ describe("versioning: dependencies", () => {
   it("use model defined in non versioned library spreading properties", async () => {
     const { MyService, Test } = (await runner.compile(`
       namespace NonVersionedLib {
-        enum Versions {l1, l2}
         model Spread<T> {
           t: string;
           ...T;
@@ -469,6 +468,67 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance1, ["t", "a"]);
     const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
+  });
+
+  it("use a templated version in a non-versioned library", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      namespace NonVersionedLib {
+        model VersionedProp<T extends TypeSpec.Reflection.EnumMember> {
+          a: string;
+
+          @added(T)
+          b: string;
+        }
+      }
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l2)
+          v2
+        }
+        @test model Test extends NonVersionedLib.VersionedProp<Versions.v2> {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b"]);
+  });
+
+  it("use a templated version in a versioned library", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {l1, l2}
+        model VersionedProp<T extends TypeSpec.Reflection.EnumMember> {
+          a: string;
+
+          @added(T)
+          b: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l2)
+          v2
+        }
+        @test model Test extends VersionedLib.VersionedProp<Versions.v2> {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b"]);
   });
 
   it("can handle when the versions name are the same across different libraries", async () => {

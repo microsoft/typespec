@@ -176,14 +176,14 @@ export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: En
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
-function toVersion(p: Program, t: Type, v: ObjectType): Version | undefined {
-  const [namespace] = getVersions(p, t);
+function toVersion(program: Program, type: Type, versionKey: ObjectType): Version | undefined {
+  const [namespace] = getVersions(program, type);
   if (namespace === undefined) {
     return undefined;
   }
   return getVersionForNamespace(
-    p,
-    v,
+    program,
+    versionKey,
     (namespace.projectionBase as Namespace) ?? namespace
   ) as Version;
 }
@@ -551,7 +551,7 @@ export function indexVersions(program: Program, versions: Map<Namespace, Version
     kind: "Object",
     properties: {},
   } as any);
-  program.stateMap(key).set(versionKey, versions);
+  program.stateMap(versionIndexKey).set(versionKey, versions);
   return versionKey;
 }
 
@@ -560,10 +560,18 @@ function getVersionForNamespace(
   versionKey: ObjectType,
   namespaceType: Namespace
 ) {
-  return program.stateMap(key).get(versionKey)?.get(namespaceType);
+  return program.stateMap(versionIndexKey).get(versionKey)?.get(namespaceType);
 }
 
-const key = createStateSymbol("version-index");
+function getProjectedVersion(program: Program, versionKey: ObjectType): Map<Namespace, Version> {
+  return program.stateMap(versionIndexKey).get(versionKey);
+}
+
+function getProjectedVersions(program: Program): Map<Namespace, Version>[] {
+  return [...program.stateMap(versionIndexKey).values()];
+}
+
+const versionIndexKey = createStateSymbol("version-index");
 export function buildVersionProjections(program: Program, rootNs: Namespace): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
   return resolutions.map((resolution) => {
@@ -682,7 +690,6 @@ export function getAvailabilityMap(
 
   const added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
-
   // if there's absolutely no versioning information, return undefined
   // contextually, this might mean it inherits its versioning info from a parent
   // or that it is treated as unversioned
@@ -714,15 +721,96 @@ export function getAvailabilityMap(
   return avail;
 }
 
+function getOriginalNamespace(namespace: Namespace): Namespace {
+  return (namespace.projectionBase as Namespace) ?? namespace;
+}
+export function getAvailabilityMapV2(
+  program: Program,
+  type: Type
+): Map<Map<Namespace, Version>, Availability> | undefined {
+  const avail = new Map<Map<Namespace, Version>, Availability>();
+
+  const allVersions = getProjectedVersions(program);
+  // // if unversioned then everything exists
+  // if (allVersions === undefined) return undefined;
+
+  const added = getAddedOnVersions(program, type) ?? [];
+  const removed = getRemovedOnVersions(program, type) ?? [];
+  // if there's absolutely no versioning information, return undefined
+  // contextually, this might mean it inherits its versioning info from a parent
+  // or that it is treated as unversioned
+  if (!added.length && !removed.length) return undefined;
+
+  // implicitly, all versioned things are assumed to have been added at
+  // v1 if not specified
+  if (!added.length) {
+    added.push(allVersions[0].values().next().value);
+  }
+
+  // something isn't available by default
+  let isAvail = false;
+  for (const ver of allVersions) {
+    const add = added.find((x) => x === ver.get(getOriginalNamespace(x.namespace)));
+    const rem = removed.find((x) => x === ver.get(getOriginalNamespace(x.namespace)));
+    if ((type as any).name === "customAdded") {
+      console.log(
+        "Check ver set",
+        debugVersionMap(ver),
+        "Added at:",
+        added.map((x) => x.name),
+        ver.get(getOriginalNamespace(added[0].namespace))?.name,
+        ver.get(getOriginalNamespace(added[0].namespace)) === added[0],
+        add?.name,
+        rem?.name
+      );
+    }
+    if (rem) {
+      isAvail = false;
+      avail.set(ver, Availability.Removed);
+    } else if (add) {
+      isAvail = true;
+      avail.set(ver, Availability.Added);
+    } else if (isAvail) {
+      avail.set(ver, Availability.Available);
+    } else {
+      avail.set(ver, Availability.Unavailable);
+    }
+  }
+  return avail;
+}
+
+function debugVersionMap(versions: Map<Namespace, Version>) {
+  return [...versions.entries()].map(([k, v]) => [k.name, v.name]);
+}
 export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
   const version = toVersion(p, type, versionKey);
+
   // if unversioned then everything exists
   if (version === undefined) return true;
+  const selectedVersions = getProjectedVersion(p, versionKey);
+  if ((type as any).name === "customAdded") {
+    console.log(
+      "Apply at version",
+      (type as any).name,
+      version.name,
+      debugVersionMap(selectedVersions)
+    );
+  }
 
-  const availability = getAvailabilityMap(p, type);
+  const availability = getAvailabilityMapV2(p, type);
+  if ((type as any).name === "customAdded") {
+    console.log(
+      "Availibility",
+      (type as any).name,
+      availability &&
+        [...availability.entries()].map(([vers, avail]) => {
+          return [debugVersionMap(vers), avail];
+        })
+    );
+  }
   if (!availability) return true;
 
-  const isAvail = availability.get(version.name)!;
+  const isAvail = availability.get(selectedVersions)!;
   return [Availability.Added, Availability.Available].includes(isAvail);
 }
 
@@ -748,6 +836,9 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
+  member = (member.projectionSource as EnumMember) ?? member;
+
+  // TODO-TIM do we need this check??
   const parentEnum = member.enum;
   if (!parentEnum) {
     return undefined;
@@ -772,6 +863,7 @@ function appliesAtVersion(
   }
 
   const appliedOnVersion = getMetadataFn(p, type);
+
   if (appliedOnVersion === undefined) {
     return null;
   }
