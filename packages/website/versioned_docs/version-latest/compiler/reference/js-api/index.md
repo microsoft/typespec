@@ -1074,34 +1074,6 @@ ___
 
 ## Variables
 
-### CadlLanguageConfiguration
-
-• `Const` **CadlLanguageConfiguration**: `Object` = `TypeSpecLanguageConfiguration`
-
-**`Deprecated`**
-
-Use TypeSpecLanguageConfiguration
-
-#### Type declaration
-
-| Name | Type |
-| :------ | :------ |
-| `autoClosingPairs` | readonly [{ `close`: ``"}"`` = "}"; `open`: ``"{"`` = "{" }, { `close`: ``"]"`` = "]"; `open`: ``"["`` = "[" }, { `close`: ``")"`` = ")"; `open`: ``"("`` = "(" }, { `close`: ``"\""`` = '"'; `open`: ``"\""`` = '"' }, { `close`: ``" */"`` = " */"; `notIn`: readonly [``"string"``] ; `open`: ``"/**"`` = "/**" }] |
-| `brackets` | readonly [readonly [``"{"``, ``"}"``], readonly [``"["``, ``"]"``], readonly [``"("``, ``")"``]] |
-| `comments` | { `blockComment`: readonly [``"/*"``, ``"*/"``] ; `lineComment`: ``"//"`` = "//" } |
-| `comments.blockComment` | readonly [``"/*"``, ``"*/"``] |
-| `comments.lineComment` | ``"//"`` |
-| `indentationRules` | { `decreaseIndentPattern`: { `pattern`: ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$" } ; `increaseIndentPattern`: { `pattern`: ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` = "^((?!//).)*(\\{([^}\"'\`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'\`/]*\|\\[[^\\]\"'\`/]*)$" } ; `unIndentedLinePattern`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" }  } |
-| `indentationRules.decreaseIndentPattern` | { `pattern`: ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$" } |
-| `indentationRules.decreaseIndentPattern.pattern` | ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` |
-| `indentationRules.increaseIndentPattern` | { `pattern`: ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` = "^((?!//).)*(\\{([^}\"'\`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'\`/]*\|\\[[^\\]\"'\`/]*)$" } |
-| `indentationRules.increaseIndentPattern.pattern` | ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` |
-| `indentationRules.unIndentedLinePattern` | { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" } |
-| `indentationRules.unIndentedLinePattern.pattern` | ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` |
-| `onEnterRules` | readonly [{ `action`: { `appendText`: ``" * "`` = " * "; `indent`: ``"indentOutdent"`` = "indentOutdent" } ; `afterText`: { `pattern`: ``"^\\s*\\*/$"`` = "^\\s*\\*/$" } ; `beforeText`: { `pattern`: ``"^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$"`` = "^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$" }  }, { `action`: { `appendText`: ``" * "`` = " * "; `indent`: ``"none"`` = "none" } ; `beforeText`: { `pattern`: ``"^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$"`` = "^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$" }  }, { `action`: { `appendText`: ``"* "`` = "* "; `indent`: ``"none"`` = "none" } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" } ; `previousLineText`: { `pattern`: ``"(?=^(\\s*(/\\*\\*\|\\*)).*)(?=(?!(\\s*\\*/)))"`` = "(?=^(\\s*(/\\*\\*\|\\*)).*)(?=(?!(\\s*\\*/)))" }  }, { `action`: { `indent`: ``"none"`` = "none"; `removeText`: ``1`` = 1 } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*/\\s*$"`` = "^(\\t\|[ ])*[ ]\\*/\\s*$" }  }, { `action`: { `indent`: ``"none"`` = "none"; `removeText`: ``1`` = 1 } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$" }  }] |
-| `surroundingPairs` | readonly [{ `close`: ``"}"`` = "}"; `open`: ``"{"`` = "{" }, { `close`: ``"]"`` = "]"; `open`: ``"["`` = "[" }, { `close`: ``")"`` = ")"; `open`: ``"("`` = "(" }, { `close`: ``"\""`` = '"'; `open`: ``"\""`` = '"' }] |
-
-___
 
 ### CadlPrettierPlugin
 
@@ -1147,33 +1119,6 @@ ___
 ### TokenDisplay
 
 • `Const` **TokenDisplay**: readonly `string`[]
-
-___
-
-### TypeSpecLanguageConfiguration
-
-• `Const` **TypeSpecLanguageConfiguration**: `Object`
-
-TypeSpec Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
-
-#### Type declaration
-
-| Name | Type |
-| :------ | :------ |
-| `autoClosingPairs` | readonly [{ `close`: ``"}"`` = "}"; `open`: ``"{"`` = "{" }, { `close`: ``"]"`` = "]"; `open`: ``"["`` = "[" }, { `close`: ``")"`` = ")"; `open`: ``"("`` = "(" }, { `close`: ``"\""`` = '"'; `open`: ``"\""`` = '"' }, { `close`: ``" */"`` = " */"; `notIn`: readonly [``"string"``] ; `open`: ``"/**"`` = "/**" }] |
-| `brackets` | readonly [readonly [``"{"``, ``"}"``], readonly [``"["``, ``"]"``], readonly [``"("``, ``")"``]] |
-| `comments` | { `blockComment`: readonly [``"/*"``, ``"*/"``] ; `lineComment`: ``"//"`` = "//" } |
-| `comments.blockComment` | readonly [``"/*"``, ``"*/"``] |
-| `comments.lineComment` | ``"//"`` |
-| `indentationRules` | { `decreaseIndentPattern`: { `pattern`: ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$" } ; `increaseIndentPattern`: { `pattern`: ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` = "^((?!//).)*(\\{([^}\"'\`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'\`/]*\|\\[[^\\]\"'\`/]*)$" } ; `unIndentedLinePattern`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" }  } |
-| `indentationRules.decreaseIndentPattern` | { `pattern`: ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$" } |
-| `indentationRules.decreaseIndentPattern.pattern` | ``"^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$"`` |
-| `indentationRules.increaseIndentPattern` | { `pattern`: ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` = "^((?!//).)*(\\{([^}\"'\`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'\`/]*\|\\[[^\\]\"'\`/]*)$" } |
-| `indentationRules.increaseIndentPattern.pattern` | ``"^((?!//).)*(\\{([^}\"'`/]*\|(\\t\|[ ])*//.*)\|\\([^)\"'`/]*\|\\[[^\\]\"'`/]*)$"`` |
-| `indentationRules.unIndentedLinePattern` | { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" } |
-| `indentationRules.unIndentedLinePattern.pattern` | ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*/\\s*$\|^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` |
-| `onEnterRules` | readonly [{ `action`: { `appendText`: ``" * "`` = " * "; `indent`: ``"indentOutdent"`` = "indentOutdent" } ; `afterText`: { `pattern`: ``"^\\s*\\*/$"`` = "^\\s*\\*/$" } ; `beforeText`: { `pattern`: ``"^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$"`` = "^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$" }  }, { `action`: { `appendText`: ``" * "`` = " * "; `indent`: ``"none"`` = "none" } ; `beforeText`: { `pattern`: ``"^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$"`` = "^\\s*/\\*\\*(?!/)([^\\*]\|\\*(?!/))*$" }  }, { `action`: { `appendText`: ``"* "`` = "* "; `indent`: ``"none"`` = "none" } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$"`` = "^(\\t\|[ ])*[ ]\\*([ ]([^\\*]\|\\*(?!/))*)?$" } ; `previousLineText`: { `pattern`: ``"(?=^(\\s*(/\\*\\*\|\\*)).*)(?=(?!(\\s*\\*/)))"`` = "(?=^(\\s*(/\\*\\*\|\\*)).*)(?=(?!(\\s*\\*/)))" }  }, { `action`: { `indent`: ``"none"`` = "none"; `removeText`: ``1`` = 1 } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*/\\s*$"`` = "^(\\t\|[ ])*[ ]\\*/\\s*$" }  }, { `action`: { `indent`: ``"none"`` = "none"; `removeText`: ``1`` = 1 } ; `beforeText`: { `pattern`: ``"^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$"`` = "^(\\t\|[ ])*[ ]\\*[^/]*\\*/\\s*$" }  }] |
-| `surroundingPairs` | readonly [{ `close`: ``"}"`` = "}"; `open`: ``"{"`` = "{" }, { `close`: ``"]"`` = "]"; `open`: ``"["`` = "[" }, { `close`: ``")"`` = ")"; `open`: ``"("`` = "(" }, { `close`: ``"\""`` = '"'; `open`: ``"\""`` = '"' }] |
 
 ___
 
@@ -3177,6 +3122,7 @@ getPathComponents("file:///path/to/file.ext") === ["file:///", "path", "to", "fi
 getPathComponents("file:///path/to/") === ["file:///", "path", "to"]
 getPathComponents("file:///") === ["file:///"]
 getPathComponents("file://") === ["file://"]
+```
 
 #### Parameters
 
