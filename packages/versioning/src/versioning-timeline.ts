@@ -1,5 +1,6 @@
 import { compilerAssert, Namespace, Program } from "@typespec/compiler";
-import { getVersions, Version } from "./versioning.js";
+import { Version } from "./types.js";
+import { getVersions } from "./versioning.js";
 
 /**
  * Represent a timeline of all the version involved in the versioning of a namespace
@@ -41,6 +42,7 @@ import { getVersions, Version } from "./versioning.js";
 export class VersioningTimeline {
   #namespaces: Namespace[];
   #timeline: TimelineMoment[];
+  #momentIndex: Map<TimelineMoment, number>;
   #versionIndex: Map<Version, number>;
 
   constructor(program: Program, resolutions: Map<Namespace, Version>[]) {
@@ -86,7 +88,10 @@ export class VersioningTimeline {
     }
 
     this.#versionIndex = new Map();
+    this.#momentIndex = new Map();
     for (const [index, moment] of timeline.entries()) {
+      this.#momentIndex.set(moment, index);
+
       for (const version of moment.versions()) {
         if (!this.#versionIndex.has(version)) {
           this.#versionIndex.set(version, index);
@@ -119,13 +124,33 @@ export class VersioningTimeline {
   /**
    * Return index in the timeline that this version points to
    */
-  getIndex(version: Version): number {
-    const index = this.#versionIndex.get(version);
-    compilerAssert(
-      index !== undefined,
-      `Version "${version?.name}" from ${version.namespace.name}  should have been resolved`
-    );
+  getIndex(version: Version | TimelineMoment): number {
+    const index =
+      version instanceof TimelineMoment
+        ? this.#momentIndex.get(version)
+        : this.#versionIndex.get(version);
+    if (index === undefined) {
+      if (version instanceof TimelineMoment) {
+        compilerAssert(false, `Timeline moment "${version?.name}" should have been resolved`);
+      } else {
+        compilerAssert(
+          false,
+          `Version "${version?.name}" from ${version.namespace.name}  should have been resolved`
+        );
+      }
+    }
     return index;
+  }
+
+  /**
+   * Return true if {@link isBefore} is before {@link base}
+   * @param isBefore
+   * @param base
+   */
+  isBefore(isBefore: Version | TimelineMoment, base: Version | TimelineMoment): boolean {
+    const isBeforeIndex = this.getIndex(isBefore);
+    const baseIndex = this.getIndex(base);
+    return isBeforeIndex < baseIndex;
   }
 
   first(): TimelineMoment {
@@ -141,10 +166,12 @@ export class VersioningTimeline {
 }
 
 export class TimelineMoment {
+  readonly name: string;
   #versionMap: Map<Namespace, Version>;
 
   public constructor(versionMap: Map<Namespace, Version>) {
     this.#versionMap = versionMap;
+    this.name = versionMap.values().next().value ?? "";
   }
 
   getVersion(namespace: Namespace): Version | undefined {

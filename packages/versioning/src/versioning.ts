@@ -13,6 +13,7 @@ import {
   Type,
 } from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { Version, VersionResolution } from "./types.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 const addedOnKey = createStateSymbol("addedOn");
@@ -178,18 +179,6 @@ export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: En
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
-function toVersion(program: Program, type: Type, versionKey: ObjectType): Version | undefined {
-  const [namespace] = getVersions(program, type);
-  if (namespace === undefined) {
-    return undefined;
-  }
-  return getVersionForNamespace(
-    program,
-    versionKey,
-    (namespace.projectionBase as Namespace) ?? namespace
-  ) as Version;
-}
-
 function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
   return p.stateMap(renamedFromKey).get(t) as Array<RenamedFrom>;
 }
@@ -204,16 +193,14 @@ export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefin
 /**
  * @returns get old name if applicable.
  */
-export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
-  const version = toVersion(p, t, v);
-  const allValues = getRenamedFrom(p, t);
-  if (!allValues || !version) return "";
+export function getNameAtVersion(p: Program, t: Type, versionKey: ObjectType): string {
+  const versioningState = getVersioningState(p, versionKey);
 
-  const targetIndex = version.index;
+  const allValues = getRenamedFrom(p, t);
+  if (!allValues) return "";
 
   for (const val of allValues) {
-    const index = val.version.index;
-    if (targetIndex < index) {
+    if (versioningState.timeline.isBefore(versioningState.projectingMoment, val.version)) {
       return val.oldName;
     }
   }
@@ -223,14 +210,19 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
 /**
  * @returns get old type if applicable.
  */
-export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): Type | undefined {
-  const target = toVersion(p, t, v);
-  const map = getTypeChangedFrom(p, t);
-  if (!map || !target) return undefined;
+export function getTypeBeforeVersion(
+  p: Program,
+  t: Type,
+  versionKey: ObjectType
+): Type | undefined {
+  const versioningState = getVersioningState(p, versionKey);
 
-  for (const [key, val] of map) {
-    if (target.index < key.index) {
-      return val;
+  const map = getTypeChangedFrom(p, t);
+  if (!map) return undefined;
+
+  for (const [changedAtVersion, oldType] of map) {
+    if (versioningState.timeline.isBefore(versioningState.projectingMoment, changedAtVersion)) {
+      return oldType;
     }
   }
   return undefined;
@@ -239,13 +231,14 @@ export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): Type |
 /**
  * @returns get old type if applicable.
  */
-export function getReturnTypeBeforeVersion(p: Program, t: Type, v: ObjectType): any {
-  const target = toVersion(p, t, v);
-  const map = getReturnTypeChangedFrom(p, t);
-  if (!map || !target) return "";
+export function getReturnTypeBeforeVersion(p: Program, t: Type, versionKey: ObjectType): any {
+  const versioningState = getVersioningState(p, versionKey);
 
-  for (const [key, val] of map) {
-    if (target.index < key.index) {
+  const map = getReturnTypeChangedFrom(p, t);
+  if (!map) return "";
+
+  for (const [changedAtVersion, val] of map) {
+    if (versioningState.timeline.isBefore(versioningState.projectingMoment, changedAtVersion)) {
       return val;
     }
   }
@@ -474,18 +467,6 @@ function resolveVersionDependency(
   return mapping;
 }
 
-export interface VersionResolution {
-  /**
-   * Version for the root namespace. `undefined` if not versioned.
-   */
-  rootVersion: Version | undefined;
-
-  /**
-   * Resolved version for all the referenced namespaces.
-   */
-  versions: Map<Namespace, Version>;
-}
-
 /**
  * Resolve the version to use for all namespace for each of the root namespace versions.
  * @param program
@@ -548,9 +529,8 @@ interface VersionProjections {
 /**
  * @internal
  */
-export function indexVersions(
+export function indexTimeline(
   program: Program,
-  versions: Map<Namespace, Version>,
   timeline: VersioningTimeline,
   projectingMoment: TimelineMoment
 ) {
@@ -558,23 +538,14 @@ export function indexVersions(
     kind: "Object",
     properties: {},
   } as any);
-  program.stateMap(versionIndexKey).set(versionKey, { versions, timeline, projectingMoment });
+  program.stateMap(versionIndexKey).set(versionKey, { timeline, projectingMoment });
   return versionKey;
-}
-
-function getVersionForNamespace(
-  program: Program,
-  versionKey: ObjectType,
-  namespaceType: Namespace
-) {
-  return program.stateMap(versionIndexKey).get(versionKey)?.versions.get(namespaceType);
 }
 
 function getVersioningState(
   program: Program,
   versionKey: ObjectType
 ): {
-  versions: Map<Namespace, Version>;
   timeline: VersioningTimeline;
   projectingMoment: TimelineMoment;
 } {
@@ -592,9 +563,8 @@ export function buildVersionProjections(program: Program, rootNs: Namespace): Ve
     if (resolution.versions.size === 0) {
       return { version: undefined, projections: [] };
     } else {
-      const versionKey = indexVersions(
+      const versionKey = indexTimeline(
         program,
-        resolution.versions,
         timeline,
         timeline.get(resolution.versions.values().next().value)
       );
@@ -788,9 +758,14 @@ export function hasDifferentNameAtVersion(p: Program, type: Type, version: Objec
   return getNameAtVersion(p, type, version) !== "";
 }
 
-export function madeOptionalAfter(p: Program, type: Type, version: ObjectType): boolean {
-  const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version);
-  return appliesAt === null ? false : !appliesAt;
+export function madeOptionalAfter(program: Program, type: Type, versionKey: ObjectType): boolean {
+  const versioningState = getVersioningState(program, versionKey);
+
+  const madeOptionalAtVersion = getMadeOptionalOn(program, type);
+  if (madeOptionalAtVersion === undefined) {
+    return false;
+  }
+  return versioningState.timeline.isBefore(versioningState.projectingMoment, madeOptionalAtVersion);
 }
 
 export function hasDifferentTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
@@ -811,41 +786,4 @@ export function getVersionForEnumMember(program: Program, member: EnumMember): V
   const parentEnum = member.enum;
   const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);
-}
-
-/**
- * returns either null, which means unversioned, or true or false depending
- * on whether the change is active or not at that particular version
- */
-function appliesAtVersion(
-  getMetadataFn: (p: Program, t: Type) => Version | undefined,
-  p: Program,
-  type: Type,
-  versionKey: ObjectType
-): boolean | null {
-  const version = toVersion(p, type, versionKey);
-  if (version === undefined) {
-    return null;
-  }
-
-  const appliedOnVersion = getMetadataFn(p, type);
-
-  if (appliedOnVersion === undefined) {
-    return null;
-  }
-
-  const appliedOnVersionIndex = appliedOnVersion.index;
-  if (appliedOnVersionIndex === -1) return null;
-
-  const testVersionIndex = version.index;
-  if (testVersionIndex === -1) return null;
-  return testVersionIndex >= appliedOnVersionIndex;
-}
-
-export interface Version {
-  name: string;
-  value: string;
-  namespace: Namespace;
-  enumMember: EnumMember;
-  index: number;
 }

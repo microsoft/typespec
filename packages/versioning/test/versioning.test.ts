@@ -13,8 +13,9 @@ import {
 } from "@typespec/compiler";
 import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
+import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
-import { getVersions, indexVersions, Version } from "../src/versioning.js";
+import { getVersions, indexTimeline } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -1659,12 +1660,7 @@ describe("versioning: logic", () => {
     }
     const versionMap = new Map<Namespace, Version>([[actualVersion.namespace, actualVersion]]);
     const timeline = new VersioningTimeline(runner.program, [versionMap]);
-    const versionKey = indexVersions(
-      runner.program,
-      versionMap,
-      timeline,
-      timeline.get(actualVersion)
-    );
+    const versionKey = indexTimeline(runner.program, timeline, timeline.get(actualVersion));
     const projection: ProjectionApplication = {
       arguments: [versionKey],
       projectionName: "v",
