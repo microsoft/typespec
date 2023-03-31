@@ -33,6 +33,7 @@ spec.emu.html
 
 # Auto generated reference docs.
 docs/**/reference/
+docs/standard-library/built-in-decorators.md
 packages/website/versioned_docs/**/reference/
 
 #.tsp init template
