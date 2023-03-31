@@ -734,15 +734,12 @@ export function getAvailabilityMap(
   return avail;
 }
 
-export function getAvailabilityMapV2(
+export function getAvailabilityMapInTimeline(
   program: Program,
   type: Type,
   timeline: VersioningTimeline
 ): Map<TimelineMoment, Availability> | undefined {
   const avail = new Map<TimelineMoment, Availability>();
-
-  // // if unversioned then everything exists
-  // if (allVersions === undefined) return undefined;
 
   const added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
@@ -781,7 +778,7 @@ export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType):
   const versioningState = getVersioningState(p, versionKey);
   // if unversioned then everything exists
 
-  const availability = getAvailabilityMapV2(p, type, versioningState.timeline);
+  const availability = getAvailabilityMapInTimeline(p, type, versioningState.timeline);
   if (!availability) return true;
   const isAvail = availability.get(versioningState.projectingMoment)!;
   return isAvail === Availability.Added || isAvail === Availability.Available;
@@ -809,13 +806,9 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
+  // Always lookup for the original type. This ensure reference equality when comparing versions.
   member = (member.projectionBase as EnumMember) ?? member;
-
-  // TODO-TIM do we need this check??
   const parentEnum = member.enum;
-  if (!parentEnum) {
-    return undefined;
-  }
   const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);
 }
