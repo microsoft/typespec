@@ -1,4 +1,5 @@
 import {
+  compilerAssert,
   DecoratorContext,
   DiagnosticTarget,
   Enum,
@@ -33,6 +34,7 @@ function checkIsVersion(
   diagnosticTarget: DiagnosticTarget
 ): Version | undefined {
   const version = getVersionForEnumMember(program, enumMember);
+
   if (!version) {
     reportDiagnostic(program, {
       code: "version-not-found",
@@ -536,6 +538,125 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
 }
 
 /**
+ * Represent a timeline of all the version involved in the versioning of a namespace
+ * Starting at 0.
+ */
+export class VersioningTimeline {
+  #namespaces: Namespace[];
+  #timeline: TimelineMoment[];
+  #versionIndex: Map<Version, number>;
+
+  constructor(program: Program, resolutions: Map<Namespace, Version>[]) {
+    const indexedVersions = new Set<Version>();
+    const namespaces = new Set<Namespace>();
+    const timeline = resolutions.map((x) => new TimelineMoment(x));
+    for (const resolution of resolutions) {
+      for (const [namespace, version] of resolution.entries()) {
+        indexedVersions.add(version);
+        namespaces.add(namespace);
+      }
+    }
+
+    for (const namespace of namespaces) {
+      const [, versions] = getVersions(program, namespace);
+      if (versions === undefined) {
+        continue;
+      }
+
+      for (const version of versions.getVersions()) {
+        if (!indexedVersions.has(version)) {
+          indexedVersions.add(version);
+
+          timeline.push(new TimelineMoment(new Map([[version.namespace, version]])));
+        }
+      }
+    }
+
+    // Order the timeline
+
+    for (const namespace of namespaces) {
+      timeline.sort((a, b) => {
+        const aVersion = a.getVersion(namespace);
+        const bVersion = b.getVersion(namespace);
+
+        return aVersion === undefined || bVersion === undefined
+          ? 0
+          : aVersion.index - bVersion.index;
+      });
+    }
+    this.#timeline = timeline;
+    this.#namespaces = [...namespaces];
+
+    this.#versionIndex = new Map();
+    for (const [index, moment] of timeline.entries()) {
+      for (const version of moment.versions()) {
+        this.#versionIndex.set(version, index);
+      }
+    }
+  }
+
+  prettySerialize() {
+    const hSep = "-".repeat(this.#namespaces.length * 13 + 1);
+    const content = this.#timeline
+      .map((moment) => {
+        return (
+          "| " +
+          this.#namespaces
+            .map((x) => (moment.getVersion(x)?.name ?? "").padEnd(10, " "))
+            .join(" | ") +
+          " |"
+        );
+      })
+      .join(`\n${hSep}\n`);
+    return ["", hSep, content, hSep].join("\n");
+  }
+
+  get(version: Version): TimelineMoment {
+    const index = this.getIndex(version);
+    return this.#timeline[index];
+  }
+
+  /**
+   * Return index in the timeline that this version points to
+   */
+  getIndex(version: Version): number {
+    const index = this.#versionIndex.get(version);
+    compilerAssert(
+      index !== undefined,
+      `Version "${version?.name}" from ${version.namespace.name}  should have been resolved`
+    );
+    return index;
+  }
+
+  first(): TimelineMoment {
+    return this.#timeline[0];
+  }
+
+  [Symbol.iterator](): IterableIterator<TimelineMoment> {
+    return this.#timeline[Symbol.iterator]();
+  }
+  entries(): IterableIterator<[number, TimelineMoment]> {
+    return this.#timeline.entries();
+  }
+}
+
+export class TimelineMoment {
+  #versionMap: Map<Namespace, Version>;
+
+  public constructor(versionMap: Map<Namespace, Version>) {
+    this.#versionMap = versionMap;
+  }
+
+  getVersion(namespace: Namespace): Version | undefined {
+    return this.#versionMap.get(namespace);
+  }
+
+  versions(): IterableIterator<Version> {
+    return this.#versionMap.values();
+  }
+}
+
+/**
  * Represent the set of projections used to project to that version.
  */
 interface VersionProjections {
@@ -546,12 +667,17 @@ interface VersionProjections {
 /**
  * @internal
  */
-export function indexVersions(program: Program, versions: Map<Namespace, Version>) {
+export function indexVersions(
+  program: Program,
+  versions: Map<Namespace, Version>,
+  timeline: VersioningTimeline,
+  projectingMoment: TimelineMoment
+) {
   const versionKey = program.checker.createType<ObjectType>({
     kind: "Object",
     properties: {},
   } as any);
-  program.stateMap(versionIndexKey).set(versionKey, versions);
+  program.stateMap(versionIndexKey).set(versionKey, { versions, timeline, projectingMoment });
   return versionKey;
 }
 
@@ -560,25 +686,38 @@ function getVersionForNamespace(
   versionKey: ObjectType,
   namespaceType: Namespace
 ) {
-  return program.stateMap(versionIndexKey).get(versionKey)?.get(namespaceType);
+  return program.stateMap(versionIndexKey).get(versionKey)?.versions.get(namespaceType);
 }
 
-function getProjectedVersion(program: Program, versionKey: ObjectType): Map<Namespace, Version> {
+function getVersioningState(
+  program: Program,
+  versionKey: ObjectType
+): {
+  versions: Map<Namespace, Version>;
+  timeline: VersioningTimeline;
+  projectingMoment: TimelineMoment;
+} {
   return program.stateMap(versionIndexKey).get(versionKey);
-}
-
-function getProjectedVersions(program: Program): Map<Namespace, Version>[] {
-  return [...program.stateMap(versionIndexKey).values()];
 }
 
 const versionIndexKey = createStateSymbol("version-index");
 export function buildVersionProjections(program: Program, rootNs: Namespace): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
+  const timeline = new VersioningTimeline(
+    program,
+    resolutions.map((x) => x.versions)
+  );
+  console.log("Timeline", timeline.prettySerialize());
   return resolutions.map((resolution) => {
     if (resolution.versions.size === 0) {
       return { version: undefined, projections: [] };
     } else {
-      const versionKey = indexVersions(program, resolution.versions);
+      const versionKey = indexVersions(
+        program,
+        resolution.versions,
+        timeline,
+        timeline.get(resolution.versions.values().next().value)
+      );
       return {
         version: resolution.rootVersion?.value,
         projections: [
@@ -721,16 +860,13 @@ export function getAvailabilityMap(
   return avail;
 }
 
-function getOriginalNamespace(namespace: Namespace): Namespace {
-  return (namespace.projectionBase as Namespace) ?? namespace;
-}
 export function getAvailabilityMapV2(
   program: Program,
-  type: Type
-): Map<Map<Namespace, Version>, Availability> | undefined {
-  const avail = new Map<Map<Namespace, Version>, Availability>();
+  type: Type,
+  timeline: VersioningTimeline
+): Map<TimelineMoment, Availability> | undefined {
+  const avail = new Map<TimelineMoment, Availability>();
 
-  const allVersions = getProjectedVersions(program);
   // // if unversioned then everything exists
   // if (allVersions === undefined) return undefined;
 
@@ -744,66 +880,59 @@ export function getAvailabilityMapV2(
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified
   if (!added.length) {
-    added.push(allVersions[0].values().next().value);
+    added.push(timeline.first().versions().next().value);
   }
 
   // something isn't available by default
   let isAvail = false;
-  for (const ver of allVersions) {
-    const add = added.find((x) => x === ver.get(getOriginalNamespace(x.namespace)));
-    const rem = removed.find((x) => x === ver.get(getOriginalNamespace(x.namespace)));
-    if ((type as any).name === "customAdded") {
+  for (const [index, moment] of timeline.entries()) {
+    // const add = added.find((x) => x === moment.getVersion(getOriginalNamespace(x.namespace)));
+    // const rem = removed.find((x) => x === moment.getVersion(getOriginalNamespace(x.namespace)));
+
+    console.log(
+      "Add is in projection",
+      added.map((x) => x.enumMember.projectionSource !== undefined)
+    );
+    const add = added.find((x) => timeline.getIndex(x) === index);
+    const rem = removed.find((x) => timeline.getIndex(x) === index);
+    if ((type as any).name === "b") {
       console.log(
         "Check ver set",
-        debugVersionMap(ver),
         "Added at:",
         added.map((x) => x.name),
-        ver.get(getOriginalNamespace(added[0].namespace))?.name,
-        ver.get(getOriginalNamespace(added[0].namespace)) === added[0],
+        "Get version moment",
         add?.name,
         rem?.name
       );
     }
     if (rem) {
       isAvail = false;
-      avail.set(ver, Availability.Removed);
+      avail.set(moment, Availability.Removed);
     } else if (add) {
       isAvail = true;
-      avail.set(ver, Availability.Added);
+      avail.set(moment, Availability.Added);
     } else if (isAvail) {
-      avail.set(ver, Availability.Available);
+      avail.set(moment, Availability.Available);
     } else {
-      avail.set(ver, Availability.Unavailable);
+      avail.set(moment, Availability.Unavailable);
     }
   }
   return avail;
 }
 
-function debugVersionMap(versions: Map<Namespace, Version>) {
-  return [...versions.entries()].map(([k, v]) => [k.name, v.name]);
-}
 export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
+  const versioningState = getVersioningState(p, versionKey);
   // if unversioned then everything exists
-  const selectedVersions = getProjectedVersion(p, versionKey);
-  if ((type as any).name === "customAdded") {
-    console.log("Apply at version", (type as any).name, debugVersionMap(selectedVersions));
-  }
 
-  const availability = getAvailabilityMapV2(p, type);
-  if ((type as any).name === "customAdded") {
-    console.log(
-      "Availibility",
-      (type as any).name,
-      availability &&
-        [...availability.entries()].map(([vers, avail]) => {
-          return [debugVersionMap(vers), avail];
-        })
-    );
-  }
+  const availability = getAvailabilityMapV2(p, type, versioningState.timeline);
   if (!availability) return true;
+  const isAvail = availability.get(versioningState.projectingMoment)!;
 
-  const isAvail = availability.get(selectedVersions)!;
-  return [Availability.Added, Availability.Available].includes(isAvail);
+  if ((type as any).name === "b") {
+    isAvail === Availability.Added || isAvail === Availability.Available;
+  }
+
+  return isAvail === Availability.Added || isAvail === Availability.Available;
 }
 
 export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType): boolean {
@@ -828,7 +957,7 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
-  member = (member.projectionSource as EnumMember) ?? member;
+  member = (member.projectionBase as EnumMember) ?? member;
 
   // TODO-TIM do we need this check??
   const parentEnum = member.enum;

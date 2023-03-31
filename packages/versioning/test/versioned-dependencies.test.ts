@@ -527,6 +527,44 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance2, ["a", "b"]);
   });
 
+  it("respect changes in library between linked versions", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {l1, l2, l3, l4}
+        model VersionedLibModel {
+          a: string;
+
+          @added(Versions.l2)
+          b: string;
+
+          @added(Versions.l3)
+          c: string;
+
+          @added(Versions.l4)
+          d: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l3)
+          v2
+        }
+        @test model Test extends VersionedLib.VersionedLibModel {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b", "c"]);
+  });
+
   it("can handle when the versions name are the same across different libraries", async () => {
     const { MyService, Test } = (await runner.compile(`
       @versioned(Versions)

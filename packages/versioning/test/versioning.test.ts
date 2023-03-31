@@ -13,7 +13,7 @@ import {
 } from "@typespec/compiler";
 import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
-import { getVersions, indexVersions, Version } from "../src/versioning.js";
+import { getVersions, indexVersions, Version, VersioningTimeline } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -1657,7 +1657,13 @@ describe("compiler: versioning", () => {
       fail(`Should have found the version ${version}`);
     }
     const versionMap = new Map<Namespace, Version>([[actualVersion.namespace, actualVersion]]);
-    const versionKey = indexVersions(runner.program, versionMap);
+    const timeline = new VersioningTimeline(runner.program, [versionMap]);
+    const versionKey = indexVersions(
+      runner.program,
+      versionMap,
+      timeline,
+      timeline.get(actualVersion)
+    );
     const projection: ProjectionApplication = {
       arguments: [versionKey],
       projectionName: "v",
