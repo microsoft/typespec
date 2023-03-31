@@ -248,11 +248,10 @@ describe("http: decorators", () => {
         @route("/test", { shared: true }) op test2(): string;
         @route("/test") op test3(): string;
       `);
-
       expectDiagnostics(diagnostics, [
         {
-          code: "@cadl-lang/rest/duplicate-operation",
-          message: `Duplicate operation "test3" routed at "get /test".`,
+          code: "@typespec/http/shared-inconsistency",
+          message: `All shared routes must agree on the value of the shared parameter.`,
         },
       ]);
     });
