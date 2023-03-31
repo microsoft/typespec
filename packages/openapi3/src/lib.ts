@@ -134,6 +134,12 @@ export const libDef = {
         default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
       },
     },
+    "inconsistent-parameter-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Parameter '${"paramName"}' shared by multiple routes cannot be different types. Found: ${"types"}.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

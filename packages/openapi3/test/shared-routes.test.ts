@@ -92,4 +92,30 @@ describe("openapi3: shared routes", () => {
       enum: ["resourceGroup", "subscription"],
     });
   });
+
+  it("emits diagnostic if shared parameters are of different types", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        model Resource {
+          id: string;
+        }
+
+        @route("/sharedroutes/resources", { shared: true })
+        op listByResourceGroup(...Resource, @query filter: "resourceGroup"): Resource[];
+
+        @route("/sharedroutes/resources", { shared: true })
+        op listBySubscription(...Resource, @header filter: "subscription"): Resource[];
+      }
+      `
+    );
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/inconsistent-parameter-type",
+        message:
+          "Parameter 'filter' shared by multiple routes cannot be different types. Found: query, header.",
+      },
+    ]);
+  });
 });

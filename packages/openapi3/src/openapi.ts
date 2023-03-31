@@ -47,6 +47,7 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
+  NoTarget,
   NumericLiteral,
   Program,
   ProjectionApplication,
@@ -424,9 +425,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!reference) {
       return [];
     }
+    // FIXME: fix this so it has a target
     if (!commonParams.every((p) => p.type === reference.type)) {
-      // TODO: report error
-      throw new Error("TODO: report error");
+      const types = [...new Set(commonParams.map((p) => p.type))];
+      reportDiagnostic(program, {
+        code: "inconsistent-parameter-type",
+        format: { paramName: reference.name, types: types.join(", ") },
+        target: NoTarget,
+      });
     }
     if (
       commonParams.every((p) => p.param.optional === reference.param.optional) &&
