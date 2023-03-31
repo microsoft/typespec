@@ -23,7 +23,7 @@ import {
   assertHasVariants,
 } from "./utils.js";
 
-describe("compiler: versioning", () => {
+describe("versioning: logic", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

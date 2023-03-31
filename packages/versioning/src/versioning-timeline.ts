@@ -19,6 +19,15 @@ import { getVersions, Version } from "./versioning.js";
  *  v3  -> (using) l3
  * ```
  *
+ * This would be the data passed to the constructor
+ * ```ts
+ * new VersioningTimeline(program, [
+ *   new Map([[serviceNs, v1], [libraryNs, l1]]),
+ *   new Map([[serviceNs, v2], [libraryNs, l3]]),
+ *   new Map([[serviceNs, v3], [libraryNs, l3]]),
+ * ])
+ * ```
+ *
  * The following timeline is going to be represented
  *
  * | Service | Library |
@@ -37,12 +46,23 @@ export class VersioningTimeline {
   constructor(program: Program, resolutions: Map<Namespace, Version>[]) {
     const indexedVersions = new Set<Version>();
     const namespaces = new Set<Namespace>();
-    const timeline = resolutions.map((x) => new TimelineMoment(x));
+    const timeline = (this.#timeline = resolutions.map((x) => new TimelineMoment(x)));
     for (const resolution of resolutions) {
       for (const [namespace, version] of resolution.entries()) {
         indexedVersions.add(version);
         namespaces.add(namespace);
       }
+    }
+    this.#namespaces = [...namespaces];
+
+    function findIndexToInsert(version: Version): number {
+      for (const [index, moment] of timeline.entries()) {
+        const versionAtMoment = moment.getVersion(version.namespace);
+        if (versionAtMoment && version.index < versionAtMoment.index) {
+          return index;
+        }
+      }
+      return -1;
     }
 
     for (const namespace of namespaces) {
@@ -54,26 +74,16 @@ export class VersioningTimeline {
       for (const version of versions.getVersions()) {
         if (!indexedVersions.has(version)) {
           indexedVersions.add(version);
-
-          timeline.push(new TimelineMoment(new Map([[version.namespace, version]])));
+          const index = findIndexToInsert(version);
+          const newMoment = new TimelineMoment(new Map([[version.namespace, version]]));
+          if (index === -1) {
+            timeline.push(newMoment);
+          } else {
+            timeline.splice(index, 0, newMoment);
+          }
         }
       }
     }
-
-    // Order the timeline
-
-    for (const namespace of namespaces) {
-      timeline.sort((a, b) => {
-        const aVersion = a.getVersion(namespace);
-        const bVersion = b.getVersion(namespace);
-
-        return aVersion === undefined || bVersion === undefined
-          ? 0
-          : aVersion.index - bVersion.index;
-      });
-    }
-    this.#timeline = timeline;
-    this.#namespaces = [...namespaces];
 
     this.#versionIndex = new Map();
     for (const [index, moment] of timeline.entries()) {
