@@ -13,7 +13,8 @@ import {
 } from "@typespec/compiler";
 import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
-import { getVersions, indexVersions, Version, VersioningTimeline } from "../src/versioning.js";
+import { VersioningTimeline } from "../src/versioning-timeline.js";
+import { getVersions, indexVersions, Version } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
