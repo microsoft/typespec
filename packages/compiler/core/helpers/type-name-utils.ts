@@ -55,10 +55,12 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
   return "(unnamed type)";
 }
 
-function isStdNamespace(namespace: Namespace): boolean {
+export function isStdNamespace(namespace: Namespace): boolean {
   return (
-    namespace.name === "TypeSpec" ||
-    (namespace.name === "Reflection" && namespace.namespace?.name === "TypeSpec")
+    (namespace.name === "TypeSpec" && namespace.namespace?.name === "") ||
+    (namespace.name === "Reflection" &&
+      namespace.namespace?.name === "TypeSpec" &&
+      namespace.namespace?.namespace?.name === "")
   );
 }
 
@@ -70,12 +72,12 @@ function isStdNamespace(namespace: Namespace): boolean {
  */
 export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions): string {
   const filter = options?.namespaceFilter;
-  if (filter && !filter(type)) {
-    return "";
-  }
   const segments = [];
   let current: Namespace | undefined = type;
   while (current && current.name !== "") {
+    if (filter && !filter(current)) {
+      break;
+    }
     segments.unshift(getIdentifierName(current.name, options));
     current = current.namespace;
   }

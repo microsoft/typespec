@@ -239,7 +239,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
       const name = getNamespaceFullName(ns);
-      return name !== "TypeSpec" && name !== serviceNamespace;
+      return name !== serviceNamespace;
     },
   };
 

@@ -1,5 +1,5 @@
 import { compilerAssert } from "../core/diagnostics.js";
-import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import {
   Decorator,
   EnumMember,
@@ -112,7 +112,7 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   if (
     !parent?.name ||
     typeof parent.name !== "string" ||
-    (parent.kind === "Namespace" && parent.name === "TypeSpec")
+    (parent.kind === "Namespace" && isStdNamespace(parent))
   ) {
     return "";
   }
