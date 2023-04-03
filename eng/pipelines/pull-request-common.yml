@@ -33,7 +33,7 @@ steps:
   - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
     displayName: Build
 
-  - script: node common/scripts/install-run-rush.js test-official
+  - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
     displayName: Test
 
   - template: ./upload-coverage.yml
