@@ -17,9 +17,6 @@ export interface TypeNameOptions {
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
-  if (isReflectionType(type) || isStdType(type)) {
-    return type.name;
-  }
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -58,15 +55,11 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
   return "(unnamed type)";
 }
 
-function isReflectionType(type: Type): type is Model & { name: "" } {
+function isStdNamespace(namespace: Namespace): boolean {
   return (
-    type.kind === "Model" &&
-    type.namespace?.name === "Reflection" &&
-    type.namespace?.namespace?.name === "TypeSpec"
+    namespace.name === "TypeSpec" ||
+    (namespace.name === "Reflection" && namespace.namespace?.name === "TypeSpec")
   );
-}
-function isStdType(type: Type): type is Model & { name: "" } {
-  return "namespace" in type && type.namespace?.name === "TypeSpec";
 }
 
 /**
@@ -76,12 +69,21 @@ function isStdType(type: Type): type is Model & { name: "" } {
  * @returns
  */
 export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions): string {
+  if (isStdNamespace(type)) {
+    return "";
+  }
   const filter = options?.namespaceFilter;
   if (filter && !filter(type)) {
     return "";
   }
+  const segments = [];
+  let current: Namespace | undefined = type;
+  while (current && current.name !== "") {
+    segments.unshift(getIdentifierName(current.name, options));
+    current = current.namespace;
+  }
 
-  return `${getNamespacePrefix(type.namespace, options)}${getIdentifierName(type.name, options)}`;
+  return segments.join(".");
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {

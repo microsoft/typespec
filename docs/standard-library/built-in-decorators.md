@@ -4,7 +4,7 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 # Built-in Decorators
-## TypeSpec
+## 
 
 ### `@format` {#@format}
 
@@ -249,12 +249,12 @@ dec maxLength(target: string | ModelProperty, value: integer)
 Specify the minimum number of items this array should have.
 
 ```typespec
-dec minItems(target: Array | ModelProperty, value: integer)
+dec minItems(target: unknown[] | ModelProperty, value: integer)
 ```
 
 #### Target
 
-`union Array | ModelProperty`
+`union unknown[] | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -267,12 +267,12 @@ dec minItems(target: Array | ModelProperty, value: integer)
 Specify the maximum number of items this array should have.
 
 ```typespec
-dec maxItems(target: Array | ModelProperty, value: integer)
+dec maxItems(target: unknown[] | ModelProperty, value: integer)
 ```
 
 #### Target
 
-`union Array | ModelProperty`
+`union unknown[] | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -550,7 +550,7 @@ with standard emitters that interpret them as follows:
 See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
 ```typespec
-dec visibility(target: ModelProperty, ...visibilities: Array)
+dec visibility(target: ModelProperty, ...visibilities: string[])
 ```
 
 #### Target
@@ -560,7 +560,7 @@ dec visibility(target: ModelProperty, ...visibilities: Array)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model Array` |  |
+| visibilities | `model string[]` |  |
 
 #### Examples
 
@@ -589,7 +589,7 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: object, ...visibilities: Array)
+dec withVisibility(target: object, ...visibilities: string[])
 ```
 
 #### Target
@@ -599,7 +599,7 @@ dec withVisibility(target: object, ...visibilities: Array)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model Array` |  |
+| visibilities | `model string[]` |  |
 
 #### Examples
 

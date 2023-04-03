@@ -66,7 +66,7 @@ describe("compiler: checker: type relations", () => {
         }`);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.int32'",
+        message: "Type 'string' is not assignable to type 'int32'",
       });
     });
 
@@ -166,7 +166,7 @@ describe("compiler: checker: type relations", () => {
         { source: "123", target: "string" },
         {
           code: "unassignable",
-          message: "Type '123' is not assignable to type 'TypeSpec.string'",
+          message: "Type '123' is not assignable to type 'string'",
         }
       );
     });
@@ -192,7 +192,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.string' is not assignable to type 'foo'",
+          message: "Type 'string' is not assignable to type 'foo'",
         }
       );
     });
@@ -216,7 +216,7 @@ describe("compiler: checker: type relations", () => {
         { source: `129`, target: "int8" },
         {
           code: "unassignable",
-          message: "Type '129' is not assignable to type 'TypeSpec.int8'",
+          message: "Type '129' is not assignable to type 'int8'",
         }
       );
     });
@@ -225,7 +225,7 @@ describe("compiler: checker: type relations", () => {
         { source: `21.49`, target: "int8" },
         {
           code: "unassignable",
-          message: "Type '21.49' is not assignable to type 'TypeSpec.int8'",
+          message: "Type '21.49' is not assignable to type 'int8'",
         }
       );
     });
@@ -245,7 +245,7 @@ describe("compiler: checker: type relations", () => {
         { source: `34000`, target: "int16" },
         {
           code: "unassignable",
-          message: "Type '34000' is not assignable to type 'TypeSpec.int16'",
+          message: "Type '34000' is not assignable to type 'int16'",
         }
       );
     });
@@ -255,7 +255,7 @@ describe("compiler: checker: type relations", () => {
         { source: `31489.49`, target: "int16" },
         {
           code: "unassignable",
-          message: "Type '31489.49' is not assignable to type 'TypeSpec.int16'",
+          message: "Type '31489.49' is not assignable to type 'int16'",
         }
       );
     });
@@ -275,7 +275,7 @@ describe("compiler: checker: type relations", () => {
         { source: `3000000000`, target: "int32" },
         {
           code: "unassignable",
-          message: "Type '3000000000' is not assignable to type 'TypeSpec.int32'",
+          message: "Type '3000000000' is not assignable to type 'int32'",
         }
       );
     });
@@ -285,7 +285,7 @@ describe("compiler: checker: type relations", () => {
         { source: `125125125.49`, target: "int32" },
         {
           code: "unassignable",
-          message: "Type '125125125.49' is not assignable to type 'TypeSpec.int32'",
+          message: "Type '125125125.49' is not assignable to type 'int32'",
         }
       );
     });
@@ -307,7 +307,7 @@ describe("compiler: checker: type relations", () => {
         { source: `109223372036854775808`, target: "int64" },
         {
           code: "unassignable",
-          message: "Type '109223372036854775808' is not assignable to type 'TypeSpec.int64'",
+          message: "Type '109223372036854775808' is not assignable to type 'int64'",
         }
       );
     });
@@ -317,7 +317,7 @@ describe("compiler: checker: type relations", () => {
         { source: `9223372036875808.49`, target: "int64" },
         {
           code: "unassignable",
-          message: "Type '9223372036875808.49' is not assignable to type 'TypeSpec.int64'",
+          message: "Type '9223372036875808.49' is not assignable to type 'int64'",
         }
       );
     });
@@ -352,7 +352,7 @@ describe("compiler: checker: type relations", () => {
         { source: `125125125.49`, target: "integer" },
         {
           code: "unassignable",
-          message: "Type '125125125.49' is not assignable to type 'TypeSpec.integer'",
+          message: "Type '125125125.49' is not assignable to type 'integer'",
         }
       );
     });
@@ -380,7 +380,7 @@ describe("compiler: checker: type relations", () => {
         { source: `integer`, target: "float" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.integer' is not assignable to type 'TypeSpec.float'",
+          message: "Type 'integer' is not assignable to type 'float'",
         }
       );
     });
@@ -390,7 +390,7 @@ describe("compiler: checker: type relations", () => {
         { source: `boolean`, target: "float" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.boolean' is not assignable to type 'TypeSpec.float'",
+          message: "Type 'boolean' is not assignable to type 'float'",
         }
       );
     });
@@ -431,7 +431,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "numeric" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.numeric'",
+          message: "Type 'string' is not assignable to type 'numeric'",
         }
       );
     });
@@ -457,7 +457,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "{}" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.string' is not assignable to type '{}'",
+          message: "Type 'string' is not assignable to type '{}'",
         }
       );
     });
@@ -467,7 +467,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "object" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.object'",
+          message: "Type 'string' is not assignable to type 'object'",
         }
       );
     });
@@ -519,8 +519,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "Record<string>" },
         {
           code: "unassignable",
-          message:
-            "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.Record<TypeSpec.string>'",
+          message: "Type 'string' is not assignable to type 'Record<string>'",
         }
       );
     });
@@ -530,7 +529,7 @@ describe("compiler: checker: type relations", () => {
         { source: `Record<int32>`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.int32' is not assignable to type 'TypeSpec.string'",
+          message: "Type 'int32' is not assignable to type 'string'",
         }
       );
     });
@@ -540,7 +539,7 @@ describe("compiler: checker: type relations", () => {
         { source: `{foo: string, bar: int32}`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.int32' is not assignable to type 'TypeSpec.string'",
+          message: "Type 'int32' is not assignable to type 'string'",
         }
       );
     });
@@ -622,7 +621,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "string[]" },
         {
           code: "unassignable",
-          message: "Type 'TypeSpec.string' is not assignable to type 'TypeSpec.string[]'",
+          message: "Type 'string' is not assignable to type 'string[]'",
         }
       );
     });
@@ -632,7 +631,7 @@ describe("compiler: checker: type relations", () => {
         { source: `["abc", 123]`, target: "string[]" },
         {
           code: "unassignable",
-          message: "Type '123' is not assignable to type 'TypeSpec.string'",
+          message: "Type '123' is not assignable to type 'string'",
         }
       );
     });
@@ -642,7 +641,7 @@ describe("compiler: checker: type relations", () => {
         { source: `{}`, target: "string[]" },
         {
           code: "missing-index",
-          message: "Index signature for type 'TypeSpec.integer' is missing in type '{}'.",
+          message: "Index signature for type 'integer' is missing in type '{}'.",
         }
       );
     });
@@ -670,7 +669,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: [
-            "Type '[TypeSpec.string]' is not assignable to type '[TypeSpec.string, TypeSpec.string]'",
+            "Type '[string]' is not assignable to type '[string, string]'",
             "  Source has 1 element(s) but target requires 2.",
           ].join("\n"),
         }
@@ -681,8 +680,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: "[string, string]" },
         {
           code: "unassignable",
-          message:
-            "Type 'TypeSpec.string' is not assignable to type '[TypeSpec.string, TypeSpec.string]'",
+          message: "Type 'string' is not assignable to type '[string, string]'",
         }
       );
     });
@@ -702,7 +700,7 @@ describe("compiler: checker: type relations", () => {
         { source: `true`, target: "string | int32" },
         {
           code: "unassignable",
-          message: "Type 'true' is not assignable to type 'TypeSpec.string | TypeSpec.int32'",
+          message: "Type 'true' is not assignable to type 'string | int32'",
         }
       );
     });
