@@ -5,20 +5,20 @@ service: UserService
   ops:
     op: POST /users/{id}
       request:
-        path id: TypeSpec.string
+        path id: string
         body: UserService.User (Create)
       response: 200
         body: UserService.User (Read)
     op: GET /users/{id}
       request:
-        path id: TypeSpec.string
+        path id: string
       response: 200
         body: UserService.User (Read)
   models:
     model: UserService.User
-      id: TypeSpec.string (Read only)
-      secret: TypeSpec.string (Create only)
-      name: TypeSpec.string
+      id: string (Read only)
+      secret: string (Create only)
+      name: string
   
   
   service: UserService
@@ -27,21 +27,21 @@ service: UserService
     ops:
       op: POST /users/{id}
         request:
-          path id: TypeSpec.string
+          path id: string
           body: UserService.User (Create)
         response: 200
           body: UserService.User (Read)
       op: GET /users/{id}
         request:
-          path id: TypeSpec.string
+          path id: string
         response: 200
           body: UserService.User (Read)
     models:
       model: UserService.User
-        id: TypeSpec.string (Read only)
-        secret: TypeSpec.string (Create only)
-        name: TypeSpec.string
-        age: TypeSpec.int32
+        id: string (Read only)
+        secret: string (Create only)
+        name: string
+        age: int32
     
     
     service: AnotherService
