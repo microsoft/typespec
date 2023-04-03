@@ -455,33 +455,34 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     // group operations by path
     for (const op of operations) {
-      if (pathMap.has(op.path)) {
-        pathMap.get(op.path)!.push(op);
+      const opKey = `${op.verb}|${op.path}`;
+      if (pathMap.has(opKey)) {
+        pathMap.get(opKey)!.push(op);
       } else {
-        pathMap.set(op.path, [op]);
-        paramMap.set(op.path, new Map());
+        pathMap.set(opKey, [op]);
+        paramMap.set(opKey, new Map());
       }
     }
 
     // determine which parameters are shared by all shared route operations
-    for (const [path, ops] of pathMap) {
+    for (const [opKey, ops] of pathMap) {
       for (const op of ops) {
         for (const param of op.parameters.parameters) {
-          if (paramMap.get(path)!.has(param.name)) {
-            paramMap.get(path)!.get(param.name)!.push(op);
+          if (paramMap.get(opKey)!.has(param.name)) {
+            paramMap.get(opKey)!.get(param.name)!.push(op);
           } else {
-            paramMap.get(path)!.set(param.name, [op]);
+            paramMap.get(opKey)!.set(param.name, [op]);
           }
         }
       }
     }
 
-    for (const path of pathMap.keys()) {
+    for (const opKey of pathMap.keys()) {
       // copy the first shared route operation and add the final parameters
-      const finalOp = pathMap.get(path)![0];
+      const finalOp = pathMap.get(opKey)![0];
       const finalParams: HttpOperationParameter[] = [];
-      const numOps = pathMap.get(path)!.length;
-      for (const [paramName, ops] of paramMap.get(path)!) {
+      const numOps = pathMap.get(opKey)!.length;
+      for (const [paramName, ops] of paramMap.get(opKey)!) {
         if (ops.length === numOps) {
           const commonParams = validateCommonParameters(ops, paramName);
           finalParams.push(...commonParams);
