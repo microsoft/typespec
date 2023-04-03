@@ -69,9 +69,6 @@ function isStdNamespace(namespace: Namespace): boolean {
  * @returns
  */
 export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions): string {
-  if (isStdNamespace(type)) {
-    return "";
-  }
   const filter = options?.namespaceFilter;
   if (filter && !filter(type)) {
     return "";
@@ -87,7 +84,10 @@ export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions)
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
-  const namespaceFullName = type ? getNamespaceFullName(type, options) : "";
+  if (type === undefined || isStdNamespace(type)) {
+    return "";
+  }
+  const namespaceFullName = getNamespaceFullName(type, options);
   return namespaceFullName !== "" ? namespaceFullName + "." : "";
 }
 

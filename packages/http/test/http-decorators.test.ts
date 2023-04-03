@@ -78,7 +78,7 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '123' is not assignable to parameter of type 'string | Http.HeaderOptions'",
+            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
@@ -167,7 +167,7 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '123' is not assignable to parameter of type 'string | Http.QueryOptions'",
+            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
