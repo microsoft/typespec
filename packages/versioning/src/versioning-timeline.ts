@@ -1,4 +1,4 @@
-import { compilerAssert, Namespace, Program } from "@typespec/compiler";
+import { compilerAssert, getTypeName, Namespace, Program } from "@typespec/compiler";
 import { Version } from "./types.js";
 import { getVersions } from "./versioning.js";
 
@@ -135,7 +135,9 @@ export class VersioningTimeline {
       } else {
         compilerAssert(
           false,
-          `Version "${version?.name}" from ${version.namespace.name}  should have been resolved`
+          `Version "${version?.name}" from ${getTypeName(
+            version.namespace
+          )} should have been resolved. ${this.prettySerialize()}`
         );
       }
     }

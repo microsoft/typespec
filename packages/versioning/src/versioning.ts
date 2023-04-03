@@ -468,6 +468,39 @@ function resolveVersionDependency(
 }
 
 /**
+ * Resolve the version of dependencies
+ * @param initialResolutions
+ */
+function resolveDependencyVersions(
+  program: Program,
+  initialResolutions: Map<Namespace, Version>
+): Map<Namespace, Version> {
+  const resolutions = new Map(initialResolutions);
+  const namespacesToCheck = [...initialResolutions.entries()];
+  while (namespacesToCheck.length > 0) {
+    const [current, currentVersion] = namespacesToCheck.pop()!;
+    const dependencies = getVersionDependencies(program, current);
+    for (const [dependencyNs, versionMap] of dependencies ?? new Map()) {
+      if (resolutions.has(dependencyNs)) {
+        continue; // Already resolved.
+      }
+
+      if (!(versionMap instanceof Map)) {
+        const rootNsName = getNamespaceFullName(current);
+        const dependencyNsName = getNamespaceFullName(dependencyNs);
+        throw new Error(
+          `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
+        );
+      }
+      const dependencyVersion = versionMap.get(currentVersion);
+      namespacesToCheck.push([dependencyNs, dependencyVersion]);
+      resolutions.set(dependencyNs, dependencyVersion);
+    }
+  }
+
+  return resolutions;
+}
+/**
  * Resolve the version to use for all namespace for each of the root namespace versions.
  * @param program
  * @param rootNs Root namespace.
@@ -492,28 +525,15 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
         }
         map.set(dependencyNs, version);
       }
-      return [{ rootVersion: undefined, versions: map }];
+      return [{ rootVersion: undefined, versions: resolveDependencyVersions(program, map) }];
     }
   } else {
     return versions.getVersions().map((version) => {
-      const resolution: VersionResolution = {
+      const resolutions = resolveDependencyVersions(program, new Map([[rootNs, version]]));
+      return {
         rootVersion: version,
-        versions: new Map<Namespace, Version>(),
+        versions: resolutions,
       };
-      resolution.versions.set(rootNs, version);
-
-      for (const [dependencyNs, versionMap] of dependencies) {
-        if (!(versionMap instanceof Map)) {
-          const rootNsName = getNamespaceFullName(rootNs);
-          const dependencyNsName = getNamespaceFullName(dependencyNs);
-          throw new Error(
-            `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
-          );
-        }
-        resolution.versions.set(dependencyNs, versionMap.get(version)!);
-      }
-
-      return resolution;
     });
   }
 }
