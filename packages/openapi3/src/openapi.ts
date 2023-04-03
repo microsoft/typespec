@@ -47,7 +47,6 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
-  NoTarget,
   NumericLiteral,
   Program,
   ProjectionApplication,
@@ -412,7 +411,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   /**
    * Validates that common parameters are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonParameters(ops: HttpOperation[], name: string): HttpOperationParameter[] {
+  function validateCommonParameters(
+    ops: HttpOperation[],
+    name: string,
+    totalOps: number
+  ): HttpOperationParameter[] {
     const finalParams: HttpOperationParameter[] = [];
     const commonParams: HttpOperationParameter[] = [];
     for (const op of ops) {
@@ -425,20 +428,28 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!reference) {
       return [];
     }
-    // FIXME: fix this so it has a target
-    if (!commonParams.every((p) => p.type === reference.type)) {
-      const types = [...new Set(commonParams.map((p) => p.type))];
-      reportDiagnostic(program, {
-        code: "inconsistent-parameter-type",
-        format: { paramName: reference.name, types: types.join(", ") },
-        target: NoTarget,
-      });
-    }
-    if (
-      commonParams.every((p) => p.param.optional === reference.param.optional) &&
-      commonParams.every((p) => p.param.type === reference.param.type)
-    ) {
+    const inAllOps = ops.length === totalOps;
+    const sameLocations = commonParams.every((p) => p.type === reference.type);
+    const sameOptionality = commonParams.every(
+      (p) => p.param.optional === reference.param.optional
+    );
+    const sameTypeKind = commonParams.every((p) => p.param.type.kind === reference.param.type.kind);
+    const sameTypeValue = commonParams.every((p) => p.param.type === reference.param.type);
+
+    if (inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+      // param is consistent and in all shared operations. Only need one copy.
       finalParams.push(reference);
+    } else if (!inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+      // param is consistent when used, but does not appear in all shared operations. Only need one copy, but it must be optional.
+      reference.param.optional = true;
+      finalParams.push(reference);
+    } else if (inAllOps && !(sameLocations && sameOptionality && sameTypeKind)) {
+      // param is in all shared operations, but is not consistent. Need multiple copies, which must be optional.
+      // exception allowed when the params only differ by their value (e.g. string enum values)
+      commonParams.forEach((p) => {
+        p.param.optional = true;
+      });
+      finalParams.push(...commonParams);
     } else {
       finalParams.push(...commonParams);
     }
@@ -480,20 +491,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     for (const opKey of pathMap.keys()) {
       // copy the first shared route operation and add the final parameters
       const finalOp = pathMap.get(opKey)![0];
+      const totalOps = pathMap.get(opKey)!.length;
       const finalParams: HttpOperationParameter[] = [];
-      const numOps = pathMap.get(opKey)!.length;
       for (const [paramName, ops] of paramMap.get(opKey)!) {
-        if (ops.length === numOps) {
-          const commonParams = validateCommonParameters(ops, paramName);
-          finalParams.push(...commonParams);
-        } else {
-          // if not all operations share this parameter, then we need to make it optional
-          const commonParams = validateCommonParameters(ops, paramName);
-          for (const match of commonParams) {
-            match.param.optional = true;
-          }
-          finalParams.push(...commonParams);
-        }
+        const commonParams = validateCommonParameters(ops, paramName, totalOps);
+        finalParams.push(...commonParams);
       }
       finalOp.parameters.parameters = finalParams;
       finalOps.push(finalOp);
@@ -836,7 +838,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (isNeverType(parameter.param.type)) {
       return;
     }
-    const existing = currentEndpoint.parameters.find((p) => p.name === parameter.name);
+    const existing = currentEndpoint.parameters.find(
+      (p) => p.name === parameter.name && p.in === parameter.type
+    );
     if (existing) {
       populateParameter(existing, parameter, visibility);
     } else {
@@ -911,9 +915,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         ph.style = "simple";
       }
     }
-    const openApiParam = getOpenAPIParameterBase(parameter.param, visibility);
-    if (openApiParam) {
-      ph = mergeOpenApiParameters(ph, openApiParam);
+    const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
+    if (paramBase) {
+      ph = mergeOpenApiParameters(ph, paramBase);
     }
   }
 

@@ -93,8 +93,8 @@ describe("openapi3: shared routes", () => {
     });
   });
 
-  it("emits diagnostic if shared parameters are of different types", async () => {
-    const diagnostics = await diagnoseOpenApiFor(
+  it("model shared routes with shared parameters in different locations", async () => {
+    const results = await openApiFor(
       `
       @service({title: "My Service"})
       namespace Foo {
@@ -110,11 +110,30 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
-    expectDiagnostics(diagnostics, [
+    const params = results.paths["/sharedroutes/resources"].post.parameters as {
+      name: string;
+      required: boolean;
+      schema: any;
+    }[];
+    params.sort((a, b) => a.name.localeCompare(b.name));
+    deepStrictEqual(params, [
       {
-        code: "@typespec/openapi3/inconsistent-parameter-type",
-        message:
-          "Parameter 'filter' shared by multiple routes cannot be different types. Found: query, header.",
+        name: "filter",
+        in: "query",
+        required: false,
+        schema: {
+          type: "string",
+          enum: ["resourceGroup"],
+        },
+      },
+      {
+        name: "filter",
+        in: "header",
+        required: false,
+        schema: {
+          type: "string",
+          enum: ["subscription"],
+        },
       },
     ]);
   });
