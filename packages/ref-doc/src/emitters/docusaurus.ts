@@ -104,17 +104,24 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
   return content.join("\n");
 }
 
-function renderDecoratorFile(refDoc: TypeSpecRefDoc): string | undefined {
+export type DecoratorRenderOptions = {
+  title?: string;
+};
+export function renderDecoratorFile(
+  refDoc: TypeSpecRefDoc,
+  options?: DecoratorRenderOptions
+): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
   }
+  const title = options?.title ?? "Decorators";
   const content = [
     "---",
-    `title: "Decorators"`,
+    `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1("Decorators"),
+    headings.h1(title),
   ];
 
   content.push(

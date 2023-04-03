@@ -274,6 +274,7 @@ function pathComponents(path: string, rootLength: number) {
  * getPathComponents("file:///path/to/") === ["file:///", "path", "to"]
  * getPathComponents("file:///") === ["file:///"]
  * getPathComponents("file://") === ["file://"]
+ * ```
  */
 export function getPathComponents(path: string, currentDirectory = "") {
   path = joinPaths(currentDirectory, path);

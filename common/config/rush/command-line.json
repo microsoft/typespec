@@ -18,16 +18,20 @@
       "shellCommand": "node eng/scripts/watch.js"
     },
     {
-      "commandKind": "global",
+      "commandKind": "bulk",
       "name": "test",
       "summary": "(CUSTOM) Runs all tests.",
-      "shellCommand": "node eng/scripts/npm-run.js test"
+      "enableParallelism": true,
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
-      "commandKind": "global",
+      "commandKind": "bulk",
       "name": "test-official",
       "summary": "(CUSTOM) Runs all tests for CI or PR validation. Disallows .only.",
-      "shellCommand": "node eng/scripts/npm-run.js test-official"
+      "enableParallelism": true,
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
       "commandKind": "global",

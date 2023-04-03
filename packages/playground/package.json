@@ -30,8 +30,8 @@
     "watch": "vite",
     "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
     "e2e:headed": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
-    "test": "npm run e2e",
-    "test-official": "npm run e2e",
+    "test": "npm run e2e 2>&1",
+    "test-official": "npm run e2e 2>&1",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },

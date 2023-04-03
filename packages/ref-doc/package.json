@@ -19,12 +19,16 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": "./dist/src/index.js",
+    "./emitters/docusaurus": "./dist/src/emitters/docusaurus.js"
   },
   "typesVersions": {
     "*": {
       "*": [
         "./dist/src/index.d.ts"
+      ],
+      "emitters/docusaurus": [
+        "./dist/src/emitters/docusaurus.d.ts"
       ]
     }
   },
