@@ -4,6 +4,11 @@
       "packageName": "@typespec/versioning",
       "comment": "Fix: Issue with using version as a template parameter across different namespace. Include a significant change in the versioning library internals.",
       "type": "none"
+    },
+     {
+      "packageName": "@typespec/versioning",
+      "comment": "**API BREAKING** `getAvailabilityMap` is now returning a `Map<TimelineMoment, Availability>` instead of `Map<Version, Availability>`.",
+      "type": "none"
     }
   ],
   "packageName": "@typespec/versioning"
