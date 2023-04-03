@@ -109,7 +109,11 @@ function getEnumMemberSignature(member: EnumMember) {
 }
 
 function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
-  if (!parent?.name || typeof parent.name !== "string") {
+  if (
+    !parent?.name ||
+    typeof parent.name !== "string" ||
+    (parent.kind === "Namespace" && parent.name === "TypeSpec")
+  ) {
     return "";
   }
 
