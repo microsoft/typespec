@@ -6,19 +6,19 @@ toc_max_heading_level: 3
 
 # Decorators
 
-## TypeSpec.Rest
+## Rest
 
-### `@autoRoute` {#@TypeSpec.Rest.autoRoute}
+### `@autoRoute` {#@Rest.autoRoute}
 
 This interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
 
 ```typespec
-dec TypeSpec.Rest.autoRoute(target: TypeSpec.Reflection.Interface | TypeSpec.Reflection.Operation)
+dec Rest.autoRoute(target: Interface | Operation)
 ```
 
 #### Target
 
-`union TypeSpec.Reflection.Interface | TypeSpec.Reflection.Operation`
+`union Interface | Operation`
 
 #### Parameters
 
@@ -33,30 +33,30 @@ get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
 }
 ```
 
-### `@segment` {#@TypeSpec.Rest.segment}
+### `@segment` {#@Rest.segment}
 
 Defines the preceding path segment for a
 
 ```typespec
-dec TypeSpec.Rest.segment(target: TypeSpec.object | TypeSpec.Reflection.ModelProperty | TypeSpec.Reflection.Operation, name: TypeSpec.string)
+dec Rest.segment(target: object | ModelProperty | Operation, name: string)
 ```
 
 #### Target
 
-`union TypeSpec.object | TypeSpec.Reflection.ModelProperty | TypeSpec.Reflection.Operation`
+`union object | ModelProperty | Operation`
 
 #### Parameters
 
-| Name | Type                     | Description                                                                                    |
-| ---- | ------------------------ | ---------------------------------------------------------------------------------------------- |
-| name | `scalar TypeSpec.string` | Segment that will be inserted into the operation route before the path parameter's name field. |
+| Name | Type            | Description                                                                                    |
+| ---- | --------------- | ---------------------------------------------------------------------------------------------- |
+| name | `scalar string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
-### `@segmentOf` {#@TypeSpec.Rest.segmentOf}
+### `@segmentOf` {#@Rest.segmentOf}
 
 Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
 
 ```typespec
-dec TypeSpec.Rest.segmentOf(target: TypeSpec.Reflection.Operation, type: TypeSpec.object)
+dec Rest.segmentOf(target: Operation, type: object)
 ```
 
 #### Target
@@ -65,21 +65,21 @@ dec TypeSpec.Rest.segmentOf(target: TypeSpec.Reflection.Operation, type: TypeSpe
 
 #### Parameters
 
-| Name | Type                    | Description |
-| ---- | ----------------------- | ----------- |
-| type | `model TypeSpec.object` |             |
+| Name | Type           | Description |
+| ---- | -------------- | ----------- |
+| type | `model object` |             |
 
-### `@actionSeparator` {#@TypeSpec.Rest.actionSeparator}
+### `@actionSeparator` {#@Rest.actionSeparator}
 
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```typespec
-dec TypeSpec.Rest.actionSeparator(target: TypeSpec.object | TypeSpec.Reflection.ModelProperty | TypeSpec.Reflection.Operation, seperator: / | : | /:)
+dec Rest.actionSeparator(target: object | ModelProperty | Operation, seperator: / | : | /:)
 ```
 
 #### Target
 
-`union TypeSpec.object | TypeSpec.Reflection.ModelProperty | TypeSpec.Reflection.Operation`
+`union object | ModelProperty | Operation`
 
 #### Parameters
 
@@ -87,30 +87,30 @@ dec TypeSpec.Rest.actionSeparator(target: TypeSpec.object | TypeSpec.Reflection.
 | --------- | -------------------- | ---------------------------------------------------------------- |
 | seperator | `union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
 
-### `@resource` {#@TypeSpec.Rest.resource}
+### `@resource` {#@Rest.resource}
 
 Mark this model as a resource type with a name.
 
 ```typespec
-dec TypeSpec.Rest.resource(target: TypeSpec.object, collectionName: TypeSpec.string)
+dec Rest.resource(target: object, collectionName: string)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 
-| Name           | Type                     | Description            |
-| -------------- | ------------------------ | ---------------------- |
-| collectionName | `scalar TypeSpec.string` | type's collection name |
+| Name           | Type            | Description            |
+| -------------- | --------------- | ---------------------- |
+| collectionName | `scalar string` | type's collection name |
 
-### `@readsResource` {#@TypeSpec.Rest.readsResource}
+### `@readsResource` {#@Rest.readsResource}
 
 Specify that this is a Read operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.readsResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.readsResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -119,16 +119,16 @@ dec TypeSpec.Rest.readsResource(target: TypeSpec.Reflection.Operation, resourceT
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@createsResource` {#@TypeSpec.Rest.createsResource}
+### `@createsResource` {#@Rest.createsResource}
 
 Specify that this is a Create operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.createsResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -137,16 +137,16 @@ dec TypeSpec.Rest.createsResource(target: TypeSpec.Reflection.Operation, resourc
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
+### `@createsOrReplacesResource` {#@Rest.createsOrReplacesResource}
 
 Specify that this is a CreateOrReplace operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsOrReplacesResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.createsOrReplacesResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -155,16 +155,16 @@ dec TypeSpec.Rest.createsOrReplacesResource(target: TypeSpec.Reflection.Operatio
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@createsOrUpdatesResource` {#@TypeSpec.Rest.createsOrUpdatesResource}
+### `@createsOrUpdatesResource` {#@Rest.createsOrUpdatesResource}
 
 Specify that this is a CreatesOrUpdate operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsOrUpdatesResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.createsOrUpdatesResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -173,16 +173,16 @@ dec TypeSpec.Rest.createsOrUpdatesResource(target: TypeSpec.Reflection.Operation
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@updatesResource` {#@TypeSpec.Rest.updatesResource}
+### `@updatesResource` {#@Rest.updatesResource}
 
 Specify that this is a Update operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.updatesResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.updatesResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -191,16 +191,16 @@ dec TypeSpec.Rest.updatesResource(target: TypeSpec.Reflection.Operation, resourc
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@deletesResource` {#@TypeSpec.Rest.deletesResource}
+### `@deletesResource` {#@Rest.deletesResource}
 
 Specify that this is a Delete operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.deletesResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.deletesResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -209,16 +209,16 @@ dec TypeSpec.Rest.deletesResource(target: TypeSpec.Reflection.Operation, resourc
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@listsResource` {#@TypeSpec.Rest.listsResource}
+### `@listsResource` {#@Rest.listsResource}
 
 Specify that this is a List operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.listsResource(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object)
+dec Rest.listsResource(target: Operation, resourceType: object)
 ```
 
 #### Target
@@ -227,16 +227,16 @@ dec TypeSpec.Rest.listsResource(target: TypeSpec.Reflection.Operation, resourceT
 
 #### Parameters
 
-| Name         | Type                    | Description |
-| ------------ | ----------------------- | ----------- |
-| resourceType | `model TypeSpec.object` |             |
+| Name         | Type           | Description |
+| ------------ | -------------- | ----------- |
+| resourceType | `model object` |             |
 
-### `@action` {#@TypeSpec.Rest.action}
+### `@action` {#@Rest.action}
 
 Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
 
 ```typespec
-dec TypeSpec.Rest.action(target: TypeSpec.Reflection.Operation, name?: TypeSpec.string)
+dec Rest.action(target: Operation, name?: string)
 ```
 
 #### Target
@@ -245,16 +245,16 @@ dec TypeSpec.Rest.action(target: TypeSpec.Reflection.Operation, name?: TypeSpec.
 
 #### Parameters
 
-| Name | Type                     | Description |
-| ---- | ------------------------ | ----------- |
-| name | `scalar TypeSpec.string` |             |
+| Name | Type            | Description |
+| ---- | --------------- | ----------- |
+| name | `scalar string` |             |
 
-### `@collectionAction` {#@TypeSpec.Rest.collectionAction}
+### `@collectionAction` {#@Rest.collectionAction}
 
 Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
 
 ```typespec
-dec TypeSpec.Rest.collectionAction(target: TypeSpec.Reflection.Operation, resourceType: TypeSpec.object, name?: TypeSpec.string)
+dec Rest.collectionAction(target: Operation, resourceType: object, name?: string)
 ```
 
 #### Target
@@ -263,7 +263,7 @@ dec TypeSpec.Rest.collectionAction(target: TypeSpec.Reflection.Operation, resour
 
 #### Parameters
 
-| Name         | Type                     | Description |
-| ------------ | ------------------------ | ----------- |
-| resourceType | `model TypeSpec.object`  |             |
-| name         | `scalar TypeSpec.string` |             |
+| Name         | Type            | Description |
+| ------------ | --------------- | ----------- |
+| resourceType | `model object`  |             |
+| name         | `scalar string` |             |

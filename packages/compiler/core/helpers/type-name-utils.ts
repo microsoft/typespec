@@ -17,6 +17,9 @@ export interface TypeNameOptions {
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
+  if (isReflectionType(type) || isStdType(type)) {
+    return type.name;
+  }
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -53,6 +56,17 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
   }
 
   return "(unnamed type)";
+}
+
+function isReflectionType(type: Type): type is Model & { name: "" } {
+  return (
+    type.kind === "Model" &&
+    type.namespace?.name === "Reflection" &&
+    type.namespace?.namespace?.name === "TypeSpec"
+  );
+}
+function isStdType(type: Type): type is Model & { name: "" } {
+  return "namespace" in type && type.namespace?.name === "TypeSpec";
 }
 
 /**

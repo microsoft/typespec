@@ -6,14 +6,14 @@ toc_max_heading_level: 3
 
 # Decorators
 
-## TypeSpec.Http
+## Http
 
-### `@statusCode` {#@TypeSpec.Http.statusCode}
+### `@statusCode` {#@Http.statusCode}
 
 Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
 
 ```typespec
-dec TypeSpec.Http.statusCode(target: TypeSpec.Reflection.ModelProperty)
+dec Http.statusCode(target: ModelProperty)
 ```
 
 #### Target
@@ -31,12 +31,12 @@ op read(): {@statusCode: 200, @body pet: Pet}
 op create(): {@statusCode: 201 | 202}
 ```
 
-### `@body` {#@TypeSpec.Http.body}
+### `@body` {#@Http.body}
 
 Explicitly specify that this property is to be set as the body
 
 ```typespec
-dec TypeSpec.Http.body(target: TypeSpec.Reflection.ModelProperty)
+dec Http.body(target: ModelProperty)
 ```
 
 #### Target
@@ -54,12 +54,12 @@ op upload(@body image: bytes): void;
 op download(): {@body image: bytes};
 ```
 
-### `@header` {#@TypeSpec.Http.header}
+### `@header` {#@Http.header}
 
 Specify this property is to be sent or received as an http header.
 
 ```typespec
-dec TypeSpec.Http.header(target: TypeSpec.Reflection.ModelProperty, headerNameOrOptions?: TypeSpec.string | TypeSpec.Http.HeaderOptions)
+dec Http.header(target: ModelProperty, headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
 ```
 
 #### Target
@@ -68,16 +68,16 @@ dec TypeSpec.Http.header(target: TypeSpec.Reflection.ModelProperty, headerNameOr
 
 #### Parameters
 
-| Name                | Type                                                   | Description                                                        |
-| ------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
-| headerNameOrOptions | `union TypeSpec.string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
+| Name                | Type                                          | Description                                                        |
+| ------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
+| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
-### `@query` {#@TypeSpec.Http.query}
+### `@query` {#@Http.query}
 
 Specify this property is to be sent as a query parameter.
 
 ```typespec
-dec TypeSpec.Http.query(target: TypeSpec.Reflection.ModelProperty, queryNameOrOptions?: TypeSpec.string | TypeSpec.Http.QueryOptions)
+dec Http.query(target: ModelProperty, queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
 ```
 
 #### Target
@@ -86,16 +86,16 @@ dec TypeSpec.Http.query(target: TypeSpec.Reflection.ModelProperty, queryNameOrOp
 
 #### Parameters
 
-| Name               | Type                                                  | Description                                                                     |
-| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------- |
-| queryNameOrOptions | `union TypeSpec.string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+| Name               | Type                                         | Description                                                                     |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
-### `@path` {#@TypeSpec.Http.path}
+### `@path` {#@Http.path}
 
 Explicitly specify that this property is to be interpolated as a path parameter.
 
 ```typespec
-dec TypeSpec.Http.path(target: TypeSpec.Reflection.ModelProperty, paramName?: TypeSpec.string)
+dec Http.path(target: ModelProperty, paramName?: string)
 ```
 
 #### Target
@@ -104,16 +104,16 @@ dec TypeSpec.Http.path(target: TypeSpec.Reflection.ModelProperty, paramName?: Ty
 
 #### Parameters
 
-| Name      | Type                     | Description                                         |
-| --------- | ------------------------ | --------------------------------------------------- |
-| paramName | `scalar TypeSpec.string` | Optional name of the parameter in the url template. |
+| Name      | Type            | Description                                         |
+| --------- | --------------- | --------------------------------------------------- |
+| paramName | `scalar string` | Optional name of the parameter in the url template. |
 
-### `@get` {#@TypeSpec.Http.get}
+### `@get` {#@Http.get}
 
 Specify the http verb for the target operation to be `GET`.
 
 ```typespec
-dec TypeSpec.Http.get(target: TypeSpec.Reflection.Operation)
+dec Http.get(target: Operation)
 ```
 
 #### Target
@@ -130,12 +130,12 @@ None
 @get op read(): string
 ```
 
-### `@put` {#@TypeSpec.Http.put}
+### `@put` {#@Http.put}
 
 Specify the http verb for the target operation to be `PUT`.
 
 ```typespec
-dec TypeSpec.Http.put(target: TypeSpec.Reflection.Operation)
+dec Http.put(target: Operation)
 ```
 
 #### Target
@@ -152,12 +152,12 @@ None
 @put op set(pet: Pet): void
 ```
 
-### `@post` {#@TypeSpec.Http.post}
+### `@post` {#@Http.post}
 
 Specify the http verb for the target operation to be `POST`.
 
 ```typespec
-dec TypeSpec.Http.post(target: TypeSpec.Reflection.Operation)
+dec Http.post(target: Operation)
 ```
 
 #### Target
@@ -174,12 +174,12 @@ None
 @post op create(pet: Pet): void
 ```
 
-### `@patch` {#@TypeSpec.Http.patch}
+### `@patch` {#@Http.patch}
 
 Specify the http verb for the target operation to be `PATCH`.
 
 ```typespec
-dec TypeSpec.Http.patch(target: TypeSpec.Reflection.Operation)
+dec Http.patch(target: Operation)
 ```
 
 #### Target
@@ -196,12 +196,12 @@ None
 @patch op update(pet: Pet): void
 ```
 
-### `@delete` {#@TypeSpec.Http.delete}
+### `@delete` {#@Http.delete}
 
 Specify the http verb for the target operation to be `DELETE`.
 
 ```typespec
-dec TypeSpec.Http.delete(target: TypeSpec.Reflection.Operation)
+dec Http.delete(target: Operation)
 ```
 
 #### Target
@@ -218,12 +218,12 @@ None
 @delete op set(petId: string): void
 ```
 
-### `@head` {#@TypeSpec.Http.head}
+### `@head` {#@Http.head}
 
 Specify the http verb for the target operation to be `HEAD`.
 
 ```typespec
-dec TypeSpec.Http.head(target: TypeSpec.Reflection.Operation)
+dec Http.head(target: Operation)
 ```
 
 #### Target
@@ -240,12 +240,12 @@ None
 @head op ping(petId: string): void
 ```
 
-### `@server` {#@TypeSpec.Http.server}
+### `@server` {#@Http.server}
 
 Specify the endpoint for this service.
 
 ```typespec
-dec TypeSpec.Http.server(target: TypeSpec.Reflection.Namespace, url: TypeSpec.string, description: TypeSpec.string, parameters?: TypeSpec.object)
+dec Http.server(target: Namespace, url: string, description: string, parameters?: object)
 ```
 
 #### Target
@@ -254,18 +254,18 @@ dec TypeSpec.Http.server(target: TypeSpec.Reflection.Namespace, url: TypeSpec.st
 
 #### Parameters
 
-| Name        | Type                     | Description                                             |
-| ----------- | ------------------------ | ------------------------------------------------------- |
-| url         | `scalar TypeSpec.string` | Description of the endpoint                             |
-| description | `scalar TypeSpec.string` |                                                         |
-| parameters  | `model TypeSpec.object`  | Optional set of parameters used to interpolate the url. |
+| Name        | Type            | Description                                             |
+| ----------- | --------------- | ------------------------------------------------------- |
+| url         | `scalar string` | Description of the endpoint                             |
+| description | `scalar string` |                                                         |
+| parameters  | `model object`  | Optional set of parameters used to interpolate the url. |
 
-### `@useAuth` {#@TypeSpec.Http.useAuth}
+### `@useAuth` {#@Http.useAuth}
 
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
 
 ```typespec
-dec TypeSpec.Http.useAuth(target: TypeSpec.Reflection.Namespace, auth: TypeSpec.object | TypeSpec.Reflection.Union | TypeSpec.object[])
+dec Http.useAuth(target: Namespace, auth: object | Union | Array)
 ```
 
 #### Target
@@ -274,16 +274,16 @@ dec TypeSpec.Http.useAuth(target: TypeSpec.Reflection.Namespace, auth: TypeSpec.
 
 #### Parameters
 
-| Name | Type                                                                      | Description                                                                                                                                                    |
-| ---- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union TypeSpec.object \| TypeSpec.Reflection.Union \| TypeSpec.object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+| Name | Type                             | Description                                                                                                                                                    |
+| ---- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `union object \| Union \| Array` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
-### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
+### `@includeInapplicableMetadataInPayload` {#@Http.includeInapplicableMetadataInPayload}
 
 Specify if inapplicable metadata should be included in the payload for the given entity.
 
 ```typespec
-dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: TypeSpec.boolean)
+dec Http.includeInapplicableMetadataInPayload(target: unknown, value: boolean)
 ```
 
 #### Target
@@ -292,6 +292,6 @@ dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: T
 
 #### Parameters
 
-| Name  | Type                      | Description |
-| ----- | ------------------------- | ----------- |
-| value | `scalar TypeSpec.boolean` |             |
+| Name  | Type             | Description |
+| ----- | ---------------- | ----------- |
+| value | `scalar boolean` |             |

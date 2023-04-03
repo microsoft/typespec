@@ -12,17 +12,17 @@ Specify a known data format hint for this string type. For example `uuid`, `uri`
 This differ from the
 
 ```typespec
-dec format(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty, format: TypeSpec.string)
+dec format(target: string | bytes | ModelProperty, format: string)
 ```
 
 #### Target
 
-`union TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty`
+`union string | bytes | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| format | `scalar TypeSpec.string` | format name. |
+| format | `scalar string` | format name. |
 
 
 ### `@doc` {#@doc}
@@ -30,7 +30,7 @@ dec format(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelP
 Attach a documentation string.
 
 ```typespec
-dec doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)
+dec doc(target: unknown, doc: string, formatArgs?: object)
 ```
 
 #### Target
@@ -40,20 +40,20 @@ dec doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `scalar TypeSpec.string` | Documentation string |
-| formatArgs | `model TypeSpec.object` | Record with key value pair that can be interpolated in the doc. |
+| doc | `scalar string` | Documentation string |
+| formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
 
 
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
 
 ```typespec
-dec withUpdateableProperties(target: TypeSpec.object)
+dec withUpdateableProperties(target: object)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 None
@@ -63,29 +63,29 @@ None
 
 
 ```typespec
-dec withoutOmittedProperties(target: TypeSpec.object, omit: TypeSpec.string | TypeSpec.Reflection.Union)
+dec withoutOmittedProperties(target: object, omit: string | Union)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| omit | `union TypeSpec.string \| TypeSpec.Reflection.Union` |  |
+| omit | `union string \| Union` |  |
 
 
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
 
 ```typespec
-dec withoutDefaultValues(target: TypeSpec.object)
+dec withoutDefaultValues(target: object)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 None
@@ -95,12 +95,12 @@ None
 
 
 ```typespec
-dec withDefaultKeyVisibility(target: TypeSpec.object, visibility: unknown)
+dec withDefaultKeyVisibility(target: object, visibility: unknown)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 | Name | Type | Description |
@@ -113,7 +113,7 @@ dec withDefaultKeyVisibility(target: TypeSpec.object, visibility: unknown)
 Typically a short, single-line description.
 
 ```typespec
-dec summary(target: unknown, summary: TypeSpec.string)
+dec summary(target: unknown, summary: string)
 ```
 
 #### Target
@@ -123,7 +123,7 @@ dec summary(target: unknown, summary: TypeSpec.string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| summary | `scalar TypeSpec.string` | Summary string. |
+| summary | `scalar string` | Summary string. |
 
 
 ### `@deprecated` {#@deprecated}
@@ -131,7 +131,7 @@ dec summary(target: unknown, summary: TypeSpec.string)
 Mark this type as deprecated
 
 ```typespec
-dec deprecated(target: unknown, message: TypeSpec.string)
+dec deprecated(target: unknown, message: string)
 ```
 
 #### Target
@@ -141,7 +141,7 @@ dec deprecated(target: unknown, message: TypeSpec.string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| message | `scalar TypeSpec.string` | Deprecation message. |
+| message | `scalar string` | Deprecation message. |
 
 
 ### `@service` {#@service}
@@ -149,7 +149,7 @@ dec deprecated(target: unknown, message: TypeSpec.string)
 Mark this namespace as describing a service and configure service properties.
 
 ```typespec
-dec service(target: TypeSpec.Reflection.Namespace, options?: TypeSpec.ServiceOptions)
+dec service(target: Namespace, options?: ServiceOptions)
 ```
 
 #### Target
@@ -159,7 +159,7 @@ dec service(target: TypeSpec.Reflection.Namespace, options?: TypeSpec.ServiceOpt
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| options | `model TypeSpec.ServiceOptions` | Optional configuration for the service. |
+| options | `model ServiceOptions` | Optional configuration for the service. |
 
 
 ### `@error` {#@error}
@@ -167,12 +167,12 @@ dec service(target: TypeSpec.Reflection.Namespace, options?: TypeSpec.ServiceOpt
 Specify that this model is an error type. Operations return error types when the operation has failed.
 
 ```typespec
-dec error(target: TypeSpec.object)
+dec error(target: object)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 None
@@ -195,17 +195,17 @@ The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`,
 Advanced features like look-around, capture groups, and references are not supported.
 
 ```typespec
-dec pattern(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty, pattern: TypeSpec.string)
+dec pattern(target: string | bytes | ModelProperty, pattern: string)
 ```
 
 #### Target
 
-`union TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.ModelProperty`
+`union string | bytes | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| pattern | `scalar TypeSpec.string` | Regular expression. |
+| pattern | `scalar string` | Regular expression. |
 
 
 ### `@minLength` {#@minLength}
@@ -213,17 +213,17 @@ dec pattern(target: TypeSpec.string | TypeSpec.bytes | TypeSpec.Reflection.Model
 Specify the minimum length this string type should be.
 
 ```typespec
-dec minLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
+dec minLength(target: string | ModelProperty, value: integer)
 ```
 
 #### Target
 
-`union TypeSpec.string | TypeSpec.Reflection.ModelProperty`
+`union string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.integer` | Minimum length |
+| value | `scalar integer` | Minimum length |
 
 
 ### `@maxLength` {#@maxLength}
@@ -231,17 +231,17 @@ dec minLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value
 Specify the maximum length this string type should be.
 
 ```typespec
-dec maxLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
+dec maxLength(target: string | ModelProperty, value: integer)
 ```
 
 #### Target
 
-`union TypeSpec.string | TypeSpec.Reflection.ModelProperty`
+`union string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.integer` | Maximum length |
+| value | `scalar integer` | Maximum length |
 
 
 ### `@minItems` {#@minItems}
@@ -249,17 +249,17 @@ dec maxLength(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty, value
 Specify the minimum number of items this array should have.
 
 ```typespec
-dec minItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
+dec minItems(target: Array | ModelProperty, value: integer)
 ```
 
 #### Target
 
-`union unknown[] | TypeSpec.Reflection.ModelProperty`
+`union Array | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.integer` | Minimum number |
+| value | `scalar integer` | Minimum number |
 
 
 ### `@maxItems` {#@maxItems}
@@ -267,17 +267,17 @@ dec minItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeS
 Specify the maximum number of items this array should have.
 
 ```typespec
-dec maxItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeSpec.integer)
+dec maxItems(target: Array | ModelProperty, value: integer)
 ```
 
 #### Target
 
-`union unknown[] | TypeSpec.Reflection.ModelProperty`
+`union Array | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.integer` | Maximum number |
+| value | `scalar integer` | Maximum number |
 
 
 ### `@minValue` {#@minValue}
@@ -285,17 +285,17 @@ dec maxItems(target: unknown[] | TypeSpec.Reflection.ModelProperty, value: TypeS
 Specify the minimum value this numeric type should be.
 
 ```typespec
-dec minValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
+dec minValue(target: numeric | ModelProperty, value: numeric)
 ```
 
 #### Target
 
-`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
+`union numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.numeric` | Minimum value |
+| value | `scalar numeric` | Minimum value |
 
 
 ### `@maxValue` {#@maxValue}
@@ -303,17 +303,17 @@ dec minValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value
 Specify the maximum value this numeric type should be.
 
 ```typespec
-dec maxValue(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
+dec maxValue(target: numeric | ModelProperty, value: numeric)
 ```
 
 #### Target
 
-`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
+`union numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.numeric` | Maximum value |
+| value | `scalar numeric` | Maximum value |
 
 
 ### `@minValueExclusive` {#@minValueExclusive}
@@ -322,17 +322,17 @@ Specify the minimum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-dec minValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
+dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
 ```
 
 #### Target
 
-`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
+`union numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.numeric` | Minimum value |
+| value | `scalar numeric` | Minimum value |
 
 
 ### `@maxValueExclusive` {#@maxValueExclusive}
@@ -341,17 +341,17 @@ Specify the maximum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-dec maxValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, value: TypeSpec.numeric)
+dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
 ```
 
 #### Target
 
-`union TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
+`union numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar TypeSpec.numeric` | Maximum value |
+| value | `scalar numeric` | Maximum value |
 
 
 ### `@secret` {#@secret}
@@ -359,12 +359,12 @@ dec maxValueExclusive(target: TypeSpec.numeric | TypeSpec.Reflection.ModelProper
 Mark this string as a secret value that should be treated carefully to avoid exposure
 
 ```typespec
-dec secret(target: TypeSpec.string | TypeSpec.Reflection.ModelProperty)
+dec secret(target: string | ModelProperty)
 ```
 
 #### Target
 
-`union TypeSpec.string | TypeSpec.Reflection.ModelProperty`
+`union string | ModelProperty`
 
 #### Parameters
 None
@@ -382,17 +382,17 @@ scalar Password is string;
 Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
 
 ```typespec
-dec tag(target: TypeSpec.Reflection.Namespace | TypeSpec.Reflection.Interface | TypeSpec.Reflection.Operation, tag: TypeSpec.string)
+dec tag(target: Namespace | Interface | Operation, tag: string)
 ```
 
 #### Target
 
-`union TypeSpec.Reflection.Namespace | TypeSpec.Reflection.Interface | TypeSpec.Reflection.Operation`
+`union Namespace | Interface | Operation`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| tag | `scalar TypeSpec.string` | Tag value |
+| tag | `scalar string` | Tag value |
 
 
 ### `@friendlyName` {#@friendlyName}
@@ -400,7 +400,7 @@ dec tag(target: TypeSpec.Reflection.Namespace | TypeSpec.Reflection.Interface | 
 Specifies how a templated type should name their instances.
 
 ```typespec
-dec friendlyName(target: unknown, name: TypeSpec.string, formatArgs?: unknown)
+dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 ```
 
 #### Target
@@ -410,7 +410,7 @@ dec friendlyName(target: unknown, name: TypeSpec.string, formatArgs?: unknown)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| name | `scalar TypeSpec.string` | name the template instance should take |
+| name | `scalar string` | name the template instance should take |
 | formatArgs | `(intrinsic) unknown` |  |
 
 
@@ -419,12 +419,12 @@ dec friendlyName(target: unknown, name: TypeSpec.string, formatArgs?: unknown)
 Provide a set of known values to a string type.
 
 ```typespec
-dec knownValues(target: TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection.ModelProperty, values: TypeSpec.Reflection.Enum)
+dec knownValues(target: string | numeric | ModelProperty, values: Enum)
 ```
 
 #### Target
 
-`union TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection.ModelProperty`
+`union string | numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -437,7 +437,7 @@ dec knownValues(target: TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection
 Mark a model property as the key to identify instances of that type
 
 ```typespec
-dec key(target: TypeSpec.Reflection.ModelProperty, altName?: TypeSpec.string)
+dec key(target: ModelProperty, altName?: string)
 ```
 
 #### Target
@@ -447,7 +447,7 @@ dec key(target: TypeSpec.Reflection.ModelProperty, altName?: TypeSpec.string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `scalar TypeSpec.string` |  |
+| altName | `scalar string` |  |
 
 #### Examples
 
@@ -463,7 +463,7 @@ model Pet {
 Specify this operation is an overload of the given operation.
 
 ```typespec
-dec overload(target: TypeSpec.Reflection.Operation, overloadbase: TypeSpec.Reflection.Operation)
+dec overload(target: Operation, overloadbase: Operation)
 ```
 
 #### Target
@@ -481,7 +481,7 @@ dec overload(target: TypeSpec.Reflection.Operation, overloadbase: TypeSpec.Refle
 Provide an alternative name for this type.
 
 ```typespec
-dec projectedName(target: unknown, targetName: TypeSpec.string, projectedName: TypeSpec.string)
+dec projectedName(target: unknown, targetName: string, projectedName: string)
 ```
 
 #### Target
@@ -491,8 +491,8 @@ dec projectedName(target: unknown, targetName: TypeSpec.string, projectedName: T
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| targetName | `scalar TypeSpec.string` | Projection target |
-| projectedName | `scalar TypeSpec.string` | Alternative name |
+| targetName | `scalar string` | Projection target |
+| projectedName | `scalar string` | Alternative name |
 
 
 ### `@discriminator` {#@discriminator}
@@ -500,17 +500,17 @@ dec projectedName(target: unknown, targetName: TypeSpec.string, projectedName: T
 Specify the property to be used to discriminate this type.
 
 ```typespec
-dec discriminator(target: TypeSpec.object | TypeSpec.Reflection.Union, propertyName: TypeSpec.string)
+dec discriminator(target: object | Union, propertyName: string)
 ```
 
 #### Target
 
-`union TypeSpec.object | TypeSpec.Reflection.Union`
+`union object | Union`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `scalar TypeSpec.string` |  |
+| propertyName | `scalar string` |  |
 
 #### Examples
 
@@ -550,7 +550,7 @@ with standard emitters that interpret them as follows:
 See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
 ```typespec
-dec visibility(target: TypeSpec.Reflection.ModelProperty, ...visibilities: TypeSpec.string[])
+dec visibility(target: ModelProperty, ...visibilities: Array)
 ```
 
 #### Target
@@ -560,7 +560,7 @@ dec visibility(target: TypeSpec.Reflection.ModelProperty, ...visibilities: TypeS
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model TypeSpec.string[]` |  |
+| visibilities | `model Array` |  |
 
 #### Examples
 
@@ -589,17 +589,17 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: TypeSpec.object, ...visibilities: TypeSpec.string[])
+dec withVisibility(target: object, ...visibilities: Array)
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model TypeSpec.string[]` |  |
+| visibilities | `model Array` |  |
 
 #### Examples
 
@@ -634,7 +634,7 @@ model DogRead {
 
 
 ```typespec
-dec inspectType(target: unknown, text: TypeSpec.string)
+dec inspectType(target: unknown, text: string)
 ```
 
 #### Target
@@ -644,14 +644,14 @@ dec inspectType(target: unknown, text: TypeSpec.string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar TypeSpec.string` |  |
+| text | `scalar string` |  |
 
 
 ### `@inspectTypeName` {#@inspectTypeName}
 
 
 ```typespec
-dec inspectTypeName(target: unknown, text: TypeSpec.string)
+dec inspectTypeName(target: unknown, text: string)
 ```
 
 #### Target
@@ -661,6 +661,6 @@ dec inspectTypeName(target: unknown, text: TypeSpec.string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar TypeSpec.string` |  |
+| text | `scalar string` |  |
 
 

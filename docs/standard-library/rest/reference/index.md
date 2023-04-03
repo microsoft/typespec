@@ -5,24 +5,24 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 
-## TypeSpec.Rest
+## Rest
 
 ### Decorators
 
-- [`@actionSeparator`](./decorators.md#@TypeSpec.Rest.actionSeparator)
-- [`@action`](./decorators.md#@TypeSpec.Rest.action)
-- [`@autoRoute`](./decorators.md#@TypeSpec.Rest.autoRoute)
-- [`@collectionAction`](./decorators.md#@TypeSpec.Rest.collectionAction)
-- [`@createsOrReplacesResource`](./decorators.md#@TypeSpec.Rest.createsOrReplacesResource)
-- [`@createsOrUpdatesResource`](./decorators.md#@TypeSpec.Rest.createsOrUpdatesResource)
-- [`@createsResource`](./decorators.md#@TypeSpec.Rest.createsResource)
-- [`@deletesResource`](./decorators.md#@TypeSpec.Rest.deletesResource)
-- [`@listsResource`](./decorators.md#@TypeSpec.Rest.listsResource)
-- [`@readsResource`](./decorators.md#@TypeSpec.Rest.readsResource)
-- [`@resource`](./decorators.md#@TypeSpec.Rest.resource)
-- [`@segmentOf`](./decorators.md#@TypeSpec.Rest.segmentOf)
-- [`@segment`](./decorators.md#@TypeSpec.Rest.segment)
-- [`@updatesResource`](./decorators.md#@TypeSpec.Rest.updatesResource)
+- [`@actionSeparator`](./decorators.md#@Rest.actionSeparator)
+- [`@action`](./decorators.md#@Rest.action)
+- [`@autoRoute`](./decorators.md#@Rest.autoRoute)
+- [`@collectionAction`](./decorators.md#@Rest.collectionAction)
+- [`@createsOrReplacesResource`](./decorators.md#@Rest.createsOrReplacesResource)
+- [`@createsOrUpdatesResource`](./decorators.md#@Rest.createsOrUpdatesResource)
+- [`@createsResource`](./decorators.md#@Rest.createsResource)
+- [`@deletesResource`](./decorators.md#@Rest.deletesResource)
+- [`@listsResource`](./decorators.md#@Rest.listsResource)
+- [`@readsResource`](./decorators.md#@Rest.readsResource)
+- [`@resource`](./decorators.md#@Rest.resource)
+- [`@segmentOf`](./decorators.md#@Rest.segmentOf)
+- [`@segment`](./decorators.md#@Rest.segment)
+- [`@updatesResource`](./decorators.md#@Rest.updatesResource)
 
 ## TypeSpec.Rest.Resource
 

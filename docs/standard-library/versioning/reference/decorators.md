@@ -6,14 +6,14 @@ toc_max_heading_level: 3
 
 # Decorators
 
-## TypeSpec.Versioning
+## Versioning
 
-### `@versioned` {#@TypeSpec.Versioning.versioned}
+### `@versioned` {#@Versioning.versioned}
 
 Identifies that the decorated namespace is versioned by the provided enum.
 
 ```typespec
-dec TypeSpec.Versioning.versioned(target: TypeSpec.Reflection.Namespace, versions: TypeSpec.Reflection.Enum)
+dec Versioning.versioned(target: Namespace, versions: Enum)
 ```
 
 #### Target
@@ -26,30 +26,30 @@ dec TypeSpec.Versioning.versioned(target: TypeSpec.Reflection.Namespace, version
 | -------- | ------ | ----------- |
 | versions | `Enum` |             |
 
-### `@useDependency` {#@TypeSpec.Versioning.useDependency}
+### `@useDependency` {#@Versioning.useDependency}
 
 Identifies that a namespace or a given versioning enum member relies upon a versioned package.
 
 ```typespec
-dec TypeSpec.Versioning.useDependency(target: TypeSpec.Reflection.EnumMember | TypeSpec.Reflection.Namespace, ...versionRecords: TypeSpec.Reflection.EnumMember[])
+dec Versioning.useDependency(target: EnumMember | Namespace, ...versionRecords: Array)
 ```
 
 #### Target
 
-`union TypeSpec.Reflection.EnumMember | TypeSpec.Reflection.Namespace`
+`union EnumMember | Namespace`
 
 #### Parameters
 
-| Name           | Type                                     | Description |
-| -------------- | ---------------------------------------- | ----------- |
-| versionRecords | `model TypeSpec.Reflection.EnumMember[]` |             |
+| Name           | Type          | Description |
+| -------------- | ------------- | ----------- |
+| versionRecords | `model Array` |             |
 
-### `@added` {#@TypeSpec.Versioning.added}
+### `@added` {#@Versioning.added}
 
 Identifies when the target was added.
 
 ```typespec
-dec TypeSpec.Versioning.added(target: unknown, version: TypeSpec.Reflection.EnumMember)
+dec Versioning.added(target: unknown, version: EnumMember)
 ```
 
 #### Target
@@ -62,12 +62,12 @@ dec TypeSpec.Versioning.added(target: unknown, version: TypeSpec.Reflection.Enum
 | ------- | ------------ | ----------- |
 | version | `EnumMember` |             |
 
-### `@removed` {#@TypeSpec.Versioning.removed}
+### `@removed` {#@Versioning.removed}
 
 Identifies when the target was removed.
 
 ```typespec
-dec TypeSpec.Versioning.removed(target: unknown, version: TypeSpec.Reflection.EnumMember)
+dec Versioning.removed(target: unknown, version: EnumMember)
 ```
 
 #### Target
@@ -80,12 +80,12 @@ dec TypeSpec.Versioning.removed(target: unknown, version: TypeSpec.Reflection.En
 | ------- | ------------ | ----------- |
 | version | `EnumMember` |             |
 
-### `@renamedFrom` {#@TypeSpec.Versioning.renamedFrom}
+### `@renamedFrom` {#@Versioning.renamedFrom}
 
 Identifies when the target has been renamed.
 
 ```typespec
-dec TypeSpec.Versioning.renamedFrom(target: unknown, version: TypeSpec.Reflection.EnumMember, oldName: TypeSpec.string)
+dec Versioning.renamedFrom(target: unknown, version: EnumMember, oldName: string)
 ```
 
 #### Target
@@ -94,17 +94,17 @@ dec TypeSpec.Versioning.renamedFrom(target: unknown, version: TypeSpec.Reflectio
 
 #### Parameters
 
-| Name    | Type                     | Description |
-| ------- | ------------------------ | ----------- |
-| version | `EnumMember`             |             |
-| oldName | `scalar TypeSpec.string` |             |
+| Name    | Type            | Description |
+| ------- | --------------- | ----------- |
+| version | `EnumMember`    |             |
+| oldName | `scalar string` |             |
 
-### `@madeOptional` {#@TypeSpec.Versioning.madeOptional}
+### `@madeOptional` {#@Versioning.madeOptional}
 
 Identifies when a target was made optional.
 
 ```typespec
-dec TypeSpec.Versioning.madeOptional(target: unknown, version: TypeSpec.Reflection.EnumMember)
+dec Versioning.madeOptional(target: unknown, version: EnumMember)
 ```
 
 #### Target
@@ -117,12 +117,12 @@ dec TypeSpec.Versioning.madeOptional(target: unknown, version: TypeSpec.Reflecti
 | ------- | ------------ | ----------- |
 | version | `EnumMember` |             |
 
-### `@typeChangedFrom` {#@TypeSpec.Versioning.typeChangedFrom}
+### `@typeChangedFrom` {#@Versioning.typeChangedFrom}
 
 Identifies when the target type changed.
 
 ```typespec
-dec TypeSpec.Versioning.typeChangedFrom(target: unknown, version: TypeSpec.Reflection.EnumMember, oldType: unknown)
+dec Versioning.typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown)
 ```
 
 #### Target
