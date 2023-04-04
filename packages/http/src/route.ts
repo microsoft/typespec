@@ -215,17 +215,6 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
 
   const state = context.program.stateMap(routesKey);
 
-  // verify that all shared routes agree on the value of the shared flag
-  const existing = [...state.values()].filter((value) => value.path === details.path);
-  if (existing.length > 0) {
-    const consistent = existing.every((value) => value.shared === details.shared);
-    if (!consistent) {
-      reportDiagnostic(context.program, {
-        code: "shared-inconsistency",
-        target: entity,
-      });
-    }
-  }
   if (state.has(entity) && entity.kind === "Namespace") {
     const existingValue: RoutePath = state.get(entity);
     if (existingValue.path !== details.path) {

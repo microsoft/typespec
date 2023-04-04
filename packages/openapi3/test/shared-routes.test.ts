@@ -53,13 +53,32 @@ describe("openapi3: shared routes", () => {
       name: string;
       required: boolean;
     }[];
-    params.sort((a, b) => a.name.localeCompare(b.name));
-    deepStrictEqual(params[0].name, "foo");
-    deepStrictEqual(params[0].required, true);
-    deepStrictEqual(params[1].name, "resourceGroup");
-    deepStrictEqual(params[1].required, false);
-    deepStrictEqual(params[2].name, "subscription");
-    deepStrictEqual(params[2].required, false);
+    deepStrictEqual(params, [
+      {
+        in: "query",
+        name: "resourceGroup",
+        required: false,
+        schema: {
+          type: "string",
+        },
+      },
+      {
+        in: "query",
+        name: "foo",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+      {
+        in: "query",
+        name: "subscription",
+        required: false,
+        schema: {
+          type: "string",
+        },
+      },
+    ]);
   });
 
   it("model shared routes that differ by query param values as an enum", async () => {
@@ -84,13 +103,17 @@ describe("openapi3: shared routes", () => {
       required: boolean;
       schema: any;
     }[];
-    params.sort((a, b) => a.name.localeCompare(b.name));
-    deepStrictEqual(params[0].name, "filter");
-    deepStrictEqual(params[0].required, true);
-    deepStrictEqual(params[0].schema, {
-      type: "string",
-      enum: ["resourceGroup", "subscription"],
-    });
+    deepStrictEqual(params, [
+      {
+        in: "query",
+        name: "filter",
+        required: true,
+        schema: {
+          type: "string",
+          enum: ["resourceGroup", "subscription"],
+        },
+      },
+    ]);
   });
 
   it("model shared routes with shared parameters in different locations", async () => {
@@ -115,7 +138,6 @@ describe("openapi3: shared routes", () => {
       required: boolean;
       schema: any;
     }[];
-    params.sort((a, b) => a.name.localeCompare(b.name));
     deepStrictEqual(params, [
       {
         name: "filter",
@@ -136,5 +158,134 @@ describe("openapi3: shared routes", () => {
         },
       },
     ]);
+  });
+
+  it("model shared routes with different response types", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        model Resource {
+          id: string;
+        }
+
+        @route("/sharedroutes/resources", { shared: true })
+        op returnsInt(...Resource, @query options: string): int32;
+
+        @route("/sharedroutes/resources", { shared: true })
+        op returnsString(...Resource, @query options: string): string;
+      }
+      `
+    );
+    const responses = results.paths["/sharedroutes/resources"].post.responses;
+    deepStrictEqual(responses, {
+      "200": {
+        content: {
+          "application/json": {
+            schema: {
+              oneOf: [
+                {
+                  type: "integer",
+                  format: "int32",
+                },
+                {
+                  type: "string",
+                },
+              ],
+            },
+          },
+        },
+        description: "The request has succeeded.",
+      },
+    });
+  });
+
+  it("model shared routes with different request body types", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        @route("/sharedroutes/resources", { shared: true })
+        op processInt(@body body: int32, @query options: string): void;
+
+        @route("/sharedroutes/resources", { shared: true })
+        op processString(@body body: string, @query options: string): void;
+      }
+      `
+    );
+    const requestBody = results.paths["/sharedroutes/resources"].post.requestBody;
+    deepStrictEqual(requestBody, {
+      content: {
+        "application/json": {
+          schema: {
+            oneOf: [
+              {
+                type: "integer",
+                format: "int32",
+              },
+              {
+                type: "string",
+              },
+            ],
+          },
+        },
+      },
+      required: true,
+    });
+  });
+
+  it("model shared routes with different request and response body types", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        @route("/process", { shared: true })
+        op processInt(@body body: int32, @query options: string): int32;
+
+        @route("/process", { shared: true })
+        op processString(@body body: string, @query options: string): string;
+      }
+      `
+    );
+    const requestBody = results.paths["/process"].post.requestBody;
+    deepStrictEqual(requestBody, {
+      content: {
+        "application/json": {
+          schema: {
+            oneOf: [
+              {
+                type: "integer",
+                format: "int32",
+              },
+              {
+                type: "string",
+              },
+            ],
+          },
+        },
+      },
+      required: true,
+    });
+    const responses = results.paths["/process"].post.responses;
+    deepStrictEqual(responses, {
+      "200": {
+        content: {
+          "application/json": {
+            schema: {
+              oneOf: [
+                {
+                  type: "integer",
+                  format: "int32",
+                },
+                {
+                  type: "string",
+                },
+              ],
+            },
+          },
+        },
+        description: "The request has succeeded.",
+      },
+    });
   });
 });
