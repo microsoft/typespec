@@ -599,7 +599,7 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: Rest.ResourceLocation
+          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Checkup items
       required:
         - value
@@ -666,7 +666,7 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: Rest.ResourceLocation
+          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Owner items
       required:
         - value
@@ -727,7 +727,7 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: Rest.ResourceLocation
+          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Pet items
       required:
         - value
@@ -806,7 +806,7 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: Rest.ResourceLocation
+          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Toy items
       required:
         - value

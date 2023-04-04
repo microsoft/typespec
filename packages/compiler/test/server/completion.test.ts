@@ -30,7 +30,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Unit,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\nscalar TypeSpec.int32\n```",
+          value: "```typespec\nscalar int32\n```",
         },
       },
       {
@@ -235,8 +235,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value:
-            "```typespec\ndec TypeSpec.doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)\n```",
+          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
         },
       },
     ]);
@@ -255,8 +254,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value:
-            "```typespec\ndec TypeSpec.doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)\n```",
+          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
         },
       },
     ]);
@@ -294,8 +292,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value:
-            "```typespec\ndec TypeSpec.doc(target: unknown, doc: TypeSpec.string, formatArgs?: TypeSpec.object)\n```",
+          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
         },
       },
     ]);
@@ -316,7 +313,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Unit,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\nscalar TypeSpec.string\n```",
+          value: "```typespec\nscalar string\n```",
         },
       },
     ]);
@@ -535,7 +532,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.Method,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```typespec\nop I.test(param: TypeSpec.string): void\n```",
+            value: "```typespec\nop I.test(param: string): void\n```",
           },
         },
       ],
@@ -564,7 +561,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.Field,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(model property)\n```typespec\nM.test: TypeSpec.string\n```",
+            value: "(model property)\n```typespec\nM.test: string\n```",
           },
         },
       ],
@@ -762,7 +759,7 @@ describe("compiler: server: completion", () => {
           documentation: {
             kind: MarkupKind.Markdown,
             value:
-              "```typespec\ndec N.hello(value: TypeSpec.string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```typespec\n@hello\nmodel M {}\n```",
+              "```typespec\ndec N.hello(value: string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```typespec\n@hello\nmodel M {}\n```",
           },
         },
       ],
@@ -787,7 +784,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Method,
         documentation: {
           kind: "markdown",
-          value: "```typespec\nop Foo.Bar(): TypeSpec.string\n```",
+          value: "```typespec\nop Foo.Bar(): string\n```",
         },
       },
     ]);
@@ -810,7 +807,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Field,
         documentation: {
           kind: "markdown",
-          value: "(model property)\n```typespec\nFoo.bar: TypeSpec.string\n```",
+          value: "(model property)\n```typespec\nFoo.bar: string\n```",
         },
       },
     ]);
@@ -833,7 +830,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Method,
         documentation: {
           kind: "markdown",
-          value: "```typespec\nop Foo<TypeSpec.string>.Bar(): TypeSpec.string\n```",
+          value: "```typespec\nop Foo<string>.Bar(): string\n```",
         },
       },
     ]);
@@ -856,7 +853,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Field,
         documentation: {
           kind: "markdown",
-          value: "(model property)\n```typespec\nFoo<TypeSpec.string>.bar: TypeSpec.string\n```",
+          value: "(model property)\n```typespec\nFoo<string>.bar: string\n```",
         },
       },
     ]);

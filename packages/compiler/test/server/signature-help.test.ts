@@ -20,10 +20,10 @@ describe("compiler: server: signature help", () => {
               kind: MarkupKind.Markdown,
               value: "Decorator with a single param",
             },
-            label: "@single(arg: TypeSpec.string)",
+            label: "@single(arg: string)",
             parameters: [
               {
-                label: "arg: TypeSpec.string",
+                label: "arg: string",
                 documentation: {
                   kind: MarkupKind.Markdown,
                   value: "The arg",
@@ -47,17 +47,17 @@ describe("compiler: server: signature help", () => {
                 kind: MarkupKind.Markdown,
                 value: "Decorator with multiple params",
               },
-              label: "@multiple(foo: TypeSpec.string, bar?: TypeSpec.string)",
+              label: "@multiple(foo: string, bar?: string)",
               parameters: [
                 {
-                  label: "foo: TypeSpec.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "bar?: TypeSpec.string",
+                  label: "bar?: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The second arg",
@@ -108,17 +108,17 @@ describe("compiler: server: signature help", () => {
                 value: "Decorator with rest param",
               },
               activeParameter,
-              label: "@rest(foo: TypeSpec.string, ...others: TypeSpec.string[])",
+              label: "@rest(foo: string, ...others: string[])",
               parameters: [
                 {
-                  label: "foo: TypeSpec.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "...others: TypeSpec.string[]",
+                  label: "...others: string[]",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The rest of the args",
@@ -216,13 +216,13 @@ describe("compiler: server: signature help", () => {
               kind: MarkupKind.Markdown,
               value: "Decorator with a single param",
             },
-            label: "@@single(target: unknown, arg: TypeSpec.string)",
+            label: "@@single(target: unknown, arg: string)",
             parameters: [
               {
                 label: "target: unknown",
               },
               {
-                label: "arg: TypeSpec.string",
+                label: "arg: string",
                 documentation: {
                   kind: MarkupKind.Markdown,
                   value: "The arg",
@@ -246,20 +246,20 @@ describe("compiler: server: signature help", () => {
                 kind: MarkupKind.Markdown,
                 value: "Decorator with multiple params",
               },
-              label: "@@multiple(target: unknown, foo: TypeSpec.string, bar?: TypeSpec.string)",
+              label: "@@multiple(target: unknown, foo: string, bar?: string)",
               parameters: [
                 {
                   label: "target: unknown",
                 },
                 {
-                  label: "foo: TypeSpec.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "bar?: TypeSpec.string",
+                  label: "bar?: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The second arg",
@@ -319,20 +319,20 @@ describe("compiler: server: signature help", () => {
                 value: "Decorator with rest param",
               },
               activeParameter,
-              label: "@@rest(target: unknown, foo: TypeSpec.string, ...others: TypeSpec.string[])",
+              label: "@@rest(target: unknown, foo: string, ...others: string[])",
               parameters: [
                 {
                   label: "target: unknown",
                 },
                 {
-                  label: "foo: TypeSpec.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "...others: TypeSpec.string[]",
+                  label: "...others: string[]",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The rest of the args",

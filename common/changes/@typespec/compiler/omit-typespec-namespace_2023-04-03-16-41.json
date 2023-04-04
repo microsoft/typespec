@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Api: Update `getTypeName` to omit standard library namespace",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
