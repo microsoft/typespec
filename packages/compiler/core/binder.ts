@@ -512,7 +512,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const key = name ?? node.id?.sv;
+    const key = name ?? node.id.sv;
     const symbol = createSymbol(node, key, flags, scope.symbol);
     mutate(node).symbol = symbol;
     mutate(scope.symbol.exports)!.set(key, symbol);
@@ -527,7 +527,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const key = name ?? node.id?.sv;
+    const key = name ?? node.id.sv;
     const symbol = createSymbol(node, key, flags, fileNamespace?.symbol);
     mutate(node).symbol = symbol;
     mutate(effectiveScope.symbol.exports!).set(key, symbol);

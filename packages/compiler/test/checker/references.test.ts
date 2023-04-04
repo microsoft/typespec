@@ -591,7 +591,7 @@ describe("compiler: references", () => {
     describe("Operation::parameters", () =>
       itCanReference({
         code: `
-          op testOp(@test("target") select: string): void;
+          op testOp(@test("target") select: string, other: string): void;
         `,
         ref: "testOp::parameters.select",
       }));
