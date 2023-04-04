@@ -54,7 +54,7 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             az storage blob upload-batch ^
-              --destination \$web ^
+              --destination $web ^
               --account-name "cadlplayground" ^
               --destination-path / ^
               --source "./packages/playground/dist/" ^
@@ -67,7 +67,7 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             az storage blob upload-batch ^
-              --destination \$web ^
+              --destination $web ^
               --account-name "cadlwebsite" ^
               --destination-path / \
               --source "./packages/website/build/" ^
