@@ -8,6 +8,29 @@ toc_max_heading_level: 3
 
 ## TypeSpec.Http
 
+### `@statusCode` {#@TypeSpec.Http.statusCode}
+
+Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
+
+```typespec
+dec TypeSpec.Http.statusCode(target: ModelProperty)
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+op read(): {@statusCode: 200, @body pet: Pet}
+op create(): {@statusCode: 201 | 202}
+```
+
 ### `@body` {#@TypeSpec.Http.body}
 
 Explicitly specify that this property is to be set as the body
@@ -31,27 +54,59 @@ op upload(@body image: bytes): void;
 op download(): {@body image: bytes};
 ```
 
-### `@delete` {#@TypeSpec.Http.delete}
+### `@header` {#@TypeSpec.Http.header}
 
-Specify the http verb for the target operation to be `DELETE`.
+Specify this property is to be sent or received as an http header.
 
 ```typespec
-dec TypeSpec.Http.delete(target: Operation)
+dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
 ```
 
 #### Target
 
-`Operation`
+`ModelProperty`
 
 #### Parameters
 
-None
+| Name                | Type                                          | Description                                                        |
+| ------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
+| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
-#### Examples
+### `@query` {#@TypeSpec.Http.query}
+
+Specify this property is to be sent as a query parameter.
 
 ```typespec
-@delete op set(petId: string): void
+dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
 ```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+| Name               | Type                                         | Description                                                                     |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+
+### `@path` {#@TypeSpec.Http.path}
+
+Explicitly specify that this property is to be interpolated as a path parameter.
+
+```typespec
+dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+| Name      | Type            | Description                                         |
+| --------- | --------------- | --------------------------------------------------- |
+| paramName | `scalar string` | Optional name of the parameter in the url template. |
 
 ### `@get` {#@TypeSpec.Http.get}
 
@@ -73,126 +128,6 @@ None
 
 ```typespec
 @get op read(): string
-```
-
-### `@head` {#@TypeSpec.Http.head}
-
-Specify the http verb for the target operation to be `HEAD`.
-
-```typespec
-dec TypeSpec.Http.head(target: Operation)
-```
-
-#### Target
-
-`Operation`
-
-#### Parameters
-
-None
-
-#### Examples
-
-```typespec
-@head op ping(petId: string): void
-```
-
-### `@header` {#@TypeSpec.Http.header}
-
-Specify this property is to be sent or received as an http header.
-
-```typespec
-dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
-```
-
-#### Target
-
-`ModelProperty`
-
-#### Parameters
-
-| Name                | Type                                          | Description                                                        |
-| ------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
-| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
-
-### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
-
-Specify if inapplicable metadata should be included in the payload for the given entity.
-
-```typespec
-dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: boolean)
-```
-
-#### Target
-
-`(intrinsic) unknown`
-
-#### Parameters
-
-| Name  | Type             | Description |
-| ----- | ---------------- | ----------- |
-| value | `scalar boolean` |             |
-
-### `@patch` {#@TypeSpec.Http.patch}
-
-Specify the http verb for the target operation to be `PATCH`.
-
-```typespec
-dec TypeSpec.Http.patch(target: Operation)
-```
-
-#### Target
-
-`Operation`
-
-#### Parameters
-
-None
-
-#### Examples
-
-```typespec
-@patch op update(pet: Pet): void
-```
-
-### `@path` {#@TypeSpec.Http.path}
-
-Explicitly specify that this property is to be interpolated as a path parameter.
-
-```typespec
-dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
-```
-
-#### Target
-
-`ModelProperty`
-
-#### Parameters
-
-| Name      | Type            | Description                                         |
-| --------- | --------------- | --------------------------------------------------- |
-| paramName | `scalar string` | Optional name of the parameter in the url template. |
-
-### `@post` {#@TypeSpec.Http.post}
-
-Specify the http verb for the target operation to be `POST`.
-
-```typespec
-dec TypeSpec.Http.post(target: Operation)
-```
-
-#### Target
-
-`Operation`
-
-#### Parameters
-
-None
-
-#### Examples
-
-```typespec
-@post op create(pet: Pet): void
 ```
 
 ### `@put` {#@TypeSpec.Http.put}
@@ -217,23 +152,93 @@ None
 @put op set(pet: Pet): void
 ```
 
-### `@query` {#@TypeSpec.Http.query}
+### `@post` {#@TypeSpec.Http.post}
 
-Specify this property is to be sent as a query parameter.
+Specify the http verb for the target operation to be `POST`.
 
 ```typespec
-dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
+dec TypeSpec.Http.post(target: Operation)
 ```
 
 #### Target
 
-`ModelProperty`
+`Operation`
 
 #### Parameters
 
-| Name               | Type                                         | Description                                                                     |
-| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
-| queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+None
+
+#### Examples
+
+```typespec
+@post op create(pet: Pet): void
+```
+
+### `@patch` {#@TypeSpec.Http.patch}
+
+Specify the http verb for the target operation to be `PATCH`.
+
+```typespec
+dec TypeSpec.Http.patch(target: Operation)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+@patch op update(pet: Pet): void
+```
+
+### `@delete` {#@TypeSpec.Http.delete}
+
+Specify the http verb for the target operation to be `DELETE`.
+
+```typespec
+dec TypeSpec.Http.delete(target: Operation)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+@delete op set(petId: string): void
+```
+
+### `@head` {#@TypeSpec.Http.head}
+
+Specify the http verb for the target operation to be `HEAD`.
+
+```typespec
+dec TypeSpec.Http.head(target: Operation)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+@head op ping(petId: string): void
+```
 
 ### `@server` {#@TypeSpec.Http.server}
 
@@ -251,32 +256,9 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 
 | Name        | Type            | Description                                             |
 | ----------- | --------------- | ------------------------------------------------------- |
-| url         | `scalar string` | Description of the endpoint                             |
-| description | `scalar string` |                                                         |
+| url         | `scalar string` | Server endpoint                                         |
+| description | `scalar string` | Description of the endpoint                             |
 | parameters  | `model object`  | Optional set of parameters used to interpolate the url. |
-
-### `@statusCode` {#@TypeSpec.Http.statusCode}
-
-Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
-
-```typespec
-dec TypeSpec.Http.statusCode(target: ModelProperty)
-```
-
-#### Target
-
-`ModelProperty`
-
-#### Parameters
-
-None
-
-#### Examples
-
-```typespec
-op read(): {@statusCode: 200, @body pet: Pet}
-op create(): {@statusCode: 201 | 202}
-```
 
 ### `@useAuth` {#@TypeSpec.Http.useAuth}
 
@@ -295,3 +277,46 @@ dec TypeSpec.Http.useAuth(target: Namespace, auth: object | Union | object[])
 | Name | Type                                | Description                                                                                                                                                    |
 | ---- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union object \| Union \| object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+
+### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
+
+Specify if inapplicable metadata should be included in the payload for the given entity.
+
+```typespec
+dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: boolean)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+
+| Name  | Type             | Description |
+| ----- | ---------------- | ----------- |
+| value | `scalar boolean` |             |
+
+### `@route` {#@TypeSpec.Http.route}
+
+`@route` defines the relative route URI for the target operation
+
+The first argument should be a URI fragment that may contain one or more path parameter fields.
+If the namespace or interface that contains the operation is also marked with a `@route` decorator,
+it will be used as a prefix to the route URI of the operation.
+
+`@route` can only be applied to operations, namespaces, and interfaces.
+
+```typespec
+dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: object)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+
+| Name       | Type            | Description                                                                                                                                           |
+| ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| path       | `scalar string` | Relative route path. Cannot include query parameters.                                                                                                 |
+| parameters | `model object`  | Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
