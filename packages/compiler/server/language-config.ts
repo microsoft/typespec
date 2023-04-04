@@ -1,5 +1,6 @@
 /**
  * TypeSpec Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+ * @hidden Typedoc causing issue with this
  */
 export const TypeSpecLanguageConfiguration = {
   comments: {
@@ -99,5 +100,8 @@ export const TypeSpecLanguageConfiguration = {
   ],
 } as const;
 
-/** @deprecated Use TypeSpecLanguageConfiguration */
+/**
+ * @deprecated Use TypeSpecLanguageConfiguration
+ * @hidden
+ */
 export const CadlLanguageConfiguration = TypeSpecLanguageConfiguration;

@@ -536,6 +536,25 @@ describe("compiler: references", () => {
     ]);
   });
 
+  it("referencing alias that reference an invalid ref should emit diagnostic", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      alias A = NotDefined;
+      alias B = A;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./main.tsp");
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unknown-identifier",
+        message: `Unknown identifier NotDefined`,
+      },
+    ]);
+  });
+
   describe("Meta types", () => {
     describe("ModelProperty::type that is an expression", () =>
       itCanReference({

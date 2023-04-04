@@ -467,6 +467,15 @@ export function createChecker(program: Program): Checker {
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
+        let args: readonly Expression[] = [];
+        if (ref.declarations[0].kind === SyntaxKind.AliasStatement) {
+          const aliasNode = ref.declarations[0] as AliasStatementNode;
+          if (aliasNode.value.kind === SyntaxKind.TypeReference) {
+            args = aliasNode.value.arguments;
+          }
+        } else {
+          args = decNode.targetType.arguments;
+        }
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
           const type: Type & DecoratedType = links.type! as any;
@@ -475,7 +484,7 @@ export function createChecker(program: Program): Checker {
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
-        } else if (ref.flags & SymbolFlags.LateBound) {
+        } else if (args.length > 0 || ref.flags & SymbolFlags.LateBound) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "augment-decorator-target",
@@ -1860,14 +1869,16 @@ export function createChecker(program: Program): Checker {
         if (base.flags & SymbolFlags.Alias) {
           base = getAliasedSymbol(base, undefined);
         }
-        if (isTemplatedNode(base.declarations[0])) {
-          const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
-          if (isTemplateInstance(type)) {
-            lateBindMemberContainer(type);
-            lateBindMembers(type, base);
+        if (base) {
+          if (isTemplatedNode(base.declarations[0])) {
+            const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
+            if (isTemplateInstance(type)) {
+              lateBindMemberContainer(type);
+              lateBindMembers(type, base);
+            }
           }
+          addCompletions(base.exports ?? base.members);
         }
-        addCompletions(base.exports ?? base.members);
       }
     } else {
       let scope: Node | undefined = identifier.parent;
@@ -2060,6 +2071,9 @@ export function createChecker(program: Program): Checker {
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
         base = getAliasedSymbol(base, mapper);
+        if (!base) {
+          return undefined;
+        }
       }
 
       if (node.selector === ".") {
@@ -2190,8 +2204,11 @@ export function createChecker(program: Program): Checker {
    * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
-  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym {
+  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym | undefined {
     const aliasType = getTypeForNode(aliasSymbol.declarations[0] as AliasStatementNode, mapper);
+    if (isErrorType(aliasType)) {
+      return undefined;
+    }
     switch (aliasType.kind) {
       case "Model":
       case "Interface":
@@ -3130,8 +3147,9 @@ export function createChecker(program: Program): Checker {
   ) {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
+    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
     const decoratorNodes = [
-      ...((sym && augmentDecoratorsForSym.get(sym)) ?? []), // the first decorator will be executed at last, so augmented decorator should be placed at first.
+      ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
     ];
     for (const decNode of decoratorNodes) {
@@ -4582,11 +4600,10 @@ export function createChecker(program: Program): Checker {
     target: Type,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
-    if (source === target) return [true, []];
-
     if (source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
+    if (source === target) return [true, []];
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
 
@@ -4768,7 +4785,7 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     // Model expressions should be able to be assigned.
-    if (source.name === "") {
+    if (source.name === "" && target.indexer.key.name !== "integer") {
       return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget);
     } else {
       if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
@@ -4860,8 +4877,8 @@ export function createChecker(program: Program): Checker {
     target: Union,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
-    for (const option of target.options) {
-      const [related] = isTypeAssignableTo(source, option, diagnosticTarget);
+    for (const option of target.variants.values()) {
+      const [related] = isTypeAssignableTo(source, option.type, diagnosticTarget);
       if (related) {
         return [true, []];
       }
