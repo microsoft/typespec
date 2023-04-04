@@ -118,18 +118,7 @@ export class VersioningTimeline {
 
   get(version: Version): TimelineMoment {
     const index = this.getIndex(version);
-    return this.#timeline[index];
-  }
-
-  /**
-   * Return index in the timeline that this version points to
-   */
-  getIndex(version: Version | TimelineMoment): number {
-    const index =
-      version instanceof TimelineMoment
-        ? this.#momentIndex.get(version)
-        : this.#versionIndex.get(version);
-    if (index === undefined) {
+    if (index === -1) {
       if (version instanceof TimelineMoment) {
         compilerAssert(false, `Timeline moment "${version?.name}" should have been resolved`);
       } else {
@@ -140,6 +129,21 @@ export class VersioningTimeline {
           )} should have been resolved. ${this.prettySerialize()}`
         );
       }
+    }
+    return this.#timeline[index];
+  }
+
+  /**
+   * Return index in the timeline that this version points to
+   * Returns -1 if version is not found.
+   */
+  getIndex(version: Version | TimelineMoment): number {
+    const index =
+      version instanceof TimelineMoment
+        ? this.#momentIndex.get(version)
+        : this.#versionIndex.get(version);
+    if (index === undefined) {
+      return -1;
     }
     return index;
   }
