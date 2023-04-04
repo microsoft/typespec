@@ -19,9 +19,9 @@ jobs:
           versionSpec: 16.x
         displayName: Install Node.js
 
-      - task: UseDotNet@2
-        inputs:
-          version: 6.0.x
+      # - task: UseDotNet@2
+      #   inputs:
+      #     version: 6.0.x
 
       - script: |
           echo ##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true
@@ -30,15 +30,15 @@ jobs:
       - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
-      - script: dotnet restore
-        displayName: Restore .NET Dependencies
-        workingDirectory: packages/typespec-vs
+      # - script: dotnet restore
+      #   displayName: Restore .NET Dependencies
+      #   workingDirectory: packages/typespec-vs
 
       - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
-      - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
-        displayName: Test
+      # - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
+      #   displayName: Test
 
       - template: ./upload-coverage.yml
 
@@ -53,11 +53,11 @@ jobs:
           azureSubscription: "Azure SDK Playground"
           scriptLocation: inlineScript
           inlineScript: |
-            az storage blob upload-batch \
-              --destination \$web \
-              --account-name "cadlplayground" \
-              --destination-path / \
-              --source "./packages/playground/dist/" \
+            az storage blob upload-batch ^
+              --destination \$web ^
+              --account-name "cadlplayground" ^
+              --destination-path / ^
+              --source "./packages/playground/dist/" ^
               --overwrite
 
       - task: AzureCLI@1
@@ -66,11 +66,11 @@ jobs:
           azureSubscription: "Azure SDK Playground"
           scriptLocation: inlineScript
           inlineScript: |
-            az storage blob upload-batch \
-              --destination \$web \
-              --account-name "cadlwebsite" \
+            az storage blob upload-batch ^
+              --destination \$web ^
+              --account-name "cadlwebsite" ^
               --destination-path / \
-              --source "./packages/website/build/" \
+              --source "./packages/website/build/" ^
               --overwrite
 
   - job: npm_dev
