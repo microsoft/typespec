@@ -9,6 +9,7 @@ import {
   Type,
 } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
+import { Version } from "./types.js";
 import {
   Availability,
   findVersionedNamespace,
@@ -17,7 +18,6 @@ import {
   getUseDependencies,
   getVersionDependencies,
   getVersions,
-  Version,
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
