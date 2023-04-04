@@ -463,6 +463,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const finalOps: HttpOperation[] = [];
     const pathMap = new Map<string, HttpOperation[]>();
     const paramMap = new Map<string, Map<string, HttpOperation[]>>();
+    const bodyMap = new Map<string, Map<string, HttpOperation[]>>();
+    const responseMap = new Map<string, Map<string, HttpOperation[]>>();
 
     // group operations by path
     for (const op of operations) {
@@ -472,12 +474,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       } else {
         pathMap.set(opKey, [op]);
         paramMap.set(opKey, new Map());
+        bodyMap.set(opKey, new Map());
+        responseMap.set(opKey, new Map());
       }
     }
 
-    // determine which parameters are shared by all shared route operations
     for (const [opKey, ops] of pathMap) {
       for (const op of ops) {
+        // determine which parameters are shared by shared route operations
         for (const param of op.parameters.parameters) {
           if (paramMap.get(opKey)!.has(param.name)) {
             paramMap.get(opKey)!.get(param.name)!.push(op);
@@ -485,9 +489,28 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
             paramMap.get(opKey)!.set(param.name, [op]);
           }
         }
+        // determine which body parameters are shared by shared route operations
+        const bodyParam = op.parameters.body;
+        if (bodyParam?.parameter) {
+          if (bodyMap.get(opKey)!.has(bodyParam.parameter.name)) {
+            bodyMap.get(opKey)!.get(bodyParam.parameter.name)!.push(op);
+          } else {
+            bodyMap.get(opKey)!.set(bodyParam.parameter.name, [op]);
+          }
+        }
+
+        // determine which responses are shared by shared route operations
+        for (const response of op.responses) {
+          if (responseMap.get(opKey)!.has(response.statusCode)) {
+            responseMap.get(opKey)!.get(response.statusCode)!.push(op);
+          } else {
+            responseMap.get(opKey)!.set(response.statusCode, [op]);
+          }
+        }
       }
     }
 
+    // TODO: Hook up responses and body params
     for (const opKey of pathMap.keys()) {
       // copy the first shared route operation and add the final parameters
       const finalOp = pathMap.get(opKey)![0];
