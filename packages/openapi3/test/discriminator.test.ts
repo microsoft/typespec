@@ -12,7 +12,7 @@ describe("openapi3: discriminated unions", () => {
     expectDiagnostics(diagnostics, {
       code: "decorator-wrong-target",
       message:
-        "Cannot apply @discriminator decorator to Foo since it is not assignable to TypeSpec.object | TypeSpec.Reflection.Union",
+        "Cannot apply @discriminator decorator to Foo since it is not assignable to object | Union",
     });
   });
 

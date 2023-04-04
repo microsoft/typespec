@@ -57,12 +57,12 @@ describe("http: decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @header decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @header decorator to test since it is not assignable to ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @header decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @header decorator to Foo since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -78,17 +78,17 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '123' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.HeaderOptions'",
+            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.HeaderOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.HeaderOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
       ]);
     });
@@ -146,12 +146,12 @@ describe("http: decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @query decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @query decorator to test since it is not assignable to ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @query decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @query decorator to Foo since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -167,17 +167,17 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '123' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.QueryOptions'",
+            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.QueryOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.string | TypeSpec.Http.QueryOptions'",
+            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
       ]);
     });
@@ -276,12 +276,12 @@ describe("http: decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @path decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @path decorator to test since it is not assignable to ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @path decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @path decorator to Foo since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -313,7 +313,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+          message: "Argument '123' is not assignable to parameter of type 'string'",
         },
       ]);
     });
@@ -352,12 +352,12 @@ describe("http: decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @body decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @body decorator to test since it is not assignable to ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @body decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @body decorator to Foo since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -383,12 +383,12 @@ describe("http: decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @statusCode decorator to test since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @statusCode decorator to test since it is not assignable to ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @statusCode decorator to Foo since it is not assignable to TypeSpec.Reflection.ModelProperty",
+            "Cannot apply @statusCode decorator to Foo since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -415,13 +415,11 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message:
-            "Cannot apply @server decorator to test since it is not assignable to TypeSpec.Reflection.Namespace",
+          message: "Cannot apply @server decorator to test since it is not assignable to Namespace",
         },
         {
           code: "decorator-wrong-target",
-          message:
-            "Cannot apply @server decorator to Foo since it is not assignable to TypeSpec.Reflection.Namespace",
+          message: "Cannot apply @server decorator to Foo since it is not assignable to Namespace",
         },
       ]);
     });
@@ -434,7 +432,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
@@ -446,7 +444,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
@@ -470,7 +468,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.object'",
+        message: "Argument '123' is not assignable to parameter of type 'object'",
       });
     });
 
@@ -529,7 +527,7 @@ describe("http: decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @useAuth decorator to test since it is not assignable to TypeSpec.Reflection.Namespace",
+            "Cannot apply @useAuth decorator to test since it is not assignable to Namespace",
         },
       ]);
     });
@@ -545,7 +543,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument 'anOp' is not assignable to parameter of type 'TypeSpec.object | TypeSpec.Reflection.Union | TypeSpec.object[]'",
+          "Argument 'anOp' is not assignable to parameter of type 'object | Union | object[]'",
       });
     });
 
