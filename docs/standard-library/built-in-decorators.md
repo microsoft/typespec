@@ -531,6 +531,23 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 ```
 
 
+### `@dateFormat` {#@dateFormat}
+
+
+```typespec
+dec dateFormat(target: zonedDateTime | ModelProperty, format: rfc1123 | rfc7231 | unixTimeStamp | string)
+```
+
+#### Target
+
+`union zonedDateTime | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| format | `union rfc1123 \| rfc7231 \| unixTimeStamp \| string` |  |
+
+
 ### `@visibility` {#@visibility}
 
 Indicates that a property is only considered to be present or applicable ("visible") with

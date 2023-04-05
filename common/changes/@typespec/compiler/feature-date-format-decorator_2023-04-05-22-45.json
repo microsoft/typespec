@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Added** New `@dateFormat` decorator",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
