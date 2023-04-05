@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Require http library to be imported",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
