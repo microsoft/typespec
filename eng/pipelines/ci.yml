@@ -48,7 +48,7 @@ jobs:
         displayName: Release
 
       - task: AzureCLI@1
-        displayName: "Publish playground to PR endpoint"
+        displayName: "Publish playground"
         inputs:
           azureSubscription: "Azure SDK Playground"
           scriptLocation: inlineScript
