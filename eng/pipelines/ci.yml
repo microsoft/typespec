@@ -37,8 +37,8 @@ jobs:
       - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
-      # - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
-      #   displayName: Test
+      - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
+        displayName: Test
 
       - template: ./upload-coverage.yml
 
@@ -58,19 +58,6 @@ jobs:
               --account-name "cadlplayground" ^
               --destination-path / ^
               --source "./packages/playground/dist/" ^
-              --overwrite
-
-      - task: AzureCLI@1
-        displayName: "Publish website to PR endpoint"
-        inputs:
-          azureSubscription: "Azure SDK Playground"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch ^
-              --destination $web ^
-              --account-name "cadlwebsite" ^
-              --destination-path / \
-              --source "./packages/website/build/" ^
               --overwrite
 
   - job: npm_dev
