@@ -392,20 +392,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
-    const resolved = interpolatePath(options.outputFile, {
+    return interpolatePath(options.outputFile, {
       "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
       version,
     });
-    console.log(":Resolve outpout file", {
-      resolved,
-      outputFile: options.outputFile,
-      data: {
-        "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
-        version,
-      },
-    });
-
-    return resolved;
   }
 
   async function emitOpenAPIFromVersion(
