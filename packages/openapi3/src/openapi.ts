@@ -1310,7 +1310,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const dateFormat = getDateFormat(program, typespecType);
     if (dateFormat) {
-      newTarget.format = `date-time-${dateFormat}`;
+      if (dateFormat === "unixTimeStamp") {
+        newTarget.type = "integer";
+        newTarget.format = "timestamp";
+      } else {
+        newTarget.format = `date-time-${dateFormat}`;
+      }
     }
 
     if (isString) {

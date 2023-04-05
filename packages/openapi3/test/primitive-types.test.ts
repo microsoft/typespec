@@ -201,6 +201,17 @@ describe("openapi3: primitives", () => {
       deepStrictEqual(res.schemas.MyDate, { type: "string", format: "date-time" });
     });
 
+    it("set format to 'timestamp' and type to 'ingeger' for 'unixtimestamp' format", async () => {
+      const res = await oapiForModel(
+        "MyDate",
+        `
+      @dateFormat("unixTimeStamp")
+      scalar MyDate extends zonedDateTime;
+      `
+      );
+      deepStrictEqual(res.schemas.MyDate, { type: "integer", format: "timestamp" });
+    });
+
     it("set format to 'date-time-{date-format}' when set on scalar", async () => {
       const res = await oapiForModel(
         "MyDate",
