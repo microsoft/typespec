@@ -47,23 +47,18 @@ jobs:
           node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
         displayName: Release
 
-      - task: AzureFileCopy@4
+      - task: AzureCLI@1
+        displayName: "Publish playground"
         inputs:
-          sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlplayground"
-          containerName: "$web"
-        displayName: "Update playground"
-
-      - task: AzureFileCopy@4
-        inputs:
-          sourcePath: "packages/website/build/*"
-          azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlwebsite"
-          containerName: "$web"
-        displayName: "Update website"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch ^
+              --destination $web ^
+              --account-name "cadlplayground" ^
+              --destination-path / ^
+              --source "./packages/playground/dist/" ^
+              --overwrite
 
   - job: npm_dev
     dependsOn: npm_stable
