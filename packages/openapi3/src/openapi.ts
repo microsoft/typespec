@@ -8,6 +8,7 @@ import {
   EnumMember,
   getAllTags,
   getAnyExtensionFromPath,
+  getDateFormat,
   getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
@@ -1305,6 +1306,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (isSecret(program, typespecType)) {
       newTarget.format = "password";
+    }
+
+    const dateFormat = getDateFormat(program, typespecType);
+    if (dateFormat) {
+      newTarget.format = `date-time-${dateFormat}`;
     }
 
     if (isString) {

@@ -189,4 +189,45 @@ describe("openapi3: primitives", () => {
       });
     });
   });
+
+  describe("date format", () => {
+    it("set format to 'date-time' by default", async () => {
+      const res = await oapiForModel(
+        "MyDate",
+        `
+      scalar MyDate extends zonedDateTime;
+      `
+      );
+      deepStrictEqual(res.schemas.MyDate, { type: "string", format: "date-time" });
+    });
+
+    it("set format to 'date-time-{date-format}' when set on scalar", async () => {
+      const res = await oapiForModel(
+        "MyDate",
+        `
+      @dateFormat("rfc1123")
+      scalar MyDate extends zonedDateTime;
+      `
+      );
+      deepStrictEqual(res.schemas.MyDate, { type: "string", format: "date-time-rfc1123" });
+    });
+
+    it("set format to 'date-time-{date-format}' when set on model property", async () => {
+      const res = await oapiForModel(
+        "MyDate",
+        `
+      model MyDate {
+        @dateFormat("rfc1123")
+        foo: zonedDateTime;
+      }
+
+      op test(): MyDate;
+      `
+      );
+      deepStrictEqual(res.schemas.MyDate.properties.foo, {
+        type: "string",
+        format: "date-time-rfc1123",
+      });
+    });
+  });
 });
