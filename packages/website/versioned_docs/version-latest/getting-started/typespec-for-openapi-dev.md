@@ -18,7 +18,7 @@ to the section of this document for that feature.
 
 In OpenAPI [v2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types)/[v3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes), data types are specified using the `type` and `format` fields in a schema.
 
-The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://microsoft.github.io/typespec/docs/standard-library/built-in-types).
+The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://microsoft.github.io/typespec/docs/language-basics/built-in-types).
 
 The following table shows how common OpenAPI types map to TypeSpec types:
 
