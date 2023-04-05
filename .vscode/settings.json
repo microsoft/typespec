@@ -90,6 +90,7 @@
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
+  "mochaExplorer.parallel": true,
   "mochaExplorer.files": [
     "./packages/*/dist/test/**/*.test.js",
     "./packages/*/dist/test/**/*.e2e.js",
