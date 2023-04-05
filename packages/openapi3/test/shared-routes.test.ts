@@ -41,13 +41,19 @@ describe("openapi3: shared routes", () => {
           id: string;
         }
 
+        @operationId("List_ResourceGroup")
         @route("/sharedroutes/resources", { shared: true })
         op listByResourceGroup(...Resource, @query resourceGroup: string, @query foo: string): Resource[];
 
+        @operationId("List_Subscription")
         @route("/sharedroutes/resources", { shared: true })
         op listBySubscription(...Resource, @query subscription: string, @query foo: string): Resource[];
       }
       `
+    );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.operationId,
+      "List_ResourceGroup_List_Subscription"
     );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
@@ -98,6 +104,10 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.operationId,
+      "listByResourceGroup_listBySubscription"
+    );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
       required: boolean;
@@ -132,6 +142,10 @@ describe("openapi3: shared routes", () => {
         op listBySubscription(...Resource, @header filter: "subscription"): Resource[];
       }
       `
+    );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.operationId,
+      "listByResourceGroup_listBySubscription"
     );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
@@ -177,6 +191,10 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.operationId,
+      "returnsInt_returnsString"
+    );
     const responses = results.paths["/sharedroutes/resources"].post.responses;
     deepStrictEqual(responses, {
       "200": {
@@ -213,6 +231,10 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.operationId,
+      "processInt_processString"
+    );
     const requestBody = results.paths["/sharedroutes/resources"].post.requestBody;
     deepStrictEqual(requestBody, {
       content: {
@@ -247,6 +269,7 @@ describe("openapi3: shared routes", () => {
       }
       `
     );
+    deepStrictEqual(results.paths["/process"].post.operationId, "processInt_processString");
     const requestBody = results.paths["/process"].post.requestBody;
     deepStrictEqual(requestBody, {
       content: {

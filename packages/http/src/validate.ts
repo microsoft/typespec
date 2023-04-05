@@ -15,15 +15,13 @@ export function $onValidate(program: Program) {
       const path = operation.path;
       const shared = isSharedRoute(program, operation.operation);
       const val = paths.get(path);
-      if (val === undefined) {
+      if (shared && val === undefined) {
         paths.set(path, shared);
-      } else {
-        if (val !== shared) {
-          reportDiagnostic(program, {
-            code: "shared-inconsistency",
-            target: operation.operation,
-          });
-        }
+      } else if (val && val !== shared) {
+        reportDiagnostic(program, {
+          code: "shared-inconsistency",
+          target: operation.operation,
+        });
       }
     }
   }
