@@ -1,6 +1,14 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
 import {
+  getVisibility,
+  isSecret,
+  Model,
+  ModelProperty,
+  Operation,
+  Scalar,
+} from "../../core/index.js";
+import {
+  getDateFormat,
   getDoc,
   getFriendlyName,
   getKeyName,
@@ -354,6 +362,46 @@ describe("compiler: built-in decorators", () => {
           message: "Property 'prop' marked as key cannot be optional.",
         },
       ]);
+    });
+  });
+
+  describe("@dateFormat", () => {
+    it("assign the known values to zonedDateTime property", async () => {
+      const { dob } = (await runner.compile(`
+        
+        model Foo {
+          @dateFormat("rfc1123")
+          @test
+          dob: zonedDateTime;
+        }
+        
+      `)) as { dob: ModelProperty };
+
+      strictEqual(getDateFormat(runner.program, dob), "rfc1123");
+    });
+
+    it("assign the known values to zonedDateTime extended scalar", async () => {
+      const { Bar } = (await runner.compile(`
+        @test
+        @dateFormat("rfc1123")
+        scalar Bar extends zonedDateTime;
+      `)) as { Bar: Scalar };
+
+      ok(Bar.kind);
+      strictEqual(getDateFormat(runner.program, Bar), "rfc1123");
+    });
+
+    it("emit diagnostics when used on non scalar", async () => {
+      const diagnostics = await runner.diagnose(`
+        @dateFormat("rfc1123")
+        enum Bar {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message:
+          "Cannot apply @dateFormat decorator to Bar since it is not assignable to zonedDateTime | ModelProperty",
+      });
     });
   });
 

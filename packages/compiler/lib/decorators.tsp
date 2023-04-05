@@ -337,6 +337,9 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  */
 extern dec discriminator(target: object | Union, propertyName: string);
 
+alias KnownDateFormat = "rfc1123" | "rfc7231" | "unixTimeStamp";
+extern dec dateFormat(target: zonedDateTime | ModelProperty, format: KnownDateFormat | string);
+
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied

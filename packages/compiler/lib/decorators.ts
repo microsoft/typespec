@@ -533,6 +533,31 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
   return program.stateMap(secretTypesKey).get(target);
 }
 
+// -- @dateFormat decorator ---------------------
+export type KnownDateFormat = "rfc1123" | "rfc7231" | "unixTimeStamp";
+
+const dateFormatKey = createStateSymbol("dateFormat");
+export function $dateFormat(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  format: string
+) {
+  validateDecoratorUniqueOnNode(context, target, $dateFormat);
+
+  if (!validateDecoratorTargetIntrinsic(context, target, "@zonedDateTime", ["zonedDateTime"])) {
+    return;
+  }
+
+  context.program.stateMap(dateFormatKey).set(target, format);
+}
+
+export function getDateFormat(
+  program: Program,
+  target: Scalar | ModelProperty
+): KnownDateFormat | string | undefined {
+  return program.stateMap(dateFormatKey).get(target);
+}
+
 // -- @visibility decorator ---------------------
 
 const visibilitySettingsKey = createStateSymbol("visibilitySettings");
