@@ -40,7 +40,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   required: [],
 };
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi3",
   diagnostics: {
     "invalid-server-variable": {
@@ -114,12 +114,12 @@ export const libDef = {
       },
     },
   },
+  requireImports: ["@typespec/http"],
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
-} as const;
+} as const);
 
-export const $lib = createTypeSpecLibrary(libDef);
 export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;
