@@ -88,14 +88,16 @@
       "name": "lint",
       "summary": "Lint projects. Runs `npm run lint` on all projects.",
       "enableParallelism": true,
-      "ignoreMissingScript": true
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
       "commandKind": "bulk",
       "name": "lint:fix",
       "summary": "Fix lint issues in projects. Runs `npm run lint:fix` on all projects.",
       "enableParallelism": true,
-      "ignoreMissingScript": true
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
       "commandKind": "global",
@@ -109,7 +111,8 @@
       "name": "clean",
       "summary": "(CUSTOM) Run `npm run clean` on all the projects.",
       "enableParallelism": true,
-      "ignoreMissingScript": true
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     }
   ],
   /**
