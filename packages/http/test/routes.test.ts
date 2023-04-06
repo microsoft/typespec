@@ -1,7 +1,13 @@
+import { Operation } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { HttpOperation } from "../src/index.js";
-import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
+import { getRoutePath, HttpOperation } from "../src/index.js";
+import {
+  compileOperations,
+  createHttpTestRunner,
+  getOperations,
+  getRoutesFor,
+} from "./test-host.js";
 
 describe("http: routes", () => {
   // Describe how routes should be included.
@@ -544,5 +550,52 @@ describe("http: routes", () => {
       { verb: "get", path: "/things", params: [] },
       { verb: "put", path: "/things/{thingId}", params: ["thingId"] },
     ]);
+  });
+
+  describe("shared routes", () => {
+    it("@sharedRoute decorator makes routes shared", async () => {
+      const runner = await createHttpTestRunner();
+      const { get1, get2 } = (await runner.compile(`
+        @route("/test")
+        namespace Foo {
+          @test
+          @sharedRoute
+          @route("/get1")
+          op get1(): string;
+        }
+
+        @route("/test")
+        namespace Foo {
+          @test
+          @route("/get2")
+          op get2(): string;
+        }
+      `)) as { get1: Operation; get2: Operation };
+
+      strictEqual(getRoutePath(runner.program, get1)?.shared, true);
+      strictEqual(getRoutePath(runner.program, get2)?.shared, false);
+    });
+
+    it("legacy `shared: true parameter` still works", async () => {
+      const runner = await createHttpTestRunner();
+      const { get1, get2 } = (await runner.compile(`
+        @route("/test")
+        namespace Foo {
+          @test
+          @route("/get1", { shared: true })
+          op get1(): string;
+        }
+
+        @route("/test")
+        namespace Foo {
+          @test
+          @route("/get2", { shared: false })
+          op get2(): string;
+        }
+      `)) as { get1: Operation; get2: Operation };
+
+      strictEqual(getRoutePath(runner.program, get1)?.shared, true);
+      strictEqual(getRoutePath(runner.program, get2)?.shared, false);
+    });
   });
 });

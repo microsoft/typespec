@@ -19,7 +19,7 @@ import {
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
-import { setRoute } from "./route.js";
+import { setRoute, setSharedRoute } from "./route.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
@@ -594,6 +594,18 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
     path,
     shared: extractSharedValue(context, parameters),
   });
+}
+
+/**
+ * `@sharedRoute` marks the operation as sharing a route path with other operations.
+ *
+ * When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+ * route path as long as those operations are also marked with `@sharedRoute`.
+ *
+ * `@sharedRoute` can only be applied directly to operations.
+ */
+export function $sharedRoute(context: DecoratorContext, entity: Operation) {
+  setSharedRoute(context.program, entity);
 }
 
 const includeInapplicableMetadataInPayloadKey = createStateSymbol(
