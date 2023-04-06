@@ -30,13 +30,12 @@ Built in types are related to each other according to the rules described in [ty
 
 ## Date and time types
 
-| Type             | Description                                                                         |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| `plainDate`      | A date on a calendar without a time zone, e.g. "April 10th"                         |
-| `plainTime`      | A time on a clock without a time zone, e.g. "3:00 am"                               |
-| `utcDateTime`    | A date and time in coordinated universal time (UTC), e.g. "1985-04-12T23:20:50.52Z" |
-| `offsetDateTime` | A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"       |
-| `duration`       | A duration/time period. e.g 5s, 10h                                                 |
+| Type            | Description                                                                   |
+| --------------- | ----------------------------------------------------------------------------- |
+| `plainDate`     | A date on a calendar without a time zone, e.g. "April 10th"                   |
+| `plainTime`     | A time on a clock without a time zone, e.g. "3:00 am"                         |
+| `zonedDateTime` | A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST" |
+| `duration`      | A duration/time period. e.g 5s, 10h                                           |
 
 ## Other core types
 
