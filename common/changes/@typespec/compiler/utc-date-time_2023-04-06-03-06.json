@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Replaced zonedDateTime with utcDateTime and offsetDateTime",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
