@@ -72,8 +72,8 @@ model PlainDateWrapper {
 }
 
 model DateTimeWrapper {
-  field: zonedDateTime;
-  now: zonedDateTime;
+  field: utcDateTime;
+  now: utcDateTime;
 }
 
 model DurationWrapper {
