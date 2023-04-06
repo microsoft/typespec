@@ -18,7 +18,7 @@ model PetBase {
 
 model Dog extends PetBase {
   type: "dog";
-  nextWalkTime: zonedDateTime;
+  nextWalkTime: utcDateTime;
 }
 
 model Cat extends PetBase {
