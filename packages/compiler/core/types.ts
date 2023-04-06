@@ -1,5 +1,4 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import { TypeEmitter } from "../emitter-framework/index.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
 import { Program } from "./program.js";
 
@@ -1916,7 +1915,9 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    *
    * @param TypeEmitterClass The TypeEmitter to construct your emitted output
    */
-  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
+  getAssetEmitter<T>(
+    TypeEmitterClass: any /** typeof TypeEmitter<T, TOptions> https://github.com/TypeStrong/typedoc/issues/2220*/
+  ): AssetEmitter<T, TOptions>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

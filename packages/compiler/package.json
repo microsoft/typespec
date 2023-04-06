@@ -72,7 +72,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.18.6",
+    "@babel/code-frame": "~7.21.4",
     "ajv": "~8.12.0",
     "picocolors": "~1.0.0",
     "globby": "~13.1.1",
