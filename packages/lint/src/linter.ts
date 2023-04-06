@@ -10,18 +10,8 @@ import {
 import { LibraryLinter, Linter, LintRule, RegisterRuleOptions } from "./types.js";
 
 export function getLinter(library: TypeSpecLibrary<any, any>): LibraryLinter {
-  const linter = getLinterSingleton();
+  const linter = createLinter();
   return getLinterForLibrary(linter, library);
-}
-
-const linterSingletonKey = Symbol.for("@typespec/lint.singleton");
-function getLinterSingleton(): Linter {
-  let linter: Linter | undefined = (globalThis as any)[linterSingletonKey];
-  if (linter === undefined) {
-    linter = createLinter();
-    (globalThis as any)[linterSingletonKey] = linter;
-  }
-  return linter;
 }
 
 function getLinterForLibrary(linter: Linter, library: TypeSpecLibrary<any, any>): LibraryLinter {
@@ -113,14 +103,15 @@ function createLinter(): Linter {
   }
 
   function enableRule(name: string) {
-    compilerAssert(ruleMap.has(name), `Rule "${name}" is not registered. Cannot enable.`);
+    if (!ruleMap.has(name)) {
+      throw new Error(`Rule "${name}" is not registered. Cannot enable.`);
+    }
     enabledRules.add(name);
   }
 
   function enableRules(names: string[]) {
     for (const name of names) {
-      compilerAssert(ruleMap.has(name), `Rule "${name}"  is not registered. Cannot enable.`);
-      enabledRules.add(name);
+      enableRule(name);
     }
   }
 }
