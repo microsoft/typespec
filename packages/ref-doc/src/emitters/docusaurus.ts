@@ -63,46 +63,65 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
     content.push(headings.h2(namespace.id), "");
     if (namespace.decorators.length > 0) {
       content.push(headings.h3("Decorators"), "");
+      const listContent = [];
       for (const decorator of namespace.decorators) {
-        content.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
+        listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
       }
+      listContent.sort();
+      content.push(...listContent);
     }
 
     if (namespace.interfaces.length > 0) {
       content.push(headings.h3("Interfaces"), "");
+      const listContent = [];
       for (const iface of namespace.interfaces) {
-        content.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
+        listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
       }
+      listContent.sort();
+      content.push(...listContent);
     }
 
     if (namespace.operations.length > 0) {
       content.push(headings.h3("Operations"), "");
+      const listContent = [];
       for (const operation of namespace.operations) {
-        content.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
+        listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
       }
+      listContent.sort();
+      content.push(...listContent);
     }
 
     if (namespace.models.length > 0) {
       content.push(headings.h3("Models"), "");
+      const listContent = [];
       for (const model of namespace.models) {
-        content.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
+        listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
       }
+      listContent.sort();
+      content.push(...listContent);
     }
   }
   return content.join("\n");
 }
 
-function renderDecoratorFile(refDoc: TypeSpecRefDoc): string | undefined {
+export type DecoratorRenderOptions = {
+  title?: string;
+};
+export function renderDecoratorFile(
+  refDoc: TypeSpecRefDoc,
+  options?: DecoratorRenderOptions
+): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
   }
+  const title = options?.title ?? "Decorators";
   const content = [
     "---",
-    `title: "Decorators"`,
+    `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1("Decorators"),
+    headings.h1(title),
   ];
 
   content.push(
@@ -138,11 +157,15 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     ""
   );
 
-  const paramTable: string[][] = [["Name", "Type", "Description"]];
-  for (const param of dec.parameters) {
-    paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+  if (dec.parameters.length > 0) {
+    const paramTable: string[][] = [["Name", "Type", "Description"]];
+    for (const param of dec.parameters) {
+      paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+    }
+    content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
+  } else {
+    content.push(headings.hx(headingLevel + 1, "Parameters"), "None", "");
   }
-  content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
 
   if (dec.examples.length > 0) {
     content.push(headings.hx(headingLevel + 1, "Examples"));
