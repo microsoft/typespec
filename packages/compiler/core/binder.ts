@@ -9,6 +9,7 @@ import {
   FunctionParameterNode,
   InterfaceStatementNode,
   JsSourceFileNode,
+  ModelExpressionNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -227,6 +228,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
         break;
+      case SyntaxKind.ModelExpression:
+        bindModelExpression(node);
+        break;
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
         break;
@@ -392,6 +396,10 @@ export function createBinder(program: Program): Binder {
     mutate(node).locals = new SymbolTable();
   }
 
+  function bindModelExpression(node: ModelExpressionNode) {
+    bindSymbol(node, SymbolFlags.Model);
+  }
+
   function bindScalarStatement(node: ScalarStatementNode) {
     declareSymbol(node, SymbolFlags.Scalar);
     // Initialize locals for type parameters
@@ -468,6 +476,13 @@ export function createBinder(program: Program): Binder {
     mutate(node).symbol = symbol;
   }
 
+  /**
+   * Declare a symbole for the given node in the current scope.
+   * @param node Node
+   * @param flags Symbol flags
+   * @param name Optional symbol name, default to the node id.
+   * @returns Created Symbol
+   */
   function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
@@ -477,11 +492,17 @@ export function createBinder(program: Program): Binder {
         return declareScriptMember(node, flags, name);
       default:
         const key = name ?? node.id.sv;
-        const symbol = createSymbol(node, key, flags, scope.symbol);
+        const symbol = createSymbol(node, key, flags, scope?.symbol);
         mutate(node).symbol = symbol;
         mutate(scope.locals!).set(key, symbol);
         return symbol;
     }
+  }
+
+  function bindSymbol(node: Node, flags: SymbolFlags): Sym {
+    const symbol = createSymbol(node, "-", flags, scope?.symbol);
+    mutate(node).symbol = symbol;
+    return symbol;
   }
 
   function declareNamespaceMember(node: Declaration, flags: SymbolFlags, name?: string) {
@@ -568,5 +589,6 @@ export function createSymbol(
     flags,
     value,
     parent,
+    metatypeMembers: createSymbolTable(),
   };
 }

@@ -146,3 +146,11 @@ model DogPage {
   ...Page<Dog>;
 }
 ```
+
+## Meta type references
+
+Some model property meta types can be referenced using `::`
+
+| Name | Example          | Description                              |
+| ---- | ---------------- | ---------------------------------------- |
+| type | `Pet.name::type` | Reference the type of the model property |
