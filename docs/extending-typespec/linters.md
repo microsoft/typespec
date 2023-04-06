@@ -76,7 +76,8 @@ When registering a rule, its name will be prefixed by the library named defined 
 Rules are by default just registered but not enabled. This allows a library to provide a set of linting rules for other libraries to use or a user to enable.
 
 ```ts
-// Note: the rule id here needs to be the fully qualified rule name prefixed with `<libraryname>/`
+// Note: The rule ID here needs to be the fully qualified rule name prefixed with the
+//       `<libraryname>/` prefix and it cannot be a rule provided by another library.
 linter.enableRule("my-library/no-model-doc");
 ```
 
@@ -96,8 +97,14 @@ The lint library still depends on `$onValidate` to run. For that each library pr
 
 ```ts
 export function $onValidate(program: Program) {
-  linter.autoEnableRules(); // Optional if you want to automatically enable your rules
-  linter.enableRules(["<library-name>/<rule-name>"]); // Alternatively enable rules explicitly. Must be the rule fully qualified name.
+  // Optional if you want to automatically enable your rules.
+  linter.autoEnableRules();
+
+  // Alternatively enable rules explicitly.
+  // Note: The rule IDs here needs to be the fully qualified rule names with the
+  //       `<libraryname>/` prefix and they cannot be rules provided by other libraries.
+  linter.enableRules(["<library-name>/<rule-name-1>", "<library-name>/<rule-name-2>]);
+
   linter.lintOnValidate(program);
 }
 ```
