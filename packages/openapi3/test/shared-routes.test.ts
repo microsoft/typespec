@@ -252,7 +252,6 @@ describe("openapi3: shared routes", () => {
           },
         },
       },
-      required: true,
     });
   });
 
@@ -287,7 +286,6 @@ describe("openapi3: shared routes", () => {
           },
         },
       },
-      required: true,
     });
     const responses = results.paths["/process"].post.responses;
     deepStrictEqual(responses, {

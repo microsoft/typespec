@@ -957,28 +957,43 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (bodies === undefined) {
       return;
     }
-    const requestBodies: any = [];
+    const requestBody: any = {
+      description: undefined,
+      content: {},
+    };
+    const schemaMap = new Map<string, any[]>();
     for (const body of bodies) {
-      const requestBody: any = {
-        description: body.parameter ? getDoc(program, body.parameter) : undefined,
-        content: {},
-      };
-
+      const desc = body.parameter ? getDoc(program, body.parameter) : undefined;
+      if (desc) {
+        requestBody.description = requestBody.description
+          ? `${requestBody.description} ${desc}`
+          : desc;
+      }
       const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
       for (const contentType of contentTypes) {
         const isBinary = isBinaryPayload(body.type, contentType);
         const bodySchema = isBinary
           ? { type: "string", format: "binary" }
           : getSchemaOrRef(body.type, visibility);
-        const contentEntry: any = {
-          schema: bodySchema,
-        };
-        requestBody.content[contentType] = contentEntry;
+        if (schemaMap.has(contentType)) {
+          schemaMap.get(contentType)!.push(bodySchema);
+        } else {
+          schemaMap.set(contentType, [bodySchema]);
+        }
       }
-      requestBodies.push(requestBody);
     }
-    // FIXME: Merge requests bodies into a single thing
-    currentEndpoint.requestBody = undefined;
+    const content: any = {};
+    for (const [contentType, schemaArray] of schemaMap) {
+      if (schemaArray.length === 1) {
+        content[contentType] = { schema: schemaArray[0] };
+      } else {
+        content[contentType] = {
+          schema: { oneOf: schemaArray },
+        };
+      }
+    }
+    requestBody.content = content;
+    currentEndpoint.requestBody = requestBody;
   }
 
   function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
