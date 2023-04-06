@@ -213,6 +213,7 @@ describe("openapi3: shared routes", () => {
             },
           },
         },
+        statusCode: "200",
         description: "The request has succeeded.",
       },
     });
@@ -305,6 +306,7 @@ describe("openapi3: shared routes", () => {
             },
           },
         },
+        statusCode: "200",
         description: "The request has succeeded.",
       },
     });

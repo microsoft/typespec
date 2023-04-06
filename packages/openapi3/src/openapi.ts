@@ -410,6 +410,37 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return parameters.find((p) => p.name === name);
   }
 
+  /**
+   * Validates that common responses are consistent and returns the minimal set that describes the differences.
+   */
+  function validateCommonResponses(
+    ops: HttpOperation[],
+    statusCode: string,
+    totalOps: number
+  ): HttpOperationResponse[] {
+    const statusCodeResponses: HttpOperationResponse[] = [];
+    for (const op of ops) {
+      for (const response of op.responses) {
+        if (response.statusCode === statusCode) {
+          statusCodeResponses.push(response);
+        }
+      }
+    }
+    const ref = statusCodeResponses[0];
+    assert(statusCodeResponses.length === totalOps);
+    const sameTypeKind = statusCodeResponses.every((r) => r.type.kind === ref.type.kind);
+    const sameTypeValue = statusCodeResponses.every((r) => r.type === ref.type);
+    if (sameTypeKind && sameTypeValue) {
+      // response is consistent and in all shared operations. Only need one copy.
+      return [ref];
+    } else {
+      return statusCodeResponses;
+    }
+  }
+
+  /**
+   * Validates that common bodies are consistent and returns the minimal set that describes the differences.
+   */
   function validateCommonBodies(
     ops: HttpOperation[],
     name: string,
@@ -487,7 +518,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     verb: http.HttpVerb;
     parameters: HttpOperationParameters;
     bodies: HttpOperationRequestBody[] | undefined;
-    responses: HttpOperationResponse[];
+    responses: Map<string, HttpOperationResponse[]>;
     operations: Operation[];
   }
 
@@ -543,7 +574,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         parameters: [],
       },
       bodies: undefined,
-      responses: [],
+      responses: new Map<string, HttpOperationResponse[]>(),
     };
     for (const [paramName, ops] of paramMap) {
       const commonParams = validateCommonParameters(ops, paramName, totalOps);
@@ -551,6 +582,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     for (const [paramName, ops] of bodyMap) {
       shared.bodies = validateCommonBodies(ops, paramName, totalOps);
+    }
+    for (const [statusCode, ops] of responseMap) {
+      shared.responses.set(statusCode, validateCommonResponses(ops, statusCode, totalOps));
     }
     results.push(shared);
     return results;
@@ -691,11 +725,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       if (shared.bodies.length === 1) {
         emitRequestBody(shared.bodies[0], visibility);
       } else if (shared.bodies.length > 1) {
-        emitRequestBodies(shared.bodies, visibility);
+        emitMergedRequestBody(shared.bodies, visibility);
       }
     }
-
-    //emitResponses(shared.responses);
+    emitSharedResponses(shared.responses);
     for (const op of ops) {
       if (isDeprecated(program, op)) {
         currentEndpoint.deprecated = true;
@@ -744,6 +777,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     attachExtensions(program, op, currentEndpoint);
   }
 
+  function emitSharedResponses(responses: Map<string, HttpOperationResponse[]>) {
+    for (const [_, statusCodeResponses] of responses) {
+      if (statusCodeResponses.length === 1) {
+        emitResponseObject(statusCodeResponses[0]);
+      } else {
+        emitMergedResponseObject(statusCodeResponses);
+      }
+    }
+  }
+
   function emitResponses(responses: HttpOperationResponse[]) {
     for (const response of responses) {
       emitResponseObject(response);
@@ -765,6 +808,74 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return "default";
       default:
         return response.statusCode;
+    }
+  }
+
+  function emitMergedResponseObject(responses: HttpOperationResponse[]) {
+    const statusCode = getOpenAPIStatuscode(responses[0]);
+    const openApiResponse: any = {
+      description: undefined,
+      content: {},
+      statusCode: statusCode,
+    };
+
+    const schemaMap = new Map<string, any[]>();
+    for (const response of responses) {
+      if (response.description && response.description !== openApiResponse.description) {
+        openApiResponse.description = openApiResponse.description
+          ? `${openApiResponse.description} ${response.description}`
+          : response.description;
+      }
+      for (const data of response.responses) {
+        if (data.headers && Object.keys(data.headers).length > 0) {
+          openApiResponse.headers ??= {};
+          // OpenAPI can't represent different headers per content type.
+          // So we merge headers here, and report any duplicates.
+          // It may be possible in principle to not error for identically declared
+          // headers.
+          for (const [key, value] of Object.entries(data.headers)) {
+            if (openApiResponse.headers[key]) {
+              reportDiagnostic(program, {
+                code: "duplicate-header",
+                format: { header: key },
+                target: response.type,
+              });
+              continue;
+            }
+            openApiResponse.headers[key] = getResponseHeader(value);
+          }
+        }
+
+        if (data.body !== undefined) {
+          openApiResponse.content ??= {};
+          for (const contentType of data.body.contentTypes) {
+            const isBinary = isBinaryPayload(data.body.type, contentType);
+            const schema = isBinary
+              ? { type: "string", format: "binary" }
+              : getSchemaOrRef(data.body.type, Visibility.Read);
+            if (schemaMap.has(contentType)) {
+              schemaMap.get(contentType)!.push(schema);
+            } else {
+              schemaMap.set(contentType, [schema]);
+            }
+          }
+        }
+        const content: any = {};
+        for (const [contentType, schemaArray] of schemaMap) {
+          if (schemaArray.length === 1) {
+            content[contentType] = { schema: schemaArray[0] };
+          } else {
+            content[contentType] = {
+              schema: { oneOf: schemaArray },
+            };
+          }
+        }
+        openApiResponse.content = content;
+      }
+      if (!openApiResponse.description) {
+        openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
+      }
+      currentEndpoint.responses[statusCode] = openApiResponse;
     }
   }
 
@@ -950,7 +1061,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitRequestBodies(
+  function emitMergedRequestBody(
     bodies: HttpOperationRequestBody[] | undefined,
     visibility: Visibility
   ) {
