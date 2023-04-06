@@ -32,7 +32,7 @@ model PetBase {
 
 model Dog extends PetBase {
   type: "dog";
-  nextWalkTime: zonedDateTime;
+  nextWalkTime: utcDateTime;
 
   @madeOptional(Versions.v2)
   walkerName?: string;
