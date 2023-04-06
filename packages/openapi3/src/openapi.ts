@@ -239,7 +239,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
       const name = getNamespaceFullName(ns);
-      return name !== "TypeSpec" && name !== serviceNamespace;
+      return name !== serviceNamespace;
     },
   };
 
@@ -1456,7 +1456,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "boolean" };
       case "plainDate":
         return { type: "string", format: "date" };
-      case "zonedDateTime":
+      case "utcDateTime":
+      case "offsetDateTime":
         return { type: "string", format: "date-time" };
       case "plainTime":
         return { type: "string", format: "time" };

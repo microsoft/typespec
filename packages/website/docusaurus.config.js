@@ -40,7 +40,7 @@ const config = {
   tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
   baseUrl: process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/",
-  onBrokenLinks: "log",
+  onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
 

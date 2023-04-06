@@ -55,6 +55,15 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
   return "(unnamed type)";
 }
 
+export function isStdNamespace(namespace: Namespace): boolean {
+  return (
+    (namespace.name === "TypeSpec" && namespace.namespace?.name === "") ||
+    (namespace.name === "Reflection" &&
+      namespace.namespace?.name === "TypeSpec" &&
+      namespace.namespace?.namespace?.name === "")
+  );
+}
+
 /**
  * Return the full name of the namespace(e.g. "Foo.Bar")
  * @param type namespace type
@@ -63,15 +72,24 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
  */
 export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions): string {
   const filter = options?.namespaceFilter;
-  if (filter && !filter(type)) {
-    return "";
+  const segments = [];
+  let current: Namespace | undefined = type;
+  while (current && current.name !== "") {
+    if (filter && !filter(current)) {
+      break;
+    }
+    segments.unshift(getIdentifierName(current.name, options));
+    current = current.namespace;
   }
 
-  return `${getNamespacePrefix(type.namespace, options)}${getIdentifierName(type.name, options)}`;
+  return segments.join(".");
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
-  const namespaceFullName = type ? getNamespaceFullName(type, options) : "";
+  if (type === undefined || isStdNamespace(type)) {
+    return "";
+  }
+  const namespaceFullName = getNamespaceFullName(type, options);
   return namespaceFullName !== "" ? namespaceFullName + "." : "";
 }
 

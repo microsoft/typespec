@@ -20,17 +20,17 @@ docker run \
 ### Install dependencies
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/tsp install
+docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec install
 ```
 
 ### Compile
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/tsp compile .
+docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec compile .
 ```
 
 ### Init a new project
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/tsp init
+docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec init
 ```

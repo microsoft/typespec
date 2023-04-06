@@ -57,7 +57,7 @@ describe("openapi3: Additional properties", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unassignable",
-        message: "Type 'TypeSpec.int16' is not assignable to type 'TypeSpec.string'",
+        message: "Type 'int16' is not assignable to type 'string'",
       },
     ]);
   });

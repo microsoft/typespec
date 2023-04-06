@@ -535,4 +535,65 @@ describe("compiler: references", () => {
       },
     ]);
   });
+
+  it("referencing alias that reference an invalid ref should emit diagnostic", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      alias A = NotDefined;
+      alias B = A;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./main.tsp");
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unknown-identifier",
+        message: `Unknown identifier NotDefined`,
+      },
+    ]);
+  });
+
+  describe("Meta types", () => {
+    describe("ModelProperty::type that is an expression", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: {
+              @test("target") city: string
+            }
+          }
+        `,
+        ref: "Person.address::type.city",
+      }));
+
+    describe("ModelProperty::type that is a type reference", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: Address
+          }
+          model Address {
+            @test("target") city: string
+          }
+        `,
+        ref: "Person.address::type.city",
+      }));
+    describe("Operation::returnType", () =>
+      itCanReference({
+        code: `
+          op testOp(): {@test("target")status: 200};
+        `,
+        ref: "testOp::returnType.status",
+      }));
+
+    describe("Operation::parameters", () =>
+      itCanReference({
+        code: `
+          op testOp(@test("target") select: string, other: string): void;
+        `,
+        ref: "testOp::parameters.select",
+      }));
+  });
 });
