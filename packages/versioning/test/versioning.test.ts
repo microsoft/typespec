@@ -389,7 +389,7 @@ describe("versioning: logic", () => {
         `
         model Test {
           @typeChangedFrom(Versions.v2, string)
-          @typeChangedFrom(Versions.v3, zonedDateTime)
+          @typeChangedFrom(Versions.v3, utcDateTime)
           changed: MyDate;
         }
         
@@ -398,7 +398,7 @@ describe("versioning: logic", () => {
       );
 
       ok((v1.properties.get("changed")!.type as Scalar).name === "string");
-      ok((v2.properties.get("changed")!.type as Scalar).name === "zonedDateTime");
+      ok((v2.properties.get("changed")!.type as Scalar).name === "utcDateTime");
       ok((v3.properties.get("changed")!.type as Model).name === "MyDate");
     });
 
@@ -977,14 +977,14 @@ describe("versioning: logic", () => {
         ["v1", "v2", "v3"],
         `
         @returnTypeChangedFrom(Versions.v2, string)
-        @returnTypeChangedFrom(Versions.v3, zonedDateTime)  
+        @returnTypeChangedFrom(Versions.v3, utcDateTime)  
         op Test(): MyDate;
 
         model MyDate {};
         `
       );
       ok((v1.returnType as Scalar).name === "string");
-      ok((v2.returnType as Scalar).name === "zonedDateTime");
+      ok((v2.returnType as Scalar).name === "utcDateTime");
       ok((v3.returnType as Model).name === "MyDate");
     });
 
@@ -1227,7 +1227,7 @@ describe("versioning: logic", () => {
         `
         interface Test {
           @returnTypeChangedFrom(Versions.v2, string)
-          @returnTypeChangedFrom(Versions.v3, zonedDateTime)  
+          @returnTypeChangedFrom(Versions.v3, utcDateTime)  
           op foo(): MyDate;  
         }
 
@@ -1235,7 +1235,7 @@ describe("versioning: logic", () => {
         `
       );
       ok((v1.operations.get("foo")!.returnType as Scalar).name === "string");
-      ok((v2.operations.get("foo")!.returnType as Scalar).name === "zonedDateTime");
+      ok((v2.operations.get("foo")!.returnType as Scalar).name === "utcDateTime");
       ok((v3.operations.get("foo")!.returnType as Model).name === "MyDate");
     });
 
