@@ -171,7 +171,8 @@ export type IntrinsicScalarName =
   | "string"
   | "plainDate"
   | "plainTime"
-  | "zonedDateTime"
+  | "utcDateTime"
+  | "offsetDateTime"
   | "duration"
   | "boolean"
   | "url";
