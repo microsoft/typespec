@@ -534,7 +534,7 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 }
 
 // -- @dateFormat decorator ---------------------
-export type KnownDateFormat = "rfc1123" | "rfc7231" | "unixTimeStamp";
+export type KnownDateFormat = "rfc3339" | "rfc7231" | "unixTimeStamp";
 
 const dateFormatKey = createStateSymbol("dateFormat");
 export function $dateFormat(
