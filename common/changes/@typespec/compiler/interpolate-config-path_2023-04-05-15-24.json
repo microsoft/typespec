@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add helper `interpolatePath` for emitter to do additional interpolation on config properties",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

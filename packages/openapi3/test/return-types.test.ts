@@ -138,7 +138,7 @@ describe("openapi3: return types", () => {
         @statusCode code: "200" | "201";
       }
       model DateHeader {
-        @header date: zonedDateTime;
+        @header date: utcDateTime;
       }
       model Key {
         key: string;
@@ -167,7 +167,7 @@ describe("openapi3: return types", () => {
         @statusCode created: "201";
       }
       model DateHeader {
-        @header date: zonedDateTime;
+        @header date: utcDateTime;
       }
       model Key {
         key: string;

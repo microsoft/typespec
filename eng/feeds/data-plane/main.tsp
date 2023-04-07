@@ -41,7 +41,7 @@ model FakedSharedModel {
   tag: string;
 
   @doc("The created date.")
-  createdDate: zonedDateTime;
+  createdDate: utcDateTime;
 }
 
 interface Widgets {

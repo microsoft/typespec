@@ -171,7 +171,8 @@ export type IntrinsicScalarName =
   | "string"
   | "plainDate"
   | "plainTime"
-  | "zonedDateTime"
+  | "utcDateTime"
+  | "offsetDateTime"
   | "duration"
   | "boolean"
   | "url";
@@ -547,6 +548,11 @@ export interface Sym {
    * name).
    */
   readonly members?: SymbolTable;
+
+  /**
+   * Symbol table
+   */
+  readonly metatypeMembers?: SymbolTable;
 
   /**
    * For using symbols, this is the used symbol.
@@ -1019,6 +1025,7 @@ export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
   readonly id: IdentifierNode;
   readonly base: MemberExpressionNode | IdentifierNode;
+  readonly selector: "." | "::";
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {

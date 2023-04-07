@@ -9,7 +9,8 @@
     "**/CHANGELOG.md": true,
     "docs/spec.html": true,
     "common/config/rush/pnpm-lock.yaml": true,
-    "**/node_modules/**": true
+    "**/node_modules/**": true,
+    "packages/website/versioned_docs/**": true
   },
   "files.exclude": {
     "**/common/temp/**": true,
@@ -90,6 +91,7 @@
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
+  "mochaExplorer.parallel": false,
   "mochaExplorer.files": [
     "./packages/*/dist/test/**/*.test.js",
     "./packages/*/dist/test/**/*.e2e.js",

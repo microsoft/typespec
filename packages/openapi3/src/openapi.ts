@@ -27,6 +27,7 @@ import {
   getService,
   getSummary,
   ignoreDiagnostics,
+  interpolatePath,
   IntrinsicScalarName,
   IntrinsicType,
   isDeprecated,
@@ -144,7 +145,8 @@ export function resolveOptions(
   const fileType =
     resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
 
-  const outputFile = resolvedOptions["output-file"] ?? `openapi.${fileType}`;
+  const outputFile =
+    resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
   return {
     fileType,
     newLine: resolvedOptions["new-line"],
@@ -390,20 +392,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
-    const suffix = [];
-    if (multipleService) {
-      suffix.push(getNamespaceFullName(service.type));
-    }
-    if (version) {
-      suffix.push(version);
-    }
-    if (suffix.length === 0) {
-      return options.outputFile;
-    }
-
-    const extension = getAnyExtensionFromPath(options.outputFile);
-    const filenameWithoutExtension = options.outputFile.slice(0, -extension.length);
-    return `${filenameWithoutExtension}.${suffix.join(".")}${extension}`;
+    return interpolatePath(options.outputFile, {
+      "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
+      version,
+    });
   }
 
   async function emitOpenAPIFromVersion(
@@ -1456,7 +1448,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "boolean" };
       case "plainDate":
         return { type: "string", format: "date" };
-      case "zonedDateTime":
+      case "utcDateTime":
+      case "offsetDateTime":
         return { type: "string", format: "date-time" };
       case "plainTime":
         return { type: "string", format: "time" };
