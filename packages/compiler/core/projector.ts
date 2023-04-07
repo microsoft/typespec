@@ -100,7 +100,14 @@ export function createProjector(
     }
 
     scope.push(type);
-    type = applyPreProjection(type);
+
+    const preProjected = applyPreProjection(type);
+    if (preProjected !== type) {
+      projectedTypes.set(type, preProjected);
+      scope.pop();
+      return preProjected;
+    }
+
     let projected;
     switch (type.kind) {
       case "Namespace":
@@ -143,6 +150,7 @@ export function createProjector(
       default:
         projected = type;
     }
+
     scope.pop();
     return projected;
   }
@@ -625,12 +633,7 @@ export function createProjector(
           : projectionsByName[0].preTo;
 
       if (targetNode) {
-        const projected = checker.project(type, targetNode, projectionApplication.arguments);
-        if (projected !== type) {
-          // override the projected type cache with the returned type
-          projectedTypes.set(type, projected);
-          return projected;
-        }
+        return checker.project(type, targetNode, projectionApplication.arguments);
       }
     }
 
