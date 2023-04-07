@@ -60,8 +60,9 @@
     "vscode-languageserver": "~8.1.0",
     "lzutf8": "0.6.3",
     "debounce": "~1.2.1",
-    "swagger-ui": "~4.18.2",
-    "swagger-ui-react": "~4.18.2",
+    "swagger-ui": "~4.15.5",
+    "swagger-ui-react": "~4.15.5",
+    "swagger-client": "~3.18.5",
     "@fluentui/react-components": "~9.18.8",
     "@fluentui/react-icons": "~2.0.190",
     "recoil": "~0.7.6"
