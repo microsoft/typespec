@@ -87,6 +87,20 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
     );
   }
 
+  sort(refDoc.namespaces);
+  for (const namespace of refDoc.namespaces) {
+    sort(namespace.decorators);
+    sort(namespace.enums);
+    sort(namespace.interfaces);
+    sort(namespace.models);
+    sort(namespace.operations);
+    sort(namespace.unions);
+  }
+
+  function sort(arr: { id: string }[]) {
+    arr.sort((a, b) => a.id.localeCompare(b.id, "en"));
+  }
+
   return refDoc;
 }
 
