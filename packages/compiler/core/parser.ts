@@ -1207,20 +1207,33 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       message,
       recoverFromKeyword,
     });
-    while (parseOptional(Token.Dot)) {
-      base = {
-        kind: SyntaxKind.MemberExpression,
-        base,
-        // Error recovery: false arg here means don't treat a keyword as an
-        // identifier after `.` in member expression. Otherwise we will
-        // parse `@Outer.<missing identifier> model M{}` as having decorator
-        // `@Outer.model` applied to invalid statement `M {}` instead of
-        // having incomplete decorator `@Outer.` applied to `model M {}`.
-        id: parseIdentifier({
-          recoverFromKeyword: false,
-        }),
-        ...finishNode(pos),
-      };
+    while (token() !== Token.EndOfFile) {
+      if (parseOptional(Token.Dot)) {
+        base = {
+          kind: SyntaxKind.MemberExpression,
+          base,
+          // Error recovery: false arg here means don't treat a keyword as an
+          // identifier after `.` in member expression. Otherwise we will
+          // parse `@Outer.<missing identifier> model M{}` as having decorator
+          // `@Outer.model` applied to invalid statement `M {}` instead of
+          // having incomplete decorator `@Outer.` applied to `model M {}`.
+          id: parseIdentifier({
+            recoverFromKeyword: false,
+          }),
+          selector: ".",
+          ...finishNode(pos),
+        };
+      } else if (parseOptional(Token.ColonColon)) {
+        base = {
+          kind: SyntaxKind.MemberExpression,
+          base,
+          id: parseIdentifier(),
+          selector: "::",
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
     }
 
     return base;

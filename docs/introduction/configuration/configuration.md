@@ -185,7 +185,7 @@ options:
 
 ### `output-dir` - Configure the default output dir
 
-Specify which emitters to use and their options if applicable.
+Specify the common output-dir for all emitters. See [this](#output-directory-configuration) to configure per emitter.
 
 ```yaml
 output-dir: {cwd}/typespec-build
@@ -198,6 +198,8 @@ tsp compile . --output-dir "./typespec-build"
 ```
 
 Output dir must be an absolute path in the config. Use `{cwd}` or `{project-root}` to explicitly specify what it should be relative to.
+
+See [output directory configuration for mode details](#output-directory-configuration)
 
 ### `trace` - Configure what to trace
 
@@ -297,6 +299,8 @@ Represent the path where the emitter should be outputing the generated files.
 
 Default: `{output-dir}/{emitter-name}`
 
+See [output directory configuration for mode details](#output-directory-configuration)
+
 ## Emitter control cli flags
 
 ### `--no-emit`
@@ -343,4 +347,58 @@ Enable/Disable pretty logging(Colors, diagnostic preview, etc.).
 
 ```bash
 tsp compile . --pretty=false
+```
+
+## Output directory configuration
+
+Typespec compiler will provide a unique output directory for each emitter that is being run to reduce conflicts.
+By default the output-dir of an emitter is set to this value:
+
+```
+{output-dir}/{emitter-name}
+```
+
+where
+
+- `output-dir` is the compiler common `output-dir` that can be configured via `--output-dir`
+- `emitter-name` is the name of the emitter package(for example `@typespec/openapi3`)
+
+Example:
+Given the following emitters: `@typespec/openapi3` and `@typespec/jsonschema`, the default output folder structure would be
+
+```
+{project-root}/tsp-output:
+  @typespec:
+    openapi3
+      ... openapi3 files ...
+    jsonschema
+      ... json schema files ...
+```
+
+Changing the compiler `output-dir` with `--output-dir` or setting that value in the tspconfig.yaml would result in the following structure
+
+```
+--output-dir={cwd}/my-custom-output-dir
+
+{cwd}/my-custom-output-dir:
+  @typespec:
+    openapi3
+      ... openapi3 files ...
+    jsonschema
+      ... json schema files ...
+
+```
+
+Changing a specific emitter output-dir can be done by setting that emitter `emitter-output-dir` option
+
+```
+--option "@typespec/openapi3.output-dir={projectroot}/openapispec"
+
+{project-root}
+  openapispec:
+    ... openapi3 files ...
+  tsp-output:
+    @typespec:
+      jsonschema
+        ... json schema files ...
 ```
