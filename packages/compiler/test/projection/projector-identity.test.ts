@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { DecoratorContext, getTypeName, Namespace, Type } from "../../core/index.js";
+import { DecoratorContext, Namespace, Type, getTypeName } from "../../core/index.js";
 import { createProjector } from "../../core/projector.js";
 import { createTestHost, createTestRunner } from "../../testing/test-host.js";
 import { BasicTestRunner, TestHost } from "../../testing/types.js";

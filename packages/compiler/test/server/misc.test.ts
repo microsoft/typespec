@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { Node, parse, SyntaxKind, TypeSpecScriptNode } from "../../core/index.js";
+import { Node, SyntaxKind, TypeSpecScriptNode, parse } from "../../core/index.js";
 import { getCompletionNodeAtPosition } from "../../server/serverlib.js";
 import { extractCursor } from "../../testing/test-server-host.js";
 import { dumpAST } from "../parser.test.js";

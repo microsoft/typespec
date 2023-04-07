@@ -3,10 +3,10 @@ import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../core/types.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {

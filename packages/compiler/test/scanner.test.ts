@@ -4,14 +4,14 @@ import { URL } from "url";
 import { isIdentifierContinue, isIdentifierStart } from "../core/charcode.js";
 import { DiagnosticHandler, formatDiagnostic } from "../core/diagnostics.js";
 import {
-  createScanner,
-  isKeyword,
-  isPunctuation,
-  isStatementKeyword,
   KeywordLimit,
   Keywords,
   Token,
   TokenDisplay,
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  isStatementKeyword,
 } from "../core/scanner.js";
 
 type TokenEntry = [

@@ -2,15 +2,15 @@ import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
+  Token,
+  TokenDisplay,
+  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
   isTrivia,
-  Token,
-  TokenDisplay,
-  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,

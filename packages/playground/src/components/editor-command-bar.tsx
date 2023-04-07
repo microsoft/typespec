@@ -1,4 +1,4 @@
-import { Link, Tooltip, Toolbar, ToolbarButton } from "@fluentui/react-components";
+import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
 import { EmitterDropdown } from "./emitter-dropdown.js";
