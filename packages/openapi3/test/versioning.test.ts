@@ -1,5 +1,5 @@
 import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
-import { createTestWrapper } from "@typespec/compiler/testing";
+import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
@@ -174,5 +174,79 @@ describe("openapi3: versioning", () => {
         }
       }
     `);
+  });
+
+  describe("versioned resource", () => {
+    it("reports diagnostic without crashing for mismatched versions", async () => {
+      const runner = await createOpenAPITestRunner({ withVersioning: true });
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        @service
+        namespace DemoService;
+
+        enum Versions { 
+          v1, 
+          v2 
+        }
+
+        model Toy {
+          @key id: string;
+        }
+
+        @added(Versions.v2)
+        model Widget { 
+          @key id: string; 
+        }
+
+        @error
+        model Error {
+          message: string;
+        }
+
+        @route("/toys")
+        interface Toys extends Resource.ResourceOperations<Toy, Error> {}
+
+        @route("/widgets")
+        interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+
+    it("succeeds for aligned versions", async () => {
+      const runner = await createOpenAPITestRunner({ withVersioning: true });
+      await runner.compile(`
+        @versioned(Versions)
+        @service
+        namespace DemoService;
+
+        enum Versions { 
+          v1, 
+          v2 
+        }
+
+        model Toy {
+          @key id: string;
+        }
+
+        @added(Versions.v2)
+        model Widget { 
+          @key id: string; 
+        }
+
+        @error
+        model Error {
+          message: string;
+        }
+
+        @route("/toys")
+        interface Toys extends Resource.ResourceOperations<Toy, Error> {}
+
+        @added(Versions.v2)
+        @route("/widgets")
+        interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
+    `);
+    });
   });
 });

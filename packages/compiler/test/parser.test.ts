@@ -686,6 +686,8 @@ describe("compiler: parser", () => {
       parseEach([
         `projection model#v { to(version) { } }`,
         `projection model#foo{ from(bar, baz) { } }`,
+        `projection model#v { pre to(version) { } }`,
+        `projection model#foo{ pre from(bar, baz) { } }`,
       ]);
     });
     describe("projection expressions", () => {
@@ -745,10 +747,15 @@ describe("compiler: parser", () => {
         [`projection x#f`, [/'{' expected/]],
         [`projection x#f {`, [/'}' expected/]],
         [`projection x#f { asdf`, [/from or to expected/]],
+        [`projection x#f { pre asdf`, [/from or to expected/]],
         [`projection x#f { to (`, [/'\)' expected/]],
         [`projection x#f { to @`, [/'{' expected/]],
         [`projection x#f { to {`, [/} expected/]],
         [`projection x#f { to {}`, [/'}' expected/]],
+        [`projection x#f { pre to (`, [/'\)' expected/]],
+        [`projection x#f { pre to @`, [/'{' expected/]],
+        [`projection x#f { pre to {`, [/} expected/]],
+        [`projection x#f { pre to {}`, [/'}' expected/]],
       ]);
     });
   });

@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../core/types.js";
 import {
@@ -106,6 +106,10 @@ describe("compiler: interfaces", () => {
     const { Foo } = (await testHost.compile("./")) as {
       Foo: Interface;
     };
+    deepStrictEqual(
+      Foo.sourceInterfaces.map((i) => i.name),
+      ["Bar"]
+    );
     strictEqual(Foo.operations.size, 2);
     ok(Foo.operations.get("foo"));
     ok(Foo.operations.get("bar"));
@@ -129,6 +133,10 @@ describe("compiler: interfaces", () => {
     const { Foo } = (await testHost.compile("./")) as {
       Foo: Interface;
     };
+    deepStrictEqual(
+      Foo.sourceInterfaces.map((i) => i.name),
+      ["Bar", "Baz"]
+    );
     strictEqual(Foo.operations.size, 3);
     ok(Foo.operations.get("foo"));
     ok(Foo.operations.get("bar"));

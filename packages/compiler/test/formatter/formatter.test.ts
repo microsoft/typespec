@@ -1631,15 +1631,21 @@ model Foo {
   });
 
   describe("projections", () => {
-    it("format to and from", () => {
+    it("format projections", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to{} from {}}
+  {pre to{} to{} pre from {} from {}}
 `,
         expected: `
 projection model#proj {
+  pre to {
+
+  }
   to {
+
+  }
+  pre from {
 
   }
   from {
@@ -1650,17 +1656,34 @@ projection model#proj {
       });
     });
 
-    it("format to and from with args", () => {
+    it("format empty projection on single line", () => {
+      assertFormat({
+        code: `
+projection    model#proj    {
+
+}`,
+        expected: `
+projection model#proj {}`,
+      });
+    });
+
+    it("format projections with args", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to(   val) {} from(  
+  {pre to ( val ) {} to(   val) {} pre from(  
     
-    val) {}}
+    val) {} from (val  ){}
 `,
         expected: `
 projection model#proj {
+  pre to(val) {
+
+  }
   to(val) {
+
+  }
+  pre from(val) {
 
   }
   from(val) {
