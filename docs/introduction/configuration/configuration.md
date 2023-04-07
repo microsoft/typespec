@@ -87,6 +87,22 @@ Examples:
 - `{output-dir}/my-path`
 - `{env.SHARED_PATH}/my-path`
 
+### Emitter path config interpolation
+
+Some config of emitters can be interpolated using a special rule that will collapse a path.
+
+If a variable is followed by a `/` or `.` and the emitter interpolating the config doesn't provide that variable it will then omit the path segment.
+
+For example given the following config value: `{service-name}/output.{version}.json`
+The following would get produced
+
+| Service name value | Version value | Result                    |
+| ------------------ | ------------- | ------------------------- |
+| `"PetStore"`       | `"v1"`        | `PetStore/output.v1.json` |
+| `"PetStore"`       | `undefined`   | `PetStore/output.json`    |
+| `undefined`        | `"v1"`        | `output.v1.json`          |
+| `undefined`        | `undefined`   | `output.json`             |
+
 #### Built-in variables
 
 | Variable name  | Scope           | Description                                                                          |
