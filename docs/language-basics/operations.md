@@ -64,3 +64,20 @@ The operation template can then be referenced via `is`:
 ```typespec
 op readPet is ReadResource<Pet>;
 ```
+
+## Referencing model properties
+
+Model properties can be referenced using the `.` operator for identifiers.
+
+```tsp
+alias PetName = Pet.name;
+```
+
+## Meta type references
+
+Some operation meta types can be referenced using `::`
+
+| Name       | Example               | Description                               |
+| ---------- | --------------------- | ----------------------------------------- |
+| parameters | `readPet::parameters` | Reference the parameters model expression |
+| returnType | `readPet::returnType` | Reference the operation return type       |

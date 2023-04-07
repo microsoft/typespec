@@ -67,7 +67,6 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       for (const decorator of namespace.decorators) {
         listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
       }
-      listContent.sort();
       content.push(...listContent);
     }
 
@@ -77,7 +76,6 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       for (const iface of namespace.interfaces) {
         listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
       }
-      listContent.sort();
       content.push(...listContent);
     }
 
@@ -87,7 +85,6 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       for (const operation of namespace.operations) {
         listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
       }
-      listContent.sort();
       content.push(...listContent);
     }
 
@@ -97,7 +94,6 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
       for (const model of namespace.models) {
         listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
       }
-      listContent.sort();
       content.push(...listContent);
     }
   }
@@ -129,7 +125,6 @@ export function renderDecoratorFile(
       if (namespace.decorators.length === 0) {
         return undefined;
       }
-
       const content = [];
       for (const dec of namespace.decorators) {
         content.push(renderDecoratorMarkdown(dec), "");

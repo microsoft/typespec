@@ -550,6 +550,11 @@ export interface Sym {
   readonly members?: SymbolTable;
 
   /**
+   * Symbol table
+   */
+  readonly metatypeMembers?: SymbolTable;
+
+  /**
    * For using symbols, this is the used symbol.
    */
   readonly symbolSource?: Sym;
@@ -1020,6 +1025,7 @@ export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
   readonly id: IdentifierNode;
   readonly base: MemberExpressionNode | IdentifierNode;
+  readonly selector: "." | "::";
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {

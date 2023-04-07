@@ -1,3 +1,4 @@
+import { interpolatePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
@@ -46,10 +47,6 @@ export async function createOpenAPITestRunner({
   });
 }
 
-function versionedOutput(path: string, version: string) {
-  return path.replace(".json", "." + version + ".json");
-}
-
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const runner = await createOpenAPITestRunner();
   const diagnostics = await runner.diagnose(code, {
@@ -65,7 +62,7 @@ export async function openApiFor(
   options: OpenAPI3EmitterOptions = {}
 ) {
   const host = await createOpenAPITestHost();
-  const outPath = resolveVirtualPath("openapi.json");
+  const outPath = resolveVirtualPath("{version}.openapi.json");
   host.addTypeSpecFile(
     "./main.tsp",
     `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3"; ${
@@ -80,11 +77,11 @@ export async function openApiFor(
   expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
 
   if (!versions) {
-    return JSON.parse(host.fs.get(outPath)!);
+    return JSON.parse(host.fs.get(resolveVirtualPath("openapi.json"))!);
   } else {
     const output: any = {};
     for (const version of versions) {
-      output[version] = JSON.parse(host.fs.get(versionedOutput(outPath, version))!);
+      output[version] = JSON.parse(host.fs.get(interpolatePath(outPath, { version: version }))!);
     }
     return output;
   }
