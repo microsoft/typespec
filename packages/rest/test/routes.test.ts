@@ -1,7 +1,13 @@
 import { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
+import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";
-import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
+import {
+  compileOperations,
+  createRestTestRunner,
+  getOperations,
+  getRoutesFor,
+} from "./test-host.js";
 
 describe("rest: routes", () => {
   it("always produces a route starting with /", async () => {
@@ -440,5 +446,22 @@ describe("rest: routes", () => {
       { verb: "get", path: "/things", params: [] },
       { verb: "put", path: "/things/{thingId}", params: ["thingId"] },
     ]);
+  });
+
+  it("@autoRoute operations can also be shared routes", async () => {
+    const runner = await createRestTestRunner();
+    const { get1, get2 } = (await runner.compile(`
+      @test
+      @autoRoute
+      @sharedRoute
+      op get1(@path name: string): string;
+
+      @test
+      @autoRoute
+      op get2(@path name: string): string;
+    `)) as { get1: Operation; get2: Operation };
+
+    strictEqual(isSharedRoute(runner.program, get1), true);
+    strictEqual(isSharedRoute(runner.program, get2), false);
   });
 });
