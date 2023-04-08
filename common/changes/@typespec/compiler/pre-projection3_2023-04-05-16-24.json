@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Provide access to extended interfaces in type graph.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

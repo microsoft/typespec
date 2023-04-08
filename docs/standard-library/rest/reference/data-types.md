@@ -8,13 +8,117 @@ toc_max_heading_level: 3
 
 ## TypeSpec.Rest.Resource
 
-### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
-The default error response for resource operations.
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
 ```typespec
-model TypeSpec.Rest.Resource.ResourceError
+model CollectionWithNextLink<T>
 ```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
 
 ### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 
@@ -40,18 +144,6 @@ model ParentKeysOf<T>
 | ---- | ----------- |
 | T    |             |
 
-### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
-
-```typespec
-model ResourceParameters<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
 ### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
 
 ```typespec
@@ -76,10 +168,322 @@ model ResourceCreatedResponse<T>
 | ---- | ----------- |
 | T    |             |
 
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| T    |             |
+
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
 ```typespec
 model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description |
+| --------- | ----------- |
+| TResource |             |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
 ```
 
 #### Template Parameters
@@ -108,26 +512,18 @@ Resource deleted successfully.
 model TypeSpec.Rest.Resource.ResourceDeletedResponse
 ```
 
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
 
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
+The default error response for resource operations.
 
 ```typespec
-model CollectionWithNextLink<T>
+model TypeSpec.Rest.Resource.ResourceError
 ```
 
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
 
 ```typespec
-model ResourceCreateModel<TResource>
+model ResourceParameters<TResource>
 ```
 
 #### Template Parameters
@@ -135,399 +531,3 @@ model ResourceCreateModel<TResource>
 | Name      | Description |
 | --------- | ----------- |
 | TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
-
-```typespec
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
-
-```typespec
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
-
-```typespec
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
-
-```typespec
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
-
-```typespec
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
-
-```typespec
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
-
-```typespec
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
-
-```typespec
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
-
-```typespec
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
-
-```typespec
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```typespec
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
-
-```typespec
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
-
-```typespec
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
-
-```typespec
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
