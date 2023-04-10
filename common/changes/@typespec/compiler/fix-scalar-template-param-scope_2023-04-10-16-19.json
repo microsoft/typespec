@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: `scalar` template parameter name conclict with each other",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
