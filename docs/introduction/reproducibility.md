@@ -31,4 +31,4 @@ Using version control and pining to a specific commit sha will ensure that the s
 
 1. Use `package-lock.json`
 2. Use [versioning library](../standard-library/versioning/overview.md)
-3. Keep track of commit ids
+3. Keep track of commit IDs
