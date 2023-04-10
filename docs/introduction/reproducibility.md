@@ -8,7 +8,7 @@ A key point to service definition is the ability to reliably reproduce the exact
 
 This can be mitigated with a few steps:
 
-## 1. Defend against dependencies changes
+## 1. Defend against dependency changes
 
 _Note: This section applies if using `cadl install` or `npm install` to install dependencies. However other package manager (`yarn`, `pnpm`, etc.) have their own similar lock mechanism._
 
