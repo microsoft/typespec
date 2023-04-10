@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix: `scalar` template parameter name conclict with each other",
+      "comment": "Fix: `scalar` template parameter name conflict with each other",
       "type": "none"
     }
   ],
