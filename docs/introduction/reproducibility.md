@@ -18,7 +18,7 @@ The command `npm ci` can also be used in the CI to ensure that the `package.json
 
 ## 2. Work with multiple versions of a service
 
-TypeSpec provide a library `@typespec/versioning` that can be used to describe changes to a service or library over time. Using this will ensure that a service can evolve while keeping track of the changes and allowing emitters to see the service representation at different version.
+TypeSpec provides a library `@typespec/versioning` that can be used to describe changes to a service or library over time. Using this will ensure that a service can evolve while keeping track of the changes and allowing emitters to see the service representation at different versions.
 
 [See versioning docs](../standard-library/versioning/overview.md)
 
