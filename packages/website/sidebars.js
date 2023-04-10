@@ -36,6 +36,7 @@ const sidebars = {
         "introduction/usage",
         "introduction/style-guide",
         "introduction/formatter",
+        "introduction/reproducibility",
         {
           type: "category",
           label: "Configuration",
