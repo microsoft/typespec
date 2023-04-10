@@ -1,6 +1,6 @@
 # Reproducibility
 
-A key point to service definition is the ability to reliably reproduce the exact same output over time. In case like
+A key point to service definition is the ability to reliably reproduce the exact same output over time. In cases like:
 
 1. A dependency or dependency of dependency was updated with an unintended breaking change
 2. Changes to a new version of a service shouldn't affect the older versions
