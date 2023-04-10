@@ -400,22 +400,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   /**
-   * Returns the parameter with the given name, if found.
-   */
-  function getParameterWithName(
-    parameters: HttpOperationParameter[],
-    name: string
-  ): HttpOperationParameter | undefined {
-    return parameters.find((p) => p.name === name);
-  }
-
-  /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
   function validateCommonResponses(
     ops: HttpOperation[],
-    statusCode: string,
-    totalOps: number
+    statusCode: string
   ): HttpOperationResponse[] {
     const statusCodeResponses: HttpOperationResponse[] = [];
     for (const op of ops) {
@@ -439,11 +428,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   /**
    * Validates that common bodies are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonBodies(
-    ops: HttpOperation[],
-    name: string,
-    totalOps: number
-  ): HttpOperationRequestBody[] | undefined {
+  function validateCommonBodies(ops: HttpOperation[]): HttpOperationRequestBody[] | undefined {
     const bodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
     const ref = bodies[0];
     const sameOptionality = bodies.every((b) => b.parameter?.optional === ref.parameter?.optional);
@@ -468,7 +453,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const finalParams: HttpOperationParameter[] = [];
     const commonParams: HttpOperationParameter[] = [];
     for (const op of ops) {
-      const param = getParameterWithName(op.parameters.parameters, name);
+      const param = op.parameters.parameters.find((p) => p.name === name);
       if (param) {
         commonParams.push(param);
       }
@@ -572,11 +557,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const commonParams = validateCommonParameters(ops, paramName, totalOps);
       shared.parameters.parameters.push(...commonParams);
     }
-    for (const [paramName, ops] of bodyMap) {
-      shared.bodies = validateCommonBodies(ops, paramName, totalOps);
+    for (const [_, ops] of bodyMap) {
+      shared.bodies = validateCommonBodies(ops);
     }
     for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(ops, statusCode, totalOps));
+      shared.responses.set(statusCode, validateCommonResponses(ops, statusCode));
     }
     results.push(shared);
     return results;
