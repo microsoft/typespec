@@ -94,7 +94,6 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
-import assert from "assert";
 import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
@@ -427,7 +426,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
     const ref = statusCodeResponses[0];
-    assert(statusCodeResponses.length === totalOps);
     const sameTypeKind = statusCodeResponses.every((r) => r.type.kind === ref.type.kind);
     const sameTypeValue = statusCodeResponses.every((r) => r.type === ref.type);
     if (sameTypeKind && sameTypeValue) {
@@ -448,8 +446,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ): HttpOperationRequestBody[] | undefined {
     const bodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
     const ref = bodies[0];
-    assert(ops.every((op) => op.parameters.body?.parameter?.name === name));
-    assert(ops.length === totalOps);
     const sameOptionality = bodies.every((b) => b.parameter?.optional === ref.parameter?.optional);
     const sameTypeKind = bodies.every((b) => b.parameter?.type.kind === ref.parameter?.type.kind);
     const sameTypeValue = bodies.every((b) => b.parameter?.type === ref.parameter?.type);
@@ -524,10 +520,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
     const results: SharedHttpOperation[] = [];
-
-    assert(operations.every((op) => op.path === operations[0].path));
-    assert(operations.every((op) => op.verb === operations[0].verb));
-
     const paramMap = new Map<string, HttpOperation[]>();
     const bodyMap = new Map<string, HttpOperation[]>();
     const responseMap = new Map<string, HttpOperation[]>();
