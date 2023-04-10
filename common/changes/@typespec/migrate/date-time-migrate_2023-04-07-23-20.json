@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Add migrate script for zonedDateTime",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}
