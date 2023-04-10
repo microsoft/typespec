@@ -25,7 +25,7 @@ TypeSpec provides a library `@typespec/versioning` that can be used to describe 
 ## 3. Change to the TypeSpec spec
 
 If you don't directly control the spec, you might still want to make sure you remember which exact definition was used.
-Using version control and pining to a specific commit sha will ensure that the spec will remain exactly as it was.
+Using version control and pinning to a specific commit SHA will ensure that the spec will remain exactly as it was.
 
 ## Summary
 
