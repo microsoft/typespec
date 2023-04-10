@@ -51,8 +51,11 @@ describe("compiler: scalars", () => {
   // https://github.com/microsoft/typespec/issues/1764
   it("template parameter are scoped to the scalar", async () => {
     const { A, B } = await runner.compile(`
-      @test @doc(T) scalar<T> A;
-      @test @doc(T) scalar<T> B;
+      @test @doc(T) scalar A<T extends string>;
+      @test @doc(T) scalar B<T extends string>;
+
+      alias AIns = A<"">;
+      alias BIns = B<"">;
     `);
 
     strictEqual(A.kind, "Scalar" as const);
