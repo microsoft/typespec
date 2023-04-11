@@ -1083,7 +1083,11 @@ export function createChecker(program: Program): Checker {
       return sym.type as TemplatedType;
     }
 
-    return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+    if (sym.flags & SymbolFlags.Member) {
+      return checkMemberSym(sym, mapper) as TemplatedType;
+    } else {
+      return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+    }
   }
 
   /**
