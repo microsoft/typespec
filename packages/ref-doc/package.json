@@ -51,11 +51,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "~0.42.0",
+    "@typespec/compiler": "~0.43.0",
     "prettier": "~2.8.1"
   },
   "devDependencies": {
-    "@typespec/compiler": "~0.42.0",
+    "@typespec/compiler": "~0.43.0",
     "@typespec/eslint-config-typespec": "~0.6.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
