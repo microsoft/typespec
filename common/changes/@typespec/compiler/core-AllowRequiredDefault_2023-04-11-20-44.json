@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Allow use of defaults on non-optional properties.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
