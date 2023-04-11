@@ -2,6 +2,27 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.43.0",
+      "tag": "@typespec/openapi3_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Support shared routes."
+          },
+          {
+            "comment": "Update to use new `interpolatePath` logic to resolve the `output-file`"
+          },
+          {
+            "comment": "Add tests for overloads within interfaces"
+          },
+          {
+            "comment": "Support new datetime types"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/openapi3_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",
