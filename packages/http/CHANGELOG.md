@@ -1,6 +1,13 @@
 # Change Log - @typespec/http
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- **Breaking change** `@header` and `@query` no longer default the `format` to `csv` and `multi` respectively. A value must now be provided when the type is an array.
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT
