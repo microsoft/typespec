@@ -106,6 +106,12 @@ const libDefinition = {
         default: "shared parameter must be a boolean.",
       },
     },
+    "shared-inconsistency": {
+      severity: "error",
+      messages: {
+        default: "All shared routes must agree on the value of the shared parameter.",
+      },
+    },
     "write-visibility-not-supported": {
       severity: "warning",
       messages: {

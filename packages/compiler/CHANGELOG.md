@@ -1,6 +1,29 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Bug: Emitter framework will now visit scalar declarations
+- Emit diagnostic when ambiguous symbol exists between global and usings.
+- Feature: Add support for referencing metatypes ModelProperty `::type` and Operation `::returnType` and `::parameters`
+- Relax constraint on derived type overrides
+- Fix: Alias unknown ref crash
+- Fix: Empty model expression assignable to array
+- Fix `tsp code uninstall` not finding extension to uninstall.
+- Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation.
+- Prevent use of augment decorators on instantiated templates.
+- Allow projectedNames helpers to work with previous projections
+- Add helper `interpolatePath` for emitter to do additional interpolation on config properties
+- Api: Update `getTypeName` to omit standard library namespace
+- Allow overloads in interfaces to work under projection
+- Add pre-projection support.
+- Provide access to extended interfaces in type graph.
+- Document member ordering and fix projection rename reordering.
+- Replaced zonedDateTime with utcDateTime and offsetDateTime
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT

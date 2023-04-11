@@ -235,6 +235,31 @@ dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | Typ
 | ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
 | queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
+### `@route` {#@TypeSpec.Http.route}
+
+`@route` defines the relative route URI for the target operation
+
+The first argument should be a URI fragment that may contain one or more path parameter fields.
+If the namespace or interface that contains the operation is also marked with a `@route` decorator,
+it will be used as a prefix to the route URI of the operation.
+
+`@route` can only be applied to operations, namespaces, and interfaces.
+
+```typespec
+dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: object)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+
+| Name       | Type            | Description                                                                                                                                           |
+| ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| path       | `scalar string` | Relative route path. Cannot include query parameters.                                                                                                 |
+| parameters | `model object`  | Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+
 ### `@server` {#@TypeSpec.Http.server}
 
 Specify the endpoint for this service.
@@ -251,8 +276,8 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 
 | Name        | Type            | Description                                             |
 | ----------- | --------------- | ------------------------------------------------------- |
-| url         | `scalar string` | Description of the endpoint                             |
-| description | `scalar string` |                                                         |
+| url         | `scalar string` | Server endpoint                                         |
+| description | `scalar string` | Description of the endpoint                             |
 | parameters  | `model object`  | Optional set of parameters used to interpolate the url. |
 
 ### `@statusCode` {#@TypeSpec.Http.statusCode}

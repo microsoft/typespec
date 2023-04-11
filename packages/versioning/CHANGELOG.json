@@ -2,6 +2,27 @@
   "name": "@typespec/versioning",
   "entries": [
     {
+      "version": "0.43.0",
+      "tag": "@typespec/versioning_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: Issue with using version as a template parameter across different namespace. Include a significant change in the versioning library internals."
+          },
+          {
+            "comment": "Use pre-projections to fix issues with versioned resources."
+          },
+          {
+            "comment": "support new datetime types"
+          },
+          {
+            "comment": "Removed deprecated decorator @versionedDependency and deprecated versioning helper methods: getRenamedFromVersion, getRenamedFromOldName, getAddedOn, getRemovedOn, addedAfter, removedOnOrBefore, and renamedAfter."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/versioning_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",

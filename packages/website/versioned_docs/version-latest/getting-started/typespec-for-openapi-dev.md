@@ -33,7 +33,8 @@ The following table shows how common OpenAPI types map to TypeSpec types:
 | `type: string, format: binary`    | `bytes`          | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
 | `type: boolean`                   | `boolean`        |                                                                           |
 | `type: string, format: date`      | `plainDate`      |                                                                           |
-| `type: string, format: date-time` | `zonedDateTime`  | RFC 3339 date                                                             |
+| `type: string, format: date-time` | `utcDateTime`    | RFC 3339 date in coordinated universal time (UTC)                         |
+| `type: string, format: date-time` | `offsetDateTime` | RFC 3339 date with offset                                                 |
 | `type: string, format: password`  | `@secret string` |                                                                           |
 
 OpenAPI supports a variety of "assertions" that can be used further restrict the values allowed for a data type.
