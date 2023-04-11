@@ -4627,7 +4627,6 @@ export function createChecker(program: Program): Checker {
     if (source === target) return [true, []];
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
-
     if (isSimpleTypeRelated === true) {
       return [true, []];
     } else if (isSimpleTypeRelated === false) {
@@ -4644,7 +4643,27 @@ export function createChecker(program: Program): Checker {
       return [true, []];
     }
 
-    if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
+    if (
+      target.kind === "Model" &&
+      source.kind === "Model" &&
+      target.indexer === undefined &&
+      source.indexer &&
+      source.indexer.key.name === "integer"
+    ) {
+      return [
+        false,
+        [
+          createDiagnostic({
+            code: "missing-index",
+            format: {
+              indexType: getTypeName(source.indexer.key),
+              sourceType: getTypeName(target),
+            },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    } else if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
       return isIndexerValid(source, target as Model & { indexer: ModelIndexer }, diagnosticTarget);
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget);

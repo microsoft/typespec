@@ -549,6 +549,7 @@ describe("compiler: checker: type relations", () => {
     it("can assign empty object", async () => {
       await expectTypeAssignable({ source: "{}", target: "{}" });
     });
+
     it("can assign object with the same property", async () => {
       await expectTypeAssignable({ source: "{name: string}", target: "{name: string}" });
     });
@@ -594,6 +595,26 @@ describe("compiler: checker: type relations", () => {
           code: "missing-property",
           message:
             "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+        }
+      );
+    });
+
+    it("emit diagnostic when assigning array to object", async () => {
+      await expectTypeNotAssignable(
+        { source: `string[]`, target: `object` },
+        {
+          code: "missing-index",
+          message: "Index signature for type 'integer' is missing in type 'object'.",
+        }
+      );
+    });
+
+    it("emit diagnostic when assigning union of array to object", async () => {
+      await expectTypeNotAssignable(
+        { source: `string[] | int32[]`, target: `object` },
+        {
+          code: "unassignable",
+          message: "Type 'string[] | int32[]' is not assignable to type 'object'",
         }
       );
     });
