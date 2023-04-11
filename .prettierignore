@@ -35,6 +35,7 @@ spec.emu.html
 docs/**/reference/
 docs/standard-library/built-in-decorators.md
 packages/website/versioned_docs/**/reference/
+packages/website/versioned_docs/**/standard-library/built-in-decorators.md
 
 #.tsp init template
 eng/feeds/
