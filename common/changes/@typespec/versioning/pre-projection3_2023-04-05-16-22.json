@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Use pre-projections to fix issues with versioned resources.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

@@ -38,7 +38,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
         <EmitterDropdown />
         {documentation}
         <div css={{ flex: "1" }}></div>
-        <Tooltip content="Save" relationship="description" withArrow>
+        <Tooltip content="File Bug Report" relationship="description" withArrow>
           <ToolbarButton
             appearance="subtle"
             aria-label="File Bug Report"

@@ -290,10 +290,13 @@ export function createChecker(program: Program): Checker {
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
+    ["ModelProperty", []],
     ["Union", []],
+    ["UnionVariant", []],
     ["Operation", []],
     ["Interface", []],
     ["Enum", []],
+    ["EnumMember", []],
   ]);
   const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
   // whether we've checked this specific projection statement before
@@ -301,7 +304,7 @@ export function createChecker(program: Program): Checker {
   const processedProjections = new Set<ProjectionStatementNode>();
 
   // interpreter state
-  let currentProjectionDirection: "to" | "from" | undefined;
+  let currentProjectionDirection: "to" | "from" | "pre_to" | "pre_from" | undefined;
   /**
    * Set keeping track of node pending type resolution.
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
@@ -349,7 +352,7 @@ export function createChecker(program: Program): Checker {
     cloneType,
     resolveIdentifier,
     resolveCompletions,
-    evalProjection: evalProjectionStatement,
+    evalProjection,
     project,
     neverType,
     errorType,
@@ -3347,6 +3350,7 @@ export function createChecker(program: Program): Checker {
       decorators: [],
       node,
       namespace: getParentNamespaceType(node),
+      sourceInterfaces: [],
       operations: createRekeyableMap(),
       name: node.id.sv,
     });
@@ -3384,6 +3388,7 @@ export function createChecker(program: Program): Checker {
 
         interfaceType.operations.set(newMember.name, newMember);
       }
+      interfaceType.sourceInterfaces.push(extendsType);
     }
 
     for (const [key, value] of ownMembers) {
@@ -3915,6 +3920,10 @@ export function createChecker(program: Program): Checker {
         projectionsByTypeKind.get("Model")!.push(node);
         type.nodeByKind.set("Model", node);
         break;
+      case SyntaxKind.ProjectionModelPropertySelector:
+        projectionsByTypeKind.get("ModelProperty")!.push(node);
+        type.nodeByKind.set("ModelProperty", node);
+        break;
       case SyntaxKind.ProjectionOperationSelector:
         projectionsByTypeKind.get("Operation")!.push(node);
         type.nodeByKind.set("Operation", node);
@@ -3923,6 +3932,10 @@ export function createChecker(program: Program): Checker {
         projectionsByTypeKind.get("Union")!.push(node);
         type.nodeByKind.set("Union", node);
         break;
+      case SyntaxKind.ProjectionUnionVariantSelector:
+        projectionsByTypeKind.get("UnionVariant")!.push(node);
+        type.nodeByKind.set("UnionVariant", node);
+        break;
       case SyntaxKind.ProjectionInterfaceSelector:
         projectionsByTypeKind.get("Interface")!.push(node);
         type.nodeByKind.set("Interface", node);
@@ -3930,6 +3943,10 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ProjectionEnumSelector:
         projectionsByTypeKind.get("Enum")!.push(node);
         type.nodeByKind.set("Enum", node);
+        break;
+      case SyntaxKind.ProjectionEnumMemberSelector:
+        projectionsByTypeKind.get("EnumMember")!.push(node);
+        type.nodeByKind.set("EnumMember", node);
         break;
       default:
         const projected = checkTypeReference(node.selector, undefined);
@@ -4247,7 +4264,11 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function evalProjectionStatement(node: ProjectionNode, target: Type, args: Type[]): Type {
+  function evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type {
+    if (node.direction === "<error>") {
+      throw new ProjectionError("Cannot evaluate projection with invalid direction.");
+    }
+
     let topLevelProjection = false;
     if (!currentProjectionDirection) {
       topLevelProjection = true;
@@ -4550,7 +4571,7 @@ export function createChecker(program: Program): Checker {
     projection: ProjectionNode,
     args: (Type | boolean | string | number)[] = []
   ) {
-    return evalProjectionStatement(
+    return evalProjection(
       projection,
       target,
       args.map((x) => marshalProjectionReturn(x))

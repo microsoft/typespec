@@ -231,14 +231,20 @@ export function printNode(
       return printProjectionStatement(path as AstPath<ProjectionStatementNode>, options, print);
     case SyntaxKind.ProjectionModelSelector:
       return "model";
+    case SyntaxKind.ProjectionModelPropertySelector:
+      return "modelproperty";
     case SyntaxKind.ProjectionOperationSelector:
       return "op";
     case SyntaxKind.ProjectionUnionSelector:
       return "union";
+    case SyntaxKind.ProjectionUnionVariantSelector:
+      return "unionvariant";
     case SyntaxKind.ProjectionInterfaceSelector:
       return "interface";
     case SyntaxKind.ProjectionEnumSelector:
       return "enum";
+    case SyntaxKind.ProjectionEnumMemberSelector:
+      return "enummember";
     case SyntaxKind.Projection:
       return printProjection(path as AstPath<ProjectionNode>, options, print);
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -1348,20 +1354,17 @@ function printProjectionStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
   const selector = path.call(print, "selector");
   const id = path.call(print, "id");
-  const to = node.to ? [hardline, path.call(print, "to")] : "";
-  const from = node.from ? [hardline, path.call(print, "from")] : "";
-  const body = [to, from];
+  const projections = path.map(print, "projections").flatMap((x) => [hardline, x]);
   return [
     "projection ",
     selector,
     "#",
     id,
     " {",
-    indent(body),
-    node.to || node.from ? hardline : "",
+    indent(projections),
+    projections.length > 0 ? hardline : "",
     "}",
   ];
 }
@@ -1374,7 +1377,15 @@ function printProjection(
   const node = path.getValue();
   const params = printProjectionParameters(path, options, print);
   const body = printProjectionExpressionStatements(path, options, print, "body");
-  return [node.direction, params, " {", indent(body), hardline, "}"];
+  return [
+    ...node.modifierIds.flatMap((i) => [i.sv, " "]),
+    node.directionId.sv,
+    params,
+    " {",
+    indent(body),
+    hardline,
+    "}",
+  ];
 }
 
 function printProjectionParameters(
