@@ -66,8 +66,8 @@
     "mocha-multi-reporters": "~1.5.1",
     "mocha": "~10.2.0",
     "rimraf": "~4.4.1",
-    "typedoc-plugin-markdown": "~3.14.0",
-    "typedoc": "~0.23.23",
+    "typedoc-plugin-markdown": "~3.15.1",
+    "typedoc": "~0.24.1",
     "typescript": "~5.0.2"
   }
 }
