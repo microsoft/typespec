@@ -129,18 +129,19 @@ a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema
 
 The following table shows how TypeSpec types are translated to JSON Schema types:
 
-| TypeSpec type   | OpenAPI `type`/`format`           | Notes                                                                     |
-| --------------- | --------------------------------- | ------------------------------------------------------------------------- |
-| `int32`         | `type: integer, format: int32`    |                                                                           |
-| `int64`         | `type: integer, format: int64`    |                                                                           |
-| `float32`       | `type: number, format: float`     |                                                                           |
-| `float64`       | `type: number, format: double`    |                                                                           |
-| `string`        | `type: string`                    |                                                                           |
-| `bytes`         | `type: string, format: byte`      | for content-type == 'application/json' or 'text/plain'                    |
-| `bytes`         | `type: string, format: binary`    | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
-| `boolean`       | `type: boolean`                   |                                                                           |
-| `plainDate`     | `type: string, format: date`      |                                                                           |
-| `zonedDateTime` | `type: string, format: date-time` | RFC 3339 date                                                             |
+| TypeSpec type    | OpenAPI `type`/`format`           | Notes                                                                     |
+| ---------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| `int32`          | `type: integer, format: int32`    |                                                                           |
+| `int64`          | `type: integer, format: int64`    |                                                                           |
+| `float32`        | `type: number, format: float`     |                                                                           |
+| `float64`        | `type: number, format: double`    |                                                                           |
+| `string`         | `type: string`                    |                                                                           |
+| `bytes`          | `type: string, format: byte`      | for content-type == 'application/json' or 'text/plain'                    |
+| `bytes`          | `type: string, format: binary`    | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
+| `boolean`        | `type: boolean`                   |                                                                           |
+| `plainDate`      | `type: string, format: date`      |                                                                           |
+| `utcDateTime`    | `type: string, format: date-time` | RFC 3339 date in coordinated universal time (UTC)                         |
+| `offsetDateTime` | `type: string, format: date-time` | RFC 3339 date with timezone offset                                        |
 
 There are a variety of decorators that can modify or add metadata to the definitions produced in the generated OpenAPI.
 

@@ -102,9 +102,9 @@ model Body<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                              |
+| ---- | ---------------------------------------- |
+| T    | The type of the model's `body` property. |
 
 ### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
 
@@ -220,9 +220,9 @@ model PlainData<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                            |
+| ---- | -------------------------------------- |
+| T    | The model to spread as the plain data. |
 
 ### `QueryOptions` {#TypeSpec.Http.QueryOptions}
 
@@ -234,15 +234,17 @@ model TypeSpec.Http.QueryOptions
 
 ### `Response` {#TypeSpec.Http.Response}
 
+Describes an HTTP response.
+
 ```typespec
 model Response<Status>
 ```
 
 #### Template Parameters
 
-| Name   | Description |
-| ------ | ----------- |
-| Status |             |
+| Name   | Description                      |
+| ------ | -------------------------------- |
+| Status | The status code of the response. |
 
 ### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
 

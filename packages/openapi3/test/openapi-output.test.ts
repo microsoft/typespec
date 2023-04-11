@@ -88,6 +88,7 @@ describe("openapi3: operations", () => {
       `
     );
 
+    strictEqual(res.paths["/"].get.operationId, "read");
     deepStrictEqual(res.paths["/"].get.parameters[0].schema.default, "defaultValue");
   });
 
@@ -108,6 +109,9 @@ describe("openapi3: operations", () => {
     );
 
     const getThing = res.paths["/thing/{name}"].get;
+
+    strictEqual(getThing.operationId, "getThing");
+
     ok(getThing);
     ok(getThing.parameters[0].schema);
     ok(getThing.parameters[0].schema.pattern);
