@@ -4823,7 +4823,7 @@ export function createChecker(program: Program): Checker {
                 indexType: getTypeName(target.indexer.key),
                 sourceType: getTypeName(source),
               },
-              target,
+              target: diagnosticTarget,
             }),
           ],
         ];
