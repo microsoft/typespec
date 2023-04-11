@@ -82,7 +82,7 @@
     "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.13.0",
     "@playwright/test": "~1.32.2",
-    "rimraf": "~4.4.1",
+    "rimraf": "~5.0.0",
     "cross-env": "~7.0.3",
     "typescript": "~5.0.2",
     "@types/debounce": "~1.2.1",

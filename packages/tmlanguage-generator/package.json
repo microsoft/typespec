@@ -41,7 +41,7 @@
     "@types/plist": "~3.0.2",
     "@typespec/eslint-config-typespec": "~0.6.0",
     "eslint": "^8.36.0",
-    "rimraf": "~4.4.1",
+    "rimraf": "~5.0.0",
     "typescript": "~5.0.2"
   }
 }
