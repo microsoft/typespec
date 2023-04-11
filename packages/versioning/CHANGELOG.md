@@ -1,6 +1,16 @@
 # Change Log - @typespec/versioning
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Fix: Issue with using version as a template parameter across different namespace. Include a significant change in the versioning library internals.
+- Use pre-projections to fix issues with versioned resources.
+- support new datetime types
+- Removed deprecated decorator @versionedDependency and deprecated versioning helper methods: getRenamedFromVersion, getRenamedFromOldName, getAddedOn, getRemovedOn, addedAfter, removedOnOrBefore, and renamedAfter.
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT
