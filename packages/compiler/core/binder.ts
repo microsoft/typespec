@@ -572,6 +572,7 @@ export function createBinder(program: Program): Binder {
 function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
     case SyntaxKind.AliasStatement:
     case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:
