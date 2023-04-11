@@ -2974,8 +2974,8 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "unsupported-default",
-          format: { type: type.kind },
-          target: defaultType,
+          format: { type: defaultType.kind },
+          target: defaultNode,
         })
       );
       return errorType;
