@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Array shouldn't be assignable to `object`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
