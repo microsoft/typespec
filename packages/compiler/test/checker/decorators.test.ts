@@ -2,10 +2,10 @@ import { ok, strictEqual } from "assert";
 import { setTypeSpecNamespace } from "../../core/index.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: checker: decorators", () => {

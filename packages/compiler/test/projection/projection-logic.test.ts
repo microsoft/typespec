@@ -17,7 +17,7 @@ import {
   Union,
 } from "../../core/types.js";
 import { getDoc } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost } from "../../testing/index.js";
 
 describe("compiler: projections: logic", () => {
   let testHost: TestHost;

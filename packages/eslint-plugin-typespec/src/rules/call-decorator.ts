@@ -70,8 +70,9 @@ function isTypeSpecFunctionSignature(
   const contextParameter = signature.parameters[0];
   const contextParamType = checker.getTypeOfSymbolAtLocation(contextParameter, tsNode);
   if (
-    contextParamType.flags & ts.TypeFlags.StructuredType &&
-    contextParamType.symbol.name === "DecoratorContext"
+    (contextParamType.flags & ts.TypeFlags.StructuredType &&
+      contextParamType.aliasSymbol?.name === "DecoratorContext") ||
+    contextParamType.symbol?.name === "DecoratorContext"
   ) {
     return true;
   }

@@ -19,9 +19,7 @@
     "build": "ecmarkup --strict src/spec.emu.html dist/spec.html",
     "watch": "node scripts/watch-spec.js"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/mkdirp": "~1.0.1",
     "@types/node": "~18.11.9",
     "ecmarkup": "~12.0.3",
     "@typespec/internal-build-utils": "~0.4.0"

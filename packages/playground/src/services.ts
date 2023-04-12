@@ -7,7 +7,7 @@ import {
 import * as monaco from "monaco-editor";
 import { editor } from "monaco-editor";
 import * as lsp from "vscode-languageserver";
-import { FormattingOptions } from "vscode-languageserver";
+import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BrowserHost } from "./browser-host.js";
 import { importTypeSpecCompiler } from "./core.js";
@@ -116,8 +116,21 @@ export async function attachServices(host: BrowserHost) {
   ): monaco.languages.DocumentHighlight {
     return {
       range: monacoRange(highlight.range),
-      kind: highlight.kind,
+      kind: monacoDocumentHighlightKind(highlight.kind),
     };
+  }
+
+  function monacoDocumentHighlightKind(kind: DocumentHighlightKind | undefined) {
+    switch (kind) {
+      case DocumentHighlightKind.Text:
+        return monaco.languages.DocumentHighlightKind.Text;
+      case DocumentHighlightKind.Read:
+        return monaco.languages.DocumentHighlightKind.Read;
+      case DocumentHighlightKind.Write:
+        return monaco.languages.DocumentHighlightKind.Write;
+      default:
+        return undefined;
+    }
   }
 
   function monacoHoverContents(contents: lsp.MarkupContent): monaco.IMarkdownString[] {

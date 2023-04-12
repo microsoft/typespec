@@ -1,7 +1,7 @@
 import { rejects } from "assert";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { compile, NodeHost, Program, resolvePath } from "../../../core/index.js";
+import { NodeHost, Program, compile, resolvePath } from "../../../core/index.js";
 import { CompilerOptions } from "../../../core/options.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../testing/expect.js";
 

@@ -387,7 +387,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     emitModelProperties(model) {
       const res = typeEmitter.modelProperties(model);
       if (res instanceof EmitterResult) {
-        return res;
+        return res as any;
       } else {
         return this.result.rawCode(res);
       }
