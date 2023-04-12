@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Model } from "../../core/index.js";
+import { Diagnostic, Model, ModelPropertyNode } from "../../core/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,
@@ -7,6 +7,7 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  extractCursor,
 } from "../../testing/index.js";
 
 interface RelatedTypeOptions {
@@ -21,32 +22,40 @@ describe("compiler: checker: type relations", () => {
     runner = createTestWrapper(await createTestHost());
   });
 
-  async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions) {
-    const { Test } = (await runner.compile(`
+  async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions): Promise<{
+    related: boolean;
+    diagnostics: readonly Diagnostic[];
+    expectedDiagnosticPos: number;
+  }> {
+    const { source: code, pos } = extractCursor(`
     ${commonCode ?? ""}
     
     @test model Test {
-      source: ${source};
+      source: ┆${source};
       target: ${target};
-    }`)) as { Test: Model };
+    }`);
+    const { Test } = (await runner.compile(code)) as { Test: Model };
     const sourceProp = Test.properties.get("source")!.type;
     const targetProp = Test.properties.get("target")!.type;
-    return runner.program.checker.isTypeAssignableTo(sourceProp, targetProp, targetProp);
+
+    const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
+      sourceProp,
+      targetProp,
+      (Test.properties.get("source")!.node! as ModelPropertyNode).value
+    );
+    return { related, diagnostics, expectedDiagnosticPos: pos };
   }
 
   async function expectTypeAssignable(options: RelatedTypeOptions) {
-    const [related, diagnostics] = await checkTypeAssignable(options);
+    const { related, diagnostics } = await checkTypeAssignable(options);
     expectDiagnosticEmpty(diagnostics);
     ok(related, `Type ${options.source} should be assignable to ${options.target}`);
   }
 
-  async function expectTypeNotAssignable(
-    options: RelatedTypeOptions,
-    match: DiagnosticMatch | DiagnosticMatch[]
-  ) {
-    const [related, diagnostics] = await checkTypeAssignable(options);
+  async function expectTypeNotAssignable(options: RelatedTypeOptions, match: DiagnosticMatch) {
+    const { related, diagnostics, expectedDiagnosticPos } = await checkTypeAssignable(options);
     ok(!related, `Type ${options.source} should NOT be assignable to ${options.target}`);
-    expectDiagnostics(diagnostics, match);
+    expectDiagnostics(diagnostics, { ...match, pos: expectedDiagnosticPos });
   }
 
   describe("model with indexer", () => {

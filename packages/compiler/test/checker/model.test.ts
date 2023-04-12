@@ -7,6 +7,7 @@ import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  extractCursor,
 } from "../../testing/index.js";
 
 describe("compiler: models", () => {
@@ -147,6 +148,21 @@ describe("compiler: models", () => {
         });
       });
     }
+  });
+
+  it(`emit diagnostic when using non value type as default value`, async () => {
+    const { source, pos } = extractCursor(`
+    model Foo<D> {
+      prop?: string = ┆D;
+    }
+    `);
+    testHost.addTypeSpecFile("main.tsp", source);
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "unsupported-default",
+      message: "Default must be have a value type but has type 'TemplateParameter'.",
+      pos,
+    });
   });
 
   it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {

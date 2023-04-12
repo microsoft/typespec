@@ -1083,7 +1083,11 @@ export function createChecker(program: Program): Checker {
       return sym.type as TemplatedType;
     }
 
-    return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+    if (sym.flags & SymbolFlags.Member) {
+      return checkMemberSym(sym, mapper) as TemplatedType;
+    } else {
+      return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+    }
   }
 
   /**
@@ -2974,8 +2978,8 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "unsupported-default",
-          format: { type: type.kind },
-          target: defaultType,
+          format: { type: defaultType.kind },
+          target: defaultNode,
         })
       );
       return errorType;
@@ -4819,7 +4823,7 @@ export function createChecker(program: Program): Checker {
                 indexType: getTypeName(target.indexer.key),
                 sourceType: getTypeName(source),
               },
-              target,
+              target: diagnosticTarget,
             }),
           ],
         ];
