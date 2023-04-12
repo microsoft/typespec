@@ -204,7 +204,4 @@ const modelProp: ModelProperty = ...;   // the isActive ModelProperty type
 const defaultValue = modelProp.default; // value: true
 ```
 
-It is important that emitters handle default values in a consistent way. The following guidance should be used when emitting default values:
-
-- operation parameters: use the `default` value, if provided, as the client default when no value is specified
-- model properties: do nothing. Note that some emitters may interpret default values on model properties in a way that they essentially become operation parameters. For example, a Python emitter might generate an `__init__` method that includes all model properties and their default values. In this case, the emitter should follow the guidance for operation parameters.
+It is important that emitters handle default values in a consistent way. Default values SHOULD NOT be used as client-side default values. Instead, they should be used as a way to specify a default value for the server-side implementation. For example, if a model property has a default value of `true`, the server-side implementation should use that value if the client does not provide a value. Default values SHOULD be expressed in documentation to properly communicate the service-side default.
