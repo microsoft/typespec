@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "**Fix** query format not accepting anything other than `csv` and `multi`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
