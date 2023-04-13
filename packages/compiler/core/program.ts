@@ -697,7 +697,6 @@ export async function compile(
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
     if (emitterOutputDir === undefined) {
-      console.log("herre", metadata, module);
       emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
     }
     if (libDefinition?.requireImports) {
