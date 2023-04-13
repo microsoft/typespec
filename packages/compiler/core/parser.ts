@@ -853,9 +853,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const value = parseExpression();
 
     const hasDefault = parseOptional(Token.Equals);
-    if (hasDefault && !optional) {
-      error({ code: "default-optional" });
-    }
     const defaultValue = hasDefault ? parseExpression() : undefined;
     return {
       kind: SyntaxKind.ModelProperty,
@@ -2055,9 +2052,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const value = parseProjectionExpression();
 
     const hasDefault = parseOptional(Token.Equals);
-    if (hasDefault && !optional) {
-      error({ code: "default-optional" });
-    }
     const defaultValue = hasDefault ? parseProjectionExpression() : undefined;
     return {
       kind: SyntaxKind.ProjectionModelProperty,
