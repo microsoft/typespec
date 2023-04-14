@@ -117,12 +117,6 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
-  "default-optional": {
-    severity: "error",
-    messages: {
-      default: "Cannot use default with non optional properties",
-    },
-  },
   "token-expected": {
     severity: "error",
     messages: {

@@ -11,9 +11,9 @@ import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
   NodePackage,
+  ResolveModuleHost,
   ResolvedModule,
   resolveModule,
-  ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
@@ -30,9 +30,9 @@ import {
   JsSourceFileNode,
   LiteralType,
   Namespace,
+  NoTarget,
   Node,
   NodeFlags,
-  NoTarget,
   ProjectionApplication,
   Projector,
   SourceFile,
@@ -46,9 +46,9 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 import {
+  ExternalError,
   deepEquals,
   doIO,
-  ExternalError,
   findProjectRoot,
   isDefined,
   loadFile,

@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
+import { Model, Operation, Scalar, getVisibility, isSecret } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,

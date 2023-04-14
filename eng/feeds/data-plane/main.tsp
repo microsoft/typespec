@@ -11,12 +11,10 @@ using Azure.Core;
   title: "{{parameters.ServiceNamespace}} service",
 })
 @versioned({{parameters.ServiceNamespace}}.Versions)
-@versionedDependency(
-  [[{{parameters.ServiceNamespace}}.Versions.`2022-11-01-preview`, Azure.Core.Versions.v1_0_Preview_1]]
-)
 namespace {{parameters.ServiceNamespace}};
 
 enum Versions {
+  @useDependency(Azure.Core.Versions.v1_0_Preview_1)
   `2022-11-01-preview`,
 }
 
