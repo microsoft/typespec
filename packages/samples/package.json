@@ -36,7 +36,7 @@
   "dependencies": {
     "@typespec/versioning": "~0.43.0",
     "@typespec/compiler": "~0.43.0",
-    "@typespec/http": "~0.43.0",
+    "@typespec/http": "~0.43.1",
     "@typespec/rest": "~0.43.0",
     "@typespec/openapi": "~0.43.0",
     "@typespec/openapi3": "~0.43.0",
