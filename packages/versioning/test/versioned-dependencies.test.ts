@@ -211,7 +211,7 @@ describe("versioning: reference versioned library", () => {
   });
 
   describe("when using versioned library without @useDependency", () => {
-    it("emit diagnostic when used in extends", async () => {
+    it("emit diagnostic when model uses extends", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
           model Test extends VersionedLib.Foo {}
@@ -224,7 +224,33 @@ describe("versioning: reference versioned library", () => {
       });
     });
 
-    it("emit diagnostic when using an operation with is", async () => {
+    it("emit diagnostic when model uses is", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test is VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when model uses alias", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          alias Test = VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when operation uses is", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
           op test is VersionedLib.Operation<{name: string}, int32>;
@@ -237,7 +263,7 @@ describe("versioning: reference versioned library", () => {
       });
     });
 
-    it("emit diagnostic when using an operation as an alias", async () => {
+    it("emit diagnostic when operation uses alias", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
           alias test = VersionedLib.Operation<{name: string}, int32>;
