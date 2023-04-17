@@ -1,8 +1,8 @@
 import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
-import { ProjectionError, compilerAssert } from "./diagnostics.js";
+import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
+import { getNamespaceFullName, getTypeName, TypeNameOptions } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -101,11 +101,11 @@ import {
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
+  TemplateableNode,
   TemplateDeclarationNode,
+  TemplatedType,
   TemplateParameter,
   TemplateParameterDeclarationNode,
-  TemplateableNode,
-  TemplatedType,
   Tuple,
   TupleExpressionNode,
   Type,
@@ -122,7 +122,7 @@ import {
   UnknownType,
   VoidType,
 } from "./types.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
+import { createRekeyableMap, isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -5362,14 +5362,15 @@ function isTemplatedNode(node: Node): node is TemplateableNode {
  * Mapping from the reflection models to Type["kind"] value
  */
 const ReflectionNameToKind = {
-  Model: "Model",
-  ModelProperty: "ModelProperty",
-  Interface: "Interface",
   Enum: "Enum",
   EnumMember: "EnumMember",
-  TemplateParameter: "TemplateParameter",
+  Interface: "Interface",
+  Model: "Model",
+  ModelProperty: "ModelProperty",
   Namespace: "Namespace",
   Operation: "Operation",
+  Scalar: "Scalar",
+  TemplateParameter: "TemplateParameter",
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",
