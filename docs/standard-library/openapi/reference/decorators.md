@@ -14,12 +14,12 @@ Specify that this model is to be treated as the OpenAPI `default` response.
 This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
 
 ```typespec
-dec OpenAPI.defaultResponse(target: object)
+dec OpenAPI.defaultResponse(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 

@@ -29,12 +29,12 @@ dec deprecated(target: unknown, message: string)
 Specify the property to be used to discriminate this type.
 
 ```typespec
-dec discriminator(target: object | Union, propertyName: string)
+dec discriminator(target: Model | Union, propertyName: string)
 ```
 
 #### Target
 
-`union object | Union`
+`union Model | Union`
 
 #### Parameters
 | Name | Type | Description |
@@ -84,12 +84,12 @@ dec doc(target: unknown, doc: string, formatArgs?: object)
 Specify that this model is an error type. Operations return error types when the operation has failed.
 
 ```typespec
-dec error(target: object)
+dec error(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -550,12 +550,12 @@ name: string;
 
 
 ```typespec
-dec withDefaultKeyVisibility(target: object, visibility: unknown)
+dec withDefaultKeyVisibility(target: Model, visibility: unknown)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -567,12 +567,12 @@ dec withDefaultKeyVisibility(target: object, visibility: unknown)
 
 
 ```typespec
-dec withoutDefaultValues(target: object)
+dec withoutDefaultValues(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -582,12 +582,12 @@ None
 
 
 ```typespec
-dec withoutOmittedProperties(target: object, omit: string | Union)
+dec withoutOmittedProperties(target: Model, omit: string | Union)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -599,12 +599,12 @@ dec withoutOmittedProperties(target: object, omit: string | Union)
 
 
 ```typespec
-dec withUpdateableProperties(target: object)
+dec withUpdateableProperties(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -623,12 +623,12 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: object, ...visibilities: string[])
+dec withVisibility(target: Model, ...visibilities: string[])
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
