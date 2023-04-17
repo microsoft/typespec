@@ -79,7 +79,7 @@ describe("compiler: entrypoints", () => {
           }),
         new RegExp(
           [
-            `Emitter "@typespec/my-lib" failed!`,
+            `Emitter "@typespec/my-emitter" failed!`,
             `File issue at https://github.com/microsoft/my-emitter/issues`,
             ``,
             `Error: This is bad`,
