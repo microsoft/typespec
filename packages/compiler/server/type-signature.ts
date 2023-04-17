@@ -24,10 +24,13 @@ export function getTypeSignature(type: Type): string {
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
+
     case "Function":
       return fence(getFunctionSignature(type));
     case "Operation":
       return fence(getOperationSignature(type));
+    case "Value":
+      return `valueof ${getTypeSignature(type)}`;
     case "String":
       // BUG: https://github.com/microsoft/typespec/issues/1350 - should escape string literal values
       return `(string)\n${fence(`"${type.value}"`)}`;

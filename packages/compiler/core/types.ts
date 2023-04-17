@@ -84,6 +84,7 @@ export type Type =
   | Tuple
   | Union
   | UnionVariant
+  | ValueType
   | IntrinsicType
   | FunctionType
   | Decorator
@@ -119,6 +120,11 @@ export interface Projector {
   projectType(type: Type): Type;
   projectedStartNode?: Type;
   projectedGlobalNamespace?: Namespace;
+}
+
+export interface ValueType extends BaseType {
+  kind: "Value";
+  target: Type;
 }
 
 export interface IntrinsicType extends BaseType {

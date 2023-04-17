@@ -1,8 +1,8 @@
 import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
-import { ProjectionError, compilerAssert } from "./diagnostics.js";
+import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
+import { getNamespaceFullName, getTypeName, TypeNameOptions } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -101,11 +101,11 @@ import {
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
+  TemplateableNode,
   TemplateDeclarationNode,
+  TemplatedType,
   TemplateParameter,
   TemplateParameterDeclarationNode,
-  TemplateableNode,
-  TemplatedType,
   Tuple,
   TupleExpressionNode,
   Type,
@@ -120,9 +120,10 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  ValueOfExpressionNode,
   VoidType,
 } from "./types.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
+import { createRekeyableMap, isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -649,6 +650,8 @@ export function createChecker(program: Program): Checker {
         return checkFunctionDeclaration(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeReference(node, mapper);
+      case SyntaxKind.ValueOfExpression:
+        return checkValueOfExpression(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
         return checkTemplateParameterDeclaration(node, mapper);
       case SyntaxKind.ProjectionStatement:
@@ -1227,6 +1230,17 @@ export function createChecker(program: Program): Checker {
     }
 
     return unionType;
+  }
+
+  function checkValueOfExpression(
+    node: ValueOfExpressionNode,
+    mapper: TypeMapper | undefined
+  ): Type {
+    const target = getTypeForNode(node.target, mapper);
+    return createType({
+      kind: "Value",
+      target,
+    });
   }
 
   /**

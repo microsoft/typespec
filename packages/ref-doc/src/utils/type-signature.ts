@@ -42,6 +42,8 @@ export function getTypeSignature(type: Type): string {
       return `(number) ${type.value.toString()}`;
     case "Intrinsic":
       return `(intrinsic) ${type.name}`;
+    case "Value":
+      return `valueof ${getTypeSignature(type)}`;
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
     case "ModelProperty":
