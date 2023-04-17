@@ -692,7 +692,7 @@ export async function compile(
 
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint.esmExports.$lib;
-    const metadata = computeLibraryMetadata(module);
+    const metadata = computeLibraryMetadata(module, libDefinition);
 
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
@@ -734,13 +734,18 @@ export async function compile(
     }
   }
 
-  function computeLibraryMetadata(module: ModuleResolutionResult): LibraryMetadata {
+  function computeLibraryMetadata(
+    module: ModuleResolutionResult,
+    libDefinition: TypeSpecLibrary<any> | undefined
+  ): LibraryMetadata {
     if (module.type === "file") {
-      return {};
+      return {
+        name: libDefinition?.name,
+      };
     }
 
     const metadata: LibraryMetadata = {
-      name: module.manifest.name,
+      name: libDefinition?.name ?? module.manifest.name,
     };
 
     if (module.manifest.homepage) {
