@@ -2,6 +2,18 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.43.1",
+      "tag": "@typespec/http_v0.43.1",
+      "date": "Fri, 14 Apr 2023 15:09:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix** query format not accepting anything other than `csv` and `multi`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.43.0",
       "tag": "@typespec/http_v0.43.0",
       "date": "Tue, 11 Apr 2023 18:49:17 GMT",
