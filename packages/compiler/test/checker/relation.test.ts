@@ -2,9 +2,9 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { Diagnostic, Model, ModelPropertyNode, Type } from "../../core/index.js";
 import {
   BasicTestRunner,
+  DiagnosticMatch,
   createTestHost,
   createTestWrapper,
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
