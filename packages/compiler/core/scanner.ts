@@ -15,7 +15,7 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { DiagnosticHandler, compilerAssert, createSourceFile } from "./diagnostics.js";
+import { compilerAssert, createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
 
@@ -118,6 +118,7 @@ export enum Token {
   IfKeyword,
   DecKeyword,
   FnKeyword,
+  ValueOfKeyword,
   // Add new statement keyword above
 
   /** @internal */ __EndStatementKeyword,
@@ -228,6 +229,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.IfKeyword, "'if'"],
   [Token.DecKeyword, "'dec'"],
   [Token.FnKeyword, "'fn'"],
+  [Token.ValueOfKeyword, "'valueof'"],
   [Token.ExtendsKeyword, "'extends'"],
   [Token.TrueKeyword, "'true'"],
   [Token.FalseKeyword, "'false'"],
@@ -257,6 +259,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["alias", Token.AliasKeyword],
   ["dec", Token.DecKeyword],
   ["fn", Token.FnKeyword],
+  ["valueof", Token.ValueOfKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
   ["return", Token.ReturnKeyword],

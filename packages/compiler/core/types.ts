@@ -694,6 +694,7 @@ export enum SyntaxKind {
   VoidKeyword,
   NeverKeyword,
   UnknownKeyword,
+  ValueOfExpression,
   TypeReference,
   ProjectionReference,
   TemplateParameterDeclaration,
@@ -983,6 +984,7 @@ export type Expression =
   | UnionExpressionNode
   | IntersectionExpressionNode
   | TypeReferenceNode
+  | ValueOfExpressionNode
   | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
@@ -1214,6 +1216,11 @@ export interface UnionExpressionNode extends BaseNode {
 export interface IntersectionExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.IntersectionExpression;
   readonly options: readonly Expression[];
+}
+
+export interface ValueOfExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.ValueOfExpression;
+  readonly target: Expression;
 }
 
 export interface TypeReferenceNode extends BaseNode {

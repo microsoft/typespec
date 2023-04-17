@@ -2,15 +2,15 @@ import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
-  Token,
-  TokenDisplay,
-  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
   isTrivia,
+  Token,
+  TokenDisplay,
+  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
@@ -97,6 +97,7 @@ import {
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
+  ValueOfExpressionNode,
   VoidKeywordNode,
 } from "./types.js";
 import { isArray, mutate } from "./util.js";
@@ -1050,6 +1051,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
     return expr;
   }
+
+  function parseValueOfExpression(): ValueOfExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.ValueOfKeyword);
+    const target = parseExpression();
+
+    return {
+      kind: SyntaxKind.ValueOfExpression,
+      target,
+      ...finishNode(pos),
+    };
+  }
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
@@ -1242,6 +1255,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
+        case Token.ValueOfKeyword:
+          return parseValueOfExpression();
         case Token.Identifier:
           return parseReferenceExpression();
         case Token.StringLiteral:
@@ -1272,6 +1287,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.UnknownKeyword:
           return parseUnknownKeyword();
         default:
+          console.log("Token", Token[token()]);
           return parseReferenceExpression("expression");
       }
     }
@@ -1382,6 +1398,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     recoverFromKeyword?: boolean;
   }): IdentifierNode {
     if (options?.recoverFromKeyword !== false && isKeyword(token())) {
+      console.trace("ABc");
       error({ code: "reserved-identifier" });
     } else if (
       token() !== Token.Identifier &&
@@ -2956,6 +2973,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitNode(cb, node.type);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.ValueOfExpression:
+      return visitNode(cb, node.target);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
