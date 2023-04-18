@@ -246,7 +246,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: object)
+dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: (anonymous model))
 ```
 
 #### Target
@@ -255,10 +255,10 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 
 #### Parameters
 
-| Name    | Type            | Description                                           |
-| ------- | --------------- | ----------------------------------------------------- |
-| path    | `scalar string` | Relative route path. Cannot include query parameters. |
-| options | `model object`  |                                                       |
+| Name    | Type                      | Description                                           |
+| ------- | ------------------------- | ----------------------------------------------------- |
+| path    | `scalar string`           | Relative route path. Cannot include query parameters. |
+| options | `model (anonymous model)` |                                                       |
 
 ### `@server` {#@TypeSpec.Http.server}
 
