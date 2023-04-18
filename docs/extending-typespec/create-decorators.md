@@ -20,7 +20,7 @@ This part is optional but provides great value:
 A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS (only choice right now), we must apply the `extern` modifier as well.
 
 ```typespec
-extern dec logType(target: TypeSpec.Reflection.Type, name: TypeSpec.Reflection.StringLiteral);
+extern dec logType(target: unknown, name: string);
 ```
 
 ## Decorator target

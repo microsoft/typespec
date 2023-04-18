@@ -1,8 +1,8 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import {
   DecoratorContext,
-  typespecTypeToJson,
   TypeSpecValue,
+  typespecTypeToJson,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";

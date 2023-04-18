@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Added `Model` and `Scalar` to Reflection namespace",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

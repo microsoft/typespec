@@ -1,12 +1,13 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Model } from "../../core/index.js";
+import { Diagnostic, Model, ModelPropertyNode, Type } from "../../core/index.js";
 import {
   BasicTestRunner,
+  DiagnosticMatch,
   createTestHost,
   createTestWrapper,
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  extractCursor,
 } from "../../testing/index.js";
 
 interface RelatedTypeOptions {
@@ -21,32 +22,40 @@ describe("compiler: checker: type relations", () => {
     runner = createTestWrapper(await createTestHost());
   });
 
-  async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions) {
-    const { Test } = (await runner.compile(`
+  async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions): Promise<{
+    related: boolean;
+    diagnostics: readonly Diagnostic[];
+    expectedDiagnosticPos: number;
+  }> {
+    const { source: code, pos } = extractCursor(`
     ${commonCode ?? ""}
     
     @test model Test {
-      source: ${source};
+      source: ┆${source};
       target: ${target};
-    }`)) as { Test: Model };
+    }`);
+    const { Test } = (await runner.compile(code)) as { Test: Model };
     const sourceProp = Test.properties.get("source")!.type;
     const targetProp = Test.properties.get("target")!.type;
-    return runner.program.checker.isTypeAssignableTo(sourceProp, targetProp, targetProp);
+
+    const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
+      sourceProp,
+      targetProp,
+      (Test.properties.get("source")!.node! as ModelPropertyNode).value
+    );
+    return { related, diagnostics, expectedDiagnosticPos: pos };
   }
 
   async function expectTypeAssignable(options: RelatedTypeOptions) {
-    const [related, diagnostics] = await checkTypeAssignable(options);
+    const { related, diagnostics } = await checkTypeAssignable(options);
     expectDiagnosticEmpty(diagnostics);
     ok(related, `Type ${options.source} should be assignable to ${options.target}`);
   }
 
-  async function expectTypeNotAssignable(
-    options: RelatedTypeOptions,
-    match: DiagnosticMatch | DiagnosticMatch[]
-  ) {
-    const [related, diagnostics] = await checkTypeAssignable(options);
+  async function expectTypeNotAssignable(options: RelatedTypeOptions, match: DiagnosticMatch) {
+    const { related, diagnostics, expectedDiagnosticPos } = await checkTypeAssignable(options);
     ok(!related, `Type ${options.source} should NOT be assignable to ${options.target}`);
-    expectDiagnostics(diagnostics, match);
+    expectDiagnostics(diagnostics, { ...match, pos: expectedDiagnosticPos });
   }
 
   describe("model with indexer", () => {
@@ -775,5 +784,56 @@ describe("compiler: checker: type relations", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+  });
+
+  describe("Reflection", () => {
+    function testReflectionType(name: Type["kind"], ref: string, code: string) {
+      describe(`Reflection.${name}`, () => {
+        it(`can assign ${name}`, async () => {
+          await expectTypeAssignable({
+            source: ref,
+            target: `TypeSpec.Reflection.${name}`,
+            commonCode: code,
+          });
+        });
+
+        it(`cannot assign union of ${name}`, async () => {
+          await expectTypeNotAssignable(
+            {
+              source: `${ref} | ${ref}`,
+              target: `TypeSpec.Reflection.${name}`,
+              commonCode: code,
+            },
+            { code: "unassignable" }
+          );
+        });
+      });
+    }
+
+    testReflectionType("Enum", "Foo", `enum Foo {a, b, c}`);
+    testReflectionType("EnumMember", "Foo.a", `enum Foo {a, b, c}`);
+    testReflectionType("Interface", "Foo", `interface Foo {a(): void}`);
+    testReflectionType("Model", "Foo", `model Foo {a: string, b: string}`);
+    testReflectionType("ModelProperty", "Foo.a", `model Foo {a: string, b: string}`);
+    testReflectionType("Namespace", "Foo", `namespace Foo {}`);
+    testReflectionType("Operation", "foo", `op foo(): void;`);
+    testReflectionType("Scalar", "foo", `scalar foo;`);
+    describe(`Reflection.Union`, () => {
+      it(`can assign union expression`, async () => {
+        await expectTypeAssignable({
+          source: "Foo",
+          target: `TypeSpec.Reflection.Union`,
+          commonCode: `alias Foo = "abc" | "def";`,
+        });
+      });
+      it(`can assign named union`, async () => {
+        await expectTypeAssignable({
+          source: "Foo",
+          target: `TypeSpec.Reflection.Union`,
+          commonCode: `union Foo {a: string, b: int32};`,
+        });
+      });
+    });
+    testReflectionType("UnionVariant", "Foo.a", `union Foo {a: string, b: int32};`);
   });
 });

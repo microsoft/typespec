@@ -1,8 +1,8 @@
 import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
-import { compilerAssert, ProjectionError } from "./diagnostics.js";
+import { ProjectionError, compilerAssert } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { getNamespaceFullName, getTypeName, TypeNameOptions } from "./helpers/index.js";
+import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -101,11 +101,11 @@ import {
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
-  TemplateableNode,
   TemplateDeclarationNode,
-  TemplatedType,
   TemplateParameter,
   TemplateParameterDeclarationNode,
+  TemplateableNode,
+  TemplatedType,
   Tuple,
   TupleExpressionNode,
   Type,
@@ -122,7 +122,7 @@ import {
   UnknownType,
   VoidType,
 } from "./types.js";
-import { createRekeyableMap, isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -1083,7 +1083,11 @@ export function createChecker(program: Program): Checker {
       return sym.type as TemplatedType;
     }
 
-    return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+    if (sym.flags & SymbolFlags.Member) {
+      return checkMemberSym(sym, mapper) as TemplatedType;
+    } else {
+      return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+    }
   }
 
   /**
@@ -2974,8 +2978,8 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "unsupported-default",
-          format: { type: type.kind },
-          target: defaultType,
+          format: { type: defaultType.kind },
+          target: defaultNode,
         })
       );
       return errorType;
@@ -4838,7 +4842,7 @@ export function createChecker(program: Program): Checker {
                 indexType: getTypeName(target.indexer.key),
                 sourceType: getTypeName(source),
               },
-              target,
+              target: diagnosticTarget,
             }),
           ],
         ];
@@ -5377,14 +5381,15 @@ function isTemplatedNode(node: Node): node is TemplateableNode {
  * Mapping from the reflection models to Type["kind"] value
  */
 const ReflectionNameToKind = {
-  Model: "Model",
-  ModelProperty: "ModelProperty",
-  Interface: "Interface",
   Enum: "Enum",
   EnumMember: "EnumMember",
-  TemplateParameter: "TemplateParameter",
+  Interface: "Interface",
+  Model: "Model",
+  ModelProperty: "ModelProperty",
   Namespace: "Namespace",
   Operation: "Operation",
+  Scalar: "Scalar",
+  TemplateParameter: "TemplateParameter",
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",

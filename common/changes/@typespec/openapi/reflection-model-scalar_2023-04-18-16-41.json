@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi",
+      "comment": "Update decorator declaration to use `Model` instead of `object`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi"
+}

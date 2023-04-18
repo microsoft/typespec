@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Model, Union, UnionVariant } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost } from "../../testing/index.js";
 
 describe("compiler: union declarations", () => {
   let testHost: TestHost;

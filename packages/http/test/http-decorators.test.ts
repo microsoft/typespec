@@ -210,16 +210,19 @@ describe("http: decorators", () => {
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
 
-    it("override query with QueryOptions", async () => {
-      const { selects } = await runner.compile(`
-          @put op test(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
-        `);
-      deepStrictEqual(getQueryParamOptions(runner.program, selects), {
-        type: "query",
-        name: "$select",
-        format: "csv",
+    describe("change format for array value", () => {
+      ["csv", "tsv", "ssv", "pipes"].forEach((format) => {
+        it(`set query format to "${format}"`, async () => {
+          const { selects } = await runner.compile(`
+            op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
+          `);
+          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
+            type: "query",
+            name: "$select",
+            format,
+          });
+        });
       });
-      strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });
 

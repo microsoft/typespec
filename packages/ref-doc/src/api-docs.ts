@@ -15,7 +15,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   app.bootstrap({
     name: "JS Api",
     entryPoints: [libraryPath],
-    entryPointStrategy: "packages",
+    entryPointStrategy: "legacy-packages",
     githubPages: false,
     readme: false,
     disableSources: true,

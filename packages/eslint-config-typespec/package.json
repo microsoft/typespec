@@ -17,12 +17,12 @@
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
     "@rushstack/eslint-patch": "1.1.0 ",
-    "eslint": "^8.12.0",
+    "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-unicorn": "^42.0.0",
     "eslint-plugin-mocha": "^10.0.5",
-    "typescript": "~4.9.3"
+    "typescript": "~5.0.2"
   },
   "author": "",
   "license": "ISC"
