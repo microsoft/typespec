@@ -464,4 +464,49 @@ describe("rest: routes", () => {
     strictEqual(isSharedRoute(runner.program, get1), true);
     strictEqual(isSharedRoute(runner.program, get2), false);
   });
+
+  it("emits a diagnostic when @sharedRoute is used on action without explicit name", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      model Thing {
+        @key
+        @segment("things")
+        thingId: string;
+      }
+
+      @action
+      @autoRoute
+      @sharedRoute
+      op badAction(): {};
+
+      @action("good")
+      @autoRoute
+      @sharedRoute
+      op goodAction(): {};
+
+      @autoRoute
+      @sharedRoute
+      @collectionAction(Thing)
+      op badCollectionAction(): {};
+
+      @autoRoute
+      @sharedRoute
+      @collectionAction(Thing, "goodCollection")
+      op goodCollectionAction(): {};
+      `
+    );
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/rest/shared-route-unspecified-action-name",
+        message:
+          "An operation marked as '@sharedRoute' must have an explicit collection action name passed to '@action'.",
+      },
+      {
+        code: "@typespec/rest/shared-route-unspecified-action-name",
+        message:
+          "An operation marked as '@sharedRoute' must have an explicit collection action name passed to '@collectionAction'.",
+      },
+    ]);
+  });
 });
