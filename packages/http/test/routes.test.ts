@@ -581,6 +581,7 @@ describe("http: routes", () => {
       const { get1, get2 } = (await runner.compile(`
         @route("/test")
         namespace Foo {
+          #suppress "deprecated"
           @test
           @route("/get1", { shared: true })
           op get1(): string;
@@ -588,6 +589,7 @@ describe("http: routes", () => {
 
         @route("/test")
         namespace Foo {
+          #suppress "deprecated"
           @test
           @route("/get2", { shared: false })
           op get2(): string;

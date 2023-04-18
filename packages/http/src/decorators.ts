@@ -3,6 +3,7 @@ import {
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
+  reportDeprecated,
   getDoc,
   isArrayModelType,
   Model,
@@ -559,23 +560,6 @@ export function getAuthentication(
   return program.stateMap(authenticationKey).get(namespace);
 }
 
-function extractSharedValue(context: DecoratorContext, parameters?: Model): boolean {
-  const sharedType = parameters?.properties.get("shared")?.type;
-  if (sharedType === undefined) {
-    return false;
-  }
-  switch (sharedType.kind) {
-    case "Boolean":
-      return sharedType.value;
-    default:
-      reportDiagnostic(context.program, {
-        code: "shared-boolean",
-        target: sharedType,
-      });
-      return false;
-  }
-}
-
 /**
  * `@route` defines the relative route URI for the target operation
  *
@@ -588,9 +572,24 @@ function extractSharedValue(context: DecoratorContext, parameters?: Model): bool
 export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
+  // Handle the deprecated `shared` option
+  let shared = false;
+  const sharedValue = parameters?.properties.get("shared")?.type;
+  if (sharedValue !== undefined) {
+    reportDeprecated(context.program, "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.", entity);
+    if (sharedValue.kind === "Boolean") {
+      shared = sharedValue.value;
+    } else {
+      reportDiagnostic(context.program, {
+        code: "shared-boolean",
+        target: sharedValue,
+      });
+    }
+  }
+
   setRoute(context, entity, {
     path,
-    shared: extractSharedValue(context, parameters),
+    shared,
   });
 }
 
