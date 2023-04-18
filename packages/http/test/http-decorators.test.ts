@@ -210,16 +210,19 @@ describe("http: decorators", () => {
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
 
-    it("override query with QueryOptions", async () => {
-      const { selects } = await runner.compile(`
-          @put op test(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
-        `);
-      deepStrictEqual(getQueryParamOptions(runner.program, selects), {
-        type: "query",
-        name: "$select",
-        format: "csv",
+    describe("change format for array value", () => {
+      ["csv", "tsv", "ssv", "pipes"].forEach((format) => {
+        it(`set query format to "${format}"`, async () => {
+          const { selects } = await runner.compile(`
+            op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
+          `);
+          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
+            type: "query",
+            name: "$select",
+            format,
+          });
+        });
       });
-      strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });
 
@@ -238,6 +241,20 @@ describe("http: decorators", () => {
         {
           code: "@typespec/http/duplicate-operation",
           message: `Duplicate operation "test2" routed at "get /test".`,
+        },
+      ]);
+    });
+
+    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", { shared: true }) op test(): string;
+        @route("/test", { shared: true }) op test2(): string;
+        @route("/test") op test3(): string;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `All shared routes must agree on the value of the shared parameter.`,
         },
       ]);
     });

@@ -1,4 +1,4 @@
-import { Select } from "@fluentui/react-components/unstable";
+import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { PlaygroundManifest } from "../manifest.js";
 export interface SamplesDropdownProps {

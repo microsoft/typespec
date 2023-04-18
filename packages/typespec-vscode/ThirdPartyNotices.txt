@@ -13,7 +13,7 @@ granted herein, whether by implication, estoppel or otherwise.
 3. concat-map version 0.0.1 (https://github.com/substack/node-concat-map)
 4. lru-cache version 6.0.0 (https://github.com/isaacs/node-lru-cache)
 5. minimatch version 3.1.2 (https://github.com/isaacs/minimatch)
-6. semver version 7.3.8 (https://github.com/npm/node-semver)
+6. semver version 7.4.0 (https://github.com/npm/node-semver)
 7. yallist version 4.0.0 (https://github.com/isaacs/yallist)
 
 

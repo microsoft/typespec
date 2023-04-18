@@ -43,7 +43,7 @@ The following decorators can then be used to provide version evolution of a serv
 ### Consume a versioned library
 
 When consuming a versioned library, it is required to indicate which version of the library to use.
-See [`@versionedDependency`](#versioneddependency) decorator for information about this.
+See [`@useDependency`](#useDependency) decorator for information about this.
 
 ## References
 

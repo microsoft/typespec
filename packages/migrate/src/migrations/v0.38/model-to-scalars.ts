@@ -6,9 +6,9 @@ import type {
 import { TypeSpecCompilerV0_37 } from "../../migration-config.js";
 import {
   AstContentMigrateAction,
-  createContentMigration,
   MigrationContext,
   MigrationKind,
+  createContentMigration,
 } from "../../migration-types.js";
 
 export const migrateModelToScalar = createContentMigration({

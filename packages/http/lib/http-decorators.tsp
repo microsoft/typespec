@@ -164,7 +164,7 @@ extern dec head(target: Operation);
 /**
  * Specify the endpoint for this service.
  *  @param url Server endpoint
- *  @param url Description of the endpoint
+ *  @param description Description of the endpoint
  *  @param parameters Optional set of parameters used to interpolate the url.
  *
  * @example
@@ -206,13 +206,18 @@ extern dec useAuth(target: Namespace, auth: object | Union | object[]);
 extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);
 
 /**
- * `@route` defines the relative route URI for the target operation
+ * Defines the relative route URI for the target operation
  *
  * The first argument should be a URI fragment that may contain one or more path parameter fields.
  * If the namespace or interface that contains the operation is also marked with a `@route` decorator,
  * it will be used as a prefix to the route URI of the operation.
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
+ *
+ * @param path Relative route path. Cannot include query parameters.
+ * @param parameters Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ *
+ * @example
  *
  * ```typespec
  * @route("/widgets")

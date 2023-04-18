@@ -5,12 +5,12 @@ import { Diagnostic } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
 import { createStringMap } from "../core/util.js";
-import { createServer, Server, ServerHost } from "../server/index.js";
+import { Server, ServerHost, createServer } from "../server/index.js";
 import {
-  createTestFileSystem,
-  resolveVirtualPath,
   StandardTestLibrary,
   TestHostOptions,
+  createTestFileSystem,
+  resolveVirtualPath,
 } from "./test-host.js";
 import { TestFileSystem } from "./types.js";
 

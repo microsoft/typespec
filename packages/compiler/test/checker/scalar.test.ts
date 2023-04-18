@@ -48,6 +48,20 @@ describe("compiler: scalars", () => {
     strictEqual(A.name, "A");
   });
 
+  // https://github.com/microsoft/typespec/issues/1764
+  it("template parameter are scoped to the scalar", async () => {
+    const { A, B } = await runner.compile(`
+      @test @doc(T) scalar A<T extends string>;
+      @test @doc(T) scalar B<T extends string>;
+
+      alias AIns = A<"">;
+      alias BIns = B<"">;
+    `);
+
+    strictEqual(A.kind, "Scalar" as const);
+    strictEqual(B.kind, "Scalar" as const);
+  });
+
   describe("custom scalars and default values", () => {
     it("allows custom numeric scalar to have a default value", async () => {
       const { S, M } = await runner.compile(`

@@ -6,6 +6,11 @@ namespace TypeSpec.Http;
 
 using Private;
 
+/**
+ * Describes an HTTP response.
+ *
+ * @template Status The status code of the response.
+ */
 model Response<Status> {
   @doc("The status code.")
   @statusCode
@@ -17,6 +22,8 @@ model Response<Status> {
  *
  * This can be useful in situations where you cannot use a bare T as the body
  * and it is awkward to add a property.
+ *
+ * @template T The type of the model's `body` property.
  */
 model Body<T> {
   @body
@@ -49,7 +56,8 @@ model ConflictResponse is Response<409>;
 
 /**
  * Produces a new model with the same properties as T, but with `@query`,
- *`@header`, `@body`, and `@path` decorators removed from all properties.
+ * `@header`, `@body`, and `@path` decorators removed from all properties.
+ * @template T The model to spread as the plain data.
  */
 @plainData
 model PlainData<T> {

@@ -1,6 +1,6 @@
 import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
 import { Checker } from "./checker.js";
-import { assertType, ProjectionError } from "./diagnostics.js";
+import { ProjectionError, assertType } from "./diagnostics.js";
 import { ObjectType, Type, UnionVariant } from "./types.js";
 
 export function createProjectionMembers(checker: Checker): {

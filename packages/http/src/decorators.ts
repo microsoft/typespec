@@ -104,9 +104,7 @@ export function $query(
       }
       const format = queryNameOrOptions.properties.get("format")?.type;
       if (format?.kind === "String") {
-        if (format.value === "multi" || format.value === "csv") {
-          options.format = format.value;
-        }
+        options.format = format.value as any; // That value should have already been validated by the TypeSpec dec
       }
     }
   }

@@ -128,7 +128,7 @@ model Array<T> {}
 model Record<T> {}
 
 /**
- * Represent a URI string as described by https://url.spec.whatwg.org/#relative-url-string.
+ * Represent a URL string as described by https://url.spec.whatwg.org/
  */
 @format("url")
 scalar url extends string;
