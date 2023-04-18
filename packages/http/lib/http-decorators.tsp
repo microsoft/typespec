@@ -224,7 +224,13 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean)
  * op getWidget(@path id: string): Widget;
  * ```
  */
-extern dec route(target: Namespace | Interface | Operation, path: string, options?: object);
+extern dec route(
+  target: Namespace | Interface | Operation,
+  path: string,
+  options?: {
+    shared?: boolean,
+  }
+);
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.

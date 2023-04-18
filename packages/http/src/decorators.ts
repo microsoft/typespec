@@ -581,13 +581,10 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
       "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
       entity
     );
+
+    // The type checker should have raised a diagnostic if the value isn't boolean
     if (sharedValue.kind === "Boolean") {
       shared = sharedValue.value;
-    } else {
-      reportDiagnostic(context.program, {
-        code: "shared-boolean",
-        target: sharedValue,
-      });
     }
   }
 

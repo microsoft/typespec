@@ -287,13 +287,8 @@ describe("http: decorators", () => {
       `);
       expectDiagnostics(diagnostics, [
         {
-          code: "deprecated",
-          message:
-            "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
-        },
-        {
-          code: "@typespec/http/shared-boolean",
-          message: `shared parameter must be a boolean.`,
+          code: "invalid-argument",
+          message: `Argument '(anonymous model)' is not assignable to parameter of type '(anonymous model)'`,
         },
       ]);
     });
