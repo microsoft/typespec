@@ -45,7 +45,7 @@ extern dec extension(target: unknown, key: string, value: unknown);
  * op listPets(): Pet[] | PetStoreResponse;
  * ```
  */
-extern dec defaultResponse(target: object);
+extern dec defaultResponse(target: Model);
 
 /**
  * Specify the OpenAPI `externalDocs` property for this type.

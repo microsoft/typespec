@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Diagnostic, Model, ModelPropertyNode } from "../../core/index.js";
+import { Diagnostic, Model, ModelPropertyNode, Type } from "../../core/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,
@@ -763,5 +763,56 @@ describe("compiler: checker: type relations", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+  });
+
+  describe("Reflection", () => {
+    function testReflectionType(name: Type["kind"], ref: string, code: string) {
+      describe(`Reflection.${name}`, () => {
+        it(`can assign ${name}`, async () => {
+          await expectTypeAssignable({
+            source: ref,
+            target: `TypeSpec.Reflection.${name}`,
+            commonCode: code,
+          });
+        });
+
+        it(`cannot assign union of ${name}`, async () => {
+          await expectTypeNotAssignable(
+            {
+              source: `${ref} | ${ref}`,
+              target: `TypeSpec.Reflection.${name}`,
+              commonCode: code,
+            },
+            { code: "unassignable" }
+          );
+        });
+      });
+    }
+
+    testReflectionType("Enum", "Foo", `enum Foo {a, b, c}`);
+    testReflectionType("EnumMember", "Foo.a", `enum Foo {a, b, c}`);
+    testReflectionType("Interface", "Foo", `interface Foo {a(): void}`);
+    testReflectionType("Model", "Foo", `model Foo {a: string, b: string}`);
+    testReflectionType("ModelProperty", "Foo.a", `model Foo {a: string, b: string}`);
+    testReflectionType("Namespace", "Foo", `namespace Foo {}`);
+    testReflectionType("Operation", "foo", `op foo(): void;`);
+    testReflectionType("Scalar", "foo", `scalar foo;`);
+    describe(`Reflection.Union`, () => {
+      it(`can assign union expression`, async () => {
+        await expectTypeAssignable({
+          source: "Foo",
+          target: `TypeSpec.Reflection.Union`,
+          commonCode: `alias Foo = "abc" | "def";`,
+        });
+      });
+      it(`can assign named union`, async () => {
+        await expectTypeAssignable({
+          source: "Foo",
+          target: `TypeSpec.Reflection.Union`,
+          commonCode: `union Foo {a: string, b: int32};`,
+        });
+      });
+    });
+    testReflectionType("UnionVariant", "Foo.a", `union Foo {a: string, b: int32};`);
   });
 });
