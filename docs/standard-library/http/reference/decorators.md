@@ -246,7 +246,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: object)
+dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: {})
 ```
 
 #### Target
@@ -258,14 +258,14 @@ dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: object)
 | Name       | Type            | Description                                                                                                                                           |
 | ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | path       | `scalar string` | Relative route path. Cannot include query parameters.                                                                                                 |
-| parameters | `model object`  | Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| parameters | `model {}`      | Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ### `@server` {#@TypeSpec.Http.server}
 
 Specify the endpoint for this service.
 
 ```typespec
-dec TypeSpec.Http.server(target: Namespace, url: string, description: string, parameters?: object)
+dec TypeSpec.Http.server(target: Namespace, url: string, description: string, parameters?: Record<unknown>)
 ```
 
 #### Target
@@ -274,11 +274,11 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 
 #### Parameters
 
-| Name        | Type            | Description                                             |
-| ----------- | --------------- | ------------------------------------------------------- |
-| url         | `scalar string` | Server endpoint                                         |
-| description | `scalar string` | Description of the endpoint                             |
-| parameters  | `model object`  | Optional set of parameters used to interpolate the url. |
+| Name        | Type                    | Description                                             |
+| ----------- | ----------------------- | ------------------------------------------------------- |
+| url         | `scalar string`         | Server endpoint                                         |
+| description | `scalar string`         | Description of the endpoint                             |
+| parameters  | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 ### `@statusCode` {#@TypeSpec.Http.statusCode}
 
@@ -308,7 +308,7 @@ op create(): {@statusCode: 201 | 202}
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
 
 ```typespec
-dec TypeSpec.Http.useAuth(target: Namespace, auth: object | Union | object[])
+dec TypeSpec.Http.useAuth(target: Namespace, auth: {} | Union | {}[])
 ```
 
 #### Target
@@ -317,6 +317,6 @@ dec TypeSpec.Http.useAuth(target: Namespace, auth: object | Union | object[])
 
 #### Parameters
 
-| Name | Type                                | Description                                                                                                                                                    |
-| ---- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union object \| Union \| object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+| Name | Type                        | Description                                                                                                                                                    |
+| ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |

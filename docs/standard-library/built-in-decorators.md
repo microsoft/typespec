@@ -65,7 +65,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 Attach a documentation string.
 
 ```typespec
-dec doc(target: unknown, doc: string, formatArgs?: object)
+dec doc(target: unknown, doc: string, formatArgs?: {})
 ```
 
 #### Target
@@ -76,7 +76,7 @@ dec doc(target: unknown, doc: string, formatArgs?: object)
 | Name | Type | Description |
 |------|------|-------------|
 | doc | `scalar string` | Documentation string |
-| formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
+| formatArgs | `model {}` | Record with key value pair that can be interpolated in the doc. |
 
 
 ### `@error` {#@error}
