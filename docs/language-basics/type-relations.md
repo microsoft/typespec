@@ -9,8 +9,7 @@ title: Type relations
 
 ```mermaid
 graph RL
-    object --> unknown
-    record["Record<T>"] --> object
+    record["Record<T>"] --> unknown
     customModel["Custom model with properties"] --> record["Record<T>"]
     array["Array<T>"] --> unknown
     tuple["Tuple"] --> array
