@@ -338,10 +338,10 @@ describe("openapi3: return types", () => {
     });
   });
 
-  it("object return type should produce 200 ", async () => {
+  it("{} return type should produce 200 ", async () => {
     const res = await openApiFor(
       `
-      @get op test(): object;
+      @get op test(): {};
       `
     );
 
@@ -350,13 +350,9 @@ describe("openapi3: return types", () => {
     deepStrictEqual(responses["200"].content, {
       "application/json": {
         schema: {
-          $ref: "#/components/schemas/object",
+          type: "object",
         },
       },
-    });
-    deepStrictEqual(res.components.schemas.object, {
-      type: "object",
-      properties: {},
     });
   });
 

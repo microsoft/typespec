@@ -235,7 +235,8 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
+          value:
+            "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: Record<unknown>)\n```",
         },
       },
     ]);
@@ -254,7 +255,8 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
+          value:
+            "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: Record<unknown>)\n```",
         },
       },
     ]);
@@ -292,7 +294,8 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
+          value:
+            "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: Record<unknown>)\n```",
         },
       },
     ]);

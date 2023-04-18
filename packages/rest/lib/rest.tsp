@@ -6,4 +6,4 @@ namespace TypeSpec.Rest;
 
 @doc("The location of an instance of {name}", TResource)
 @Private.resourceLocation(TResource)
-scalar ResourceLocation<TResource extends object> extends url;
+scalar ResourceLocation<TResource extends {}> extends url;

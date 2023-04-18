@@ -4650,6 +4650,7 @@ export function createChecker(program: Program): Checker {
     if (
       target.kind === "Model" &&
       source.kind === "Model" &&
+      target.name !== "object" &&
       target.indexer === undefined &&
       source.indexer &&
       source.indexer.key.name === "integer"

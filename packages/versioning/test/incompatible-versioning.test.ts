@@ -385,7 +385,7 @@ describe("versioning: validate incompatible references", () => {
         "lib.tsp",
         `
         namespace Lib;
-        interface Ops<T extends object> {
+        interface Ops<T extends {}> {
           get(): T[];
         }
         `

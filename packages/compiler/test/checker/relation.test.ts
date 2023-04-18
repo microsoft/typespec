@@ -137,7 +137,6 @@ describe("compiler: checker: type relations", () => {
       "string",
       "numeric",
       "float",
-      "object",
       "Record<string>",
       "bytes",
       "duration",
@@ -446,42 +445,6 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  describe("object target", () => {
-    ["object", "Record<string>", "Record<int32>"].forEach((x) => {
-      it(`can assign ${x}`, async () => {
-        await expectTypeAssignable({ source: x, target: "object" });
-      });
-    });
-
-    it("can assign empty object", async () => {
-      await expectTypeAssignable({ source: "{}", target: "object" });
-    });
-
-    it("can assign object with property", async () => {
-      await expectTypeAssignable({ source: "{foo: string}", target: "object" });
-    });
-
-    it("emit diagnostic assigning to model expression", async () => {
-      await expectTypeNotAssignable(
-        { source: `string`, target: "{}" },
-        {
-          code: "unassignable",
-          message: "Type 'string' is not assignable to type '{}'",
-        }
-      );
-    });
-
-    it("emit diagnostic assigning other type", async () => {
-      await expectTypeNotAssignable(
-        { source: `string`, target: "object" },
-        {
-          code: "unassignable",
-          message: "Type 'string' is not assignable to type 'object'",
-        }
-      );
-    });
-  });
-
   describe("Record<x> target", () => {
     ["Record<string>"].forEach((x) => {
       it(`can assign ${x}`, async () => {
@@ -608,22 +571,22 @@ describe("compiler: checker: type relations", () => {
       );
     });
 
-    it("emit diagnostic when assigning array to object", async () => {
+    it("emit diagnostic when assigning array to {}", async () => {
       await expectTypeNotAssignable(
-        { source: `string[]`, target: `object` },
+        { source: `string[]`, target: `{}` },
         {
           code: "missing-index",
-          message: "Index signature for type 'integer' is missing in type 'object'.",
+          message: "Index signature for type 'integer' is missing in type '{}'.",
         }
       );
     });
 
-    it("emit diagnostic when assigning union of array to object", async () => {
+    it("emit diagnostic when assigning union of array to {}", async () => {
       await expectTypeNotAssignable(
-        { source: `string[] | int32[]`, target: `object` },
+        { source: `string[] | int32[]`, target: `{}` },
         {
           code: "unassignable",
-          message: "Type 'string[] | int32[]' is not assignable to type 'object'",
+          message: "Type 'string[] | int32[]' is not assignable to type '{}'",
         }
       );
     });
@@ -722,7 +685,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("can a subtype of any of the options", async () => {
-      await expectTypeAssignable({ source: "int32", target: "string | numeric | object" });
+      await expectTypeAssignable({ source: "int32", target: "string | numeric" });
     });
 
     it("emit diagnostic when assigning tuple of different length", async () => {
