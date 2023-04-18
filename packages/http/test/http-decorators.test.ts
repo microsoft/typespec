@@ -252,7 +252,8 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "deprecated",
-          message: "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead."
+          message:
+            "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
         },
       ]);
     });
@@ -287,7 +288,8 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "deprecated",
-          message: "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead."
+          message:
+            "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
         },
         {
           code: "@typespec/http/shared-boolean",

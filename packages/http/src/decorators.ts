@@ -1,21 +1,21 @@
 import {
-  createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
-  reportDeprecated,
-  getDoc,
-  isArrayModelType,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
-  setTypeSpecNamespace,
   Tuple,
   Type,
-  typespecTypeToJson,
   Union,
+  createDiagnosticCollector,
+  getDoc,
+  isArrayModelType,
+  reportDeprecated,
+  setTypeSpecNamespace,
+  typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
@@ -576,7 +576,11 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
   let shared = false;
   const sharedValue = parameters?.properties.get("shared")?.type;
   if (sharedValue !== undefined) {
-    reportDeprecated(context.program, "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.", entity);
+    reportDeprecated(
+      context.program,
+      "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
+      entity
+    );
     if (sharedValue.kind === "Boolean") {
       shared = sharedValue.value;
     } else {

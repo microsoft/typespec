@@ -1,7 +1,7 @@
 import { Operation } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { getRoutePath, HttpOperation } from "../src/index.js";
+import { HttpOperation, getRoutePath } from "../src/index.js";
 import {
   compileOperations,
   createHttpTestRunner,
