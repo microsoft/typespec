@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Update decorators signature to use `{}` instead of `object`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
