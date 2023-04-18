@@ -351,6 +351,8 @@ describe("openapi3: return types", () => {
       "application/json": {
         schema: {
           type: "object",
+          properties: {},
+          "x-typespec-name": "{}",
         },
       },
     });
