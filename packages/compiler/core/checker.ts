@@ -5362,14 +5362,15 @@ function isTemplatedNode(node: Node): node is TemplateableNode {
  * Mapping from the reflection models to Type["kind"] value
  */
 const ReflectionNameToKind = {
-  Model: "Model",
-  ModelProperty: "ModelProperty",
-  Interface: "Interface",
   Enum: "Enum",
   EnumMember: "EnumMember",
-  TemplateParameter: "TemplateParameter",
+  Interface: "Interface",
+  Model: "Model",
+  ModelProperty: "ModelProperty",
   Namespace: "Namespace",
   Operation: "Operation",
+  Scalar: "Scalar",
+  TemplateParameter: "TemplateParameter",
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",

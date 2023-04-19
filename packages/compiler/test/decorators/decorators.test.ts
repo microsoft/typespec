@@ -188,7 +188,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
       strictEqual(
         diagnostics[0].message,
-        `Cannot apply @error decorator to A since it is not assignable to object`
+        `Cannot apply @error decorator to A since it is not assignable to Model`
       );
     });
   });
