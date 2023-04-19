@@ -563,6 +563,19 @@ describe("compiler: models", () => {
       });
     });
 
+    it("keeps reference to source model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+        @test model A { }
+        @test  model B is A { };
+        `
+      );
+      const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
+      strictEqual(B.sourceModel, A);
+    });
+
     it("copies decorators", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
