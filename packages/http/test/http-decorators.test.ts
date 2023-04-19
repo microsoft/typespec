@@ -245,10 +245,23 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+    it("emits diagnostic when deprecated `shared` option is used", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test", { shared: true }) op test(): string;
-        @route("/test", { shared: true }) op test2(): string;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "deprecated",
+          message:
+            "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
+        },
+      ]);
+    });
+
+    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
         @route("/test") op test3(): string;
       `);
       expectDiagnostics(diagnostics, [
@@ -261,8 +274,8 @@ describe("http: decorators", () => {
 
     it("do not emit diagnostics when duplicated shared routes are applied", async () => {
       const diagnostics = await runner.diagnose(`
-        @route("/test", {shared: true}) op test(): string;
-        @route("/test", {shared: true}) op test2(): string;
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
       `);
 
       expectDiagnosticEmpty(diagnostics);
@@ -274,8 +287,8 @@ describe("http: decorators", () => {
       `);
       expectDiagnostics(diagnostics, [
         {
-          code: "@typespec/http/shared-boolean",
-          message: `shared parameter must be a boolean.`,
+          code: "invalid-argument",
+          message: `Argument '(anonymous model)' is not assignable to parameter of type '(anonymous model)'`,
         },
       ]);
     });
