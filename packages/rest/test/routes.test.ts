@@ -454,11 +454,11 @@ describe("rest: routes", () => {
       @test
       @autoRoute
       @sharedRoute
-      op get1(@path foo: string): string;
+      op get1(@segment("get1") @path name: string): string;
 
       @test
       @autoRoute
-      op get2(@path bar: string): string;
+      op get2(@segment("get2") @path name: string): string;
     `)) as { get1: Operation; get2: Operation };
 
     strictEqual(isSharedRoute(runner.program, get1), true);

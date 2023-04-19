@@ -79,7 +79,7 @@ function getResourceOperationHttpVerb(
   return (
     getOperationVerb(program, operation) ??
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    (getAction(program, operation) || getCollectionAction(program, operation) ? "post" : undefined)
+    (getActionDetails(program, operation) || getCollectionActionDetails(program, operation) ? "post" : undefined)
   );
 }
 
@@ -479,6 +479,9 @@ export function getActionDetails(
   return program.stateMap(actionsKey).get(operation);
 }
 
+/**
+ * @deprecated Use getActionDetails instead.
+ */
 export function getAction(program: Program, operation: Operation): string | null | undefined {
   return getActionDetails(program, operation)?.name;
 }
@@ -520,6 +523,9 @@ export function getCollectionActionDetails(
   return program.stateMap(collectionActionsKey).get(operation);
 }
 
+/**
+ * @deprecated Use getCollectionActionDetails instead.
+ */
 export function getCollectionAction(
   program: Program,
   operation: Operation
