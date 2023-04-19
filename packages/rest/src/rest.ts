@@ -79,7 +79,9 @@ function getResourceOperationHttpVerb(
   return (
     getOperationVerb(program, operation) ??
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    (getActionDetails(program, operation) || getCollectionActionDetails(program, operation) ? "post" : undefined)
+    (getActionDetails(program, operation) || getCollectionActionDetails(program, operation)
+      ? "post"
+      : undefined)
   );
 }
 
