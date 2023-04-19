@@ -1146,18 +1146,13 @@ export function createChecker(program: Program): Checker {
         );
       }
     }
-    const cached = symbolLinks.instantiations?.get(args);
+    const mapper = createTypeMapper(params, args, parentMapper);
+    const cached = symbolLinks.instantiations?.get(mapper.args);
     if (cached) {
       return cached;
     }
     if (instantiateTempalates) {
-      return instantiateTemplate(
-        symbolLinks.instantiations,
-        templateNode,
-        params,
-        args,
-        parentMapper
-      );
+      return instantiateTemplate(symbolLinks.instantiations, templateNode, params, mapper);
     } else {
       return errorType;
     }
@@ -1175,13 +1170,11 @@ export function createChecker(program: Program): Checker {
     instantiations: TypeInstantiationMap,
     templateNode: TemplateableNode,
     params: TemplateParameter[],
-    args: Type[],
-    parentMapper: TypeMapper | undefined
+    mapper: TypeMapper
   ): Type {
-    const mapper = createTypeMapper(params, args, parentMapper);
     const type = getTypeForNode(templateNode, mapper);
-    if (!instantiations.get(args)) {
-      instantiations.set(args, type);
+    if (!instantiations.get(mapper.args)) {
+      instantiations.set(mapper.args, type);
     }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
@@ -5041,7 +5034,7 @@ function createTypeMapper(
 
   return {
     partial: false,
-    args,
+    args: [...(parentMapper?.args ?? []), ...args],
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
     },

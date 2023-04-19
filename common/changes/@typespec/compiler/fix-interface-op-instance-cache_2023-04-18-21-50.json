@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Issue with templated operations in templated interface would get cached only by keying on the operation template args.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

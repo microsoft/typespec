@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../core/types.js";
 import {
@@ -366,6 +366,29 @@ describe("compiler: interfaces", () => {
       ok(b);
 
       strictEqual(a.type, b.type);
+    });
+
+    it("templated interface with different args but templated operations with the same arg shouldn't be the same", async () => {
+      const { Index } = (await runner.compile(`
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      alias MyFoo8 = Foo<int8>;
+      alias MyFoo16 = Foo<int16>;
+      @test model Index {
+        a: MyFoo8.bar<string>;
+        b: MyFoo16.bar<string>;
+      }
+      `)) as {
+        Index: Model;
+      };
+      const a = Index.properties.get("a");
+      const b = Index.properties.get("b");
+      ok(a);
+      ok(b);
+
+      notStrictEqual(a.type, b.type);
     });
 
     it("can extend an interface with templated operations", async () => {
