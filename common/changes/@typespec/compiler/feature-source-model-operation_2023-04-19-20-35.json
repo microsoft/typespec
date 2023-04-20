@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Api: Added `sourceModel` and `sourceOperation` on `Model` and `Operation` respectively.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
