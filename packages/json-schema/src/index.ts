@@ -31,7 +31,7 @@ export async function $onEmit(context: EmitContext<JSONSchemaEmitterOptions>) {
   await emitter.writeOutput();
 }
 
-export function $JsonSchema(
+export function $jsonSchema(
   context: DecoratorContext,
   target: JsonSchemaDeclaration | Namespace,
   baseUriOrId?: string

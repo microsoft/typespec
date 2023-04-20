@@ -514,16 +514,6 @@ function identity<T>(x: T) {
 }
 
 /**
- * Determines whether a path is an absolute disk path (e.g. starts with `/`, or a dos path
- * like `c:`, `c:\` or `c:/`).
- *
- * @internal
- */
-function isRootedDiskPath(path: string) {
-  return getEncodedRootLength(path) > 0;
-}
-
-/**
  * Determines whether a path starts with an absolute path component (i.e. `/`, `c:/`, `file://`, etc.).
  *
  * ```ts
@@ -537,37 +527,16 @@ function isRootedDiskPath(path: string) {
  * pathIsAbsolute("path/to/file.ext") === false
  * pathIsAbsolute("./path/to/file.ext") === false
  * ```
- *
- * @internal
  */
-function pathIsAbsolute(path: string): boolean {
+export function pathIsAbsolute(path: string): boolean {
   return getEncodedRootLength(path) !== 0;
 }
 
 /**
  * Determines whether a path starts with a relative path component (i.e. `.` or `..`).
- *
- * @internal
  */
-function pathIsRelative(path: string): boolean {
+export function pathIsRelative(path: string): boolean {
   return /^\.\.?($|[\\/])/.test(path);
-}
-
-/**
- * Ensures a path is either absolute (prefixed with `/` or `c:`) or dot-relative (prefixed
- * with `./` or `../`) so as not to be confused with an unprefixed module name.
- *
- * ```ts
- * ensurePathIsNonModuleName("/path/to/file.ext") === "/path/to/file.ext"
- * ensurePathIsNonModuleName("./path/to/file.ext") === "./path/to/file.ext"
- * ensurePathIsNonModuleName("../path/to/file.ext") === "../path/to/file.ext"
- * ensurePathIsNonModuleName("path/to/file.ext") === "./path/to/file.ext"
- * ```
- *
- * @internal
- */
-function ensurePathIsNonModuleName(path: string): string {
-  return !pathIsAbsolute(path) && !pathIsRelative(path) ? "./" + path : path;
 }
 
 /** @internal */

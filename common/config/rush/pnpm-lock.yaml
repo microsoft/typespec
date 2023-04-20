@@ -26,6 +26,7 @@ specifiers:
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/http': file:./projects/http.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
+  '@rush-temp/json-schema': file:./projects/json-schema.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
   '@rush-temp/lint': file:./projects/lint.tgz
   '@rush-temp/migrate': file:./projects/migrate.tgz
@@ -72,6 +73,7 @@ specifiers:
   '@vitejs/plugin-react': ~3.1.0
   '@vscode/vsce': ~2.15.0
   ajv: ~8.12.0
+  ajv-formats: ~2.1.1
   autorest: ~3.3.2
   c8: ~7.13.0
   change-case: ~4.1.2
@@ -160,6 +162,7 @@ dependencies:
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/http': file:projects/http.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
+  '@rush-temp/json-schema': file:projects/json-schema.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
   '@rush-temp/lint': file:projects/lint.tgz
   '@rush-temp/migrate': file:projects/migrate.tgz
@@ -206,6 +209,7 @@ dependencies:
   '@vitejs/plugin-react': 3.1.0_vite@4.2.1
   '@vscode/vsce': 2.15.0
   ajv: 8.12.0
+  ajv-formats: 2.1.1
   autorest: 3.3.2
   c8: 7.13.0
   change-case: 4.1.2
@@ -16011,6 +16015,28 @@ packages:
       - supports-color
     dev: false
 
+  file:projects/json-schema.tgz:
+    resolution: {integrity: sha512-r3a5RdLza7UW98v/sKoDeK8VPoilDNYwV1sgHnJ3XZ+FHdkmLXM+SkPt7vQG9DCZqFV8ZNAqoXjGweVcTfQYjA==, tarball: file:projects/json-schema.tgz}
+    name: '@rush-temp/json-schema'
+    version: 0.0.0
+    dependencies:
+      '@types/js-yaml': 4.0.5
+      '@types/mocha': 10.0.1
+      '@types/node': 18.11.19
+      ajv: 8.12.0
+      ajv-formats: 2.1.1
+      c8: 7.13.0
+      eslint: 8.38.0
+      js-yaml: 4.1.0
+      mocha: 10.2.0
+      mocha-junit-reporter: 2.2.0_mocha@10.2.0
+      mocha-multi-reporters: 1.5.1_mocha@10.2.0
+      rimraf: 5.0.0
+      typescript: 5.0.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   file:projects/library-linter.tgz:
     resolution: {integrity: sha512-/ha+38dconSS8xB/n5c1XgIRb9ZuYduB8zB41uohPohflftccNqFiPKVPsvDG7ioaWLup/HCpK1vTJcBO6VU7w==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
@@ -16080,7 +16106,7 @@ packages:
     dev: false
 
   file:projects/openapi.tgz:
-    resolution: {integrity: sha512-XZUiXIfblSgzVpnvOzyrNujvfzxAs65FyCiKJZaulq/gvPWymRrhFAw9nMPTxGY9BusiISi2VIXnwM4GRlJXDw==, tarball: file:projects/openapi.tgz}
+    resolution: {integrity: sha512-dsDJIm7MZA6lFZvYLXu2so/Dg8QpnGgrd1xcWxi+rrQ/x+RPeiKQL9UtxM81ftVBI7SRi6HVqTwuo8AAY+R6ng==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
     version: 0.0.0
     dependencies:
@@ -16098,7 +16124,7 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-wQijfiCS64ra9snbWzBRvntxYi1VqfCg4rYP7k41ipbtVRlXzBges2/JbmxQ4Lu7aa7lssx/TvnpS+8HMYTOog==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-nd7sene3BOLtOAEEIm8cr222vc3w05gn2T4ji+psU3XzltBtBSGtH4HBaiqF06hVAYH5leDdQVeBNvP8sFfOBQ==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
@@ -16118,7 +16144,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-0HxFAq27WLaaYUpvHU9hOYdLU8Vuzf6RsurXS/6Nan2SlNTLpQGxoEiCcTwiZ/7NA7ipM02eOy5DzDTzHvZXCg==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-XuMzykDPf500djYzYDcCc/QybKrEijng4PkXn8TfmwdI7C3oQjBDZH5K6NKiOH8BpQgzd6kTKSMwyW//6/jh0A==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -16214,7 +16240,7 @@ packages:
     dev: false
 
   file:projects/rest.tgz:
-    resolution: {integrity: sha512-RaeXvup772kuLwBLyYTB4/CKzJs8CiYXVivDG/Xcw6RRml6y8W3lyoZ/U98atVZk0h6BH68YjVXsGvoSfD84Eg==, tarball: file:projects/rest.tgz}
+    resolution: {integrity: sha512-T68ohUIK0truidJnJ4cE97AwSiADerGRIZ/OygJQYND6gqDm8WoIyHrvQ3e3n8QMi2er7DZFOydmDJJV8qPBsg==, tarball: file:projects/rest.tgz}
     name: '@rush-temp/rest'
     version: 0.0.0
     dependencies:
@@ -16232,7 +16258,7 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-GPeX39NTlPXJ7obb2xExa91baP2iUBybR5xxSljwZaUbjf8T5SBxqGa0N7ZuIX+ozkQASOoPnnsKWL7P145ZGQ==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-IdsJv7QvZ9yfMbzv+s+cNl0DTtwPRgYRtNdxhfm01C0rFwTz45vpRyKd0PBETz4kWbgqaNR8T/E4BbJRSgk+JQ==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
@@ -16322,7 +16348,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.0.34:
-    resolution: {integrity: sha512-jcMRDTEvDiwowlJF+U/OU2UsPJwAqS3JyH6IAR+1JqRY9B8gBV/5nQ92wIn78VaWl+MFC1eC7zS0qAct9dogCg==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-5Bon+FCIX6RZwsZVrGIyYmvUm9EwkRtbpitNSW52bXOPeZUwYFOqYxqAQcnl/AvJXz9SEzjyA8h6stLlCzjGew==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0
