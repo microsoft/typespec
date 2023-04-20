@@ -5,7 +5,7 @@ import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
-import { compilationState, CompileResult } from "../state.js";
+import { CompileResult, compilationState } from "../state.js";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
 import { OutputSettings } from "./output-settings.js";

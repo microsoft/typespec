@@ -36,7 +36,7 @@ export const NodeHost: CompilerHost = {
   },
   getSourceFileKind: getSourceFileKindFromExt,
   logSink: createConsoleSink(),
-  mkdirp: (path: string) => mkdirp(path),
+  mkdirp: (path: string) => mkdirp(path) as any,
   fileURLToPath,
   pathToFileURL(path: string) {
     return pathToFileURL(path).href;

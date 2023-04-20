@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Deprecate the `shared` option in the `@route` decorator.  `@sharedRoute` is the new way to accomplish the same behavior.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

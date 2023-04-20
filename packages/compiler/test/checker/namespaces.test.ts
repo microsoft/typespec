@@ -3,10 +3,10 @@ import { getTypeName } from "../../core/index.js";
 import { Program } from "../../core/program.js";
 import { Model, Namespace, Type } from "../../core/types.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnostics,
   expectIdenticalTypes,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {

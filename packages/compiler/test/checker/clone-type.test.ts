@@ -2,7 +2,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import { DecoratorContext, Type } from "../../core/types.js";
 import { createRekeyableMap } from "../../core/util.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost } from "../../testing/index.js";
 
 describe("compiler: type cloning", () => {
   let testHost: TestHost;

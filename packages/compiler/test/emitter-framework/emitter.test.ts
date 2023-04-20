@@ -14,10 +14,8 @@ import {
 import {
   ArrayBuilder,
   AssetEmitter,
-  code,
   CodeTypeEmitter,
   Context,
-  createAssetEmitter,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
@@ -29,6 +27,8 @@ import {
   StringBuilder,
   TypeEmitter,
   TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
 } from "../../emitter-framework/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";

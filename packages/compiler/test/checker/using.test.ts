@@ -1,10 +1,10 @@
 import { rejects, strictEqual } from "assert";
 import { Model } from "../../core/types.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: using statements", () => {

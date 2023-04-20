@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: `missing-index` diagnostic showing at the wrong location",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

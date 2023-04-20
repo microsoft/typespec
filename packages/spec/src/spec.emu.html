@@ -532,11 +532,14 @@ ProjectionSelector :
     `interface`
     `op`
     `union`
+    `modelproperty`
+    `enummember`
+    `unionvariant`
     ReferenceExpression
 
 ProjectionDirection :
-    `to`
-    `from`
+    `pre`? `to`
+    `pre`? `from`
 
 ProjectionTag :
     `#` Identifier

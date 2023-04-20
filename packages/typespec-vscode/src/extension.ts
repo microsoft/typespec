@@ -1,7 +1,7 @@
 import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
 import { join } from "path";
-import vscode, { commands, ExtensionContext, workspace } from "vscode";
+import vscode, { ExtensionContext, commands, workspace } from "vscode";
 import {
   Executable,
   ExecutableOptions,

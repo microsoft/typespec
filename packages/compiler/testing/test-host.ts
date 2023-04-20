@@ -8,7 +8,7 @@ import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
-import { compile as compileProgram, Program } from "../core/program.js";
+import { Program, compile as compileProgram } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";

@@ -1,6 +1,6 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
-import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
+import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";

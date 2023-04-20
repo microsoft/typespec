@@ -210,16 +210,19 @@ describe("http: decorators", () => {
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
 
-    it("override query with QueryOptions", async () => {
-      const { selects } = await runner.compile(`
-          @put op test(@test @query({name: "$select", format: "csv"}) selects: string[]): string;
-        `);
-      deepStrictEqual(getQueryParamOptions(runner.program, selects), {
-        type: "query",
-        name: "$select",
-        format: "csv",
+    describe("change format for array value", () => {
+      ["csv", "tsv", "ssv", "pipes"].forEach((format) => {
+        it(`set query format to "${format}"`, async () => {
+          const { selects } = await runner.compile(`
+            op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
+          `);
+          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
+            type: "query",
+            name: "$select",
+            format,
+          });
+        });
       });
-      strictEqual(getQueryParamName(runner.program, selects), "$select");
     });
   });
 
@@ -242,10 +245,37 @@ describe("http: decorators", () => {
       ]);
     });
 
+    it("emits diagnostic when deprecated `shared` option is used", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", { shared: true }) op test(): string;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "deprecated",
+          message:
+            "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
+        },
+      ]);
+    });
+
+    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
+        @route("/test") op test3(): string;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `All shared routes must agree on the value of the shared parameter.`,
+        },
+      ]);
+    });
+
     it("do not emit diagnostics when duplicated shared routes are applied", async () => {
       const diagnostics = await runner.diagnose(`
-        @route("/test", {shared: true}) op test(): string;
-        @route("/test", {shared: true}) op test2(): string;
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
       `);
 
       expectDiagnosticEmpty(diagnostics);
@@ -257,8 +287,8 @@ describe("http: decorators", () => {
       `);
       expectDiagnostics(diagnostics, [
         {
-          code: "@typespec/http/shared-boolean",
-          message: `shared parameter must be a boolean.`,
+          code: "invalid-argument",
+          message: `Argument '(anonymous model)' is not assignable to parameter of type '(anonymous model)'`,
         },
       ]);
     });

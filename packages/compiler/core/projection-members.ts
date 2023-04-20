@@ -1,6 +1,6 @@
 import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
 import { Checker } from "./checker.js";
-import { assertType, ProjectionError } from "./diagnostics.js";
+import { ProjectionError, assertType } from "./diagnostics.js";
 import { ObjectType, Type, UnionVariant } from "./types.js";
 
 export function createProjectionMembers(checker: Checker): {
@@ -116,6 +116,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     ModelProperty: {
+      ...createBaseMembers(),
       name(base) {
         return createLiteralType(base.name);
       },
@@ -195,6 +196,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     UnionVariant: {
+      ...createBaseMembers(),
       name(base) {
         if (typeof base.name === "string") {
           return createLiteralType(base.name);
@@ -300,12 +302,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     Enum: {
-      projectionSource(base) {
-        return base.projectionSource ?? voidType;
-      },
-      projectionBase(base) {
-        return base.projectionBase || voidType;
-      },
+      ...createBaseMembers(),
       ...createNameableMembers(),
       members(base) {
         return createType({
@@ -382,6 +379,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     EnumMember: {
+      ...createBaseMembers(),
       name(base) {
         return createLiteralType(base.name);
       },

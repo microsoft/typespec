@@ -1,5 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import { TypeEmitter } from "../emitter-framework/index.js";
+import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
 import { Program } from "./program.js";
 
@@ -171,7 +171,8 @@ export type IntrinsicScalarName =
   | "string"
   | "plainDate"
   | "plainTime"
-  | "zonedDateTime"
+  | "utcDateTime"
+  | "offsetDateTime"
   | "duration"
   | "boolean"
   | "url";
@@ -280,6 +281,16 @@ export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   name: string;
   node: InterfaceStatementNode;
   namespace?: Namespace;
+
+  /**
+   * The interfaces that provide additional operations via `interface extends`.
+   *
+   * Note that despite the same `extends` keyword in source form, this is a
+   * different semantic relationship than the one from {@link Model} to
+   * {@link Model.baseModel}. Operations from extended interfaces are copied
+   * into {@link Interface.operations}.
+   */
+  sourceInterfaces: Interface[];
 
   /**
    * The operations of the interface.
@@ -539,6 +550,11 @@ export interface Sym {
   readonly members?: SymbolTable;
 
   /**
+   * Symbol table
+   */
+  readonly metatypeMembers?: SymbolTable;
+
+  /**
    * For using symbols, this is the used symbol.
    */
   readonly symbolSource?: Sym;
@@ -694,10 +710,13 @@ export enum SyntaxKind {
   Projection,
   ProjectionParameterDeclaration,
   ProjectionModelSelector,
+  ProjectionModelPropertySelector,
   ProjectionOperationSelector,
   ProjectionUnionSelector,
+  ProjectionUnionVariantSelector,
   ProjectionInterfaceSelector,
   ProjectionEnumSelector,
+  ProjectionEnumMemberSelector,
   ProjectionExpressionStatement,
   ProjectionIfExpression,
   ProjectionBlockExpression,
@@ -796,10 +815,13 @@ export type Node =
   | ProjectionStatementItem
   | ProjectionExpression
   | ProjectionModelSelectorNode
+  | ProjectionModelPropertySelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
   | ProjectionEnumSelectorNode
+  | ProjectionEnumMemberSelectorNode
   | ProjectionUnionSelectorNode
+  | ProjectionUnionVariantSelectorNode
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
   | ProjectionStatementNode
@@ -1003,6 +1025,7 @@ export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
   readonly id: IdentifierNode;
   readonly base: MemberExpressionNode | IdentifierNode;
+  readonly selector: "." | "::";
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
@@ -1280,6 +1303,10 @@ export interface ProjectionModelSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelSelector;
 }
 
+export interface ProjectionModelPropertySelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionModelPropertySelector;
+}
+
 export interface ProjectionInterfaceSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionInterfaceSelector;
 }
@@ -1292,8 +1319,16 @@ export interface ProjectionUnionSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionUnionSelector;
 }
 
+export interface ProjectionUnionVariantSelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionUnionVariantSelector;
+}
+
 export interface ProjectionEnumSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionEnumSelector;
+}
+
+export interface ProjectionEnumMemberSelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionEnumMemberSelector;
 }
 
 export type ProjectionStatementItem = ProjectionExpressionStatementNode;
@@ -1393,7 +1428,7 @@ export interface ProjectionBlockExpressionNode extends BaseNode {
 
 export interface ProjectionLambdaExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionLambdaExpression;
-  readonly parameters: ProjectionLambdaParameterDeclarationNode[];
+  readonly parameters: readonly ProjectionLambdaParameterDeclarationNode[];
   readonly locals?: SymbolTable;
   readonly body: ProjectionBlockExpressionNode;
 }
@@ -1404,10 +1439,11 @@ export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNod
 
 export interface ProjectionNode extends BaseNode {
   readonly kind: SyntaxKind.Projection;
-  readonly direction: "to" | "from";
+  readonly direction: "to" | "from" | "pre_to" | "pre_from" | "<error>";
   readonly directionId: IdentifierNode;
+  readonly modifierIds: readonly IdentifierNode[];
   readonly parameters: ProjectionParameterDeclarationNode[];
-  readonly body: ProjectionStatementItem[];
+  readonly body: readonly ProjectionStatementItem[];
   readonly locals?: SymbolTable;
 }
 
@@ -1415,14 +1451,20 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.ProjectionStatement;
   readonly selector:
     | ProjectionModelSelectorNode
+    | ProjectionModelPropertySelectorNode
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
+    | ProjectionUnionVariantSelectorNode
     | ProjectionEnumSelectorNode
+    | ProjectionEnumMemberSelectorNode
     | MemberExpressionNode
     | IdentifierNode;
   readonly to?: ProjectionNode;
   readonly from?: ProjectionNode;
+  readonly preTo?: ProjectionNode;
+  readonly preFrom?: ProjectionNode;
+  readonly projections: readonly ProjectionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 

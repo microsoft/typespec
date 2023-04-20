@@ -2,6 +2,66 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.43.0",
+      "tag": "@typespec/compiler_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bug: Emitter framework will now visit scalar declarations"
+          },
+          {
+            "comment": "Emit diagnostic when ambiguous symbol exists between global and usings."
+          },
+          {
+            "comment": "Feature: Add support for referencing metatypes ModelProperty `::type` and Operation `::returnType` and `::parameters`"
+          },
+          {
+            "comment": "Relax constraint on derived type overrides"
+          },
+          {
+            "comment": "Fix: Alias unknown ref crash"
+          },
+          {
+            "comment": "Fix: Empty model expression assignable to array"
+          },
+          {
+            "comment": "Fix `tsp code uninstall` not finding extension to uninstall."
+          },
+          {
+            "comment": "Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation."
+          },
+          {
+            "comment": "Prevent use of augment decorators on instantiated templates."
+          },
+          {
+            "comment": "Allow projectedNames helpers to work with previous projections"
+          },
+          {
+            "comment": "Add helper `interpolatePath` for emitter to do additional interpolation on config properties"
+          },
+          {
+            "comment": "Api: Update `getTypeName` to omit standard library namespace"
+          },
+          {
+            "comment": "Allow overloads in interfaces to work under projection"
+          },
+          {
+            "comment": "Add pre-projection support."
+          },
+          {
+            "comment": "Provide access to extended interfaces in type graph."
+          },
+          {
+            "comment": "Document member ordering and fix projection rename reordering."
+          },
+          {
+            "comment": "Replaced zonedDateTime with utcDateTime and offsetDateTime"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/compiler_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",
