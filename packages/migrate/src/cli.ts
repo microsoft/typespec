@@ -43,8 +43,10 @@ async function main() {
   if (cliOptions.tspVersion === undefined) {
     // Locate current package.json
     const pkgFile = resolvePath(cliOptions.path, PackageJsonFile);
-    const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
-    cliOptions.tspVersion = lookupExistingVersion(packageJson);
+    const packageJson = await readPackageJson(pkgFile);
+    if (packageJson) {
+      cliOptions.tspVersion = lookupExistingVersion(packageJson);
+    }
     // Locate current compiler version
   }
 
@@ -117,6 +119,13 @@ async function main() {
   }
 }
 
+async function readPackageJson(pkgFile: string): Promise<NodePackage | undefined> {
+  try {
+    return JSON.parse(await readFile(pkgFile, "utf-8"));
+  } catch (e) {
+    return undefined;
+  }
+}
 function lookupExistingVersion(packageJson: NodePackage) {
   const CadlCompiler = "@cadl-lang/compiler";
   const TypeSpecCompiler = "@typespec/compiler";
