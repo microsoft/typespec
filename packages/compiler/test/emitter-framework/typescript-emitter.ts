@@ -35,6 +35,7 @@ export function isArrayType(m: Model) {
 }
 
 export const intrinsicNameToTSType = new Map<string, string>([
+  ["unknown", "unknown"],
   ["string", "string"],
   ["int32", "number"],
   ["int16", "number"],

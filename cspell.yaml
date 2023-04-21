@@ -66,6 +66,7 @@ words:
   - xplat
   - keyer
   - interner
+  - unprefixed
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
