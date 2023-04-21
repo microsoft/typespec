@@ -18,7 +18,7 @@ import { findTypeSpecFiles } from "./utils.js";
 
 interface Options {
   path: string;
-  tspVersion: string;
+  tspVersion?: string;
 }
 
 async function main() {
@@ -34,35 +34,25 @@ async function main() {
     .option("tspVersion", {
       alias: "t",
       describe:
-        "Specifies the TypeSpec compiler version used by the input. Defaults to the version of the compiler package in package.json.",
+        "Specifies the TypeSpec compiler version used by the input(Version you want to upgrade from). Defaults to the version of the compiler package in package.json.",
       type: "string",
-      default: "",
     })
     .help().argv;
 
   const PackageJsonFile = "package.json";
-  if (cliOptions.tspVersion.length === 0) {
+  if (cliOptions.tspVersion === undefined) {
     // Locate current package.json
     const pkgFile = resolvePath(cliOptions.path, PackageJsonFile);
     const packageJson: NodePackage = JSON.parse(await readFile(pkgFile, "utf-8"));
-
+    cliOptions.tspVersion = lookupExistingVersion(packageJson);
     // Locate current compiler version
-    const CadlCompiler = "@cadl-lang/compiler";
-    const TypeSpecCompiler = "@typespec/compiler";
-    if (
-      packageJson?.devDependencies !== undefined &&
-      packageJson?.devDependencies[CadlCompiler] !== undefined
-    ) {
-      cliOptions.tspVersion = packageJson.devDependencies[CadlCompiler];
-    } else if (
-      packageJson?.devDependencies !== undefined &&
-      packageJson?.devDependencies[TypeSpecCompiler] !== undefined
-    ) {
-      cliOptions.tspVersion = packageJson.devDependencies[TypeSpecCompiler];
-    } else {
-      console.error("Unable to find TypeSpec compiler version in package.json.");
-      return;
-    }
+  }
+
+  if (cliOptions.tspVersion === undefined) {
+    console.error(
+      "Couldn't resolve TypeSpec compiler version to upgrade from. Use `--tspVersion` flag to specify it."
+    );
+    process.exit(1);
   }
 
   if (!fs.existsSync(cliOptions.path)) {
@@ -125,6 +115,24 @@ async function main() {
   } else {
     console.log("\nNo typespec files have been migrated.");
   }
+}
+
+function lookupExistingVersion(packageJson: NodePackage) {
+  const CadlCompiler = "@cadl-lang/compiler";
+  const TypeSpecCompiler = "@typespec/compiler";
+
+  const depKinds = ["devDependencies", "peerDependencies", "dependencies"] as const;
+  for (const depKind of depKinds) {
+    const deps = packageJson[depKind];
+    if (deps === undefined) {
+      continue;
+    }
+    const found = deps[CadlCompiler] ?? deps[TypeSpecCompiler];
+    if (found) {
+      return found;
+    }
+  }
+  return undefined;
 }
 
 main().catch((e) => {
