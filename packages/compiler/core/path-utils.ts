@@ -514,16 +514,6 @@ function identity<T>(x: T) {
 }
 
 /**
- * Determines whether a path is an absolute disk path (e.g. starts with `/`, or a dos path
- * like `c:`, `c:\` or `c:/`).
- *
- * @internal
- */
-function isRootedDiskPath(path: string) {
-  return getEncodedRootLength(path) > 0;
-}
-
-/**
  * Determines whether a path starts with an absolute path component (i.e. `/`, `c:/`, `file://`, etc.).
  *
  * ```ts
@@ -566,7 +556,7 @@ function pathIsRelative(path: string): boolean {
  *
  * @internal
  */
-function ensurePathIsNonModuleName(path: string): string {
+export function ensurePathIsNonModuleName(path: string): string {
   return !pathIsAbsolute(path) && !pathIsRelative(path) ? "./" + path : path;
 }
 
