@@ -50,7 +50,7 @@ async function main() {
 
   if (cliOptions.tspVersion === undefined) {
     console.error(
-      "Couldn't resolve TypeSpec compiler version to upgrade from. Use `--tspVersion` flag to specify it. (e.g. `--tspVersion=0.42` to upgrade from version 0.42)"
+      "Couldn't resolve TypeSpec compiler version to upgrade from. Use `--tspVersion` flag to specify it. (e.g. `--tspVersion=0.42.0` to upgrade from version 0.42.0)"
     );
     process.exit(1);
   }
