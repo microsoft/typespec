@@ -803,6 +803,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           ? `${openApiResponse.description} ${response.description}`
           : response.description;
       }
+      // TODO: Simplify this logic
+      // emitResponseHeaders(openApiResponse, response.responses, response.type);
+      // emitResponseContent(openApiResponse, response.responses);
       for (const data of response.responses) {
         if (data.headers && Object.keys(data.headers).length > 0) {
           openApiResponse.headers ??= {};
@@ -858,43 +861,69 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function emitResponseObject(response: Readonly<HttpOperationResponse>) {
     const statusCode = getOpenAPIStatuscode(response);
-    const openapiResponse = currentEndpoint.responses[statusCode] ?? {
+    const openApiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
+    emitResponseHeaders(openApiResponse, response.responses, response.type);
+    emitResponseContent(openApiResponse, response.responses);
+    currentEndpoint.responses[statusCode] = openApiResponse;
+  }
 
-    for (const data of response.responses) {
+  function emitResponseHeaders(
+    obj: any,
+    responses: http.HttpOperationResponseContent[],
+    target: Type
+  ) {
+    for (const data of responses) {
       if (data.headers && Object.keys(data.headers).length > 0) {
-        openapiResponse.headers ??= {};
+        obj.headers ??= {};
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates.
         // It may be possible in principle to not error for identically declared
         // headers.
         for (const [key, value] of Object.entries(data.headers)) {
-          if (openapiResponse.headers[key]) {
+          if (obj.headers[key]) {
             reportDiagnostic(program, {
               code: "duplicate-header",
               format: { header: key },
-              target: response.type,
+              target: target,
             });
             continue;
           }
-          openapiResponse.headers[key] = getResponseHeader(value);
-        }
-      }
-
-      if (data.body !== undefined) {
-        openapiResponse.content ??= {};
-        for (const contentType of data.body.contentTypes) {
-          const isBinary = isBinaryPayload(data.body.type, contentType);
-          const schema = isBinary
-            ? { type: "string", format: "binary" }
-            : getSchemaOrRef(data.body.type, Visibility.Read);
-          openapiResponse.content[contentType] = { schema };
+          obj.headers[key] = getResponseHeader(value);
         }
       }
     }
+  }
 
-    currentEndpoint.responses[statusCode] = openapiResponse;
+  function emitResponseContent(obj: any, responses: http.HttpOperationResponseContent[]) {
+    const schemaMap = new Map<string, any[]>();
+    for (const data of responses) {
+      if (data.body === undefined) {
+        continue;
+      }
+      obj.content ??= {};
+      for (const contentType of data.body.contentTypes) {
+        const isBinary = isBinaryPayload(data.body.type, contentType);
+        const schema = isBinary
+          ? { type: "string", format: "binary" }
+          : getSchemaOrRef(data.body.type, Visibility.Read);
+        if (schemaMap.has(contentType)) {
+          schemaMap.get(contentType)!.push(schema);
+        } else {
+          schemaMap.set(contentType, [schema]);
+        }
+      }
+      for (const [contentType, schema] of schemaMap) {
+        if (schema.length === 1) {
+          obj.content[contentType] = { schema: schema[0] };
+        } else {
+          obj.content[contentType] = {
+            schema: { oneOf: schema },
+          };
+        }
+      }
+    }
   }
 
   function getResponseDescriptionForStatusCode(statusCode: string) {
