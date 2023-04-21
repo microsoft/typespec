@@ -1602,14 +1602,14 @@ export function createChecker(program: Program): Checker {
     let decorators: DecoratorApplication[] = [];
 
     // Is this a definition or reference?
-    let parameters: Model, returnType: Type;
+    let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (!baseOperation) {
         return errorType;
       }
-
+      sourceOperation = baseOperation;
       // Reference the same return type and create the parameters type
       parameters = cloneType(baseOperation.parameters);
       returnType = baseOperation.returnType;
@@ -1629,6 +1629,7 @@ export function createChecker(program: Program): Checker {
       parameters,
       returnType,
       decorators,
+      sourceOperation,
       interface: parentInterface,
     });
 
@@ -2328,6 +2329,7 @@ export function createChecker(program: Program): Checker {
     const isBase = checkModelIs(node, node.is, mapper);
 
     if (isBase) {
+      type.sourceModel = isBase;
       checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
