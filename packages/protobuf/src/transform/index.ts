@@ -529,15 +529,19 @@ function tspToProto(program: Program): ProtoFile[] {
     const protoType = getProtoScalarsMap(program).get(t);
 
     if (!protoType) {
-      reportDiagnostic(program, {
-        code: "unsupported-field-type",
-        messageId: "unknown-scalar",
-        format: {
-          name: fullName,
-        },
-        target: t,
-      });
-      return unreachable("unknown scalar");
+      if (t.baseScalar) {
+        return scalarToProto(t.baseScalar);
+      } else {
+        reportDiagnostic(program, {
+          code: "unsupported-field-type",
+          messageId: "unknown-scalar",
+          format: {
+            name: fullName,
+          },
+          target: t,
+        });
+        return unreachable("unknown scalar");
+      }
     }
 
     return protoType;
