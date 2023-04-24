@@ -936,6 +936,9 @@ function capitalize<S extends string>(s: S) {
  * Gets the syntactic return type target for an operation.
  *
  * Helps us squiggle the right things for operation return types.
+ *
+ * See https://github.com/microsoft/typespec/issues/1650. This issue tracks helpers for doing this without requiring
+ * emitters to implement this functionality.
  */
 function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
   const signature = op.node.signature;
@@ -954,6 +957,9 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
 
 /**
  * Gets the syntactic position of a model property name.
+ *
+ * See https://github.com/microsoft/typespec/issues/1650. This issue tracks helpers for doing this without requiring
+ * emitters to implement this functionality.
  */
 function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
   const node = property.node;
