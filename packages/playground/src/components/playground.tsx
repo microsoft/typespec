@@ -1,6 +1,6 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
-import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
+import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
@@ -49,44 +49,9 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
   const emittersOptions = useRecoilValue(emittersOptionsState);
   const selectedEmitter = useRecoilValue(selectedEmitterState);
 
-  useEffect(() => {
-    const newContent = typespecContent ?? "";
-    typespecModel.setValue(newContent);
-    void doCompile(newContent);
-  }, [typespecContent]);
-
-  useEffect(() => {
-    typespecModel.onDidChangeContent(debounce(() => doCompile(typespecModel.getValue()), 200));
-  }, [typespecModel]);
-
-  useEffect(() => {
-    void doCompile(typespecModel.getValue());
-  }, [selectedEmitter, emittersOptions]);
-
-  const updateTypeSpec = useCallback(
-    (value: string) => {
-      typespecModel.setValue(value);
-      return doCompile(value);
-    },
-    [typespecModel]
-  );
-
-  const saveCode = useCallback(async () => {
-    if (onSave) {
-      onSave(typespecModel.getValue());
-    }
-  }, [typespecModel, onSave]);
-
-  const newIssue = useCallback(async () => {
-    await saveCode();
-    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
-    const url = `${PlaygroundManifest.links.newIssue}?body=${bodyPayload}`;
-    window.open(url, "_blank");
-  }, [saveCode, typespecModel]);
-
-  async function doCompile(content: string) {
+  const doCompile = useCallback(async () => {
+    const content = typespecModel.getValue();
     const typespecCompiler = await importTypeSpecCompiler();
-
     const state = await compile(host, content, selectedEmitter, emittersOptions);
     setCompilationStatus(state);
     if ("program" in state) {
@@ -101,7 +66,40 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }
+  }, [host, selectedEmitter, emittersOptions, typespecModel]);
+
+  const updateTypeSpec = useCallback(
+    (value: string) => {
+      typespecModel.setValue(value);
+    },
+    [typespecModel]
+  );
+
+  useEffect(() => {
+    const newContent = typespecContent ?? "";
+    updateTypeSpec(newContent);
+  }, [updateTypeSpec]);
+
+  useEffect(() => {
+    const disposable = typespecModel.onDidChangeContent(debounce(() => doCompile(), 200));
+    return () => disposable.dispose();
+  }, [typespecModel, doCompile]);
+  useEffect(() => {
+    void doCompile();
+  }, [doCompile]);
+
+  const saveCode = useCallback(async () => {
+    if (onSave) {
+      onSave(typespecModel.getValue());
+    }
+  }, [typespecModel, onSave]);
+
+  const newIssue = useCallback(async () => {
+    await saveCode();
+    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
+    const url = `${PlaygroundManifest.links.newIssue}?body=${bodyPayload}`;
+    window.open(url, "_blank");
+  }, [saveCode, typespecModel]);
 
   const typespecEditorCommands = useMemo(
     () => [

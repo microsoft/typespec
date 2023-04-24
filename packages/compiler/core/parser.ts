@@ -2,15 +2,15 @@ import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
+  Token,
+  TokenDisplay,
+  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
   isTrivia,
-  Token,
-  TokenDisplay,
-  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
@@ -62,6 +62,7 @@ import {
   OperationStatementNode,
   ParseOptions,
   ProjectionBlockExpressionNode,
+  ProjectionEnumMemberSelectorNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
   ProjectionExpressionStatementNode,
@@ -71,6 +72,7 @@ import {
   ProjectionLambdaParameterDeclarationNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
+  ProjectionModelPropertySelectorNode,
   ProjectionModelSelectorNode,
   ProjectionModelSpreadPropertyNode,
   ProjectionNode,
@@ -80,6 +82,7 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
+  ProjectionUnionVariantSelectorNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -850,9 +853,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const value = parseExpression();
 
     const hasDefault = parseOptional(Token.Equals);
-    if (hasDefault && !optional) {
-      error({ code: "default-optional" });
-    }
     const defaultValue = hasDefault ? parseExpression() : undefined;
     return {
       kind: SyntaxKind.ModelProperty,
@@ -1207,20 +1207,33 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       message,
       recoverFromKeyword,
     });
-    while (parseOptional(Token.Dot)) {
-      base = {
-        kind: SyntaxKind.MemberExpression,
-        base,
-        // Error recovery: false arg here means don't treat a keyword as an
-        // identifier after `.` in member expression. Otherwise we will
-        // parse `@Outer.<missing identifier> model M{}` as having decorator
-        // `@Outer.model` applied to invalid statement `M {}` instead of
-        // having incomplete decorator `@Outer.` applied to `model M {}`.
-        id: parseIdentifier({
-          recoverFromKeyword: false,
-        }),
-        ...finishNode(pos),
-      };
+    while (token() !== Token.EndOfFile) {
+      if (parseOptional(Token.Dot)) {
+        base = {
+          kind: SyntaxKind.MemberExpression,
+          base,
+          // Error recovery: false arg here means don't treat a keyword as an
+          // identifier after `.` in member expression. Otherwise we will
+          // parse `@Outer.<missing identifier> model M{}` as having decorator
+          // `@Outer.model` applied to invalid statement `M {}` instead of
+          // having incomplete decorator `@Outer.` applied to `model M {}`.
+          id: parseIdentifier({
+            recoverFromKeyword: false,
+          }),
+          selector: ".",
+          ...finishNode(pos),
+        };
+      } else if (parseOptional(Token.ColonColon)) {
+        base = {
+          kind: SyntaxKind.MemberExpression,
+          base,
+          id: parseIdentifier(),
+          selector: "::",
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
     }
 
     return base;
@@ -1547,29 +1560,31 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
 
     parseExpected(Token.OpenBrace);
-    let from, to;
-    let proj1, proj2;
-    if (token() === Token.Identifier) {
-      proj1 = parseProjection();
 
-      if (token() === Token.Identifier) {
-        proj2 = parseProjection();
+    const projectionMap = new Map<string, ProjectionNode>();
+    const projections: ProjectionNode[] = [];
+    while (token() === Token.Identifier) {
+      const projection = parseProjection();
+      if (projection.direction !== "<error>") {
+        if (projectionMap.has(projection.direction)) {
+          error({ code: "duplicate-symbol", target: projection, format: { name: "projection" } });
+        } else {
+          projectionMap.set(projection.direction, projection);
+        }
       }
+      // NOTE: Don't drop projections with error in direction definition from the AST.
+      projections.push(projection);
     }
-
-    if (proj1 && proj2 && proj1.direction === proj2.direction) {
-      error({ code: "duplicate-symbol", target: proj2, format: { name: "projection" } });
-    } else if (proj1) {
-      [to, from] = proj1.direction === "to" ? [proj1, proj2] : [proj2, proj1];
-    }
-
     parseExpected(Token.CloseBrace);
 
     return {
       kind: SyntaxKind.ProjectionStatement,
       selector,
-      from,
-      to,
+      projections,
+      preTo: projectionMap.get("pre_to"),
+      preFrom: projectionMap.get("pre_from"),
+      from: projectionMap.get("from"),
+      to: projectionMap.get("to"),
       id,
       ...finishNode(pos),
     };
@@ -1577,20 +1592,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
-    const directionId = parseIdentifier({ message: "projectionDirection" });
-    let direction: "to" | "from";
-    if (directionId.sv !== "from" && directionId.sv !== "to") {
+    let directionId = parseIdentifier({ message: "projectionDirection" });
+    let direction: "to" | "from" | "pre_to" | "pre_from" | "<error>";
+    const modifierIds: IdentifierNode[] = [];
+    let isPre = false;
+
+    if (directionId.sv === "pre") {
+      isPre = true;
+      modifierIds.push(directionId);
+      directionId = parseIdentifier({ message: "projectionDirection" });
+    }
+    if (directionId.sv !== "to" && directionId.sv !== "from") {
       error({ code: "token-expected", messageId: "projectionDirection" });
-      direction = "from";
+      direction = "<error>";
+    } else if (isPre) {
+      direction = directionId.sv === "to" ? "pre_to" : "pre_from";
     } else {
       direction = directionId.sv;
     }
+
     let parameters: ProjectionParameterDeclarationNode[];
     if (token() === Token.OpenParen) {
       parameters = parseList(ListKind.ProjectionParameter, parseProjectionParameter);
     } else {
       parameters = [];
     }
+
     parseExpected(Token.OpenBrace);
     const body: ProjectionStatementItem[] = parseProjectionStatementList();
     parseExpected(Token.CloseBrace);
@@ -1600,6 +1627,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       body,
       direction,
       directionId,
+      modifierIds,
       parameters,
       ...finishNode(pos),
     };
@@ -2024,9 +2052,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const value = parseProjectionExpression();
 
     const hasDefault = parseOptional(Token.Equals);
-    if (hasDefault && !optional) {
-      error({ code: "default-optional" });
-    }
     const defaultValue = hasDefault ? parseProjectionExpression() : undefined;
     return {
       kind: SyntaxKind.ProjectionModelProperty,
@@ -2088,9 +2113,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
+    | ProjectionModelPropertySelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
-    | ProjectionEnumSelectorNode {
+    | ProjectionUnionVariantSelectorNode
+    | ProjectionEnumSelectorNode
+    | ProjectionEnumMemberSelectorNode {
     const pos = tokenPos();
     const selectorTok = expectTokenIsOneOf(
       Token.Identifier,
@@ -2103,7 +2131,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseIdentifierOrMemberExpression(undefined, true);
+        const id = parseIdentifierOrMemberExpression(undefined, true);
+        if (id.kind === SyntaxKind.Identifier) {
+          switch (id.sv) {
+            case "modelproperty":
+              return {
+                kind: SyntaxKind.ProjectionModelPropertySelector,
+                ...finishNode(pos),
+              };
+            case "unionvariant":
+              return {
+                kind: SyntaxKind.ProjectionUnionVariantSelector,
+                ...finishNode(pos),
+              };
+            case "enummember":
+              return {
+                kind: SyntaxKind.ProjectionEnumMemberSelector,
+                ...finishNode(pos),
+              };
+          }
+        }
+        return id;
       case Token.ModelKeyword:
         nextToken();
         return {
@@ -2916,6 +2964,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.Projection:
       return (
         visitNode(cb, node.directionId) ||
+        visitEach(cb, node.modifierIds) ||
         visitEach(cb, node.parameters) ||
         visitEach(cb, node.body)
       );
@@ -2956,10 +3005,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.parameters) || visitNode(cb, node.body);
     case SyntaxKind.ProjectionStatement:
       return (
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.selector) ||
-        visitNode(cb, node.from) ||
-        visitNode(cb, node.to)
+        visitNode(cb, node.id) || visitNode(cb, node.selector) || visitEach(cb, node.projections)
       );
     case SyntaxKind.ProjectionDecoratorReferenceExpression:
       return visitNode(cb, node.target);
@@ -2993,10 +3039,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.Identifier:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
+    case SyntaxKind.ProjectionModelPropertySelector:
     case SyntaxKind.ProjectionUnionSelector:
+    case SyntaxKind.ProjectionUnionVariantSelector:
     case SyntaxKind.ProjectionInterfaceSelector:
     case SyntaxKind.ProjectionOperationSelector:
     case SyntaxKind.ProjectionEnumSelector:
+    case SyntaxKind.ProjectionEnumMemberSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
     case SyntaxKind.ExternKeyword:

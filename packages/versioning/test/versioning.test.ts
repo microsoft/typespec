@@ -13,7 +13,9 @@ import {
 } from "@typespec/compiler";
 import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
-import { getVersions, indexVersions, Version } from "../src/versioning.js";
+import { Version } from "../src/types.js";
+import { VersioningTimeline } from "../src/versioning-timeline.js";
+import { getVersions, indexTimeline } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -22,7 +24,7 @@ import {
   assertHasVariants,
 } from "./utils.js";
 
-describe("compiler: versioning", () => {
+describe("versioning: logic", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -387,7 +389,7 @@ describe("compiler: versioning", () => {
         `
         model Test {
           @typeChangedFrom(Versions.v2, string)
-          @typeChangedFrom(Versions.v3, zonedDateTime)
+          @typeChangedFrom(Versions.v3, utcDateTime)
           changed: MyDate;
         }
         
@@ -396,7 +398,7 @@ describe("compiler: versioning", () => {
       );
 
       ok((v1.properties.get("changed")!.type as Scalar).name === "string");
-      ok((v2.properties.get("changed")!.type as Scalar).name === "zonedDateTime");
+      ok((v2.properties.get("changed")!.type as Scalar).name === "utcDateTime");
       ok((v3.properties.get("changed")!.type as Model).name === "MyDate");
     });
 
@@ -975,14 +977,14 @@ describe("compiler: versioning", () => {
         ["v1", "v2", "v3"],
         `
         @returnTypeChangedFrom(Versions.v2, string)
-        @returnTypeChangedFrom(Versions.v3, zonedDateTime)  
+        @returnTypeChangedFrom(Versions.v3, utcDateTime)  
         op Test(): MyDate;
 
         model MyDate {};
         `
       );
       ok((v1.returnType as Scalar).name === "string");
-      ok((v2.returnType as Scalar).name === "zonedDateTime");
+      ok((v2.returnType as Scalar).name === "utcDateTime");
       ok((v3.returnType as Model).name === "MyDate");
     });
 
@@ -1225,7 +1227,7 @@ describe("compiler: versioning", () => {
         `
         interface Test {
           @returnTypeChangedFrom(Versions.v2, string)
-          @returnTypeChangedFrom(Versions.v3, zonedDateTime)  
+          @returnTypeChangedFrom(Versions.v3, utcDateTime)  
           op foo(): MyDate;  
         }
 
@@ -1233,7 +1235,7 @@ describe("compiler: versioning", () => {
         `
       );
       ok((v1.operations.get("foo")!.returnType as Scalar).name === "string");
-      ok((v2.operations.get("foo")!.returnType as Scalar).name === "zonedDateTime");
+      ok((v2.operations.get("foo")!.returnType as Scalar).name === "utcDateTime");
       ok((v3.operations.get("foo")!.returnType as Model).name === "MyDate");
     });
 
@@ -1657,7 +1659,8 @@ describe("compiler: versioning", () => {
       fail(`Should have found the version ${version}`);
     }
     const versionMap = new Map<Namespace, Version>([[actualVersion.namespace, actualVersion]]);
-    const versionKey = indexVersions(runner.program, versionMap);
+    const timeline = new VersioningTimeline(runner.program, [versionMap]);
+    const versionKey = indexTimeline(runner.program, timeline, timeline.get(actualVersion));
     const projection: ProjectionApplication = {
       arguments: [versionKey],
       projectionName: "v",

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix `--emit` pointing to emitter js entrypoint resolve correct options",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

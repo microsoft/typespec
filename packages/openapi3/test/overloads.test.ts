@@ -95,4 +95,18 @@ describe("openapi3: overloads", () => {
       ok(res.paths["/uploadString"].post);
     });
   });
+
+  it("overloads work inside an interface", async () => {
+    const _ = await openApiFor(`
+      interface Foo {
+        op doStringOrInt(a?: string, b?: int32, c?: Record<string>): { @TypeSpec.Http.header("content-type") contenType: "application/text", @TypeSpec.Http.body data: string }| int32;
+      
+        @overload(Foo.doStringOrInt)
+        op doString(a: string): { @TypeSpec.Http.header("content-type") contenType: "application/text", @TypeSpec.Http.body data: string };
+      
+        @overload(Foo.doStringOrInt)
+        op doInt(b: int32): int32;
+      }
+    `);
+  });
 });

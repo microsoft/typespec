@@ -5,7 +5,7 @@ import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
-import { compilationState, CompileResult } from "../state.js";
+import { CompileResult, compilationState } from "../state.js";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
 import { OutputSettings } from "./output-settings.js";
@@ -38,9 +38,10 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
   useEffect(() => {
     if (viewSelection.type === "file") {
       if (outputFiles.length > 0) {
-        void loadOutputFile(outputFiles[0]);
+        const fileStillThere = outputFiles.find((x) => x === viewSelection.filename);
+        void loadOutputFile(fileStillThere ?? outputFiles[0]);
       } else {
-        setViewSelection({ type: "file", filename: "", content: "" });
+        setViewSelection({ type: "file", filename: viewSelection.filename, content: "" });
       }
     }
   }, [program, outputFiles]);

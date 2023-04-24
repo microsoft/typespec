@@ -14,10 +14,8 @@ import {
 import {
   ArrayBuilder,
   AssetEmitter,
-  code,
   CodeTypeEmitter,
   Context,
-  createAssetEmitter,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
@@ -29,6 +27,8 @@ import {
   StringBuilder,
   TypeEmitter,
   TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
 } from "../../emitter-framework/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
@@ -93,7 +93,7 @@ async function emitTypeSpecToTs(code: string) {
   return sf.text;
 }
 
-describe("typescript emitter", () => {
+describe("emitter-framework: typescript emitter", () => {
   it("emits models", async () => {
     const contents = await emitTypeSpecToTs(`
       model A {
@@ -139,6 +139,16 @@ describe("typescript emitter", () => {
     assert.match(contents, /z: 12/);
   });
 
+  it("emits unknown", async () => {
+    const contents = await emitTypeSpecToTs(`
+      model A {
+        x: unknown
+      }
+    `);
+
+    assert.match(contents, /x: unknown/);
+  });
+
   it("emits array literals", async () => {
     const contents = await emitTypeSpecToTs(`
       model MyArray2 is Array<string>;
@@ -155,6 +165,15 @@ describe("typescript emitter", () => {
     assert.match(contents, /y: string\[\]/);
     assert.match(contents, /z: \(string \| number\)\[\]/);
   });
+
+  it("emits arrays of unknown", async () => {
+    const contents = await emitTypeSpecToTs(`
+      model MyArray2 is Array<unknown>;
+    `);
+
+    assert.match(contents, /MyArray2 extends Array<unknown>/);
+  });
+
   // todo: what to do with optionals not at the end??
   it("emits operations", async () => {
     const contents = await emitTypeSpecToTs(`
@@ -599,7 +618,7 @@ it("can get options", async () => {
   assert(called, "program context should be called");
 });
 
-describe("Object emitter", () => {
+describe("emitter-framework: object emitter", () => {
   class TestEmitter extends TypeEmitter<object> {
     programContext(program: Program): Context {
       const sourceFile = this.emitter.createSourceFile("test.json");

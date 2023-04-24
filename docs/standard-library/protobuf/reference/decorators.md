@@ -8,30 +8,6 @@ toc_max_heading_level: 3
 
 ## TypeSpec.Protobuf
 
-### `@message` {#@TypeSpec.Protobuf.message}
-
-Declares that a model is a Protobuf message.
-
-Messages can be detected automatically if either of the following two conditions are met:
-
-- The model has a `@field` annotation on all of its properties.
-- The model is referenced by any service operation.
-
-This decorator will force the emitter to check and emit a model.
-
-```typespec
-dec TypeSpec.Protobuf.message(target: TypeSpec.object)
-```
-
-#### Target
-
-`model TypeSpec.object`
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-
 ### `@field` {#@TypeSpec.Protobuf.field}
 
 Defines the field index of a model property for conversion to a Protobuf
@@ -44,7 +20,7 @@ The field index of a Protobuf message must:
 - not fall within any range that was [marked reserved](#
 
 ```typespec
-dec TypeSpec.Protobuf.field(target: TypeSpec.Reflection.ModelProperty, index: TypeSpec.uint32)
+dec TypeSpec.Protobuf.field(target: ModelProperty, index: uint32)
 ```
 
 #### Target
@@ -53,9 +29,51 @@ dec TypeSpec.Protobuf.field(target: TypeSpec.Reflection.ModelProperty, index: Ty
 
 #### Parameters
 
-| Name  | Type                     | Description                          |
-| ----- | ------------------------ | ------------------------------------ |
-| index | `scalar TypeSpec.uint32` | The whole-number index of the field. |
+| Name  | Type            | Description                          |
+| ----- | --------------- | ------------------------------------ |
+| index | `scalar uint32` | The whole-number index of the field. |
+
+### `@message` {#@TypeSpec.Protobuf.message}
+
+Declares that a model is a Protobuf message.
+
+Messages can be detected automatically if either of the following two conditions are met:
+
+- The model has a `@field` annotation on all of its properties.
+- The model is referenced by any service operation.
+
+This decorator will force the emitter to check and emit a model.
+
+```typespec
+dec TypeSpec.Protobuf.message(target: object)
+```
+
+#### Target
+
+`model object`
+
+#### Parameters
+
+None
+
+### `@package` {#@TypeSpec.Protobuf.package}
+
+Declares that a TypeSpec namespace constitutes a Protobuf package. The contents of the namespace will be emitted to a
+single Protobuf file.
+
+```typespec
+dec TypeSpec.Protobuf.package(target: Namespace, details?: TypeSpec.Protobuf.PackageDetails)
+```
+
+#### Target
+
+`Namespace`
+
+#### Parameters
+
+| Name    | Type                                     | Description                         |
+| ------- | ---------------------------------------- | ----------------------------------- |
+| details | `model TypeSpec.Protobuf.PackageDetails` | the optional details of the package |
 
 ### `@reserve` {#@TypeSpec.Protobuf.reserve}
 
@@ -81,18 +99,18 @@ See _[Protobuf Language Guide - Reserved Fields](https://protobuf.dev/programmin
 information.
 
 ```typespec
-dec TypeSpec.Protobuf.reserve(target: TypeSpec.object, ...reservations: TypeSpec.string | [TypeSpec.uint32, TypeSpec.uint32] | TypeSpec.uint32[])
+dec TypeSpec.Protobuf.reserve(target: object, ...reservations: string | [uint32, uint32] | uint32[])
 ```
 
 #### Target
 
-`model TypeSpec.object`
+`model object`
 
 #### Parameters
 
-| Name         | Type                                                                               | Description                  |
-| ------------ | ---------------------------------------------------------------------------------- | ---------------------------- |
-| reservations | `model TypeSpec.string \| [TypeSpec.uint32, TypeSpec.uint32] \| TypeSpec.uint32[]` | a list of field reservations |
+| Name         | Type                                           | Description                  |
+| ------------ | ---------------------------------------------- | ---------------------------- |
+| reservations | `model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
 ### `@service` {#@TypeSpec.Protobuf.service}
 
@@ -100,7 +118,7 @@ Declares that a TypeSpec interface constitutes a Protobuf service. The contents 
 a `service` declaration in the resulting Protobuf file.
 
 ```typespec
-dec TypeSpec.Protobuf.service(target: TypeSpec.Reflection.Interface)
+dec TypeSpec.Protobuf.service(target: Interface)
 ```
 
 #### Target
@@ -109,34 +127,14 @@ dec TypeSpec.Protobuf.service(target: TypeSpec.Reflection.Interface)
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-
-### `@package` {#@TypeSpec.Protobuf.package}
-
-Declares that a TypeSpec namespace constitutes a Protobuf package. The contents of the namespace will be emitted to a
-single Protobuf file.
-
-```typespec
-dec TypeSpec.Protobuf.package(target: TypeSpec.Reflection.Namespace, details?: TypeSpec.Protobuf.PackageDetails)
-```
-
-#### Target
-
-`Namespace`
-
-#### Parameters
-
-| Name    | Type                                     | Description                         |
-| ------- | ---------------------------------------- | ----------------------------------- |
-| details | `model TypeSpec.Protobuf.PackageDetails` | the optional details of the package |
+None
 
 ### `@stream` {#@TypeSpec.Protobuf.stream}
 
 Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
 
 ```typespec
-dec TypeSpec.Protobuf.stream(target: TypeSpec.Reflection.Operation, mode: TypeSpec.Protobuf.StreamMode)
+dec TypeSpec.Protobuf.stream(target: Operation, mode: TypeSpec.Protobuf.StreamMode)
 ```
 
 #### Target

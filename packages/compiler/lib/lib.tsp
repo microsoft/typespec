@@ -91,9 +91,14 @@ scalar plainDate;
 scalar plainTime;
 
 /**
+ * An instant in coordinated universal time (UTC)"
+ */
+scalar utcDateTime;
+
+/**
  * A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"
  */
-scalar zonedDateTime;
+scalar offsetDateTime;
 
 /**
  * A duration/time period. e.g 5s, 10h
@@ -123,7 +128,7 @@ model Array<T> {}
 model Record<T> {}
 
 /**
- * Represent a URI string as described by https://url.spec.whatwg.org/#relative-url-string.
+ * Represent a URL string as described by https://url.spec.whatwg.org/
  */
 @format("url")
 scalar url extends string;

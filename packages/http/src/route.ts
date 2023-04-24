@@ -216,8 +216,8 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
   const state = context.program.stateMap(routesKey);
 
   if (state.has(entity) && entity.kind === "Namespace") {
-    const existingValue: RoutePath = state.get(entity);
-    if (existingValue.path !== details.path) {
+    const existingPath: string | undefined = state.get(entity);
+    if (existingPath !== details.path) {
       reportDiagnostic(context.program, {
         code: "duplicate-route-decorator",
         messageId: "namespace",
@@ -225,19 +225,34 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
       });
     }
   } else {
-    state.set(entity, details);
+    state.set(entity, details.path);
+    if (entity.kind === "Operation" && details.shared) {
+      setSharedRoute(context.program, entity as Operation);
+    }
   }
 }
 
+const sharedRoutesKey = createStateSymbol("sharedRoutes");
+
+export function setSharedRoute(program: Program, operation: Operation) {
+  program.stateMap(sharedRoutesKey).set(operation, true);
+}
+
 export function isSharedRoute(program: Program, operation: Operation): boolean {
-  return program.stateMap(routesKey).get(operation)?.shared;
+  return program.stateMap(sharedRoutesKey).get(operation) === true;
 }
 
 export function getRoutePath(
   program: Program,
   entity: Namespace | Interface | Operation
 ): RoutePath | undefined {
-  return program.stateMap(routesKey).get(entity);
+  const path = program.stateMap(routesKey).get(entity);
+  return path
+    ? {
+        path,
+        shared: entity.kind === "Operation" && isSharedRoute(program, entity as Operation),
+      }
+    : undefined;
 }
 
 const routeOptionsKey = createStateSymbol("routeOptions");

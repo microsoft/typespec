@@ -9,11 +9,11 @@ toc_max_heading_level: 3
 
 ### Decorators
 
-- [`@message`](./decorators.md#@TypeSpec.Protobuf.message)
 - [`@field`](./decorators.md#@TypeSpec.Protobuf.field)
+- [`@message`](./decorators.md#@TypeSpec.Protobuf.message)
+- [`@package`](./decorators.md#@TypeSpec.Protobuf.package)
 - [`@reserve`](./decorators.md#@TypeSpec.Protobuf.reserve)
 - [`@service`](./decorators.md#@TypeSpec.Protobuf.service)
-- [`@package`](./decorators.md#@TypeSpec.Protobuf.package)
 - [`@stream`](./decorators.md#@TypeSpec.Protobuf.stream)
 
 ### Models

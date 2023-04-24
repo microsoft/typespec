@@ -1,20 +1,20 @@
 import type { Node, TypeSpecScriptNode } from "@typespec/compiler";
-import { getAnyExtensionFromPath, NodePackage } from "@typespec/compiler";
+import { NodePackage, getAnyExtensionFromPath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import * as yaml from "js-yaml";
 import * as path from "path";
 import type { TypeSpecCompilerV0_40 } from "../../migration-config.js";
 import {
   AstContentMigrateAction,
-  createContentMigration,
-  createFileContentMigration,
-  createFileRenameMigration,
-  createPackageVersionMigration,
   FileContentMigrationAction,
   FileRenameAction,
   MigrationContext,
   MigrationKind,
   PackageVersionUpdateAction,
+  createContentMigration,
+  createFileContentMigration,
+  createFileRenameMigration,
+  createPackageVersionMigration,
 } from "../../migration-types.js";
 
 export const updatePackageVersion = createPackageVersionMigration({

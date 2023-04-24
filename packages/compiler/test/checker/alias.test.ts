@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Model, Union } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
 
 describe("compiler: aliases", () => {
   let testHost: TestHost;

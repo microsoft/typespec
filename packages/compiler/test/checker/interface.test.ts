@@ -1,12 +1,12 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../core/types.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {
@@ -106,6 +106,10 @@ describe("compiler: interfaces", () => {
     const { Foo } = (await testHost.compile("./")) as {
       Foo: Interface;
     };
+    deepStrictEqual(
+      Foo.sourceInterfaces.map((i) => i.name),
+      ["Bar"]
+    );
     strictEqual(Foo.operations.size, 2);
     ok(Foo.operations.get("foo"));
     ok(Foo.operations.get("bar"));
@@ -129,6 +133,10 @@ describe("compiler: interfaces", () => {
     const { Foo } = (await testHost.compile("./")) as {
       Foo: Interface;
     };
+    deepStrictEqual(
+      Foo.sourceInterfaces.map((i) => i.name),
+      ["Bar", "Baz"]
+    );
     strictEqual(Foo.operations.size, 3);
     ok(Foo.operations.get("foo"));
     ok(Foo.operations.get("bar"));
@@ -309,6 +317,35 @@ describe("compiler: interfaces", () => {
       strictEqual(returnType.name, "int32");
     });
 
+    it("can instantiate template operation inside templated interface (inverted order)", async () => {
+      const { Foo, bar } = (await runner.compile(`
+      alias Bar = MyFoo.bar<int32>;
+
+      alias MyFoo = Foo<string>;
+      
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+      `)) as {
+        Foo: Interface;
+        bar: Operation;
+      };
+
+      strictEqual(Foo.operations.size, 1);
+      ok(
+        isTemplateDeclaration(Foo.operations.get("bar")!),
+        "Operation inside MyFoo interface is still a template"
+      );
+
+      const input = bar.parameters.properties.get("input")!.type;
+      strictEqual(input.kind, "Scalar" as const);
+      strictEqual(input.name, "string");
+
+      const returnType = bar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
+
     it("cache templated operations", async () => {
       const { Index } = (await runner.compile(`
       @test interface Foo<A> {
@@ -329,6 +366,29 @@ describe("compiler: interfaces", () => {
       ok(b);
 
       strictEqual(a.type, b.type);
+    });
+
+    it("templated interface with different args but templated operations with the same arg shouldn't be the same", async () => {
+      const { Index } = (await runner.compile(`
+      @test interface Foo<A> {
+        @test bar<B>(input: A): B;
+      }
+
+      alias MyFoo8 = Foo<int8>;
+      alias MyFoo16 = Foo<int16>;
+      @test model Index {
+        a: MyFoo8.bar<string>;
+        b: MyFoo16.bar<string>;
+      }
+      `)) as {
+        Index: Model;
+      };
+      const a = Index.properties.get("a");
+      const b = Index.properties.get("b");
+      ok(a);
+      ok(b);
+
+      notStrictEqual(a.type, b.type);
     });
 
     it("can extend an interface with templated operations", async () => {

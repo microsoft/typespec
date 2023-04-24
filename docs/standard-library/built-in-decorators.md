@@ -1,392 +1,515 @@
 ---
-id: built-in-decorators
-title: Built-in Decorators
+title: "Built-in Decorators"
+toc_min_heading_level: 2
+toc_max_heading_level: 3
 ---
+# Built-in Decorators
+## TypeSpec
 
-# Built-in decorators
+### `@deprecated` {#@deprecated}
 
-TypeSpec comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
-
-[Documentation](#documentation-decorators)
-
-- [@deprecated](#deprecated) - indicates that the decorator target has been deprecated.
-- [@doc](#doc) - attach a documentation string. Works great with multi-line string literals.
-- [@summary](#summary) - attach a documentation string, typically a short, single-line description.
-
-[Service](#service-decorators)
-
-- [@service](#service)
-
-[String](#string-decorators)
-
-- [@format](#format) - specify the data format hint for a string type
-- [@pattern](#pattern) - set the pattern for a string using regular expression syntax
-- [@knownValues](#knownvalues) - mark a string type with an enum that contains all known values
-- [@secret](#secret) - mark a string as a secret value that should be treated carefully to avoid exposure
-- [@minLength/@maxLength](#minlength-and-maxlength) - set the min and max lengths for strings
-
-[Numeric](#numeric-decorators)
-
-- [@minValue/@maxValue](#minvalue-and-maxvalue) - set the min and max values of number types
-
-[Array](#array-decorators)
-
-- [@minItems/@maxItems](#minitems-and-maxitems) - set the min and max number of items an array type can have
-
-[Models](#model-decorators)
-
-- [@error](#error) - specify a model is representing an error
-- [@key](#key) - mark a model property as the key to identify instances of that type
-
-[Debugging](#debugging-decorators)
-
-- [@inspectType/@inspectTypeName](#inspecttype) - displays information about a type during compilation
-
-[Misc](#misc-decorators)
-
-- [@friendlyName](#friendlyname) - specify a friendly name to be used instead of declared model name
-- [@tag](#tag) - attach a simple tag to a declaration
-- [@visibility/@withVisibility](#visibility-decorators)
-- [@projectedNames](./projected-names.md)
-
-[Advanced](#advanced-decorators) _Those decorators shouldn't be need to be used directly, there is a template providing the functionality._
-
-- [@withDefaultKeyVisibility](#withdefaultkeyvisibility) - set the visibility of key properties in a model if not already set.
-- [@withOptionalProperties](#withoptionalproperties) - makes all properties of the target type optional.
-- [@withoutDefaultValues](#withoutdefaultvalues) - removes all read-only properties from the target type.
-- [@withoutOmittedProperties](#withoutomittedproperties) - removes all model properties that match a type.
-- [@withUpdateableProperties](#withupdateableproperties) - remove all read-only properties from the target type
-
-## Documentation decorators
-
-### `@doc`
-
-**Syntax:**
+Mark this type as deprecated
 
 ```typespec
-@doc(text [, object])
+dec deprecated(target: unknown, message: string)
 ```
 
-`@doc` attaches a documentation string. Works great with multi-line string literals.
+#### Target
 
-The first argument to `@doc` is a string, which may contain template parameters, enclosed in braces,
-which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
+`(intrinsic) unknown`
 
-`@doc` can be specified on any language element -- a model, an operation, a namespace, etc.
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| message | `scalar string` | Deprecation message. |
 
-### `@summary`
 
-**Syntax:**
+### `@discriminator` {#@discriminator}
+
+Specify the property to be used to discriminate this type.
 
 ```typespec
-@summary(text [, object])
+dec discriminator(target: Model | Union, propertyName: string)
 ```
 
-`@summary` attaches a documentation string. It is typically used to give a short, single-line
-description, and can be used in combination with or instead of `@doc`.
+#### Target
 
-The first argument to `@summary` is a string, which may contain template parameters, enclosed in braces,
-which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
+`union Model | Union`
 
-`@summary` can be specified on any language element -- a model, an operation, a namespace, etc.
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| propertyName | `scalar string` |  |
 
-### `@deprecated`
-
-**Syntax:**
+#### Examples
 
 ```typespec
-@deprecated("<message>")
+@discriminator("kind")
+union Pet{ cat: Cat, dog: Dog }
+
+model Cat {kind: "cat", meow: boolean}
+model Dog {kind: "dog", bark: boolean}
 ```
-
-`@deprecated` marks a type as deprecated. It can be specified on any language element -- a model, an operation, a namespace, etc.
-
-## Service decorators
-
-### `@service`
-
-Mark a namespace as service namespace.
-
-**Syntax:**
 
 ```typespec
-@service(serviceConfig?: {title?: string, version?: string})
+@discriminator("kind")
+model Pet{ kind: string }
+
+model Cat extends Pet {kind: "cat", meow: boolean}
+model Dog extends Pet  {kind: "dog", bark: boolean}
 ```
 
-**Parameter:**
 
-- `serviceConfig`:
-  - `title`: Service title. By default it would assume the namespace name is the service title.
-  - `version`: Service version
+### `@doc` {#@doc}
 
-**Examples:**
-
-```ts
-@service
-namespace MyService
-```
-
-Optionally you can specify the title
-
-```ts
-@service({title: "My custom service"})
-namespace MyService
-```
-
-And/Or the version of the service
-
-```ts
-@service({version: "1.2.3"})
-namespace MyService
-```
-
-## String decorators
-
-### `@format`
-
-**Syntax:**
+Attach a documentation string.
 
 ```typespec
-@format(formatName)
+dec doc(target: unknown, doc: string, formatArgs?: object)
 ```
 
-`@format` - specify the data format hint for a string type
+#### Target
 
-The first argument is a string that identifies the format that the string type expects. Any string
-can be entered here, but a TypeSpec emitter must know how to interpret
+`(intrinsic) unknown`
 
-For TypeSpec specs that will be used with an OpenAPI emitter, the OpenAPI specification describes
-possible valid values for a [string type's format](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes).
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| doc | `scalar string` | Documentation string |
+| formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
 
-`@format` can be applied to a type that extends from `string` or a `string`-typed model property.
 
-### `@pattern`
+### `@error` {#@error}
 
-**Syntax:**
+Specify that this model is an error type. Operations return error types when the operation has failed.
 
 ```typespec
-@pattern(regularExpressionText)
+dec error(target: Model)
 ```
 
-`@pattern` specifies a regular expression on a string property.
+#### Target
 
-### `@knownValues`
+`Model`
 
-**Syntax:**
+#### Parameters
+None
 
-```typespec
-@knownValues(enumTypeReference)
-```
-
-`@knownValues` marks a string type with an enum that contains all known values
-
-The first parameter is a reference to an enum type that enumerates all possible values that the
-type accepts.
-
-`@knownValues` can only be applied to model types that extend `string`.
-
-Example:
-
-```typespec
-enum OperationStateValues {
-  Running,
-  Completed,
-  Failed,
-}
-
-@knownValues(OperationStateValues)
-scalar OperationState extends string;
-```
-
-### `@secret`
-
-**Syntax:**
-
-```typespec
-@secret
-```
-
-`@secret` mark a string as a secret value that should be treated carefully to avoid exposure
-
-```typespec
-@secret
-scalar Password extends string;
-```
-
-`@secret` can only be applied to string model;
-
-### `@minLength` and `@maxLength`
-
-```typespec
-@minLength(<integer>)
-@maxLength(<integer>)
-scalar Name extends string;
-```
-
-Specify the min and max length of the string.
-
-```typespec
-// Say that the name must be between 2 and 20 charchater long
-@minLength(2)
-@maxLength(20)
-scalar Name extends string;
-```
-
-The decorators can also be used on model properties
-
-```typespec
-model Dog {
-  @minLength(2)
-  @maxLength(20)
-  name: string;
-}
-```
-
-## Numeric decorators
-
-### `@minValue` and `@maxValue`
-
-```typespec
-@minValue(<number>)
-@maxValue(<number>)
-model Name is int32;
-```
-
-Specify the min and max value for an integer or float.
-
-```typespec
-// Say that the Floor must be between 1 and 100
-@minValue(1)
-@maxValue(100)
-model Floor is int32;
-```
-
-The decorators can also be used on model properties
-
-```typespec
-model Building {
-  @minValue(1)
-  @maxValue(100)
-  floors: int32;
-}
-```
-
-## Array decorators
-
-### `@minItems` and `@maxItems`
-
-```typespec
-@minItems(<number>)
-@maxItems(<number>)
-model Names is string[];
-```
-
-Specify the min and max number of items in an array type.
-
-```typespec
-// Say that the the Names array type can have have between 1 and 3 items.
-@minItems(1)
-@maxItems(3)
-model Names is string[];
-```
-
-The decorators can also be used on model properties
-
-```typespec
-model Person {
-  @minItems(1)
-  @maxItems(3)
-  names: string[];
-}
-```
-
-## Model decorators
-
-### @error
-
-**Syntax:**
+#### Examples
 
 ```typespec
 @error
+model PetStoreError {
+code: string;
+message: string;
+}
 ```
 
-`@error` - specify that this model is an error type
 
-For HTTP API this can be used to represent a failure.
+### `@format` {#@format}
 
-### `@key`
-
-**Syntax:**
+Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
+This differ from the
 
 ```typespec
-@key([keyName])
+dec format(target: string | bytes | ModelProperty, format: string)
 ```
 
-`@key` - mark a model property as the key to identify instances of that type
+#### Target
 
-The optional first argument accepts an alternate key name which may be used by emitters.
-Otherwise, the name of the target property will be used.
+`union string | bytes | ModelProperty`
 
-`@key` can only be applied to model properties.
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| format | `scalar string` | format name. |
 
-## Debugging decorators
 
-### `@inspectType`
+### `@friendlyName` {#@friendlyName}
 
-**Syntax:**
+Specifies how a templated type should name their instances.
 
 ```typespec
-@inspectType(message)
-@inspectTypeName(message)
+dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 ```
 
-`@inspectType` displays information about a type during compilation.
-`@inspectTypeName` displays information and name of type during compilation.
-They can be specified on any language element -- a model, an operation, a namespace, etc.
+#### Target
 
-## Misc decorators
+`(intrinsic) unknown`
 
-### `@friendlyName`
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| name | `scalar string` | name the template instance should take |
+| formatArgs | `(intrinsic) unknown` |  |
 
-**Syntax:**
+
+### `@inspectType` {#@inspectType}
+
 
 ```typespec
-@friendlyName(string)
+dec inspectType(target: unknown, text: string)
 ```
 
-`@friendlyName` specifies how a templated type should name their instances. It takes a string literal coresponding the the name. `{name}` can be used to interpolate the value of the template parameter which can be passed as a 2nd parameter.
+#### Target
 
-Example:
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| text | `scalar string` |  |
+
+
+### `@inspectTypeName` {#@inspectTypeName}
+
 
 ```typespec
-@friendlyName("{name}List", T)
-model List<T> {}
-
-alias A = List<FooBar>; // Instance friendly name would be `FooBarList`
-alias B = List<Person>; // Instance friendly name would be `PersonList`
+dec inspectTypeName(target: unknown, text: string)
 ```
 
-### `@tag`
+#### Target
 
-**Syntax:**
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| text | `scalar string` |  |
+
+
+### `@key` {#@key}
+
+Mark a model property as the key to identify instances of that type
 
 ```typespec
-@tag(text)
+dec key(target: ModelProperty, altName?: string)
 ```
 
-`@tag` attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified
-to attach multiple tags to a TypeSpec element.
+#### Target
 
-The argument to `@tag` is a string tag value.
+`ModelProperty`
 
-### Visibility decorators
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| altName | `scalar string` |  |
 
-Additionally, the decorators `@visibility` and `@withVisibility` provide an extensible visibility framework that allows for defining a canonical model with fine-grained visibility flags and derived models that apply those flags.
+#### Examples
 
-### `@visibility`
+```typespec
+model Pet {
+@key id: string;
+}
+```
 
-Indicates that a property is only considered to be present or applicable ("visible") with the in the given named contexts ("visibilities"). When a property has no visibilities applied to it, it is implicitly visible always.
 
-As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary strings, but the following visibilities are well-known to standard libraries and should be used with standard emitters that interpret them as follows:
+### `@knownValues` {#@knownValues}
+
+Provide a set of known values to a string type.
+
+```typespec
+dec knownValues(target: string | numeric | ModelProperty, values: Enum)
+```
+
+#### Target
+
+`union string | numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| values | `Enum` | Known values enum. |
+
+
+### `@maxItems` {#@maxItems}
+
+Specify the maximum number of items this array should have.
+
+```typespec
+dec maxItems(target: unknown[] | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union unknown[] | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Maximum number |
+
+
+### `@maxLength` {#@maxLength}
+
+Specify the maximum length this string type should be.
+
+```typespec
+dec maxLength(target: string | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union string | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Maximum length |
+
+
+### `@maxValue` {#@maxValue}
+
+Specify the maximum value this numeric type should be.
+
+```typespec
+dec maxValue(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Maximum value |
+
+
+### `@maxValueExclusive` {#@maxValueExclusive}
+
+Specify the maximum value this numeric type should be, exclusive of the given
+value.
+
+```typespec
+dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Maximum value |
+
+
+### `@minItems` {#@minItems}
+
+Specify the minimum number of items this array should have.
+
+```typespec
+dec minItems(target: unknown[] | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union unknown[] | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Minimum number |
+
+
+### `@minLength` {#@minLength}
+
+Specify the minimum length this string type should be.
+
+```typespec
+dec minLength(target: string | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union string | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Minimum length |
+
+
+### `@minValue` {#@minValue}
+
+Specify the minimum value this numeric type should be.
+
+```typespec
+dec minValue(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Minimum value |
+
+
+### `@minValueExclusive` {#@minValueExclusive}
+
+Specify the minimum value this numeric type should be, exclusive of the given
+value.
+
+```typespec
+dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Minimum value |
+
+
+### `@overload` {#@overload}
+
+Specify this operation is an overload of the given operation.
+
+```typespec
+dec overload(target: Operation, overloadbase: Operation)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| overloadbase | `Operation` | Base operation that should be a union of all overloads |
+
+
+### `@pattern` {#@pattern}
+
+Specify the the pattern this string should respect using simple regular expression syntax.
+The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
+Advanced features like look-around, capture groups, and references are not supported.
+
+```typespec
+dec pattern(target: string | bytes | ModelProperty, pattern: string)
+```
+
+#### Target
+
+`union string | bytes | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| pattern | `scalar string` | Regular expression. |
+
+
+### `@projectedName` {#@projectedName}
+
+Provide an alternative name for this type.
+
+```typespec
+dec projectedName(target: unknown, targetName: string, projectedName: string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| targetName | `scalar string` | Projection target |
+| projectedName | `scalar string` | Alternative name |
+
+
+### `@secret` {#@secret}
+
+Mark this string as a secret value that should be treated carefully to avoid exposure
+
+```typespec
+dec secret(target: string | ModelProperty)
+```
+
+#### Target
+
+`union string | ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```typespec
+@secret
+scalar Password is string;
+```
+
+
+### `@service` {#@service}
+
+Mark this namespace as describing a service and configure service properties.
+
+```typespec
+dec service(target: Namespace, options?: ServiceOptions)
+```
+
+#### Target
+
+`Namespace`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| options | `model ServiceOptions` | Optional configuration for the service. |
+
+
+### `@summary` {#@summary}
+
+Typically a short, single-line description.
+
+```typespec
+dec summary(target: unknown, summary: string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| summary | `scalar string` | Summary string. |
+
+
+### `@tag` {#@tag}
+
+Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
+
+```typespec
+dec tag(target: Namespace | Interface | Operation, tag: string)
+```
+
+#### Target
+
+`union Namespace | Interface | Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| tag | `scalar string` | Tag value |
+
+
+### `@visibility` {#@visibility}
+
+Indicates that a property is only considered to be present or applicable ("visible") with
+the in the given named contexts ("visibilities"). When a property has no visibilities applied
+to it, it is implicitly visible always.
+
+As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
+strings, but  the following visibilities are well-known to standard libraries and should be used
+with standard emitters that interpret them as follows:
 
 - "read": output of any operation.
 - "create": input to operations that create an entity..
@@ -394,36 +517,133 @@ As far as the TypeSpec core library is concerned, visibilities are open-ended an
 - "update": input to operations that update data.
 - "delete": input to operations that delete data.
 
-See also: [Automatic visibility](./rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
-#### Example
+```typespec
+dec visibility(target: ModelProperty, ...visibilities: string[])
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `model string[]` |  |
+
+#### Examples
 
 ```typespec
 model Dog {
-  // the service will generate an ID, so you don't need to send it.
-  @visibility("read") id: int32;
-  // the service will store this secret name, but won't ever return it
-  @visibility("create", "update") secretName: string;
-  // the regular name is always present
-  name: string;
+// the service will generate an ID, so you don't need to send it.
+@visibility("read") id: int32;
+// the service will store this secret name, but won't ever return it
+@visibility("create", "update") secretName: string;
+// the regular name is always present
+name: string;
 }
 ```
 
-### `@withVisibility`
 
-Removes properties that are not considered to be present or applicable ("visible") in the given named contexts ("visibilities"). Can be used together with spread to effectively spread only visible properties into a new model.
+### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
-See also: [Automatic visibility](./rest/operations#automatic-visibility)
+
+```typespec
+dec withDefaultKeyVisibility(target: Model, visibility: unknown)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibility | `(intrinsic) unknown` |  |
+
+
+### `@withoutDefaultValues` {#@withoutDefaultValues}
+
+
+```typespec
+dec withoutDefaultValues(target: Model)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+None
+
+
+### `@withoutOmittedProperties` {#@withoutOmittedProperties}
+
+
+```typespec
+dec withoutOmittedProperties(target: Model, omit: string | Union)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| omit | `union string \| Union` |  |
+
+
+### `@withUpdateableProperties` {#@withUpdateableProperties}
+
+
+```typespec
+dec withUpdateableProperties(target: Model)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+None
+
+
+### `@withVisibility` {#@withVisibility}
+
+Removes properties that are not considered to be present or applicable
+("visible") in the given named contexts ("visibilities"). Can be used
+together with spread to effectively spread only visible properties into
+a new model.
+
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
+dec withVisibility(target: Model, ...visibilities: string[])
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `model string[]` |  |
+
+#### Examples
+
+```typespec
 model Dog {
-  @visibility("read") id: int32;
-  @visibility("create", "update") secretName: string;
-  name: string;
+@visibility("read") id: int32;
+@visibility("create", "update") secretName: string;
+name: string;
 }
+
 // The spread operator will copy all the properties of Dog into DogRead,
 // and @withVisibility will then remove those that are not visible with
 // create or update visibility.
@@ -432,78 +652,15 @@ model Dog {
 // properties are kept.
 @withVisibility("create", "update")
 model DogCreateOrUpdate {
-  ...Dog;
+...Dog;
 }
+
 // In this case the id and name properties are kept and the secretName property
 // is removed.
 @withVisibility("read")
 model DogRead {
-  ...Dog;
+...Dog;
 }
 ```
 
-## Advanced decorators
 
-Those decorators shouldn't be need to be used directly, there is a template providing the functionality.
-
-### `@withDefaultKeyVisibility`
-
-**Syntax:**
-
-```typespec
-@withDefaultKeyVisibility(string)
-```
-
-`@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set. The first argument accepts a string representing the desired default
-visibility value.
-If a key property already has a `visibility` decorator then the default visibility is not applied.
-
-`@withDefaultKeyVisibility` can only be applied to model types.
-
-### `@withOptionalProperties`
-
-**Syntax:**
-
-```typespec
-@withOptionalProperties()
-```
-
-`@withOptionalProperties` makes all properties of the target type optional.
-
-`@withOptionalProperties` can only be applied to model types.
-
-### @withoutDefaultValues
-
-**Syntax:**
-
-```typespec
-@withoutDefaultValues()
-```
-
-`@withoutDefaultValues` removes all read-only properties from the target type.
-
-`@withoutDefaultValues` can only be applied to model types.
-
-### @withoutOmittedProperties
-
-**Syntax:**
-
-```typespec
-@withoutOmittedProperties(type)
-```
-
-`@withoutOmittedProperties` removes all model properties that match a type.
-
-`@withoutOmittedProperties` can only be applied to model types.
-
-### @withUpdateableProperties
-
-**Syntax:**
-
-```typespec
-@withUpdateableProperties()
-```
-
-`@withUpdateableProperties` remove all read-only properties from the target type.
-
-`@withUpdateableProperties` can only be applied to model types.

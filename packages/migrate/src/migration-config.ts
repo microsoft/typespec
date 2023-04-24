@@ -7,7 +7,7 @@ import {
   updatePackageVersion,
 } from "./migrations/v0.41/typespec-rename.js";
 import { migrateQueryHeaderRequiredFormat } from "./migrations/v0.43/query-header-required-format.js";
-
+import { migrateZonedDateTimeToUtcDateTime } from "./migrations/v0.43/zoned-date-time-to-utc-date-time.js";
 // Update here before release.
 export type TypeSpecCompilerCurrent = typeof import("@typespec/compiler");
 export type TypeSpecCompilerV0_37 = typeof import("@typespec/compiler-v0.37");
@@ -37,5 +37,5 @@ export const migrationConfigurations: MigrationStepsDictionary = {
     updatePackageVersion,
     migrateTspConfigFile,
   ],
-  "0.43.0": [migrateQueryHeaderRequiredFormat],
+  "0.43.0": [migrateQueryHeaderRequiredFormat, migrateZonedDateTimeToUtcDateTime],
 };

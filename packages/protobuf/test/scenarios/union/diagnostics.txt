@@ -1,2 +1,2 @@
-/test/main.tsp:22:3 - error decorator-wrong-target: Cannot apply @field decorator to Test.InputA since it is not assignable to TypeSpec.Reflection.ModelProperty
-/test/main.tsp:24:3 - error decorator-wrong-target: Cannot apply @field decorator to Test.InputB since it is not assignable to TypeSpec.Reflection.ModelProperty
+/test/main.tsp:22:3 - error decorator-wrong-target: Cannot apply @field decorator to Test.InputA since it is not assignable to ModelProperty
+/test/main.tsp:24:3 - error decorator-wrong-target: Cannot apply @field decorator to Test.InputB since it is not assignable to ModelProperty

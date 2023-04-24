@@ -32,10 +32,10 @@ jobs:
           node-version: 18.x
 
       - name: Install dependencies
-        run: npx @microsoft/rush update
+        run: node common/scripts/install-run-rush.js update
 
       - name: Build
-        run: npx @microsoft/rush build --to @typespec/website
+        run: node common/scripts/install-run-rush.js build --to @typespec/website
         env:
           TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
 

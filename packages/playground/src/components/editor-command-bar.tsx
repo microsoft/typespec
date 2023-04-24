@@ -1,7 +1,7 @@
-import { Link, Tooltip } from "@fluentui/react-components";
-import { Toolbar, ToolbarButton } from "@fluentui/react-components/unstable";
+import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
+import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 
 export interface EditorCommandBarProps {
@@ -35,9 +35,10 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         </Tooltip>
         <SamplesDropdown onSelectSample={updateTypeSpec as any} />
+        <EmitterDropdown />
         {documentation}
         <div css={{ flex: "1" }}></div>
-        <Tooltip content="Save" relationship="description" withArrow>
+        <Tooltip content="File Bug Report" relationship="description" withArrow>
           <ToolbarButton
             appearance="subtle"
             aria-label="File Bug Report"

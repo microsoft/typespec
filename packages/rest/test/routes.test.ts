@@ -1,7 +1,13 @@
 import { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
+import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";
-import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
+import {
+  compileOperations,
+  createRestTestRunner,
+  getOperations,
+  getRoutesFor,
+} from "./test-host.js";
 
 describe("rest: routes", () => {
   it("always produces a route starting with /", async () => {
@@ -439,6 +445,68 @@ describe("rest: routes", () => {
     deepStrictEqual(routes, [
       { verb: "get", path: "/things", params: [] },
       { verb: "put", path: "/things/{thingId}", params: ["thingId"] },
+    ]);
+  });
+
+  it("@autoRoute operations can also be shared routes", async () => {
+    const runner = await createRestTestRunner();
+    const { get1, get2 } = (await runner.compile(`
+      @test
+      @autoRoute
+      @sharedRoute
+      op get1(@segment("get1") @path name: string): string;
+
+      @test
+      @autoRoute
+      op get2(@segment("get2") @path name: string): string;
+    `)) as { get1: Operation; get2: Operation };
+
+    strictEqual(isSharedRoute(runner.program, get1), true);
+    strictEqual(isSharedRoute(runner.program, get2), false);
+  });
+
+  it("emits a diagnostic when @sharedRoute is used on action without explicit name", async () => {
+    const [_, diagnostics] = await compileOperations(
+      `
+      model Thing {
+        @key
+        @segment("things")
+        thingId: string;
+      }
+
+      @action
+      @autoRoute
+      @sharedRoute
+      op badAction(): {};
+
+      @action("good")
+      @autoRoute
+      @sharedRoute
+      op goodAction(): {};
+
+      @autoRoute
+      @sharedRoute
+      @collectionAction(Thing)
+      op badCollectionAction(): {};
+
+      @autoRoute
+      @sharedRoute
+      @collectionAction(Thing, "goodCollection")
+      op goodCollectionAction(): {};
+      `
+    );
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/rest/shared-route-unspecified-action-name",
+        message:
+          "An operation marked as '@sharedRoute' must have an explicit collection action name passed to '@action'.",
+      },
+      {
+        code: "@typespec/rest/shared-route-unspecified-action-name",
+        message:
+          "An operation marked as '@sharedRoute' must have an explicit collection action name passed to '@collectionAction'.",
+      },
     ]);
   });
 });

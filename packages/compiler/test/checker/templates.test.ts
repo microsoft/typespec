@@ -3,12 +3,12 @@ import { getSourceLocation } from "../../core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: templates", () => {
@@ -124,7 +124,7 @@ describe("compiler: templates", () => {
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const a = A.properties.get("a")!;
     strictEqual(a.type.kind, "Scalar");
-    strictEqual((a.type as Model).name, "string");
+    strictEqual(a.type.name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
@@ -238,7 +238,7 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'TypeSpec.object'",
+        message: "Type 'unknown' is not assignable to type 'object'",
         pos,
       });
     });
@@ -254,7 +254,7 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'abc' is not assignable to type 'TypeSpec.object'",
+        message: "Type 'abc' is not assignable to type 'object'",
         pos,
       });
     });
@@ -409,7 +409,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type '123' is not assignable to type 'TypeSpec.string'",
+        message: "Type '123' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -426,7 +426,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type '456' is not assignable to type 'TypeSpec.string'",
+        message: "Type '456' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -453,7 +453,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'TypeSpec.string'",
+        message: "Type 'unknown' is not assignable to type 'string'",
         pos,
         end,
       });

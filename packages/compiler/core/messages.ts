@@ -117,12 +117,6 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
-  "default-optional": {
-    severity: "error",
-    messages: {
-      default: "Cannot use default with non optional properties",
-    },
-  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -313,7 +307,7 @@ const diagnostics = {
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
       underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
-      node: paramMessage`Cannot resolve '${"id"}' in non-namespace node ${"nodeName"}`,
+      node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
   },
   "duplicate-property": {
