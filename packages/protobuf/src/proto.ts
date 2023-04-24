@@ -193,6 +193,7 @@ export async function $onEmit(ctx: EmitContext<EmitOptionsFor<TypeSpecProtobufLi
  * Validation function
  */
 export async function $onValidate(program: Program) {
+  // Is this correct? See https://github.com/microsoft/typespec/issues/1859
   /* c8 ignore next 6 */
   if (program.compilerOptions.noEmit) {
     const options = program.emitters.find((e) => e.emitFunction === $onEmit)
