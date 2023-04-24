@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/internal-build-utils",
+      "comment": "**Breaking change** Minimum node version is now 18.0",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@typespec/internal-build-utils"
+}

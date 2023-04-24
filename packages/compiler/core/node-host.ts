@@ -7,13 +7,18 @@ import { joinPaths, resolvePath } from "./path-utils.js";
 import { CompilerHost, RmOptions } from "./types.js";
 import { getSourceFileKindFromExt } from "./util.js";
 
+declare global {
+  // Missing native fetch type https://github.com/DefinitelyTyped/DefinitelyTyped/issues/60924
+  function fetch(...args: any[]): Promise<any>;
+}
+
 /**
  * Implementation of the @see CompilerHost using the real file system.
  * This is the the CompilerHost used by TypeSpec CLI.
  */
 export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
-    const response = await (globalThis as any).fetch(url);
+    const response = await fetch(url);
     const text = await response.text();
     return createSourceFile(text, url);
   },

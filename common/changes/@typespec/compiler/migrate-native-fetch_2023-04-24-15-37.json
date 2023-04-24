@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Breaking change** Minimum node version is now 18.0",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "**Breaking change** Minimum node version is now 18.0",
+      "type": "minor"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}
