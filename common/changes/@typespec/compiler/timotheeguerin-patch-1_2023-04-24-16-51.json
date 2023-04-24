@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix `@format` decorator doc.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
