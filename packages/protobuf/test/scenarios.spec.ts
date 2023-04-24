@@ -1,5 +1,4 @@
 import assert from "assert";
-import fs from "fs";
 import path from "path";
 import url from "url";
 
@@ -11,6 +10,8 @@ import {
   resolveVirtualPath,
   TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
+import { readdirSync, statSync } from "fs";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 
 const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios", import.meta.url));
 
@@ -32,10 +33,9 @@ const TypeSpecProtobufTestLibrary: TypeSpecTestLibrary = {
 };
 
 describe("protobuf scenarios", function () {
-  const scenarios = fs
-    .readdirSync(SCENARIOS_DIRECTORY)
+  const scenarios = readdirSync(SCENARIOS_DIRECTORY)
     .map((dn) => path.join(SCENARIOS_DIRECTORY, dn))
-    .filter((dn) => fs.statSync(dn).isDirectory());
+    .filter((dn) => statSync(dn).isDirectory());
 
   for (const scenario of scenarios) {
     const scenarioName = path.basename(scenario);
@@ -55,12 +55,12 @@ describe("protobuf scenarios", function () {
 
           await writeExpectationDirectory(expectationDirectory, emitResult.files);
 
-          await fs.promises.rm(diagnosticsExpectationPath, { force: true });
+          await rm(diagnosticsExpectationPath, { force: true });
 
           if (emitResult.diagnostics.length > 0) {
             const diagnostics = emitResult.diagnostics.join("\n");
 
-            await fs.promises.writeFile(diagnosticsExpectationPath, diagnostics);
+            await writeFile(diagnosticsExpectationPath, diagnostics);
           }
         } else {
           // It's an error if any file in the expected files is missing, if any file in the output files doesn't have a
@@ -70,7 +70,7 @@ describe("protobuf scenarios", function () {
           let err: Error | undefined = undefined;
 
           // `throwIfNoEntry` is not supported with promisified fs.promises.stat.
-          if (!fs.statSync(expectationDirectory, { throwIfNoEntry: false })) {
+          if (!statSync(expectationDirectory, { throwIfNoEntry: false })) {
             assert.strictEqual(
               Object.entries(emitResult.files).length,
               0,
@@ -90,9 +90,7 @@ describe("protobuf scenarios", function () {
 
           let expectedDiagnostics: string;
           try {
-            expectedDiagnostics = (await fs.promises.readFile(diagnosticsExpectationPath)).toString(
-              "utf-8"
-            );
+            expectedDiagnostics = (await readFile(diagnosticsExpectationPath)).toString("utf-8");
           } catch {
             expectedDiagnostics = "";
           }
@@ -184,14 +182,14 @@ async function writeExpectationDirectory(
     return;
   }
 
-  await fs.promises.rm(expectationDirectory, { recursive: true, force: true });
+  await rm(expectationDirectory, { recursive: true, force: true });
 
-  await fs.promises.mkdir(expectationDirectory);
+  await mkdir(expectationDirectory);
 
   for (const [fn, content] of fileEntries) {
     const fullPath = path.join(expectationDirectory, fn);
-    await fs.promises.mkdir(path.dirname(fullPath), { recursive: true });
-    await fs.promises.writeFile(fullPath, content);
+    await mkdir(path.dirname(fullPath), { recursive: true });
+    await writeFile(fullPath, content);
   }
 }
 
@@ -203,15 +201,15 @@ async function writeExpectationDirectory(
 async function readdirRecursive(dir: string, base: string = dir): Promise<Record<string, string>> {
   const res: Record<string, string> = {};
 
-  for (const entry of (await fs.promises.readdir(dir)).map((e) => path.join(dir, e))) {
-    const stat = await fs.promises.stat(entry);
+  for (const entry of (await readdir(dir)).map((e) => path.join(dir, e))) {
+    const stats = await stat(entry);
 
-    if (stat.isDirectory()) {
+    if (stats.isDirectory()) {
       for (const [name, content] of Object.entries(await readdirRecursive(entry, base))) {
         res[name] = content;
       }
-    } else if (stat.isFile()) {
-      const content = (await fs.promises.readFile(entry)).toString("utf-8");
+    } else if (stats.isFile()) {
+      const content = (await readFile(entry)).toString("utf-8");
 
       const relativePath = path.relative(base, entry);
 
