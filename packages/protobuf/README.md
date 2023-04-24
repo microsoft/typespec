@@ -1,5 +1,7 @@
 # TypeSpec Protobuf library and emitter
 
+**Warning** :warning:: This pre-release emitter is in active development and may change. Your feedback is highly appreciated.
+
 This package provides support for defining and emitting Protobuf specifications in [TypeSpec](https://github.com/microsoft/typespec) and an emitter that generates Protobuf output files from TypeSpec sources.
 
 ## Install
