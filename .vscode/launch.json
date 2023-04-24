@@ -145,6 +145,15 @@
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
       "cwd": "C:/Github/Sandbox/playground/cadl/migrate/0.37"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Docs Generation",
+      "program": "${workspaceFolder}/packages/website/.scripts/regen-ref-docs.mjs",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"]
     }
   ],
   "compounds": [
