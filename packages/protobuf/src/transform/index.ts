@@ -8,6 +8,7 @@ import {
   getEffectiveModelType,
   getTypeName,
   Interface,
+  IntrinsicType,
   isDeclaredInNamespace,
   Model,
   ModelProperty,
@@ -48,6 +49,7 @@ import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
 const _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
+const _protoExternMap = new WeakMap<Program, Map<string, [string, ProtoRef]>>();
 
 /**
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
@@ -322,6 +324,52 @@ function tspToProto(program: Program): ProtoFile[] {
   }
 
   /**
+   * Gets a cached intrinsic type. This will also attach desired imports to the relative reference source.
+   */
+  function getCachedExternType(
+    program: Program,
+    relativeSource: Operation | Model,
+    name: string
+  ): ProtoRef {
+    let cache = _protoExternMap.get(program);
+
+    if (!cache) {
+      cache = new Map();
+      _protoExternMap.set(program, cache);
+    }
+
+    const cachedRef = cache.get(name);
+
+    if (cachedRef) {
+      const [source, ref] = cachedRef;
+      typeWantsImport(program, relativeSource, source);
+      return ref;
+    }
+
+    const [emptyType, diagnostics] = program.resolveTypeReference(name);
+
+    if (!emptyType) {
+      throw new Error(
+        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join(EOL)}`
+      );
+    }
+
+    const extern = program.stateMap(state.externRef).get(emptyType) as [string, string] | undefined;
+
+    if (!extern) {
+      throw new Error(`Unexpected: '${name}' was resolved but is not an extern type.`);
+    }
+
+    const [source, protoName] = extern;
+    typeWantsImport(program, relativeSource, source);
+    const result = ref(protoName);
+
+    cache.set(name, [source, result]);
+
+    return result;
+  }
+
+  /**
    * Checks that a return type is a Model and converts it to a message, adding it to the declarations and returning
    * a reference to its name.
    *
@@ -334,19 +382,7 @@ function tspToProto(program: Program): ProtoFile[] {
       case "Model":
         return addReturnModel(t, operation);
       case "Intrinsic":
-        switch (t.name) {
-          case "unknown":
-            // We just use the built-in "unknown" type to mean the protobuf Any type
-            return ref("Any");
-          case "void": {
-            const emptyRef = program.resolveTypeReference("TypeSpec.Protobuf.Empty")[0];
-            if (emptyRef) {
-              const externRef = program.stateMap(state.externRef).get(emptyRef) as [string, string];
-              typeWantsImport(program, operation, externRef[0]);
-              return ref(externRef[1]);
-            }
-          }
-        }
+        return addIntrinsicType(t, operation);
       /* eslint-ignore-next-line no-fallthrough */
       default:
         reportDiagnostic(program, {
@@ -356,6 +392,31 @@ function tspToProto(program: Program): ProtoFile[] {
 
         return unreachable("unsupported return type");
     }
+  }
+
+  /**
+   * Adds an intrinsic type. Intrinsics are assumed to map to Extern types, so this will add the appropriate import.
+   *
+   * @param t - the intrinsic type to add
+   * @param relativeSource - the relative source of the type
+   * @returns a reference to the type's message
+   */
+  function addIntrinsicType(t: IntrinsicType, relativeSource: Operation | Model): ProtoRef {
+    switch (t.name) {
+      case "unknown":
+        return getCachedExternType(program, relativeSource, "TypeSpec.Protobuf.WellKnown.Any");
+      case "void": {
+        return getCachedExternType(program, relativeSource, "TypeSpec.Protobuf.WellKnown.Empty");
+      }
+    }
+
+    reportDiagnostic(program, {
+      code: "unsupported-intrinsic",
+      format: { type: t.name },
+      target: t,
+    });
+
+    return unreachable("unsupported intrinsic type");
   }
 
   /**
@@ -427,6 +488,8 @@ function tspToProto(program: Program): ProtoFile[] {
         return ref(t.name);
       case "Scalar":
         return scalarToProto(t);
+      case "Intrinsic":
+        return addIntrinsicType(t, relativeSource);
       default:
         reportDiagnostic(program, {
           code: "unsupported-field-type",
@@ -717,7 +780,14 @@ function tspToProto(program: Program): ProtoFile[] {
     };
   }
 
-  type NamespaceTraversable = Enum | Model | Interface | Union | Operation | Namespace;
+  type NamespaceTraversable =
+    | Enum
+    | Model
+    | Interface
+    | Union
+    | Operation
+    | Namespace
+    | IntrinsicType;
 
   function getPackageOfType(program: Program, t: NamespaceTraversable): Namespace | null {
     /* c8 ignore start */
@@ -725,6 +795,9 @@ function tspToProto(program: Program): ProtoFile[] {
     // Most of this should be unreachable, but we'll guard it with diagnostics anyway in case of eventual synthetic types.
 
     switch (t.kind) {
+      case "Intrinsic":
+        // Intrinsics are all handled explicitly.
+        return null;
       case "Enum":
       case "Model":
       case "Union":
@@ -760,6 +833,14 @@ function tspToProto(program: Program): ProtoFile[] {
     dependent: Model | Operation,
     dependency: NamespaceTraversable
   ): T {
+    {
+      // Early escape for intrinsics
+      if (dependency.kind === "Intrinsic") {
+        // Intrinsics and imports are handled explicitly by the emitter.
+        return pt;
+      }
+    }
+
     {
       // Early escape for externs
       let effectiveModel: Model | undefined;

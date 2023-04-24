@@ -52,6 +52,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
           "operations in the root namespace are not supported (no associated Protobuf service)",
       },
     },
+    "unsupported-intrinsic": {
+      severity: "error",
+      messages: {
+        default: paramMessage`intrinsic type ${"name"} is not supported in Protobuf`,
+      },
+    },
     "unsupported-return-type": {
       severity: "error",
       messages: {
