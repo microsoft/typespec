@@ -4,6 +4,7 @@
 import {
   DiagnosticTarget,
   Enum,
+  formatDiagnostic,
   getEffectiveModelType,
   getTypeName,
   Interface,
@@ -20,6 +21,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
+import { EOL } from "os";
 import {
   map,
   matchType,
@@ -485,27 +487,34 @@ function tspToProto(program: Program): ProtoFile[] {
     if (_protoScalarsMap.has(program)) {
       scalarMap = _protoScalarsMap.get(program)!;
     } else {
-      scalarMap = new Map<Type, ProtoScalar>(
-        (
-          [
-            [program.resolveTypeReference("TypeSpec.bytes"), scalar("bytes")],
-            [program.resolveTypeReference("TypeSpec.boolean"), scalar("bool")],
-            [program.resolveTypeReference("TypeSpec.string"), scalar("string")],
-            [program.resolveTypeReference("TypeSpec.int32"), scalar("int32")],
-            [program.resolveTypeReference("TypeSpec.int64"), scalar("int64")],
-            [program.resolveTypeReference("TypeSpec.uint32"), scalar("uint32")],
-            [program.resolveTypeReference("TypeSpec.uint64"), scalar("uint64")],
-            [program.resolveTypeReference("TypeSpec.float32"), scalar("float")],
-            [program.resolveTypeReference("TypeSpec.float64"), scalar("double")],
-            [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), scalar("sfixed32")],
-            [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), scalar("sfixed64")],
-            [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), scalar("sint32")],
-            [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), scalar("sint64")],
-            [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), scalar("fixed32")],
-            [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), scalar("fixed64")],
-          ] as [[Type, unknown], ProtoScalar][]
-        ).map(([[type], scalar]) => [type, scalar])
-      );
+      const entries = [
+        [program.resolveTypeReference("TypeSpec.bytes"), scalar("bytes")],
+        [program.resolveTypeReference("TypeSpec.boolean"), scalar("bool")],
+        [program.resolveTypeReference("TypeSpec.string"), scalar("string")],
+        [program.resolveTypeReference("TypeSpec.int32"), scalar("int32")],
+        [program.resolveTypeReference("TypeSpec.int64"), scalar("int64")],
+        [program.resolveTypeReference("TypeSpec.uint32"), scalar("uint32")],
+        [program.resolveTypeReference("TypeSpec.uint64"), scalar("uint64")],
+        [program.resolveTypeReference("TypeSpec.float32"), scalar("float")],
+        [program.resolveTypeReference("TypeSpec.float64"), scalar("double")],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), scalar("sfixed32")],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), scalar("sfixed64")],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), scalar("sint32")],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), scalar("sint64")],
+        [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), scalar("fixed32")],
+        [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), scalar("fixed64")],
+      ] as const;
+
+      for (const [[type, diagnostics]] of entries) {
+        if (!type) {
+          const diagnosticString = diagnostics.map(formatDiagnostic).join(EOL);
+          throw new Error(
+            `Failed to construct TypeSpec -> Protobuf scalar map. Unexpected failure to resolve TypeSpec scalar: ${diagnosticString}`
+          );
+        }
+      }
+
+      scalarMap = new Map<Type, ProtoScalar>(entries.map(([[type], scalar]) => [type!, scalar]));
 
       _protoScalarsMap.set(program, scalarMap);
     }
