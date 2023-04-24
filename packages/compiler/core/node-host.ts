@@ -1,6 +1,5 @@
 import { readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
-import fetch from "node-fetch";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
 import { createConsoleSink } from "./logger/index.js";
@@ -14,7 +13,7 @@ import { getSourceFileKindFromExt } from "./util.js";
  */
 export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
-    const response = await fetch(url);
+    const response = await (globalThis as any).fetch(url);
     const text = await response.text();
     return createSourceFile(text, url);
   },

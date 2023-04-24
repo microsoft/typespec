@@ -20,7 +20,7 @@
   "main": "dist/src/index.js",
   "tspMain": "dist/src/index.js",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "bundle": "node ./dist/src/cli.js",

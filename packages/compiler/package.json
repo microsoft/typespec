@@ -44,7 +44,7 @@
     }
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",
@@ -80,7 +80,6 @@
     "mkdirp": "~2.1.6",
     "mustache": "~4.2.0",
     "prettier": "~2.8.7",
-    "node-fetch": "3.2.8",
     "prompts": "~2.4.1",
     "vscode-languageserver": "~8.1.0",
     "vscode-languageserver-textdocument": "~1.0.1",
