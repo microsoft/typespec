@@ -74,6 +74,7 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "unknown-intrinsic": paramMessage`no known protobuf scalar for intrinsic type ${"name"}`,
         "unknown-scalar": paramMessage`no known protobuf scalar for TypeSpec scalar type ${"name"}`,
         "recursive-map": "a protobuf map's 'value' type may not refer to another map",
+        union: "a message field's type may not be a union",
       },
     },
     "namespace-collision": {

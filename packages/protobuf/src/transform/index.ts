@@ -32,7 +32,6 @@ import {
   ProtoMessageBodyDeclaration,
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
-  ProtoOneOfDeclaration,
   ProtoRef,
   ProtoScalar,
   ProtoTopLevelDeclaration,
@@ -610,38 +609,14 @@ function tspToProto(program: Program): ProtoFile[] {
     model: Model
   ): ProtoMessageBodyDeclaration {
     if (property.type.kind === "Union") {
-      // TODO: union must have at least one variant.
-      // TODO: union members must have field decorators.
-      // TODO: union must be anonymous
-      // TODO: union fields mustn't be arrays or maps.
-      // TODO: union variants must be string-named
-
-      // TODO: this isn't actually possible at all, because "union has named variants" and "union must be anonymous"
-      // are currently contradictory, so we can temporarily allow union decls with the understanding that they will be
-      // certainly inlined.
-
-      const oneof: ProtoOneOfDeclaration = {
-        kind: "oneof",
-        name: property.name,
-        declarations: [...property.type.variants.values()]
-          .filter(/*TODO:*/ (v) => typeof v.name === "string")
-          .map(
-            (v): ProtoFieldDeclaration => ({
-              kind: "field",
-              name: v.name as string,
-              index: program.stateMap(state.fieldIndex).get(v),
-              type: addImportSourceForProtoIfNeeded(
-                program,
-                addType(v.type, model),
-                model,
-                v.type as NamespaceTraversable /*TODO: seems weird*/
-              ),
-              repeated: false,
-            })
-          ),
-      };
-
-      return oneof;
+      // Unions are difficult to represent in protobuf, so for now we don't support them.
+      // See : https://github.com/microsoft/typespec/issues/1854
+      reportDiagnostic(program, {
+        code: "unsupported-field-type",
+        messageId: "union",
+        target: property,
+      });
+      return unreachable("union");
     }
 
     const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;

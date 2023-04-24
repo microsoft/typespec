@@ -19,9 +19,7 @@ model InputA {
 }
 
 union U {
-  @field(1)
   a: InputA,
-  @field(2)
   b: InputB,
 }
 
