@@ -167,6 +167,12 @@ function assertFilesAsExpected(
   }
 }
 
+/**
+ * Writes an expectation map to disk.
+ *
+ * @param expectationDirectory - The directory to write to.
+ * @param outputFiles - A map of relative paths to file contents.
+ */
 async function writeExpectationDirectory(
   expectationDirectory: string,
   outputFiles: Record<string, string>
@@ -189,6 +195,11 @@ async function writeExpectationDirectory(
   }
 }
 
+/**
+ * @param dir - The directory to read recursively.
+ * @param base - The base directory to use for relative paths.
+ * @returns A map of relative paths to file contents.
+ */
 async function readdirRecursive(dir: string, base: string = dir): Promise<Record<string, string>> {
   const res: Record<string, string> = {};
 

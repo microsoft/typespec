@@ -23,6 +23,6 @@ tsp compile . --emit @typespec/protobuf
 Add the following to your `tspproject.yaml` file.
 
 ```yaml
-emitters:
-  @typespec/protobuf: true
+emit:
+  - "@typespec/protobuf"
 ```

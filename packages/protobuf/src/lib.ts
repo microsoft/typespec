@@ -125,7 +125,7 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
     package: {
       severity: "error",
       messages: {
-        "disallowed-option-type": paramMessage`option '${"name"}' with type '${"type"}' is not allowed in a package declaration (only string, boolean, and number values are allowed)`,
+        "disallowed-option-type": paramMessage`option '${"name"}' with type '${"type"}' is not allowed in a package declaration (only string, boolean, and numeric types are allowed)`,
       },
     },
   },
@@ -149,7 +149,7 @@ const keys = [
 ] as const;
 
 export const state = Object.fromEntries(
-  keys.map((k) => [k, Symbol(`@typespec/protobuf.${k}`)])
+  keys.map((k) => [k, TypeSpecProtobufLibrary.createStateSymbol(k)])
 ) as {
   [K in (typeof keys)[number]]: symbol;
 };

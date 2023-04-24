@@ -874,7 +874,6 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
     case SyntaxKind.OperationSignatureDeclaration:
       return signature.returnType;
     case SyntaxKind.OperationSignatureReference:
-      // op foo is whatever;
       return op;
     default:
       const __exhaust: never = signature;
@@ -883,32 +882,6 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
       );
   }
 }
-
-/**
- * Gets the syntactic type position for a model or enum field.
- */
-// This function was used to get the syntactic position for enum members, and it's still here in case we want to use it
-// for model properties.
-// function getMemberTypeSyntaxTarget(property: ModelProperty | EnumMember): DiagnosticTarget {
-//   const node = property.node;
-
-//   switch (node.kind) {
-//     case SyntaxKind.ModelProperty:
-//       return node.value;
-//     case SyntaxKind.ModelSpreadProperty:
-//       return node;
-//     case SyntaxKind.EnumMember:
-//       return node.value ?? node;
-//     case SyntaxKind.ProjectionModelProperty:
-//     case SyntaxKind.ProjectionModelSpreadProperty:
-//       return property;
-//     default:
-//       const __exhaust: never = node;
-//       throw new Error(
-//         `Internal Emitter Error: reached unreachable member node: ${property.node.kind}`
-//       );
-//   }
-// }
 
 /**
  * Gets the syntactic position of a model property name.
