@@ -96,7 +96,7 @@ extern dec error(target: Model);
 
 /**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
- * This differ from the `@pattern` decorator that is meant to specify a regular expression while @format takes in a known format name.
+ * This differ from the `@pattern` decorator that is meant to specify a regular expression while `@format` takes in a known format name.
  * The format names are open ended and are left to emitter to interpret.
  *
  * @param format format name.
