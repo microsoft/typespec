@@ -153,6 +153,7 @@ const keys = [
   "stream",
   "reserve",
   "message",
+  "_map",
 ] as const;
 
 export const state = Object.fromEntries(

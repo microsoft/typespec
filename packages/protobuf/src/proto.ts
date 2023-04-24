@@ -70,14 +70,25 @@ export function $package(ctx: DecoratorContext, target: Namespace, details?: Mod
   ctx.program.stateMap(state.package).set(target, details);
 }
 
-const mapState = Symbol("@typespec/protobuf._map");
-
+/**
+ * Determines whether a type represents a Protobuf map.
+ *
+ * @param program - the program context
+ * @param m - the type to test
+ * @returns true if the internal representation of a Protobuf map is bound to this type.
+ */
 export function isMap(program: Program, m: Type): boolean {
-  return program.stateSet(mapState).has(m);
+  return program.stateSet(state._map).has(m);
 }
 
+/**
+ * Binds the internal representation of a Protobuf map.
+ * @internal
+ * @param ctx
+ * @param target
+ */
 export function $_map(ctx: DecoratorContext, target: Model) {
-  ctx.program.stateSet(mapState).add(target);
+  ctx.program.stateSet(state._map).add(target);
 }
 
 export function $externRef(ctx: DecoratorContext, target: Model, path: string, name: string) {
