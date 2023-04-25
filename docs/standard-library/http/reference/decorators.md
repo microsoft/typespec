@@ -246,11 +246,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-<<<<<<< HEAD
-dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: {})
-=======
 dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: (anonymous model))
->>>>>>> e0b480de8f32992fe94694facbedde9dc490bad0
 ```
 
 #### Target
@@ -259,17 +255,10 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 
 #### Parameters
 
-<<<<<<< HEAD
-| Name       | Type            | Description                                                                                                                                           |
-| ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| path       | `scalar string` | Relative route path. Cannot include query parameters.                                                                                                 |
-| parameters | `model {}`      | Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
-=======
 | Name    | Type                      | Description                                           |
 | ------- | ------------------------- | ----------------------------------------------------- |
 | path    | `scalar string`           | Relative route path. Cannot include query parameters. |
 | options | `model (anonymous model)` |                                                       |
->>>>>>> e0b480de8f32992fe94694facbedde9dc490bad0
 
 ### `@server` {#@TypeSpec.Http.server}
 
