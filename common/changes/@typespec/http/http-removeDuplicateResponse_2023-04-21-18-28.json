@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "No longer issues an error for multiple different responses for the same status code.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
