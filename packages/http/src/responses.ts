@@ -100,19 +100,6 @@ function processResponseType(
       responses: [],
     };
 
-    // check for duplicates
-    for (const contentType of contentTypes) {
-      if (response.responses.find((x) => x.body?.contentTypes.includes(contentType))) {
-        diagnostics.add(
-          createDiagnostic({
-            code: "duplicate-response",
-            format: { statusCode: statusCode.toString(), contentType },
-            target: responseType,
-          })
-        );
-      }
-    }
-
     if (bodyType !== undefined) {
       response.responses.push({ body: { contentTypes: contentTypes, type: bodyType }, headers });
     } else if (contentTypes.length > 0) {
