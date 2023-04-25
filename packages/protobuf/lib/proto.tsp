@@ -1,4 +1,4 @@
-import "../dist/src/proto.js";
+import "../dist/src/index.js";
 
 namespace TypeSpec.Protobuf;
 
@@ -57,6 +57,13 @@ namespace WellKnown {
    * This model references `google.protobuf.Any` from `google/protobuf/any.proto`.
    */
   model Any is Extern<"google/protobuf/any.proto", "google.protobuf.Any">;
+
+  /**
+   * A latitude and longitude.
+   *
+   * This model references `google.type.LatLng` from `google/type/latlng.proto`.
+   */
+  model LatLng is Extern<"google/type/latlng.proto", "google.type.LatLng">;
 }
 
 /**

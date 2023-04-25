@@ -215,4 +215,3 @@ export async function $onValidate(program: Program) {
 }
 
 export const namespace = "TypeSpec.Protobuf";
-export { TypeSpecProtobufLibrary as $lib };

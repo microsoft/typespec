@@ -22,7 +22,6 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { EOL } from "os";
 import {
   map,
   matchType,
@@ -350,7 +349,7 @@ function tspToProto(program: Program): ProtoFile[] {
 
     if (!emptyType) {
       throw new Error(
-        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join(EOL)}`
+        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join("\n")}`
       );
     }
 
@@ -569,7 +568,7 @@ function tspToProto(program: Program): ProtoFile[] {
 
       for (const [[type, diagnostics]] of entries) {
         if (!type) {
-          const diagnosticString = diagnostics.map(formatDiagnostic).join(EOL);
+          const diagnosticString = diagnostics.map(formatDiagnostic).join("\n");
           throw new Error(
             `Failed to construct TypeSpec -> Protobuf scalar map. Unexpected failure to resolve TypeSpec scalar: ${diagnosticString}`
           );
