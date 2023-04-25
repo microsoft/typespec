@@ -42,7 +42,7 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
-        // FIXME: Needs to account for if the model references a versioned namespace through "is" or "alias"
+        addDependency(model.namespace, model.sourceModel);
         addDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
           addDependency(model.namespace, prop.type);
@@ -76,7 +76,7 @@ export function $onValidate(program: Program) {
         }
 
         const namespace = op.namespace ?? op.interface?.namespace;
-        // FIXME: Needs to account for if the operation itself is derived from a versioned namespace
+        addDependency(namespace, op.sourceOperation);
         addDependency(namespace, op.parameters);
         addDependency(namespace, op.returnType);
 

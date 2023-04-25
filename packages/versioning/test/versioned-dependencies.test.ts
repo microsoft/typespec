@@ -240,7 +240,8 @@ describe("versioning: reference versioned library", () => {
     it("emit diagnostic when model uses alias", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
-          alias Test = VersionedLib.Foo {}
+          alias Test = VersionedLib.Foo;
+          op test(): Test;
         } 
     `);
       expectDiagnostics(diagnostics, {
@@ -267,6 +268,7 @@ describe("versioning: reference versioned library", () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
           alias test = VersionedLib.Operation<{name: string}, int32>;
+          op myTest is test;
         } 
     `);
       expectDiagnostics(diagnostics, {
