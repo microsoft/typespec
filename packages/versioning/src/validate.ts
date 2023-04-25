@@ -42,6 +42,7 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
+        addDependency(model.namespace, model.sourceModel);
         addDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
           addDependency(model.namespace, prop.type);
@@ -75,6 +76,7 @@ export function $onValidate(program: Program) {
         }
 
         const namespace = op.namespace ?? op.interface?.namespace;
+        addDependency(namespace, op.sourceOperation);
         addDependency(namespace, op.parameters);
         addDependency(namespace, op.returnType);
 
