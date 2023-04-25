@@ -3,6 +3,7 @@ import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
 import { FunctionComponent, useCallback } from "react";
 import { useSetRecoilState } from "recoil";
 import { SampleConfig } from "../index.js";
+import { PlaygroundManifest } from "../manifest.js";
 import { selectedEmitterState } from "../state.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
@@ -35,9 +36,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
 
       updateTypeSpec(config.content);
 
-      if (config.preferredEmitter) {
-        setEmitter(config.preferredEmitter);
-      }
+      setEmitter(config.preferredEmitter ?? PlaygroundManifest.defaultEmitter);
     },
     [setEmitter, updateTypeSpec]
   );
