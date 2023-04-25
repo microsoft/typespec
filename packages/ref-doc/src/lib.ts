@@ -6,9 +6,14 @@ export const libDef = {
     "documentation-missing": {
       severity: "warning",
       messages: {
-        default: "Missing documentation.",
         decorator: paramMessage`Missing documentation for decorator '${"name"}'.`,
         decoratorParam: paramMessage`Missing documentation for decorator parameter '${"name"}.${"param"}'.`,
+        templateParam: paramMessage`Missing documentation for template parameter '${"name"}.${"param"}'.`,
+        model: paramMessage`Missing documentation for model '${"name"}'.`,
+        union: paramMessage`Missing documentation for union '${"name"}'.`,
+        enum: paramMessage`Missing documentation for enum '${"name"}'.`,
+        interface: paramMessage`Missing documentation for interface '${"name"}'.`,
+        operation: paramMessage`Missing documentation for operation '${"name"}'.`,
       },
     },
   },
