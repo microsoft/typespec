@@ -6,11 +6,20 @@ import { EmitEntity, EmitterResult } from "../types.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface ObjectBuilder<T> extends Record<string, any> {}
 export class ObjectBuilder<T> {
-  constructor(initializer: Record<string, unknown> = {}) {
-    for (const [key, value] of Object.entries(initializer)) {
-      this.set(key, value as any);
+  constructor(initializer: Record<string, unknown> | Placeholder<Record<string, unknown>> = {}) {
+    if (initializer instanceof Placeholder) {
+      initializer.onValue((v) => {
+        for (const [key, value] of Object.entries(v)) {
+          this.set(key, value as any);
+        }
+      });
+    } else {
+      for (const [key, value] of Object.entries(initializer)) {
+        this.set(key, value as any);
+      }
     }
   }
+
   set(key: string, v: EmitEntity<T> | Placeholder<T> | T) {
     let value = v;
     if (v instanceof EmitterResult) {

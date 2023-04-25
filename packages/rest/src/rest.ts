@@ -79,7 +79,9 @@ function getResourceOperationHttpVerb(
   return (
     getOperationVerb(program, operation) ??
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    (getAction(program, operation) || getCollectionAction(program, operation) ? "post" : undefined)
+    (getActionDetails(program, operation) || getCollectionActionDetails(program, operation)
+      ? "post"
+      : undefined)
   );
 }
 
@@ -421,8 +423,11 @@ function lowerCaseFirstChar(str: string): string {
   return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
-function makeActionName(op: Operation, name: string | undefined): string {
-  return lowerCaseFirstChar(name || op.name);
+function makeActionName(op: Operation, name: string | undefined): ActionDetails {
+  return {
+    name: lowerCaseFirstChar(name || op.name),
+    kind: name ? "specified" : "automatic",
+  };
 }
 
 const actionsSegmentKey = createStateSymbol("actionSegment");
@@ -435,6 +440,22 @@ export function getActionSegment(program: Program, entity: Type): string | undef
   return program.stateMap(actionsSegmentKey).get(entity);
 }
 
+/**
+ * Provides details about an action or collection action.
+ */
+export interface ActionDetails {
+  /**
+   * The name of the action
+   */
+  name: string;
+
+  /**
+   * Identifies whether the action's name was generated from the original
+   * operation name or if it was explicitly specified.
+   */
+  kind: "automatic" | "specified";
+}
+
 const actionsKey = createStateSymbol("actions");
 export function $action(context: DecoratorContext, entity: Operation, name?: string) {
   if (name === "") {
@@ -444,13 +465,27 @@ export function $action(context: DecoratorContext, entity: Operation, name?: str
     });
     return;
   }
+
   const action = makeActionName(entity, name);
-  context.call($actionSegment, entity, action);
+  context.call($actionSegment, entity, action.name);
   context.program.stateMap(actionsKey).set(entity, action);
 }
 
-export function getAction(program: Program, operation: Operation): string | null | undefined {
+/**
+ * Gets the ActionDetails for the specified operation if it has previously been marked with @action.
+ */
+export function getActionDetails(
+  program: Program,
+  operation: Operation
+): ActionDetails | undefined {
   return program.stateMap(actionsKey).get(operation);
+}
+
+/**
+ * @deprecated Use getActionDetails instead.
+ */
+export function getAction(program: Program, operation: Operation): string | null | undefined {
+  return getActionDetails(program, operation)?.name;
 }
 
 const collectionActionsKey = createStateSymbol("collectionActions");
@@ -473,16 +508,31 @@ export function $collectionAction(
   }
 
   const action = makeActionName(entity, name);
-  context.call($actionSegment, entity, action);
+  context.call($actionSegment, entity, action.name);
 
-  context.program.stateMap(collectionActionsKey).set(entity, `${segment}/${action}`);
+  // Update the final name and store it
+  action.name = `${segment}/${action.name}`;
+  context.program.stateMap(collectionActionsKey).set(entity, action);
 }
 
+/**
+ * Gets the ActionDetails for the specified operation if it has previously been marked with @collectionAction.
+ */
+export function getCollectionActionDetails(
+  program: Program,
+  operation: Operation
+): ActionDetails | undefined {
+  return program.stateMap(collectionActionsKey).get(operation);
+}
+
+/**
+ * @deprecated Use getCollectionActionDetails instead.
+ */
 export function getCollectionAction(
   program: Program,
   operation: Operation
 ): string | null | undefined {
-  return program.stateMap(collectionActionsKey).get(operation);
+  return getCollectionActionDetails(program, operation)?.name;
 }
 
 const resourceLocationsKey = createStateSymbol("resourceLocations");

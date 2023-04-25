@@ -1,0 +1,49 @@
+{
+  "name": "@typespec/protobuf",
+  "version": "0.43.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library and emitter for Protobuf (gRPC)",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/packages/protobuf/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec",
+    "protobuf",
+    "grpc"
+  ],
+  "main": "dist/src/lib.js",
+  "type": "module",
+  "tspMain": "lib/proto.tsp",
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts"
+  },
+  "dependencies": {
+    "@typespec/compiler": "~0.43.0"
+  },
+  "devDependencies": {
+    "@typespec/eslint-config-typespec": "~0.6.0",
+    "@typespec/eslint-plugin": "~0.43.0",
+    "@types/mocha": "~10.0.0",
+    "@types/node": "~18.11.9",
+    "c8": "~7.13.0",
+    "eslint": "^8.36.0",
+    "mocha": "~10.2.0",
+    "rimraf": "~5.0.0",
+    "typescript": "~5.0.2",
+    "micromatch": "^4.0.5",
+    "@types/micromatch": "^4.0.2"
+  }
+}

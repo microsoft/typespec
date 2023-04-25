@@ -278,6 +278,9 @@ export function createProjector(
     if (model.baseModel) {
       projectedModel.baseModel = projectType(model.baseModel) as Model;
     }
+    if (model.sourceModel) {
+      projectedModel.sourceModel = projectType(model.sourceModel) as Model;
+    }
 
     if (model.indexer) {
       projectedModel.indexer = {
@@ -404,6 +407,10 @@ export function createProjector(
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
       projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
+    }
+
+    if (op.sourceOperation) {
+      projectedOp.sourceOperation = projectType(op.sourceOperation) as Operation;
     }
 
     if (op.namespace) {

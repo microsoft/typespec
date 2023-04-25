@@ -237,7 +237,7 @@ dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | Typ
 
 ### `@route` {#@TypeSpec.Http.route}
 
-`@route` defines the relative route URI for the target operation
+Defines the relative route URI for the target operation
 
 The first argument should be a URI fragment that may contain one or more path parameter fields.
 If the namespace or interface that contains the operation is also marked with a `@route` decorator,
@@ -246,19 +246,30 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
+<<<<<<< HEAD
 dec TypeSpec.Http.route(entity: unknown, path: string, parameters?: {})
+=======
+dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: (anonymous model))
+>>>>>>> e0b480de8f32992fe94694facbedde9dc490bad0
 ```
 
 #### Target
 
-`(intrinsic) unknown`
+`union Namespace | Interface | Operation`
 
 #### Parameters
 
+<<<<<<< HEAD
 | Name       | Type            | Description                                                                                                                                           |
 | ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | path       | `scalar string` | Relative route path. Cannot include query parameters.                                                                                                 |
 | parameters | `model {}`      | Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+=======
+| Name    | Type                      | Description                                           |
+| ------- | ------------------------- | ----------------------------------------------------- |
+| path    | `scalar string`           | Relative route path. Cannot include query parameters. |
+| options | `model (anonymous model)` |                                                       |
+>>>>>>> e0b480de8f32992fe94694facbedde9dc490bad0
 
 ### `@server` {#@TypeSpec.Http.server}
 
@@ -279,6 +290,33 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 | url         | `scalar string`         | Server endpoint                                         |
 | description | `scalar string`         | Description of the endpoint                             |
 | parameters  | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
+
+### `@sharedRoute` {#@TypeSpec.Http.sharedRoute}
+
+`@sharedRoute` marks the operation as sharing a route path with other operations.
+
+When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+route path as long as those operations are also marked with `@sharedRoute`.
+
+`@sharedRoute` can only be applied directly to operations.
+
+```typespec
+@sharedRoute
+@route("/widgets")
+op getWidget(@path id: string): Widget;
+```
+
+```typespec
+dec TypeSpec.Http.sharedRoute(target: Operation)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+
+None
 
 ### `@statusCode` {#@TypeSpec.Http.statusCode}
 

@@ -75,12 +75,6 @@ const libDefinition = {
         default: "contentType parameter must be a string literal or union of string literals",
       },
     },
-    "duplicate-response": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
-      },
-    },
     "content-type-ignored": {
       severity: "warning",
       messages: {
@@ -98,12 +92,6 @@ const libDefinition = {
       severity: "error",
       messages: {
         default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
-      },
-    },
-    "shared-boolean": {
-      severity: "error",
-      messages: {
-        default: "shared parameter must be a boolean.",
       },
     },
     "shared-inconsistency": {
