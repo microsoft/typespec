@@ -13,7 +13,6 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = () => {
   useEffect(() => {
     Promise.all(PlaygroundManifest.libraries.map(async (x) => [x, await importShim(x)]))
       .then((emitters) => {
-        console.log("Loaded library:", emitters);
         setEmitters(emitters.filter(([, x]) => (x as any).$lib?.emitter).map((x: any) => x[0]));
       })
       // eslint-disable-next-line no-console
