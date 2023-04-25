@@ -20,6 +20,16 @@ export async function generateLibraryDocs(
       parseOptions: { comments: true, docs: true },
     });
     const refDoc = extractRefDocs(program, namespaces);
+    if (program.diagnostics.length > 0) {
+      // FIXME: Is this the "right" way to emit these?
+      for (const diag of program.diagnostics) {
+        if (diag.severity === "error") {
+          console.error(diag.message);
+        } else {
+          console.warn(diag.message);
+        }
+      }
+    }
     const files = renderToDocusaurusMarkdown(refDoc);
     await mkdir(outputDir, { recursive: true });
     for (const [name, content] of Object.entries(files)) {

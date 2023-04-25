@@ -13,6 +13,7 @@ import {
   Model,
   Namespace,
   navigateTypesInNamespace,
+  NoTarget,
   Operation,
   Program,
   SyntaxKind,
@@ -20,6 +21,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
+import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
   EnumRefDoc,
@@ -143,6 +145,15 @@ function extractOperationRefDoc(program: Program, operation: Operation): Operati
 function extractDecoratorRefDoc(program: Program, decorator: Decorator): DecoratorRefDoc {
   const paramDoc = getParmeterDocs(decorator);
   const parameters: FunctionParameterRefDoc[] = decorator.parameters.map((x) => {
+    const docVal = paramDoc.get(x.name);
+    if (docVal === undefined || docVal === "") {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "decoratorParam",
+        format: { name: decorator.name, param: x.name },
+        target: NoTarget,
+      });
+    }
     return {
       type: x,
       doc: paramDoc.get(x.name) ?? "",
@@ -153,6 +164,15 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
   });
 
   const examples = extractExamples(decorator);
+  const mainDoc = extractMainDoc(program, decorator);
+  if (mainDoc === undefined || mainDoc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "decorator",
+      format: { name: decorator.name },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(decorator),
     name: decorator.name,
