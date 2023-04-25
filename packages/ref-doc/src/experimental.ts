@@ -1,4 +1,11 @@
-import { compile, joinPaths, NodeHost, NodePackage } from "@typespec/compiler";
+import {
+  compile,
+  createDiagnosticCollector,
+  Diagnostic,
+  joinPaths,
+  NodeHost,
+  NodePackage,
+} from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
@@ -12,7 +19,8 @@ export async function generateLibraryDocs(
   libraryPath: string,
   namespaces: string[],
   outputDir: string
-) {
+): Promise<readonly Diagnostic[]> {
+  const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   if (pkgJson.tspMain) {
     const main = joinPaths(libraryPath, pkgJson.tspMain);
@@ -20,15 +28,8 @@ export async function generateLibraryDocs(
       parseOptions: { comments: true, docs: true },
     });
     const refDoc = extractRefDocs(program, namespaces);
-    if (program.diagnostics.length > 0) {
-      // FIXME: Is this the "right" way to emit these?
-      for (const diag of program.diagnostics) {
-        if (diag.severity === "error") {
-          console.error(diag.message);
-        } else {
-          console.warn(diag.message);
-        }
-      }
+    for (const diag of program.diagnostics ?? []) {
+      diagnostics.add(diag);
     }
     const files = renderToDocusaurusMarkdown(refDoc);
     await mkdir(outputDir, { recursive: true });
@@ -39,19 +40,25 @@ export async function generateLibraryDocs(
   if (pkgJson.main) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
   }
+  return diagnostics.diagnostics;
 }
 
 export async function resolveLibraryRefDocs(
   libraryPath: string,
   namespaces: string[]
-): Promise<TypeSpecRefDoc | undefined> {
+): Promise<[TypeSpecRefDoc, readonly Diagnostic[]] | undefined> {
+  const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   if (pkgJson.tspMain) {
     const main = joinPaths(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    return extractRefDocs(program, namespaces);
+    const refDoc = extractRefDocs(program, namespaces);
+    for (const diag of program.diagnostics ?? []) {
+      diagnostics.add(diag);
+    }
+    return diagnostics.wrap(refDoc);
   }
   return undefined;
 }

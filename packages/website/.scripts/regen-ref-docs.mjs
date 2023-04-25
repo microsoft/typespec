@@ -9,52 +9,87 @@ import { fileURLToPath } from "url";
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
+const diagnostics = new Map();
+
 // Compiler
-await generateCompilerDocs();
+const compilerDiag = await generateCompilerDocs();
+if (compilerDiag.length) {
+  diagnostics.set("@typespec/compiler", compilerDiag);
+}
 
 // Http
-await generateLibraryDocs(
+const httpDiag = await generateLibraryDocs(
   join(repoRoot, "packages/http"),
   ["TypeSpec.Http"],
   join(repoRoot, "docs/standard-library/http/reference")
 );
+if (httpDiag.length) {
+  diagnostics.set("@typespec/http", httpDiag);
+}
 
 // Rest
-await generateLibraryDocs(
+const restDiag = await generateLibraryDocs(
   join(repoRoot, "packages/rest"),
   ["TypeSpec.Rest", "TypeSpec.Rest.Resource"],
   join(repoRoot, "docs/standard-library/rest/reference")
 );
+if (restDiag.length) {
+  diagnostics.set("@typespec/rest", restDiag);
+}
 
 // OpenAPI
-await generateLibraryDocs(
+const openapiDiag = await generateLibraryDocs(
   join(repoRoot, "packages/openapi"),
   ["OpenAPI"],
   join(repoRoot, "docs/standard-library/openapi/reference")
 );
+if (openapiDiag.length) {
+  diagnostics.set("@typespec/openapi", openapiDiag);
+}
 
 // Protobuf
-await generateLibraryDocs(
+const protobufDiag = await generateLibraryDocs(
   join(repoRoot, "packages/protobuf"),
   ["TypeSpec.Protobuf"],
   join(repoRoot, "docs/standard-library/protobuf/reference")
 );
+if (protobufDiag.length) {
+  diagnostics.set("@typespec/protobuf", protobufDiag);
+}
 
 // Versioning
-await generateLibraryDocs(
+const versioningDiag = await generateLibraryDocs(
   join(repoRoot, "packages/versioning"),
   ["TypeSpec.Versioning"],
   join(repoRoot, "docs/standard-library/versioning/reference")
 );
+if (versioningDiag.length) {
+  diagnostics.set("@typespec/versioning", versioningDiag);
+}
+
+// Log the diagnostics
+for (const pkg of diagnostics.keys()) {
+  console.warn(`\nIssues in ${pkg}:`);
+  const diags = diagnostics.get(pkg);
+  for (const diag of diags) {
+    if (diag.severity === "error") {
+      console.error(diag.message);
+    } else {
+      console.warn(diag.message);
+    }
+  }
+}
 
 async function generateCompilerDocs() {
   const compilerPath = join(repoRoot, "packages/compiler");
   const outputDir = join(repoRoot, "docs/standard-library");
-  const refDoc = await resolveLibraryRefDocs(compilerPath, ["TypeSpec"]);
-  assert(refDoc, "Unexpected ref doc should have been resolved for compiler.");
+  const results = await resolveLibraryRefDocs(compilerPath, ["TypeSpec"]);
+  assert(results, "Unexpected ref doc should have been resolved for compiler.");
+  const [refDoc, diagnostics] = results;
   const decoratorContent = renderDecoratorFile(refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
 
   await generateJsApiDocs(compilerPath, join(outputDir, "reference/js-api"));
+  return diagnostics;
 }
