@@ -30,6 +30,9 @@ model Body<T> {
   body: T;
 }
 
+/**
+ * The Location header contains the URL where the status of the long running operation can be checked.
+ */
 model LocationHeader {
   @doc("The Location header contains the URL where the status of the long running operation can be checked.")
   @header

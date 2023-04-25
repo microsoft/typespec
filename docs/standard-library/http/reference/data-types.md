@@ -150,6 +150,8 @@ model TypeSpec.Http.ImplicitFlow
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
+The Location header contains the URL where the status of the long running operation can be checked.
+
 ```typespec
 model TypeSpec.Http.LocationHeader
 ```
