@@ -23,8 +23,8 @@ const config = definePlaygroundViteConfig({
     },
     "HTTP service": { fileName: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
     "REST framework": { fileName: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
-    Protobuf: {
-      fileName: "samples/protobuf.tsp",
+    "Protobuf Kiosk": {
+      fileName: "samples/kiosk.tsp",
       preferredEmitter: "@typespec/protobuf",
     },
   },
