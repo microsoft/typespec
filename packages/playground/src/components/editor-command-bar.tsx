@@ -1,6 +1,9 @@
 import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useCallback } from "react";
+import { useSetRecoilState } from "recoil";
+import { SampleConfig } from "../index.js";
+import { selectedEmitterState } from "../state.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 
@@ -23,6 +26,22 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
       </Link>
     </label>
   ) : undefined;
+
+  const setEmitter = useSetRecoilState(selectedEmitterState);
+
+  const onSelectSample = useCallback(
+    (config: SampleConfig) => {
+      if (!config.content) throw new Error("Unreachable: sample has no 'content' property");
+
+      updateTypeSpec(config.content);
+
+      if (config.preferredEmitter) {
+        setEmitter(config.preferredEmitter);
+      }
+    },
+    [setEmitter, updateTypeSpec]
+  );
+
   return (
     <div css={{ borderBottom: "1px solid #f5f5f5" }}>
       <Toolbar>
@@ -34,7 +53,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             onClick={saveCode as any}
           />
         </Tooltip>
-        <SamplesDropdown onSelectSample={updateTypeSpec as any} />
+        <SamplesDropdown onSelectSample={onSelectSample} />
         <EmitterDropdown />
         {documentation}
         <div css={{ flex: "1" }}></div>

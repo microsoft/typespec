@@ -49,6 +49,8 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
   const emittersOptions = useRecoilValue(emittersOptionsState);
   const selectedEmitter = useRecoilValue(selectedEmitterState);
 
+  let dispose: (() => void) | undefined = undefined;
+
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
     const typespecCompiler = await importTypeSpecCompiler();
@@ -70,6 +72,8 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
 
   const updateTypeSpec = useCallback(
     (value: string) => {
+      // Cancel the debouncing compile so that if the sample has a preferred emitter, we won't overwrite it.
+      dispose?.();
       typespecModel.setValue(value);
     },
     [typespecModel]
@@ -82,8 +86,10 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
 
   useEffect(() => {
     const disposable = typespecModel.onDidChangeContent(debounce(() => doCompile(), 200));
-    return () => disposable.dispose();
+    dispose = () => disposable.dispose();
+    return dispose;
   }, [typespecModel, doCompile]);
+
   useEffect(() => {
     void doCompile();
   }, [doCompile]);
