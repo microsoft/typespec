@@ -75,12 +75,6 @@ const libDefinition = {
         default: "contentType parameter must be a string literal or union of string literals",
       },
     },
-    "duplicate-response": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
-      },
-    },
     "content-type-ignored": {
       severity: "warning",
       messages: {

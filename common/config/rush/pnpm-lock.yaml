@@ -26,7 +26,6 @@ specifiers:
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/http': file:./projects/http.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
-  '@rush-temp/json-schema': file:./projects/json-schema.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
   '@rush-temp/lint': file:./projects/lint.tgz
   '@rush-temp/migrate': file:./projects/migrate.tgz
@@ -34,6 +33,7 @@ specifiers:
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz
   '@rush-temp/prettier-plugin-typespec': file:./projects/prettier-plugin-typespec.tgz
+  '@rush-temp/protobuf': file:./projects/protobuf.tgz
   '@rush-temp/ref-doc': file:./projects/ref-doc.tgz
   '@rush-temp/rest': file:./projects/rest.tgz
   '@rush-temp/samples': file:./projects/samples.tgz
@@ -48,6 +48,7 @@ specifiers:
   '@types/babel__code-frame': ~7.0.3
   '@types/debounce': ~1.2.1
   '@types/js-yaml': ~4.0.1
+  '@types/micromatch': ^4.0.2
   '@types/mocha': ~10.0.0
   '@types/mustache': ~4.2.1
   '@types/node': ~18.11.9
@@ -73,7 +74,6 @@ specifiers:
   '@vitejs/plugin-react': ~3.1.0
   '@vscode/vsce': ~2.15.0
   ajv: ~8.12.0
-  ajv-formats: ~2.1.1
   autorest: ~3.3.2
   c8: ~7.13.0
   change-case: ~4.1.2
@@ -94,6 +94,7 @@ specifiers:
   lzutf8: 0.6.3
   mdx-mermaid: 1.3.2
   mermaid: ~9.1.6
+  micromatch: ^4.0.5
   mkdirp: ~2.1.6
   mocha: ~10.2.0
   mocha-junit-reporter: ~2.2.0
@@ -162,7 +163,6 @@ dependencies:
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/http': file:projects/http.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
-  '@rush-temp/json-schema': file:projects/json-schema.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
   '@rush-temp/lint': file:projects/lint.tgz
   '@rush-temp/migrate': file:projects/migrate.tgz
@@ -170,6 +170,7 @@ dependencies:
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz_rollup@3.4.0
   '@rush-temp/prettier-plugin-typespec': file:projects/prettier-plugin-typespec.tgz
+  '@rush-temp/protobuf': file:projects/protobuf.tgz
   '@rush-temp/ref-doc': file:projects/ref-doc.tgz
   '@rush-temp/rest': file:projects/rest.tgz
   '@rush-temp/samples': file:projects/samples.tgz
@@ -184,6 +185,7 @@ dependencies:
   '@types/babel__code-frame': 7.0.3
   '@types/debounce': 1.2.1
   '@types/js-yaml': 4.0.5
+  '@types/micromatch': 4.0.2
   '@types/mocha': 10.0.1
   '@types/mustache': 4.2.2
   '@types/node': 18.11.19
@@ -209,7 +211,6 @@ dependencies:
   '@vitejs/plugin-react': 3.1.0_vite@4.2.1
   '@vscode/vsce': 2.15.0
   ajv: 8.12.0
-  ajv-formats: 2.1.1
   autorest: 3.3.2
   c8: 7.13.0
   change-case: 4.1.2
@@ -230,6 +231,7 @@ dependencies:
   lzutf8: 0.6.3
   mdx-mermaid: 1.3.2_mermaid@9.1.7+react@18.2.0
   mermaid: 9.1.7
+  micromatch: 4.0.5
   mkdirp: 2.1.6
   mocha: 10.2.0
   mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -5739,6 +5741,10 @@ packages:
       '@types/node': 18.11.19
     dev: false
 
+  /@types/braces/3.0.1:
+    resolution: {integrity: sha512-+euflG6ygo4bn0JHtn4pYqcXwRtLvElQ7/nnjDu7iYG56H0+OhCd7d6Ug0IE3WcFpZozBKW2+80FUbv5QGk5AQ==}
+    dev: false
+
   /@types/connect-history-api-fallback/1.3.5:
     resolution: {integrity: sha512-h8QJa8xSb1WD4fpKBDcATDNGXghFj6/3GRWG6dhmRcu0RX1Ubasur2Uvx5aeEwlf0MwblEC2bMzzMQntxnw/Cw==}
     dependencies:
@@ -5854,6 +5860,12 @@ packages:
     resolution: {integrity: sha512-Y/uImid8aAwrEA24/1tcRZwpxX3pIFTSilcNDKSPn+Y2iDywSEachzRuvgAYYLR3wpGXAsMbv5lvKLDZLeYPAw==}
     dependencies:
       '@types/unist': 2.0.6
+    dev: false
+
+  /@types/micromatch/4.0.2:
+    resolution: {integrity: sha512-oqXqVb0ci19GtH0vOA/U2TmHTcRY9kuZl4mqUxe0QmJAlIW13kzhuK5pi1i9+ngav8FjpSb9FVS/GE00GLX1VA==}
+    dependencies:
+      '@types/braces': 3.0.1
     dev: false
 
   /@types/mime/3.0.1:
@@ -16015,28 +16027,6 @@ packages:
       - supports-color
     dev: false
 
-  file:projects/json-schema.tgz:
-    resolution: {integrity: sha512-r3a5RdLza7UW98v/sKoDeK8VPoilDNYwV1sgHnJ3XZ+FHdkmLXM+SkPt7vQG9DCZqFV8ZNAqoXjGweVcTfQYjA==, tarball: file:projects/json-schema.tgz}
-    name: '@rush-temp/json-schema'
-    version: 0.0.0
-    dependencies:
-      '@types/js-yaml': 4.0.5
-      '@types/mocha': 10.0.1
-      '@types/node': 18.11.19
-      ajv: 8.12.0
-      ajv-formats: 2.1.1
-      c8: 7.13.0
-      eslint: 8.38.0
-      js-yaml: 4.1.0
-      mocha: 10.2.0
-      mocha-junit-reporter: 2.2.0_mocha@10.2.0
-      mocha-multi-reporters: 1.5.1_mocha@10.2.0
-      rimraf: 5.0.0
-      typescript: 5.0.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   file:projects/library-linter.tgz:
     resolution: {integrity: sha512-/ha+38dconSS8xB/n5c1XgIRb9ZuYduB8zB41uohPohflftccNqFiPKVPsvDG7ioaWLup/HCpK1vTJcBO6VU7w==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
@@ -16144,7 +16134,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-XuMzykDPf500djYzYDcCc/QybKrEijng4PkXn8TfmwdI7C3oQjBDZH5K6NKiOH8BpQgzd6kTKSMwyW//6/jh0A==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-ce4xC/dS51QetqunqwR9qPHo/KCndoEjznty+z0dZPtc7RRVqCj8vmDdYL1JYFiP1iD6JutD+uEFXZ7WK7X83w==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -16213,6 +16203,24 @@ packages:
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
       prettier: 2.8.7
       rollup: 3.4.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  file:projects/protobuf.tgz:
+    resolution: {integrity: sha512-iJ4SfCFrfJTuHU+6U5u6z1V1iXRix1uBSpT6KXpT9k0g0G8HjgQSuQBYe9T5puaYfZ74HBgi5dngOZbKGAYStw==, tarball: file:projects/protobuf.tgz}
+    name: '@rush-temp/protobuf'
+    version: 0.0.0
+    dependencies:
+      '@types/micromatch': 4.0.2
+      '@types/mocha': 10.0.1
+      '@types/node': 18.11.19
+      c8: 7.13.0
+      eslint: 8.38.0
+      micromatch: 4.0.5
+      mocha: 10.2.0
+      rimraf: 5.0.0
+      typescript: 5.0.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -16348,7 +16356,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.0.34:
-    resolution: {integrity: sha512-5Bon+FCIX6RZwsZVrGIyYmvUm9EwkRtbpitNSW52bXOPeZUwYFOqYxqAQcnl/AvJXz9SEzjyA8h6stLlCzjGew==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-gfxpzTUoyhVb7yX9P2ZAyJnj54thZPT1qY9/0IAJFXNAkgvEHWHpCCFIVy4e3HcVuyUgTORyTcsLwZGyCCKwyg==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0

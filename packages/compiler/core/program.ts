@@ -986,9 +986,7 @@ export async function compile(
     );
 
     if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
-      // we have resolved node_modules/@typespec/compiler/dist/core/index.js and we want to get
-      // to the shim executable node_modules/.bin/tsp-server
-      const betterTypeSpecServerPath = resolvePath(actual.path, ".bin/tsp-server");
+      const betterTypeSpecServerPath = actual.path;
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",

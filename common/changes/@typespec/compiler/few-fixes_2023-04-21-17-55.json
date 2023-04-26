@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add relative file path utils, and allow emitter framework's ObjectBuilder to be initialized with a placeholder object.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

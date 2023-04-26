@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package foo;
+
+message Bar {
+  int32 field = 1;
+}

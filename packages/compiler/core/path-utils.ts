@@ -527,16 +527,37 @@ function identity<T>(x: T) {
  * pathIsAbsolute("path/to/file.ext") === false
  * pathIsAbsolute("./path/to/file.ext") === false
  * ```
+ *
+ * @internal
  */
-export function pathIsAbsolute(path: string): boolean {
+function pathIsAbsolute(path: string): boolean {
   return getEncodedRootLength(path) !== 0;
 }
 
 /**
  * Determines whether a path starts with a relative path component (i.e. `.` or `..`).
+ *
+ * @internal
  */
-export function pathIsRelative(path: string): boolean {
+function pathIsRelative(path: string): boolean {
   return /^\.\.?($|[\\/])/.test(path);
+}
+
+/**
+ * Ensures a path is either absolute (prefixed with `/` or `c:`) or dot-relative (prefixed
+ * with `./` or `../`) so as not to be confused with an unprefixed module name.
+ *
+ * ```ts
+ * ensurePathIsNonModuleName("/path/to/file.ext") === "/path/to/file.ext"
+ * ensurePathIsNonModuleName("./path/to/file.ext") === "./path/to/file.ext"
+ * ensurePathIsNonModuleName("../path/to/file.ext") === "../path/to/file.ext"
+ * ensurePathIsNonModuleName("path/to/file.ext") === "./path/to/file.ext"
+ * ```
+ *
+ * @internal
+ */
+export function ensurePathIsNonModuleName(path: string): string {
+  return !pathIsAbsolute(path) && !pathIsRelative(path) ? "./" + path : path;
 }
 
 /** @internal */
