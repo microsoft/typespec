@@ -1430,8 +1430,8 @@ export function createChecker(program: Program): Checker {
         properties.set(prop.name, newPropType);
       }
     }
-
-    return finishType(intersection, mapper);
+    linkMapper(intersection, mapper);
+    return finishType(intersection);
   }
 
   function checkArrayExpression(node: ArrayExpressionNode, mapper: TypeMapper | undefined): Model {
@@ -1638,16 +1638,18 @@ export function createChecker(program: Program): Checker {
     operationType.parameters.namespace = namespace;
 
     const parent = node.parent!;
+    linkMapper(operationType, mapper);
+
     if (parent.kind === SyntaxKind.InterfaceStatement) {
       if (
         shouldCreateTypeForTemplate(parent, mapper) &&
         shouldCreateTypeForTemplate(node, mapper)
       ) {
-        finishType(operationType, mapper);
+        finishType(operationType);
       }
     } else {
       if (shouldCreateTypeForTemplate(node, mapper)) {
-        finishType(operationType, mapper);
+        finishType(operationType);
       }
 
       namespace?.operations.set(name, operationType);
@@ -2315,7 +2317,6 @@ export function createChecker(program: Program): Checker {
     }
 
     const decorators: DecoratorApplication[] = [];
-
     const type: Model = createType({
       kind: "Model",
       name: node.id.sv,
@@ -2379,8 +2380,11 @@ export function createChecker(program: Program): Checker {
         mutate(sym).type = prop;
       }
     }
+
+    linkMapper(type, mapper);
+
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(type, mapper);
+      finishType(type);
     }
 
     const indexer = getIndexer(program, type);
@@ -2952,8 +2956,9 @@ export function createChecker(program: Program): Checker {
 
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
+    linkMapper(type, mapper);
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
-      finishType(type, mapper);
+      finishType(type);
     }
 
     return type;
@@ -3208,8 +3213,9 @@ export function createChecker(program: Program): Checker {
     if (mapper === undefined) {
       type.namespace?.scalars.set(type.name, type);
     }
+    linkMapper(type, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(type, mapper);
+      finishType(type);
     }
     if (isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
@@ -3329,8 +3335,8 @@ export function createChecker(program: Program): Checker {
       enumType.namespace = namespace;
       enumType.namespace?.enums.set(enumType.name!, enumType);
       enumType.decorators = checkDecorators(enumType, node, mapper);
-
-      finishType(enumType, mapper);
+      linkMapper(enumType, mapper);
+      finishType(enumType);
     }
 
     return links.type;
@@ -3394,8 +3400,9 @@ export function createChecker(program: Program): Checker {
       interfaceType.operations.set(key, value);
     }
 
+    linkMapper(interfaceType, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(interfaceType, mapper);
+      finishType(interfaceType);
     }
 
     if (mapper === undefined) {
@@ -3456,8 +3463,9 @@ export function createChecker(program: Program): Checker {
 
     checkUnionVariants(unionType, node, variants, mapper);
 
+    linkMapper(unionType, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(unionType, mapper);
+      finishType(unionType);
     }
 
     linkType(links, unionType, mapper);
@@ -3513,8 +3521,9 @@ export function createChecker(program: Program): Checker {
     });
     variantType.decorators = checkDecorators(variantType, variantNode, mapper);
 
+    linkMapper(variantType, mapper);
     if (shouldCreateTypeForTemplate(variantNode.parent!, mapper)) {
-      finishType(variantType, mapper);
+      finishType(variantType);
     }
     if (links) {
       linkType(links, variantType, mapper);
@@ -3631,8 +3640,8 @@ export function createChecker(program: Program): Checker {
     return typeDef as any;
   }
 
-  function finishType<T extends Type>(typeDef: T, mapper?: TypeMapper): T {
-    return finishTypeForProgramAndChecker(program, typePrototype, typeDef, mapper);
+  function finishType<T extends Type>(typeDef: T): T {
+    return finishTypeForProgramAndChecker(program, typePrototype, typeDef);
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteral;
@@ -5035,7 +5044,7 @@ function createTypeMapper(
   }
 
   return {
-    partial: false,
+    partial: args.every((t) => t.kind !== "TemplateParameter"),
     args: [...(parentMapper?.args ?? []), ...args],
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
@@ -5241,20 +5250,11 @@ function countPropertiesInherited(model: Model, filter?: (property: ModelPropert
   return count;
 }
 
-export function finishTypeForProgram<T extends Type>(
-  program: Program,
-  typeDef: T,
-  mapper?: TypeMapper
-): T {
-  return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef, mapper);
+export function finishTypeForProgram<T extends Type>(program: Program, typeDef: T): T {
+  return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef);
 }
 
-function finishTypeForProgramAndChecker<T extends Type>(
-  program: Program,
-  typePrototype: TypePrototype,
-  typeDef: T,
-  mapper?: TypeMapper
-): T {
+function linkMapper<T extends Type>(typeDef: T, mapper?: TypeMapper) {
   if (mapper) {
     compilerAssert(
       !(typeDef as any).templateArguments,
@@ -5263,7 +5263,13 @@ function finishTypeForProgramAndChecker<T extends Type>(
     (typeDef as any).templateMapper = mapper;
     (typeDef as any).templateArguments = mapper.args;
   }
+}
 
+function finishTypeForProgramAndChecker<T extends Type>(
+  program: Program,
+  typePrototype: TypePrototype,
+  typeDef: T
+): T {
   if ("decorators" in typeDef) {
     for (const decApp of typeDef.decorators) {
       applyDecoratorToType(program, decApp, typeDef);

@@ -10,6 +10,7 @@ import {
   ignoreDiagnostics,
   Interface,
   isTemplateDeclaration,
+  isTemplateInstance,
   Model,
   Namespace,
   navigateTypesInNamespace,
@@ -53,6 +54,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       enums: [],
       unions: [],
     };
+
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
       namespace,
@@ -61,23 +63,38 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
           namespaceDoc.decorators.push(extractDecoratorRefDoc(program, dec));
         },
         operation(operation) {
+          if (isTemplateInstance(operation)) {
+            return;
+          }
           if (operation.interface === undefined) {
             namespaceDoc.operations.push(extractOperationRefDoc(program, operation));
           }
         },
         interface(iface) {
+          if (isTemplateInstance(iface)) {
+            return;
+          }
           namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
         },
         model(model) {
+          if (isTemplateInstance(model)) {
+            return;
+          }
           if (model.name === "") {
             return;
           }
           namespaceDoc.models.push(extractModelRefDocs(program, model));
         },
         enum(e) {
+          if (isTemplateInstance(e)) {
+            return;
+          }
           namespaceDoc.enums.push(extractEnumRefDoc(program, e));
         },
         union(union) {
+          if (isTemplateInstance(union)) {
+            return;
+          }
           if (union.name !== undefined) {
             namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
           }
