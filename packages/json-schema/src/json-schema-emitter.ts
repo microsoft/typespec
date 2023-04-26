@@ -135,7 +135,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelProperties(model: Model): EmitterOutput<object> {
-    let props = new ObjectBuilder();
+    const props = new ObjectBuilder();
 
     for (const [name, prop] of model.properties) {
       const result = this.emitter.emitModelProperty(prop);
@@ -211,7 +211,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionVariants(union: Union): EmitterOutput<object> {
-    let variants = new ArrayBuilder();
+    const variants = new ArrayBuilder();
     for (const variant of union.variants.values()) {
       variants.push(this.emitter.emitType(variant));
     }
@@ -252,8 +252,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     if (!commonScope) {
-      let currentSfScope = pathUp[pathUp.length - 1] as SourceFileScope<object>;
-      let targetSfScope = pathDown[0] as SourceFileScope<object>;
+      const currentSfScope = pathUp[pathUp.length - 1] as SourceFileScope<object>;
+      const targetSfScope = pathDown[0] as SourceFileScope<object>;
       const resolved = getRelativePathFromDirectory(
         getDirectoryPath(currentSfScope.sourceFile.path),
         targetSfScope.sourceFile.path,
@@ -297,7 +297,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         if (int64Strategy === "string") {
           schema = { type: "string" };
         } else {
-          schema = { type: "integer", minimum: 0, maximum: 18446744073709551615 };
+          // can't use minimum and maximum because we can't actually encode these values as literals
+          // without losing precision.
+          schema = { type: "integer" };
         }
         break;
       case "uint64":
@@ -305,7 +307,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         if (uint64Strategy === "string") {
           schema = { type: "string" };
         } else {
-          schema = { type: "integer", minimum: -9223372036854775808, maximum: 9223372036854775807 };
+          // can't use minimum and maximum because we can't actually encode these values as literals
+          // without losing precision.
+          schema = { type: "integer" };
         }
         break;
       case "integer":
@@ -355,7 +359,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         throw new Error("Unknown scalar type " + baseBuiltIn.name);
     }
 
-    let builderSchema = new ObjectBuilder(schema);
+    const builderSchema = new ObjectBuilder(schema);
     this.#applyConstraints(scalar, builderSchema);
 
     if (baseBuiltIn === scalar) {
@@ -614,24 +618,4 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   // #endregion
-}
-
-// better way to do this?
-function isSomeInt64Subtype(program: Program, type: Type) {
-  if (type.kind !== "Scalar") return;
-  const base = scalarBaseType(type);
-  if (program.checker.isStdType(base) && (base.name === "int64" || base.name === "uint64")) {
-    return true;
-  }
-
-  return false;
-}
-
-function scalarBaseType(scalar: Scalar): Scalar {
-  let current = scalar;
-  while (current.baseScalar) {
-    current = current.baseScalar;
-  }
-
-  return current;
 }

@@ -39,6 +39,9 @@ const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
 export const libDef = {
   name: "@typespec/json-schema",
   diagnostics: {},
+  emitter: {
+    options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
+  },
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
