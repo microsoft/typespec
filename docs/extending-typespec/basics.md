@@ -48,10 +48,12 @@ Unlike node libraries which support CommonJS (cjs), TypeSpec libraries must be E
 Run the following command:
 
 ```bash
-npm install @typespec/compiler
+npm install --save-peer @typespec/compiler
 ```
 
 You may have need of other dependencies in the TypeSpec standard library depending on what you are doing. E.g. if you want to use the metadata found in `@typespec/openapi` you will need to install that as well.
+
+See [dependency section](#defining-dependencies) for information on how to define your dependencies.
 
 ### 2. Define your main files
 
@@ -130,6 +132,38 @@ namespace MyLibrary;
 model Person {
   name: string;
   age: uint8;
+}
+```
+
+## Defining Dependencies
+
+Defining dependencies in a TypeSpec library should be following the following rules:
+
+- use `peerDependencies` for all TypeSpec libraries(+ compiler) that you use in your own library/emitter
+- use `devDependencies` for the other typespec libraries used only in tests
+- use `dependencies`/`devDependencies` for any other packages depending if using in library code or in test/dev scripts
+
+TypeSpec libraries are defined using `peerDependencies` so we don't end-up with multiple versions of the compiler/library running at the same time.
+
+**Example**
+
+```jsonc
+{
+  "dependencies": {
+    "js-yaml": "~4.1.0" // This is a regular package this library/emitter will use
+  },
+  "peerDependencies": {
+    // Those are all TypeSpec libraries this library/emitter depend on
+    "@typespec/compiler": "~0.43.0",
+    "@typespec/http": "~0.43.1",
+    "@typespec/openapi": "~0.43.0"
+  },
+  "devDependencies": {
+    // This TypeSpec library is only used in the tests but is not required to use this library.
+    "@typespec/versioning": "~0.43.0",
+    // Typescript is only used during development
+    "typescript": "~5.0.2"
+  }
 }
 ```
 
