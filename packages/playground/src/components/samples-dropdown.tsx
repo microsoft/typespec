@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { SampleConfig } from "../index.js";
 import { PlaygroundManifest } from "../manifest.js";
 export interface SamplesDropdownProps {
-  onSelectSample: (content: SampleConfig) => void | Promise<void>;
+  onSelectSample: (content: SampleConfig) => void;
 }
 export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({ onSelectSample }) => {
   const [selected, setSelected] = useState<string>("");

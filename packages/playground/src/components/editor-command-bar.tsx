@@ -11,7 +11,7 @@ import { SamplesDropdown } from "./samples-dropdown.js";
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
-  updateTypeSpec: (value: string) => Promise<void> | void;
+  updateTypeSpec: (value: string) => void;
   newIssue: () => Promise<void> | void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
