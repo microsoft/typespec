@@ -338,7 +338,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "plainTime":
         schema = { type: "string", format: "time" };
         break;
-      case "zonedDateTime":
+      case "offsetDateTime":
+      case "utcDateTime":
         schema = { type: "string", format: "date-time" };
         break;
       case "duration":

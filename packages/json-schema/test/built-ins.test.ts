@@ -25,7 +25,8 @@ describe("emitting built-in types", () => {
     ["duration", { type: "string", format: "duration" }],
 
     // this is technically incorrect, date-time is an offsetDateTime.
-    ["zonedDateTime", { type: "string", format: "date-time" }],
+    ["utcDateTime", { type: "string", format: "date-time" }],
+    ["offsetDateTime", { type: "string", format: "date-time" }],
 
     // others
     ["string", { type: "string" }],

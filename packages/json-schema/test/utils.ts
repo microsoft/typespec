@@ -24,7 +24,7 @@ export async function emitSchema(code: string, options: JSONSchemaEmitterOptions
   if (!options["file-type"]) {
     options["file-type"] = "json";
   }
-  code = `import "@typespec/json-schema"; using JsonSchema; @JsonSchema namespace test;` + code;
+  code = `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test;` + code;
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, JsonSchemaEmitter, {
     emitterOutputDir: "cadl-output",
