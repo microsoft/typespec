@@ -10,7 +10,7 @@ toc_max_heading_level: 3
 
 ### `@action` {#@TypeSpec.Rest.action}
 
-Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
+Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
 
 ```typespec
 dec TypeSpec.Rest.action(target: Operation, name?: string)
@@ -22,9 +22,9 @@ dec TypeSpec.Rest.action(target: Operation, name?: string)
 
 #### Parameters
 
-| Name | Type            | Description |
-| ---- | --------------- | ----------- |
-| name | `scalar string` |             |
+| Name | Type            | Description                                                                   |
+| ---- | --------------- | ----------------------------------------------------------------------------- |
+| name | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@actionSeparator` {#@TypeSpec.Rest.actionSeparator}
 
@@ -83,10 +83,10 @@ dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?
 
 #### Parameters
 
-| Name         | Type            | Description |
-| ------------ | --------------- | ----------- |
-| resourceType | `Model`         |             |
-| name         | `scalar string` |             |
+| Name         | Type            | Description                                                                   |
+| ------------ | --------------- | ----------------------------------------------------------------------------- |
+| resourceType | `Model`         | Resource marked with                                                          |
+| name         | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
 
@@ -102,9 +102,9 @@ dec TypeSpec.Rest.createsOrReplacesResource(target: Operation, resourceType: Mod
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@createsOrUpdatesResource` {#@TypeSpec.Rest.createsOrUpdatesResource}
 
@@ -120,9 +120,9 @@ dec TypeSpec.Rest.createsOrUpdatesResource(target: Operation, resourceType: Mode
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@createsResource` {#@TypeSpec.Rest.createsResource}
 
@@ -138,9 +138,9 @@ dec TypeSpec.Rest.createsResource(target: Operation, resourceType: Model)
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@deletesResource` {#@TypeSpec.Rest.deletesResource}
 
@@ -156,9 +156,9 @@ dec TypeSpec.Rest.deletesResource(target: Operation, resourceType: Model)
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@listsResource` {#@TypeSpec.Rest.listsResource}
 
@@ -174,9 +174,9 @@ dec TypeSpec.Rest.listsResource(target: Operation, resourceType: Model)
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@readsResource` {#@TypeSpec.Rest.readsResource}
 
@@ -192,9 +192,9 @@ dec TypeSpec.Rest.readsResource(target: Operation, resourceType: Model)
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@resource` {#@TypeSpec.Rest.resource}
 
@@ -246,9 +246,9 @@ dec TypeSpec.Rest.segmentOf(target: Operation, type: Model)
 
 #### Parameters
 
-| Name | Type    | Description |
-| ---- | ------- | ----------- |
-| type | `Model` |             |
+| Name | Type    | Description  |
+| ---- | ------- | ------------ |
+| type | `Model` | Target model |
 
 ### `@updatesResource` {#@TypeSpec.Rest.updatesResource}
 
@@ -264,6 +264,6 @@ dec TypeSpec.Rest.updatesResource(target: Operation, resourceType: Model)
 
 #### Parameters
 
-| Name         | Type    | Description |
-| ------------ | ------- | ----------- |
-| resourceType | `Model` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |

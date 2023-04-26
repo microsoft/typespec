@@ -20,9 +20,9 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
@@ -36,9 +36,9 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
@@ -52,9 +52,9 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
@@ -68,9 +68,9 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
@@ -84,9 +84,9 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
@@ -100,9 +100,9 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
@@ -116,11 +116,13 @@ model CollectionWithNextLink<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
 ### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
+
+Dynamically gathers keys of the model type T.
 
 ```typespec
 model KeysOf<T>
@@ -128,11 +130,13 @@ model KeysOf<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description       |
+| ---- | ----------------- |
+| T    | The target model. |
 
 ### `ParentKeysOf` {#TypeSpec.Rest.Resource.ParentKeysOf}
+
+Dynamically gathers parent keys of the model type T.
 
 ```typespec
 model ParentKeysOf<T>
@@ -140,11 +144,13 @@ model ParentKeysOf<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description       |
+| ---- | ----------------- |
+| T    | The target model. |
 
 ### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
+
+Represents collection operation parameters for resource TResource.
 
 ```typespec
 model ResourceCollectionParameters<TResource>
@@ -152,11 +158,13 @@ model ResourceCollectionParameters<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -164,11 +172,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -176,11 +186,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -188,11 +200,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -200,11 +214,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -212,11 +228,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -224,11 +242,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -236,11 +256,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -248,11 +270,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -260,11 +284,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
 
 ```typespec
 model ResourceCreatedResponse<T>
@@ -272,11 +298,13 @@ model ResourceCreatedResponse<T>
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -284,11 +312,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -296,11 +326,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -308,11 +340,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -320,11 +354,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -332,11 +368,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -344,11 +382,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -356,11 +396,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
 
 ```typespec
 model ResourceCreateModel<TResource>
@@ -368,11 +410,13 @@ model ResourceCreateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -380,11 +424,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -392,11 +438,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -404,11 +452,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -416,11 +466,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -428,11 +480,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -440,11 +494,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -452,11 +508,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -464,11 +522,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -476,11 +536,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -488,11 +550,13 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
 
 ```typespec
 model ResourceCreateOrUpdateModel<TResource>
@@ -500,9 +564,9 @@ model ResourceCreateOrUpdateModel<TResource>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
 ### `ResourceDeletedResponse` {#TypeSpec.Rest.Resource.ResourceDeletedResponse}
 
@@ -522,12 +586,14 @@ model TypeSpec.Rest.Resource.ResourceError
 
 ### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
 
+Represents operation parameters for resource TResource.
+
 ```typespec
 model ResourceParameters<TResource>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |
