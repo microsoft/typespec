@@ -1,7 +1,7 @@
 import "@typespec/json-schema";
 using JsonSchema;
 
-@JsonSchema
+@jsonSchema
 namespace Example;
 
 @id("user")
@@ -32,8 +32,8 @@ model Page<T> {
 
 model PostBase {
   author: User.id;
-  postedAt: zonedDateTime;
-  updatedAt?: zonedDateTime;
+  postedAt: offsetDateTime;
+  updatedAt?: offsetDateTime;
 }
 
 model BlogPost extends PostBase {
