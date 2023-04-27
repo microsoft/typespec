@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // @ts-check
+import { NodeHost, logDiagnostics } from "@typespec/compiler";
 import { generateJsApiDocs, generateLibraryDocs, resolveLibraryRefDocs } from "@typespec/ref-doc";
 import { renderDecoratorFile } from "@typespec/ref-doc/emitters/docusaurus";
 import assert from "assert";
@@ -71,13 +72,7 @@ if (versioningDiag.length) {
 for (const pkg of diagnostics.keys()) {
   console.warn(`\nIssues in ${pkg}:`);
   const diags = diagnostics.get(pkg);
-  for (const diag of diags) {
-    if (diag.severity === "error") {
-      console.error(diag.message);
-    } else {
-      console.warn(diag.message);
-    }
-  }
+  logDiagnostics(diags, NodeHost.logSink);
 }
 
 async function generateCompilerDocs() {
