@@ -58,9 +58,9 @@ dec TypeSpec.Versioning.removed(target: unknown, version: EnumMember)
 
 #### Parameters
 
-| Name    | Type         | Description                                 |
-| ------- | ------------ | ------------------------------------------- |
-| version | `EnumMember` | The version that the target was removed in. |
+| Name    | Type         | Description |
+| ------- | ------------ | ----------- |
+| version | `EnumMember` |             |
 
 ### `@renamedFrom` {#@TypeSpec.Versioning.renamedFrom}
 

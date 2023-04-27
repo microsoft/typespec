@@ -68,12 +68,15 @@ if (versioningDiag.length) {
   diagnostics.set("@typespec/versioning", versioningDiag);
 }
 
+let exitCode = 0;
 // Log the diagnostics
 for (const pkg of diagnostics.keys()) {
-  console.warn(`\nIssues in ${pkg}:`);
+  console.log(`\nIssues in ${pkg}:`);
   const diags = diagnostics.get(pkg);
   logDiagnostics(diags, NodeHost.logSink);
+  exitCode = 1;
 }
+process.exit(exitCode);
 
 async function generateCompilerDocs() {
   const compilerPath = join(repoRoot, "packages/compiler");
