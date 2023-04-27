@@ -124,6 +124,8 @@ import {
 } from "./types.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
 
+export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
+
 export interface Checker {
   typePrototype: TypePrototype;
 
@@ -158,14 +160,12 @@ export interface Checker {
   ): Type;
   resolveIdentifier(node: IdentifierNode): Sym | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never>(
-    typeDef: U
-  ): U & TypePrototype & { isFinished: boolean };
-  createAndFinishType<
-    U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never
-  >(
-    typeDef: U
-  ): U & TypePrototype;
+  createType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype & { isFinished: boolean };
+  createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
@@ -3627,9 +3627,9 @@ export function createChecker(program: Program): Checker {
 
   // the types here aren't ideal and could probably be refactored.
 
-  function createAndFinishType<
-    U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never
-  >(typeDef: U): U & TypePrototype & { isFinished: boolean } {
+  function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype & { isFinished: boolean } {
     createType(typeDef);
     return finishType(typeDef as any) as any;
   }
@@ -3639,9 +3639,9 @@ export function createChecker(program: Program): Checker {
    * So far, that amounts to setting the prototype to typePrototype which
    * contains the `projections` getter.
    */
-  function createType<
-    U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never
-  >(typeDef: U): U & TypePrototype & { isFinished: boolean } {
+  function createType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype & { isFinished: boolean } {
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
     return typeDef as any;
