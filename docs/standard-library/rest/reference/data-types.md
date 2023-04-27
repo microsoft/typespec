@@ -6,6 +6,16 @@ toc_max_heading_level: 3
 
 # Data types
 
+## TypeSpec.Rest
+
+### `ResourceLocation` {#TypeSpec.Rest.ResourceLocation}
+
+A URL that points to a resource.
+
+```typespec
+scalar TypeSpec.Rest.ResourceLocation
+```
+
 ## TypeSpec.Rest.Resource
 
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}

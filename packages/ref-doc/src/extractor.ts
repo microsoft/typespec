@@ -16,6 +16,7 @@ import {
   NoTarget,
   Operation,
   Program,
+  Scalar,
   SyntaxKind,
   TemplatedType,
   Type,
@@ -31,6 +32,7 @@ import {
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  ScalarRefDoc,
   TypeSpecRefDoc,
   UnionRefDoc,
 } from "./types.js";
@@ -54,6 +56,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       models: [],
       enums: [],
       unions: [],
+      scalars: [],
     };
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
@@ -84,6 +87,11 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
             namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
           }
         },
+        scalar(scalar) {
+          if (scalar.name !== undefined) {
+            namespaceDoc.scalars.push(extractScalarRefDocs(program, scalar as any));
+          }
+        },
       },
       { includeTemplateDeclaration: true, skipSubNamespaces: true }
     );
@@ -97,6 +105,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
     sort(namespace.models);
     sort(namespace.operations);
     sort(namespace.unions);
+    sort(namespace.scalars);
   }
 
   function sort(arr: { id: string }[]) {
@@ -277,6 +286,26 @@ function extractUnionRefDocs(program: Program, type: Union & { name: string }): 
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(program, type),
+    doc: doc,
+    examples: extractExamples(type),
+  };
+}
+
+function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
+  const doc = extractMainDoc(program, type);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "scalar",
+      format: { name: type.name ?? "" },
+      target: NoTarget,
+    });
+  }
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
     doc: doc,
     examples: extractExamples(type),
   };

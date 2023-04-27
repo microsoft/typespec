@@ -24,6 +24,7 @@ namespace TypeSpec {
 
     /**
      * Identifies when the target was removed.
+     * @param version The version that the target was removed in.
      */
     extern dec removed(target: unknown, version: EnumMember);
 

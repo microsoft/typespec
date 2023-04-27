@@ -14,6 +14,7 @@ export const libDef = {
         enum: paramMessage`Missing documentation for enum '${"name"}'.`,
         interface: paramMessage`Missing documentation for interface '${"name"}'.`,
         operation: paramMessage`Missing documentation for operation '${"name"}'.`,
+        scalar: paramMessage`Missing documentation for scalar '${"name"}'.`,
       },
     },
   },
