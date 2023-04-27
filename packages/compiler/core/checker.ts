@@ -158,8 +158,12 @@ export interface Checker {
   ): Type;
   resolveIdentifier(node: IdentifierNode): Sym | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<T>(typeDef: T): T & TypePrototype;
-  createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
+  createType<U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never>(
+    typeDef: U
+  ): U & TypePrototype & { isFinished: boolean };
+  createAndFinishType<
+    U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never
+  >(
     typeDef: U
   ): U & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
@@ -3301,7 +3305,7 @@ export function createChecker(program: Program): Checker {
         kind: "Enum",
         name: node.id.sv,
         node,
-        members: createRekeyableMap(),
+        members: createRekeyableMap<string, EnumMember>(),
         decorators: [],
       }));
 
@@ -3624,8 +3628,8 @@ export function createChecker(program: Program): Checker {
   // the types here aren't ideal and could probably be refactored.
 
   function createAndFinishType<
-    U extends Type extends any ? Omit<Type, keyof typeof typePrototype> : never
-  >(typeDef: U): U & typeof typePrototype {
+    U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never
+  >(typeDef: U): U & TypePrototype & { isFinished: boolean } {
     createType(typeDef);
     return finishType(typeDef as any) as any;
   }
@@ -3635,8 +3639,11 @@ export function createChecker(program: Program): Checker {
    * So far, that amounts to setting the prototype to typePrototype which
    * contains the `projections` getter.
    */
-  function createType<T>(typeDef: T): T & TypePrototype {
+  function createType<
+    U extends Type extends any ? Omit<Type, "isFinished" | keyof TypePrototype> : never
+  >(typeDef: U): U & TypePrototype & { isFinished: boolean } {
     Object.setPrototypeOf(typeDef, typePrototype);
+    (typeDef as any).isFinished = false;
     return typeDef as any;
   }
 
@@ -5044,7 +5051,7 @@ function createTypeMapper(
   }
 
   return {
-    partial: args.every((t) => t.kind !== "TemplateParameter"),
+    partial: false,
     args: [...(parentMapper?.args ?? []), ...args],
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
@@ -5277,7 +5284,7 @@ function finishTypeForProgramAndChecker<T extends Type>(
   }
 
   Object.setPrototypeOf(typeDef, typePrototype);
-
+  typeDef.isFinished = true;
   return typeDef;
 }
 
