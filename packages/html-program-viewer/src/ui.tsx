@@ -108,7 +108,7 @@ const omittedProps = [
   "projectionSource",
   "projector",
   "projections",
-  "isFinished"
+  "isFinished",
 ] as const;
 const omittedPropsSet = new Set(omittedProps);
 type OmittedProps = (typeof omittedProps)[number];
