@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Fix resolution of tsp version",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

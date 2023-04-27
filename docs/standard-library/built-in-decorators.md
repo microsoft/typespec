@@ -108,7 +108,8 @@ message: string;
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
-This differ from the
+This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
+The format names are open ended and are left to emitter to interpret.
 
 ```typespec
 dec format(target: string | bytes | ModelProperty, format: string)
