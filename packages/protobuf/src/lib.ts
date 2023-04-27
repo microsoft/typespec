@@ -141,8 +141,6 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
 
 export const { reportDiagnostic } = TypeSpecProtobufLibrary;
 
-export { $onEmit } from "./proto.js";
-
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 
 const keys = [
