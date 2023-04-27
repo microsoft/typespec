@@ -356,7 +356,7 @@ extern dec discriminator(target: Model | Union, propertyName: string);
  *
  * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
  *
- * @param visibilities List of visibilties which apply to this property.
+ * @param visibilities List of visibilities which apply to this property.
  *
  * @example
  *
@@ -384,7 +384,7 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.
  *
- * @param visibilities List of visibilties which apply to this property.
+ * @param visibilities List of visibilities which apply to this property.
  *
  * @example
  * ```typespec

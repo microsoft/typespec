@@ -507,7 +507,7 @@ dec visibility(target: ModelProperty, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` | List of visibilties which apply to this property. |
+| visibilities | `model string[]` | List of visibilities which apply to this property. |
 
 
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
@@ -601,6 +601,6 @@ dec withVisibility(target: Model, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` | List of visibilties which apply to this property. |
+| visibilities | `model string[]` | List of visibilities which apply to this property. |
 
 
