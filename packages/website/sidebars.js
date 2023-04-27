@@ -113,6 +113,14 @@ const sidebars = {
         },
         {
           type: "category",
+          label: "Protobuf",
+          items: [
+            "standard-library/protobuf/overview",
+            createLibraryReferenceStructure("protobuf"),
+          ],
+        },
+        {
+          type: "category",
           label: "Versioning",
           items: [
             "standard-library/versioning/overview",

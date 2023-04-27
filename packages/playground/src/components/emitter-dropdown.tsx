@@ -33,7 +33,7 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = () => {
   return (
     <Select className="sample-dropdown" onChange={handleSelected} value={selectedEmitter}>
       <option value="" disabled>
-        Select sample...
+        Select emitter...
       </option>
       {options}
     </Select>

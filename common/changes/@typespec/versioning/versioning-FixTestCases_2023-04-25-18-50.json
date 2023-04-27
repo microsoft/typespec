@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Fix issue where \"is\" dependencies were not detected.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

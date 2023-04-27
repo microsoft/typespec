@@ -1,8 +1,9 @@
 import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import { SampleConfig } from "../index.js";
 import { PlaygroundManifest } from "../manifest.js";
 export interface SamplesDropdownProps {
-  onSelectSample: (content: string) => void;
+  onSelectSample: (content: SampleConfig) => void;
 }
 export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({ onSelectSample }) => {
   const [selected, setSelected] = useState<string>("");
@@ -24,6 +25,7 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({ onSel
   const handleSelected = useCallback(
     (evt: any) => {
       setSelected(evt.target.value);
+
       onSelectSample(PlaygroundManifest.samples[evt.target.value]);
     },
     [onSelectSample]
