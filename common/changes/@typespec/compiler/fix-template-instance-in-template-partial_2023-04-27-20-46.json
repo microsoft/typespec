@@ -1,0 +1,15 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Added a new `isFinished` property to types to differentiate template instance that are not finalized (Still have template arguments to be resolved)",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Breaking** `isTemplateDeclaration` will only return true for the original declaration and not partially instantiated templates.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

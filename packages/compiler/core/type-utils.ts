@@ -100,7 +100,7 @@ export function isTemplateDeclaration(
   return (
     node.templateParameters &&
     node.templateParameters.length > 0 &&
-    (type.templateMapper === undefined || type.templateMapper.partial)
+    type.templateMapper === undefined
   );
 }
 
