@@ -51,6 +51,12 @@ const libDef = {
         default: "@renamedFrom.oldName cannot be empty string.",
       },
     },
+    "incompatible-decorator-use": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Namespace '${"name"}' cannot be decorated with @versioned and @service({version: ${"version"}}). Remove the version argument from @service.`,
+      },
+    },
     "incompatible-versioned-reference": {
       severity: "error",
       messages: {
