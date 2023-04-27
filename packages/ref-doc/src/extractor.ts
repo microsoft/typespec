@@ -88,9 +88,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
           }
         },
         scalar(scalar) {
-          if (scalar.name !== undefined) {
-            namespaceDoc.scalars.push(extractScalarRefDocs(program, scalar as any));
-          }
+          namespaceDoc.scalars.push(extractScalarRefDocs(program, scalar as any));
         },
       },
       { includeTemplateDeclaration: true, skipSubNamespaces: true }
