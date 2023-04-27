@@ -1,5 +1,6 @@
 import {
   getNamespaceFullName,
+  getService,
   getTypeName,
   isTemplateInstance,
   Namespace,
@@ -93,6 +94,18 @@ export function $onValidate(program: Program) {
         }
       },
       namespace: (namespace) => {
+        const [_, versionMap] = getVersions(program, namespace);
+        const serviceProps = getService(program, namespace);
+        if (serviceProps?.version !== undefined && versionMap !== undefined) {
+          reportDiagnostic(program, {
+            code: "no-service-fixed-version",
+            format: {
+              name: getNamespaceFullName(namespace),
+              version: serviceProps.version,
+            },
+            target: namespace,
+          });
+        }
         const versionedNamespace = findVersionedNamespace(program, namespace);
         const dependencies = getVersionDependencies(program, namespace);
         if (dependencies === undefined) {

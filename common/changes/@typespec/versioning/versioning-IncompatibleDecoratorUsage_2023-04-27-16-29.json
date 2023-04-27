@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Raise error if versioned spec specifies a single service version.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
