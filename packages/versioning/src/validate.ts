@@ -98,7 +98,7 @@ export function $onValidate(program: Program) {
         const serviceProps = getService(program, namespace);
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
-            code: "incompatible-decorator-use",
+            code: "no-service-fixed-version",
             format: {
               name: getNamespaceFullName(namespace),
               version: serviceProps.version,

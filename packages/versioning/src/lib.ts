@@ -54,7 +54,7 @@ const libDef = {
     "no-service-fixed-version": {
       severity: "error",
       messages: {
-        default: paramMessage`Namespace '${"name"}' specify a fixed service version with @service({version: ${"version"}}) while using `@versioned`. Remove the version argument from @service.`,
+        default: paramMessage`Namespace '${"name"}' cannot specify a fixed service version with @service({version: ${"version"}}) while using @versioned. Remove the version argument from @service.`,
       },
     },
     "incompatible-versioned-reference": {

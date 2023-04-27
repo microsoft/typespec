@@ -38,7 +38,7 @@ describe("versioning: incompatible use of decorators", () => {
     }
     `);
     expectDiagnostics(diagnostics, {
-      code: "@typespec/versioning/incompatible-decorator-use",
+      code: "@typespec/versioning/no-service-fixed-version",
       severity: "error",
     });
   });
