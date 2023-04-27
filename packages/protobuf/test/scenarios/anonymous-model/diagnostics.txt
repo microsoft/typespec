@@ -1,0 +1,1 @@
+/test/main.tsp:16:29 - error @typespec/protobuf/anonymous-model: anonymous models cannot be used in Protobuf messages

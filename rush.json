@@ -188,6 +188,12 @@
       "shouldPublish": false
     },
     {
+      "packageName": "@typespec/protobuf",
+      "projectFolder": "packages/protobuf",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
       "packageName": "@typespec/ref-doc",
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",

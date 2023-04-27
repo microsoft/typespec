@@ -1,0 +1,1 @@
+/test/main.tsp:10:20 - error @typespec/protobuf/unsupported-return-type: Protobuf methods must return a named Model
