@@ -10,6 +10,8 @@ toc_max_heading_level: 3
 
 ### `AcceptedResponse` {#TypeSpec.Http.AcceptedResponse}
 
+The request has been accepted for processing, but processing has not yet completed.
+
 ```typespec
 model TypeSpec.Http.AcceptedResponse
 ```
@@ -42,10 +44,10 @@ model ApiKeyAuth<TLocation, TName>
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TLocation |             |
-| TName     |             |
+| Name      | Description                 |
+| --------- | --------------------------- |
+| TLocation | The location of the API key |
+| TName     | The name of the API key     |
 
 ### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
 
@@ -56,6 +58,8 @@ model TypeSpec.Http.AuthorizationCodeFlow
 ```
 
 ### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
+
+The server could not understand the request due to invalid syntax.
 
 ```typespec
 model TypeSpec.Http.BadRequestResponse
@@ -116,17 +120,23 @@ model TypeSpec.Http.ClientCredentialsFlow
 
 ### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
 
+The request conflicts with the current state of the server.
+
 ```typespec
 model TypeSpec.Http.ConflictResponse
 ```
 
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
+The request has succeeded and a new resource has been created as a result.
+
 ```typespec
 model TypeSpec.Http.CreatedResponse
 ```
 
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
+
+Access is forbidden.
 
 ```typespec
 model TypeSpec.Http.ForbiddenResponse
@@ -150,11 +160,15 @@ model TypeSpec.Http.ImplicitFlow
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
+The Location header contains the URL where the status of the long running operation can be checked.
+
 ```typespec
 model TypeSpec.Http.LocationHeader
 ```
 
 ### `MovedResponse` {#TypeSpec.Http.MovedResponse}
+
+The URL of the requested resource has been changed permanently. The new URL is given in the response.
 
 ```typespec
 model TypeSpec.Http.MovedResponse
@@ -162,17 +176,23 @@ model TypeSpec.Http.MovedResponse
 
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
+There is no content to send for this request, but the headers may be useful.
+
 ```typespec
 model TypeSpec.Http.NoContentResponse
 ```
 
 ### `NotFoundResponse` {#TypeSpec.Http.NotFoundResponse}
 
+The server cannot find the requested resource.
+
 ```typespec
 model TypeSpec.Http.NotFoundResponse
 ```
 
 ### `NotModifiedResponse` {#TypeSpec.Http.NotModifiedResponse}
+
+The client has made a conditional request and the resource has not been modified.
 
 ```typespec
 model TypeSpec.Http.NotModifiedResponse
@@ -191,11 +211,13 @@ model OAuth2Auth<TFlows>
 
 #### Template Parameters
 
-| Name   | Description |
-| ------ | ----------- |
-| TFlows |             |
+| Name   | Description                        |
+| ------ | ---------------------------------- |
+| TFlows | The list of supported OAuth2 flows |
 
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
+
+The request has succeeded.
 
 ```typespec
 model TypeSpec.Http.OkResponse
@@ -247,6 +269,8 @@ model Response<Status>
 | Status | The status code of the response. |
 
 ### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
+
+Access is unauthorized.
 
 ```typespec
 model TypeSpec.Http.UnauthorizedResponse
