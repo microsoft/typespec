@@ -7,7 +7,13 @@ describe("emitting scalars", () => {
       scalar Test extends uint8;
     `);
 
-    assert.deepStrictEqual(schemas["Test.json"], { type: "integer", minimum: 0, maximum: 255 });
+    assert.deepStrictEqual(schemas["Test.json"], {
+      $id: "Test.json",
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      type: "integer",
+      minimum: 0,
+      maximum: 255,
+    });
   });
 
   it("throws errors for scalars not extending built-in scalars", async () => {

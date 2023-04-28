@@ -360,12 +360,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     const builderSchema = new ObjectBuilder(schema);
-    this.#applyConstraints(scalar, builderSchema);
 
+    // avoid creating declarations for built-in TypeSpec types
     if (baseBuiltIn === scalar) {
       return builderSchema;
     }
 
+    builderSchema.$schema = "https://json-schema.org/draft/2020-12/schema";
+    builderSchema.$id = this.#getDeclId(scalar);
+    this.#applyConstraints(scalar, builderSchema);
     return this.emitter.result.declaration(name, builderSchema);
   }
 
