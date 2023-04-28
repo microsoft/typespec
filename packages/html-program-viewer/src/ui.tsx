@@ -211,6 +211,7 @@ const InterfaceUI: FunctionComponent<{ type: Interface }> = ({ type }) => {
       type={type}
       properties={{
         operations: "nested",
+        sourceInterfaces: "ref",
       }}
     />
   );
@@ -224,6 +225,7 @@ const OperationUI: FunctionComponent<{ type: Operation }> = ({ type }) => {
         interface: "skip",
         parameters: "nested",
         returnType: "ref",
+        sourceOperation: "ref",
       }}
     />
   );
@@ -246,6 +248,7 @@ const ModelUI: FunctionComponent<{ type: Model }> = ({ type }) => {
         baseModel: "ref",
         derivedModels: "ref",
         properties: "nested",
+        sourceModel: "ref",
       }}
     />
   );

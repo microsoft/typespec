@@ -92,11 +92,11 @@ extern dec service(target: Namespace, options?: ServiceOptions);
  * }
  * ```
  */
-extern dec error(target: object);
+extern dec error(target: Model);
 
 /**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
- * This differ from the @pattern decorator that is meant to specify a regular expression while @format takes in a known format name.
+ * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
  * The format names are open ended and are left to emitter to interpret.
  *
  * @param format format name.
@@ -335,7 +335,7 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: object | Union, propertyName: string);
+extern dec discriminator(target: Model | Union, propertyName: string);
 
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
@@ -407,11 +407,11 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * }
  * ```
  */
-extern dec withVisibility(target: object, ...visibilities: string[]);
-extern dec withDefaultKeyVisibility(target: object, visibility: unknown);
-extern dec withUpdateableProperties(target: object);
-extern dec withoutDefaultValues(target: object);
-extern dec withoutOmittedProperties(target: object, omit: string | Union);
+extern dec withVisibility(target: Model, ...visibilities: string[]);
+extern dec withDefaultKeyVisibility(target: Model, visibility: unknown);
+extern dec withUpdateableProperties(target: Model);
+extern dec withoutDefaultValues(target: Model);
+extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 
 //---------------------------------------------------------------------------
 // Debugging

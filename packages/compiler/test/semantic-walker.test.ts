@@ -1,6 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
-  getNamespaceFullName,
   Interface,
   ListenerFlow,
   Model,
@@ -10,9 +9,10 @@ import {
   SemanticNodeListener,
   Union,
   UnionVariant,
+  getNamespaceFullName,
 } from "../core/index.js";
 import { getProperty, navigateProgram, navigateTypesInNamespace } from "../core/semantic-walker.js";
-import { createTestHost, TestHost } from "../testing/index.js";
+import { TestHost, createTestHost } from "../testing/index.js";
 
 describe("compiler: semantic walker", () => {
   let host: TestHost;

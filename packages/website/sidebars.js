@@ -36,6 +36,7 @@ const sidebars = {
         "introduction/usage",
         "introduction/style-guide",
         "introduction/formatter",
+        "introduction/reproducibility",
         {
           type: "category",
           label: "Configuration",
@@ -108,6 +109,14 @@ const sidebars = {
             "standard-library/openapi/overview",
             createLibraryReferenceStructure("openapi", ["standard-library/openapi/diagnostics"]),
             "standard-library/openapi/openapi",
+          ],
+        },
+        {
+          type: "category",
+          label: "Protobuf",
+          items: [
+            "standard-library/protobuf/overview",
+            createLibraryReferenceStructure("protobuf"),
           ],
         },
         {

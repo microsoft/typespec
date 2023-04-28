@@ -39,6 +39,12 @@ const libDefinition = {
         default: "Action name cannot be empty string.",
       },
     },
+    "shared-route-unspecified-action-name": {
+      severity: "error",
+      messages: {
+        default: paramMessage`An operation marked as '@sharedRoute' must have an explicit collection action name passed to '${"decoratorName"}'.`,
+      },
+    },
   },
 } as const;
 

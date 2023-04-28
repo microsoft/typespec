@@ -2,6 +2,18 @@
   "name": "typespec-vscode",
   "entries": [
     {
+      "version": "0.43.0",
+      "tag": "typespec-vscode_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix highlighting of TypeSpec code blocks in markdown."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "typespec-vscode_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",

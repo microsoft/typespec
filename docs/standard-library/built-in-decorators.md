@@ -6,23 +6,58 @@ toc_max_heading_level: 3
 # Built-in Decorators
 ## TypeSpec
 
-### `@format` {#@format}
+### `@deprecated` {#@deprecated}
 
-Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
-This differ from the
+Mark this type as deprecated
 
 ```typespec
-dec format(target: string | bytes | ModelProperty, format: string)
+dec deprecated(target: unknown, message: string)
 ```
 
 #### Target
 
-`union string | bytes | ModelProperty`
+`(intrinsic) unknown`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| format | `scalar string` | format name. |
+| message | `scalar string` | Deprecation message. |
+
+
+### `@discriminator` {#@discriminator}
+
+Specify the property to be used to discriminate this type.
+
+```typespec
+dec discriminator(target: Model | Union, propertyName: string)
+```
+
+#### Target
+
+`union Model | Union`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| propertyName | `scalar string` |  |
+
+#### Examples
+
+```typespec
+@discriminator("kind")
+union Pet{ cat: Cat, dog: Dog }
+
+model Cat {kind: "cat", meow: boolean}
+model Dog {kind: "dog", bark: boolean}
+```
+
+```typespec
+@discriminator("kind")
+model Pet{ kind: string }
+
+model Cat extends Pet {kind: "cat", meow: boolean}
+model Dog extends Pet  {kind: "dog", bark: boolean}
+```
 
 
 ### `@doc` {#@doc}
@@ -44,135 +79,17 @@ dec doc(target: unknown, doc: string, formatArgs?: object)
 | formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
 
 
-### `@withUpdateableProperties` {#@withUpdateableProperties}
-
-
-```typespec
-dec withUpdateableProperties(target: object)
-```
-
-#### Target
-
-`model object`
-
-#### Parameters
-None
-
-
-### `@withoutOmittedProperties` {#@withoutOmittedProperties}
-
-
-```typespec
-dec withoutOmittedProperties(target: object, omit: string | Union)
-```
-
-#### Target
-
-`model object`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| omit | `union string \| Union` |  |
-
-
-### `@withoutDefaultValues` {#@withoutDefaultValues}
-
-
-```typespec
-dec withoutDefaultValues(target: object)
-```
-
-#### Target
-
-`model object`
-
-#### Parameters
-None
-
-
-### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
-
-
-```typespec
-dec withDefaultKeyVisibility(target: object, visibility: unknown)
-```
-
-#### Target
-
-`model object`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| visibility | `(intrinsic) unknown` |  |
-
-
-### `@summary` {#@summary}
-
-Typically a short, single-line description.
-
-```typespec
-dec summary(target: unknown, summary: string)
-```
-
-#### Target
-
-`(intrinsic) unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| summary | `scalar string` | Summary string. |
-
-
-### `@deprecated` {#@deprecated}
-
-Mark this type as deprecated
-
-```typespec
-dec deprecated(target: unknown, message: string)
-```
-
-#### Target
-
-`(intrinsic) unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| message | `scalar string` | Deprecation message. |
-
-
-### `@service` {#@service}
-
-Mark this namespace as describing a service and configure service properties.
-
-```typespec
-dec service(target: Namespace, options?: ServiceOptions)
-```
-
-#### Target
-
-`Namespace`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| options | `model ServiceOptions` | Optional configuration for the service. |
-
-
 ### `@error` {#@error}
 
 Specify that this model is an error type. Operations return error types when the operation has failed.
 
 ```typespec
-dec error(target: object)
+dec error(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -188,14 +105,14 @@ message: string;
 ```
 
 
-### `@pattern` {#@pattern}
+### `@format` {#@format}
 
-Specify the the pattern this string should respect using simple regular expression syntax.
-The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
-Advanced features like look-around, capture groups, and references are not supported.
+Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
+This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
+The format names are open ended and are left to emitter to interpret.
 
 ```typespec
-dec pattern(target: string | bytes | ModelProperty, pattern: string)
+dec format(target: string | bytes | ModelProperty, format: string)
 ```
 
 #### Target
@@ -205,194 +122,7 @@ dec pattern(target: string | bytes | ModelProperty, pattern: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| pattern | `scalar string` | Regular expression. |
-
-
-### `@minLength` {#@minLength}
-
-Specify the minimum length this string type should be.
-
-```typespec
-dec minLength(target: string | ModelProperty, value: integer)
-```
-
-#### Target
-
-`union string | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar integer` | Minimum length |
-
-
-### `@maxLength` {#@maxLength}
-
-Specify the maximum length this string type should be.
-
-```typespec
-dec maxLength(target: string | ModelProperty, value: integer)
-```
-
-#### Target
-
-`union string | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar integer` | Maximum length |
-
-
-### `@minItems` {#@minItems}
-
-Specify the minimum number of items this array should have.
-
-```typespec
-dec minItems(target: unknown[] | ModelProperty, value: integer)
-```
-
-#### Target
-
-`union unknown[] | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar integer` | Minimum number |
-
-
-### `@maxItems` {#@maxItems}
-
-Specify the maximum number of items this array should have.
-
-```typespec
-dec maxItems(target: unknown[] | ModelProperty, value: integer)
-```
-
-#### Target
-
-`union unknown[] | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar integer` | Maximum number |
-
-
-### `@minValue` {#@minValue}
-
-Specify the minimum value this numeric type should be.
-
-```typespec
-dec minValue(target: numeric | ModelProperty, value: numeric)
-```
-
-#### Target
-
-`union numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar numeric` | Minimum value |
-
-
-### `@maxValue` {#@maxValue}
-
-Specify the maximum value this numeric type should be.
-
-```typespec
-dec maxValue(target: numeric | ModelProperty, value: numeric)
-```
-
-#### Target
-
-`union numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar numeric` | Maximum value |
-
-
-### `@minValueExclusive` {#@minValueExclusive}
-
-Specify the minimum value this numeric type should be, exclusive of the given
-value.
-
-```typespec
-dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
-```
-
-#### Target
-
-`union numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar numeric` | Minimum value |
-
-
-### `@maxValueExclusive` {#@maxValueExclusive}
-
-Specify the maximum value this numeric type should be, exclusive of the given
-value.
-
-```typespec
-dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
-```
-
-#### Target
-
-`union numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| value | `scalar numeric` | Maximum value |
-
-
-### `@secret` {#@secret}
-
-Mark this string as a secret value that should be treated carefully to avoid exposure
-
-```typespec
-dec secret(target: string | ModelProperty)
-```
-
-#### Target
-
-`union string | ModelProperty`
-
-#### Parameters
-None
-
-#### Examples
-
-```typespec
-@secret
-scalar Password is string;
-```
-
-
-### `@tag` {#@tag}
-
-Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
-
-```typespec
-dec tag(target: Namespace | Interface | Operation, tag: string)
-```
-
-#### Target
-
-`union Namespace | Interface | Operation`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| tag | `scalar string` | Tag value |
+| format | `scalar string` | format name. |
 
 
 ### `@friendlyName` {#@friendlyName}
@@ -414,22 +144,38 @@ dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 | formatArgs | `(intrinsic) unknown` |  |
 
 
-### `@knownValues` {#@knownValues}
+### `@inspectType` {#@inspectType}
 
-Provide a set of known values to a string type.
 
 ```typespec
-dec knownValues(target: string | numeric | ModelProperty, values: Enum)
+dec inspectType(target: unknown, text: string)
 ```
 
 #### Target
 
-`union string | numeric | ModelProperty`
+`(intrinsic) unknown`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| values | `Enum` | Known values enum. |
+| text | `scalar string` |  |
+
+
+### `@inspectTypeName` {#@inspectTypeName}
+
+
+```typespec
+dec inspectTypeName(target: unknown, text: string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| text | `scalar string` |  |
 
 
 ### `@key` {#@key}
@@ -458,6 +204,170 @@ model Pet {
 ```
 
 
+### `@knownValues` {#@knownValues}
+
+Provide a set of known values to a string type.
+
+```typespec
+dec knownValues(target: string | numeric | ModelProperty, values: Enum)
+```
+
+#### Target
+
+`union string | numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| values | `Enum` | Known values enum. |
+
+
+### `@maxItems` {#@maxItems}
+
+Specify the maximum number of items this array should have.
+
+```typespec
+dec maxItems(target: unknown[] | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union unknown[] | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Maximum number |
+
+
+### `@maxLength` {#@maxLength}
+
+Specify the maximum length this string type should be.
+
+```typespec
+dec maxLength(target: string | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union string | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Maximum length |
+
+
+### `@maxValue` {#@maxValue}
+
+Specify the maximum value this numeric type should be.
+
+```typespec
+dec maxValue(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Maximum value |
+
+
+### `@maxValueExclusive` {#@maxValueExclusive}
+
+Specify the maximum value this numeric type should be, exclusive of the given
+value.
+
+```typespec
+dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Maximum value |
+
+
+### `@minItems` {#@minItems}
+
+Specify the minimum number of items this array should have.
+
+```typespec
+dec minItems(target: unknown[] | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union unknown[] | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Minimum number |
+
+
+### `@minLength` {#@minLength}
+
+Specify the minimum length this string type should be.
+
+```typespec
+dec minLength(target: string | ModelProperty, value: integer)
+```
+
+#### Target
+
+`union string | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar integer` | Minimum length |
+
+
+### `@minValue` {#@minValue}
+
+Specify the minimum value this numeric type should be.
+
+```typespec
+dec minValue(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Minimum value |
+
+
+### `@minValueExclusive` {#@minValueExclusive}
+
+Specify the minimum value this numeric type should be, exclusive of the given
+value.
+
+```typespec
+dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
+```
+
+#### Target
+
+`union numeric | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| value | `scalar numeric` | Minimum value |
+
+
 ### `@overload` {#@overload}
 
 Specify this operation is an overload of the given operation.
@@ -474,6 +384,26 @@ dec overload(target: Operation, overloadbase: Operation)
 | Name | Type | Description |
 |------|------|-------------|
 | overloadbase | `Operation` | Base operation that should be a union of all overloads |
+
+
+### `@pattern` {#@pattern}
+
+Specify the the pattern this string should respect using simple regular expression syntax.
+The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
+Advanced features like look-around, capture groups, and references are not supported.
+
+```typespec
+dec pattern(target: string | bytes | ModelProperty, pattern: string)
+```
+
+#### Target
+
+`union string | bytes | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| pattern | `scalar string` | Regular expression. |
 
 
 ### `@projectedName` {#@projectedName}
@@ -495,40 +425,81 @@ dec projectedName(target: unknown, targetName: string, projectedName: string)
 | projectedName | `scalar string` | Alternative name |
 
 
-### `@discriminator` {#@discriminator}
+### `@secret` {#@secret}
 
-Specify the property to be used to discriminate this type.
+Mark this string as a secret value that should be treated carefully to avoid exposure
 
 ```typespec
-dec discriminator(target: object | Union, propertyName: string)
+dec secret(target: string | ModelProperty)
 ```
 
 #### Target
 
-`union object | Union`
+`union string | ModelProperty`
 
 #### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| propertyName | `scalar string` |  |
+None
 
 #### Examples
 
 ```typespec
-@discriminator("kind")
-union Pet{ cat: Cat, dog: Dog }
-
-model Cat {kind: "cat", meow: boolean}
-model Dog {kind: "dog", bark: boolean}
+@secret
+scalar Password is string;
 ```
+
+
+### `@service` {#@service}
+
+Mark this namespace as describing a service and configure service properties.
 
 ```typespec
-@discriminator("kind")
-model Pet{ kind: string }
-
-model Cat extends Pet {kind: "cat", meow: boolean}
-model Dog extends Pet  {kind: "dog", bark: boolean}
+dec service(target: Namespace, options?: ServiceOptions)
 ```
+
+#### Target
+
+`Namespace`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| options | `model ServiceOptions` | Optional configuration for the service. |
+
+
+### `@summary` {#@summary}
+
+Typically a short, single-line description.
+
+```typespec
+dec summary(target: unknown, summary: string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| summary | `scalar string` | Summary string. |
+
+
+### `@tag` {#@tag}
+
+Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
+
+```typespec
+dec tag(target: Namespace | Interface | Operation, tag: string)
+```
+
+#### Target
+
+`union Namespace | Interface | Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| tag | `scalar string` | Tag value |
 
 
 ### `@visibility` {#@visibility}
@@ -576,6 +547,70 @@ name: string;
 ```
 
 
+### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
+
+
+```typespec
+dec withDefaultKeyVisibility(target: Model, visibility: unknown)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibility | `(intrinsic) unknown` |  |
+
+
+### `@withoutDefaultValues` {#@withoutDefaultValues}
+
+
+```typespec
+dec withoutDefaultValues(target: Model)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+None
+
+
+### `@withoutOmittedProperties` {#@withoutOmittedProperties}
+
+
+```typespec
+dec withoutOmittedProperties(target: Model, omit: string | Union)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| omit | `union string \| Union` |  |
+
+
+### `@withUpdateableProperties` {#@withUpdateableProperties}
+
+
+```typespec
+dec withUpdateableProperties(target: Model)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+None
+
+
 ### `@withVisibility` {#@withVisibility}
 
 Removes properties that are not considered to be present or applicable
@@ -589,12 +624,12 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: object, ...visibilities: string[])
+dec withVisibility(target: Model, ...visibilities: string[])
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -628,39 +663,5 @@ model DogRead {
 ...Dog;
 }
 ```
-
-
-### `@inspectType` {#@inspectType}
-
-
-```typespec
-dec inspectType(target: unknown, text: string)
-```
-
-#### Target
-
-`(intrinsic) unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| text | `scalar string` |  |
-
-
-### `@inspectTypeName` {#@inspectTypeName}
-
-
-```typespec
-dec inspectTypeName(target: unknown, text: string)
-```
-
-#### Target
-
-`(intrinsic) unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| text | `scalar string` |  |
 
 

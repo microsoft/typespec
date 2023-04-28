@@ -1,25 +1,26 @@
 import {
-  createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
-  getDoc,
-  isArrayModelType,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
-  setTypeSpecNamespace,
   Tuple,
   Type,
-  typespecTypeToJson,
   Union,
+  createDiagnosticCollector,
+  getDoc,
+  isArrayModelType,
+  reportDeprecated,
+  setTypeSpecNamespace,
+  typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
-import { setRoute } from "./route.js";
+import { setRoute, setSharedRoute } from "./route.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
@@ -104,9 +105,7 @@ export function $query(
       }
       const format = queryNameOrOptions.properties.get("format")?.type;
       if (format?.kind === "String") {
-        if (format.value === "multi" || format.value === "csv") {
-          options.format = format.value;
-        }
+        options.format = format.value as any; // That value should have already been validated by the TypeSpec dec
       }
     }
   }
@@ -561,23 +560,6 @@ export function getAuthentication(
   return program.stateMap(authenticationKey).get(namespace);
 }
 
-function extractSharedValue(context: DecoratorContext, parameters?: Model): boolean {
-  const sharedType = parameters?.properties.get("shared")?.type;
-  if (sharedType === undefined) {
-    return false;
-  }
-  switch (sharedType.kind) {
-    case "Boolean":
-      return sharedType.value;
-    default:
-      reportDiagnostic(context.program, {
-        code: "shared-boolean",
-        target: sharedType,
-      });
-      return false;
-  }
-}
-
 /**
  * `@route` defines the relative route URI for the target operation
  *
@@ -590,10 +572,38 @@ function extractSharedValue(context: DecoratorContext, parameters?: Model): bool
 export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
+  // Handle the deprecated `shared` option
+  let shared = false;
+  const sharedValue = parameters?.properties.get("shared")?.type;
+  if (sharedValue !== undefined) {
+    reportDeprecated(
+      context.program,
+      "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
+      entity
+    );
+
+    // The type checker should have raised a diagnostic if the value isn't boolean
+    if (sharedValue.kind === "Boolean") {
+      shared = sharedValue.value;
+    }
+  }
+
   setRoute(context, entity, {
     path,
-    shared: extractSharedValue(context, parameters),
+    shared,
   });
+}
+
+/**
+ * `@sharedRoute` marks the operation as sharing a route path with other operations.
+ *
+ * When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+ * route path as long as those operations are also marked with `@sharedRoute`.
+ *
+ * `@sharedRoute` can only be applied directly to operations.
+ */
+export function $sharedRoute(context: DecoratorContext, entity: Operation) {
+  setSharedRoute(context.program, entity);
 }
 
 const includeInapplicableMetadataInPayloadKey = createStateSymbol(

@@ -186,3 +186,22 @@ Since an emitter is a node library, you could use standard `fs` APIs to write fi
 Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the node API but works in a wider range of scenarios.
 
 In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/tsp-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`
+
+## Handling Default Values
+
+Several TypeSpec types have a `default` property that can be used to specify a default value. For example, the following model has a default value of `true` for the `isActive` property:
+
+```tsp
+model User {
+  isActive?: boolean = true;
+}
+```
+
+These values can be accessed in the emitter using the `default` property on the `ModelProperty` type.
+
+```ts
+const modelProp: ModelProperty = ...;   // the isActive ModelProperty type
+const defaultValue = modelProp.default; // value: true
+```
+
+It is important that emitters handle default values in a consistent way. Default values SHOULD NOT be used as client-side default values. Instead, they should be used as a way to specify a default value for the server-side implementation. For example, if a model property has a default value of `true`, the server-side implementation should use that value if the client does not provide a value. Default values SHOULD be expressed in documentation to properly communicate the service-side default.

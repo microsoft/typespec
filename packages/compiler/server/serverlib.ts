@@ -3,7 +3,6 @@ import {
   CompletionList,
   CompletionParams,
   DefinitionParams,
-  Diagnostic as VSDiagnostic,
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
@@ -18,9 +17,9 @@ import {
   FoldingRangeParams,
   Hover,
   HoverParams,
-  InitializedParams,
   InitializeParams,
   InitializeResult,
+  InitializedParams,
   Location,
   MarkupContent,
   MarkupKind,
@@ -41,6 +40,7 @@ import {
   TextDocumentIdentifier,
   TextDocumentSyncKind,
   TextEdit,
+  Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
@@ -67,21 +67,20 @@ import {
   getDirectoryPath,
   joinPaths,
 } from "../core/path-utils.js";
-import { compile as compileProgram, Program } from "../core/program.js";
+import { Program, compile as compileProgram } from "../core/program.js";
 import {
+  Token,
   createScanner,
   isKeyword,
   isPunctuation,
   skipTrivia,
   skipWhiteSpace,
-  Token,
 } from "../core/scanner.js";
 import {
   AugmentDecoratorStatementNode,
   CompilerHost,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
-  Diagnostic as TypeSpecDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
   Node,
@@ -89,6 +88,7 @@ import {
   StringLiteralNode,
   SyntaxKind,
   TextRange,
+  Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
 import {
@@ -953,6 +953,9 @@ export function createServer(host: ServerHost): Server {
           break;
         case SyntaxKind.Projection:
           classify(node.directionId, SemanticTokenKind.Keyword);
+          for (const modifierId of node.modifierIds) {
+            classify(modifierId, SemanticTokenKind.Keyword);
+          }
           break;
         case SyntaxKind.ProjectionParameterDeclaration:
           classifyReference(node.id, SemanticTokenKind.Parameter);

@@ -1,6 +1,6 @@
 import { deepEqual, strictEqual } from "assert";
 import { Model, Operation, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost, expectDiagnosticEmpty } from "../../testing/index.js";
 
 describe("compiler: checker: augment decorators", () => {
   let testHost: TestHost;

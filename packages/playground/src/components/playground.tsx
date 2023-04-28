@@ -1,6 +1,6 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
-import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
+import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
@@ -52,6 +52,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
     const typespecCompiler = await importTypeSpecCompiler();
+
     const state = await compile(host, content, selectedEmitter, emittersOptions);
     setCompilationStatus(state);
     if ("program" in state) {
@@ -81,9 +82,14 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
   }, [updateTypeSpec]);
 
   useEffect(() => {
-    const disposable = typespecModel.onDidChangeContent(debounce(() => doCompile(), 200));
-    return () => disposable.dispose();
+    const debouncer = debounce(() => doCompile(), 200);
+    const disposable = typespecModel.onDidChangeContent(debouncer);
+    return () => {
+      debouncer.clear();
+      disposable.dispose();
+    };
   }, [typespecModel, doCompile]);
+
   useEffect(() => {
     void doCompile();
   }, [doCompile]);

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/versioning",
-  "version": "0.42.0",
+  "version": "0.43.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for declaring and emitting versioned APIs",
   "homepage": "https://microsoft.github.io/typespec",
@@ -52,20 +52,20 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "~0.42.0"
+    "@typespec/compiler": "~0.43.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@typespec/eslint-config-typespec": "~0.6.0",
-    "@typespec/library-linter": "~0.42.0",
-    "@typespec/eslint-plugin": "~0.42.0",
-    "eslint": "^8.12.0",
-    "mocha": "~10.1.0",
+    "@typespec/library-linter": "~0.43.0",
+    "@typespec/eslint-plugin": "~0.43.0",
+    "eslint": "^8.36.0",
+    "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.12.0",
-    "rimraf": "~3.0.2",
-    "typescript": "~4.9.3"
+    "c8": "~7.13.0",
+    "rimraf": "~5.0.0",
+    "typescript": "~5.0.2"
   }
 }

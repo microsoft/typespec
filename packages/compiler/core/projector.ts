@@ -100,6 +100,14 @@ export function createProjector(
     }
 
     scope.push(type);
+
+    const preProjected = applyPreProjection(type);
+    if (preProjected !== type) {
+      projectedTypes.set(type, preProjected);
+      scope.pop();
+      return preProjected;
+    }
+
     let projected;
     switch (type.kind) {
       case "Namespace":
@@ -144,7 +152,6 @@ export function createProjector(
     }
 
     scope.pop();
-
     return projected;
   }
 
@@ -271,6 +278,9 @@ export function createProjector(
     if (model.baseModel) {
       projectedModel.baseModel = projectType(model.baseModel) as Model;
     }
+    if (model.sourceModel) {
+      projectedModel.sourceModel = projectType(model.sourceModel) as Model;
+    }
 
     if (model.indexer) {
       projectedModel.indexer = {
@@ -281,10 +291,10 @@ export function createProjector(
 
     projectedTypes.set(model, projectedModel);
 
-    for (const [key, prop] of model.properties) {
+    for (const prop of model.properties.values()) {
       const projectedProp = projectType(prop);
       if (projectedProp.kind === "ModelProperty") {
-        properties.set(key, projectedProp);
+        properties.set(projectedProp.name, projectedProp);
       }
     }
 
@@ -380,7 +390,7 @@ export function createProjector(
     if (prop.model) {
       projectedProp.model = projectType(prop.model) as Model;
     }
-    return projectedProp;
+    return applyProjection(prop, projectedProp);
   }
 
   function projectOperation(op: Operation): Type {
@@ -399,6 +409,10 @@ export function createProjector(
       projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
     }
 
+    if (op.sourceOperation) {
+      projectedOp.sourceOperation = projectType(op.sourceOperation) as Operation;
+    }
+
     if (op.namespace) {
       projectedOp.namespace = projectedNamespaceScope();
     }
@@ -412,10 +426,12 @@ export function createProjector(
 
   function projectInterface(iface: Interface): Type {
     const operations = createRekeyableMap<string, Operation>();
+    const sourceInterfaces: Interface[] = [];
     const decorators = projectDecorators(iface.decorators);
     const projectedIface = shallowClone(iface, {
       decorators,
       operations,
+      sourceInterfaces,
     });
 
     if (iface.templateMapper) {
@@ -428,6 +444,10 @@ export function createProjector(
       if (projectedOp.kind === "Operation") {
         operations.set(projectedOp.name, projectedOp);
       }
+    }
+
+    for (const source of iface.sourceInterfaces) {
+      sourceInterfaces.push(projectType(source) as Interface);
     }
 
     if (shouldFinishType(iface)) {
@@ -451,10 +471,10 @@ export function createProjector(
       projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
     }
 
-    for (const [key, variant] of union.variants) {
+    for (const variant of union.variants.values()) {
       const projectedVariant = projectType(variant);
       if (projectedVariant.kind === "UnionVariant" && projectedVariant.type !== neverType) {
-        variants.set(key, projectedVariant);
+        variants.set(projectedVariant.name, projectedVariant);
       }
     }
 
@@ -476,7 +496,7 @@ export function createProjector(
 
     finishTypeForProgram(projectedProgram, projectedVariant);
     projectedVariant.union = projectType(variant.union) as Union;
-    return projectedVariant;
+    return applyProjection(variant, projectedVariant);
   }
 
   function projectTuple(tuple: Tuple) {
@@ -513,14 +533,14 @@ export function createProjector(
     return applyProjection(e, projectedEnum);
   }
 
-  function projectEnumMember(e: EnumMember, projectingEnum?: Enum) {
+  function projectEnumMember(e: EnumMember) {
     const decorators = projectDecorators(e.decorators);
     const projectedMember = shallowClone(e, {
       decorators,
     });
     finishTypeForProgram(projectedProgram, projectedMember);
     projectedMember.enum = projectType(e.enum) as Enum;
-    return projectedMember;
+    return applyProjection(e, projectedMember);
   }
 
   function projectDecorators(decs: DecoratorApplication[]) {
@@ -589,17 +609,42 @@ export function createProjector(
       if (projectionsByName.length === 0) continue;
       const targetNode =
         projectionApplication.direction === "from"
-          ? projectionsByName[0].from!
-          : projectionsByName[0].to!;
-      const projected = checker.project(projectedType, targetNode, projectionApplication.arguments);
-      if (projected !== projectedType) {
-        // override the projected type cache with the returned type
-        projectedTypes.set(baseType, projected);
-        return projected;
+          ? projectionsByName[0].from
+          : projectionsByName[0].to;
+
+      if (targetNode) {
+        const projected = checker.project(
+          projectedType,
+          targetNode,
+          projectionApplication.arguments
+        );
+        if (projected !== projectedType) {
+          // override the projected type cache with the returned type
+          projectedTypes.set(baseType, projected);
+          return projected;
+        }
       }
     }
 
     return projectedType;
+  }
+
+  function applyPreProjection(type: Type): Type {
+    const inScopeProjections = getInScopeProjections();
+    for (const projectionApplication of inScopeProjections) {
+      const projectionsByName = type.projectionsByName(projectionApplication.projectionName);
+      if (projectionsByName.length === 0) continue;
+      const targetNode =
+        projectionApplication.direction === "from"
+          ? projectionsByName[0].preFrom
+          : projectionsByName[0].preTo;
+
+      if (targetNode) {
+        return checker.project(type, targetNode, projectionApplication.arguments);
+      }
+    }
+
+    return type;
   }
 
   function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>): T {

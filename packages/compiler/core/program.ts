@@ -11,9 +11,9 @@ import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
   NodePackage,
+  ResolveModuleHost,
   ResolvedModule,
   resolveModule,
-  ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
@@ -30,9 +30,9 @@ import {
   JsSourceFileNode,
   LiteralType,
   Namespace,
+  NoTarget,
   Node,
   NodeFlags,
-  NoTarget,
   ProjectionApplication,
   Projector,
   SourceFile,
@@ -46,9 +46,9 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 import {
+  ExternalError,
   deepEquals,
   doIO,
-  ExternalError,
   findProjectRoot,
   isDefined,
   loadFile,
@@ -692,7 +692,7 @@ export async function compile(
 
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint.esmExports.$lib;
-    const metadata = computeLibraryMetadata(module);
+    const metadata = computeLibraryMetadata(module, libDefinition);
 
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
@@ -734,13 +734,18 @@ export async function compile(
     }
   }
 
-  function computeLibraryMetadata(module: ModuleResolutionResult): LibraryMetadata {
+  function computeLibraryMetadata(
+    module: ModuleResolutionResult,
+    libDefinition: TypeSpecLibrary<any> | undefined
+  ): LibraryMetadata {
     if (module.type === "file") {
-      return {};
+      return {
+        name: libDefinition?.name,
+      };
     }
 
     const metadata: LibraryMetadata = {
-      name: module.manifest.name,
+      name: libDefinition?.name ?? module.manifest.name,
     };
 
     if (module.manifest.homepage) {
@@ -981,9 +986,7 @@ export async function compile(
     );
 
     if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
-      // we have resolved node_modules/@typespec/compiler/dist/core/index.js and we want to get
-      // to the shim executable node_modules/.bin/tsp-server
-      const betterTypeSpecServerPath = resolvePath(actual.path, ".bin/tsp-server");
+      const betterTypeSpecServerPath = actual.path;
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",

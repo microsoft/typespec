@@ -9,7 +9,7 @@ toc_max_heading_level: 3
 
 ### Decorators
 
-- [`@operationId`](./decorators.md#@OpenAPI.operationId)
-- [`@extension`](./decorators.md#@OpenAPI.extension)
 - [`@defaultResponse`](./decorators.md#@OpenAPI.defaultResponse)
+- [`@extension`](./decorators.md#@OpenAPI.extension)
 - [`@externalDocs`](./decorators.md#@OpenAPI.externalDocs)
+- [`@operationId`](./decorators.md#@OpenAPI.operationId)

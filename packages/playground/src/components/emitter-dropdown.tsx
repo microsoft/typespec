@@ -1,4 +1,4 @@
-import { Select } from "@fluentui/react-components/unstable";
+import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { importShim } from "../core.js";
@@ -33,7 +33,7 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = () => {
   return (
     <Select className="sample-dropdown" onChange={handleSelected} value={selectedEmitter}>
       <option value="" disabled>
-        Select sample...
+        Select emitter...
       </option>
       {options}
     </Select>

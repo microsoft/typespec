@@ -1,5 +1,6 @@
 import {
   getNamespaceFullName,
+  getService,
   getTypeName,
   isTemplateInstance,
   Namespace,
@@ -42,6 +43,7 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
+        addDependency(model.namespace, model.sourceModel);
         addDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
           addDependency(model.namespace, prop.type);
@@ -57,15 +59,25 @@ export function $onValidate(program: Program) {
         }
       },
       union: (union) => {
+        // If this is an instantiated type we don't want to keep the mapping.
+        if (isTemplateInstance(union)) {
+          return;
+        }
         if (union.namespace === undefined) {
           return;
         }
-        for (const option of union.options.values()) {
-          addDependency(union.namespace, option);
+        for (const variant of union.variants.values()) {
+          addDependency(union.namespace, variant.type);
         }
       },
       operation: (op) => {
+        // If this is an instantiated type we don't want to keep the mapping.
+        if (isTemplateInstance(op)) {
+          return;
+        }
+
         const namespace = op.namespace ?? op.interface?.namespace;
+        addDependency(namespace, op.sourceOperation);
         addDependency(namespace, op.parameters);
         addDependency(namespace, op.returnType);
 
@@ -73,9 +85,27 @@ export function $onValidate(program: Program) {
           // Validate model -> property have correct versioning
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
-        validateTargetVersionCompatible(program, op, op.returnType);
+
+        validateReference(program, op, op.returnType);
+      },
+      interface: (iface) => {
+        for (const source of iface.sourceInterfaces) {
+          validateReference(program, iface, source);
+        }
       },
       namespace: (namespace) => {
+        const [_, versionMap] = getVersions(program, namespace);
+        const serviceProps = getService(program, namespace);
+        if (serviceProps?.version !== undefined && versionMap !== undefined) {
+          reportDiagnostic(program, {
+            code: "no-service-fixed-version",
+            format: {
+              name: getNamespaceFullName(namespace),
+              version: serviceProps.version,
+            },
+            target: namespace,
+          });
+        }
         const versionedNamespace = findVersionedNamespace(program, namespace);
         const dependencies = getVersionDependencies(program, namespace);
         if (dependencies === undefined) {
@@ -206,10 +236,23 @@ interface IncompatibleVersionValidateOptions {
 function validateReference(program: Program, source: Type, target: Type) {
   validateTargetVersionCompatible(program, source, target);
 
-  if (target.kind === "Model" && target.templateArguments) {
-    for (const param of target.templateArguments) {
+  if ("templateMapper" in target) {
+    for (const param of target.templateMapper?.args ?? []) {
       validateTargetVersionCompatible(program, source, param);
     }
+  }
+
+  switch (target.kind) {
+    case "Union":
+      for (const variant of target.variants.values()) {
+        validateTargetVersionCompatible(program, source, variant.type);
+      }
+      break;
+    case "Tuple":
+      for (const value of target.values) {
+        validateTargetVersionCompatible(program, source, value);
+      }
+      break;
   }
 }
 

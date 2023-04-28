@@ -39,6 +39,10 @@ describe("compiler: parser", () => {
        };`,
 
       `model Car {
+         withDefaultButNotOptional: string = "foo"
+       }`,
+
+      `model Car {
          optional?: number;
          withDefault?: string = "my-default";
        };`,
@@ -110,10 +114,6 @@ describe("compiler: parser", () => {
       ["model Car is Foo extends Bar { }", [/'{' expected/]],
       ["model Car extends Bar is Foo { }", [/'{' expected/]],
       ["model Car { withDefaultMissing?: string =  }", [/Expression expected/]],
-      [
-        `model Car { withDefaultButNotOptional: string = "foo" }`,
-        [/Cannot use default with non optional properties/],
-      ],
       ["model", [/Identifier expected/]],
       ["model Car is Vehicle", [/';', or '{' expected/]],
       ["model Car;", [/'{', '=', 'extends', or 'is' expected/]],
@@ -686,6 +686,8 @@ describe("compiler: parser", () => {
       parseEach([
         `projection model#v { to(version) { } }`,
         `projection model#foo{ from(bar, baz) { } }`,
+        `projection model#v { pre to(version) { } }`,
+        `projection model#foo{ pre from(bar, baz) { } }`,
       ]);
     });
     describe("projection expressions", () => {
@@ -745,10 +747,15 @@ describe("compiler: parser", () => {
         [`projection x#f`, [/'{' expected/]],
         [`projection x#f {`, [/'}' expected/]],
         [`projection x#f { asdf`, [/from or to expected/]],
+        [`projection x#f { pre asdf`, [/from or to expected/]],
         [`projection x#f { to (`, [/'\)' expected/]],
         [`projection x#f { to @`, [/'{' expected/]],
         [`projection x#f { to {`, [/} expected/]],
         [`projection x#f { to {}`, [/'}' expected/]],
+        [`projection x#f { pre to (`, [/'\)' expected/]],
+        [`projection x#f { pre to @`, [/'{' expected/]],
+        [`projection x#f { pre to {`, [/} expected/]],
+        [`projection x#f { pre to {}`, [/'}' expected/]],
       ]);
     });
   });

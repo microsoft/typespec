@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Fix** `unsupported-default` diagnostic showing at the wrong location",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

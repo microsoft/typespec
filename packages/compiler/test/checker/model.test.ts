@@ -1,12 +1,13 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { isArrayModelType, Operation } from "../../core/index.js";
+import { Operation, isArrayModelType } from "../../core/index.js";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../core/types.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
+  extractCursor,
 } from "../../testing/index.js";
 
 describe("compiler: models", () => {
@@ -147,6 +148,21 @@ describe("compiler: models", () => {
         });
       });
     }
+  });
+
+  it(`emit diagnostic when using non value type as default value`, async () => {
+    const { source, pos } = extractCursor(`
+    model Foo<D> {
+      prop?: string = ┆D;
+    }
+    `);
+    testHost.addTypeSpecFile("main.tsp", source);
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "unsupported-default",
+      message: "Default must be have a value type but has type 'TemplateParameter'.",
+      pos,
+    });
   });
 
   it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
@@ -442,7 +458,7 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateMapper?.args);
       strictEqual(Pet.derivedModels[1].templateMapper?.args[0].kind, "Scalar");
-      strictEqual((Pet.derivedModels[1].templateMapper?.args[0] as Model).name, "string");
+      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
       strictEqual(Pet.derivedModels[3], Dog);
@@ -545,6 +561,19 @@ describe("compiler: models", () => {
           reds.add(t);
         },
       });
+    });
+
+    it("keeps reference to source model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+        @test model A { }
+        @test  model B is A { };
+        `
+      );
+      const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
+      strictEqual(B.sourceModel, A);
     });
 
     it("copies decorators", async () => {
