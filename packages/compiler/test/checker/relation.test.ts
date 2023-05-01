@@ -947,5 +947,14 @@ describe("compiler: checker: type relations", () => {
         );
       });
     });
+
+    it("can use valueof in template parameter constraints", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo<T extends valueof string> {
+          @doc(T)
+          prop1: int16;
+        }`);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 });

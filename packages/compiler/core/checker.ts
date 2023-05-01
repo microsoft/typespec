@@ -753,7 +753,7 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
-        type.constraint = getTypeForNode(node.constraint);
+        type.constraint = getTypeOrValueTypeForNode(node.constraint);
       }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
@@ -787,7 +787,7 @@ export function createChecker(program: Program): Checker {
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
     index: number,
-    constraint: Type | undefined
+    constraint: Type | ValueType | undefined
   ) {
     function visit(node: Node) {
       const type = getTypeForNode(node);
@@ -914,7 +914,9 @@ export function createChecker(program: Program): Checker {
         let [valueNode, value] = args[i];
         if (declaredType.constraint) {
           if (!checkTypeAssignable(value, declaredType.constraint, valueNode)) {
-            value = declaredType.constraint;
+            // TODO-TIM check if we expose this below
+            value =
+              declaredType.constraint?.kind === "Value" ? unknownType : declaredType.constraint;
           }
         }
         values.push(value);
@@ -925,7 +927,12 @@ export function createChecker(program: Program): Checker {
           values.push(defaultValue);
         } else {
           tooFew = true;
-          values.push(declaredType.constraint ?? unknownType);
+          values.push(
+            // TODO-TIM check if we expose this below
+            declaredType.constraint?.kind === "Value"
+              ? unknownType
+              : declaredType.constraint ?? unknownType
+          );
         }
       }
     }
@@ -4618,8 +4625,8 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [related, diagnostics] = isTypeAssignableTo(source, target, diagnosticTarget);

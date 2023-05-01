@@ -494,7 +494,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: Type;
+  constraint?: Type | ValueType;
   default?: Type;
 }
 
