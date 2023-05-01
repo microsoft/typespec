@@ -1,8 +1,8 @@
 import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
-import { compilerAssert, ProjectionError } from "./diagnostics.js";
+import { ProjectionError, compilerAssert } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { getNamespaceFullName, getTypeName, TypeNameOptions } from "./helpers/index.js";
+import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -101,11 +101,11 @@ import {
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
-  TemplateableNode,
   TemplateDeclarationNode,
-  TemplatedType,
   TemplateParameter,
   TemplateParameterDeclarationNode,
+  TemplateableNode,
+  TemplatedType,
   Tuple,
   TupleExpressionNode,
   Type,
@@ -121,9 +121,10 @@ import {
   UnionVariantNode,
   UnknownType,
   ValueOfExpressionNode,
+  ValueType,
   VoidType,
 } from "./types.js";
-import { createRekeyableMap, isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -188,7 +189,7 @@ export interface Checker {
     source: Type,
     target: Type,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]];
+  ): [boolean, readonly Diagnostic[]];
 
   /**
    * Check if the given type is one of the built-in standard TypeSpec Types.
@@ -650,8 +651,6 @@ export function createChecker(program: Program): Checker {
         return checkFunctionDeclaration(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeReference(node, mapper);
-      case SyntaxKind.ValueOfExpression:
-        return checkValueOfExpression(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
         return checkTemplateParameterDeclaration(node, mapper);
       case SyntaxKind.ProjectionStatement:
@@ -1228,12 +1227,12 @@ export function createChecker(program: Program): Checker {
   function checkValueOfExpression(
     node: ValueOfExpressionNode,
     mapper: TypeMapper | undefined
-  ): Type {
+  ): ValueType {
     const target = getTypeForNode(node.target, mapper);
-    return createType({
+    return {
       kind: "Value",
       target,
-    });
+    };
   }
 
   /**
@@ -1349,7 +1348,7 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
     }
-    const type = node.type ? getTypeForNode(node.type) : unknownType;
+    const type = node.type ? getTypeOrValueTypeForNode(node.type) : unknownType;
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
@@ -1363,6 +1362,13 @@ export function createChecker(program: Program): Checker {
     linkType(links, parameterType, mapper);
 
     return parameterType;
+  }
+
+  function getTypeOrValueTypeForNode(node: Node, mapper?: TypeMapper) {
+    if (node.kind === SyntaxKind.ValueOfExpression) {
+      return checkValueOfExpression(node, mapper);
+    }
+    return getTypeForNode(node, mapper);
   }
 
   function mergeModelTypes(
@@ -3137,7 +3143,7 @@ export function createChecker(program: Program): Checker {
 
   function checkArgumentAssignable(
     argumentType: Type,
-    parameterType: Type,
+    parameterType: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [valid] = isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
@@ -4630,15 +4636,21 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     if (source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
     if (source === target) return [true, []];
+    if (target.kind === "Value") {
+      return isAssignableToValueType(source, target, diagnosticTarget);
+    }
 
+    if (source.kind === "Value") {
+      return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+    }
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
 
     if (isSimpleTypeRelated === true) {
@@ -4682,6 +4694,25 @@ export function createChecker(program: Program): Checker {
     }
 
     return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+  }
+
+  function isAssignableToValueType(
+    source: Type | ValueType,
+    target: ValueType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, readonly Diagnostic[]] {
+    if (source.kind === "Value") {
+      return isTypeAssignableTo(source.target, target.target, diagnosticTarget);
+    }
+    const [assignable, diagnostics] = isTypeAssignableTo(source, target.target, diagnosticTarget);
+    if (!assignable) {
+      return [assignable, diagnostics];
+    }
+
+    if (!isValueType(source)) {
+      return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+    }
+    return [true, []];
   }
 
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
@@ -4817,7 +4848,7 @@ export function createChecker(program: Program): Checker {
     source: Model,
     target: Model & { indexer: ModelIndexer },
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     // Model expressions should be able to be assigned.
     if (source.name === "" && target.indexer.key.name !== "integer") {
       return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget);
@@ -4849,7 +4880,7 @@ export function createChecker(program: Program): Checker {
     constraintType: Type,
     type: Model,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     for (const prop of type.properties.values()) {
       const [related, diagnostics] = isTypeAssignableTo(
         prop.type,
@@ -4878,7 +4909,7 @@ export function createChecker(program: Program): Checker {
     source: Tuple,
     target: Tuple,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     if (source.values.length !== target.values.length) {
       return [
         false,
@@ -4944,8 +4975,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function createUnassignableDiagnostic(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ) {
     return createDiagnostic({

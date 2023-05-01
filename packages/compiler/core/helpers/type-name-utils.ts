@@ -9,6 +9,7 @@ import {
   Operation,
   Scalar,
   Type,
+  ValueType,
 } from "../types.js";
 
 export interface TypeNameOptions {
@@ -16,7 +17,7 @@ export interface TypeNameOptions {
   printable?: boolean;
 }
 
-export function getTypeName(type: Type, options?: TypeNameOptions): string {
+export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -50,6 +51,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return type.value.toString();
     case "Intrinsic":
       return type.name;
+    case "Value":
+      return `valueof ${getTypeName(type.target, options)}`;
   }
 
   return "(unnamed type)";

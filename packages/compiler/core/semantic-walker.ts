@@ -357,7 +357,6 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "Intrinsic":
     case "Number":
     case "String":
-    case "Value":
       return;
     default:
       // Dummy const to ensure we handle all types.

@@ -84,7 +84,6 @@ export type Type =
   | Tuple
   | Union
   | UnionVariant
-  | ValueType
   | IntrinsicType
   | FunctionType
   | Decorator
@@ -122,8 +121,8 @@ export interface Projector {
   projectedGlobalNamespace?: Namespace;
 }
 
-export interface ValueType extends BaseType {
-  kind: "Value";
+export interface ValueType {
+  kind: "Value"; // Todo remove?
   target: Type;
 }
 
@@ -523,7 +522,7 @@ export interface FunctionParameter extends BaseType {
   kind: "FunctionParameter";
   node: FunctionParameterNode;
   name: string;
-  type: Type;
+  type: Type | ValueType;
   optional: boolean;
   rest: boolean;
 }

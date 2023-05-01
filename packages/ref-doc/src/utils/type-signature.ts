@@ -12,10 +12,14 @@ import {
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
+  ValueType,
 } from "@typespec/compiler";
 
 /** @internal */
-export function getTypeSignature(type: Type): string {
+export function getTypeSignature(type: Type | ValueType): string {
+  if (type.kind === "Value") {
+    return `valueof ${getTypeSignature(type)}`;
+  }
   if (isReflectionType(type)) {
     return type.name;
   }
@@ -42,8 +46,7 @@ export function getTypeSignature(type: Type): string {
       return `(number) ${type.value.toString()}`;
     case "Intrinsic":
       return `(intrinsic) ${type.name}`;
-    case "Value":
-      return `valueof ${getTypeSignature(type)}`;
+
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
     case "ModelProperty":

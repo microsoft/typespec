@@ -9,11 +9,12 @@ import {
   Operation,
   Type,
   UnionVariant,
+  ValueType,
 } from "../core/types.js";
 import { printId } from "../formatter/print/printer.js";
 
 /** @internal */
-export function getTypeSignature(type: Type): string {
+export function getTypeSignature(type: Type | ValueType): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
