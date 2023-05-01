@@ -18,10 +18,16 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: Type;
+  /**
+   * Marshalled value for use in Javascript.
+   */
+  jsValue: Type | string | number | boolean;
   node?: Node;
 }
 
 export interface DecoratorApplication {
+  definition?: Decorator;
+  // TODO-TIM deprecate replace with `implementation`?
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;

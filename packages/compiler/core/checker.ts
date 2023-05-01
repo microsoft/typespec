@@ -1350,7 +1350,15 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
     }
-    if (node.rest && node.type && node.type.kind !== SyntaxKind.ArrayExpression) {
+    if (
+      node.rest &&
+      node.type &&
+      !(
+        node.type.kind === SyntaxKind.ArrayExpression ||
+        (node.type.kind === SyntaxKind.ValueOfExpression &&
+          node.type.target.kind === SyntaxKind.ArrayExpression)
+      )
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
@@ -3043,7 +3051,7 @@ export function createChecker(program: Program): Checker {
 
     const symbolLinks = getSymbolLinks(sym);
 
-    const args = checkDecoratorArguments(decNode, mapper);
+    let args = checkDecoratorArguments(decNode, mapper);
     let hasError = false;
     if (symbolLinks.declaredType === undefined) {
       const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
@@ -3061,12 +3069,13 @@ export function createChecker(program: Program): Checker {
         "Expected to find a decorator type."
       );
       // Means we have a decorator declaration.
-      hasError = checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
+      [hasError, args] = checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
     }
     if (hasError) {
       return undefined;
     }
     return {
+      definition: symbolLinks.declaredType,
       decorator: sym.value ?? ((...args: any[]) => {}),
       node: decNode,
       args,
@@ -3078,7 +3087,7 @@ export function createChecker(program: Program): Checker {
     declaration: Decorator,
     args: DecoratorArgument[],
     decoratorNode: Node
-  ): boolean {
+  ): [boolean, DecoratorArgument[]] {
     let hasError = false;
     const [targetValid] = isTypeAssignableTo(targetType, declaration.target.type, decoratorNode);
     if (!targetValid) {
@@ -3122,14 +3131,21 @@ export function createChecker(program: Program): Checker {
         );
       }
     }
+
+    const resolvedArgs: DecoratorArgument[] = [];
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType =
-          parameter.type.kind === "Model" ? parameter.type.indexer?.value : undefined;
+        const restType = getIndexType(
+          parameter.type.kind === "Value" ? parameter.type.target : parameter.type
+        );
         if (restType) {
           for (let i = index; i < args.length; i++) {
             const arg = args[i];
             if (arg && arg.value) {
+              resolvedArgs.push({
+                ...arg,
+                jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
+              });
               if (!checkArgumentAssignable(arg.value, restType, arg.node!)) {
                 hasError = true;
               }
@@ -3140,12 +3156,29 @@ export function createChecker(program: Program): Checker {
       }
       const arg = args[index];
       if (arg && arg.value) {
+        resolvedArgs.push({
+          ...arg,
+          jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
+        });
         if (!checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
           hasError = true;
         }
       }
     }
-    return hasError;
+    return [hasError, resolvedArgs];
+  }
+
+  function getIndexType(type: Type): Type | undefined {
+    return type.kind === "Model" ? type.indexer?.value : undefined;
+  }
+
+  function resolveDecoratorArgJsValue(value: Type, valueOf: boolean) {
+    if (valueOf) {
+      if (value.kind === "Boolean" || value.kind === "String" || value.kind === "Number") {
+        return literalTypeToValue(value);
+      }
+    }
+    return value;
   }
 
   function checkArgumentAssignable(
@@ -3199,6 +3232,7 @@ export function createChecker(program: Program): Checker {
       const type = getTypeForNode(argNode, mapper);
       return {
         value: type,
+        jsValue: type,
         node: argNode,
       };
     });
@@ -5339,7 +5373,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
 
   // peel `fn` off to avoid setting `this`.
   try {
-    const args = marshalArgumentsForJS(decApp.args.map((x) => x.value));
+    const args = decApp.args.map((x) => x.jsValue);
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
     fn(context, target, ...args);

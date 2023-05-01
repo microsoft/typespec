@@ -548,14 +548,8 @@ export function createProjector(
     for (const dec of decs) {
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
-        // filter out primitive arguments
-        if (typeof arg.value !== "object") {
-          args.push(arg);
-          continue;
-        }
-
-        const projected = projectType(arg.value);
-        args.push({ ...arg, value: projected });
+        const jsValue = typeof arg.jsValue === "object" ? projectType(arg.jsValue) : arg.jsValue;
+        args.push({ ...arg, value: projectType(arg.value), jsValue });
       }
 
       decorators.push({ ...dec, args });

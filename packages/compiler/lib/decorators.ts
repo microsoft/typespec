@@ -4,6 +4,7 @@ import {
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
 import {
+  StringLiteral,
   getDiscriminatedUnion,
   getTypeName,
   validateDecoratorUniqueOnNode,
@@ -598,16 +599,16 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
 export function $withoutOmittedProperties(
   context: DecoratorContext,
   target: Model,
-  omitProperties: string | Union
+  omitProperties: StringLiteral | Union
 ) {
   // Get the property or properties to omit
   const omitNames = new Set<string>();
-  if (typeof omitProperties === "string") {
-    omitNames.add(omitProperties);
+  if (omitProperties.kind === "String") {
+    omitNames.add(omitProperties.value);
   } else {
-    for (const value of omitProperties.options) {
-      if (value.kind === "String") {
-        omitNames.add(value.value);
+    for (const value of omitProperties.variants.values()) {
+      if (value.type.kind === "String") {
+        omitNames.add(value.type.value);
       }
     }
   }
@@ -844,7 +845,9 @@ export function $withDefaultKeyVisibility(
           ...keyProp.decorators,
           {
             decorator: $visibility,
-            args: [{ value: context.program.checker.createLiteralType(visibility) }],
+            args: [
+              { value: context.program.checker.createLiteralType(visibility), jsValue: visibility },
+            ],
           },
         ],
       })

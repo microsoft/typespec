@@ -175,7 +175,7 @@ extern dec message(target: object);
  * }
  * ```
  */
-extern dec field(target: TypeSpec.Reflection.ModelProperty, index: uint32);
+extern dec field(target: TypeSpec.Reflection.ModelProperty, index: valueof uint32);
 
 /**
  * Reserve a field index, range, or name. If a field definition collides with a reservation, the emitter will produce
@@ -211,7 +211,7 @@ extern dec field(target: TypeSpec.Reflection.ModelProperty, index: uint32);
  * }
  * ```
  */
-extern dec reserve(target: object, ...reservations: (string | [uint32, uint32] | uint32)[]);
+extern dec reserve(target: object, ...reservations: valueof (string | [uint32, uint32] | uint32)[]);
 
 /**
  * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to

@@ -182,6 +182,6 @@ model OmitDefaults<T> {
  */
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<T, Visibility extends string> {
+model DefaultKeyVisibility<T, Visibility extends valueof string> {
   ...T;
 }

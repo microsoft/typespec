@@ -114,6 +114,7 @@ describe("compiler: checker: decorators", () => {
     });
 
     function expectDecoratorCalledWith(target: unknown, ...args: unknown[]) {
+      console.log("cadlled", calledArgs);
       strictEqual(calledArgs.length, 2 + args.length);
       strictEqual(calledArgs[0].program, runner.program);
       strictEqual(calledArgs[1], target);
@@ -136,7 +137,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: unknown, arg1: string, arg2: string);
+        extern dec testDec(target: unknown, arg1: valueof string, arg2: valueof string);
 
         @testDec("one", "two")
         @test
@@ -148,7 +149,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with optional arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: unknown, arg1: string, arg2?: string);
+        extern dec testDec(target: unknown, arg1: valueof string, arg2?: valueof string);
 
         @testDec("one")
         @test
@@ -160,7 +161,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with rest arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: unknown, arg1: string, ...args: string[]);
+        extern dec testDec(target: unknown, arg1: valueof string, ...args: valueof string[]);
 
         @testDec("one", "two", "three", "four")
         @test

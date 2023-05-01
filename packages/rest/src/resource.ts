@@ -7,6 +7,7 @@ import {
   Model,
   ModelProperty,
   Program,
+  StringLiteral,
   Type,
   validateDecoratorTarget,
 } from "@typespec/compiler";
@@ -108,7 +109,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
       },
       {
         decorator: $resourceTypeForKeyParam,
-        args: [{ node: target.node, value: resourceType }],
+        args: [{ node: target.node, value: resourceType, jsValue: resourceType }],
       },
     ];
 
@@ -130,7 +131,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
 export function $copyResourceKeyParameters(
   context: DecoratorContext,
   entity: Type,
-  filter?: string
+  filter?: StringLiteral
 ) {
   if (!validateDecoratorTarget(context, entity, "@copyResourceKeyParameters", "Model")) {
     return;
@@ -155,7 +156,7 @@ export function $copyResourceKeyParameters(
 
   const resourceType = templateArguments[0] as Model;
 
-  if (filter === "parent") {
+  if (filter?.value === "parent") {
     // Only copy keys of the parent type if there is one
     const parentType = getParentResource(context.program, resourceType);
     if (parentType) {
