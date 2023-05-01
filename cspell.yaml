@@ -25,8 +25,10 @@ words:
   - globby
   - inmemory
   - instanceid
+  - interner
   - intrinsics
   - jsyaml
+  - keyer
   - lzutf
   - msbuild
   - MSRC
@@ -49,6 +51,8 @@ words:
   - rushx
   - safeint
   - segmentof
+  - sfixed
+  - sint
   - strs
   - TRYIT
   - TSES
@@ -66,6 +70,7 @@ words:
   - xplat
   - keyer
   - interner
+  - unprefixed
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

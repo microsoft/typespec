@@ -22,6 +22,18 @@ describe("compiler: operations", () => {
     strictEqual((foo.returnType as IntrinsicType).name, "void");
   });
 
+  it("keeps reference to source operation", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op a(): void;
+      @test op b is a;
+      `
+    );
+    const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
+    strictEqual(b.sourceOperation, a);
+  });
+
   it("can be templated and referenced to define other operations", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",

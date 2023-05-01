@@ -10,12 +10,23 @@ const config = definePlaygroundViteConfig({
     "@typespec/openapi",
     "@typespec/versioning",
     "@typespec/openapi3",
+    "@typespec/protobuf",
   ],
   samples: {
-    "API versioning": "samples/versioning.tsp",
-    "Discriminated unions": "samples/unions.tsp",
-    "HTTP service": "samples/http.tsp",
-    "REST framework": "samples/rest.tsp",
+    "API versioning": {
+      fileName: "samples/versioning.tsp",
+      preferredEmitter: "@typespec/openapi3",
+    },
+    "Discriminated unions": {
+      fileName: "samples/unions.tsp",
+      preferredEmitter: "@typespec/openapi3",
+    },
+    "HTTP service": { fileName: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
+    "REST framework": { fileName: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
+    "Protobuf Kiosk": {
+      fileName: "samples/kiosk.tsp",
+      preferredEmitter: "@typespec/protobuf",
+    },
   },
   enableSwaggerUI: true,
   links: {

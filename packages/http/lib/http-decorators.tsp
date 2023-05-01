@@ -202,11 +202,12 @@ extern dec useAuth(target: Namespace, auth: object | Union | object[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
+ * @param value If true, inapplicable metadata will be included in the payload.
  */
 extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);
 
 /**
- * `@route` defines the relative route URI for the target operation
+ * Defines the relative route URI for the target operation
  *
  * The first argument should be a URI fragment that may contain one or more path parameter fields.
  * If the namespace or interface that contains the operation is also marked with a `@route` decorator,
@@ -215,6 +216,35 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean)
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param path Relative route path. Cannot include query parameters.
- * @param parameters Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ * @param options Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ *
+ * @example
+ *
+ * ```typespec
+ * @route("/widgets")
+ * op getWidget(@path id: string): Widget;
+ * ```
  */
-extern dec route(entity: unknown, path: string, parameters?: object);
+extern dec route(
+  target: Namespace | Interface | Operation,
+  path: string,
+  options?: {
+    shared?: boolean,
+  }
+);
+
+/**
+ * `@sharedRoute` marks the operation as sharing a route path with other operations.
+ *
+ * When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+ * route path as long as those operations are also marked with `@sharedRoute`.
+ *
+ * `@sharedRoute` can only be applied directly to operations.
+ *
+ * ```typespec
+ * @sharedRoute
+ * @route("/widgets")
+ * op getWidget(@path id: string): Widget;
+ * ```
+ */
+extern dec sharedRoute(target: Operation);

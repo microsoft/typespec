@@ -27,86 +27,90 @@ extern dec autoRoute(target: Interface | Operation);
  *   get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
  * }
  */
-extern dec segment(target: object | ModelProperty | Operation, name: string);
+extern dec segment(target: Model | ModelProperty | Operation, name: string);
 
 /**
  * Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
+ * @param type Target model
  */
-extern dec segmentOf(target: Operation, type: object);
+extern dec segmentOf(target: Operation, type: Model);
 
 /**
  * Defines the separator string that is inserted before the action name in auto-generated routes for actions.
  *
  * @param seperator Seperator seperating the action segment from the rest of the url
  */
-extern dec actionSeparator(target: object | ModelProperty | Operation, seperator: "/" | ":" | "/:");
+extern dec actionSeparator(target: Model | ModelProperty | Operation, seperator: "/" | ":" | "/:");
 
 /**
  * Mark this model as a resource type with a name.
  *
  * @param collectionName type's collection name
  */
-extern dec resource(target: object, collectionName: string);
+extern dec resource(target: Model, collectionName: string);
 
 /**
  * Specify that this is a Read operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec readsResource(target: Operation, resourceType: object);
+extern dec readsResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Create operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec createsResource(target: Operation, resourceType: object);
+extern dec createsResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a CreateOrReplace operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec createsOrReplacesResource(target: Operation, resourceType: object);
+extern dec createsOrReplacesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a CreatesOrUpdate operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec createsOrUpdatesResource(target: Operation, resourceType: object);
+extern dec createsOrUpdatesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Update operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec updatesResource(target: Operation, resourceType: object);
+extern dec updatesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Delete operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec deletesResource(target: Operation, resourceType: object);
+extern dec deletesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a List operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
-extern dec listsResource(target: Operation, resourceType: object);
+extern dec listsResource(target: Operation, resourceType: Model);
 
 /**
- * Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
+ * Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
+ * @param name Name of the action. If not specified, the name of the operation will be used.
  */
 extern dec action(target: Operation, name?: string);
 
 /**
  * Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
+ * @param resourceType Resource marked with @resource
+ * @param name Name of the action. If not specified, the name of the operation will be used.
  */
-extern dec collectionAction(target: Operation, resourceType: object, name?: string);
+extern dec collectionAction(target: Operation, resourceType: Model, name?: string);
 
 namespace Private {
-  extern dec resourceLocation(target: string, resourceType: object);
+  extern dec resourceLocation(target: string, resourceType: Model);
 }

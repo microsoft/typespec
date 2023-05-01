@@ -1,0 +1,1 @@
+/test/main.tsp:5:10 - error invalid-argument: Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.Protobuf.PackageDetails'

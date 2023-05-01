@@ -233,6 +233,11 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   derivedModels: Model[];
 
   /**
+   * The model that is referenced via `model is`.
+   */
+  sourceModel?: Model;
+
+  /**
    * Late-bound symbol of this model type.
    * @internal
    */
@@ -350,6 +355,11 @@ export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
   interface?: Interface;
   parameters: Model;
   returnType: Type;
+
+  /**
+   * The operation that is referenced via `op is`.
+   */
+  sourceOperation?: Operation;
 }
 
 export interface Namespace extends BaseType, DecoratedType {

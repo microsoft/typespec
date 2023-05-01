@@ -1149,18 +1149,13 @@ export function createChecker(program: Program): Checker {
         );
       }
     }
-    const cached = symbolLinks.instantiations?.get(args);
+    const mapper = createTypeMapper(params, args, parentMapper);
+    const cached = symbolLinks.instantiations?.get(mapper.args);
     if (cached) {
       return cached;
     }
     if (instantiateTempalates) {
-      return instantiateTemplate(
-        symbolLinks.instantiations,
-        templateNode,
-        params,
-        args,
-        parentMapper
-      );
+      return instantiateTemplate(symbolLinks.instantiations, templateNode, params, mapper);
     } else {
       return errorType;
     }
@@ -1178,13 +1173,11 @@ export function createChecker(program: Program): Checker {
     instantiations: TypeInstantiationMap,
     templateNode: TemplateableNode,
     params: TemplateParameter[],
-    args: Type[],
-    parentMapper: TypeMapper | undefined
+    mapper: TypeMapper
   ): Type {
-    const mapper = createTypeMapper(params, args, parentMapper);
     const type = getTypeForNode(templateNode, mapper);
-    if (!instantiations.get(args)) {
-      instantiations.set(args, type);
+    if (!instantiations.get(mapper.args)) {
+      instantiations.set(mapper.args, type);
     }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
@@ -1623,14 +1616,14 @@ export function createChecker(program: Program): Checker {
     let decorators: DecoratorApplication[] = [];
 
     // Is this a definition or reference?
-    let parameters: Model, returnType: Type;
+    let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (!baseOperation) {
         return errorType;
       }
-
+      sourceOperation = baseOperation;
       // Reference the same return type and create the parameters type
       parameters = cloneType(baseOperation.parameters);
       returnType = baseOperation.returnType;
@@ -1650,6 +1643,7 @@ export function createChecker(program: Program): Checker {
       parameters,
       returnType,
       decorators,
+      sourceOperation,
       interface: parentInterface,
     });
 
@@ -2349,6 +2343,7 @@ export function createChecker(program: Program): Checker {
     const isBase = checkModelIs(node, node.is, mapper);
 
     if (isBase) {
+      type.sourceModel = isBase;
       checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
@@ -5055,7 +5050,7 @@ function createTypeMapper(
 
   return {
     partial: false,
-    args,
+    args: [...(parentMapper?.args ?? []), ...args],
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
     },
@@ -5376,14 +5371,15 @@ function isTemplatedNode(node: Node): node is TemplateableNode {
  * Mapping from the reflection models to Type["kind"] value
  */
 const ReflectionNameToKind = {
-  Model: "Model",
-  ModelProperty: "ModelProperty",
-  Interface: "Interface",
   Enum: "Enum",
   EnumMember: "EnumMember",
-  TemplateParameter: "TemplateParameter",
+  Interface: "Interface",
+  Model: "Model",
+  ModelProperty: "ModelProperty",
   Namespace: "Namespace",
   Operation: "Operation",
+  Scalar: "Scalar",
+  TemplateParameter: "TemplateParameter",
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",

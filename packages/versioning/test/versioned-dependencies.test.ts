@@ -26,6 +26,9 @@ describe("versioning: reference versioned library", () => {
           name: string;
           @added(Versions.l2) age: int32;
         }
+
+        @removed(Versions.l2)
+        op Operation<TParams, TResponse>(...TParams): TResponse;
       }
       ${code}`,
     });
@@ -47,6 +50,8 @@ describe("versioning: reference versioned library", () => {
         @useDependency(VersionedLib.Versions.l1)
         @test namespace MyService {
           @test model Test extends VersionedLib.Foo {}
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -74,6 +79,8 @@ describe("versioning: reference versioned library", () => {
           @test model Test extends VersionedLib.Foo {}
           
           @test op getBar(): OtherVersionedLib.Bar;
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model; getBar: Operation };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -116,6 +123,8 @@ describe("versioning: reference versioned library", () => {
             v2
           }
           @test model Test extends VersionedLib.Foo {}
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -144,6 +153,8 @@ describe("versioning: reference versioned library", () => {
             v2
           }
           @test model Test extends VersionedLib.Foo {}
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -200,10 +211,64 @@ describe("versioning: reference versioned library", () => {
   });
 
   describe("when using versioned library without @useDependency", () => {
-    it("emit diagnostic when used in extends", async () => {
+    it("emit diagnostic when model uses extends", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
           model Test extends VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when model uses is", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test is VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when model uses alias", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          alias Test = VersionedLib.Foo;
+          op test(): Test;
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when operation uses is", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          op test is VersionedLib.Operation<{name: string}, int32>;
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when operation uses alias", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          alias test = VersionedLib.Operation<{name: string}, int32>;
+          op myTest is test;
         } 
     `);
       expectDiagnostics(diagnostics, {

@@ -13,13 +13,16 @@ import {
   Model,
   Namespace,
   navigateTypesInNamespace,
+  NoTarget,
   Operation,
   Program,
+  Scalar,
   SyntaxKind,
   TemplatedType,
   Type,
   Union,
 } from "@typespec/compiler";
+import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
   EnumRefDoc,
@@ -29,6 +32,7 @@ import {
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  ScalarRefDoc,
   TypeSpecRefDoc,
   UnionRefDoc,
 } from "./types.js";
@@ -52,6 +56,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       models: [],
       enums: [],
       unions: [],
+      scalars: [],
     };
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
@@ -82,6 +87,9 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
             namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
           }
         },
+        scalar(scalar) {
+          namespaceDoc.scalars.push(extractScalarRefDocs(program, scalar as any));
+        },
       },
       { includeTemplateDeclaration: true, skipSubNamespaces: true }
     );
@@ -95,6 +103,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
     sort(namespace.models);
     sort(namespace.operations);
     sort(namespace.unions);
+    sort(namespace.scalars);
   }
 
   function sort(arr: { id: string }[]) {
@@ -104,38 +113,67 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
   return refDoc;
 }
 
-function extractTemplateParameterDocs(type: TemplatedType) {
+function extractTemplateParameterDocs(program: Program, type: TemplatedType) {
   if (isTemplateDeclaration(type)) {
     const templateParamsDocs = getTemplateParameterDocs(type);
-    return type.node!.templateParameters.map((x) => ({
-      name: x.id.sv,
-      doc: templateParamsDocs.get(x.id.sv) ?? "",
-    }));
+    return type.node!.templateParameters.map((x) => {
+      const doc = templateParamsDocs.get(x.id.sv);
+      if (doc === undefined || doc === "") {
+        reportDiagnostic(program, {
+          code: "documentation-missing",
+          messageId: "templateParam",
+          format: { name: type.name ?? "", param: x.id.sv },
+          target: NoTarget,
+        });
+      }
+      return {
+        name: x.id.sv,
+        doc: templateParamsDocs.get(x.id.sv) ?? "",
+      };
+    });
   } else {
     return undefined;
   }
 }
 
 function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceRefDoc {
+  const doc = extractMainDoc(program, iface);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "interface",
+      format: { name: iface.name ?? "" },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(iface),
     name: iface.name,
     signature: getTypeSignature(iface),
     type: iface,
-    templateParameters: extractTemplateParameterDocs(iface),
-    doc: extractMainDoc(program, iface),
+    templateParameters: extractTemplateParameterDocs(program, iface),
+    doc: doc,
     examples: extractExamples(iface),
   };
 }
 
 function extractOperationRefDoc(program: Program, operation: Operation): OperationRefDoc {
+  const doc = extractMainDoc(program, operation);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "operation",
+      format: { name: operation.name ?? "" },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(operation),
     name: operation.name,
     signature: getTypeSignature(operation),
     type: operation,
-    templateParameters: extractTemplateParameterDocs(operation),
-    doc: extractMainDoc(program, operation),
+    templateParameters: extractTemplateParameterDocs(program, operation),
+    doc: doc,
     examples: extractExamples(operation),
   };
 }
@@ -143,6 +181,15 @@ function extractOperationRefDoc(program: Program, operation: Operation): Operati
 function extractDecoratorRefDoc(program: Program, decorator: Decorator): DecoratorRefDoc {
   const paramDoc = getParmeterDocs(decorator);
   const parameters: FunctionParameterRefDoc[] = decorator.parameters.map((x) => {
+    const docVal = paramDoc.get(x.name);
+    if (docVal === undefined || docVal === "") {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "decoratorParam",
+        format: { name: decorator.name, param: x.name },
+        target: NoTarget,
+      });
+    }
     return {
       type: x,
       doc: paramDoc.get(x.name) ?? "",
@@ -153,12 +200,21 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
   });
 
   const examples = extractExamples(decorator);
+  const mainDoc = extractMainDoc(program, decorator);
+  if (mainDoc === undefined || mainDoc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "decorator",
+      format: { name: decorator.name },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(decorator),
     name: decorator.name,
     type: decorator,
     signature: getTypeSignature(decorator),
-    doc: extractMainDoc(program, decorator),
+    doc: mainDoc,
     parameters,
     examples,
     otherTags: [],
@@ -173,35 +229,82 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
 }
 
 function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
+  const doc = extractMainDoc(program, type);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "model",
+      format: { name: type.name ?? "" },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
     type,
-    templateParameters: extractTemplateParameterDocs(type),
-    doc: extractMainDoc(program, type),
+    templateParameters: extractTemplateParameterDocs(program, type),
+    doc: doc,
     examples: extractExamples(type),
   };
 }
 
 function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
+  const doc = extractMainDoc(program, type);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "enum",
+      format: { name: type.name ?? "" },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
     type,
-    doc: extractMainDoc(program, type),
+    doc: doc,
     examples: extractExamples(type),
   };
 }
 function extractUnionRefDocs(program: Program, type: Union & { name: string }): UnionRefDoc {
+  const doc = extractMainDoc(program, type);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "union",
+      format: { name: type.name ?? "" },
+      target: NoTarget,
+    });
+  }
   return {
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
     type,
-    templateParameters: extractTemplateParameterDocs(type),
-    doc: extractMainDoc(program, type),
+    templateParameters: extractTemplateParameterDocs(program, type),
+    doc: doc,
+    examples: extractExamples(type),
+  };
+}
+
+function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
+  const doc = extractMainDoc(program, type);
+  if (doc === undefined || doc === "") {
+    reportDiagnostic(program, {
+      code: "documentation-missing",
+      messageId: "scalar",
+      format: { name: type.name ?? "" },
+      target: NoTarget,
+    });
+  }
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
+    doc: doc,
     examples: extractExamples(type),
   };
 }

@@ -41,12 +41,14 @@ describe("openapi3: shared routes", () => {
           id: string;
         }
 
+        @sharedRoute
         @operationId("List_ResourceGroup")
-        @route("/sharedroutes/resources", { shared: true })
+        @route("/sharedroutes/resources")
         op listByResourceGroup(...Resource, @query resourceGroup: string, @query foo: string): Resource[];
 
+        @sharedRoute
         @operationId("List_Subscription")
-        @route("/sharedroutes/resources", { shared: true })
+        @route("/sharedroutes/resources")
         op listBySubscription(...Resource, @query subscription: string, @query foo: string): Resource[];
       }
       `
@@ -96,10 +98,12 @@ describe("openapi3: shared routes", () => {
           id: string;
         }
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op listByResourceGroup(...Resource, @query filter: "resourceGroup"): Resource[];
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op listBySubscription(...Resource, @query filter: "subscription"): Resource[];
       }
       `
@@ -135,10 +139,12 @@ describe("openapi3: shared routes", () => {
           id: string;
         }
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op listByResourceGroup(...Resource, @query filter: "resourceGroup"): Resource[];
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op listBySubscription(...Resource, @header filter: "subscription"): Resource[];
       }
       `
@@ -183,10 +189,12 @@ describe("openapi3: shared routes", () => {
           id: string;
         }
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op returnsInt(...Resource, @query options: string): int32;
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op returnsString(...Resource, @query options: string): string;
       }
       `
@@ -224,10 +232,12 @@ describe("openapi3: shared routes", () => {
       `
       @service({title: "My Service"})
       namespace Foo {
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op processInt(@body body: int32, @query options: string): void;
 
-        @route("/sharedroutes/resources", { shared: true })
+        @sharedRoute
+        @route("/sharedroutes/resources")
         op processString(@body body: string, @query options: string): void;
       }
       `
@@ -261,10 +271,12 @@ describe("openapi3: shared routes", () => {
       `
       @service({title: "My Service"})
       namespace Foo {
-        @route("/process", { shared: true })
+        @sharedRoute
+        @route("/process")
         op processInt(@body body: int32, @query options: string): int32;
 
-        @route("/process", { shared: true })
+        @sharedRoute
+        @route("/process")
         op processString(@body body: string, @query options: string): string;
       }
       `

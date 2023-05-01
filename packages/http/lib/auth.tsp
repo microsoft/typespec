@@ -61,6 +61,7 @@ enum ApiKeyLocation {
 
 /**
  * An API key is a token that a client provides when making API calls. The key can be sent in the query string:
+ *
  * ```
  * GET /something?api_key=abcdef12345
  * ```
@@ -78,6 +79,9 @@ enum ApiKeyLocation {
  * GET /something HTTP/1.1
  * Cookie: X-API-KEY=abcdef12345
  * ```
+ *
+ * @template TLocation The location of the API key
+ * @template TName The name of the API key
  */
 model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
   @doc("API key authentication")
@@ -95,6 +99,7 @@ model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
  * OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
  * For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
+ * @template TFlows The list of supported OAuth2 flows
  */
 model OAuth2Auth<TFlows extends OAuth2Flow[]> {
   @doc("OAuth2 authentication")
