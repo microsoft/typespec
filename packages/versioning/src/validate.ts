@@ -1,5 +1,6 @@
 import {
   getNamespaceFullName,
+  getService,
   getTypeName,
   isTemplateInstance,
   Namespace,
@@ -42,6 +43,7 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
+        addDependency(model.namespace, model.sourceModel);
         addDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
           addDependency(model.namespace, prop.type);
@@ -75,6 +77,7 @@ export function $onValidate(program: Program) {
         }
 
         const namespace = op.namespace ?? op.interface?.namespace;
+        addDependency(namespace, op.sourceOperation);
         addDependency(namespace, op.parameters);
         addDependency(namespace, op.returnType);
 
@@ -91,6 +94,18 @@ export function $onValidate(program: Program) {
         }
       },
       namespace: (namespace) => {
+        const [_, versionMap] = getVersions(program, namespace);
+        const serviceProps = getService(program, namespace);
+        if (serviceProps?.version !== undefined && versionMap !== undefined) {
+          reportDiagnostic(program, {
+            code: "no-service-fixed-version",
+            format: {
+              name: getNamespaceFullName(namespace),
+              version: serviceProps.version,
+            },
+            target: namespace,
+          });
+        }
         const versionedNamespace = findVersionedNamespace(program, namespace);
         const dependencies = getVersionDependencies(program, namespace);
         if (dependencies === undefined) {

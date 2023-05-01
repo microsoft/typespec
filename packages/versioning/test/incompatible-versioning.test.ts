@@ -7,6 +7,43 @@ import {
 } from "@typespec/compiler/testing";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
+describe("versioning: incompatible use of decorators", () => {
+  let runner: BasicTestRunner;
+  let host: TestHost;
+  const imports: string[] = [];
+
+  beforeEach(async () => {
+    host = await createVersioningTestHost();
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
+      import "@typespec/versioning";
+      ${imports.map((i) => `import "${i}";`).join("\n")}
+      using TypeSpec.Versioning;
+      ${code}`,
+    });
+  });
+
+  it("emit diagnostic when @service({version: 'X'}) is used with @versioned", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    @service({
+      title: "Widget Service",
+      version: "v3"
+    })
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2,
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/no-service-fixed-version",
+      severity: "error",
+    });
+  });
+});
+
 describe("versioning: validate incompatible references", () => {
   let runner: BasicTestRunner;
   let host: TestHost;

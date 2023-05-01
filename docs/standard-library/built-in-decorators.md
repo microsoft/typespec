@@ -39,25 +39,7 @@ dec discriminator(target: Model | Union, propertyName: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `scalar string` |  |
-
-#### Examples
-
-```typespec
-@discriminator("kind")
-union Pet{ cat: Cat, dog: Dog }
-
-model Cat {kind: "cat", meow: boolean}
-model Dog {kind: "dog", bark: boolean}
-```
-
-```typespec
-@discriminator("kind")
-model Pet{ kind: string }
-
-model Cat extends Pet {kind: "cat", meow: boolean}
-model Dog extends Pet  {kind: "dog", bark: boolean}
-```
+| propertyName | `scalar string` | The property name to use for discrimination |
 
 
 ### `@doc` {#@doc}
@@ -108,7 +90,8 @@ message: string;
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
-This differ from the
+This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
+The format names are open ended and are left to emitter to interpret.
 
 ```typespec
 dec format(target: string | bytes | ModelProperty, format: string)
@@ -140,11 +123,12 @@ dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 | Name | Type | Description |
 |------|------|-------------|
 | name | `scalar string` | name the template instance should take |
-| formatArgs | `(intrinsic) unknown` |  |
+| formatArgs | `(intrinsic) unknown` | Model with key value used to interpolate the name |
 
 
 ### `@inspectType` {#@inspectType}
 
+A debugging decorator used to inspect a type.
 
 ```typespec
 dec inspectType(target: unknown, text: string)
@@ -157,11 +141,12 @@ dec inspectType(target: unknown, text: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` |  |
+| text | `scalar string` | Custom text to log |
 
 
 ### `@inspectTypeName` {#@inspectTypeName}
 
+A debugging decorator used to inspect a type name.
 
 ```typespec
 dec inspectTypeName(target: unknown, text: string)
@@ -174,7 +159,7 @@ dec inspectTypeName(target: unknown, text: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` |  |
+| text | `scalar string` | Custom text to log |
 
 
 ### `@key` {#@key}
@@ -192,15 +177,7 @@ dec key(target: ModelProperty, altName?: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `scalar string` |  |
-
-#### Examples
-
-```typespec
-model Pet {
-@key id: string;
-}
-```
+| altName | `scalar string` | Name of the property. If not specified, the decorated property name is used. |
 
 
 ### `@knownValues` {#@knownValues}
@@ -530,24 +507,12 @@ dec visibility(target: ModelProperty, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` |  |
-
-#### Examples
-
-```typespec
-model Dog {
-// the service will generate an ID, so you don't need to send it.
-@visibility("read") id: int32;
-// the service will store this secret name, but won't ever return it
-@visibility("create", "update") secretName: string;
-// the regular name is always present
-name: string;
-}
-```
+| visibilities | `model string[]` | List of visibilities which apply to this property. |
 
 
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
+Set the visibility of key properties in a model if not already set.
 
 ```typespec
 dec withDefaultKeyVisibility(target: Model, visibility: unknown)
@@ -560,11 +525,12 @@ dec withDefaultKeyVisibility(target: Model, visibility: unknown)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `(intrinsic) unknown` |  |
+| visibility | `(intrinsic) unknown` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
+Returns the model with any default values removed.
 
 ```typespec
 dec withoutDefaultValues(target: Model)
@@ -580,6 +546,7 @@ None
 
 ### `@withoutOmittedProperties` {#@withoutOmittedProperties}
 
+Returns the model with the given properties omitted.
 
 ```typespec
 dec withoutOmittedProperties(target: Model, omit: string | Union)
@@ -592,11 +559,12 @@ dec withoutOmittedProperties(target: Model, omit: string | Union)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| omit | `union string \| Union` |  |
+| omit | `union string \| Union` | List of properties to omit |
 
 
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
+Returns the model with non-updateable properties removed.
 
 ```typespec
 dec withUpdateableProperties(target: Model)
@@ -633,34 +601,6 @@ dec withVisibility(target: Model, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` |  |
-
-#### Examples
-
-```typespec
-model Dog {
-@visibility("read") id: int32;
-@visibility("create", "update") secretName: string;
-name: string;
-}
-
-// The spread operator will copy all the properties of Dog into DogRead,
-// and @withVisibility will then remove those that are not visible with
-// create or update visibility.
-//
-// In this case, the id property is removed, and the name and secretName
-// properties are kept.
-@withVisibility("create", "update")
-model DogCreateOrUpdate {
-...Dog;
-}
-
-// In this case the id and name properties are kept and the secretName property
-// is removed.
-@withVisibility("read")
-model DogRead {
-...Dog;
-}
-```
+| visibilities | `model string[]` | List of visibilities which apply to this property. |
 
 
