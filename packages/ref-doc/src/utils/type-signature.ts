@@ -18,7 +18,7 @@ import {
 /** @internal */
 export function getTypeSignature(type: Type | ValueType): string {
   if (type.kind === "Value") {
-    return `valueof ${getTypeSignature(type)}`;
+    return `valueof ${getTypeSignature(type.target)}`;
   }
   if (isReflectionType(type)) {
     return type.name;
