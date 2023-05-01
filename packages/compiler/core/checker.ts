@@ -186,8 +186,8 @@ export interface Checker {
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]];
 

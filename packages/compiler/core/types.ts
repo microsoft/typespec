@@ -1268,7 +1268,7 @@ export type Modifier = ExternKeywordNode;
  * Represent a decorator declaration
  * @example
  * ```typespec
- * extern dec doc(target: Type, value: StringLiteral);
+ * extern dec doc(target: Type, value: valueof string);
  * ```
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
