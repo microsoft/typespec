@@ -956,5 +956,19 @@ describe("compiler: checker: type relations", () => {
         }`);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    // BackCompat added May 2023 Sprint: by June 2023 sprint. From this PR: https://github.com/microsoft/typespec/pull/1877
+    it("BACKCOMPAT: can use valueof in template parameter constraints", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo<T extends string> {
+          @doc(T)
+          prop1: int16;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "deprecated",
+        message:
+          "Deprecated: Template constrainted to 'string' will not be assignable to 'valueof string' in the future. Update the constraint to be 'valueof string'",
+      });
+    });
   });
 });

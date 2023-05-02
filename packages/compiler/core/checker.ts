@@ -1,6 +1,6 @@
 import { getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
-import { ProjectionError, compilerAssert } from "./diagnostics.js";
+import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
@@ -4681,6 +4681,22 @@ export function createChecker(program: Program): Checker {
     target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]] {
+    // BACKCOMPAT: Added May 2023 sprint, to be removed by June 2023 sprint
+    if (source.kind === "TemplateParameter" && source.constraint && target.kind === "Value") {
+      const [assignable] = isTypeAssignableTo(source.constraint, target.target, diagnosticTarget);
+      if (assignable) {
+        const constraint = getTypeName(source.constraint);
+        reportDeprecated(
+          program,
+          `Template constrainted to '${constraint}' will not be assignable to '${getTypeName(
+            target
+          )}' in the future. Update the constraint to be 'valueof ${constraint}'`,
+          diagnosticTarget
+        );
+        return [true, []];
+      }
+    }
+
     if (source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
