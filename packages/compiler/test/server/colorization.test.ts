@@ -45,6 +45,7 @@ const Token = {
     else: createToken("else", "keyword.other.tsp"),
     to: createToken("to", "keyword.other.tsp"),
     from: createToken("from", "keyword.other.tsp"),
+    valueof: createToken("valueof", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
 
@@ -144,6 +145,24 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.typeParameters.end,
           Token.operators.assignment,
           Token.identifiers.type("T"),
+        ]);
+      });
+    });
+
+    describe("valueof", () => {
+      it("simple valueof", async () => {
+        const tokens = await tokenize("model Foo<T extends valueof string> {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.keywords.valueof,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
         ]);
       });
     });

@@ -225,7 +225,7 @@ const valueOfExpression: BeginEndRule = {
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
   },
-  end: universalEnd,
+  end: `(?=>)|${universalEnd}`,
   patterns: [expression],
 };
 
