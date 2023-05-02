@@ -106,9 +106,7 @@ function updateDependencyVersions(
         const updatedPackage = updatedPackages[name];
         if (updatedPackage) {
           // Loose dependency accept anything above the last release. This make sure that preview release of only one package need to be bumped without needing all the other as well.
-          dependencies[
-            name
-          ] = `>=${updatedPackage.nextVersion}-dev || >=${updatedPackage.oldVersion}`;
+          dependencies[name] = getDevVersionRange(updatedPackage);
           // change to this line to have strict dependency for preview versions
           // dependencies[name] = `~${updatedPackage.newVersion}`;
         } else {
@@ -120,6 +118,10 @@ function updateDependencyVersions(
   }
 
   return clone;
+}
+
+function getDevVersionRange(manifest: BumpManifest) {
+  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-dev <${manifest.nextVersion}`;
 }
 
 function getDevVersion(version: string, changeCount: number) {
