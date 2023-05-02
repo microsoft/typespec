@@ -153,8 +153,8 @@ async function addPrereleaseNumber(
     updatedManifests[packageName] = {
       packageJsonPath,
       oldVersion: packageJsonContent.version,
-      nextVersion: getDevVersion(packageInfo.version, changeCount),
-      newVersion: newVersion,
+      nextVersion: getNextVersion(packageInfo.version),
+      newVersion,
       manifest: {
         ...packageJsonContent,
         version: newVersion,
