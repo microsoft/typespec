@@ -28,7 +28,18 @@ interface PackageJson {
 
 interface BumpManifest {
   packageJsonPath: string;
+  /**
+   * Old version
+   */
   oldVersion: string;
+  /**
+   * Next stable version
+   */
+  nextVersion: string;
+
+  /**
+   * Current dev version
+   */
   newVersion: string;
   manifest: PackageJson;
 }
@@ -80,7 +91,10 @@ async function getPackages(
  * @param {*} packageManifest
  * @param {*} updatedPackages
  */
-function updateDependencyVersions(packageManifest: PackageJson, updatedPackages: any) {
+function updateDependencyVersions(
+  packageManifest: PackageJson,
+  updatedPackages: Record<string, BumpManifest>
+) {
   const clone: PackageJson = {
     ...packageManifest,
   };
@@ -92,7 +106,9 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
         const updatedPackage = updatedPackages[name];
         if (updatedPackage) {
           // Loose dependency accept anything above the last release. This make sure that preview release of only one package need to be bumped without needing all the other as well.
-          dependencies[name] = `>=${updatedPackage.oldVersion}`;
+          dependencies[
+            name
+          ] = `>=${updatedPackage.nextVersion}-dev || >=${updatedPackage.oldVersion}`;
           // change to this line to have strict dependency for preview versions
           // dependencies[name] = `~${updatedPackage.newVersion}`;
         } else {
@@ -106,13 +122,18 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
   return clone;
 }
 
-function bumpVersion(version: string, changeCount: number) {
+function getDevVersion(version: string, changeCount: number) {
   if (changeCount === 0) {
     return version;
   }
+  const nextVersion = getNextVersion(version);
+  console.log(`Bumping version ${version} to ${nextVersion}-dev.${changeCount}`);
+  return `${nextVersion}-dev.${changeCount}`;
+}
+
+function getNextVersion(version: string) {
   const [major, minor] = version.split(".").map((x) => parseInt(x, 10));
-  console.log(`Bumping version ${version} to ${major}.${minor + 1}.0-dev.${changeCount}`);
-  return `${major}.${minor + 1}.0-dev.${changeCount}`;
+  return `${major}.${minor + 1}.0`;
 }
 
 async function addPrereleaseNumber(
@@ -124,12 +145,13 @@ async function addPrereleaseNumber(
     const changeCount = changeCounts[packageName] ?? 0;
     const packageJsonPath = join(packageInfo.path, "package.json");
     const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
-    const newVersion = bumpVersion(packageInfo.version, changeCount);
+    const newVersion = getDevVersion(packageInfo.version, changeCount);
 
     console.log(`Setting version for ${packageName} to '${newVersion}'`);
     updatedManifests[packageName] = {
       packageJsonPath,
       oldVersion: packageJsonContent.version,
+      nextVersion: getDevVersion(packageInfo.version, changeCount),
       newVersion: newVersion,
       manifest: {
         ...packageJsonContent,
