@@ -218,6 +218,17 @@ const identifierExpression: MatchRule = {
   match: identifier,
 };
 
+const valueOfExpression: BeginEndRule = {
+  key: "valueof",
+  scope: meta,
+  begin: `\\b(valueof)`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+  },
+  end: universalEnd,
+  patterns: [expression],
+};
+
 const typeArguments: BeginEndRule = {
   key: "type-arguments",
   scope: meta,
@@ -777,6 +788,7 @@ expression.patterns = [
   token,
   directive,
   parenthesizedExpression,
+  valueOfExpression,
   typeArguments,
   tupleExpression,
   modelExpression,

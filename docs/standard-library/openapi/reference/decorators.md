@@ -39,7 +39,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-dec OpenAPI.extension(target: unknown, key: string, value: unknown)
+dec OpenAPI.extension(target: unknown, key: valueof string, value: unknown)
 ```
 
 #### Target
@@ -48,17 +48,17 @@ dec OpenAPI.extension(target: unknown, key: string, value: unknown)
 
 #### Parameters
 
-| Name  | Type                  | Description                         |
-| ----- | --------------------- | ----------------------------------- |
-| key   | `scalar string`       | Extension key. Must start with `x-` |
-| value | `(intrinsic) unknown` | Extension value.                    |
+| Name  | Type                    | Description                         |
+| ----- | ----------------------- | ----------------------------------- |
+| key   | `valueof scalar string` | Extension key. Must start with `x-` |
+| value | `(intrinsic) unknown`   | Extension value.                    |
 
 ### `@externalDocs` {#@OpenAPI.externalDocs}
 
 Specify the OpenAPI `externalDocs` property for this type.
 
 ```typespec
-dec OpenAPI.externalDocs(target: unknown, url: string, description?: string)
+dec OpenAPI.externalDocs(target: unknown, url: valueof string, description?: valueof string)
 ```
 
 #### Target
@@ -67,17 +67,17 @@ dec OpenAPI.externalDocs(target: unknown, url: string, description?: string)
 
 #### Parameters
 
-| Name        | Type            | Description             |
-| ----------- | --------------- | ----------------------- |
-| url         | `scalar string` | Url to the docs         |
-| description | `scalar string` | Description of the docs |
+| Name        | Type                    | Description             |
+| ----------- | ----------------------- | ----------------------- |
+| url         | `valueof scalar string` | Url to the docs         |
+| description | `valueof scalar string` | Description of the docs |
 
 ### `@operationId` {#@OpenAPI.operationId}
 
 Specify the OpenAPI `operationId` property for this operation.
 
 ```typespec
-dec OpenAPI.operationId(target: Operation, operationId: string)
+dec OpenAPI.operationId(target: Operation, operationId: valueof string)
 ```
 
 #### Target
@@ -86,6 +86,6 @@ dec OpenAPI.operationId(target: Operation, operationId: string)
 
 #### Parameters
 
-| Name        | Type            | Description         |
-| ----------- | --------------- | ------------------- |
-| operationId | `scalar string` | Operation id value. |
+| Name        | Type                    | Description         |
+| ----------- | ----------------------- | ------------------- |
+| operationId | `valueof scalar string` | Operation id value. |

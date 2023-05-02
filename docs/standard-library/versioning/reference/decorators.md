@@ -67,7 +67,7 @@ dec TypeSpec.Versioning.removed(target: unknown, version: EnumMember)
 Identifies when the target has been renamed.
 
 ```typespec
-dec TypeSpec.Versioning.renamedFrom(target: unknown, version: EnumMember, oldName: string)
+dec TypeSpec.Versioning.renamedFrom(target: unknown, version: EnumMember, oldName: valueof string)
 ```
 
 #### Target
@@ -76,10 +76,10 @@ dec TypeSpec.Versioning.renamedFrom(target: unknown, version: EnumMember, oldNam
 
 #### Parameters
 
-| Name    | Type            | Description                                 |
-| ------- | --------------- | ------------------------------------------- |
-| version | `EnumMember`    | The version that the target was renamed in. |
-| oldName | `scalar string` | The previous name of the target.            |
+| Name    | Type                    | Description                                 |
+| ------- | ----------------------- | ------------------------------------------- |
+| version | `EnumMember`            | The version that the target was renamed in. |
+| oldName | `valueof scalar string` | The previous name of the target.            |
 
 ### `@typeChangedFrom` {#@TypeSpec.Versioning.typeChangedFrom}
 

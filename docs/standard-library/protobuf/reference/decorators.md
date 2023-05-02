@@ -20,7 +20,7 @@ The field index of a Protobuf message must:
 - not fall within any range that was [marked reserved](#
 
 ```typespec
-dec TypeSpec.Protobuf.field(target: ModelProperty, index: uint32)
+dec TypeSpec.Protobuf.field(target: ModelProperty, index: valueof uint32)
 ```
 
 #### Target
@@ -29,9 +29,9 @@ dec TypeSpec.Protobuf.field(target: ModelProperty, index: uint32)
 
 #### Parameters
 
-| Name  | Type            | Description                          |
-| ----- | --------------- | ------------------------------------ |
-| index | `scalar uint32` | The whole-number index of the field. |
+| Name  | Type                    | Description                          |
+| ----- | ----------------------- | ------------------------------------ |
+| index | `valueof scalar uint32` | The whole-number index of the field. |
 
 ### `@message` {#@TypeSpec.Protobuf.message}
 
@@ -99,7 +99,7 @@ See _[Protobuf Language Guide - Reserved Fields](https://protobuf.dev/programmin
 information.
 
 ```typespec
-dec TypeSpec.Protobuf.reserve(target: object, ...reservations: string | [uint32, uint32] | uint32[])
+dec TypeSpec.Protobuf.reserve(target: object, ...reservations: valueof string | [uint32, uint32] | uint32[])
 ```
 
 #### Target
@@ -108,9 +108,9 @@ dec TypeSpec.Protobuf.reserve(target: object, ...reservations: string | [uint32,
 
 #### Parameters
 
-| Name         | Type                                           | Description                  |
-| ------------ | ---------------------------------------------- | ---------------------------- |
-| reservations | `model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
+| Name         | Type                                                   | Description                  |
+| ------------ | ------------------------------------------------------ | ---------------------------- |
+| reservations | `valueof model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
 ### `@service` {#@TypeSpec.Protobuf.service}
 

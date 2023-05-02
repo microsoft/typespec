@@ -11,7 +11,7 @@ toc_max_heading_level: 3
 Mark this type as deprecated
 
 ```typespec
-dec deprecated(target: unknown, message: string)
+dec deprecated(target: unknown, message: valueof string)
 ```
 
 #### Target
@@ -21,7 +21,7 @@ dec deprecated(target: unknown, message: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| message | `scalar string` | Deprecation message. |
+| message | `valueof scalar string` | Deprecation message. |
 
 
 ### `@discriminator` {#@discriminator}
@@ -29,7 +29,7 @@ dec deprecated(target: unknown, message: string)
 Specify the property to be used to discriminate this type.
 
 ```typespec
-dec discriminator(target: Model | Union, propertyName: string)
+dec discriminator(target: Model | Union, propertyName: valueof string)
 ```
 
 #### Target
@@ -39,7 +39,7 @@ dec discriminator(target: Model | Union, propertyName: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `scalar string` | The property name to use for discrimination |
+| propertyName | `valueof scalar string` | The property name to use for discrimination |
 
 
 ### `@doc` {#@doc}
@@ -47,7 +47,7 @@ dec discriminator(target: Model | Union, propertyName: string)
 Attach a documentation string.
 
 ```typespec
-dec doc(target: unknown, doc: string, formatArgs?: object)
+dec doc(target: unknown, doc: valueof string, formatArgs?: object)
 ```
 
 #### Target
@@ -57,7 +57,7 @@ dec doc(target: unknown, doc: string, formatArgs?: object)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `scalar string` | Documentation string |
+| doc | `valueof scalar string` | Documentation string |
 | formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
 
 
@@ -94,7 +94,7 @@ This differs from the `@pattern` decorator which is meant to specify a regular e
 The format names are open ended and are left to emitter to interpret.
 
 ```typespec
-dec format(target: string | bytes | ModelProperty, format: string)
+dec format(target: string | bytes | ModelProperty, format: valueof string)
 ```
 
 #### Target
@@ -104,7 +104,7 @@ dec format(target: string | bytes | ModelProperty, format: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| format | `scalar string` | format name. |
+| format | `valueof scalar string` | format name. |
 
 
 ### `@friendlyName` {#@friendlyName}
@@ -112,7 +112,7 @@ dec format(target: string | bytes | ModelProperty, format: string)
 Specifies how a templated type should name their instances.
 
 ```typespec
-dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
+dec friendlyName(target: unknown, name: valueof string, formatArgs?: unknown)
 ```
 
 #### Target
@@ -122,7 +122,7 @@ dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| name | `scalar string` | name the template instance should take |
+| name | `valueof scalar string` | name the template instance should take |
 | formatArgs | `(intrinsic) unknown` | Model with key value used to interpolate the name |
 
 
@@ -131,7 +131,7 @@ dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 A debugging decorator used to inspect a type.
 
 ```typespec
-dec inspectType(target: unknown, text: string)
+dec inspectType(target: unknown, text: valueof string)
 ```
 
 #### Target
@@ -141,7 +141,7 @@ dec inspectType(target: unknown, text: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` | Custom text to log |
+| text | `valueof scalar string` | Custom text to log |
 
 
 ### `@inspectTypeName` {#@inspectTypeName}
@@ -149,7 +149,7 @@ dec inspectType(target: unknown, text: string)
 A debugging decorator used to inspect a type name.
 
 ```typespec
-dec inspectTypeName(target: unknown, text: string)
+dec inspectTypeName(target: unknown, text: valueof string)
 ```
 
 #### Target
@@ -159,7 +159,7 @@ dec inspectTypeName(target: unknown, text: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` | Custom text to log |
+| text | `valueof scalar string` | Custom text to log |
 
 
 ### `@key` {#@key}
@@ -167,7 +167,7 @@ dec inspectTypeName(target: unknown, text: string)
 Mark a model property as the key to identify instances of that type
 
 ```typespec
-dec key(target: ModelProperty, altName?: string)
+dec key(target: ModelProperty, altName?: valueof string)
 ```
 
 #### Target
@@ -177,7 +177,7 @@ dec key(target: ModelProperty, altName?: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `scalar string` | Name of the property. If not specified, the decorated property name is used. |
+| altName | `valueof scalar string` | Name of the property. If not specified, the decorated property name is used. |
 
 
 ### `@knownValues` {#@knownValues}
@@ -203,7 +203,7 @@ dec knownValues(target: string | numeric | ModelProperty, values: Enum)
 Specify the maximum number of items this array should have.
 
 ```typespec
-dec maxItems(target: unknown[] | ModelProperty, value: integer)
+dec maxItems(target: unknown[] | ModelProperty, value: valueof integer)
 ```
 
 #### Target
@@ -213,7 +213,7 @@ dec maxItems(target: unknown[] | ModelProperty, value: integer)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Maximum number |
+| value | `valueof scalar integer` | Maximum number |
 
 
 ### `@maxLength` {#@maxLength}
@@ -221,7 +221,7 @@ dec maxItems(target: unknown[] | ModelProperty, value: integer)
 Specify the maximum length this string type should be.
 
 ```typespec
-dec maxLength(target: string | ModelProperty, value: integer)
+dec maxLength(target: string | ModelProperty, value: valueof integer)
 ```
 
 #### Target
@@ -231,7 +231,7 @@ dec maxLength(target: string | ModelProperty, value: integer)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Maximum length |
+| value | `valueof scalar integer` | Maximum length |
 
 
 ### `@maxValue` {#@maxValue}
@@ -239,7 +239,7 @@ dec maxLength(target: string | ModelProperty, value: integer)
 Specify the maximum value this numeric type should be.
 
 ```typespec
-dec maxValue(target: numeric | ModelProperty, value: numeric)
+dec maxValue(target: numeric | ModelProperty, value: valueof numeric)
 ```
 
 #### Target
@@ -249,7 +249,7 @@ dec maxValue(target: numeric | ModelProperty, value: numeric)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Maximum value |
+| value | `valueof scalar numeric` | Maximum value |
 
 
 ### `@maxValueExclusive` {#@maxValueExclusive}
@@ -258,7 +258,7 @@ Specify the maximum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
+dec maxValueExclusive(target: numeric | ModelProperty, value: valueof numeric)
 ```
 
 #### Target
@@ -268,7 +268,7 @@ dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Maximum value |
+| value | `valueof scalar numeric` | Maximum value |
 
 
 ### `@minItems` {#@minItems}
@@ -276,7 +276,7 @@ dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
 Specify the minimum number of items this array should have.
 
 ```typespec
-dec minItems(target: unknown[] | ModelProperty, value: integer)
+dec minItems(target: unknown[] | ModelProperty, value: valueof integer)
 ```
 
 #### Target
@@ -286,7 +286,7 @@ dec minItems(target: unknown[] | ModelProperty, value: integer)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Minimum number |
+| value | `valueof scalar integer` | Minimum number |
 
 
 ### `@minLength` {#@minLength}
@@ -294,7 +294,7 @@ dec minItems(target: unknown[] | ModelProperty, value: integer)
 Specify the minimum length this string type should be.
 
 ```typespec
-dec minLength(target: string | ModelProperty, value: integer)
+dec minLength(target: string | ModelProperty, value: valueof integer)
 ```
 
 #### Target
@@ -304,7 +304,7 @@ dec minLength(target: string | ModelProperty, value: integer)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Minimum length |
+| value | `valueof scalar integer` | Minimum length |
 
 
 ### `@minValue` {#@minValue}
@@ -312,7 +312,7 @@ dec minLength(target: string | ModelProperty, value: integer)
 Specify the minimum value this numeric type should be.
 
 ```typespec
-dec minValue(target: numeric | ModelProperty, value: numeric)
+dec minValue(target: numeric | ModelProperty, value: valueof numeric)
 ```
 
 #### Target
@@ -322,7 +322,7 @@ dec minValue(target: numeric | ModelProperty, value: numeric)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Minimum value |
+| value | `valueof scalar numeric` | Minimum value |
 
 
 ### `@minValueExclusive` {#@minValueExclusive}
@@ -331,7 +331,7 @@ Specify the minimum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
+dec minValueExclusive(target: numeric | ModelProperty, value: valueof numeric)
 ```
 
 #### Target
@@ -341,7 +341,7 @@ dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Minimum value |
+| value | `valueof scalar numeric` | Minimum value |
 
 
 ### `@overload` {#@overload}
@@ -369,7 +369,7 @@ The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`,
 Advanced features like look-around, capture groups, and references are not supported.
 
 ```typespec
-dec pattern(target: string | bytes | ModelProperty, pattern: string)
+dec pattern(target: string | bytes | ModelProperty, pattern: valueof string)
 ```
 
 #### Target
@@ -379,7 +379,7 @@ dec pattern(target: string | bytes | ModelProperty, pattern: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| pattern | `scalar string` | Regular expression. |
+| pattern | `valueof scalar string` | Regular expression. |
 
 
 ### `@projectedName` {#@projectedName}
@@ -387,7 +387,7 @@ dec pattern(target: string | bytes | ModelProperty, pattern: string)
 Provide an alternative name for this type.
 
 ```typespec
-dec projectedName(target: unknown, targetName: string, projectedName: string)
+dec projectedName(target: unknown, targetName: valueof string, projectedName: valueof string)
 ```
 
 #### Target
@@ -397,8 +397,8 @@ dec projectedName(target: unknown, targetName: string, projectedName: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| targetName | `scalar string` | Projection target |
-| projectedName | `scalar string` | Alternative name |
+| targetName | `valueof scalar string` | Projection target |
+| projectedName | `valueof scalar string` | Alternative name |
 
 
 ### `@secret` {#@secret}
@@ -447,7 +447,7 @@ dec service(target: Namespace, options?: ServiceOptions)
 Typically a short, single-line description.
 
 ```typespec
-dec summary(target: unknown, summary: string)
+dec summary(target: unknown, summary: valueof string)
 ```
 
 #### Target
@@ -457,7 +457,7 @@ dec summary(target: unknown, summary: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| summary | `scalar string` | Summary string. |
+| summary | `valueof scalar string` | Summary string. |
 
 
 ### `@tag` {#@tag}
@@ -465,7 +465,7 @@ dec summary(target: unknown, summary: string)
 Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
 
 ```typespec
-dec tag(target: Namespace | Interface | Operation, tag: string)
+dec tag(target: Namespace | Interface | Operation, tag: valueof string)
 ```
 
 #### Target
@@ -475,7 +475,7 @@ dec tag(target: Namespace | Interface | Operation, tag: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| tag | `scalar string` | Tag value |
+| tag | `valueof scalar string` | Tag value |
 
 
 ### `@visibility` {#@visibility}
@@ -497,7 +497,7 @@ with standard emitters that interpret them as follows:
 See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
 
 ```typespec
-dec visibility(target: ModelProperty, ...visibilities: string[])
+dec visibility(target: ModelProperty, ...visibilities: valueof string[])
 ```
 
 #### Target
@@ -507,7 +507,7 @@ dec visibility(target: ModelProperty, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof model string[]` | List of visibilities which apply to this property. |
 
 
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
@@ -515,7 +515,7 @@ dec visibility(target: ModelProperty, ...visibilities: string[])
 Set the visibility of key properties in a model if not already set.
 
 ```typespec
-dec withDefaultKeyVisibility(target: Model, visibility: unknown)
+dec withDefaultKeyVisibility(target: Model, visibility: valueof string)
 ```
 
 #### Target
@@ -525,7 +525,7 @@ dec withDefaultKeyVisibility(target: Model, visibility: unknown)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `(intrinsic) unknown` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
+| visibility | `valueof scalar string` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
@@ -591,7 +591,7 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: Model, ...visibilities: string[])
+dec withVisibility(target: Model, ...visibilities: valueof string[])
 ```
 
 #### Target
@@ -601,6 +601,6 @@ dec withVisibility(target: Model, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof model string[]` | List of visibilities which apply to this property. |
 
 

@@ -120,7 +120,7 @@ dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | T
 Specify if inapplicable metadata should be included in the payload for the given entity.
 
 ```typespec
-dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: boolean)
+dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean)
 ```
 
 #### Target
@@ -129,9 +129,9 @@ dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: b
 
 #### Parameters
 
-| Name  | Type             | Description                                                     |
-| ----- | ---------------- | --------------------------------------------------------------- |
-| value | `scalar boolean` | If true, inapplicable metadata will be included in the payload. |
+| Name  | Type                     | Description                                                     |
+| ----- | ------------------------ | --------------------------------------------------------------- |
+| value | `valueof scalar boolean` | If true, inapplicable metadata will be included in the payload. |
 
 ### `@patch` {#@TypeSpec.Http.patch}
 
@@ -160,7 +160,7 @@ None
 Explicitly specify that this property is to be interpolated as a path parameter.
 
 ```typespec
-dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
+dec TypeSpec.Http.path(target: ModelProperty, paramName?: valueof string)
 ```
 
 #### Target
@@ -169,9 +169,9 @@ dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
 
 #### Parameters
 
-| Name      | Type            | Description                                         |
-| --------- | --------------- | --------------------------------------------------- |
-| paramName | `scalar string` | Optional name of the parameter in the url template. |
+| Name      | Type                    | Description                                         |
+| --------- | ----------------------- | --------------------------------------------------- |
+| paramName | `valueof scalar string` | Optional name of the parameter in the url template. |
 
 ### `@post` {#@TypeSpec.Http.post}
 
@@ -246,7 +246,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: (anonymous model))
+dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: valueof string, options?: (anonymous model))
 ```
 
 #### Target
@@ -257,7 +257,7 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 
 | Name    | Type                      | Description                                                                                                                                  |
 | ------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `scalar string`           | Relative route path. Cannot include query parameters.                                                                                        |
+| path    | `valueof scalar string`   | Relative route path. Cannot include query parameters.                                                                                        |
 | options | `model (anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ### `@server` {#@TypeSpec.Http.server}
@@ -265,7 +265,7 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 Specify the endpoint for this service.
 
 ```typespec
-dec TypeSpec.Http.server(target: Namespace, url: string, description: string, parameters?: object)
+dec TypeSpec.Http.server(target: Namespace, url: valueof string, description: valueof string, parameters?: object)
 ```
 
 #### Target
@@ -274,11 +274,11 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 
 #### Parameters
 
-| Name        | Type            | Description                                             |
-| ----------- | --------------- | ------------------------------------------------------- |
-| url         | `scalar string` | Server endpoint                                         |
-| description | `scalar string` | Description of the endpoint                             |
-| parameters  | `model object`  | Optional set of parameters used to interpolate the url. |
+| Name        | Type                    | Description                                             |
+| ----------- | ----------------------- | ------------------------------------------------------- |
+| url         | `valueof scalar string` | Server endpoint                                         |
+| description | `valueof scalar string` | Description of the endpoint                             |
+| parameters  | `model object`          | Optional set of parameters used to interpolate the url. |
 
 ### `@sharedRoute` {#@TypeSpec.Http.sharedRoute}
 

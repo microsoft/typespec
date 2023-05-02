@@ -13,7 +13,7 @@ toc_max_heading_level: 3
 Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
 
 ```typespec
-dec TypeSpec.Rest.action(target: Operation, name?: string)
+dec TypeSpec.Rest.action(target: Operation, name?: valueof string)
 ```
 
 #### Target
@@ -22,16 +22,16 @@ dec TypeSpec.Rest.action(target: Operation, name?: string)
 
 #### Parameters
 
-| Name | Type            | Description                                                                   |
-| ---- | --------------- | ----------------------------------------------------------------------------- |
-| name | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
+| Name | Type                    | Description                                                                   |
+| ---- | ----------------------- | ----------------------------------------------------------------------------- |
+| name | `valueof scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@actionSeparator` {#@TypeSpec.Rest.actionSeparator}
 
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```typespec
-dec TypeSpec.Rest.actionSeparator(target: Model | ModelProperty | Operation, seperator: / | : | /:)
+dec TypeSpec.Rest.actionSeparator(target: Model | ModelProperty | Operation, seperator: valueof / | : | /:)
 ```
 
 #### Target
@@ -40,9 +40,9 @@ dec TypeSpec.Rest.actionSeparator(target: Model | ModelProperty | Operation, sep
 
 #### Parameters
 
-| Name      | Type                 | Description                                                      |
-| --------- | -------------------- | ---------------------------------------------------------------- |
-| seperator | `union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
+| Name      | Type                         | Description                                                      |
+| --------- | ---------------------------- | ---------------------------------------------------------------- |
+| seperator | `valueof union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
 
 ### `@autoRoute` {#@TypeSpec.Rest.autoRoute}
 
@@ -74,7 +74,7 @@ get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
 Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
 
 ```typespec
-dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?: string)
+dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?: valueof string)
 ```
 
 #### Target
@@ -83,10 +83,10 @@ dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?
 
 #### Parameters
 
-| Name         | Type            | Description                                                                   |
-| ------------ | --------------- | ----------------------------------------------------------------------------- |
-| resourceType | `Model`         | Resource marked with                                                          |
-| name         | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
+| Name         | Type                    | Description                                                                   |
+| ------------ | ----------------------- | ----------------------------------------------------------------------------- |
+| resourceType | `Model`                 | Resource marked with                                                          |
+| name         | `valueof scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
 
@@ -201,7 +201,7 @@ dec TypeSpec.Rest.readsResource(target: Operation, resourceType: Model)
 Mark this model as a resource type with a name.
 
 ```typespec
-dec TypeSpec.Rest.resource(target: Model, collectionName: string)
+dec TypeSpec.Rest.resource(target: Model, collectionName: valueof string)
 ```
 
 #### Target
@@ -210,16 +210,16 @@ dec TypeSpec.Rest.resource(target: Model, collectionName: string)
 
 #### Parameters
 
-| Name           | Type            | Description            |
-| -------------- | --------------- | ---------------------- |
-| collectionName | `scalar string` | type's collection name |
+| Name           | Type                    | Description            |
+| -------------- | ----------------------- | ---------------------- |
+| collectionName | `valueof scalar string` | type's collection name |
 
 ### `@segment` {#@TypeSpec.Rest.segment}
 
 Defines the preceding path segment for a
 
 ```typespec
-dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: string)
+dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: valueof string)
 ```
 
 #### Target
@@ -228,9 +228,9 @@ dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: strin
 
 #### Parameters
 
-| Name | Type            | Description                                                                                    |
-| ---- | --------------- | ---------------------------------------------------------------------------------------------- |
-| name | `scalar string` | Segment that will be inserted into the operation route before the path parameter's name field. |
+| Name | Type                    | Description                                                                                    |
+| ---- | ----------------------- | ---------------------------------------------------------------------------------------------- |
+| name | `valueof scalar string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
 ### `@segmentOf` {#@TypeSpec.Rest.segmentOf}
 
