@@ -2,15 +2,15 @@ import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
+  Token,
+  TokenDisplay,
+  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
   isTrivia,
-  Token,
-  TokenDisplay,
-  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
@@ -1398,7 +1398,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     recoverFromKeyword?: boolean;
   }): IdentifierNode {
     if (options?.recoverFromKeyword !== false && isKeyword(token())) {
-      console.trace("ABc");
       error({ code: "reserved-identifier" });
     } else if (
       token() !== Token.Identifier &&
