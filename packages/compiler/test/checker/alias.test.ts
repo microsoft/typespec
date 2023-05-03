@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { Model, Union } from "../../core/types.js";
+import { Model, Type, Union } from "../../core/types.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
 
 describe("compiler: aliases", () => {
@@ -9,6 +9,9 @@ describe("compiler: aliases", () => {
     testHost = await createTestHost();
   });
 
+  function getOptionAtIndex(union: Union, index: number): Type {
+    return [...union.variants.values()][index];
+  }
   it("can alias a union expression", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -28,11 +31,11 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 4);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "Scalar");
-    strictEqual(propType.options[2].kind, "String");
-    strictEqual(propType.options[3].kind, "Number");
+    strictEqual(propType.variants.size, 4);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 2).kind, "String");
+    strictEqual(getOptionAtIndex(propType, 3).kind, "Number");
   });
 
   it("can alias a deep union expression", async () => {
@@ -55,12 +58,12 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 5);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "Scalar");
-    strictEqual(propType.options[2].kind, "String");
-    strictEqual(propType.options[3].kind, "Number");
-    strictEqual(propType.options[4].kind, "String");
+    strictEqual(propType.variants.size, 5);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 2).kind, "String");
+    strictEqual(getOptionAtIndex(propType, 3).kind, "Number");
+    strictEqual(getOptionAtIndex(propType, 4).kind, "String");
   });
 
   it("can alias a union expression with parameters", async () => {
@@ -81,9 +84,9 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 2);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "String");
+    strictEqual(propType.variants.size, 2);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "String");
   });
 
   it("can alias a deep union expression with parameters", async () => {
@@ -105,11 +108,11 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 4);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "String");
-    strictEqual(propType.options[2].kind, "Scalar");
-    strictEqual(propType.options[3].kind, "Number");
+    strictEqual(propType.variants.size, 4);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "String");
+    strictEqual(getOptionAtIndex(propType, 2).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 3).kind, "Number");
   });
 
   it("can alias an intersection expression", async () => {
