@@ -339,6 +339,39 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  */
 extern dec discriminator(target: Model | Union, propertyName: string);
 
+// Todo uncomment when valueof allows converting enum member to string
+enum DateTimeKnownEncoding {
+  /**
+   * RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt
+   * Encode to string.
+   */
+  rfc3339: "rfc3339",
+  /**
+   * RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt
+   * Encode to string.
+   */
+  rfc7231: "rfc7231",
+  /**
+   * Encode to integer
+   */
+  unixTimestamp: "unixTimestamp",
+}
+
+enum DurationKnownEncoding {
+  rfc3339: "rfc3339",
+  /**
+   * Encode to integer or float
+   */
+  seconds: "seconds",
+}
+
+/**
+ * Specify how to encode the target type.
+ * @param encoding Known name of an encoding.
+ * @param encodedAs What target type is this being encoded as. Default to string.
+ */
+extern dec encode(target: unknown, encoding: string | EnumMember, encodedAs: string | numeric);
+
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
