@@ -95,6 +95,18 @@ export function $onValidate(program: Program) {
       },
       namespace: (namespace) => {
         const [_, versionMap] = getVersions(program, namespace);
+        const size = versionMap?.size;
+        const values = new Set(versionMap?.getVersions().map((v) => v.value));
+        if (size && values) {
+          if (size !== values.size) {
+            const enumName = versionMap.getVersions()[0].enumMember.enum.name;
+            reportDiagnostic(program, {
+              code: "version-duplicate",
+              format: { name: enumName },
+              target: namespace,
+            });
+          }
+        }
         const serviceProps = getService(program, namespace);
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
