@@ -392,6 +392,8 @@ describe("compiler: built-in decorators", () => {
     describe("known encoding validation", () => {
       const validCases = [
         ["utcDateTime", "rfc3339", undefined],
+        ["utcDateTime", "rfc7231", undefined],
+        ["offsetDateTime", "rfc3339", undefined],
         ["offsetDateTime", "rfc7231", undefined],
         ["utcDateTime", "unixTimeStamp", undefined],
         ["duration", "ISO8601", undefined],

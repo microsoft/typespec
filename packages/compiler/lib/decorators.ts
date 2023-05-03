@@ -569,7 +569,11 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
     const checker = context.program.checker;
     const isTargetValid = validTargets.some((validTarget) => {
       return ignoreDiagnostics(
-        checker.isTypeAssignableTo(target, checker.getStdType(validTarget), target)
+        checker.isTypeAssignableTo(
+          target.projectionBase ?? target,
+          checker.getStdType(validTarget),
+          target
+        )
       );
     });
 
@@ -587,7 +591,11 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
     }
     const isEncodingTypeValid = validEncodeTypes.some((validEncoding) => {
       return ignoreDiagnostics(
-        checker.isTypeAssignableTo(encodeData.type, checker.getStdType(validEncoding), target)
+        checker.isTypeAssignableTo(
+          encodeData.type.projectionBase ?? encodeData.type,
+          checker.getStdType(validEncoding),
+          target
+        )
       );
     });
 
