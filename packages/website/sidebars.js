@@ -134,6 +134,7 @@ const sidebars = {
       label: "Writing TypeSpec Libraries",
       items: [
         "extending-typespec/basics",
+        "extending-typespec/diagnostics",
         "extending-typespec/create-decorators",
         "extending-typespec/linters",
         "extending-typespec/emitters",
