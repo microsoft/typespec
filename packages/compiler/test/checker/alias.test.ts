@@ -10,7 +10,7 @@ describe("compiler: aliases", () => {
   });
 
   function getOptionAtIndex(union: Union, index: number): Type {
-    return [...union.variants.values()][index];
+    return [...union.variants.values()][index].type;
   }
   it("can alias a union expression", async () => {
     testHost.addTypeSpecFile(
