@@ -339,7 +339,9 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  */
 extern dec discriminator(target: Model | Union, propertyName: string);
 
-// Todo uncomment when valueof allows converting enum member to string
+/**
+ * Known encoding to use on utcDateTime or offsetDateTime
+ */
 enum DateTimeKnownEncoding {
   /**
    * RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt
@@ -357,8 +359,28 @@ enum DateTimeKnownEncoding {
   unixTimestamp: "unixTimestamp",
 }
 
+/**
+ * Known encoding to use on duration
+ */
 enum DurationKnownEncoding {
-  rfc3339: "rfc3339",
+  /**
+   * ISO8601 duration
+   */
+  ISO8601: "ISO8601",
+  /**
+   * Encode to integer or float
+   */
+  seconds: "seconds",
+}
+
+/**
+ * Known encoding to use on bytes
+ */
+enum BytesKnownEncoding {
+  /**
+   * ISO8601 duration
+   */
+  ISO8601: "ISO8601",
   /**
    * Encode to integer or float
    */
@@ -370,7 +392,11 @@ enum DurationKnownEncoding {
  * @param encoding Known name of an encoding.
  * @param encodedAs What target type is this being encoded as. Default to string.
  */
-extern dec encode(target: unknown, encoding: string | EnumMember, encodedAs: string | numeric);
+extern dec encode(
+  target: Scalar | ModelProperty,
+  encoding: string | EnumMember,
+  encodedAs?: string | numeric
+);
 
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
