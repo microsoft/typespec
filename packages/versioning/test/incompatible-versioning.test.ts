@@ -79,7 +79,6 @@ describe("versioning: incompatible use of decorators", () => {
       severity: "error",
     });
   });
-
 });
 
 describe("versioning: validate incompatible references", () => {
