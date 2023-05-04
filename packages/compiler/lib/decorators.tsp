@@ -391,6 +391,20 @@ enum BytesKnownEncoding {
  * Specify how to encode the target type.
  * @param encoding Known name of an encoding.
  * @param encodedAs What target type is this being encoded as. Default to string.
+ *
+ * @example offsetDateTime encoded with rfc7231
+ *
+ * ```tsp
+ * @encode("rfc7231")
+ * scalar myDateTime extends offsetDateTime;
+ * ```
+ *
+ * @example utcDateTime encoded with unixTimestamp
+ *
+ * ```tsp
+ * @encode("unixTimestamp", int32)
+ * scalar myDateTime extends unixTimestamp;
+ * ```
  */
 extern dec encode(
   target: Scalar | ModelProperty,

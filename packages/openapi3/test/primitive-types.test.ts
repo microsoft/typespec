@@ -224,7 +224,7 @@ describe("openapi3: primitives", () => {
       it("set format to 'date-time' by default", () =>
         testEncode("offsetDateTime", { type: "string", format: "date-time" }));
       it("set format to 'date-time-rfc7231' when encoding is rfc7231", () =>
-        testEncode("offsetDateTime", { type: "string", format: "date-time-rfc7231" }, "timestamp"));
+        testEncode("offsetDateTime", { type: "string", format: "date-time-rfc7231" }, "rfc7231"));
     });
 
     describe("duration", () => {

@@ -1,4 +1,5 @@
 import {
+  isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
@@ -8,6 +9,7 @@ import {
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
+  reportDeprecated,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
@@ -209,6 +211,14 @@ export function $format(context: DecoratorContext, target: Scalar | ModelPropert
 
   if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
     return;
+  }
+  const targetType = getPropertyType(target);
+  if (targetType.kind === "Scalar" && isIntrinsicType(context.program, targetType, "bytes")) {
+    reportDeprecated(
+      context.program,
+      "Using `@format` on a bytes scalar is deprecated. Use `@encode` instead. https://github.com/microsoft/typespec/issues/1873",
+      target
+    );
   }
 
   context.program.stateMap(formatValuesKey).set(target, format);
