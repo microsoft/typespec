@@ -1,4 +1,4 @@
-import { createCadlLibrary, JSONSchemaType } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
 
 export interface HttpLowLevelOptions {
   "ignore-docs"?: boolean;
@@ -16,8 +16,8 @@ const EmitterOptionsSchema: JSONSchemaType<HttpLowLevelOptions> = {
   required: [],
 };
 
-export const $lib = createCadlLibrary({
-  name: "@cadl-lang/http-low-level",
+export const $lib = createTypeSpecLibrary({
+  name: "@typespec/http-low-level",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<HttpLowLevelOptions>,
