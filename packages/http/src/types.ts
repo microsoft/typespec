@@ -245,9 +245,9 @@ export interface HttpOperationParameters {
 
   body?: HttpOperationRequestBody;
 
-  /** @deprecated use @see body.type */
+  /** @deprecated use {@link body.type} */
   bodyType?: Type;
-  /** @deprecated use @see body.property */
+  /** @deprecated use {@link body.parameter} */
   bodyParameter?: ModelProperty;
 
   /**

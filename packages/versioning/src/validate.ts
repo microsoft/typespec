@@ -95,6 +95,7 @@ export function $onValidate(program: Program) {
       },
       namespace: (namespace) => {
         const [_, versionMap] = getVersions(program, namespace);
+        validateVersionEnumValuesUnique(program, namespace);
         const serviceProps = getService(program, namespace);
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
@@ -161,6 +162,23 @@ export function $onValidate(program: Program) {
     { includeTemplateDeclaration: true }
   );
   validateVersionedNamespaceUsage(program, namespaceDependencies);
+}
+
+/**
+ * Ensures that the version enum for a @versioned namespace has unique values.
+ */
+function validateVersionEnumValuesUnique(program: Program, namespace: Namespace) {
+  const [_, versionMap] = getVersions(program, namespace);
+  if (versionMap === undefined) return;
+  const values = new Set(versionMap.getVersions().map((v) => v.value));
+  if (versionMap.size !== values.size) {
+    const enumName = versionMap.getVersions()[0].enumMember.enum.name;
+    reportDiagnostic(program, {
+      code: "version-duplicate",
+      format: { name: enumName },
+      target: namespace,
+    });
+  }
 }
 
 function validateVersionedNamespaceUsage(

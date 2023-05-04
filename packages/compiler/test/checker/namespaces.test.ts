@@ -604,9 +604,8 @@ describe("compiler: namespace type name", () => {
     );
 
     const { SomeModel, AnotherModel } = await testHost.compile("./main.tsp");
-    const checker = testHost.program.checker;
-    strictEqual(checker.getTypeName(SomeModel), "SomeNamespace.SomeModel");
-    strictEqual(checker.getTypeName(AnotherModel), "AnotherNamespace.AnotherModel");
+    strictEqual(getTypeName(SomeModel), "SomeNamespace.SomeModel");
+    strictEqual(getTypeName(AnotherModel), "AnotherNamespace.AnotherModel");
   });
 });
 
