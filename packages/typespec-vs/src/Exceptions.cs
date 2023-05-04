@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.VisualStudio
             }), innerException)
         {
         }
-        
+
         public TypeSpecServerNotFoundException(ProcessStartInfo info, Exception? innerException = null)
             : this(Path.Combine(info.WorkingDirectory, info.FileName), innerException)
         {
