@@ -191,7 +191,7 @@
       "packageName": "@typespec/protobuf",
       "projectFolder": "packages/protobuf",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       "packageName": "@typespec/ref-doc",
