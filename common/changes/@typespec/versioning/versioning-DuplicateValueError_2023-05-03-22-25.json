@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Added validation preventing version enums from having duplicate values.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
