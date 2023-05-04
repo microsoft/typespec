@@ -200,7 +200,7 @@
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/http-low-level",
+      "packageName": "@typespec/http-low-level",
       "projectFolder": "packages/http-low-level",
       "reviewCategory": "production",
       "shouldPublish": false

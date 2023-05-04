@@ -48,7 +48,7 @@
     "@typespec/openapi3": "~0.43.0",
     "@typespec/openapi": "~0.43.0",
     "@typespec/protobuf": "~0.43.0",
-    "@cadl-lang/http-low-level": "~0.43.0",
+    "@typespec/http-low-level": "~0.43.0",
     "@typespec/html-program-viewer": "~0.43.0",
     "@emotion/react": "^11.10.4",
     "@vitejs/plugin-react": "~3.1.0",
