@@ -34,7 +34,7 @@ export async function getCompilerOptions(
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
-  const configPath = args["config"] ?? cwd;
+  const configPath = args["config"] ?? normalizePath(cwd);
 
   const config = await loadTypeSpecConfigForPath(host, configPath, "config" in args);
   if (config.diagnostics.length > 0) {
