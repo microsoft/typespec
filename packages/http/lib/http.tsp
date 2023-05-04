@@ -30,6 +30,9 @@ model Body<T> {
   body: T;
 }
 
+/**
+ * The Location header contains the URL where the status of the long running operation can be checked.
+ */
 model LocationHeader {
   @doc("The Location header contains the URL where the status of the long running operation can be checked.")
   @header
@@ -40,18 +43,52 @@ model LocationHeader {
 // to update the default descriptions for these status codes. This ensures
 // that we get consistent emit between different ways to spell the same
 // responses in TypeSpec.
+
+/**
+ * The request has succeeded.
+ */
 model OkResponse is Response<200>;
+/**
+ * The request has succeeded and a new resource has been created as a result.
+ */
 model CreatedResponse is Response<201>;
+/**
+ * The request has been accepted for processing, but processing has not yet completed.
+ */
 model AcceptedResponse is Response<202>;
+/**
+ * There is no content to send for this request, but the headers may be useful.
+ */
 model NoContentResponse is Response<204>;
+/**
+ * The URL of the requested resource has been changed permanently. The new URL is given in the response.
+ */
 model MovedResponse is Response<301> {
   ...LocationHeader;
 }
+/**
+ * The client has made a conditional request and the resource has not been modified.
+ */
 model NotModifiedResponse is Response<304>;
+/**
+ * The server could not understand the request due to invalid syntax.
+ */
 model BadRequestResponse is Response<400>;
+/**
+ * Access is unauthorized.
+ */
 model UnauthorizedResponse is Response<401>;
+/**
+ * Access is forbidden.
+ */
 model ForbiddenResponse is Response<403>;
+/**
+ * The server cannot find the requested resource.
+ */
 model NotFoundResponse is Response<404>;
+/**
+ * The request conflicts with the current state of the server.
+ */
 model ConflictResponse is Response<409>;
 
 /**

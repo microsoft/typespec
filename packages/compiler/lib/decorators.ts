@@ -821,15 +821,6 @@ export function getKeyName(program: Program, property: ModelProperty): string {
   return program.stateMap(keyKey).get(property);
 }
 
-/**
- * `@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
- *
- * The first argument accepts a string representing the desired default
- * visibility value.  If a key property already has a `visibility` decorator
- * then the default visibility is not applied.
- *
- * `@withDefaultKeyVisibility` can only be applied to model types.
- */
 export function $withDefaultKeyVisibility(
   context: DecoratorContext,
   entity: Model,

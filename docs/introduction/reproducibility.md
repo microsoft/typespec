@@ -10,9 +10,9 @@ This can be mitigated with a few steps:
 
 ## 1. Defend against dependency changes
 
-_Note: This section applies if using `cadl install` or `npm install` to install dependencies. However other package managers (`yarn`, `pnpm`, etc.) have their own similar lock mechanisms._
+_Note: This section applies if using `tsp install` or `npm install` to install dependencies. However other package managers (`yarn`, `pnpm`, etc.) have their own similar lock mechanisms._
 
-When using `cadl install` or `npm install` a `package-lock.json` will be installed. This file SHOULD be committed to source control. It will ensure that later calls to `cadl install` or `npm install` will use the exact versions resolved in the lock files unless the `package.json` was updated or a command like `npm update` was run.
+When using `tsp install` or `npm install` a `package-lock.json` will be installed. This file SHOULD be committed to source control. It will ensure that later calls to `cadl install` or `npm install` will use the exact versions resolved in the lock files unless the `package.json` was updated or a command like `npm update` was run.
 
 The command `npm ci` can also be used in the CI to ensure that the `package.json` and `package-lock.json` are in sync.
 

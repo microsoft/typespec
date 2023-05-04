@@ -31,6 +31,7 @@ extern dec segment(target: Model | ModelProperty | Operation, name: string);
 
 /**
  * Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
+ * @param type Target model
  */
 extern dec segmentOf(target: Operation, type: Model);
 
@@ -51,59 +52,62 @@ extern dec resource(target: Model, collectionName: string);
 /**
  * Specify that this is a Read operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec readsResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Create operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec createsResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a CreateOrReplace operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec createsOrReplacesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a CreatesOrUpdate operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec createsOrUpdatesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Update operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec updatesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Delete operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec deletesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a List operation for a given resource.
  *
- * @param resource Resource marked with @resource
+ * @param resourceType Resource marked with @resource
  */
 extern dec listsResource(target: Operation, resourceType: Model);
 
 /**
- * Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
+ * Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
+ * @param name Name of the action. If not specified, the name of the operation will be used.
  */
 extern dec action(target: Operation, name?: string);
 
 /**
  * Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
+ * @param resourceType Resource marked with @resource
+ * @param name Name of the action. If not specified, the name of the operation will be used.
  */
 extern dec collectionAction(target: Operation, resourceType: Model, name?: string);
 
