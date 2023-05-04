@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace Microsoft.TypeSpec.VisualStudio
 {
@@ -31,6 +33,11 @@ namespace Microsoft.TypeSpec.VisualStudio
                 " - typespec is installed globally with `npm install -g @typespec/compiler'.",
                 " - typespec server path is configured with https://github.com/microsoft/typespec/blob/main/packages/typespec-vs/README.md#configure-typespec-visual-studio-extension."
             }), innerException)
+        {
+        }
+        
+        public TypeSpecServerNotFoundException(ProcessStartInfo info, Exception? innerException = null)
+            : this(Path.Combine(info.WorkingDirectory, info.FileName), innerException)
         {
         }
     }
