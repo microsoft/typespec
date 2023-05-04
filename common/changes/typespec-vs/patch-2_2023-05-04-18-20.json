@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vs",
+      "comment": "Added ctor for TypeSpecServerNotFoundException accepting ProcessStartInfo",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vs"
+}
