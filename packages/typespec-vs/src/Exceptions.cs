@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.VisualStudio
     internal sealed class TypeSpecServerNotFoundException : TypeSpecUserErrorException
     {
         public TypeSpecServerNotFoundException(string fileName, Exception? innerException = null)
-            : base(string.Join("\n", new string[]
+            : base(string.Join(Environment.NewLine, new[]
             {
                 $"TypeSpec server executable was not found: '{fileName}' is not found. Make sure either:",
                 " - typespec is installed locally at the root of this workspace or in a parent directory.",
