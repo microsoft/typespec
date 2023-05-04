@@ -1,6 +1,9 @@
 import { expandConfigVariables } from "../../config/config-interpolation.js";
-import { loadCadlConfigForPath, validateConfigPathsAbsolute } from "../../config/config-loader.js";
-import { CadlConfig, EmitterOptions } from "../../config/types.js";
+import {
+  loadTypeSpecConfigForPath,
+  validateConfigPathsAbsolute,
+} from "../../config/config-loader.js";
+import { EmitterOptions, TypeSpecConfig } from "../../config/types.js";
 import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
 import { resolvePath } from "../path-utils.js";
@@ -17,6 +20,7 @@ export interface CompileCliArgs {
   emit?: string[];
   trace?: string[];
   debug?: boolean;
+  config?: string;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
   args?: string[];
@@ -30,8 +34,9 @@ export async function getCompilerOptions(
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
+  const configPath = args["config"] ?? cwd;
 
-  const config = await loadCadlConfigForPath(host, cwd);
+  const config = await loadTypeSpecConfigForPath(host, configPath, "config" in args);
   if (config.diagnostics.length > 0) {
     if (config.diagnostics.some((d) => d.severity === "error")) {
       return [undefined, config.diagnostics];
@@ -41,7 +46,7 @@ export async function getCompilerOptions(
 
   const cliOptions = resolveCliOptions(args);
 
-  const configWithCliArgs: CadlConfig = {
+  const configWithCliArgs: TypeSpecConfig = {
     ...config,
     outputDir: config.outputDir,
     imports: args["import"] ?? config["imports"],
@@ -67,8 +72,8 @@ export async function getCompilerOptions(
     watchForChanges: args["watch"],
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
-
     outputDir: expandedConfig.outputDir,
+    config: args["config"],
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,
@@ -102,7 +107,7 @@ function resolveCliOptions(
         `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
     }
-    const optionKeyParts = optionParts[0].split(".");
+    let optionKeyParts = optionParts[0].split(".");
     if (optionKeyParts.length === 1) {
       const key = optionKeyParts[0];
       if (!("miscOptions" in options)) {
@@ -111,9 +116,11 @@ function resolveCliOptions(
       options.miscOptions[key] = optionParts[1];
       continue;
     } else if (optionKeyParts.length > 2) {
-      throw new Error(
-        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
-      );
+      // support emitter/path/file.js.option=xyz
+      optionKeyParts = [
+        optionKeyParts.slice(0, -1).join("."),
+        optionKeyParts[optionKeyParts.length - 1],
+      ];
     }
     const emitterName = optionKeyParts[0];
     const key = optionKeyParts[1];
@@ -126,7 +133,7 @@ function resolveCliOptions(
 }
 
 function resolveEmitterOptions(
-  config: CadlConfig,
+  config: TypeSpecConfig,
   cliOptions: Record<string | "miscOptions", Record<string, unknown>>
 ): Record<string, EmitterOptions> {
   const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(

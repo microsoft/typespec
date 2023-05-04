@@ -1,33 +1,29 @@
-import { Diagnostic } from "@cadl-lang/compiler";
+import { Diagnostic } from "@typespec/compiler";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   TestHost,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import {
   getAllHttpServices,
   HttpOperation,
   HttpOperationParameter,
   HttpVerb,
   RouteResolutionOptions,
-} from "../src/http/index.js";
+} from "@typespec/http";
+import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
   return createTestHost({
-    libraries: [RestTestLibrary],
+    libraries: [HttpTestLibrary, RestTestLibrary],
   });
 }
-export async function createHttpTestRunner(): Promise<BasicTestRunner> {
-  const host = await createRestTestHost();
-  return createTestWrapper(host, { autoUsings: ["Cadl.Http"] });
-}
-
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
-  return createTestWrapper(host, { autoUsings: ["Cadl.Http", "Cadl.Rest"] });
+  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"] });
 }
 
 export interface RouteDetails {
@@ -75,9 +71,9 @@ export async function compileOperations(
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
         body:
-          r.parameters.bodyParameter?.name ??
-          (r.parameters.bodyType?.kind === "Model"
-            ? Array.from(r.parameters.bodyType.properties.keys())
+          r.parameters.body?.parameter?.name ??
+          (r.parameters.body?.type.kind === "Model"
+            ? Array.from(r.parameters.body?.type.properties.keys())
             : undefined),
       },
     };

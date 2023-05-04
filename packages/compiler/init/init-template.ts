@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
-import { CadlConfigJsonSchema } from "../config/config-schema.js";
-import { CadlRawConfig } from "../config/types.js";
+import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
+import { TypeSpecRawConfig } from "../config/types.js";
 
 export interface InitTemplateFile {
   path: string;
@@ -32,12 +32,18 @@ export interface InitTemplate {
   /**
    * Config
    */
-  config?: CadlRawConfig;
+  config?: TypeSpecRawConfig;
 
   /**
    * Custom inputs to prompt to the user
    */
   inputs?: Record<string, InitTemplateInput>;
+
+  /**
+   * A flag to indicate not adding @typespec/compiler package to package.json.
+   * Other libraries may already brought in the dependency such as Azure template.
+   */
+  skipCompilerPackage?: boolean;
 
   /**
    * List of files to copy.
@@ -52,7 +58,8 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     title: { type: "string" },
     description: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
-    config: { nullable: true, ...CadlConfigJsonSchema },
+    skipCompilerPackage: { type: "boolean", nullable: true },
+    config: { nullable: true, ...TypeSpecConfigJsonSchema },
     inputs: {
       type: "object",
       nullable: true,

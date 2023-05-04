@@ -28,13 +28,16 @@ describe("compiler: server: completion", () => {
         label: "int32",
         insertText: "int32",
         kind: CompletionItemKind.Unit,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.int32\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar int32\n```",
+        },
       },
       {
         label: "Record",
         insertText: "Record",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Record<T>\n```" },
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Record<T>\n```" },
       },
     ]);
   });
@@ -45,19 +48,19 @@ describe("compiler: server: completion", () => {
       const completions = await complete(source, undefined, {
         "test/package.json": JSON.stringify({
           dependencies: {
-            "@cadl-lang/library1": "~0.1.0",
-            "non-cadl-library": "~0.1.0",
+            "@typespec/library1": "~0.1.0",
+            "non-typespec-library": "~0.1.0",
           },
           peerDependencies: {
-            "@cadl-lang/library2": "~0.1.0",
+            "@typespec/library2": "~0.1.0",
           },
         }),
-        "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
-          cadlMain: "./foo.js",
+        "test/node_modules/@typespec/library1/package.json": JSON.stringify({
+          tspMain: "./foo.js",
         }),
-        "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
-        "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
-          cadlMain: "./foo.js",
+        "test/node_modules/non-typespec-library/package.json": JSON.stringify({}),
+        "test/node_modules/@typespec/library2/package.json": JSON.stringify({
+          tspMain: "./foo.js",
         }),
       });
 
@@ -72,18 +75,18 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            label: "@cadl-lang/library1",
+            label: "@typespec/library1",
             textEdit: {
-              newText: "@cadl-lang/library1",
+              newText: "@typespec/library1",
               range: expectedRange,
             },
             kind: CompletionItemKind.Module,
           },
           {
-            label: "@cadl-lang/library2",
+            label: "@typespec/library2",
             kind: CompletionItemKind.Module,
             textEdit: {
-              newText: "@cadl-lang/library2",
+              newText: "@typespec/library2",
               range: expectedRange,
             },
           },
@@ -94,8 +97,9 @@ describe("compiler: server: completion", () => {
       );
     }
     it(`complete at start of "`, () => testCompleteLibrary(` import "~~~┆~~~"`));
-    it("complete after some text in import", () => testCompleteLibrary(` import "~~~@cadl┆~~~"`));
-    it("complete in middle of import", () => testCompleteLibrary(` import "~~~@cadl┆libr~~~"`));
+    it("complete after some text in import", () =>
+      testCompleteLibrary(` import "~~~@typespec┆~~~"`));
+    it("complete in middle of import", () => testCompleteLibrary(` import "~~~@typespec┆libr~~~"`));
 
     it("doesn't include imports when there is no project package.json", async () => {
       const completions = await complete(` import "┆ `);
@@ -119,20 +123,20 @@ describe("compiler: server: completion", () => {
   describe("relative path import", () => {
     it("complete import for relative path", async () => {
       const completions = await complete(` import "./┆ `, undefined, {
-        "test/bar.cadl": "",
-        "test/foo.cadl": "",
-        "test/foo/test.cadl": "",
+        "test/bar.tsp": "",
+        "test/foo.tsp": "",
+        "test/foo/test.tsp": "",
       });
       check(
         completions,
         [
           {
-            label: "bar.cadl",
+            label: "bar.tsp",
             commitCharacters: [],
             kind: CompletionItemKind.File,
           },
           {
-            label: "foo.cadl",
+            label: "foo.tsp",
             commitCharacters: [],
             kind: CompletionItemKind.File,
           },
@@ -150,9 +154,9 @@ describe("compiler: server: completion", () => {
 
     it("complete import for relative path excludes node_modules", async () => {
       const completions = await complete(` import "./┆ `, undefined, {
-        "test/node_modules/test.cadl": "",
-        "test/main/test.cadl": "",
-        "test/node_modules/foo/test.cadl": "",
+        "test/node_modules/test.tsp": "",
+        "test/main/test.tsp": "",
+        "test/node_modules/foo/test.tsp": "",
       });
       check(
         completions,
@@ -171,7 +175,7 @@ describe("compiler: server: completion", () => {
 
     it("complete import for relative path after node_modules folder", async () => {
       const completions = await complete(` import "./node_modules/┆ `, undefined, {
-        "test/node_modules/foo.cadl": "",
+        "test/node_modules/foo.tsp": "",
       });
       check(
         completions,
@@ -179,7 +183,7 @@ describe("compiler: server: completion", () => {
           {
             commitCharacters: [],
             kind: 17,
-            label: "foo.cadl",
+            label: "foo.tsp",
           },
         ],
         {
@@ -190,7 +194,7 @@ describe("compiler: server: completion", () => {
 
     it("import './folder/|' --> don't complete 'folder' complete what's in folder", async () => {
       const completions = await complete(` import "./bar/┆ `, undefined, {
-        "test/bar/foo.cadl": "",
+        "test/bar/foo.tsp": "",
       });
       check(
         completions,
@@ -198,7 +202,7 @@ describe("compiler: server: completion", () => {
           {
             commitCharacters: [],
             kind: 17,
-            label: "foo.cadl",
+            label: "foo.tsp",
           },
         ],
         {
@@ -209,7 +213,7 @@ describe("compiler: server: completion", () => {
 
     it("complete import for relative path excludes the file evaluated", async () => {
       const completions = await complete(` import "./┆ `, undefined, {
-        "test/test.cadl": "",
+        "test/test.tsp": "",
       });
       check(completions, [], {
         allowAdditionalCompletions: false,
@@ -231,8 +235,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value:
-            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
         },
       },
     ]);
@@ -251,8 +254,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value:
-            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
         },
       },
     ]);
@@ -290,8 +292,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Function,
         documentation: {
           kind: MarkupKind.Markdown,
-          value:
-            "```cadl\ndec Cadl.doc(target: unknown, doc: Cadl.string, formatArgs?: Cadl.object)\n```",
+          value: "```typespec\ndec doc(target: unknown, doc: string, formatArgs?: object)\n```",
         },
       },
     ]);
@@ -310,7 +311,34 @@ describe("compiler: server: completion", () => {
         label: "string",
         insertText: "string",
         kind: CompletionItemKind.Unit,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nscalar Cadl.string\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes partial backticked identifiers", async () => {
+    const completions = await complete(
+      `
+      enum \`enum\` {
+        \`foo-bar\`
+      }
+      model M {
+        s: \`enum\`.f┆
+      }
+      `
+    );
+    check(completions, [
+      {
+        label: "foo-bar",
+        insertText: "`foo-bar`",
+        kind: CompletionItemKind.EnumMember,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(enum member)\n```typespec\n`enum`.`foo-bar`\n```",
+        },
       },
     ]);
   });
@@ -330,7 +358,7 @@ describe("compiler: server: completion", () => {
         label: "𐌰𐌲𐌰𐌲𐌰𐌲",
         insertText: "𐌰𐌲𐌰𐌲𐌰𐌲",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel 𐌰𐌲𐌰𐌲𐌰𐌲\n```" },
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel 𐌰𐌲𐌰𐌲𐌰𐌲\n```" },
       },
     ]);
   });
@@ -354,13 +382,13 @@ describe("compiler: server: completion", () => {
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.A\n```" },
         },
         {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.B\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.B\n```" },
         },
       ],
       {
@@ -392,7 +420,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(enum member)\n```cadl\nFruit.Orange\n```",
+            value: "(enum member)\n```typespec\nFruit.Orange\n```",
           },
         },
         {
@@ -401,7 +429,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(enum member)\n```cadl\nFruit.Banana\n```",
+            value: "(enum member)\n```typespec\nFruit.Banana\n```",
           },
         },
       ],
@@ -436,7 +464,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(union variant)\n```cadl\nFruit.orange: Orange\n```",
+            value: "(union variant)\n```typespec\nFruit.orange: Orange\n```",
           },
         },
         {
@@ -445,7 +473,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.EnumMember,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(union variant)\n```cadl\nFruit.banana: Banana\n```",
+            value: "(union variant)\n```typespec\nFruit.banana: Banana\n```",
           },
         },
       ],
@@ -472,7 +500,10 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nop N.test(): void\n```" },
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```typespec\nop N.test(): void\n```",
+          },
         },
       ],
       {
@@ -501,7 +532,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.Method,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "```cadl\nop I.test(param: Cadl.string): void\n```",
+            value: "```typespec\nop I.test(param: string): void\n```",
           },
         },
       ],
@@ -530,7 +561,7 @@ describe("compiler: server: completion", () => {
           kind: CompletionItemKind.Field,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(model property)\n```cadl\nM.test: Cadl.string\n```",
+            value: "(model property)\n```typespec\nM.test: string\n```",
           },
         },
       ],
@@ -556,7 +587,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Struct,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "(template parameter)\n```cadl\nParam\n```",
+          value: "(template parameter)\n```typespec\nParam\n```",
         },
       },
     ]);
@@ -577,7 +608,7 @@ describe("compiler: server: completion", () => {
         label: "A",
         insertText: "A",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.A\n```" },
       },
     ]);
   });
@@ -603,7 +634,7 @@ describe("compiler: server: completion", () => {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Module,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nnamespace A.B\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```typespec\nnamespace A.B\n```" },
         },
       ],
       {
@@ -682,13 +713,13 @@ describe("compiler: server: completion", () => {
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.A\n```" },
         },
         {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
-          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.B\n```" },
+          documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.B\n```" },
         },
       ],
       {
@@ -707,7 +738,7 @@ describe("compiler: server: completion", () => {
          * @param value The value.
          *
          * @example
-         * \`\`\`cadl
+         * \`\`\`typespec
          * @hello
          * model M {}
          * \`\`\`
@@ -728,7 +759,7 @@ describe("compiler: server: completion", () => {
           documentation: {
             kind: MarkupKind.Markdown,
             value:
-              "```cadl\ndec N.hello(value: Cadl.string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```cadl\n@hello\nmodel M {}\n```",
+              "```typespec\ndec N.hello(value: string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```typespec\n@hello\nmodel M {}\n```",
           },
         },
       ],
@@ -753,7 +784,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Method,
         documentation: {
           kind: "markdown",
-          value: "```cadl\nop Foo.Bar(): Cadl.string\n```",
+          value: "```typespec\nop Foo.Bar(): string\n```",
         },
       },
     ]);
@@ -776,7 +807,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Field,
         documentation: {
           kind: "markdown",
-          value: "(model property)\n```cadl\nFoo.bar: Cadl.string\n```",
+          value: "(model property)\n```typespec\nFoo.bar: string\n```",
         },
       },
     ]);
@@ -799,7 +830,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Method,
         documentation: {
           kind: "markdown",
-          value: "```cadl\nop Foo<Cadl.string>.Bar(): Cadl.string\n```",
+          value: "```typespec\nop Foo<string>.Bar(): string\n```",
         },
       },
     ]);
@@ -822,7 +853,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Field,
         documentation: {
           kind: "markdown",
-          value: "(model property)\n```cadl\nFoo<Cadl.string>.bar: Cadl.string\n```",
+          value: "(model property)\n```typespec\nFoo<string>.bar: string\n```",
         },
       },
     ]);
@@ -845,7 +876,7 @@ describe("compiler: server: completion", () => {
         label: "Foo",
         insertText: "Foo",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Foo\n```" },
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Foo\n```" },
         tags: [CompletionItemTag.Deprecated],
       },
     ]);
@@ -923,11 +954,11 @@ describe("compiler: server: completion", () => {
     }
     if (additionalFiles) {
       for (const [key, value] of Object.entries(additionalFiles)) {
-        testHost.addCadlFile(key, value);
+        testHost.addTypeSpecFile(key, value);
       }
     }
-    testHost.addCadlFile("main.cadl", 'import "./test/test.cadl";');
-    const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
+    testHost.addTypeSpecFile("main.tsp", 'import "./test/test.tsp";');
+    const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
     return await testHost.server.complete({
       textDocument,
       position: textDocument.positionAt(pos),

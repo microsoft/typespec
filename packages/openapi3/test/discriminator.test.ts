@@ -1,4 +1,4 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { checkFor, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
@@ -12,7 +12,7 @@ describe("openapi3: discriminated unions", () => {
     expectDiagnostics(diagnostics, {
       code: "decorator-wrong-target",
       message:
-        "Cannot apply @discriminator decorator to Foo since it is not assignable to Cadl.object | Cadl.Reflection.Union",
+        "Cannot apply @discriminator decorator to Foo since it is not assignable to Model | Union",
     });
   });
 
@@ -174,11 +174,11 @@ describe("openapi3: discriminated unions", () => {
         kind: "dog";
         bark: string;
       }
-      #suppress "@cadl-lang/openapi3/discriminator-value" "kind defined in parent"
+      #suppress "@typespec/openapi3/discriminator-value" "kind defined in parent"
       model Beagle extends Dog {
         breed: "beagle";
       }
-      #suppress "@cadl-lang/openapi3/discriminator-value" "kind defined in parent"
+      #suppress "@typespec/openapi3/discriminator-value" "kind defined in parent"
       model Poodle extends Dog {
         breed: "poodle";
       }

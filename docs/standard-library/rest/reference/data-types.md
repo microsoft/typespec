@@ -6,780 +6,604 @@ toc_max_heading_level: 3
 
 # Data types
 
-## Cadl.Http
+## TypeSpec.Rest
 
-### `Response` {#Cadl.Http.Response}
+### `ResourceLocation` {#TypeSpec.Rest.ResourceLocation}
 
-```cadl
-model Response<Status>
+A URL that points to a resource.
+
+```typespec
+scalar TypeSpec.Rest.ResourceLocation
+```
+
+## TypeSpec.Rest.Resource
+
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
 ```
 
 #### Template Parameters
 
-| Name   | Description |
-| ------ | ----------- |
-| Status |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-### `Body` {#Cadl.Http.Body}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
-Defines a model with a single property of the given type, marked with `@body`.
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-This can be useful in situations where you cannot use a bare T as the body
-and it is awkward to add a property.
-
-```cadl
-model Body<T>
+```typespec
+model CollectionWithNextLink<T>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-### `LocationHeader` {#Cadl.Http.LocationHeader}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
-```cadl
-model Cadl.Http.LocationHeader
-```
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-### `OkResponse` {#Cadl.Http.OkResponse}
-
-```cadl
-model Cadl.Http.OkResponse
-```
-
-### `CreatedResponse` {#Cadl.Http.CreatedResponse}
-
-```cadl
-model Cadl.Http.CreatedResponse
-```
-
-### `AcceptedResponse` {#Cadl.Http.AcceptedResponse}
-
-```cadl
-model Cadl.Http.AcceptedResponse
-```
-
-### `NoContentResponse` {#Cadl.Http.NoContentResponse}
-
-```cadl
-model Cadl.Http.NoContentResponse
-```
-
-### `MovedResponse` {#Cadl.Http.MovedResponse}
-
-```cadl
-model Cadl.Http.MovedResponse
-```
-
-### `NotModifiedResponse` {#Cadl.Http.NotModifiedResponse}
-
-```cadl
-model Cadl.Http.NotModifiedResponse
-```
-
-### `BadRequestResponse` {#Cadl.Http.BadRequestResponse}
-
-```cadl
-model Cadl.Http.BadRequestResponse
-```
-
-### `UnauthorizedResponse` {#Cadl.Http.UnauthorizedResponse}
-
-```cadl
-model Cadl.Http.UnauthorizedResponse
-```
-
-### `ForbiddenResponse` {#Cadl.Http.ForbiddenResponse}
-
-```cadl
-model Cadl.Http.ForbiddenResponse
-```
-
-### `NotFoundResponse` {#Cadl.Http.NotFoundResponse}
-
-```cadl
-model Cadl.Http.NotFoundResponse
-```
-
-### `ConflictResponse` {#Cadl.Http.ConflictResponse}
-
-```cadl
-model Cadl.Http.ConflictResponse
-```
-
-### `PlainData` {#Cadl.Http.PlainData}
-
-Produces a new model with the same properties as T, but with `@query`,
-`@header`, `@body`, and `@path` decorators removed from all properties.
-
-```cadl
-model PlainData<T>
+```typespec
+model CollectionWithNextLink<T>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-### `BasicAuth` {#Cadl.Http.BasicAuth}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
-Basic authentication is a simple authentication scheme built into the HTTP protocol.
-The client sends HTTP requests with the Authorization header that contains the word Basic word followed by a space and a base64-encoded string username:password.
-For example, to authorize as demo / `p@55w0rd` the client would send
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```
-Authorization: Basic ZGVtbzpwQDU1dzByZA==
-```
-
-```cadl
-model Cadl.Http.BasicAuth
-```
-
-### `BearerAuth` {#Cadl.Http.BearerAuth}
-
-Bearer authentication (also called token authentication) is an HTTP authentication scheme that involves security tokens called bearer tokens.
-The name “Bearer authentication” can be understood as “give access to the bearer of this token.” The bearer token is a cryptic string, usually generated by the server in response to a login request.
-The client must send this token in the Authorization header when making requests to protected resources:
-
-```
-Authorization: Bearer <token>
-```
-
-```cadl
-model Cadl.Http.BearerAuth
-```
-
-### `ApiKeyAuth` {#Cadl.Http.ApiKeyAuth}
-
-An API key is a token that a client provides when making API calls. The key can be sent in the query string:
-
-```
-GET /something?api_key=abcdef12345
-```
-
-or as a request header
-
-```
-GET /something HTTP/1.1
-X-API-Key: abcdef12345
-```
-
-or as a cookie
-
-```
-GET /something HTTP/1.1
-Cookie: X-API-KEY=abcdef12345
-```
-
-```cadl
-model ApiKeyAuth<TLocation, TName>
+```typespec
+model CollectionWithNextLink<T>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TLocation |             |
-| TName     |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-### `OAuth2Auth` {#Cadl.Http.OAuth2Auth}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
-OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
-OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
-For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
-For more information about OAuth 2.0, see oauth.net and RFC 6749.
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
-model OAuth2Auth<TFlows>
+```typespec
+model CollectionWithNextLink<T>
 ```
 
 #### Template Parameters
 
-| Name   | Description |
-| ------ | ----------- |
-| TFlows |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-### `AuthorizationCodeFlow` {#Cadl.Http.AuthorizationCodeFlow}
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
-Authorization Code flow
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
 
-```cadl
-model Cadl.Http.AuthorizationCodeFlow
+```typespec
+model CollectionWithNextLink<T>
 ```
 
-### `ImplicitFlow` {#Cadl.Http.ImplicitFlow}
+#### Template Parameters
 
-Implicit flow
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-```cadl
-model Cadl.Http.ImplicitFlow
+### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
+
+Structure for a paging response using `value` and `nextLink` to represent pagination.
+This only provides the model structure and not actual pagination support.
+See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+```typespec
+model CollectionWithNextLink<T>
 ```
 
-### `PasswordFlow` {#Cadl.Http.PasswordFlow}
+#### Template Parameters
 
-Resource Owner Password flow
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource type of the collection. |
 
-```cadl
-model Cadl.Http.PasswordFlow
-```
+### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 
-### `ClientCredentialsFlow` {#Cadl.Http.ClientCredentialsFlow}
+Dynamically gathers keys of the model type T.
 
-Client credentials flow
-
-```cadl
-model Cadl.Http.ClientCredentialsFlow
-```
-
-### `AuthType` {#Cadl.Http.AuthType}
-
-Authentication type
-
-```cadl
-enum Cadl.Http.AuthType
-```
-
-### `ApiKeyLocation` {#Cadl.Http.ApiKeyLocation}
-
-Describes the location of the API key
-
-```cadl
-enum Cadl.Http.ApiKeyLocation
-```
-
-### `OAuth2FlowType` {#Cadl.Http.OAuth2FlowType}
-
-Describes the OAuth2 flow type
-
-```cadl
-enum Cadl.Http.OAuth2FlowType
-```
-
-## Cadl.Rest.Resource
-
-### `ResourceError` {#Cadl.Rest.Resource.ResourceError}
-
-The default error response for resource operations.
-
-```cadl
-model Cadl.Rest.Resource.ResourceError
-```
-
-### `KeysOf` {#Cadl.Rest.Resource.KeysOf}
-
-```cadl
+```typespec
 model KeysOf<T>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description       |
+| ---- | ----------------- |
+| T    | The target model. |
 
-### `ParentKeysOf` {#Cadl.Rest.Resource.ParentKeysOf}
+### `ParentKeysOf` {#TypeSpec.Rest.Resource.ParentKeysOf}
 
-```cadl
+Dynamically gathers parent keys of the model type T.
+
+```typespec
 model ParentKeysOf<T>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description       |
+| ---- | ----------------- |
+| T    | The target model. |
 
-### `ResourceParameters` {#Cadl.Rest.Resource.ResourceParameters}
+### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
 
-```cadl
-model ResourceParameters<TResource>
-```
+Represents collection operation parameters for resource TResource.
 
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCollectionParameters` {#Cadl.Rest.Resource.ResourceCollectionParameters}
-
-```cadl
+```typespec
 model ResourceCollectionParameters<TResource>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |
 
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+Resource create operation completed successfully.
+
+```typespec
 model ResourceCreatedResponse<T>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
-```cadl
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
+
+Resource create operation completed successfully.
+
+```typespec
+model ResourceCreatedResponse<T>
+```
+
+#### Template Parameters
+
+| Name | Description                          |
+| ---- | ------------------------------------ |
+| T    | The resource model that was created. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
 model ResourceCreateModel<TResource>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
 
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
-```cadl
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
+
+Resource create operation model.
+
+```typespec
+model ResourceCreateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
 model ResourceCreateOrUpdateModel<TResource>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
 
-### `ResourceDeletedResponse` {#Cadl.Rest.Resource.ResourceDeletedResponse}
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
+
+Resource create or update operation model.
+
+```typespec
+model ResourceCreateOrUpdateModel<TResource>
+```
+
+#### Template Parameters
+
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+
+### `ResourceDeletedResponse` {#TypeSpec.Rest.Resource.ResourceDeletedResponse}
 
 Resource deleted successfully.
 
-```cadl
-model Cadl.Rest.Resource.ResourceDeletedResponse
+```typespec
+model TypeSpec.Rest.Resource.ResourceDeletedResponse
 ```
 
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
+### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
 
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
+The default error response for resource operations.
 
-```cadl
-model CollectionWithNextLink<T>
+```typespec
+model TypeSpec.Rest.Resource.ResourceError
 ```
 
-#### Template Parameters
+### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+Represents operation parameters for resource TResource.
 
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
+```typespec
+model ResourceParameters<TResource>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
-
-```cadl
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
-
-```cadl
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
-
-```cadl
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
-
-```cadl
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
-
-```cadl
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `ResourceCreateOrUpdateModel` {#Cadl.Rest.Resource.ResourceCreateOrUpdateModel}
-
-```cadl
-model ResourceCreateOrUpdateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreateModel` {#Cadl.Rest.Resource.ResourceCreateModel}
-
-```cadl
-model ResourceCreateModel<TResource>
-```
-
-#### Template Parameters
-
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-
-### `ResourceCreatedResponse` {#Cadl.Rest.Resource.ResourceCreatedResponse}
-
-```cadl
-model ResourceCreatedResponse<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `CollectionWithNextLink` {#Cadl.Rest.Resource.CollectionWithNextLink}
-
-Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/cadl/issues/705 for general paging support.
-
-```cadl
-model CollectionWithNextLink<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |

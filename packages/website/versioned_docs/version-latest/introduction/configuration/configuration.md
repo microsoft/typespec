@@ -4,29 +4,29 @@ title: Configuration
 
 # Compiler and Libraries configurations
 
-Cadl compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
+TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
 
 ## Configuration file
 
-Cadl configuration can be provided via the `cadl-project.yaml` configuration file.
+TypeSpec configuration can be provided via the `tspconfig.yaml` configuration file.
 
 ### Discovery
 
-Cadl compiler will look for the closest `cadl-project.yaml` file located in the same directory or closest parent directory from the cadl entrypoint.
+TypeSpec compiler will look for the closest `tspconfig.yaml` file located in the same directory or closest parent directory from the typespec entrypoint.
 
-For example if running `cadl compile /dev/foo/bar/main.cadl`, the compiler will lookup the file at the folllowing paths(In this order):
+For example if running `tsp compile /dev/foo/bar/main.tsp`, the compiler will lookup the file at the folllowing paths(In this order):
 
-- `/dev/foo/bar/cadl-project.yaml`
-- `/dev/foo/cadl-project.yaml`
-- `/dev/cadl-project.yaml`
-- `/cadl-project.yaml`
+- `/dev/foo/bar/tspconfig.yaml`
+- `/dev/foo/tspconfig.yaml`
+- `/dev/tspconfig.yaml`
+- `/tspconfig.yaml`
 
 ### Schema
 
-The file is a `yaml` document with the following structure. See the [next section](#cadl-configuration-options) for details on each option.
+The file is a `yaml` document with the following structure. See the [next section](#typespec-configuration-options) for details on each option.
 
-```cadl
-model CadlProjectSchema {
+```typespec
+model TypeSpecProjectSchema {
   extends?: string;
   parameters?: Record<{default: string}>
   "environment-variables"?: Record<{default: string}>
@@ -45,7 +45,7 @@ There is cases where you might want to build different folders with different op
 
 For that you can use the `extends` property of the configuration file
 
-in `<my-pkg>/cadl-project.yaml`
+in `<my-pkg>/tspconfig.yaml`
 
 ```yaml
 options:
@@ -55,25 +55,25 @@ options:
     some-other-option: This is a title
 ```
 
-in `<my-pkg>/proj2/cadl-project.yaml`, enable `emitter1` using the options specified in the parent `cadl-project.yaml
+in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter1` using the options specified in the parent `tspconfig.yaml
 
 ```yaml
-extends: ../cadl-project.yaml
+extends: ../tspconfig.yaml
 emit:
   - emitter1
 ```
 
-in `<my-pkg>/cadl-project.yaml`, enable `emitter2` using the options specified in the parent `cadl-project.yaml
+in `<my-pkg>/tspconfig.yaml`, enable `emitter2` using the options specified in the parent `tspconfig.yaml
 
 ```yaml
-extends: ../cadl-project.yaml
+extends: ../tspconfig.yaml
 emit:
   - emitter2
 ```
 
 ### Variable interpolation
 
-The cadl project file provide variable interpolation using:
+The typespec project file provide variable interpolation using:
 
 - built-in variables
 - environment variables
@@ -87,18 +87,34 @@ Examples:
 - `{output-dir}/my-path`
 - `{env.SHARED_PATH}/my-path`
 
+### Emitter path config interpolation
+
+Some config of emitters can be interpolated using a special rule that will collapse a path.
+
+If a variable is followed by a `/` or `.` and the emitter interpolating the config doesn't provide that variable it will then omit the path segment.
+
+For example given the following config value: `{service-name}/output.{version}.json`
+The following would get produced
+
+| Service name value | Version value | Result                    |
+| ------------------ | ------------- | ------------------------- |
+| `"PetStore"`       | `"v1"`        | `PetStore/output.v1.json` |
+| `"PetStore"`       | `undefined`   | `PetStore/output.json`    |
+| `undefined`        | `"v1"`        | `output.v1.json`          |
+| `undefined`        | `undefined`   | `output.json`             |
+
 #### Built-in variables
 
 | Variable name  | Scope           | Description                                                                          |
 | -------------- | --------------- | ------------------------------------------------------------------------------------ |
 | `cwd`          | \*              | Points to the current working directory                                              |
-| `project-root` | \*              | Points to the the cadl-project.yaml file containing folder.                          |
+| `project-root` | \*              | Points to the the tspconfig.yaml file containing folder.                             |
 | `output-dir`   | emitter options | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
 | `emitter-name` | emitter options | Name of the emitter                                                                  |
 
 #### Project parameters
 
-A cadl project file can specify some parameters that can then be specified via the CLI.
+A typespec project file can specify some parameters that can then be specified via the CLI.
 
 `{cwd}` and `{project-root}` variables can be used in the default value of those parmeters.
 
@@ -112,18 +128,18 @@ parameters:
   base-dir:
     default: "{cwd}"
 
-outout-dir: {base-dir}/output
+output-dir: {base-dir}/output
 ```
 
 The parameter can then be specified with `--arg` in this format `--arg "<parameter-name>=<value>"`
 
 ```bash
-cadl compile . --arg "base-dir=/path/to/base"
+tsp compile . --arg "base-dir=/path/to/base"
 ```
 
 #### Environment variables
 
-A cadl project file can define which environment variables it can interpolate.
+A typespec project file can define which environment variables it can interpolate.
 
 `{cwd}` and `{project-root}` variables can be used in the default value of the environment variables.
 
@@ -138,7 +154,7 @@ environment-variables:
   BASE_DIR:
     default: "{cwd}"
 
-outout-dir: {env.BASE_DIR}/output
+output-dir: {env.BASE_DIR}/output
 ```
 
 #### Emitter options
@@ -149,38 +165,41 @@ Can only interpolate emitter options from the same emitter.
 
 ```yaml
 options:
-  @cadl-lang/openapi3:
+  @typespec/openapi3:
     emitter-output-dir: {output-dir}/{emitter-sub-folder}
     emitter-sub-folder: bar
 
 ```
 
-## Cadl Configuration Options
+## TypeSpec Configuration Options
 
-| Config          | Cli                       | Description                    |
-| --------------- | ------------------------- | ------------------------------ |
-| `output-dir`    | `--output-dir`            | Default output directory       |
-| `trace`         | `--trace`                 | Specify tracing area to enable |
-| `warn-as-error` | `--warn-as-error`         | Treat warning as error         |
-| `imports`       | `--import`                | Additional imports to include  |
-| `emit`          | `--emit`                  | Emitter configuration          |
-| `options`       | `--option` or `--options` | Emitter configuration          |
+| Config          | Cli                       | Description                                              |
+| --------------- | ------------------------- | -------------------------------------------------------- |
+| `output-dir`    | `--output-dir`            | Default output directory                                 |
+| `config`        | `--config`                | Path to config file or folder to search for config file. |
+| `trace`         | `--trace`                 | Specify tracing area to enable                           |
+| `warn-as-error` | `--warn-as-error`         | Treat warning as error                                   |
+| `imports`       | `--import`                | Additional imports to include                            |
+| `emit`          | `--emit`                  | Emitter configuration                                    |
+| `options`       | `--option` or `--options` | Emitter configuration                                    |
 
 ### `output-dir` - Configure the default output dir
 
-Specify which emitters to use and their options if applicable.
+Specify the common output-dir for all emitters. See [this](#output-directory-configuration) to configure per emitter.
 
 ```yaml
-output-dir: {cwd}/cadl-build
+output-dir: {cwd}/typespec-build
 ```
 
 Output dir can be provided using the `--output-dir` cli flag
 
 ```bash
-cadl compile . --output-dir "./cadl-build"
+tsp compile . --output-dir "./typespec-build"
 ```
 
 Output dir must be an absolute path in the config. Use `{cwd}` or `{project-root}` to explicitly specify what it should be relative to.
+
+See [output directory configuration for mode details](#output-directory-configuration)
 
 ### `trace` - Configure what to trace
 
@@ -199,7 +218,7 @@ trace:
 Trace can be provided using the `--trace` cli flag
 
 ```bash
-cadl compile . --trace import-resolution --trace projection
+tsp compile . --trace import-resolution --trace projection
 ```
 
 ### `warn-as-error` - Treat warning as error
@@ -215,20 +234,20 @@ warn-as-error: true
 or via the cli
 
 ```bash
-cadl compile . --warn-as-error
+tsp compile . --warn-as-error
 ```
 
 ### `imports` - Configure additional imports
 
 ```yaml
 imports:
-  - sidecar.cadl
+  - sidecar.tsp
 ```
 
-Specify additional cadl files to import
+Specify additional typespec files to import
 
 ```bash
-cadl compile . --import "sidecar.cadl"
+tsp compile . --import "sidecar.tsp"
 ```
 
 ### `emit` - Specifying which emitters to run
@@ -246,7 +265,7 @@ emit:
 or via the cli
 
 ```bash
-cadl compile . --emit emitter1 --emit /path/to/emitter2
+tsp compile . --emit emitter1 --emit /path/to/emitter2
 ```
 
 ### `options` - Configuring emitters
@@ -267,10 +286,10 @@ Emitters options can also be provided using the `--option` in this format `--opt
 
 ```bash
 
-cadl compile . --option "emitter1.option1=option1-value"
+tsp compile . --option "emitter1.option1=option1-value"
 ```
 
-Options specified via the CLI take precedence over the ones specified in `cadl-project.yaml`.
+Options specified via the CLI take precedence over the ones specified in `tspconfig.yaml`.
 
 #### Emitters built-in options
 
@@ -279,6 +298,8 @@ Options specified via the CLI take precedence over the ones specified in `cadl-p
 Represent the path where the emitter should be outputing the generated files.
 
 Default: `{output-dir}/{emitter-name}`
+
+See [output directory configuration for mode details](#output-directory-configuration)
 
 ## Emitter control cli flags
 
@@ -289,33 +310,33 @@ Disable emitting. If emitters are still specified it will still run the emitter 
 Can also be used to hide the "There is no emitters warning".
 
 ```yaml
-cadl compile . --no-emit
+tsp compile . --no-emit
 ```
 
 ## Other Command line flags
 
 ### `--watch`
 
-Start the cadl compiler in watch mode: watch for file changes and compile on save.
+Start the tsp compiler in watch mode: watch for file changes and compile on save.
 
 ```bash
-cadl compile . --watch
+tsp compile . --watch
 ```
 
 ### `--nostdlib`
 
-Don't load the Cadl standard library.
+Don't load the TypeSpec standard library.
 
 ```bash
-cadl compile . --nostdlib
+tsp compile . --nostdlib
 ```
 
 ### `--version`
 
-Log the version of the cadl compiler.
+Log the version of the tsp compiler.
 
 ```bash
-cadl compile . --version
+tsp compile . --version
 ```
 
 ### `--pretty`
@@ -325,5 +346,59 @@ cadl compile . --version
 Enable/Disable pretty logging(Colors, diagnostic preview, etc.).
 
 ```bash
-cadl compile . --pretty=false
+tsp compile . --pretty=false
+```
+
+## Output directory configuration
+
+Typespec compiler will provide a unique output directory for each emitter that is being run to reduce conflicts.
+By default the output-dir of an emitter is set to this value:
+
+```
+{output-dir}/{emitter-name}
+```
+
+where
+
+- `output-dir` is the compiler common `output-dir` that can be configured via `--output-dir`
+- `emitter-name` is the name of the emitter package(for example `@typespec/openapi3`)
+
+Example:
+Given the following emitters: `@typespec/openapi3` and `@typespec/jsonschema`, the default output folder structure would be
+
+```
+{project-root}/tsp-output:
+  @typespec:
+    openapi3
+      ... openapi3 files ...
+    jsonschema
+      ... json schema files ...
+```
+
+Changing the compiler `output-dir` with `--output-dir` or setting that value in the tspconfig.yaml would result in the following structure
+
+```
+--output-dir={cwd}/my-custom-output-dir
+
+{cwd}/my-custom-output-dir:
+  @typespec:
+    openapi3
+      ... openapi3 files ...
+    jsonschema
+      ... json schema files ...
+
+```
+
+Changing a specific emitter output-dir can be done by setting that emitter `emitter-output-dir` option
+
+```
+--option "@typespec/openapi3.output-dir={projectroot}/openapispec"
+
+{project-root}
+  openapispec:
+    ... openapi3 files ...
+  tsp-output:
+    @typespec:
+      jsonschema
+        ... json schema files ...
 ```

@@ -1,5 +1,5 @@
 import { compilerAssert } from "../core/diagnostics.js";
-import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import {
   Decorator,
   EnumMember,
@@ -10,6 +10,7 @@ import {
   Type,
   UnionVariant,
 } from "../core/types.js";
+import { printId } from "../formatter/print/printer.js";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -20,7 +21,7 @@ export function getTypeSignature(type: Type): string {
     case "Interface":
     case "Model":
     case "Namespace":
-      return fence(`${type.kind.toLowerCase()} ${getTypeName(type)}`);
+      return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
     case "Function":
@@ -28,7 +29,7 @@ export function getTypeSignature(type: Type): string {
     case "Operation":
       return fence(getOperationSignature(type));
     case "String":
-      // BUG: https://github.com/microsoft/cadl/issues/1350 - should escape string literal values
+      // BUG: https://github.com/microsoft/typespec/issues/1350 - should escape string literal values
       return `(string)\n${fence(`"${type.value}"`)}`;
     case "Boolean":
       return `(boolean)\n${fence(type.value ? "true" : "false")}`;
@@ -69,46 +70,54 @@ function getDecoratorSignature(type: Decorator) {
 function getFunctionSignature(type: FunctionType) {
   const ns = getQualifier(type.namespace);
   const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
+  return `fn ${ns}${printId(type.name)}(${parameters.join(", ")}): ${getPrintableTypeName(
+    type.returnType
+  )}`;
 }
 
 function getOperationSignature(type: Operation) {
   const ns = getQualifier(type.namespace) || getQualifier(type.interface);
   const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);
-  return `op ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
+  return `op ${ns}${type.name}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${printId(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
 }
 
 function getModelPropertySignature(property: ModelProperty) {
   const ns = getQualifier(property.model);
-  return `${ns}${property.name}: ${getTypeName(property.type)}`;
+  return `${ns}${printId(property.name)}: ${getPrintableTypeName(property.type)}`;
 }
 
 function getUnionVariantSignature(variant: UnionVariant) {
   if (typeof variant.name !== "string") {
-    return getTypeName(variant.type);
+    return getPrintableTypeName(variant.type);
   }
   const ns = getQualifier(variant.union);
-  return `${ns}${variant.name}: ${getTypeName(variant.type)}`;
+  return `${ns}${printId(variant.name)}: ${getPrintableTypeName(variant.type)}`;
 }
 
 function getEnumMemberSignature(member: EnumMember) {
   const ns = getQualifier(member.enum);
   const value = typeof member.value === "string" ? `"${member.value}"` : member.value;
-  return value === undefined ? `${ns}${member.name}` : `${ns}${member.name}: ${value}`;
+  return value === undefined
+    ? `${ns}${printId(member.name)}`
+    : `${ns}${printId(member.name)}: ${value}`;
 }
 
 function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
-  if (!parent?.name || typeof parent.name !== "string") {
+  if (
+    !parent?.name ||
+    typeof parent.name !== "string" ||
+    (parent.kind === "Namespace" && isStdNamespace(parent))
+  ) {
     return "";
   }
 
-  const parentName = getTypeName(parent);
+  const parentName = getPrintableTypeName(parent);
   if (!parentName) {
     return "";
   }
@@ -116,6 +125,12 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   return parentName + ".";
 }
 
+function getPrintableTypeName(type: Type) {
+  return getTypeName(type, {
+    printable: true,
+  });
+}
+
 function fence(code: string) {
-  return `\`\`\`cadl\n${code}\n\`\`\``;
+  return `\`\`\`typespec\n${code}\n\`\`\``;
 }

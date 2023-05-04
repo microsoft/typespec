@@ -4,7 +4,7 @@ copyright: false
 
 <emu-intro id="intro">
 <h1>Introduction</h1>
-<p>This document will eventually have a full specification for Cadl. For now, it just has the grammar below.</p>
+<p>This document will eventually have a full specification for TypeSpec. For now, it just has the grammar below.</p>
 </emu-intro>
 
 <emu-clause id="lexical-grammar">
@@ -51,6 +51,7 @@ Keyword :
 
 Identifier :
     IdentifierName but not Keyword
+    ``` BacktickedIdentifierChars ```
 
 IdentifierName :
     IdentifierStart
@@ -83,6 +84,13 @@ IdentifierContinue :
     `$`
     `_`
     > any assigned Unicode code point other than U+FFFD greater than U+007F that does not have any of the following property values: General_Category=Surrogate, Control or Private_Use, Noncharacter_Code_Point=True, or Pattern_White_Space=True
+
+BacktickedIdentifierChars:
+    BacktickedIdentifierChar BacktickedIdentifierChars?
+
+BacktickedIdentifierChar :
+    SourceCharacter but not one of ``` or `\` or LineTerminator
+    `\` EscapeCharacter
 
 AsciiLetter : one of
     `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M` `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
@@ -168,7 +176,7 @@ TripleQuotedStringCharacter :
     `\` EscapeCharacter
 
 EscapeCharacter : one of
-    `"` `r` `n` `t` `\`
+    `"` `r` `n` `t` `\` ```
 
 Punctuator : one of 
     `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...` `#`
@@ -197,7 +205,7 @@ Punctuator : one of
 //    - U+2029  PS    PARAGRAPH SEPARATOR
 //
 // It is deliberately left unspecified which whitespace sequences are
-// considered newlines as no language semnatics are impacted by that choice.
+// considered newlines as no language semantics are impacted by that choice.
 // Only line and column numbers associated with diagnostics are impacted. In
 // practice, only CR ("MAC"), LF ("UNIX"), and CRLF ("DOS") line endings are
 // currently recognized by our implementation. Additional line endings may be 
@@ -253,13 +261,13 @@ SingleLineCommentChar :
 <h1>Syntactic Grammar</h1>
 <emu-grammar type="definition">
 <![CDATA[
-CadlScript :
-    CadlScriptItemList?
+TypeSpecScript :
+    TypeSpecScriptItemList?
 
-CadlScriptItemList :
-    CadlScriptItemList? CadlScriptItem
+TypeSpecScriptItemList :
+    TypeSpecScriptItemList? TypeSpecScriptItem
 
-CadlScriptItem :
+TypeSpecScriptItem :
     BlocklessNamespaceStatement
     ImportStatement
     Statement
@@ -524,11 +532,14 @@ ProjectionSelector :
     `interface`
     `op`
     `union`
+    `modelproperty`
+    `enummember`
+    `unionvariant`
     ReferenceExpression
 
 ProjectionDirection :
-    `to`
-    `from`
+    `pre`? `to`
+    `pre`? `from`
 
 ProjectionTag :
     `#` Identifier
@@ -558,8 +569,8 @@ ProjectionLogicalOrExpression :
     ProjectionLogicalOrExpression `||` ProjectionLogicalAndExpression
 
 ProjectionLogicalAndExpression :
-    ProjectionRelationalExpression
-    ProjectionLogicalAndExpression `&&` ProjectionRelationalExpression
+    ProjectionEqualityExpression
+    ProjectionLogicalAndExpression `&&` ProjectionEqualityExpression
 
 ProjectionEqualityExpression :
     ProjectionRelationalExpression
@@ -657,7 +668,7 @@ ProjectionBlockExpression :
     `{` ProjectionExpressionList `}`
 
 // When processing the production
-// ProjectionLambdaExpression : CooverProjectionParenthesizedExpressionAndLambdaParameterList
+// ProjectionLambdaExpression : CoverProjectionParenthesizedExpressionAndLambdaParameterList
 // the interpretation is refined using the following grammar:
 
 LambdaParameters :

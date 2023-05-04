@@ -1,9 +1,9 @@
-import { resolvePath } from "@cadl-lang/compiler";
+import { resolvePath } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
   resolveVirtualPath,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { createOpenAPITestRunner } from "./test-host.js";
@@ -39,14 +39,14 @@ describe("openapi3: output file", () => {
   beforeEach(async () => {
     runner = await createOpenAPITestRunner();
   });
-  async function compileOpenAPI(options: OpenAPI3EmitterOptions): Promise<void> {
-    const diagnostics = await runner.diagnose("", {
+  async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""): Promise<void> {
+    const diagnostics = await runner.diagnose(code, {
       noEmit: false,
-      emit: ["@cadl-lang/openapi3"],
-      options: { "@cadl-lang/openapi3": { ...options, "emitter-output-dir": outputDir } },
+      emit: ["@typespec/openapi3"],
+      options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
     });
 
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
+    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
   }
 
   function expectOutput(
@@ -58,6 +58,12 @@ describe("openapi3: output file", () => {
     const content = runner.fs.get(outPath);
     ok(content, `Expected ${outPath} to exist.`);
     strictEqual(content, lines.join(newLine));
+  }
+
+  function expectHasOutput(filename: string) {
+    const outPath = resolvePath(outputDir, filename);
+    const content = runner.fs.get(outPath);
+    ok(content, `Expected ${outPath} to exist.`);
   }
 
   describe("line endings", () => {
@@ -91,6 +97,43 @@ describe("openapi3: output file", () => {
     it("respect file-type even if output-file extension contradict", async () => {
       await compileOpenAPI({ "output-file": "custom.yaml", "file-type": "json" });
       expectOutput("custom.yaml", expectedJsonEmptySpec);
+    });
+  });
+
+  describe("multiple outputs", () => {
+    (["json", "yaml"] as const).forEach((fileType) => {
+      context(`when file-type is ${fileType}`, () => {
+        it("create distinct files for distinct services", () => {
+          async () => {
+            await compileOpenAPI(
+              { "file-type": fileType },
+              `
+          @service namespace Service1 {}
+          @service namespace Service2 {}
+        `
+            );
+
+            expectHasOutput(`custom.Service1.${fileType}`);
+            expectHasOutput(`custom.Service2.${fileType}`);
+          };
+        });
+
+        it("create distinct files for distinct versions", () => {
+          async () => {
+            await compileOpenAPI(
+              {},
+              `
+          @versioned(Versions) namespace Service1 {
+            enum Versions {v1, v2}
+          }
+        `
+            );
+
+            expectHasOutput(`custom.v1.${fileType}`);
+            expectHasOutput(`custom.v2.${fileType}`);
+          };
+        });
+      });
     });
   });
 });

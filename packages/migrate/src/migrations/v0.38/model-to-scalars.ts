@@ -2,22 +2,23 @@ import type {
   CadlScriptNode,
   Node,
   TemplateParameterDeclarationNode,
-} from "@cadl-lang/compiler-v0.37";
+} from "@typespec/compiler-v0.37";
+import { TypeSpecCompilerV0_37 } from "../../migration-config.js";
 import {
-  CadlCompilerV0_37,
-  createMigration,
-  MigrateAction,
+  AstContentMigrateAction,
   MigrationContext,
-} from "../migration.js";
+  MigrationKind,
+  createContentMigration,
+} from "../../migration-types.js";
 
-export const migrateModelToScalar = createMigration({
+export const migrateModelToScalar = createContentMigration({
   name: "Migrate Model To scalar",
-  kind: "Syntax",
-  from: "0.37",
-  to: "0.38",
+  kind: MigrationKind.AstContentMigration,
+  from: "0.37.0",
+  to: "0.38.0",
   migrate: (
     { printNode, printNodes }: MigrationContext,
-    compilerV37: CadlCompilerV0_37,
+    compilerV37: TypeSpecCompilerV0_37,
     root: CadlScriptNode
   ) => {
     function printTemplateParameters(parameters: readonly TemplateParameterDeclarationNode[]) {
@@ -27,7 +28,7 @@ export const migrateModelToScalar = createMigration({
       return `<${parameters.map((x) => printNode(x)).join(", ")}>`;
     }
 
-    const actions: MigrateAction[] = [];
+    const actions: AstContentMigrateAction[] = [];
     visitRecursive(compilerV37, root, (node) => {
       if (
         node.kind === compilerV37.SyntaxKind.ModelStatement &&
@@ -39,6 +40,7 @@ export const migrateModelToScalar = createMigration({
       ) {
         const decorators = printNodes(node.decorators);
         actions.push({
+          kind: MigrationKind.AstContentMigration,
           target: node,
           content: `${decorators ? decorators + " " : ""}scalar ${
             node.id.sv

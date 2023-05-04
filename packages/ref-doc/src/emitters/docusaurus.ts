@@ -1,13 +1,14 @@
 import prettier from "prettier";
 import {
-  CadlRefDoc,
   DecoratorRefDoc,
   EnumRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  ScalarRefDoc,
   TemplateParameterRefDoc,
+  TypeSpecRefDoc,
   UnionRefDoc,
 } from "../types.js";
 import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
@@ -16,7 +17,7 @@ import { getTypeSignature } from "../utils/type-signature.js";
 /**
  * Render doc to a markdown using docusaurus addons.
  */
-export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, string> {
+export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
   const files: Record<string, string> = {
     "index.md": renderIndexFile(refDoc),
   };
@@ -49,7 +50,7 @@ export function renderToDocusaurusMarkdown(refDoc: CadlRefDoc): Record<string, s
   return files;
 }
 
-function renderIndexFile(refDoc: CadlRefDoc): string {
+function renderIndexFile(refDoc: TypeSpecRefDoc): string {
   const content = [
     "---",
     `title: Index`,
@@ -63,46 +64,61 @@ function renderIndexFile(refDoc: CadlRefDoc): string {
     content.push(headings.h2(namespace.id), "");
     if (namespace.decorators.length > 0) {
       content.push(headings.h3("Decorators"), "");
+      const listContent = [];
       for (const decorator of namespace.decorators) {
-        content.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
+        listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
       }
+      content.push(...listContent);
     }
 
     if (namespace.interfaces.length > 0) {
       content.push(headings.h3("Interfaces"), "");
+      const listContent = [];
       for (const iface of namespace.interfaces) {
-        content.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
+        listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
       }
+      content.push(...listContent);
     }
 
     if (namespace.operations.length > 0) {
       content.push(headings.h3("Operations"), "");
+      const listContent = [];
       for (const operation of namespace.operations) {
-        content.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
+        listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
       }
+      content.push(...listContent);
     }
 
     if (namespace.models.length > 0) {
       content.push(headings.h3("Models"), "");
+      const listContent = [];
       for (const model of namespace.models) {
-        content.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
+        listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
       }
+      content.push(...listContent);
     }
   }
   return content.join("\n");
 }
 
-function renderDecoratorFile(refDoc: CadlRefDoc): string | undefined {
+export type DecoratorRenderOptions = {
+  title?: string;
+};
+export function renderDecoratorFile(
+  refDoc: TypeSpecRefDoc,
+  options?: DecoratorRenderOptions
+): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
   }
+  const title = options?.title ?? "Decorators";
   const content = [
     "---",
-    `title: "Decorators"`,
+    `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1("Decorators"),
+    headings.h1(title),
   ];
 
   content.push(
@@ -110,7 +126,6 @@ function renderDecoratorFile(refDoc: CadlRefDoc): string | undefined {
       if (namespace.decorators.length === 0) {
         return undefined;
       }
-
       const content = [];
       for (const dec of namespace.decorators) {
         content.push(renderDecoratorMarkdown(dec), "");
@@ -127,7 +142,7 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     headings.hx(headingLevel, `${inlinecode(dec.name)} {#${dec.id}}`),
     "",
     dec.doc,
-    codeblock(dec.signature, "cadl"),
+    codeblock(dec.signature, "typespec"),
     "",
   ];
 
@@ -138,11 +153,15 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     ""
   );
 
-  const paramTable: string[][] = [["Name", "Type", "Description"]];
-  for (const param of dec.parameters) {
-    paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+  if (dec.parameters.length > 0) {
+    const paramTable: string[][] = [["Name", "Type", "Description"]];
+    for (const param of dec.parameters) {
+      paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+    }
+    content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
+  } else {
+    content.push(headings.hx(headingLevel + 1, "Parameters"), "None", "");
   }
-  content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
 
   if (dec.examples.length > 0) {
     content.push(headings.hx(headingLevel + 1, "Examples"));
@@ -157,7 +176,7 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
   return content.join("\n");
 }
 
-function renderInterfacesFile(refDoc: CadlRefDoc): string | undefined {
+function renderInterfacesFile(refDoc: TypeSpecRefDoc): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
     return undefined;
   }
@@ -196,7 +215,7 @@ function renderOperationMarkdown(op: OperationRefDoc, headingLevel: number = 3) 
     headings.hx(headingLevel, `${inlinecode(op.name)} {#${op.id}}`),
     "",
     op.doc,
-    codeblock(op.signature, "cadl"),
+    codeblock(op.signature, "typespec"),
     "",
   ];
 
@@ -224,7 +243,7 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
     headings.hx(headingLevel, `${inlinecode(iface.name)} {#${iface.id}}`),
     "",
     iface.doc,
-    codeblock(iface.signature, "cadl"),
+    codeblock(iface.signature, "typespec"),
     "",
   ];
 
@@ -235,7 +254,7 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
   return content.join("\n");
 }
 
-function renderDataTypes(refDoc: CadlRefDoc): string | undefined {
+function renderDataTypes(refDoc: TypeSpecRefDoc): string | undefined {
   if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
     return undefined;
   }
@@ -250,7 +269,12 @@ function renderDataTypes(refDoc: CadlRefDoc): string | undefined {
 
   content.push(
     groupByNamespace(refDoc.namespaces, (namespace) => {
-      if (namespace.models.length === 0) {
+      const modelCount =
+        namespace.models.length +
+        namespace.enums.length +
+        namespace.unions.length +
+        namespace.scalars.length;
+      if (modelCount === 0) {
         return undefined;
       }
       const content = [];
@@ -262,6 +286,9 @@ function renderDataTypes(refDoc: CadlRefDoc): string | undefined {
       }
       for (const union of namespace.unions) {
         content.push(renderUnion(union), "");
+      }
+      for (const scalar of namespace.scalars) {
+        content.push(renderScalar(scalar), "");
       }
       return content.join("\n");
     })
@@ -275,7 +302,7 @@ function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
     headings.hx(headingLevel, `${inlinecode(model.name)} {#${model.id}}`),
     "",
     model.doc,
-    codeblock(model.signature, "cadl"),
+    codeblock(model.signature, "typespec"),
     "",
   ];
 
@@ -291,23 +318,40 @@ function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
     headings.hx(headingLevel, `${inlinecode(e.name)} {#${e.id}}`),
     "",
     e.doc,
-    codeblock(e.signature, "cadl"),
+    codeblock(e.signature, "typespec"),
     "",
   ];
 
   return content.join("\n");
 }
+
 function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
   const content = [
     headings.hx(headingLevel, `${inlinecode(union.name)} {#${union.id}}`),
     "",
     union.doc,
-    codeblock(union.signature, "cadl"),
+    codeblock(union.signature, "typespec"),
     "",
   ];
 
   if (union.templateParameters) {
     content.push(renderTemplateParametersTable(union.templateParameters, headingLevel + 1));
+  }
+
+  return content.join("\n");
+}
+
+function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
+  const content = [
+    headings.hx(headingLevel, `${inlinecode(scalar.name)} {#${scalar.id}}`),
+    "",
+    scalar.doc,
+    codeblock(scalar.signature, "typespec"),
+    "",
+  ];
+
+  if (scalar.templateParameters) {
+    content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
   }
 
   return content.join("\n");

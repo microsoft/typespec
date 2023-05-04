@@ -46,7 +46,7 @@ When checking if type `S` can be assigned to type `T`, if `T` is a model with pr
 
 For example
 
-```cadl
+```typespec
 model T {
   foo: string;
   bar: int32;
@@ -86,7 +86,7 @@ model S {
 
 A record is a model indexed with a string with value of T. This means that it represents a model where all properties(string key) are assignable to the type T. You can assign a model expression where all the properties are of type T or another model that `is` also a `Record<T>`
 
-```cadl
+```typespec
 // Represent an object where all the values are int32.
 alias T = Record<int32>;
 
@@ -123,7 +123,7 @@ model S {
 
 In this scenario
 
-```cadl
+```typespec
 alias T = Record<int32>;
 model S {
   foo: 123;
@@ -135,7 +135,7 @@ The reason is `model S` here is not assignable but the model expression `{ foo: 
 
 If you for example now add a new model
 
-```cadl
+```typespec
 model Foo is S {
   otherProp: string;
 }

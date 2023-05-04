@@ -1,0 +1,1 @@
+/test/main.tsp:19:3 - error @typespec/protobuf/unconvertible-enum: the first variant of an enum must be set to zero to be used in a Protobuf message

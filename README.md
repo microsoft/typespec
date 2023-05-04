@@ -1,33 +1,33 @@
-# Cadl
+# TypeSpec
 
-[Try Cadl Online](https://aka.ms/trycadl)
+[Try TypeSpec Online](https://aka.ms/trytypespec)
 
-Cadl is a language for describing cloud service APIs and generating other API
+TypeSpec is a language for describing cloud service APIs and generating other API
 description languages, client and service code, documentation, and other assets.
-Cadl provides highly extensible core language primitives that can describe API
+TypeSpec provides highly extensible core language primitives that can describe API
 shapes common among REST, OpenAPI, GraphQL, gRPC, and other protocols.
 
-Using Cadl, you can create reusable patterns for all aspects of an API, along with the ability to check for and flag known anti-patterns. These patterns establish "guardrails" for API designers and make it easier to follow best practices than deviate from them. Cadl promotes highly regular API designs that adhere to best practices by construction.
+Using TypeSpec, you can create reusable patterns for all aspects of an API, along with the ability to check for and flag known anti-patterns. These patterns establish "guardrails" for API designers and make it easier to follow best practices than deviate from them. TypeSpec promotes highly regular API designs that adhere to best practices by construction.
 
 You can try a work-in-progress build of the compiler by following the steps in
 the Getting Started section below. Please feel free to [file
-issues](https://github.com/Microsoft/cadl/issues) for any issues you encounter while
+issues](https://github.com/Microsoft/typespec/issues) for any issues you encounter while
 using the preview.
 
-## Try Cadl without installing anything
+## Try TypeSpec without installing anything
 
-You can try Cadl on the web without installing anything.
+You can try TypeSpec on the web without installing anything.
 
-- [Cadl playground](https://cadlplayground.z22.web.core.windows.net)
-- [Cadl playground for Azure services](https://cadlplayground.z22.web.core.windows.net/cadl-azure/)
+- [TypeSpec playground](https://cadlplayground.z22.web.core.windows.net)
+- [TypeSpec playground for Azure services](https://cadlplayground.z22.web.core.windows.net/cadl-azure/)
 
 ## Getting Started
 
-For documentation for Cadl language, see https://microsoft.github.io/cadl.
+For documentation for TypeSpec language, see https://microsoft.github.io/typespec.
 
 ### Using Docker
 
-[See docker documentation](./docs/docker.md)
+[See docker documentation](./docker)
 
 ### Using Node & Npm
 
@@ -41,45 +41,45 @@ For documentation for Cadl language, see https://microsoft.github.io/cadl.
 
    It is recommended to have npm 7+. To update npm run `npm install -g npm`
 
-2. Install Cadl compiler and libraries:
+2. Install TypeSpec compiler and libraries:
 
 ```bash
    npm init -y
-   npm install -g @cadl-lang/compiler
+   npm install -g @typespec/compiler
 ```
 
-If you do not wish to install the compiler globally with `-g` flag, you will need to install it locally once in every Cadl project folder. You would also need to prefix every Cadl run command with `npx`. See [npx documentation](https://docs.npmjs.com/cli/v7/commands/npx)
+If you do not wish to install the compiler globally with `-g` flag, you will need to install it locally once in every TypeSpec project folder. You would also need to prefix every TypeSpec run command with `npx`. See [npx documentation](https://docs.npmjs.com/cli/v7/commands/npx)
 
 ```bash
-    npx cadl init
-    npx cadl compile
+    npx tsp init
+    npx tsp compile
 ```
 
-3. Install the Cadl extension for your editor of choice:
+3. Install the TypeSpec extension for your editor of choice:
 
    - [Instructions for Visual Studio](#installing-visual-studio-extension)
    - [Instructions for Visual Studio Code](#installing-vs-code-extension)
 
-### Creating Cadl project
+### Creating TypeSpec project
 
-1. Create a folder for your new Cadl project
+1. Create a folder for your new TypeSpec project
 
-2. Initialize a Cadl project.
+2. Initialize a TypeSpec project.
 
-   - Run `cadl init` > Select `Generic Rest API` template with `@cadl-lang/rest` and `@cadl-lang/openapi3` libraries checked.
-   - Run `cadl install` to install node package dependencies.
+   - Run `tsp init` > Select `Generic Rest API` template with `@typespec/rest` and `@typespec/openapi3` libraries checked.
+   - Run `tsp install` to install node package dependencies.
 
-3. Open the folder in your editor and edit `main.cadl`
+3. Open the folder in your editor and edit `main.tsp`
 
-4. Follow our [documentation](https://microsoft.github.io/cadl) to get started writing Cadl!
+4. Follow our [documentation](https://microsoft.github.io/typespec) to get started writing TypeSpec!
 
-5. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
+5. Once you're ready to compile your TypeSpec to Swagger, save the file and type this at the command prompt in your project folder:
 
    ```bash
-   cadl compile .
+   tsp compile .
    ```
 
-   This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
+   This will compile the TypeSpec files in the project folder into one output file: `.\tsp-output\openapi.json`.
 
 ## Troubleshooting
 
@@ -90,19 +90,19 @@ If you do not wish to install the compiler globally with `-g` flag, you will nee
 See full usage documentation by typing:
 
 ```
-cadl --help
+tsp --help
 ```
 
-### Compiling Cadl source to an OpenAPI 3.0 specification
+### Compiling TypeSpec source to an OpenAPI 3.0 specification
 
-Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to generate OpenAPI 3.0 from Cadl.
+Here is a very small TypeSpec example that uses the `@typespec/openapi3` library to generate OpenAPI 3.0 from TypeSpec.
 
-#### sample.cadl
+#### sample.tsp
 
-```cadl
-import "@cadl-lang/rest";
+```typespec
+import "@typespec/http";
 
-using Cadl.Http;
+using TypeSpec.Http;
 
 @server("https://example.com", "Single server endpoint")
 @route("/example")
@@ -116,57 +116,57 @@ namespace Example {
 You can compile it to OpenAPI 3.0 by using the following command:
 
 ```
-cadl compile sample.cadl --emit @cadl-lang/openapi3
+tsp compile sample.tsp --emit @typespec/openapi3
 ```
 
-Once it compiles, you can find the emitted OpenAPI document in `./cadl-output/openapi.json.
+Once it compiles, you can find the emitted OpenAPI document in `./tsp-output/openapi.json.
 
-You can also pass in a directory instead of a file to `cadl compile`. That's
-equivalent to passing `main.cadl` in that directory.
+You can also pass in a directory instead of a file to `tsp compile`. That's
+equivalent to passing `main.tsp` in that directory.
 
-### Formatting Cadl files
+### Formatting TypeSpec files
 
-Cadl provides an auto-formatter to keep your specs clean and organized.
+TypeSpec provides an auto-formatter to keep your specs clean and organized.
 `node_modules` folders are automatically excluded by default
 
 ```bash
-cadl format <patterns...>
+tsp format <patterns...>
 
-# Format all the files in the current directory with the cadl extension.
-cadl format **/*.cadl
+# Format all the files in the current directory with the typespec extension.
+tsp format **/*.tsp
 
 # Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.
-cadl format **/*.cadl "!my-test-folder/**/*"
-cadl format **/*.cadl --exclude "my-test-folder/**/*"
+tsp format **/*.tsp "!my-test-folder/**/*"
+tsp format **/*.tsp --exclude "my-test-folder/**/*"
 ```
 
 ### Installing VS Code Extension
 
 ```
-cadl code install
+tsp code install
 ```
 
-This will download and install the latest VS Code extension. Use `cadl code uninstall` to remove it. Pass `--insiders` if you use VS Code Insiders edition.
+This will download and install the latest VS Code extension. Use `tsp code uninstall` to remove it. Pass `--insiders` if you use VS Code Insiders edition.
 
-If `cadl-server` cannot be found on PATH by VS Code in your setup, you can
-configure its location in VS Code settings. Search for "Cadl" in File ->
-Preferences -> Settings, and adjust `cadl.cadl-server.path` accordingly. You may
-need to restart VS Code after changing this. This should be the path to the `@cadl-lang/compiler` package. (e.g. `./node_modules/@cadl-lang/compiler`)
+If `tsp-server` cannot be found on PATH by VS Code in your setup, you can
+configure its location in VS Code settings. Search for "TypeSpec" in File ->
+Preferences -> Settings, and adjust `typespec.tsp-server.path` accordingly. You may
+need to restart VS Code after changing this. This should be the path to the `@typespec/compiler` package. (e.g. `./node_modules/@typespec/compiler`)
 
 You can also configure a project to use a local npm install of
-`@cadl-lang/compiler`. See [local-cadl sample](packages/samples/local-cadl).
+`@typespec/compiler`. See [local-typespec sample](packages/samples/local-typespec).
 
 ### Installing Visual Studio Extension
 
 ```
-cadl vs install
+tsp vs install
 ```
 
-This will download and install the latest Visual Studio extension. Use `cadl vs uninstall` to remove it.
+This will download and install the latest Visual Studio extension. Use `tsp vs uninstall` to remove it.
 
-If `cadl-server` cannot be found on PATH by Visual Studio in your setup, you can
-configure its location by setting up the `cadl.cadl-server.path` entry in `.vs/VSWorkspaceSettings.json`. You may need to restart Visual Studio after changing this.
-This should be the path to the `@cadl-lang/compiler` package. (e.g. `./node_modules/@cadl-lang/compiler`)
+If `tsp-server` cannot be found on PATH by Visual Studio in your setup, you can
+configure its location by setting up the `typespec.tsp-server.path` entry in `.vs/VSWorkspaceSettings.json`. You may need to restart Visual Studio after changing this.
+This should be the path to the `@typespec/compiler` package. (e.g. `./node_modules/@typespec/compiler`)
 
 ### Installing nightly version
 
@@ -182,39 +182,44 @@ Example
 ```json5
 // Stable setup
 "dependencies": {
-  "@cadl-lang/compiler": "~0.30.0",
-  "@cadl-lang/rest": "~0.14.0",
-  "@cadl-lang/openapi": "~0.9.0",
+  "@typespec/compiler": "~0.30.0",
+  "@typespec/http": "~0.14.0",
+  "@typespec/rest": "~0.14.0",
+  "@typespec/openapi": "~0.9.0",
 }
 
 // Consume next version
 // In this example: compiler and openapi have changes but rest library has none
 "dependencies": {
-  "@cadl-lang/compiler": "~0.31.0-dev.5",
-  "@cadl-lang/rest": "~0.14.0", // No changes to @cadl-lang/rest library so need to stay the latest.
-  "@cadl-lang/openapi": "~0.10.0-dev.2",
+  "@typespec/compiler": "~0.31.0-dev.5",
+  "@typespec/http": "~0.14.0",
+  "@typespec/rest": "~0.14.0", // No changes to @typespec/rest library so need to stay the latest.
+  "@typespec/openapi": "~0.10.0-dev.2",
 }
 ```
 
 ## Packages
 
-| Name                                            | Changelog                    | Latest                                                                                                                             | Next                                                                   |
-| ----------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Core functionality                              |                              |                                                                                                                                    |                                                                        |
-| [@cadl-lang/compiler][compiler_src]             | [Changelog][compiler_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/compiler)](https://www.npmjs.com/package/@cadl-lang/compiler)                         | ![](https://img.shields.io/npm/v/@cadl-lang/compiler/next)             |
-| Cadl Libraries                                  |                              |                                                                                                                                    |                                                                        |
-| [@cadl-lang/rest][rest_src]                     | [Changelog][rest_chg]        | [![](https://img.shields.io/npm/v/@cadl-lang/rest)](https://www.npmjs.com/package/@cadl-lang/rest)                                 | ![](https://img.shields.io/npm/v/@cadl-lang/rest/next)                 |
-| [@cadl-lang/openapi][openapi_src]               | [Changelog][openapi_chg]     | [![](https://img.shields.io/npm/v/@cadl-lang/openapi)](https://www.npmjs.com/package/@cadl-lang/openapi)                           | ![](https://img.shields.io/npm/v/@cadl-lang/openapi/next)              |
-| [@cadl-lang/openapi3][openapi3_src]             | [Changelog][openapi3_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/openapi3)](https://www.npmjs.com/package/@cadl-lang/openapi3)                         | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3/next)             |
-| [@cadl-lang/versioning][versioning_src]         | [Changelog][versioning_chg]  | [![](https://img.shields.io/npm/v/@cadl-lang/versioning)](https://www.npmjs.com/package/@cadl-lang/versioning)                     | ![](https://img.shields.io/npm/v/@cadl-lang/versioning/next)           |
-| Cadl Tools                                      |                              |                                                                                                                                    |                                                                        |
-| [@cadl-lang/prettier-plugin-cadl][prettier_src] | [Changelog][prettier_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl)](https://www.npmjs.com/package/@cadl-lang/prettier-plugin-cadl) | ![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl/next) |
-| [cadl-vs][cadl-vs_src]                          | [Changelog][cadl-vs_chg]     | [![](https://img.shields.io/npm/v/cadl-vs)](https://www.npmjs.com/package/cadl-vs)                                                 | ![](https://img.shields.io/npm/v/cadl-vs/next)                         |
-| [cadl-vscode][cadl-vscode_src]                  | [Changelog][cadl-vscode_chg] | [![](https://img.shields.io/npm/v/cadl-vscode)](https://www.npmjs.com/package/cadl-vscode)                                         | ![](https://img.shields.io/npm/v/cadl-vscode/next)                     |
-| [tmlanguage-generator][tmlanguage_src]          | [Changelog][tmlanguage_chg]  | [![](https://img.shields.io/npm/v/tmlanguage-generator)](https://www.npmjs.com/package/tmlanguage-generator)                       | ![](https://img.shields.io/npm/v/tmlanguage-generator/next)            |
+| Name                                               | Changelog                        | Latest                                                                                                                                   | Next                                                                      |
+| -------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Core functionality                                 |                                  |                                                                                                                                          |                                                                           |
+| [@typespec/compiler][compiler_src]                 | [Changelog][compiler_chg]        | [![](https://img.shields.io/npm/v/@typespec/compiler)](https://www.npmjs.com/package/@typespec/compiler)                                 | ![](https://img.shields.io/npm/v/@typespec/compiler/next)                 |
+| TypeSpec Libraries                                 |                                  |                                                                                                                                          |                                                                           |
+| [@typespec/http][http_src]                         | [Changelog][http_chg]            | [![](https://img.shields.io/npm/v/@typespec/http)](https://www.npmjs.com/package/@typespec/http)                                         | ![](https://img.shields.io/npm/v/@typespec/http/next)                     |
+| [@typespec/rest][rest_src]                         | [Changelog][rest_chg]            | [![](https://img.shields.io/npm/v/@typespec/rest)](https://www.npmjs.com/package/@typespec/rest)                                         | ![](https://img.shields.io/npm/v/@typespec/rest/next)                     |
+| [@typespec/openapi][openapi_src]                   | [Changelog][openapi_chg]         | [![](https://img.shields.io/npm/v/@typespec/openapi)](https://www.npmjs.com/package/@typespec/openapi)                                   | ![](https://img.shields.io/npm/v/@typespec/openapi/next)                  |
+| [@typespec/openapi3][openapi3_src]                 | [Changelog][openapi3_chg]        | [![](https://img.shields.io/npm/v/@typespec/openapi3)](https://www.npmjs.com/package/@typespec/openapi3)                                 | ![](https://img.shields.io/npm/v/@typespec/openapi3/next)                 |
+| [@typespec/versioning][versioning_src]             | [Changelog][versioning_chg]      | [![](https://img.shields.io/npm/v/@typespec/versioning)](https://www.npmjs.com/package/@typespec/versioning)                             | ![](https://img.shields.io/npm/v/@typespec/versioning/next)               |
+| TypeSpec Tools                                     |                                  |                                                                                                                                          |                                                                           |
+| [@typespec/prettier-plugin-typespec][prettier_src] | [Changelog][prettier_chg]        | [![](https://img.shields.io/npm/v/@typespec/prettier-plugin-typespec)](https://www.npmjs.com/package/@typespec/prettier-plugin-typespec) | ![](https://img.shields.io/npm/v/@typespec/prettier-plugin-typespec/next) |
+| [typespec-vs][typespec-vs_src]                     | [Changelog][typespec-vs_chg]     | [![](https://img.shields.io/npm/v/typespec-vs)](https://www.npmjs.com/package/typespec-vs)                                               | ![](https://img.shields.io/npm/v/typespec-vs/next)                        |
+| [typespec-vscode][typespec-vscode_src]             | [Changelog][typespec-vscode_chg] | [![](https://img.shields.io/npm/v/typespec-vscode)](https://www.npmjs.com/package/typespec-vscode)                                       | ![](https://img.shields.io/npm/v/typespec-vscode/next)                    |
+| [tmlanguage-generator][tmlanguage_src]             | [Changelog][tmlanguage_chg]      | [![](https://img.shields.io/npm/v/tmlanguage-generator)](https://www.npmjs.com/package/tmlanguage-generator)                             | ![](https://img.shields.io/npm/v/tmlanguage-generator/next)               |
 
 [compiler_src]: packages/compiler
 [compiler_chg]: packages/compiler/CHANGELOG.md
+[http_src]: packages/http
+[http_chg]: packages/http/CHANGELOG.md
 [rest_src]: packages/rest
 [rest_chg]: packages/rest/CHANGELOG.md
 [openapi_src]: packages/openapi
@@ -223,12 +228,12 @@ Example
 [openapi3_chg]: packages/openapi3/CHANGELOG.md
 [versioning_src]: packages/versioning
 [versioning_chg]: packages/versioning/CHANGELOG.md
-[prettier_src]: packages/prettier-plugin-cadl
-[prettier_chg]: packages/prettier-plugin-cadl/CHANGELOG.md
-[cadl-vs_src]: packages/cadl-vs
-[cadl-vs_chg]: packages/cadl-vs/CHANGELOG.md
-[cadl-vscode_src]: packages/cadl-vscode
-[cadl-vscode_chg]: packages/cadl-vscode/CHANGELOG.md
+[prettier_src]: packages/prettier-plugin-typespec
+[prettier_chg]: packages/prettier-plugin-typespec/CHANGELOG.md
+[typespec-vs_src]: packages/typespec-vs
+[typespec-vs_chg]: packages/typespec-vs/CHANGELOG.md
+[typespec-vscode_src]: packages/typespec-vscode
+[typespec-vscode_chg]: packages/typespec-vscode/CHANGELOG.md
 [tmlanguage_src]: packages/tmlanguage-generator
 [tmlanguage_chg]: packages/tmlanguage-generator/CHANGELOG.md
 

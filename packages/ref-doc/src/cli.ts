@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { normalizePath } from "@cadl-lang/compiler";
+import { normalizePath } from "@typespec/compiler";
 import { resolve } from "path";
-import { generateDocs } from "./index.js";
+import { generateLibraryDocs } from "./index.js";
 
 main().catch((e) => {
   console.error(e);
@@ -28,5 +28,5 @@ async function main() {
     resolvedOutputDir,
   });
 
-  await generateDocs(main, namespaces, resolvedOutputDir);
+  await generateLibraryDocs(main, namespaces, resolvedOutputDir);
 }

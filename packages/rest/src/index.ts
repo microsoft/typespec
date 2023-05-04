@@ -1,5 +1,4 @@
-export const namespace = "Cadl.Rest";
-export * as http from "./http/index.js";
+export const namespace = "TypeSpec.Rest";
 export * from "./resource.js";
 export * from "./rest.js";
 export * from "./validate.js";

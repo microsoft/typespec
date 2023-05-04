@@ -172,7 +172,7 @@ describe("compiler: server: documentHighlight", () => {
   async function findDocumentHighlight(sourceWithCursor: string): Promise<DocumentHighlight[]> {
     const { source, pos } = extractCursor(sourceWithCursor);
     const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
+    const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
     return await testHost.server.findDocumentHighlight({
       textDocument,
       position: textDocument.positionAt(pos),

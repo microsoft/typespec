@@ -11,7 +11,8 @@ jobs:
   - job: npm_stable
     displayName: Npm publish
     pool:
-      vmImage: windows-latest
+      name: azsdk-pool-mms-win-2022-general
+      vmImage: windows-2022
     steps:
       - task: NodeTool@0
         inputs:
@@ -22,20 +23,21 @@ jobs:
         inputs:
           version: 6.0.x
 
-      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+      - script: |
+          echo ##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true
         displayName: Enable official Visual Studio extension build
 
-      - script: npx @microsoft/rush install
+      - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
       - script: dotnet restore
         displayName: Restore .NET Dependencies
-        workingDirectory: packages/cadl-vs
+        workingDirectory: packages/typespec-vs
 
-      - script: npx @microsoft/rush rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
-      - script: npx @microsoft/rush test-official
+      - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
         displayName: Test
 
       - template: ./upload-coverage.yml
@@ -45,46 +47,42 @@ jobs:
           node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
         displayName: Release
 
-      - task: AzureFileCopy@4
+      - task: AzureCLI@1
+        displayName: "Publish playground"
         inputs:
-          sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlplayground"
-          containerName: "$web"
-        displayName: "Update playground"
-
-      - task: AzureFileCopy@4
-        inputs:
-          sourcePath: "packages/website/build/*"
-          azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlwebsite"
-          containerName: "$web"
-        displayName: "Update website"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch ^
+              --destination $web ^
+              --account-name "cadlplayground" ^
+              --destination-path / ^
+              --source "./packages/playground/dist/" ^
+              --overwrite
 
   - job: npm_dev
     dependsOn: npm_stable
     displayName: Npm publish dev version
     pool:
-      vmImage: windows-latest
+      name: azsdk-pool-mms-win-2022-general
+      vmImage: windows-2022
     steps:
       - task: NodeTool@0
         inputs:
           versionSpec: 16.x
         displayName: Install Node.js
 
-      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+      - script: echo '##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true'
         displayName: Enable official Visual Studio extension build
 
-      - script: npx @microsoft/rush install
+      - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
       - script: dotnet restore
         displayName: Restore .NET Dependencies
-        workingDirectory: packages/cadl-vs
+        workingDirectory: packages/typespec-vs
 
-      - script: npx @microsoft/rush rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
@@ -98,9 +96,10 @@ jobs:
   - job: docker
     displayName: Docker build and publish
     variables:
-      imageName: "azsdkengsys.azurecr.io/cadl"
+      imageName: "azsdkengsys.azurecr.io/typespec"
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
     steps:
       - task: Docker@1
         displayName: login

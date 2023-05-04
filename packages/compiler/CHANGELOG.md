@@ -1,6 +1,99 @@
-# Change Log - @cadl-lang/compiler
+# Change Log - @typespec/compiler
 
-This log was last generated on Fri, 16 Dec 2022 22:02:45 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Bug: Emitter framework will now visit scalar declarations
+- Emit diagnostic when ambiguous symbol exists between global and usings.
+- Feature: Add support for referencing metatypes ModelProperty `::type` and Operation `::returnType` and `::parameters`
+- Relax constraint on derived type overrides
+- Fix: Alias unknown ref crash
+- Fix: Empty model expression assignable to array
+- Fix `tsp code uninstall` not finding extension to uninstall.
+- Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation.
+- Prevent use of augment decorators on instantiated templates.
+- Allow projectedNames helpers to work with previous projections
+- Add helper `interpolatePath` for emitter to do additional interpolation on config properties
+- Api: Update `getTypeName` to omit standard library namespace
+- Allow overloads in interfaces to work under projection
+- Add pre-projection support.
+- Provide access to extended interfaces in type graph.
+- Document member ordering and fix projection rename reordering.
+- Replaced zonedDateTime with utcDateTime and offsetDateTime
+
+## 0.42.0
+Mon, 13 Mar 2023 21:30:44 GMT
+
+### Updates
+
+- **Breaking Change**. Removes `emitters` option in cadl-project.yaml. Use `emit` and `options` instead.
+- Export formatIdentifier function from the lib
+- Add `--config` option to `tsp compile`.
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Adding back all compiler exported public artifacts contains Cadl that got renamed to TypeSpec.
+- Fix ambiguous references diagnostic for decorators
+- Add loading cadl-project.yaml for back compat
+- Remove support for Visual Studio 2019
+- Allow escaping identifiers using backticks
+- Format `StringLiteral` to `Identifier` (backticked when necessary)
+- Apply augmented decorator at last.
+- Adding .cadl & package.json cadlMain back compat support
+- Fix projection of template arguments
+- Revert back changelog
+- Revert PR #1634.
+- Fix issue with projectedName decorator not working correctly when multiple copies of the compiler are loaded.
+- Updating default output to tsp-output and package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Fixing cli help message, package homepage link
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Updates
+
+- Fix giving a default value to custom numeric scalar
+- Feature: add an emitter framework to simplify building emitters
+- Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter
+- Bug: properly parse logical and (`&&`) expressions in projections
+- Support --option=path/to/emitter.js.option=value in cli args
+- Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Updates
+
+- Api: Provide more accurate `parent` type for Nodes
+- Add IDE completion and signature help for augment decorators
+- Fix `(anonymous model).paramName` showing in operation signatures in IDE
+- Add double quote to autoClosingPairs
+- Only warn when an invalid identifier is used in a doc comment
+- Add @minValueExclusive and @maxValueExclusive decorators.
+- Feature: Templated operation inside of interfaces
+- Feature: Add templated operation inside of interface
+- Fix: Alias cause types to be resolved before some binding
+- Fix `cadl format` works with windows backslash paths
+- [Language Server] Fix: Completion of library imports replace import correctly"
+- Fix issue with using server lib at the root of filesystem
+- Fix: Projecting model property with type referencing sibling
+- Fix: Issue with referencing spread members
+- Internal: Update resolution of member symbols to have more ahead of time resolution
+- Internal: Update TS module resolution to node16
+- Type graph navigation navigate decorators
+- Internal: Refactor organization of completions logic for language server
+- Fix issue with referencing spread properties or enum member depending on the order of declaration
+- Fix: `resolveUsages` shouldn't include base model
+- Added `changeReturnType` projection method for operations.
+- Improve visibility decorator documentation
 
 ## 0.38.5
 Fri, 16 Dec 2022 22:02:45 GMT

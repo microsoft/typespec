@@ -1,4 +1,4 @@
-import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export interface OpenAPI3EmitterOptions {
@@ -11,7 +11,28 @@ export interface OpenAPI3EmitterOptions {
 
   /**
    * Name of the output file.
-   * @default `openapi.yaml` or `openapi.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * Output file will interpolate the following values:
+   *  - service-name: Name of the service if multiple
+   *  - version: Version of the service if multiple
+   *
+   * @default `{service-name}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   *
+   * @example Single service no versioning
+   *  - `openapi.yaml`
+   *
+   * @example Multiple services no versioning
+   *  - `openapi.Org1.Service1.yaml`
+   *  - `openapi.Org1.Service2.yaml`
+   *
+   * @example Single service with versioning
+   *  - `openapi.v1.yaml`
+   *  - `openapi.v2.yaml`
+   *
+   * @example Multiple service with versioning
+   *  - `openapi.Org1.Service1.v1.yaml`
+   *  - `openapi.Org1.Service1.v2.yaml`
+   *  - `openapi.Org1.Service2.v1.0.yaml`
+   *  - `openapi.Org1.Service2.v1.1.yaml`
    */
   "output-file"?: string;
 
@@ -41,7 +62,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
 };
 
 export const libDef = {
-  name: "@cadl-lang/openapi3",
+  name: "@typespec/openapi3",
   diagnostics: {
     "invalid-server-variable": {
       severity: "error",
@@ -119,7 +140,7 @@ export const libDef = {
   },
 } as const;
 
-export const $lib = createCadlLibrary(libDef);
+export const $lib = createTypeSpecLibrary(libDef);
 export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

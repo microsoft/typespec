@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { Model, Union } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { Model, Type, Union } from "../../core/types.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
 
 describe("compiler: aliases", () => {
   let testHost: TestHost;
@@ -9,9 +9,12 @@ describe("compiler: aliases", () => {
     testHost = await createTestHost();
   });
 
+  function getOptionAtIndex(union: Union, index: number): Type {
+    return [...union.variants.values()][index].type;
+  }
   it("can alias a union expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo = int32 | string;
       alias Bar = "hi" | 10;
@@ -28,16 +31,16 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 4);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "Scalar");
-    strictEqual(propType.options[2].kind, "String");
-    strictEqual(propType.options[3].kind, "Number");
+    strictEqual(propType.variants.size, 4);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 2).kind, "String");
+    strictEqual(getOptionAtIndex(propType, 3).kind, "Number");
   });
 
   it("can alias a deep union expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo = int32 | string;
       alias Bar = "hi" | 10;
@@ -55,17 +58,17 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 5);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "Scalar");
-    strictEqual(propType.options[2].kind, "String");
-    strictEqual(propType.options[3].kind, "Number");
-    strictEqual(propType.options[4].kind, "String");
+    strictEqual(propType.variants.size, 5);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 2).kind, "String");
+    strictEqual(getOptionAtIndex(propType, 3).kind, "Number");
+    strictEqual(getOptionAtIndex(propType, 4).kind, "String");
   });
 
   it("can alias a union expression with parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo<T> = int32 | T;
       
@@ -81,14 +84,14 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 2);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "String");
+    strictEqual(propType.variants.size, 2);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "String");
   });
 
   it("can alias a deep union expression with parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo<T> = int32 | T;
       alias Bar<T, U> = Foo<T> | Foo<U>;
@@ -105,16 +108,16 @@ describe("compiler: aliases", () => {
 
     const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
-    strictEqual(propType.options.length, 4);
-    strictEqual(propType.options[0].kind, "Scalar");
-    strictEqual(propType.options[1].kind, "String");
-    strictEqual(propType.options[2].kind, "Scalar");
-    strictEqual(propType.options[3].kind, "Number");
+    strictEqual(propType.variants.size, 4);
+    strictEqual(getOptionAtIndex(propType, 0).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 1).kind, "String");
+    strictEqual(getOptionAtIndex(propType, 2).kind, "Scalar");
+    strictEqual(getOptionAtIndex(propType, 3).kind, "Number");
   });
 
   it("can alias an intersection expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias Foo = {a: string} & {b: string};
       alias Bar = {c: string} & {d: string};
@@ -139,8 +142,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can be used like any model", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Test { a: string };
 
@@ -164,8 +167,8 @@ describe("compiler: aliases", () => {
   });
 
   it("can be used like any namespace", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       namespace Foo {
         @test model Bar { }
@@ -186,13 +189,13 @@ describe("compiler: aliases", () => {
   });
 
   it("emit diagnostics if assign itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias A = A;
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",
@@ -200,15 +203,15 @@ describe("compiler: aliases", () => {
   });
 
   it("emit single diagnostics if assign itself as generic and is referenced", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias A<T> = A<T>;
 
       model Foo {a: A<string>}
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",
@@ -216,13 +219,13 @@ describe("compiler: aliases", () => {
   });
 
   it("emit diagnostics if reference itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       alias A = "string" | A;
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",

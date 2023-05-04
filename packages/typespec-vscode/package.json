@@ -1,0 +1,138 @@
+{
+  "name": "typespec-vscode",
+  "version": "0.43.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec Language Support for VS Code",
+  "homepage": "https://microsoft.github.io/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "publisher": "Microsoft",
+  "displayName": "TypeSpec Language Support for VS Code",
+  "categories": [
+    "Programming Languages"
+  ],
+  "type": "commonjs",
+  "main": "./extension-shim.js",
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "activationEvents": [
+    "onLanguage:typespec",
+    "onCommand:typespec.restartServer"
+  ],
+  "files": [
+    "typespec-vscode-*.vsix",
+    "ThirdPartyNotices.txt"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "typespec",
+        "aliases": [
+          "TypeSpec",
+          "TYPESPEC"
+        ],
+        "extensions": [
+          ".tsp"
+        ],
+        "configuration": "./dist/language-configuration.json"
+      },
+      {
+        "id": "markdown-typespec"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "TypeSpec Language Server Path",
+        "properties": {
+          "typespec.tsp-server.path": {
+            "type": "string",
+            "default": "",
+            "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
+            "scope": "machine-overridable"
+          }
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "typespec",
+        "scopeName": "source.tsp",
+        "path": "./dist/typespec.tmLanguage"
+      },
+      {
+        "language": "markdown-typespec",
+        "scopeName": "markdown.tsp.codeblock",
+        "path": "./markdown-typespec.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.tsp": "typespec"
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "typespec.restartServer",
+        "title": "Restart TypeSpec server",
+        "category": "TypeSpec"
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "keyword": [
+            "keyword.other.tsp"
+          ],
+          "macro": [
+            "entity.name.tag.tsp"
+          ]
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./dist-dev ./temp",
+    "build": "npm run compile && npm run rollup && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "dogfood": "node scripts/dogfood.js",
+    "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
+    "generate-language-configuration": "node scripts/generate-language-configuration.js",
+    "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
+    "rollup": "rollup --config --failAfterWarnings 2>&1",
+    "package-vsix": "vsce package"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "~23.0.2",
+    "@rollup/plugin-node-resolve": "~15.0.1",
+    "@types/mocha": "~10.0.0",
+    "@types/node": "~18.11.9",
+    "@types/vscode": "~1.53.0",
+    "@typespec/compiler": "~0.43.0",
+    "@typespec/eslint-config-typespec": "~0.6.0",
+    "@typespec/internal-build-utils": "~0.4.0",
+    "eslint": "^8.36.0",
+    "c8": "~7.13.0",
+    "mkdirp": "~2.1.6",
+    "mocha": "~10.2.0",
+    "mocha-junit-reporter": "~2.2.0",
+    "mocha-multi-reporters": "~1.5.1",
+    "rimraf": "~5.0.0",
+    "rollup": "~3.4.0",
+    "typescript": "~5.0.2",
+    "@vscode/vsce": "~2.15.0",
+    "vscode-languageclient": "~8.0.0"
+  }
+}

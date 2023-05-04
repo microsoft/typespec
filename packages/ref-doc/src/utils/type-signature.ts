@@ -12,7 +12,7 @@ import {
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -68,7 +68,7 @@ function isReflectionType(type: Type): type is Model & { name: "" } {
   return (
     type.kind === "Model" &&
     type.namespace?.name === "Reflection" &&
-    type.namespace?.namespace?.name === "Cadl"
+    type.namespace?.namespace?.name === "TypeSpec"
   );
 }
 
@@ -135,7 +135,7 @@ export function getQualifier(parent: (Type & { name?: string | symbol }) | undef
   }
 
   const parentName = getTypeName(parent);
-  if (!parentName || parentName === "Cadl") {
+  if (!parentName || parentName === "TypeSpec") {
     return "";
   }
 

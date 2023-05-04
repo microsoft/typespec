@@ -1,29 +1,27 @@
 {
-  "name": "@cadl-lang/spec",
+  "name": "@typespec/spec",
   "version": "0.1.0",
   "private": true,
   "author": "Microsoft Corporation",
-  "description": "Cadl Language Specification Source Code",
-  "homepage": "https://github.com/Microsoft/cadl",
-  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
+  "description": "TypeSpec Language Specification Source Code",
+  "homepage": "https://microsoft.github.io/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Microsoft/cadl/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/cadl.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "type": "module",
   "scripts": {
     "build": "ecmarkup --strict src/spec.emu.html dist/spec.html",
     "watch": "node scripts/watch-spec.js"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/mkdirp": "~1.0.1",
     "@types/node": "~18.11.9",
     "ecmarkup": "~12.0.3",
-    "@cadl-lang/internal-build-utils": "~0.3.2"
+    "@typespec/internal-build-utils": "~0.4.0"
   }
 }

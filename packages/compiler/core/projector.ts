@@ -1,15 +1,7 @@
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import {
-  createStateAccessors,
-  getParentTemplateNode,
-  isNeverType,
-  isProjectedProgram,
-  isTemplateInstance,
-  ProjectedProgram,
-  Scalar,
-} from "./index.js";
-import { Program } from "./program.js";
+import { createStateAccessors, isProjectedProgram, Program, ProjectedProgram } from "./program.js";
+import { getParentTemplateNode, isNeverType, isTemplateInstance } from "./type-utils.js";
 import {
   DecoratorApplication,
   DecoratorArgument,
@@ -22,11 +14,14 @@ import {
   Operation,
   ProjectionApplication,
   Projector,
+  Scalar,
   Tuple,
   Type,
+  TypeMapper,
   Union,
   UnionVariant,
 } from "./types.js";
+import { createRekeyableMap, mutate } from "./util.js";
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
@@ -105,6 +100,14 @@ export function createProjector(
     }
 
     scope.push(type);
+
+    const preProjected = applyPreProjection(type);
+    if (preProjected !== type) {
+      projectedTypes.set(type, preProjected);
+      scope.pop();
+      return preProjected;
+    }
+
     let projected;
     switch (type.kind) {
       case "Namespace":
@@ -149,7 +152,6 @@ export function createProjector(
     }
 
     scope.pop();
-
     return projected;
   }
 
@@ -176,13 +178,13 @@ export function createProjector(
     }
 
     const projectedNs = shallowClone(ns, {
-      namespaces: new Map<string, Namespace>(),
-      scalars: new Map<string, Scalar>(),
-      models: new Map<string, Model>(),
-      operations: new Map<string, Operation>(),
-      interfaces: new Map<string, Interface>(),
-      unions: new Map<string, Union>(),
-      enums: new Map<string, Enum>(),
+      namespaces: createRekeyableMap(),
+      scalars: createRekeyableMap(),
+      models: createRekeyableMap(),
+      operations: createRekeyableMap(),
+      interfaces: createRekeyableMap(),
+      unions: createRekeyableMap(),
+      enums: createRekeyableMap(),
       decorators: [],
     });
 
@@ -261,23 +263,24 @@ export function createProjector(
   }
 
   function projectModel(model: Model): Type {
-    const properties = new Map<string, ModelProperty>();
-    let templateArguments: Type[] | undefined;
+    const properties = createRekeyableMap<string, ModelProperty>();
 
     const projectedModel = shallowClone(model, {
       properties,
       derivedModels: [],
     });
 
-    if (model.templateArguments !== undefined) {
-      templateArguments = [];
-      for (const arg of model.templateArguments) {
-        templateArguments.push(projectType(arg));
-      }
+    if (model.templateMapper) {
+      projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
+      projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
     if (model.baseModel) {
       projectedModel.baseModel = projectType(model.baseModel) as Model;
+    }
+    if (model.sourceModel) {
+      projectedModel.sourceModel = projectType(model.sourceModel) as Model;
     }
 
     if (model.indexer) {
@@ -289,10 +292,10 @@ export function createProjector(
 
     projectedTypes.set(model, projectedModel);
 
-    for (const [key, prop] of model.properties) {
+    for (const prop of model.properties.values()) {
       const projectedProp = projectType(prop);
       if (projectedProp.kind === "ModelProperty") {
-        properties.set(key, projectedProp);
+        properties.set(projectedProp.name, projectedProp);
       }
     }
 
@@ -300,7 +303,6 @@ export function createProjector(
     if (shouldFinishType(model)) {
       finishTypeForProgram(projectedProgram, projectedModel);
     }
-    projectedModel.templateArguments = templateArguments;
     const projectedResult = applyProjection(model, projectedModel);
     if (
       !isNeverType(projectedResult) &&
@@ -313,16 +315,31 @@ export function createProjector(
     return projectedResult;
   }
 
+  function projectTemplateMapper(mapper: TypeMapper): TypeMapper {
+    const projectedMapper: TypeMapper = {
+      ...mapper,
+      args: [],
+      map: new Map(),
+    };
+    for (const arg of mapper.args) {
+      mutate(projectedMapper.args).push(projectType(arg));
+    }
+    for (const [param, type] of mapper.map) {
+      projectedMapper.map.set(param, projectType(type));
+    }
+    return projectedMapper;
+  }
+
   function projectScalar(scalar: Scalar): Type {
     const projectedScalar = shallowClone(scalar, {
       derivedScalars: [],
     });
 
-    let templateArguments: Type[] | undefined;
-    if (scalar.templateArguments !== undefined) {
-      templateArguments = scalar.templateArguments.map(projectType);
+    if (scalar.templateMapper) {
+      projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
+      projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
-    projectedScalar.templateArguments = templateArguments;
 
     if (scalar.baseScalar) {
       projectedScalar.baseScalar = projectType(scalar.baseScalar) as Scalar;
@@ -375,7 +392,7 @@ export function createProjector(
     if (prop.model) {
       projectedProp.model = projectType(prop.model) as Model;
     }
-    return projectedProp;
+    return applyProjection(prop, projectedProp);
   }
 
   function projectOperation(op: Operation): Type {
@@ -389,29 +406,52 @@ export function createProjector(
       returnType,
     });
 
-    if (op.interface) {
-      projectedOp.interface = projectedInterfaceScope();
-    } else if (op.namespace) {
+    if (op.templateMapper) {
+      projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
+      projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
+    }
+
+    if (op.sourceOperation) {
+      projectedOp.sourceOperation = projectType(op.sourceOperation) as Operation;
+    }
+
+    if (op.namespace) {
       projectedOp.namespace = projectedNamespaceScope();
     }
 
     finishTypeForProgram(projectedProgram, projectedOp);
+    if (op.interface) {
+      projectedOp.interface = projectType(op.interface) as Interface;
+    }
     return applyProjection(op, projectedOp);
   }
 
   function projectInterface(iface: Interface): Type {
-    const operations = new Map<string, Operation>();
+    const operations = createRekeyableMap<string, Operation>();
+    const sourceInterfaces: Interface[] = [];
     const decorators = projectDecorators(iface.decorators);
     const projectedIface = shallowClone(iface, {
       decorators,
       operations,
+      sourceInterfaces,
     });
+
+    if (iface.templateMapper) {
+      projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
+      projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
+    }
 
     for (const op of iface.operations.values()) {
       const projectedOp = projectType(op);
       if (projectedOp.kind === "Operation") {
         operations.set(projectedOp.name, projectedOp);
       }
+    }
+
+    for (const source of iface.sourceInterfaces) {
+      sourceInterfaces.push(projectType(source) as Interface);
     }
 
     if (shouldFinishType(iface)) {
@@ -422,7 +462,7 @@ export function createProjector(
   }
 
   function projectUnion(union: Union) {
-    const variants = new Map<string | symbol, UnionVariant>();
+    const variants = createRekeyableMap<string | symbol, UnionVariant>();
     const decorators = projectDecorators(union.decorators);
 
     const projectedUnion = shallowClone(union, {
@@ -430,10 +470,16 @@ export function createProjector(
       variants,
     });
 
-    for (const [key, variant] of union.variants) {
+    if (union.templateMapper) {
+      projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
+      projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
+    }
+
+    for (const variant of union.variants.values()) {
       const projectedVariant = projectType(variant);
       if (projectedVariant.kind === "UnionVariant" && projectedVariant.type !== neverType) {
-        variants.set(key, projectedVariant);
+        variants.set(projectedVariant.name, projectedVariant);
       }
     }
 
@@ -453,10 +499,9 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    const parentUnion = projectType(variant.union) as Union;
-    projectedVariant.union = parentUnion;
     finishTypeForProgram(projectedProgram, projectedVariant);
-    return projectedVariant;
+    projectedVariant.union = projectType(variant.union) as Union;
+    return applyProjection(variant, projectedVariant);
   }
 
   function projectTuple(tuple: Tuple) {
@@ -473,7 +518,7 @@ export function createProjector(
   }
 
   function projectEnum(e: Enum) {
-    const members = new Map<string, EnumMember>();
+    const members = createRekeyableMap<string, EnumMember>();
     const decorators = projectDecorators(e.decorators);
     const projectedEnum = shallowClone(e, {
       members,
@@ -493,15 +538,14 @@ export function createProjector(
     return applyProjection(e, projectedEnum);
   }
 
-  function projectEnumMember(e: EnumMember, projectingEnum?: Enum) {
+  function projectEnumMember(e: EnumMember) {
     const decorators = projectDecorators(e.decorators);
     const projectedMember = shallowClone(e, {
       decorators,
     });
-    const parentEnum = projectType(e.enum) as Enum;
-    projectedMember.enum = parentEnum;
     finishTypeForProgram(projectedProgram, projectedMember);
-    return projectedMember;
+    projectedMember.enum = projectType(e.enum) as Enum;
+    return applyProjection(e, projectedMember);
   }
 
   function projectDecorators(decs: DecoratorApplication[]) {
@@ -563,25 +607,6 @@ export function createProjector(
     return projectType(ns) as Namespace;
   }
 
-  function interfaceScope(): Interface | undefined {
-    for (let i = scope.length - 1; i >= 0; i--) {
-      if ("interface" in scope[i]) {
-        return (scope[i] as any).interface;
-      }
-    }
-
-    return undefined;
-  }
-
-  function projectedInterfaceScope(): Interface | undefined {
-    const iface = interfaceScope();
-    if (!iface) return iface;
-    if (!projectedTypes.has(iface)) {
-      throw new Error(`Interface "${iface.name}" should have been projected already`);
-    }
-    return projectType(iface) as Interface;
-  }
-
   function applyProjection(baseType: Type, projectedType: Type): Type {
     const inScopeProjections = getInScopeProjections();
     for (const projectionApplication of inScopeProjections) {
@@ -589,26 +614,48 @@ export function createProjector(
       if (projectionsByName.length === 0) continue;
       const targetNode =
         projectionApplication.direction === "from"
-          ? projectionsByName[0].from!
-          : projectionsByName[0].to!;
-      const projected = checker.project(projectedType, targetNode, projectionApplication.arguments);
-      if (projected !== projectedType) {
-        // override the projected type cache with the returned type
-        projectedTypes.set(baseType, projected);
-        return projected;
+          ? projectionsByName[0].from
+          : projectionsByName[0].to;
+
+      if (targetNode) {
+        const projected = checker.project(
+          projectedType,
+          targetNode,
+          projectionApplication.arguments
+        );
+        if (projected !== projectedType) {
+          // override the projected type cache with the returned type
+          projectedTypes.set(baseType, projected);
+          return projected;
+        }
       }
     }
 
     return projectedType;
   }
 
+  function applyPreProjection(type: Type): Type {
+    const inScopeProjections = getInScopeProjections();
+    for (const projectionApplication of inScopeProjections) {
+      const projectionsByName = type.projectionsByName(projectionApplication.projectionName);
+      if (projectionsByName.length === 0) continue;
+      const targetNode =
+        projectionApplication.direction === "from"
+          ? projectionsByName[0].preFrom
+          : projectionsByName[0].preTo;
+
+      if (targetNode) {
+        return checker.project(type, targetNode, projectionApplication.arguments);
+      }
+    }
+
+    return type;
+  }
+
   function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>): T {
     const scopeProps: any = {};
     if ("namespace" in type && type.namespace !== undefined) {
       scopeProps.namespace = projectedNamespaceScope();
-    }
-    if ("interface" in type && type.interface !== undefined) {
-      scopeProps.interface = projectedInterfaceScope();
     }
 
     const clone = checker.createType({

@@ -117,12 +117,6 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
-  "default-optional": {
-    severity: "error",
-    messages: {
-      default: "Cannot use default with non optional properties",
-    },
-  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -159,7 +153,13 @@ const diagnostics = {
   "duplicate-decorator": {
     severity: "warning",
     messages: {
-      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same node.`,
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used twice on the same declaration.`,
+    },
+  },
+  "decorator-conflict": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Decorator ${"decoratorName"} cannot be used with decorator ${"otherDecoratorName"} on the same declaration.`,
     },
   },
   "reserved-identifier": {
@@ -220,7 +220,19 @@ const diagnostics = {
       default: "A rest parameter cannot be optional.",
     },
   },
-
+  /**
+   * Parser doc comment warnings.
+   * Design goal: Malformed doc comments should only produce warnings, not errors.
+   */
+  "doc-invalid-identifier": {
+    severity: "warning",
+    messages: {
+      default: "Invalid identifier.",
+      tag: "Invalid tag name. Use backticks around code if this was not meant to be a tag.",
+      param: "Invalid parameter name.",
+      templateParam: "Invalid template parameter name.",
+    },
+  },
   /**
    * Checker
    */
@@ -295,7 +307,7 @@ const diagnostics = {
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
       underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
-      node: paramMessage`Cannot resolve '${"id"}' in non-namespace node ${"nodeName"}`,
+      node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
   },
   "duplicate-property": {
@@ -308,12 +320,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
-    },
-  },
-  "override-property-intrinsic": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which can only override an intrinsic type on the parent property, not ${"parentType"}`,
     },
   },
   "extend-scalar": {
@@ -452,6 +458,12 @@ const diagnostics = {
       default: `Overload must be in the same interface or namespace.`,
     },
   },
+  shadow: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+    },
+  },
 
   /**
    * Configuration
@@ -474,25 +486,31 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "config-path-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`No configuration file found at config path "${"path"}".`,
+    },
+  },
   /**
    * Program
    */
   "dynamic-import": {
     severity: "error",
     messages: {
-      default: "Dynamically generated Cadl cannot have imports",
+      default: "Dynamically generated TypeSpec cannot have imports",
     },
   },
   "invalid-import": {
     severity: "error",
     messages: {
-      default: "Import paths must reference either a directory, a .cadl file, or .js file",
+      default: "Import paths must reference either a directory, a .tsp file, or .js file",
     },
   },
   "invalid-main": {
     severity: "error",
     messages: {
-      default: "Main file must either be a .cadl file or a .js file.",
+      default: "Main file must either be a .tsp file or a .js file.",
     },
   },
   "import-not-found": {
@@ -504,7 +522,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      cadlMain: paramMessage`Library "${"path"}" has an invalid cadlMain file.`,
+      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
@@ -517,7 +535,7 @@ const diagnostics = {
   "compiler-version-mismatch": {
     severity: "warning",
     messages: {
-      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
+      default: paramMessage`Current TypeSpec compiler conflicts with local version of @typespec/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`typespec\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`tsp-server\` path to ${"betterTypeSpecServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
     },
   },
   "duplicate-symbol": {
@@ -669,7 +687,7 @@ const diagnostics = {
   "service-decorator-duplicate": {
     severity: "error",
     messages: {
-      default: `@service can only be set once per Cadl document.`,
+      default: `@service can only be set once per TypeSpec document.`,
     },
   },
   "list-type-not-model": {

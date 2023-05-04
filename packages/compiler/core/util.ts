@@ -14,13 +14,14 @@ import {
   Diagnostic,
   DiagnosticTarget,
   NoTarget,
+  RekeyableMap,
   SourceFile,
   SourceFileKind,
   Sym,
   SymbolTable,
 } from "./types.js";
 
-export { cadlVersion } from "./manifest.js";
+export { typespecVersion } from "./manifest.js";
 export { NodeHost } from "./node-host.js";
 
 export class ExternalError extends Error {}
@@ -161,7 +162,7 @@ export async function doIO<T>(
     let diagnostic: Diagnostic;
     let target = options?.diagnosticTarget ?? NoTarget;
 
-    // blame the JS file, not the Cadl import statement for JS syntax errors.
+    // blame the JS file, not the TypeSpec import statement for JS syntax errors.
     if (e instanceof SyntaxError && options?.jsDiagnosticTarget) {
       target = options.jsDiagnosticTarget;
     }
@@ -285,6 +286,22 @@ export async function findProjectRoot(
     }
     current = parent;
   }
+}
+
+/**
+ * Extract package.json's tspMain entry point in a given path. Note, it takes into
+ * back compat for deprecated cadlMain
+ * @param path Path that contains package.json
+ * @param reportDiagnostic optional diagnostic handler.
+ */
+export function resolveTspMain(packageJson: any): string | undefined {
+  if (packageJson?.tspMain !== undefined) {
+    return packageJson.tspMain;
+  }
+  if (packageJson?.cadlMain !== undefined) {
+    return packageJson.cadlMain;
+  }
+  return undefined;
 }
 
 /**
@@ -419,8 +436,8 @@ export function getSourceFileKindFromExt(path: string): SourceFileKind | undefin
   const ext = getAnyExtensionFromPath(path);
   if (ext === ".js" || ext === ".mjs") {
     return "js";
-  } else if (ext === ".cadl") {
-    return "cadl";
+  } else if (ext === ".tsp" || ext === ".cadl") {
+    return "typespec";
   } else {
     return undefined;
   }
@@ -474,5 +491,103 @@ export class DuplicateTracker<K, V> {
         yield [k, v];
       }
     }
+  }
+}
+
+export function createRekeyableMap<K, V>(entries?: [K, V][]): RekeyableMap<K, V> {
+  return new RekeyableMapImpl<K, V>(entries);
+}
+
+interface RekeyableMapKey<K> {
+  key: K;
+}
+
+class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
+  #keys = new Map<K, RekeyableMapKey<K>>();
+  #values = new Map<RekeyableMapKey<K>, V>();
+
+  constructor(entries?: [K, V][]) {
+    if (entries) {
+      for (const [key, value] of entries) {
+        this.set(key, value);
+      }
+    }
+  }
+
+  clear(): void {
+    this.#keys.clear();
+    this.#values.clear();
+  }
+
+  delete(key: K): boolean {
+    const keyItem = this.#keys.get(key);
+    if (keyItem) {
+      this.#keys.delete(key);
+      return this.#values.delete(keyItem);
+    }
+    return false;
+  }
+
+  forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void {
+    this.#values.forEach((value, keyItem) => {
+      callbackfn(value, keyItem.key, this);
+    }, thisArg);
+  }
+
+  get(key: K): V | undefined {
+    const keyItem = this.#keys.get(key);
+    return keyItem ? this.#values.get(keyItem) : undefined;
+  }
+
+  has(key: K): boolean {
+    return this.#keys.has(key);
+  }
+
+  set(key: K, value: V): this {
+    let keyItem = this.#keys.get(key);
+    if (!keyItem) {
+      keyItem = { key };
+      this.#keys.set(key, keyItem);
+    }
+
+    this.#values.set(keyItem, value);
+    return this;
+  }
+
+  get size() {
+    return this.#values.size;
+  }
+
+  *entries(): IterableIterator<[K, V]> {
+    for (const [k, v] of this.#values) {
+      yield [k.key, v];
+    }
+  }
+
+  *keys(): IterableIterator<K> {
+    for (const k of this.#values.keys()) {
+      yield k.key;
+    }
+  }
+
+  values(): IterableIterator<V> {
+    return this.#values.values();
+  }
+
+  [Symbol.iterator](): IterableIterator<[K, V]> {
+    return this.entries();
+  }
+
+  [Symbol.toStringTag] = "RekeyableMap";
+
+  rekey(existingKey: K, newKey: K): boolean {
+    const keyItem = this.#keys.get(existingKey);
+    if (!keyItem) {
+      return false;
+    }
+    this.#keys.delete(existingKey);
+    keyItem.key = newKey;
+    this.#keys.set(newKey, keyItem);
+    return true;
   }
 }

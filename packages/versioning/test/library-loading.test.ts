@@ -1,5 +1,5 @@
-import { Namespace, projectProgram } from "@cadl-lang/compiler";
-import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
+import { Namespace, projectProgram } from "@typespec/compiler";
+import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { notStrictEqual, strictEqual } from "assert";
 import { buildVersionProjections } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
@@ -11,9 +11,9 @@ describe("versioning: library loading", () => {
     const host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
-      import "@cadl-lang/versioning";
+      import "@typespec/versioning";
 
-      using Cadl.Versioning;
+      using TypeSpec.Versioning;
       
       @versioned(Versions)
       @test namespace TestService {

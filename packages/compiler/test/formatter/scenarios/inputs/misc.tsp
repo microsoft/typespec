@@ -1,0 +1,58 @@
+import   "@typespec/rest";
+import "@typespec/openapi";
+import "@typespec/openapi3";
+
+alias Bar =   "that" |    "this";
+
+// This is a comment
+alias VeryLong =   "one" | "two" | "three" | "four" | "five" | "six" | "seven" | "height" | "nine" | "ten";
+
+alias Inter = {foo: string} & {bar: string}  ;
+
+
+alias Inter2 =      Foo & 
+Inter;
+
+alias     Generic< A,   B> = A | B;
+
+/**
+    * Model comment
+ */
+model Foo {
+  id: number;
+    type: Bar;
+
+  /*
+      * Name is special and comment is unaligned.
+      */
+    name?:    string    = "foo";
+  isArray:      string[]  ;
+
+  address: { street: string, country?:   string};
+
+  ...Bar;
+}
+
+
+@bar
+enum  SomeEnum {  A, B, C} 
+
+enum  
+  SomeNamedEnum {  A: "a", 
+  B: "b", @val() C: "c" } 
+
+
+
+/**
+ * Multi line comment still works,
+ * yeahh....
+ */
+@resource("/operations")
+namespace Operations {
+  // Comment here too
+    @get @doc("Abc") op get(@path id: string): OkResponse<OperationStatusResult>;
+
+
+        #suppress "no-list-op" "This is actually needed"
+  @get op list(): OkResponse<OperationListResult> | ErrorResponse;
+}

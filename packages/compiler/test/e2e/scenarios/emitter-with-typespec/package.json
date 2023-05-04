@@ -1,0 +1,6 @@
+{
+  "name": "@typespec/test-emitter-with-typespec",
+  "type": "module",
+  "main": "lib.js",
+  "tspMain": "lib.tsp"
+}

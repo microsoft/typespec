@@ -1,4 +1,5 @@
 import { EmitterOptions } from "../config/types.js";
+import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
@@ -10,17 +11,15 @@ import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
   NodePackage,
+  ResolveModuleHost,
   ResolvedModule,
   resolveModule,
-  ResolveModuleHost,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
-  CadlLibrary,
-  CadlScriptNode,
   CompilerHost,
   Diagnostic,
   DiagnosticTarget,
@@ -31,9 +30,9 @@ import {
   JsSourceFileNode,
   LiteralType,
   Namespace,
+  NoTarget,
   Node,
   NodeFlags,
-  NoTarget,
   ProjectionApplication,
   Projector,
   SourceFile,
@@ -43,16 +42,19 @@ import {
   SyntaxKind,
   Tracer,
   Type,
+  TypeSpecLibrary,
+  TypeSpecScriptNode,
 } from "./types.js";
 import {
+  ExternalError,
   deepEquals,
   doIO,
-  ExternalError,
   findProjectRoot,
   isDefined,
   loadFile,
   mapEquals,
   mutate,
+  resolveTspMain,
 } from "./util.js";
 
 export interface ProjectedProgram extends Program {
@@ -67,9 +69,9 @@ export function isProjectedProgram(
 
 export interface Program {
   compilerOptions: CompilerOptions;
-  mainFile?: CadlScriptNode;
+  mainFile?: TypeSpecScriptNode;
   /** All source files in the program, keyed by their file path. */
-  sourceFiles: Map<string, CadlScriptNode>;
+  sourceFiles: Map<string, TypeSpecScriptNode>;
   jsSourceFiles: Map<string, JsSourceFileNode>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
@@ -78,7 +80,7 @@ export interface Program {
   checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
-  loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
+  loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
   onValidate(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
@@ -242,7 +244,7 @@ class StateSetView implements Set<Type> {
   }
 }
 
-interface CadlLibraryReference {
+interface TypeSpecLibraryReference {
   path: string;
   manifest: NodePackage;
 }
@@ -269,7 +271,7 @@ export async function compile(
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
-  const loadedLibraries = new Map<string, CadlLibraryReference>();
+  const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   let error = false;
 
   const logger = createLogger({ sink: host.logSink });
@@ -284,7 +286,7 @@ export async function compile(
     host,
     diagnostics,
     emitters,
-    loadCadlScript,
+    loadTypeSpecScript,
     getOption,
     stateMaps,
     stateSets,
@@ -315,7 +317,7 @@ export async function compile(
     await loadStandardLibrary(program);
   }
 
-  const resolvedMain = await resolveCadlEntrypoint(mainFile);
+  const resolvedMain = await resolveTypeSpecEntrypoint(mainFile);
   // Load additional imports prior to compilation
   if (resolvedMain && options.additionalImports) {
     const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
@@ -323,7 +325,7 @@ export async function compile(
       importScript,
       joinPaths(getDirectoryPath(resolvedMain), `__additional_imports`)
     );
-    await loadCadlScript(sourceFile);
+    await loadTypeSpecScript(sourceFile);
   }
 
   if (resolvedMain) {
@@ -333,10 +335,13 @@ export async function compile(
   if (resolvedMain) {
     let emit = options.emit;
     let emitterOptions = options.options;
+    /* eslint-disable deprecation/deprecation */
     if (options.emitters) {
       emit ??= Object.keys(options.emitters);
       emitterOptions ??= options.emitters;
     }
+    /* eslint-enable deprecation/deprecation */
+
     await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
   }
 
@@ -412,14 +417,14 @@ export async function compile(
     }
 
     const libraries = new Map([...loadedLibraries.entries()]);
-    const incompatibleLibraries = new Map<string, CadlLibraryReference[]>();
+    const incompatibleLibraries = new Map<string, TypeSpecLibraryReference[]>();
     for (const root of loadedRoots) {
       const packageJsonPath = joinPaths(root, "package.json");
       try {
         const packageJson: NodePackage = JSON.parse((await host.readFile(packageJsonPath)).text);
         const found = libraries.get(packageJson.name);
         if (found && found.path !== root && found.manifest.version !== packageJson.version) {
-          let incompatibleIndex: CadlLibraryReference[] | undefined = incompatibleLibraries.get(
+          let incompatibleIndex: TypeSpecLibraryReference[] | undefined = incompatibleLibraries.get(
             packageJson.name
           );
           if (incompatibleIndex === undefined) {
@@ -457,12 +462,15 @@ export async function compile(
     dir: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
-    const mainFile = await resolveCadlEntrypointForDir(dir);
-    await loadCadlFile(mainFile, diagnosticTarget);
+    const mainFile = await resolveTypeSpecEntrypointForDir(dir);
+    await loadTypeSpecFile(mainFile, diagnosticTarget);
     return mainFile;
   }
 
-  async function loadCadlFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
+  async function loadTypeSpecFile(
+    path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget
+  ) {
     if (seenSourceFiles.has(path)) {
       return;
     }
@@ -473,7 +481,7 @@ export async function compile(
     });
 
     if (file) {
-      await loadCadlScript(file);
+      await loadTypeSpecScript(file);
     }
   }
 
@@ -527,7 +535,7 @@ export async function compile(
     }
   }
 
-  async function loadCadlScript(file: SourceFile): Promise<CadlScriptNode> {
+  async function loadTypeSpecScript(file: SourceFile): Promise<TypeSpecScriptNode> {
     // This is not a diagnostic because the compiler should never reuse the same path.
     // It's the caller's responsibility to use unique paths.
     if (program.sourceFiles.has(file.path)) {
@@ -542,7 +550,7 @@ export async function compile(
     return script;
   }
 
-  function parseOrReuse(file: SourceFile): CadlScriptNode {
+  function parseOrReuse(file: SourceFile): TypeSpecScriptNode {
     const old = oldProgram?.sourceFiles.get(file.path) ?? host?.parseCache?.get(file);
     if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions)) {
       return old;
@@ -552,7 +560,7 @@ export async function compile(
     return script;
   }
 
-  async function loadScriptImports(file: CadlScriptNode) {
+  async function loadScriptImports(file: TypeSpecScriptNode) {
     // collect imports
     const basedir = getDirectoryPath(file.file.path);
     await loadImports(
@@ -576,7 +584,7 @@ export async function compile(
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string
   ) {
-    const library = await resolveCadlLibrary(path, relativeTo, target);
+    const library = await resolveTypeSpecLibrary(path, relativeTo, target);
     if (library === undefined) {
       return;
     }
@@ -599,8 +607,8 @@ export async function compile(
     switch (sourceFileKind) {
       case "js":
         return await importJsFile(importFilePath, target);
-      case "cadl":
-        return await loadCadlFile(importFilePath, target);
+      case "typespec":
+        return await loadTypeSpecFile(importFilePath, target);
       default:
         program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
     }
@@ -686,8 +694,8 @@ export async function compile(
     }
 
     const emitFunction = entrypoint.esmExports.$onEmit;
-    const libDefinition: CadlLibrary<any> | undefined = entrypoint.esmExports.$lib;
-    const metadata = computeLibraryMetadata(module);
+    const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint.esmExports.$lib;
+    const metadata = computeLibraryMetadata(module, libDefinition);
 
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
@@ -729,13 +737,18 @@ export async function compile(
     }
   }
 
-  function computeLibraryMetadata(module: ModuleResolutionResult): LibraryMetadata {
+  function computeLibraryMetadata(
+    module: ModuleResolutionResult,
+    libDefinition: TypeSpecLibrary<any> | undefined
+  ): LibraryMetadata {
     if (module.type === "file") {
-      return {};
+      return {
+        name: libDefinition?.name,
+      };
     }
 
     const metadata: LibraryMetadata = {
-      name: module.manifest.name,
+      name: libDefinition?.name ?? module.manifest.name,
     };
 
     if (module.manifest.homepage) {
@@ -756,6 +769,9 @@ export async function compile(
       program,
       emitterOutputDir: emitter.emitterOutputDir,
       options: emitter.options,
+      getAssetEmitter(TypeEmitterClass) {
+        return createAssetEmitter(program, TypeEmitterClass, this);
+      },
     };
     try {
       await emitter.emitFunction(context);
@@ -779,9 +795,9 @@ export async function compile(
 
   /**
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
-   * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
+   * that module, e.g. "/typespec/node_modules/myLib/main.tsp".
    */
-  async function resolveCadlLibrary(
+  async function resolveTypeSpecLibrary(
     specifier: string,
     baseDir: string,
     target: DiagnosticTarget | typeof NoTarget
@@ -789,11 +805,11 @@ export async function compile(
     try {
       return await resolveModule(getResolveModuleHost(), specifier, {
         baseDir,
-        directoryIndexFiles: ["main.cadl", "index.mjs", "index.js"],
+        directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
         resolveMain(pkg) {
           // this lets us follow node resolve semantics more-or-less exactly
-          // but using cadlMain instead of main.
-          return pkg.cadlMain ?? pkg.main;
+          // but using tspMain instead of main.
+          return resolveTspMain(pkg) ?? pkg.main;
         },
       });
     } catch (e: any) {
@@ -807,7 +823,7 @@ export async function compile(
           createDiagnostic({
             code: "library-invalid",
             format: { path: specifier },
-            messageId: "cadlMain",
+            messageId: "tspMain",
             target,
           })
         );
@@ -820,7 +836,7 @@ export async function compile(
 
   /**
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
-   * that module, e.g. "/cadl/node_modules/myLib/dist/lib.js".
+   * that module, e.g. "/typespec/node_modules/myLib/dist/lib.js".
    */
   async function resolveJSLibrary(
     specifier: string,
@@ -870,10 +886,10 @@ export async function compile(
 
   /**
    * Resolve the path to the main file
-   * @param path path to the entrypoint of the program. Can be the main.cadl, folder containing main.cadl or a project/library root.
+   * @param path path to the entrypoint of the program. Can be the main.tsp, folder containing main.tsp or a project/library root.
    * @returns Absolute path to the entrypoint.
    */
-  async function resolveCadlEntrypoint(path: string): Promise<string | undefined> {
+  async function resolveTypeSpecEntrypoint(path: string): Promise<string | undefined> {
     const resolvedPath = resolvePath(path);
     const mainStat = await doIO(host.stat, resolvedPath, program.reportDiagnostic);
     if (!mainStat) {
@@ -881,21 +897,34 @@ export async function compile(
     }
 
     if (mainStat.isDirectory()) {
-      return resolveCadlEntrypointForDir(resolvedPath);
+      return resolveTypeSpecEntrypointForDir(resolvedPath);
     } else {
       return resolvedPath;
     }
   }
 
-  async function resolveCadlEntrypointForDir(dir: string): Promise<string> {
+  async function resolveTypeSpecEntrypointForDir(dir: string): Promise<string> {
     const pkgJsonPath = resolvePath(dir, "package.json");
     const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
     });
-    const mainFile = resolvePath(
-      dir,
-      typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl"
+    const tspMain = resolveTspMain(pkg);
+    if (tspMain !== undefined) {
+      return resolvePath(dir, tspMain);
+    }
+
+    // Back Compat: if main.cadl exist, return main.cadl
+    let mainFile = resolvePath(dir, "main.cadl");
+    const stat = await doIO(
+      () => host.stat(mainFile),
+      mainFile,
+      () => {}
     );
+    // if not found, use the normal resolution.
+    if (stat?.isFile() !== true) {
+      mainFile = resolvePath(dir, "main.tsp");
+    }
+
     return mainFile;
   }
 
@@ -913,18 +942,18 @@ export async function compile(
     switch (sourceFileKind) {
       case "js":
         return await importJsFile(mainPath, NoTarget);
-      case "cadl":
-        return await loadCadlFile(mainPath, NoTarget);
+      case "typespec":
+        return await loadTypeSpecFile(mainPath, NoTarget);
       default:
         program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
     }
   }
 
   // It's important that we use the compiler version that resolves locally
-  // from the input Cadl source location. Otherwise, there will be undefined
+  // from the input TypeSpec source location. Otherwise, there will be undefined
   // runtime behavior when decorators and handlers expect a
-  // different version of cadl than the current one. Abort the compilation
-  // with an error if the Cadl entry point resolves to a different local
+  // different version of typespec than the current one. Abort the compilation
+  // with an error if the TypeSpec entry point resolves to a different local
   // compiler.
   async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {
     const baseDir = getDirectoryPath(mainPath);
@@ -939,17 +968,17 @@ export async function compile(
             return file.text;
           },
         },
-        "@cadl-lang/compiler",
+        "@typespec/compiler",
         { baseDir }
       );
       compilerAssert(
         resolved.type === "module",
-        `Expected to have resolved "@cadl-lang/compiler" to a node module.`
+        `Expected to have resolved "@typespec/compiler" to a node module.`
       );
       actual = resolved;
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND" || err.code === "INVALID_MAIN") {
-        return true; // no local cadl, ok to use any compiler
+        return true; // no local typespec, ok to use any compiler
       }
       throw err;
     }
@@ -960,13 +989,11 @@ export async function compile(
     );
 
     if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
-      // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
-      // to the shim executable node_modules/.bin/cadl-server
-      const betterCadlServerPath = resolvePath(actual.path, ".bin/cadl-server");
+      const betterTypeSpecServerPath = actual.path;
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterCadlServerPath, actual: actual.mainFile, expected },
+          format: { basedir: baseDir, betterTypeSpecServerPath, actual: actual.mainFile, expected },
           target: NoTarget,
         })
       );
@@ -1175,6 +1202,7 @@ export function createStateAccessors(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
+  // eslint-disable-next-line deprecation/deprecation
   const outputDir = options.outputDir ?? options.outputPath;
   return {
     ...options,

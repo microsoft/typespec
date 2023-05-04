@@ -1,22 +1,22 @@
 import { Parser, SupportLanguage } from "prettier";
 import { Node } from "../core/types.js";
 import { parse } from "./parser.js";
-import { cadlPrinter } from "./print/index.js";
+import { typespecPrinter } from "./print/index.js";
 
 export const defaultOptions = {};
 
 export const languages: SupportLanguage[] = [
   {
-    name: "Cadl",
-    parsers: ["cadl"],
-    extensions: [".cadl"],
-    vscodeLanguageIds: ["cadl"],
+    name: "TypeSpec",
+    parsers: ["typespec"],
+    extensions: [".tsp", ".cadl"],
+    vscodeLanguageIds: ["typespec"],
   },
 ];
 
-const CadlParser: Parser = {
+const TypeSpecParser: Parser = {
   parse,
-  astFormat: "cadl-format",
+  astFormat: "typespec-format",
   locStart(node: Node) {
     return node.pos;
   },
@@ -25,9 +25,9 @@ const CadlParser: Parser = {
   },
 };
 export const parsers = {
-  cadl: CadlParser,
+  typespec: TypeSpecParser,
 };
 
 export const printers = {
-  "cadl-format": cadlPrinter,
+  "typespec-format": typespecPrinter,
 };

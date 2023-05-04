@@ -20,10 +20,10 @@ describe("compiler: server: signature help", () => {
               kind: MarkupKind.Markdown,
               value: "Decorator with a single param",
             },
-            label: "@single(arg: Cadl.string)",
+            label: "@single(arg: string)",
             parameters: [
               {
-                label: "arg: Cadl.string",
+                label: "arg: string",
                 documentation: {
                   kind: MarkupKind.Markdown,
                   value: "The arg",
@@ -47,17 +47,17 @@ describe("compiler: server: signature help", () => {
                 kind: MarkupKind.Markdown,
                 value: "Decorator with multiple params",
               },
-              label: "@multiple(foo: Cadl.string, bar?: Cadl.string)",
+              label: "@multiple(foo: string, bar?: string)",
               parameters: [
                 {
-                  label: "foo: Cadl.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "bar?: Cadl.string",
+                  label: "bar?: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The second arg",
@@ -108,17 +108,17 @@ describe("compiler: server: signature help", () => {
                 value: "Decorator with rest param",
               },
               activeParameter,
-              label: "@rest(foo: Cadl.string, ...others: Cadl.string[])",
+              label: "@rest(foo: string, ...others: string[])",
               parameters: [
                 {
-                  label: "foo: Cadl.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "...others: Cadl.string[]",
+                  label: "...others: string[]",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The rest of the args",
@@ -191,7 +191,7 @@ describe("compiler: server: signature help", () => {
         $multiple: () => {},
         $rest: () => {},
       });
-      const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
+      const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
       return await testHost.server.getSignatureHelp({
         textDocument,
         position: textDocument.positionAt(pos),
@@ -216,13 +216,13 @@ describe("compiler: server: signature help", () => {
               kind: MarkupKind.Markdown,
               value: "Decorator with a single param",
             },
-            label: "@@single(target: unknown, arg: Cadl.string)",
+            label: "@@single(target: unknown, arg: string)",
             parameters: [
               {
                 label: "target: unknown",
               },
               {
-                label: "arg: Cadl.string",
+                label: "arg: string",
                 documentation: {
                   kind: MarkupKind.Markdown,
                   value: "The arg",
@@ -246,20 +246,20 @@ describe("compiler: server: signature help", () => {
                 kind: MarkupKind.Markdown,
                 value: "Decorator with multiple params",
               },
-              label: "@@multiple(target: unknown, foo: Cadl.string, bar?: Cadl.string)",
+              label: "@@multiple(target: unknown, foo: string, bar?: string)",
               parameters: [
                 {
                   label: "target: unknown",
                 },
                 {
-                  label: "foo: Cadl.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "bar?: Cadl.string",
+                  label: "bar?: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The second arg",
@@ -319,20 +319,20 @@ describe("compiler: server: signature help", () => {
                 value: "Decorator with rest param",
               },
               activeParameter,
-              label: "@@rest(target: unknown, foo: Cadl.string, ...others: Cadl.string[])",
+              label: "@@rest(target: unknown, foo: string, ...others: string[])",
               parameters: [
                 {
                   label: "target: unknown",
                 },
                 {
-                  label: "foo: Cadl.string",
+                  label: "foo: string",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The first arg",
                   },
                 },
                 {
-                  label: "...others: Cadl.string[]",
+                  label: "...others: string[]",
                   documentation: {
                     kind: MarkupKind.Markdown,
                     value: "The rest of the args",
@@ -405,7 +405,7 @@ describe("compiler: server: signature help", () => {
         $multiple: () => {},
         $rest: () => {},
       });
-      const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
+      const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
       return await testHost.server.getSignatureHelp({
         textDocument,
         position: textDocument.positionAt(pos),

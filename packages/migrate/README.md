@@ -1,9 +1,9 @@
-# Cadl Migrate
+# TypeSpec Migrate
 
-Help with migration of breaking and deprecated changes between cadl versions.
+Help with migration of breaking and deprecated changes between typespec versions.
 
 Run
 
 ```bash
-npx @cadl-lang/migrate
+npx @typespec/migrate
 ```

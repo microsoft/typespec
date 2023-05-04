@@ -1,23 +1,23 @@
-# Cadl Library Linter
+# TypeSpec Library Linter
 
 ## Installation
 
 Install the package as a dev dependency.
 
 ```
-npm install -D @cadl-lang/library-linter
+npm install -D @typespec/library-linter
 ```
 
 ## Usage
 
-Compile your library package. Any errors or warnings will be reported as cadl diagnostics.
+Compile your library package. Any errors or warnings will be reported as typespec diagnostics.
 
 ```bash
-# At the root of your cadl library.
-cadl compile . --import @cadl-lang/library-linter
+# At the root of your typespec library.
+tsp compile . --import @typespec/library-linter
 ```
 
-## Cadl Library Best rules and best practices
+## TypeSpec Library Best rules and best practices
 
 | Rule name           | Description                                                                                                      |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------- |

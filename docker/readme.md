@@ -1,6 +1,6 @@
-# Use cadl via docker
+# Use typespec via docker
 
-Image: `azsdkengsys.azurecr.io/cadl`
+Image: `azsdkengsys.azurecr.io/typespec`
 
 Tags:
 
@@ -11,8 +11,8 @@ Tags:
 ```bash
 docker run \
   -v "${pwd}:/wd" --workdir="/wd" \
-  -t azsdkengsys.azurecr.io/cadl \
-  # ... cadl args ...
+  -t azsdkengsys.azurecr.io/typespec \
+  # ... typespec args ...
 ```
 
 **For usage in powershell replace `\` with `` ` ``**
@@ -20,17 +20,17 @@ docker run \
 ### Install dependencies
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/cadl install
+docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec install
 ```
 
 ### Compile
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/cadl compile .
+docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec compile .
 ```
 
 ### Init a new project
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/cadl init
+docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec init
 ```

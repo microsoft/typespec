@@ -1,11 +1,11 @@
-import { Diagnostic, Program } from "@cadl-lang/compiler";
-import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import { css } from "@emotion/react";
 import { Settings16Filled } from "@fluentui/react-icons";
+import { Diagnostic, Program } from "@typespec/compiler";
+import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
-import { compilationState, CompileResult } from "../state.js";
+import { CompileResult, compilationState } from "../state.js";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
 import { OutputSettings } from "./output-settings.js";
@@ -38,15 +38,16 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
   useEffect(() => {
     if (viewSelection.type === "file") {
       if (outputFiles.length > 0) {
-        void loadOutputFile(outputFiles[0]);
+        const fileStillThere = outputFiles.find((x) => x === viewSelection.filename);
+        void loadOutputFile(fileStillThere ?? outputFiles[0]);
       } else {
-        setViewSelection({ type: "file", filename: "", content: "" });
+        setViewSelection({ type: "file", filename: viewSelection.filename, content: "" });
       }
     }
   }, [program, outputFiles]);
 
   async function loadOutputFile(path: string) {
-    const contents = await program.host.readFile("./cadl-output/" + path);
+    const contents = await program.host.readFile("./tsp-output/" + path);
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 
@@ -131,7 +132,7 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({ viewSelection, p
             overflow: "scroll",
           }}
         >
-          {program && <CadlProgramViewer program={program} />}
+          {program && <TypeSpecProgramViewer program={program} />}
         </div>
       );
   }

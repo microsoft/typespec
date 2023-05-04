@@ -1,16 +1,16 @@
 import {
-  CadlLanguageConfiguration,
   DiagnosticTarget,
   NoTarget,
   ServerHost,
-} from "@cadl-lang/compiler";
+  TypeSpecLanguageConfiguration,
+} from "@typespec/compiler";
 import * as monaco from "monaco-editor";
 import { editor } from "monaco-editor";
 import * as lsp from "vscode-languageserver";
-import { FormattingOptions } from "vscode-languageserver";
+import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BrowserHost } from "./browser-host.js";
-import { importCadlCompiler } from "./core.js";
+import { importTypeSpecCompiler } from "./core.js";
 import "./style.css";
 
 function getIndentAction(
@@ -28,10 +28,10 @@ function getIndentAction(
   }
 }
 
-function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration {
+function getTypeSpecLanguageConfiguration(): monaco.languages.LanguageConfiguration {
   return {
-    ...(CadlLanguageConfiguration as any),
-    onEnterRules: CadlLanguageConfiguration.onEnterRules.map((rule) => {
+    ...(TypeSpecLanguageConfiguration as any),
+    onEnterRules: TypeSpecLanguageConfiguration.onEnterRules.map((rule) => {
       return {
         beforeText: new RegExp(rule.beforeText.pattern),
         previousLineText:
@@ -47,8 +47,8 @@ function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration 
 }
 
 export async function attachServices(host: BrowserHost) {
-  monaco.languages.register({ id: "cadl", extensions: [".cadl"] });
-  monaco.languages.setLanguageConfiguration("cadl", getCadlLanguageConfiguration());
+  monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
+  monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());
 
   const serverHost: ServerHost = {
     compilerHost: host,
@@ -61,7 +61,7 @@ export async function attachServices(host: BrowserHost) {
     log: console.log,
   };
 
-  const { createServer } = await importCadlCompiler();
+  const { createServer } = await importTypeSpecCompiler();
   const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
     capabilities: {},
@@ -74,7 +74,7 @@ export async function attachServices(host: BrowserHost) {
   function textDocumentForModel(model: monaco.editor.IModel) {
     return TextDocument.create(
       model.uri.toString(),
-      "cadl",
+      "typespec",
       model.getVersionId(),
       model.getValue()
     );
@@ -116,8 +116,21 @@ export async function attachServices(host: BrowserHost) {
   ): monaco.languages.DocumentHighlight {
     return {
       range: monacoRange(highlight.range),
-      kind: highlight.kind,
+      kind: monacoDocumentHighlightKind(highlight.kind),
     };
+  }
+
+  function monacoDocumentHighlightKind(kind: DocumentHighlightKind | undefined) {
+    switch (kind) {
+      case DocumentHighlightKind.Text:
+        return monaco.languages.DocumentHighlightKind.Text;
+      case DocumentHighlightKind.Read:
+        return monaco.languages.DocumentHighlightKind.Read;
+      case DocumentHighlightKind.Write:
+        return monaco.languages.DocumentHighlightKind.Write;
+      default:
+        return undefined;
+    }
   }
 
   function monacoHoverContents(contents: lsp.MarkupContent): monaco.IMarkdownString[] {
@@ -125,6 +138,7 @@ export async function attachServices(host: BrowserHost) {
   }
 
   function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
+    // eslint-disable-next-line deprecation/deprecation
     if (Array.isArray(hover.contents) || lsp.MarkedString.is(hover.contents)) {
       throw new Error("MarkedString (deprecated) not supported.");
     }
@@ -188,21 +202,21 @@ export async function attachServices(host: BrowserHost) {
     return { edits };
   }
 
-  monaco.languages.registerDefinitionProvider("cadl", {
+  monaco.languages.registerDefinitionProvider("typespec", {
     async provideDefinition(model, position) {
       const results = await serverLib.gotoDefinition(lspArgs(model, position));
       return results.map(monacoLocation);
     },
   });
 
-  monaco.languages.registerReferenceProvider("cadl", {
+  monaco.languages.registerReferenceProvider("typespec", {
     async provideReferences(model, position, context) {
       const results = await serverLib.findReferences({ ...lspArgs(model, position), context });
       return results.map(monacoLocation);
     },
   });
 
-  monaco.languages.registerRenameProvider("cadl", {
+  monaco.languages.registerRenameProvider("typespec", {
     async resolveRenameLocation(model, position): Promise<monaco.languages.RenameLocation> {
       const result = await serverLib.prepareRename(lspArgs(model, position));
       if (!result) {
@@ -221,7 +235,7 @@ export async function attachServices(host: BrowserHost) {
     },
   });
 
-  monaco.languages.registerFoldingRangeProvider("cadl", {
+  monaco.languages.registerFoldingRangeProvider("typespec", {
     async provideFoldingRanges(model) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
@@ -229,14 +243,14 @@ export async function attachServices(host: BrowserHost) {
     },
   });
 
-  monaco.languages.registerHoverProvider("cadl", {
+  monaco.languages.registerHoverProvider("typespec", {
     async provideHover(model, position) {
       const hover = await serverLib.getHover(lspArgs(model, position));
       return monacoHover(hover);
     },
   });
 
-  monaco.languages.registerSignatureHelpProvider("cadl", {
+  monaco.languages.registerSignatureHelpProvider("typespec", {
     signatureHelpTriggerCharacters: ["(", ",", "<"],
     signatureHelpRetriggerCharacters: [")"],
     async provideSignatureHelp(model, position) {
@@ -245,7 +259,7 @@ export async function attachServices(host: BrowserHost) {
     },
   });
 
-  monaco.languages.registerDocumentFormattingEditProvider("cadl", {
+  monaco.languages.registerDocumentFormattingEditProvider("typespec", {
     async provideDocumentFormattingEdits(model, options, token) {
       const edits = await serverLib.formatDocument({
         ...lspDocumentArgs(model),
@@ -255,14 +269,14 @@ export async function attachServices(host: BrowserHost) {
     },
   });
 
-  monaco.languages.registerDocumentHighlightProvider("cadl", {
+  monaco.languages.registerDocumentHighlightProvider("typespec", {
     async provideDocumentHighlights(model, position) {
       const highlights = await serverLib.findDocumentHighlight(lspArgs(model, position));
       return highlights.map(monacoDocumentHighlight);
     },
   });
 
-  monaco.languages.registerCompletionItemProvider("cadl", {
+  monaco.languages.registerCompletionItemProvider("typespec", {
     triggerCharacters: lsConfig.capabilities.completionProvider!.triggerCharacters,
     async provideCompletionItems(model, position) {
       const result = await serverLib.complete(lspArgs(model, position));
@@ -292,7 +306,7 @@ export async function attachServices(host: BrowserHost) {
     },
   });
 
-  monaco.editor.defineTheme("cadl", {
+  monaco.editor.defineTheme("typespec", {
     base: "vs",
     inherit: true,
     colors: {},
@@ -301,9 +315,9 @@ export async function attachServices(host: BrowserHost) {
       { token: "function", foreground: "#795E26" },
     ],
   });
-  monaco.editor.setTheme("cadl");
+  monaco.editor.setTheme("typespec");
 
-  monaco.languages.registerDocumentSemanticTokensProvider("cadl", {
+  monaco.languages.registerDocumentSemanticTokensProvider("typespec", {
     getLegend() {
       const legend = lsConfig.capabilities.semanticTokensProvider!.legend;
       return {
@@ -338,11 +352,11 @@ export async function attachServices(host: BrowserHost) {
 }
 
 export function getMarkerLocation(
-  cadlCompiler: typeof import("@cadl-lang/compiler"),
+  typespecCompiler: typeof import("@typespec/compiler"),
   target: DiagnosticTarget | typeof NoTarget
 ): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
-  const loc = cadlCompiler.getSourceLocation(target);
-  if (loc === undefined || loc.file.path !== "/test/main.cadl") {
+  const loc = typespecCompiler.getSourceLocation(target);
+  if (loc === undefined || loc.file.path !== "/test/main.tsp") {
     return {
       startLineNumber: 1,
       startColumn: 1,

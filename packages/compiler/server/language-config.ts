@@ -1,7 +1,8 @@
 /**
- * Cadl Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+ * TypeSpec Language configuration. Format: https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+ * @hidden Typedoc causing issue with this
  */
-export const CadlLanguageConfiguration = {
+export const TypeSpecLanguageConfiguration = {
   comments: {
     lineComment: "//",
     blockComment: ["/*", "*/"],
@@ -98,3 +99,9 @@ export const CadlLanguageConfiguration = {
     },
   ],
 } as const;
+
+/**
+ * @deprecated Use TypeSpecLanguageConfiguration
+ * @hidden
+ */
+export const CadlLanguageConfiguration = TypeSpecLanguageConfiguration;

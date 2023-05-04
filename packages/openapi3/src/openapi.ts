@@ -16,15 +16,18 @@ import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueExclusive,
   getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
   getPropertyType,
   getService,
   getSummary,
   ignoreDiagnostics,
+  interpolatePath,
   IntrinsicScalarName,
   IntrinsicType,
   isDeprecated,
@@ -39,11 +42,13 @@ import {
   isTemplateDeclarationOrInstance,
   listServices,
   Model,
+  ModelIndexer,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
   NewLine,
   NumericLiteral,
+  Operation,
   Program,
   ProjectionApplication,
   projectProgram,
@@ -56,8 +61,28 @@ import {
   TypeNameOptions,
   Union,
   UnionVariant,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
+import * as http from "@typespec/http";
+import {
+  createMetadataInfo,
+  getAuthentication,
+  getHttpService,
+  getStatusCodeDescription,
+  getVisibilitySuffix,
+  HttpAuth,
+  HttpOperation,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  HttpOperationRequestBody,
+  HttpOperationResponse,
+  isContentTypeHeader,
+  isOverloadSameEndpoint,
+  MetadataInfo,
+  reportIfNoRoutes,
+  ServiceAuthentication,
+  Visibility,
+} from "@typespec/http";
 import {
   checkDuplicateTypeName,
   getExtensions,
@@ -67,28 +92,8 @@ import {
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
-} from "@cadl-lang/openapi";
-import { http } from "@cadl-lang/rest";
-import {
-  createMetadataInfo,
-  getAuthentication,
-  getHttpService,
-  getRequestVisibility,
-  getStatusCodeDescription,
-  getVisibilitySuffix,
-  HttpAuth,
-  HttpOperation,
-  HttpOperationParameter,
-  HttpOperationParameters,
-  HttpOperationResponse,
-  isContentTypeHeader,
-  isOverloadSameEndpoint,
-  MetadataInfo,
-  reportIfNoRoutes,
-  ServiceAuthentication,
-  Visibility,
-} from "@cadl-lang/rest/http";
-import { buildVersionProjections } from "@cadl-lang/versioning";
+} from "@typespec/openapi";
+import { buildVersionProjections } from "@typespec/versioning";
 import yaml from "js-yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
@@ -141,7 +146,8 @@ export function resolveOptions(
   const fileType =
     resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
 
-  const outputFile = resolvedOptions["output-file"] ?? `openapi.${fileType}`;
+  const outputFile =
+    resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
   return {
     fileType,
     newLine: resolvedOptions["new-line"],
@@ -175,7 +181,7 @@ class Ref {
  * Computation of the OpenAPI schema object is deferred.
  */
 interface PendingSchema {
-  /** The CADL type for the schema */
+  /** The TYPESPEC type for the schema */
   type: Type;
 
   /** The visibility to apply when computing the schema */
@@ -196,7 +202,7 @@ interface PendingSchema {
  * has been produced.
  */
 interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema;
+  schema: OpenAPI3Schema | undefined;
 }
 
 function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
@@ -225,14 +231,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   // this map.
   let params: Map<ModelProperty, any>;
 
+  // Keep track of models that have had properties spread into parameters. We won't
+  // consider these unreferenced when emitting unreferenced types.
+  let paramModels: Set<Type>;
+
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
   const typeNameOptions: TypeNameOptions = {
-    // shorten type names by removing Cadl and service namespace
+    // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
       const name = getNamespaceFullName(ns);
-      return name !== "Cadl" && name !== serviceNamespace;
+      return name !== serviceNamespace;
     },
   };
 
@@ -271,10 +281,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     pendingSchemas = new TwoLevelMap();
     refs = new TwoLevelMap();
     metadataInfo = createMetadataInfo(program, {
+      canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
     });
     inProgressInlineTypes = new Set();
     params = new Map();
+    paramModels = new Set();
     tags = new Set();
   }
 
@@ -331,7 +343,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.All).enum;
+          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -381,17 +393,209 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
-    const suffix = [];
-    if (multipleService) {
-      suffix.push(getNamespaceFullName(service.type));
-    }
-    if (version) {
-      suffix.push(version);
-    }
-    return suffix.length > 0
-      ? options.outputFile.replace(".json", `.${suffix.join(".")}.json`)
-      : options.outputFile;
+    return interpolatePath(options.outputFile, {
+      "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
+      version,
+    });
   }
+
+  /**
+   * Validates that common responses are consistent and returns the minimal set that describes the differences.
+   */
+  function validateCommonResponses(
+    ops: HttpOperation[],
+    statusCode: string
+  ): HttpOperationResponse[] {
+    const statusCodeResponses: HttpOperationResponse[] = [];
+    for (const op of ops) {
+      for (const response of op.responses) {
+        if (response.statusCode === statusCode) {
+          statusCodeResponses.push(response);
+        }
+      }
+    }
+    const ref = statusCodeResponses[0];
+    const sameTypeKind = statusCodeResponses.every((r) => r.type.kind === ref.type.kind);
+    const sameTypeValue = statusCodeResponses.every((r) => r.type === ref.type);
+    if (sameTypeKind && sameTypeValue) {
+      // response is consistent and in all shared operations. Only need one copy.
+      return [ref];
+    } else {
+      return statusCodeResponses;
+    }
+  }
+
+  /**
+   * Validates that common bodies are consistent and returns the minimal set that describes the differences.
+   */
+  function validateCommonBodies(ops: HttpOperation[]): HttpOperationRequestBody[] | undefined {
+    const bodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
+    const ref = bodies[0];
+    const sameOptionality = bodies.every((b) => b.parameter?.optional === ref.parameter?.optional);
+    const sameTypeKind = bodies.every((b) => b.parameter?.type.kind === ref.parameter?.type.kind);
+    const sameTypeValue = bodies.every((b) => b.parameter?.type === ref.parameter?.type);
+    if (sameOptionality && sameTypeKind && sameTypeValue) {
+      // param is consistent and in all shared operations. Only need one copy.
+      return [ref];
+    } else {
+      return bodies;
+    }
+  }
+
+  /**
+   * Validates that common parameters are consistent and returns the minimal set that describes the differences.
+   */
+  function validateCommonParameters(
+    ops: HttpOperation[],
+    name: string,
+    totalOps: number
+  ): HttpOperationParameter[] {
+    const finalParams: HttpOperationParameter[] = [];
+    const commonParams: HttpOperationParameter[] = [];
+    for (const op of ops) {
+      const param = op.parameters.parameters.find((p) => p.name === name);
+      if (param) {
+        commonParams.push(param);
+      }
+    }
+    const reference = commonParams[0];
+    if (!reference) {
+      return [];
+    }
+    const inAllOps = ops.length === totalOps;
+    const sameLocations = commonParams.every((p) => p.type === reference.type);
+    const sameOptionality = commonParams.every(
+      (p) => p.param.optional === reference.param.optional
+    );
+    const sameTypeKind = commonParams.every((p) => p.param.type.kind === reference.param.type.kind);
+    const sameTypeValue = commonParams.every((p) => p.param.type === reference.param.type);
+
+    if (inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+      // param is consistent and in all shared operations. Only need one copy.
+      finalParams.push(reference);
+    } else if (!inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+      // param is consistent when used, but does not appear in all shared operations. Only need one copy, but it must be optional.
+      reference.param.optional = true;
+      finalParams.push(reference);
+    } else if (inAllOps && !(sameLocations && sameOptionality && sameTypeKind)) {
+      // param is in all shared operations, but is not consistent. Need multiple copies, which must be optional.
+      // exception allowed when the params only differ by their value (e.g. string enum values)
+      commonParams.forEach((p) => {
+        p.param.optional = true;
+      });
+      finalParams.push(...commonParams);
+    } else {
+      finalParams.push(...commonParams);
+    }
+    return finalParams;
+  }
+
+  interface SharedHttpOperation {
+    kind: "shared";
+    path: string;
+    operationId: string;
+    description: string | undefined;
+    summary: string | undefined;
+    verb: http.HttpVerb;
+    parameters: HttpOperationParameters;
+    bodies: HttpOperationRequestBody[] | undefined;
+    responses: Map<string, HttpOperationResponse[]>;
+    operations: Operation[];
+  }
+
+  function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
+    const results: SharedHttpOperation[] = [];
+    const paramMap = new Map<string, HttpOperation[]>();
+    const bodyMap = new Map<string, HttpOperation[]>();
+    const responseMap = new Map<string, HttpOperation[]>();
+
+    for (const op of operations) {
+      // determine which parameters are shared by shared route operations
+      for (const param of op.parameters.parameters) {
+        if (paramMap.has(param.name)) {
+          paramMap.get(param.name)!.push(op);
+        } else {
+          paramMap.set(param.name, [op]);
+        }
+      }
+      // determine which body parameters are shared by shared route operations
+      const bodyParam = op.parameters.body;
+      if (bodyParam?.parameter) {
+        if (bodyMap.has(bodyParam.parameter.name)) {
+          bodyMap.get(bodyParam.parameter.name)!.push(op);
+        } else {
+          bodyMap.set(bodyParam.parameter.name, [op]);
+        }
+      }
+
+      // determine which responses are shared by shared route operations
+      for (const response of op.responses) {
+        if (responseMap.has(response.statusCode)) {
+          responseMap.get(response.statusCode)!.push(op);
+        } else {
+          responseMap.set(response.statusCode, [op]);
+        }
+      }
+    }
+
+    const totalOps = operations.length;
+    const shared: SharedHttpOperation = {
+      kind: "shared",
+      operationId: operations.map((op) => resolveOperationId(program, op.operation)).join("_"),
+      description: joinOps(operations, getDoc, " "),
+      summary: joinOps(operations, getSummary, " "),
+      path: operations[0].path,
+      verb: operations[0].verb,
+      operations: operations.map((op) => op.operation),
+      parameters: {
+        parameters: [],
+      },
+      bodies: undefined,
+      responses: new Map<string, HttpOperationResponse[]>(),
+    };
+    for (const [paramName, ops] of paramMap) {
+      const commonParams = validateCommonParameters(ops, paramName, totalOps);
+      shared.parameters.parameters.push(...commonParams);
+    }
+    for (const [_, ops] of bodyMap) {
+      shared.bodies = validateCommonBodies(ops);
+    }
+    for (const [statusCode, ops] of responseMap) {
+      shared.responses.set(statusCode, validateCommonResponses(ops, statusCode));
+    }
+    results.push(shared);
+    return results;
+  }
+
+  /**
+   * Groups HttpOperations together if they share the same route.
+   */
+  function resolveOperations(operations: HttpOperation[]): (HttpOperation | SharedHttpOperation)[] {
+    const result: (HttpOperation | SharedHttpOperation)[] = [];
+    const pathMap = new Map<string, HttpOperation[]>();
+    operations.forEach((op) => {
+      // we don't emit overloads anyhow so emit them from grouping
+      if (op.overloading !== undefined && isOverloadSameEndpoint(op as any)) {
+        return;
+      }
+      const opKey = `${op.verb}|${op.path}`;
+      pathMap.has(opKey) ? pathMap.get(opKey)!.push(op) : pathMap.set(opKey, [op]);
+    });
+
+    // now push either the singular HttpOperations or the constructed SharedHttpOperations
+    for (const [_, ops] of pathMap) {
+      if (ops.length === 1) {
+        result.push(ops[0]);
+      } else {
+        const sharedOps = buildSharedOperations(ops);
+        for (const op of sharedOps) {
+          result.push(op);
+        }
+      }
+    }
+    return result;
+  }
+
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
@@ -402,16 +606,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       reportIfNoRoutes(program, httpService.operations);
 
-      for (const operation of httpService.operations) {
-        if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
-          continue;
+      for (const op of resolveOperations(httpService.operations)) {
+        if ((op as SharedHttpOperation).kind === "shared") {
+          emitSharedOperation(op as SharedHttpOperation);
         } else {
-          emitOperation(operation);
+          emitOperation(op as HttpOperation);
         }
       }
       emitParameters();
-      emitUnreferencedSchemas(service.type);
-      emitSchemas();
+      emitSchemas(service.type);
       emitTags();
 
       // Clean up empty entries
@@ -435,7 +638,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was
-        // inserted into the Cadl output
+        // inserted into the TypeSpec output
         return;
       } else {
         throw err;
@@ -443,25 +646,89 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitOperation(operation: HttpOperation): void {
-    const { path: fullPath, operation: op, verb, parameters } = operation;
-
-    // If path contains a query string, issue msg and don't emit this endpoint
-    if (fullPath.indexOf("?") > 0) {
-      reportDiagnostic(program, { code: "path-query", target: op });
-      return;
+  function joinOps(
+    operations: HttpOperation[],
+    func: (program: Program, type: Type) => string | undefined,
+    joinChar: string
+  ): string | undefined {
+    const values = operations
+      .map((op) => func(program, op.operation))
+      .filter((op) => op !== undefined) as string[];
+    if (values.length) {
+      return values.join(joinChar);
+    } else {
+      return undefined;
     }
+  }
 
+  function emitSharedOperation(shared: SharedHttpOperation): void {
+    const { path: fullPath, verb: verb, operations: ops } = shared;
     if (!root.paths[fullPath]) {
       root.paths[fullPath] = {};
     }
-
     currentPath = root.paths[fullPath];
     if (!currentPath[verb]) {
       currentPath[verb] = {};
     }
     currentEndpoint = currentPath[verb];
+    for (const op of ops) {
+      const opTags = getAllTags(program, op);
+      if (opTags) {
+        const currentTags = currentEndpoint.tags;
+        if (currentTags) {
+          // combine tags but eliminate duplicates
+          currentEndpoint.tags = [...new Set([...currentTags, ...opTags])];
+        } else {
+          currentEndpoint.tags = opTags;
+        }
+        for (const tag of opTags) {
+          // Add to root tags if not already there
+          tags.add(tag);
+        }
+      }
+    }
+    // Set up basic endpoint fields
+    currentEndpoint.operationId = shared.operationId;
+    for (const op of ops) {
+      applyExternalDocs(op, currentEndpoint);
+    }
+    currentEndpoint.summary = shared.summary;
+    currentEndpoint.description = shared.description;
+    currentEndpoint.parameters = [];
+    currentEndpoint.responses = {};
+    const visibility = http.getRequestVisibility(verb);
+    emitEndpointParameters(shared.parameters.parameters, visibility);
+    if (shared.bodies) {
+      if (shared.bodies.length === 1) {
+        emitRequestBody(shared.bodies[0], visibility);
+      } else if (shared.bodies.length > 1) {
+        emitMergedRequestBody(shared.bodies, visibility);
+      }
+    }
+    emitSharedResponses(shared.responses);
+    for (const op of ops) {
+      if (isDeprecated(program, op)) {
+        currentEndpoint.deprecated = true;
+      }
+      attachExtensions(program, op, currentEndpoint);
+    }
+  }
 
+  function emitOperation(operation: HttpOperation): void {
+    const { path: fullPath, operation: op, verb, parameters } = operation;
+    // If path contains a query string, issue msg and don't emit this endpoint
+    if (fullPath.indexOf("?") > 0) {
+      reportDiagnostic(program, { code: "path-query", target: op });
+      return;
+    }
+    if (!root.paths[fullPath]) {
+      root.paths[fullPath] = {};
+    }
+    currentPath = root.paths[fullPath];
+    if (!currentPath[verb]) {
+      currentPath[verb] = {};
+    }
+    currentEndpoint = currentPath[verb];
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
@@ -470,26 +737,31 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         tags.add(tag);
       }
     }
-
-    currentEndpoint.operationId = resolveOperationId(program, op);
+    currentEndpoint.operationId = resolveOperationId(program, operation.operation);
     applyExternalDocs(op, currentEndpoint);
-
     // Set up basic endpoint fields
-    currentEndpoint.summary = getSummary(program, op);
-    currentEndpoint.description = getDoc(program, op);
+    currentEndpoint.summary = getSummary(program, operation.operation);
+    currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-
-    const visibility = getRequestVisibility(verb);
+    const visibility = http.getRequestVisibility(verb);
     emitEndpointParameters(parameters.parameters, visibility);
-    emitRequestBody(parameters, visibility);
+    emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
-
     if (isDeprecated(program, op)) {
       currentEndpoint.deprecated = true;
     }
-
     attachExtensions(program, op, currentEndpoint);
+  }
+
+  function emitSharedResponses(responses: Map<string, HttpOperationResponse[]>) {
+    for (const [_, statusCodeResponses] of responses) {
+      if (statusCodeResponses.length === 1) {
+        emitResponseObject(statusCodeResponses[0]);
+      } else {
+        emitMergedResponseObject(statusCodeResponses);
+      }
+    }
   }
 
   function emitResponses(responses: HttpOperationResponse[]) {
@@ -516,45 +788,98 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function emitMergedResponseObject(responses: HttpOperationResponse[]) {
+    const statusCode = getOpenAPIStatuscode(responses[0]);
+    const openApiResponse: any = {
+      description: undefined,
+      content: {},
+      statusCode: statusCode,
+    };
+    const schemaMap = new Map<string, any[]>();
+    for (const response of responses) {
+      if (response.description && response.description !== openApiResponse.description) {
+        openApiResponse.description = openApiResponse.description
+          ? `${openApiResponse.description} ${response.description}`
+          : response.description;
+      }
+      emitResponseHeaders(openApiResponse, response.responses, response.type);
+      emitResponseContent(openApiResponse, response.responses, schemaMap);
+      if (!openApiResponse.description) {
+        openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
+      }
+      currentEndpoint.responses[statusCode] = openApiResponse;
+    }
+  }
+
   function emitResponseObject(response: Readonly<HttpOperationResponse>) {
     const statusCode = getOpenAPIStatuscode(response);
-    const openapiResponse = currentEndpoint.responses[statusCode] ?? {
+    const openApiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
+    emitResponseHeaders(openApiResponse, response.responses, response.type);
+    emitResponseContent(openApiResponse, response.responses);
+    currentEndpoint.responses[statusCode] = openApiResponse;
+  }
 
-    for (const data of response.responses) {
+  function emitResponseHeaders(
+    obj: any,
+    responses: http.HttpOperationResponseContent[],
+    target: Type
+  ) {
+    for (const data of responses) {
       if (data.headers && Object.keys(data.headers).length > 0) {
-        openapiResponse.headers ??= {};
+        obj.headers ??= {};
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates.
         // It may be possible in principle to not error for identically declared
         // headers.
         for (const [key, value] of Object.entries(data.headers)) {
-          if (openapiResponse.headers[key]) {
+          if (obj.headers[key]) {
             reportDiagnostic(program, {
               code: "duplicate-header",
               format: { header: key },
-              target: response.type,
+              target: target,
             });
             continue;
           }
-          openapiResponse.headers[key] = getResponseHeader(value);
-        }
-      }
-
-      if (data.body !== undefined) {
-        openapiResponse.content ??= {};
-        for (const contentType of data.body.contentTypes) {
-          const isBinary = isBinaryPayload(data.body.type, contentType);
-          const schema = isBinary
-            ? { type: "string", format: "binary" }
-            : getSchemaOrRef(data.body.type, Visibility.Read);
-          openapiResponse.content[contentType] = { schema };
+          obj.headers[key] = getResponseHeader(value);
         }
       }
     }
+  }
 
-    currentEndpoint.responses[statusCode] = openapiResponse;
+  function emitResponseContent(
+    obj: any,
+    responses: http.HttpOperationResponseContent[],
+    schemaMap: Map<string, any[]> | undefined = undefined
+  ) {
+    schemaMap ??= new Map<string, any[]>();
+    for (const data of responses) {
+      if (data.body === undefined) {
+        continue;
+      }
+      obj.content ??= {};
+      for (const contentType of data.body.contentTypes) {
+        const isBinary = isBinaryPayload(data.body.type, contentType);
+        const schema = isBinary
+          ? { type: "string", format: "binary" }
+          : getSchemaOrRef(data.body.type, Visibility.Read);
+        if (schemaMap.has(contentType)) {
+          schemaMap.get(contentType)!.push(schema);
+        } else {
+          schemaMap.set(contentType, [schema]);
+        }
+      }
+      for (const [contentType, schema] of schemaMap) {
+        if (schema.length === 1) {
+          obj.content[contentType] = { schema: schema[0] };
+        } else {
+          obj.content[contentType] = {
+            schema: { oneOf: schema },
+          };
+        }
+      }
+    }
   }
 
   function getResponseDescriptionForStatusCode(statusCode: string) {
@@ -564,7 +889,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header | undefined {
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
@@ -582,7 +907,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
       // For literal types, we just want to emit them directly as well.
-      return mapCadlTypeToOpenAPI(type, visibility);
+      return mapTypeSpecTypeToOpenAPI(type, visibility);
     }
 
     if (type.kind === "Intrinsic" && type.name === "unknown") {
@@ -614,22 +939,24 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         throw new ErrorTypeFoundError();
       }
 
-      // helps to read output and correlate to Cadl
+      // helps to read output and correlate to TypeSpec
       if (schema) {
-        schema["x-cadl-name"] = name;
+        schema["x-typespec-name"] = name;
       }
       return schema;
     } else {
-      // Use shared schema when type is not transformed by visibility.
+      // Use shared schema when type is not transformed by visibility from the canonical read visibility.
       if (!metadataInfo.isTransformed(type, visibility)) {
-        visibility = Visibility.All;
+        visibility = Visibility.Read;
       }
       const pending = pendingSchemas.getOrAdd(type, visibility, () => ({
         type,
         visibility,
         ref: refs.getOrAdd(type, visibility, () => new Ref()),
       }));
-      return { $ref: pending.ref };
+      return {
+        $ref: pending.ref,
+      };
     }
   }
 
@@ -677,37 +1004,72 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
     if (spreadParam && property.model && !shouldInline(program, property.model)) {
       params.set(property, placeholder);
+      paramModels.add(property.model);
     }
 
     return placeholder;
   }
 
   function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const parameter of parameters) {
-      const { type, param } = parameter;
-      if (params.has(param)) {
-        currentEndpoint.parameters.push(params.get(param));
+    for (const httpOpParam of parameters) {
+      if (params.has(httpOpParam.param)) {
+        currentEndpoint.parameters.push(params.get(httpOpParam.param));
         continue;
       }
-
-      switch (type) {
-        case "path":
-          emitParameter(parameter, visibility);
-          break;
-        case "query":
-          emitParameter(parameter, visibility);
-          break;
-        case "header":
-          if (!isContentTypeHeader(program, param)) {
-            emitParameter(parameter, visibility);
-          }
-          break;
+      if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
+        continue;
       }
+      emitParameter(httpOpParam, visibility);
     }
   }
 
-  function emitRequestBody(parameters: HttpOperationParameters, visibility: Visibility) {
-    const body = parameters.body;
+  function emitMergedRequestBody(
+    bodies: HttpOperationRequestBody[] | undefined,
+    visibility: Visibility
+  ) {
+    if (bodies === undefined) {
+      return;
+    }
+    const requestBody: any = {
+      description: undefined,
+      content: {},
+    };
+    const schemaMap = new Map<string, any[]>();
+    for (const body of bodies) {
+      const desc = body.parameter ? getDoc(program, body.parameter) : undefined;
+      if (desc) {
+        requestBody.description = requestBody.description
+          ? `${requestBody.description} ${desc}`
+          : desc;
+      }
+      const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
+      for (const contentType of contentTypes) {
+        const isBinary = isBinaryPayload(body.type, contentType);
+        const bodySchema = isBinary
+          ? { type: "string", format: "binary" }
+          : getSchemaOrRef(body.type, visibility);
+        if (schemaMap.has(contentType)) {
+          schemaMap.get(contentType)!.push(bodySchema);
+        } else {
+          schemaMap.set(contentType, [bodySchema]);
+        }
+      }
+    }
+    const content: any = {};
+    for (const [contentType, schemaArray] of schemaMap) {
+      if (schemaArray.length === 1) {
+        content[contentType] = { schema: schemaArray[0] };
+      } else {
+        content[contentType] = {
+          schema: { oneOf: schemaArray },
+        };
+      }
+    }
+    requestBody.content = content;
+    currentEndpoint.requestBody = requestBody;
+  }
+
+  function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
     if (body === undefined) {
       return;
     }
@@ -736,20 +1098,31 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (isNeverType(parameter.param.type)) {
       return;
     }
-    const ph = getParamPlaceholder(parameter.param);
-    currentEndpoint.parameters.push(ph);
+    const existing = currentEndpoint.parameters.find(
+      (p) => p.name === parameter.name && p.in === parameter.type
+    );
+    if (existing) {
+      populateParameter(existing, parameter, visibility);
+    } else {
+      const ph = getParamPlaceholder(parameter.param);
+      currentEndpoint.parameters.push(ph);
 
-    // If the parameter already has a $ref, don't bother populating it
-    if (!("$ref" in ph)) {
-      populateParameter(ph, parameter, visibility);
+      // If the parameter already has a $ref, don't bother populating it
+      if (!("$ref" in ph)) {
+        populateParameter(ph, parameter, visibility);
+      }
     }
   }
 
   function getOpenAPIParameterBase(
     param: ModelProperty,
     visibility: Visibility
-  ): OpenAPI3ParameterBase {
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type, visibility));
+  ): OpenAPI3ParameterBase | undefined {
+    const typeSchema = getSchemaForType(param.type, visibility);
+    if (!typeSchema) {
+      return undefined;
+    }
+    const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -767,6 +1140,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return oaiParam;
   }
 
+  function mergeOpenApiParameters(
+    param: OpenAPI3Parameter,
+    base: OpenAPI3ParameterBase
+  ): OpenAPI3Parameter {
+    if (param.schema) {
+      const schema = param.schema;
+      if (schema.enum && base.schema.enum) {
+        schema.enum = [...new Set([...schema.enum, ...base.schema.enum])];
+      }
+      param.schema = schema;
+    } else {
+      Object.assign(param, base);
+    }
+    return param;
+  }
+
   function populateParameter(
     ph: OpenAPI3Parameter,
     parameter: HttpOperationParameter,
@@ -774,7 +1163,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = parameter.name;
     ph.in = parameter.type;
-    Object.assign(ph, getOpenAPIParameterBase(parameter.param, visibility));
+    if (parameter.type === "query") {
+      if (parameter.format === "csv") {
+        ph.style = "simple";
+      } else if (parameter.format === "multi") {
+        ph.style = "form";
+        ph.explode = true;
+      }
+    } else if (parameter.type === "header") {
+      if (parameter.format === "csv") {
+        ph.style = "simple";
+      }
+    }
+    const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
+    if (paramBase) {
+      ph = mergeOpenApiParameters(ph, paramBase);
+    }
   }
 
   function emitParameters() {
@@ -796,55 +1200,66 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitUnreferencedSchemas(namespace: Namespace) {
-    if (options.omitUnreachableTypes) {
-      return;
-    }
-    const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
-
-    const skipSubNamespaces = isGlobalNamespace(program, namespace);
-    navigateTypesInNamespace(
-      namespace,
-      {
-        model: (x) => x.name !== "" && computeSchema(x),
-        scalar: computeSchema,
-        enum: computeSchema,
-        union: (x) => x.name !== undefined && computeSchema(x),
-      },
-      { skipSubNamespaces }
-    );
-  }
-
-  function emitSchemas() {
-    // Process pending schemas. Note that getSchemaForType may pull in new
-    // pending schemas so we iterate until there are no pending schemas
-    // remaining.
+  function emitSchemas(serviceNamespace: Namespace) {
     const processedSchemas = new TwoLevelMap<Type, Visibility, ProcessedSchema>();
-    while (pendingSchemas.size > 0) {
-      for (const [type, group] of pendingSchemas) {
-        for (const [visibility, pending] of group) {
-          processedSchemas.getOrAdd(type, visibility, () => ({
-            ...pending,
-            schema: getSchemaForType(type, visibility),
-          }));
-        }
-        pendingSchemas.delete(type);
-      }
+
+    processSchemas();
+    if (!options.omitUnreachableTypes) {
+      processUnreferencedSchemas();
     }
 
     // Emit the processed schemas. Only now can we compute the names as it
     // depends on whether we have produced multiple schemas for a single
-    // CADL type.
+    // TYPESPEC type.
     for (const group of processedSchemas.values()) {
       for (const [visibility, processed] of group) {
         let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
         if (group.size > 1) {
-          name += getVisibilitySuffix(visibility);
+          name += getVisibilitySuffix(visibility, Visibility.Read);
         }
         checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
         processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        root.components!.schemas![name] = processed.schema;
+        if (processed.schema) {
+          root.components!.schemas![name] = processed.schema;
+        }
       }
+    }
+
+    function processSchemas() {
+      // Process pending schemas. Note that getSchemaForType may pull in new
+      // pending schemas so we iterate until there are no pending schemas
+      // remaining.
+      while (pendingSchemas.size > 0) {
+        for (const [type, group] of pendingSchemas) {
+          for (const [visibility, pending] of group) {
+            processedSchemas.getOrAdd(type, visibility, () => ({
+              ...pending,
+              schema: getSchemaForType(type, visibility),
+            }));
+          }
+          pendingSchemas.delete(type);
+        }
+      }
+    }
+
+    function processUnreferencedSchemas() {
+      const addSchema = (type: Type) => {
+        if (!processedSchemas.has(type) && !paramModels.has(type) && !shouldInline(program, type)) {
+          getSchemaOrRef(type, Visibility.Read);
+        }
+      };
+      const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
+      navigateTypesInNamespace(
+        serviceNamespace,
+        {
+          model: addSchema,
+          scalar: addSchema,
+          enum: addSchema,
+          union: addSchema,
+        },
+        { skipSubNamespaces }
+      );
+      processSchemas();
     }
   }
 
@@ -854,8 +1269,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForType(type: Type, visibility: Visibility) {
-    const builtinType = mapCadlTypeToOpenAPI(type, visibility);
+  function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
+    const builtinType = mapTypeSpecTypeToOpenAPI(type, visibility);
     if (builtinType !== undefined) return builtinType;
 
     switch (type.kind) {
@@ -863,6 +1278,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForIntrinsicType(type);
       case "Model":
         return getSchemaForModel(type, visibility);
+      case "ModelProperty":
+        return getSchemaForType(type.type, visibility);
       case "Scalar":
         return getSchemaForScalar(type);
       case "Union":
@@ -873,6 +1290,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return getSchemaForEnum(type);
       case "Tuple":
         return { type: "array", items: {} };
+      case "TemplateParameter":
+        // Note: This should never happen if it does there is a bug in the compiler.
+        reportDiagnostic(program, {
+          code: "invalid-schema",
+          format: { type: `${type.node.id.sv} (template parameter)` },
+          target: type,
+        });
+        return undefined;
     }
 
     reportDiagnostic(program, {
@@ -932,7 +1357,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   /**
-   * A Cadl union maps to a variety of OA3 structures according to the following rules:
+   * A TypeSpec union maps to a variety of OA3 structures according to the following rules:
    *
    * * A union containing `null` makes a `nullable` schema comprised of the remaining
    *   union variants.
@@ -958,7 +1383,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = mapCadlTypeToOpenAPI(variant.type, visibility);
+          const enumSchema = mapTypeSpecTypeToOpenAPI(variant.type, visibility);
           literalVariantEnumByType[variant.type.kind] = enumSchema;
           schemaMembers.push({ schema: enumSchema, type: null });
         } else {
@@ -1059,8 +1484,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function includeDerivedModel(model: Model): boolean {
     return (
       !isTemplateDeclaration(model) &&
-      (model.templateArguments === undefined ||
-        model.templateArguments?.length === 0 ||
+      (model.templateMapper?.args === undefined ||
+        model.templateMapper.args?.length === 0 ||
         model.derivedModels.length > 0)
     );
   }
@@ -1130,11 +1555,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // that we set before
       const baseSchema = getSchemaForType(model.baseModel, visibility);
       modelSchema = {
-        ...baseSchema,
+        ...(baseSchema as any),
         description: modelSchema.description,
       };
     } else if (model.baseModel) {
-      modelSchema.allOf = [getSchemaOrRef(model.baseModel, visibility)];
+      const baseSchema = getSchemaOrRef(model.baseModel, visibility);
+      modelSchema.allOf = [baseSchema];
+      modelSchema.additionalProperties = baseSchema.additionalProperties;
+      if (modelSchema.additionalProperties) {
+        validateAdditionalProperties(model);
+      }
     }
 
     // Attach any OpenAPI extensions
@@ -1195,63 +1625,73 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function applyIntrinsicDecorators(
-    cadlType: Scalar | ModelProperty,
+    typespecType: Scalar | ModelProperty,
     target: OpenAPI3Schema
   ): OpenAPI3Schema {
     const newTarget = { ...target };
-    const docStr = getDoc(program, cadlType);
-    const isString = isStringType(program, getPropertyType(cadlType));
-    const isNumeric = isNumericType(program, getPropertyType(cadlType));
+    const docStr = getDoc(program, typespecType);
+    const isString = isStringType(program, getPropertyType(typespecType));
+    const isNumeric = isNumericType(program, getPropertyType(typespecType));
 
     if (!target.description && docStr) {
       newTarget.description = docStr;
     }
-    const formatStr = getFormat(program, cadlType);
+    const formatStr = getFormat(program, typespecType);
     if (isString && !target.format && formatStr) {
       newTarget.format = formatStr;
     }
 
-    const pattern = getPattern(program, cadlType);
+    const pattern = getPattern(program, typespecType);
     if (isString && !target.pattern && pattern) {
       newTarget.pattern = pattern;
     }
 
-    const minLength = getMinLength(program, cadlType);
+    const minLength = getMinLength(program, typespecType);
     if (isString && !target.minLength && minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
-    const maxLength = getMaxLength(program, cadlType);
+    const maxLength = getMaxLength(program, typespecType);
     if (isString && !target.maxLength && maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
-    const minValue = getMinValue(program, cadlType);
+    const minValue = getMinValue(program, typespecType);
     if (isNumeric && !target.minimum && minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
-    const maxValue = getMaxValue(program, cadlType);
+    const minValueExclusive = getMinValueExclusive(program, typespecType);
+    if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
+      newTarget.exclusiveMinimum = minValueExclusive;
+    }
+
+    const maxValue = getMaxValue(program, typespecType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
-    const minItems = getMinItems(program, cadlType);
+    const maxValueExclusive = getMaxValueExclusive(program, typespecType);
+    if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
+      newTarget.exclusiveMaximum = maxValueExclusive;
+    }
+
+    const minItems = getMinItems(program, typespecType);
     if (!target.minItems && minItems !== undefined) {
       newTarget.minItems = minItems;
     }
 
-    const maxItems = getMaxItems(program, cadlType);
+    const maxItems = getMaxItems(program, typespecType);
     if (!target.maxItems && maxItems !== undefined) {
       newTarget.maxItems = maxItems;
     }
 
-    if (isSecret(program, cadlType)) {
+    if (isSecret(program, typespecType)) {
       newTarget.format = "password";
     }
 
     if (isString) {
-      const values = getKnownValues(program, cadlType);
+      const values = getKnownValues(program, typespecType);
       if (values) {
         return {
           oneOf: [newTarget, getSchemaForEnum(values)],
@@ -1259,53 +1699,98 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
 
-    attachExtensions(program, cadlType, newTarget);
+    attachExtensions(program, typespecType, newTarget);
 
     return newTarget;
   }
 
-  function applyExternalDocs(cadlType: Type, target: Record<string, unknown>) {
-    const externalDocs = getExternalDocs(program, cadlType);
+  function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
+    const externalDocs = getExternalDocs(program, typespecType);
     if (externalDocs) {
       target.externalDocs = externalDocs;
     }
   }
 
-  // Map an Cadl type to an OA schema. Returns undefined when the resulting
+  // Map an TypeSpec type to an OA schema. Returns undefined when the resulting
   // OA schema is just a regular object schema.
-  function mapCadlTypeToOpenAPI(cadlType: Type, visibility: Visibility): any {
-    switch (cadlType.kind) {
+  function mapTypeSpecTypeToOpenAPI(typespecType: Type, visibility: Visibility): any {
+    switch (typespecType.kind) {
       case "Number":
-        return { type: "number", enum: [cadlType.value] };
+        return { type: "number", enum: [typespecType.value] };
       case "String":
-        return { type: "string", enum: [cadlType.value] };
+        return { type: "string", enum: [typespecType.value] };
       case "Boolean":
-        return { type: "boolean", enum: [cadlType.value] };
+        return { type: "boolean", enum: [typespecType.value] };
       case "Model":
-        return mapCadlIntrinsicModelToOpenAPI(cadlType, visibility);
+        return mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
+    }
+  }
+
+  function getIndexer(model: Model): ModelIndexer | undefined {
+    const indexer = model.indexer;
+    if (indexer) {
+      return indexer;
+    } else if (model.baseModel) {
+      return getIndexer(model.baseModel);
+    }
+    return undefined;
+  }
+
+  function validateAdditionalProperties(model: Model) {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
+      return;
+    }
+    for (const [_, prop] of model.properties) {
+      // ensure that the record type is compatible with any listed properties
+      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, propType, prop);
+      for (const diag of diagnostics) {
+        program.reportDiagnostic(diag);
+      }
     }
   }
 
   /**
-   * Map Cadl intrinsic models to open api definitions
+   * Returns appropriate additional properties for Record types.
    */
-  function mapCadlIntrinsicModelToOpenAPI(
-    cadlType: Model,
+  function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
+    const propType = getIndexer(model)?.value;
+    if (!propType) {
+      return undefined;
+    }
+    switch (propType.kind) {
+      case "Intrinsic":
+        if (propType.name === "unknown") {
+          return {};
+        }
+        break;
+      case "Scalar":
+      case "Model":
+        return getSchemaOrRef(propType, visibility);
+    }
+    return undefined;
+  }
+
+  /**
+   * Map TypeSpec intrinsic models to open api definitions
+   */
+  function mapTypeSpecIntrinsicModelToOpenAPI(
+    typespecType: Model,
     visibility: Visibility
   ): any | undefined {
-    if (cadlType.indexer) {
-      if (isNeverType(cadlType.indexer.key)) {
+    if (typespecType.indexer) {
+      if (isNeverType(typespecType.indexer.key)) {
       } else {
-        const name = cadlType.indexer.key.name;
+        const name = typespecType.indexer.key.name;
         if (name === "string") {
           return {
             type: "object",
-            additionalProperties: getSchemaOrRef(cadlType.indexer.value!, visibility),
+            additionalProperties: processAdditionalProperties(typespecType, visibility),
           };
         } else if (name === "integer") {
           return {
             type: "array",
-            items: getSchemaOrRef(cadlType.indexer.value!, visibility | Visibility.Item),
+            items: getSchemaOrRef(typespecType.indexer.value!, visibility | Visibility.Item),
           };
         }
       }
@@ -1354,19 +1839,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "boolean" };
       case "plainDate":
         return { type: "string", format: "date" };
-      case "zonedDateTime":
+      case "utcDateTime":
+      case "offsetDateTime":
         return { type: "string", format: "date-time" };
       case "plainTime":
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "uri":
       case "url":
         return { type: "string", format: "uri" };
       case "integer":
       case "numeric":
       case "float":
-        return {}; // Waiting on design for more precise type https://github.com/microsoft/cadl/issues/1260
+        return {}; // Waiting on design for more precise type https://github.com/microsoft/typespec/issues/1260
       default:
         const _assertNever: never = scalar.name;
         return {};
@@ -1434,11 +1919,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 }
 
 function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+  sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return yaml.dump(root, { noRefs: true });
+      return yaml.dump(root, {
+        noRefs: true,
+        replacer: function (key, value) {
+          return value instanceof Ref ? value.toJSON() : value;
+        },
+      });
   }
 }
 
@@ -1448,6 +1939,25 @@ function prettierOutput(output: string) {
 
 class ErrorTypeFoundError extends Error {
   constructor() {
-    super("Error type found in evaluated Cadl output");
+    super("Error type found in evaluated TypeSpec output");
+  }
+}
+
+function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
+  return Object.keys(obj)
+    .sort()
+    .reduce((sortedObj: any, key: string) => {
+      sortedObj[key] = obj[key];
+      return sortedObj;
+    }, {});
+}
+
+function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+  doc.paths = sortObjectByKeys(doc.paths);
+  if (doc.components?.schemas) {
+    doc.components.schemas = sortObjectByKeys(doc.components.schemas);
+  }
+  if (doc.components?.parameters) {
+    doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
 }

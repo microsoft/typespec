@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { filterModelProperties, getEffectiveModelType } from "../../core/checker.js";
 import { DecoratorContext, Model, ModelProperty, Type } from "../../core/types.js";
-import { createTestHost, expectIdenticalTypes, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost, expectIdenticalTypes } from "../../testing/index.js";
 
 describe("compiler: effective type", () => {
   let testHost: TestHost;
@@ -20,8 +20,8 @@ describe("compiler: effective type", () => {
   });
 
   it("spread", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Source {
         prop: string;
@@ -42,8 +42,8 @@ describe("compiler: effective type", () => {
   });
 
   it("indirect spread", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Source {
         prop: string;
@@ -71,8 +71,8 @@ describe("compiler: effective type", () => {
   });
 
   it("indirect spread, intersect, and filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -102,8 +102,8 @@ describe("compiler: effective type", () => {
   });
 
   it("intersect", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Source {
         prop: string;
@@ -126,8 +126,8 @@ describe("compiler: effective type", () => {
   });
 
   it("extends", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model Base {
         propBase: string;
@@ -153,8 +153,8 @@ describe("compiler: effective type", () => {
   });
 
   it("intersect and filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -178,8 +178,8 @@ describe("compiler: effective type", () => {
   });
 
   it("extend and filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -204,8 +204,8 @@ describe("compiler: effective type", () => {
   });
 
   it("extend and filter two levels", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -234,8 +234,8 @@ describe("compiler: effective type", () => {
   });
 
   it("extend and filter two levels with override", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -267,8 +267,8 @@ describe("compiler: effective type", () => {
   });
 
   it("extend, intersect, and filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -297,8 +297,8 @@ describe("compiler: effective type", () => {
   });
 
   it("extend templated base with spread and filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -328,8 +328,8 @@ describe("compiler: effective type", () => {
   });
 
   it("empty model", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Test {
         test: {};
@@ -347,8 +347,8 @@ describe("compiler: effective type", () => {
   });
 
   it("unsourced property", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model Source {
         prop: string;
@@ -370,8 +370,8 @@ describe("compiler: effective type", () => {
   });
 
   it("different sources", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       model SourceOne {
         one: string;
@@ -399,8 +399,8 @@ describe("compiler: effective type", () => {
   });
 
   it("only part of source with separate filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -429,8 +429,8 @@ describe("compiler: effective type", () => {
   });
 
   it("only parts of base and spread sources with separate filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 
@@ -461,8 +461,8 @@ describe("compiler: effective type", () => {
   });
 
   it("only part of source with filter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./remove.js";
 

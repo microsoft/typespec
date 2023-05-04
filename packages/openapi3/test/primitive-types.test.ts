@@ -2,7 +2,7 @@ import { deepStrictEqual, ok } from "assert";
 import { oapiForModel } from "./test-host.js";
 
 describe("openapi3: primitives", () => {
-  describe("handle cadl intrinsic types", () => {
+  describe("handle typespec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
       ["int8", { type: "integer", format: "int8" }],
@@ -19,7 +19,8 @@ describe("openapi3: primitives", () => {
       ["string", { type: "string" }],
       ["boolean", { type: "boolean" }],
       ["plainDate", { type: "string", format: "date" }],
-      ["zonedDateTime", { type: "string", format: "date-time" }],
+      ["utcDateTime", { type: "string", format: "date-time" }],
+      ["offsetDateTime", { type: "string", format: "date-time" }],
       ["plainTime", { type: "string", format: "time" }],
       ["duration", { type: "string", format: "duration" }],
       ["bytes", { type: "string", format: "byte" }],

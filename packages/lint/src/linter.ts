@@ -1,30 +1,20 @@
 import {
-  CadlLibrary,
   compilerAssert,
   EventEmitter,
   mapEventEmitterToNodeListener,
   navigateProgram,
   Program,
   SemanticNodeListener,
-} from "@cadl-lang/compiler";
+  TypeSpecLibrary,
+} from "@typespec/compiler";
 import { LibraryLinter, Linter, LintRule, RegisterRuleOptions } from "./types.js";
 
-export function getLinter(library: CadlLibrary<any, any>): LibraryLinter {
-  const linter = getLinterSingleton();
+export function getLinter(library: TypeSpecLibrary<any, any>): LibraryLinter {
+  const linter = createLinter();
   return getLinterForLibrary(linter, library);
 }
 
-const linterSingletonKey = Symbol.for("@cadl-lang/lint.singleton");
-function getLinterSingleton(): Linter {
-  let linter: Linter | undefined = (globalThis as any)[linterSingletonKey];
-  if (linter === undefined) {
-    linter = createLinter();
-    (globalThis as any)[linterSingletonKey] = linter;
-  }
-  return linter;
-}
-
-function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): LibraryLinter {
+function getLinterForLibrary(linter: Linter, library: TypeSpecLibrary<any, any>): LibraryLinter {
   const rulesToAutoEnable: string[] = [];
   return {
     ...linter,
@@ -113,14 +103,15 @@ function createLinter(): Linter {
   }
 
   function enableRule(name: string) {
-    compilerAssert(ruleMap.has(name), `Rule "${name}" is not registered. Cannot enable.`);
+    if (!ruleMap.has(name)) {
+      throw new Error(`Rule "${name}" is not registered. Cannot enable.`);
+    }
     enabledRules.add(name);
   }
 
   function enableRules(names: string[]) {
     for (const name of names) {
-      compilerAssert(ruleMap.has(name), `Rule "${name}"  is not registered. Cannot enable.`);
-      enabledRules.add(name);
+      enableRule(name);
     }
   }
 }
@@ -130,5 +121,5 @@ export function createRule(rule: LintRule): LintRule {
 }
 
 function getTracer(program: Program) {
-  return program.tracer.sub("@cadl-lang/lint");
+  return program.tracer.sub("@typespec/lint");
 }

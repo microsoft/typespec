@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Add validation to ensure that @action or @collectionAction operations have a specified name when used with @sharedRoute",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}

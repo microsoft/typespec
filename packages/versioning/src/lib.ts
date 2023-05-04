@@ -1,7 +1,7 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 const libDef = {
-  name: "@cadl-lang/versioning",
+  name: "@typespec/versioning",
   diagnostics: {
     "versioned-dependency-tuple": {
       severity: "error",
@@ -42,7 +42,19 @@ const libDef = {
     "using-versioned-library": {
       severity: "error",
       messages: {
-        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @versionedDependency.`,
+        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @useDependency.`,
+      },
+    },
+    "invalid-renamed-from-value": {
+      severity: "error",
+      messages: {
+        default: "@renamedFrom.oldName cannot be empty string.",
+      },
+    },
+    "no-service-fixed-version": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Namespace '${"name"}' cannot specify a fixed service version with @service({version: ${"version"}}) while using @versioned. Remove the version argument from @service.`,
       },
     },
     "incompatible-versioned-reference": {
@@ -57,6 +69,19 @@ const libDef = {
         versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' removed in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
       },
     },
+    "incompatible-versioned-namespace-use-dependency": {
+      severity: "error",
+      messages: {
+        default:
+          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned. For versioned namespaces, put the useDependency decorator on the version enum members.",
+      },
+    },
+    "made-optional-not-optional": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
+      },
+    },
   },
 } as const;
-export const { reportDiagnostic, createStateSymbol } = createCadlLibrary(libDef);
+export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);

@@ -1,13 +1,13 @@
 import {
-  cadlTypeToJson,
-  CadlValue,
   DecoratorContext,
   Model,
   Operation,
   Program,
   Type,
-} from "@cadl-lang/compiler";
-import { http } from "@cadl-lang/rest";
+  typespecTypeToJson,
+  TypeSpecValue,
+} from "@typespec/compiler";
+import { setStatusCode } from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
 
@@ -37,7 +37,7 @@ export function $extension(
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: CadlValue
+  value: TypeSpecValue
 ) {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
@@ -47,7 +47,7 @@ export function $extension(
     });
   }
 
-  const [data, diagnostics] = cadlTypeToJson(value, entity);
+  const [data, diagnostics] = typespecTypeToJson(value, entity);
   if (diagnostics.length > 0) {
     context.program.reportDiagnostics(diagnostics);
   }
@@ -82,13 +82,13 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
 export function $defaultResponse(context: DecoratorContext, entity: Model) {
-  http.setStatusCode(context.program, entity, ["*"]);
+  setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 }
 
 /**
  * Check if the given model has been mark as a default response.
- * @param program Cadl Program
+ * @param program TypeSpec Program
  * @param entity Model to check.
  * @returns boolean.
  */

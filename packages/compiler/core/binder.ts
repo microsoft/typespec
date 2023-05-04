@@ -1,8 +1,8 @@
+import { compilerAssert } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
-  CadlScriptNode,
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
@@ -10,6 +10,7 @@ import {
   FunctionParameterNode,
   InterfaceStatementNode,
   JsSourceFileNode,
+  ModelExpressionNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -26,12 +27,13 @@ import {
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
+  TypeSpecScriptNode,
   UnionStatementNode,
   UsingStatementNode,
 } from "./types.js";
 import { mutate } from "./util.js";
 
-// Use a regular expression to define the prefix for Cadl-exposed functions
+// Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
@@ -72,7 +74,7 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
 };
 
 export interface Binder {
-  bindSourceFile(script: CadlScriptNode): void;
+  bindSourceFile(script: TypeSpecScriptNode): void;
   bindJsSourceFile(sourceFile: JsSourceFileNode): void;
   /**
    * @internal
@@ -85,7 +87,7 @@ export function createSymbolTable(source?: SymbolTable): SymbolTable {
 }
 
 export function createBinder(program: Program): Binder {
-  let currentFile: CadlScriptNode;
+  let currentFile: TypeSpecScriptNode;
   let parentNode: Node | undefined;
   let fileNamespace: NamespaceStatementNode | undefined;
   let scope: ScopeNode;
@@ -204,7 +206,7 @@ export function createBinder(program: Program): Binder {
     }
   }
 
-  function bindSourceFile(script: CadlScriptNode) {
+  function bindSourceFile(script: TypeSpecScriptNode) {
     if (script.locals !== undefined) {
       return;
     }
@@ -226,6 +228,9 @@ export function createBinder(program: Program): Binder {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
+        break;
+      case SyntaxKind.ModelExpression:
+        bindModelExpression(node);
         break;
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
@@ -321,7 +326,8 @@ export function createBinder(program: Program): Binder {
    */
   function bindProjectionStatement(node: ProjectionStatementNode) {
     const name = node.id.sv;
-    const table: SymbolTable = (scope as NamespaceStatementNode | CadlScriptNode).symbol.exports!;
+    const table: SymbolTable = (scope as NamespaceStatementNode | TypeSpecScriptNode).symbol
+      .exports!;
     let sym: Sym;
     if (table.has(name)) {
       sym = table.get(name)!;
@@ -342,16 +348,37 @@ export function createBinder(program: Program): Binder {
       node.selector.kind !== SyntaxKind.Identifier &&
       node.selector.kind !== SyntaxKind.MemberExpression
     ) {
-      const selectorString =
-        node.selector.kind === SyntaxKind.ProjectionModelSelector
-          ? "model"
-          : node.selector.kind === SyntaxKind.ProjectionOperationSelector
-          ? "op"
-          : node.selector.kind === SyntaxKind.ProjectionUnionSelector
-          ? "union"
-          : node.selector.kind === SyntaxKind.ProjectionEnumSelector
-          ? "enum"
-          : "interface";
+      let selectorString: string;
+      switch (node.selector.kind) {
+        case SyntaxKind.ProjectionModelSelector:
+          selectorString = "model";
+          break;
+        case SyntaxKind.ProjectionModelPropertySelector:
+          selectorString = "modelproperty";
+          break;
+        case SyntaxKind.ProjectionOperationSelector:
+          selectorString = "op";
+          break;
+        case SyntaxKind.ProjectionUnionSelector:
+          selectorString = "union";
+          break;
+        case SyntaxKind.ProjectionUnionVariantSelector:
+          selectorString = "unionvariant";
+          break;
+        case SyntaxKind.ProjectionEnumSelector:
+          selectorString = "enum";
+          break;
+        case SyntaxKind.ProjectionEnumMemberSelector:
+          selectorString = "enummember";
+          break;
+        case SyntaxKind.ProjectionInterfaceSelector:
+          selectorString = "interface";
+          break;
+        default:
+          const _never: never = node.selector;
+          compilerAssert(false, "Unreachable");
+      }
+
       let existingSelectors = projectionSymbolSelectors.get(sym);
       if (!existingSelectors) {
         existingSelectors = new Set();
@@ -389,6 +416,10 @@ export function createBinder(program: Program): Binder {
     declareSymbol(node, SymbolFlags.Model);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
+  }
+
+  function bindModelExpression(node: ModelExpressionNode) {
+    bindSymbol(node, SymbolFlags.Model);
   }
 
   function bindScalarStatement(node: ScalarStatementNode) {
@@ -435,8 +466,8 @@ export function createBinder(program: Program): Binder {
 
     if (statement.statements === undefined) {
       fileNamespace = statement;
-      let current: CadlScriptNode | NamespaceStatementNode = statement;
-      while (current.kind !== SyntaxKind.CadlScript) {
+      let current: TypeSpecScriptNode | NamespaceStatementNode = statement;
+      while (current.kind !== SyntaxKind.TypeSpecScript) {
         (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
         current = current.parent!;
       }
@@ -450,8 +481,8 @@ export function createBinder(program: Program): Binder {
   function bindOperationStatement(statement: OperationStatementNode) {
     if (scope.kind !== SyntaxKind.InterfaceStatement) {
       declareSymbol(statement, SymbolFlags.Operation);
-      mutate(statement).locals = createSymbolTable();
     }
+    mutate(statement).locals = createSymbolTable();
   }
 
   function bindDecoratorDeclarationStatement(node: DecoratorDeclarationStatementNode) {
@@ -467,20 +498,33 @@ export function createBinder(program: Program): Binder {
     mutate(node).symbol = symbol;
   }
 
+  /**
+   * Declare a symbole for the given node in the current scope.
+   * @param node Node
+   * @param flags Symbol flags
+   * @param name Optional symbol name, default to the node id.
+   * @returns Created Symbol
+   */
   function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
         return declareNamespaceMember(node, flags, name);
-      case SyntaxKind.CadlScript:
+      case SyntaxKind.TypeSpecScript:
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags, name);
       default:
         const key = name ?? node.id.sv;
-        const symbol = createSymbol(node, key, flags, scope.symbol);
+        const symbol = createSymbol(node, key, flags, scope?.symbol);
         mutate(node).symbol = symbol;
         mutate(scope.locals!).set(key, symbol);
         return symbol;
     }
+  }
+
+  function bindSymbol(node: Node, flags: SymbolFlags): Sym {
+    const symbol = createSymbol(node, "-", flags, scope?.symbol);
+    mutate(node).symbol = symbol;
+    return symbol;
   }
 
   function declareNamespaceMember(node: Declaration, flags: SymbolFlags, name?: string) {
@@ -528,8 +572,9 @@ export function createBinder(program: Program): Binder {
 function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
     case SyntaxKind.AliasStatement:
-    case SyntaxKind.CadlScript:
+    case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
@@ -567,5 +612,6 @@ export function createSymbol(
     flags,
     value,
     parent,
+    metatypeMembers: createSymbolTable(),
   };
 }

@@ -10,7 +10,7 @@ import { getSourceFileKindFromExt } from "./util.js";
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
- * This is the the CompilerHost used by Cadl CLI.
+ * This is the the CompilerHost used by TypeSpec CLI.
  */
 export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
@@ -36,7 +36,7 @@ export const NodeHost: CompilerHost = {
   },
   getSourceFileKind: getSourceFileKindFromExt,
   logSink: createConsoleSink(),
-  mkdirp: (path: string) => mkdirp(path),
+  mkdirp: (path: string) => mkdirp(path) as any,
   fileURLToPath,
   pathToFileURL(path: string) {
     return pathToFileURL(path).href;

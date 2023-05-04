@@ -15,7 +15,7 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { compilerAssert, createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { DiagnosticHandler, compilerAssert, createSourceFile } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
 
@@ -320,6 +320,7 @@ export enum TokenFlags {
   Unterminated = 1 << 2,
   NonAscii = 1 << 3,
   DocComment = 1 << 4,
+  Backticked = 1 << 5,
 }
 
 export function isTrivia(token: Token) {
@@ -551,6 +552,9 @@ export function createScanner(
           return lookAhead(1) === CharCode.Equals
             ? next(Token.ExclamationEquals, 2)
             : next(Token.Exclamation);
+
+        case CharCode.Backtick:
+          return scanBacktickedIdentifier();
 
         default:
           if (isLowercaseAsciiLetter(ch)) {
@@ -869,8 +873,20 @@ export function createScanner(
   }
 
   function getIdentifierTokenValue(): string {
-    const text = getTokenText();
-    return tokenFlags & TokenFlags.NonAscii ? text.normalize("NFC") : text;
+    const start = tokenFlags & TokenFlags.Backticked ? tokenPosition + 1 : tokenPosition;
+    const end =
+      tokenFlags & TokenFlags.Backticked && !(tokenFlags & TokenFlags.Unterminated)
+        ? position - 1
+        : position;
+
+    const text =
+      tokenFlags & TokenFlags.Escaped ? unescapeString(start, end) : input.substring(start, end);
+
+    if (tokenFlags & TokenFlags.NonAscii) {
+      return text.normalize("NFC");
+    }
+
+    return text;
   }
 
   function unindentAndUnescapeTripleQuotedString(start: number, end: number): string {
@@ -1025,6 +1041,8 @@ export function createScanner(
         return '"';
       case CharCode.Backslash:
         return "\\";
+      case CharCode.Backtick:
+        return "`";
       default:
         error({ code: "invalid-escape-sequence" });
         return String.fromCharCode(ch);
@@ -1090,6 +1108,34 @@ export function createScanner(
     }
 
     return (token = Token.Identifier);
+  }
+
+  function scanBacktickedIdentifier(): Token.Identifier {
+    position++; // consume '`'
+
+    tokenFlags |= TokenFlags.Backticked;
+
+    loop: for (; !eof(); position++) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
+        case CharCode.Backslash:
+          position++;
+          tokenFlags |= TokenFlags.Escaped;
+          continue;
+        case CharCode.Backtick:
+          position++;
+          return (token = Token.Identifier);
+        case CharCode.CarriageReturn:
+        case CharCode.LineFeed:
+          break loop;
+        default:
+          if (ch > CharCode.MaxAscii) {
+            tokenFlags |= TokenFlags.NonAscii;
+          }
+      }
+    }
+
+    return unterminated(Token.Identifier);
   }
 
   function scanNonAsciiIdentifier(startCodePoint: number): Token.Identifier {

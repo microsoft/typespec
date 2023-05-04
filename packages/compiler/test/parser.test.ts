@@ -3,12 +3,12 @@ import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import {
-  CadlScriptNode,
   Node,
   NodeFlags,
   ParseOptions,
   SourceFile,
   SyntaxKind,
+  TypeSpecScriptNode,
 } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
@@ -37,6 +37,10 @@ describe("compiler: parser", () => {
          prop1: number,
          prop2: string
        };`,
+
+      `model Car {
+         withDefaultButNotOptional: string = "foo"
+       }`,
 
       `model Car {
          optional?: number;
@@ -110,10 +114,6 @@ describe("compiler: parser", () => {
       ["model Car is Foo extends Bar { }", [/'{' expected/]],
       ["model Car extends Bar is Foo { }", [/'{' expected/]],
       ["model Car { withDefaultMissing?: string =  }", [/Expression expected/]],
-      [
-        `model Car { withDefaultButNotOptional: string = "foo" }`,
-        [/Cannot use default with non optional properties/],
-      ],
       ["model", [/Identifier expected/]],
       ["model Car is Vehicle", [/';', or '{' expected/]],
       ["model Car;", [/'{', '=', 'extends', or 'is' expected/]],
@@ -385,14 +385,14 @@ describe("compiler: parser", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Microsoft/cadl/issues/506
+      // Some questions remain here: https://github.com/Microsoft/typespec/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],
       ["-1e-9999", -0],
       ["-1e9999", -Infinity],
 
-      // NOTE: No octal in Cadl
+      // NOTE: No octal in TypeSpec
       ["077", 77],
       ["+077", 77],
       ["-077", -77],
@@ -433,7 +433,7 @@ describe("compiler: parser", () => {
     parseEach(good.map((c) => [`alias M = ${c[0]};`, (node) => isNumericLiteral(node, c[1])]));
     parseErrorEach(bad.map((c) => [`alias M = ${c[0]};`, [c[1]]]));
 
-    function isNumericLiteral(node: CadlScriptNode, value: number) {
+    function isNumericLiteral(node: TypeSpecScriptNode, value: number) {
       const statement = node.statements[0];
       assert(statement.kind === SyntaxKind.AliasStatement, "alias statement expected");
       const assignment = statement.value;
@@ -686,13 +686,17 @@ describe("compiler: parser", () => {
       parseEach([
         `projection model#v { to(version) { } }`,
         `projection model#foo{ from(bar, baz) { } }`,
+        `projection model#v { pre to(version) { } }`,
+        `projection model#foo{ pre from(bar, baz) { } }`,
       ]);
     });
     describe("projection expressions", () => {
       const exprs = [
         `x || y`,
+        `x > 10 || y < 20`,
         `x || y || z`,
         `x && y`,
+        `x > 10 && y < 20`,
         `x && y && z`,
         `x && y || z && q`,
         `x || y && z || q`,
@@ -743,10 +747,15 @@ describe("compiler: parser", () => {
         [`projection x#f`, [/'{' expected/]],
         [`projection x#f {`, [/'}' expected/]],
         [`projection x#f { asdf`, [/from or to expected/]],
+        [`projection x#f { pre asdf`, [/from or to expected/]],
         [`projection x#f { to (`, [/'\)' expected/]],
         [`projection x#f { to @`, [/'{' expected/]],
         [`projection x#f { to {`, [/} expected/]],
         [`projection x#f { to {}`, [/'}' expected/]],
+        [`projection x#f { pre to (`, [/'\)' expected/]],
+        [`projection x#f { pre to @`, [/'{' expected/]],
+        [`projection x#f { pre to {`, [/} expected/]],
+        [`projection x#f { pre to {}`, [/'}' expected/]],
       ]);
     });
   });
@@ -784,6 +793,7 @@ describe("compiler: parser", () => {
            * \`This is not a @tag either because we're in a code span\`.
            *
            * @param x the param
+           * that continues on another line
            * @template T some template
            * @returns something
            * @pretend this an unknown tag
@@ -802,7 +812,10 @@ describe("compiler: parser", () => {
             strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
             strictEqual(docs[0].tags[0].tagName.sv, "param");
             strictEqual(docs[0].tags[0].paramName.sv, "x");
-            strictEqual(docs[0].tags[0].content[0].text, "the param");
+            strictEqual(
+              docs[0].tags[0].content[0].text,
+              "the param\nthat continues on another line"
+            );
             strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
             strictEqual(docs[0].tags[1].tagName.sv, "template");
             strictEqual(docs[0].tags[1].paramName.sv, "T");
@@ -816,6 +829,75 @@ describe("compiler: parser", () => {
         ],
       ],
       { docs: true }
+    );
+
+    parseErrorEach(
+      [
+        [
+          "/** @42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /tag/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @ */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /tag/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @template 42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /template parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @template */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: /template parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @param 42 */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: / (?<!template )parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+        [
+          "/** @param */ model M {}",
+          [
+            {
+              code: "doc-invalid-identifier",
+              message: / (?<!template )parameter/,
+              severity: "warning",
+            },
+          ],
+        ],
+      ],
+      {
+        docs: true,
+        strict: true,
+      }
     );
   });
 
@@ -859,7 +941,7 @@ ${">>>>>>>"} theirs`,
   });
 });
 
-type Callback = (node: CadlScriptNode) => void;
+type Callback = (node: TypeSpecScriptNode) => void;
 
 function parseEach(cases: (string | [string, Callback])[], options?: ParseOptions) {
   for (const each of cases) {
@@ -897,7 +979,7 @@ function parseEach(cases: (string | [string, Callback])[], options?: ParseOption
   }
 }
 
-function checkInvariants(astNode: CadlScriptNode) {
+function checkInvariants(astNode: TypeSpecScriptNode) {
   checkVisitChildren(astNode, astNode.file);
   checkPositioning(astNode, astNode.file);
 }
@@ -991,16 +1073,18 @@ function parseErrorEach(
       );
       expectDiagnostics(astNode.parseDiagnostics, expected, options);
 
-      assert(
-        hasParseError(astNode),
-        "node claims to have no parse errors, but above were reported."
-      );
+      if (astNode.parseDiagnostics.some((e) => e.severity !== "warning")) {
+        assert(
+          hasParseError(astNode),
+          "node claims to have no parse errors, but above were reported."
+        );
 
-      assert(
-        !astNode.printable ||
-          !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
-        "parse tree with errors other than missing punctuation should not be printable"
-      );
+        assert(
+          !astNode.printable ||
+            !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
+          "parse tree with errors other than missing punctuation should not be printable"
+        );
+      }
 
       checkInvariants(astNode);
     });
@@ -1008,7 +1092,7 @@ function parseErrorEach(
 }
 
 export function dumpAST(astNode: Node, file?: SourceFile) {
-  if (!file && astNode.kind === SyntaxKind.CadlScript) {
+  if (!file && astNode.kind === SyntaxKind.TypeSpecScript) {
     file = astNode.file;
   }
   logVerboseTestOutput((log) => {

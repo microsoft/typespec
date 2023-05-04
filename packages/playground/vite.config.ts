@@ -2,25 +2,36 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { definePlaygroundViteConfig } from "./src/build-utils/index.js";
 
 const config = definePlaygroundViteConfig({
-  defaultEmitter: "@cadl-lang/http-low-level",
+  defaultEmitter: "@typespec/openapi3",
   libraries: [
-    "@cadl-lang/compiler",
-    "@cadl-lang/rest",
-    "@cadl-lang/openapi",
-    "@cadl-lang/versioning",
-    "@cadl-lang/openapi3",
-    "@cadl-lang/http-low-level",
+    "@typespec/compiler",
+    "@typespec/http",
+    "@typespec/rest",
+    "@typespec/openapi",
+    "@typespec/versioning",
+    "@typespec/openapi3",
+    "@typespec/protobuf",
   ],
   samples: {
-    "API versioning": "samples/versioning.cadl",
-    "Discriminated unions": "samples/unions.cadl",
-    "HTTP service": "samples/http.cadl",
-    "REST framework": "samples/rest.cadl",
+    "API versioning": {
+      fileName: "samples/versioning.tsp",
+      preferredEmitter: "@typespec/openapi3",
+    },
+    "Discriminated unions": {
+      fileName: "samples/unions.tsp",
+      preferredEmitter: "@typespec/openapi3",
+    },
+    "HTTP service": { fileName: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
+    "REST framework": { fileName: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
+    "Protobuf Kiosk": {
+      fileName: "samples/kiosk.tsp",
+      preferredEmitter: "@typespec/protobuf",
+    },
   },
   enableSwaggerUI: true,
   links: {
-    newIssue: `https://github.com/microsoft/cadl/issues/new`,
-    documentation: "https://microsoft.github.io/cadl",
+    newIssue: `https://github.com/microsoft/typespec/issues/new`,
+    documentation: "https://microsoft.github.io/typespec",
   },
 });
 

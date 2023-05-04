@@ -320,7 +320,7 @@
           "items": {
             "$ref": "#/definitions/protobufAny"
           },
-          "x-cadl-name": "protobufAny[]"
+          "x-typespec-name": "protobufAny[]"
         }
       },
       "description": "An unexpected error response."
@@ -333,7 +333,7 @@
           "items": {
             "$ref": "#/definitions/Kiosk"
           },
-          "x-cadl-name": "Kiosk[]"
+          "x-typespec-name": "Kiosk[]"
         }
       },
       "description": "A successful response."
@@ -360,7 +360,7 @@
             "type": "string",
             "format": "byte"
           },
-          "x-cadl-name": "byte[]",
+          "x-typespec-name": "byte[]",
           "description": "image to display"
         }
       },
@@ -375,7 +375,7 @@
           "items": {
             "$ref": "#/definitions/Sign"
           },
-          "x-cadl-name": "Sign[]"
+          "x-typespec-name": "Sign[]"
         }
       },
       "description": "A successful response."
@@ -459,7 +459,7 @@
           "type": "integer",
           "format": "int32"
         },
-        "x-cadl-name": "int32[]"
+        "x-typespec-name": "int32[]"
       }
     },
     "SetSignIdForKioskIdsRequest.sign_id": {

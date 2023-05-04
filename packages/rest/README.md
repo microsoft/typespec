@@ -1,31 +1,30 @@
-# Cadl HTTP/Rest Library
+# TypeSpec REST Library
 
-This package provides [Cadl](https://github.com/microsoft/Cadl) decorators, models, and interfaces to describe HTTP and REST API. With fundamental models and decorators defined in Cadl.Http namespace, you will be able describe basic http level operations. Cadl.Rest namespace adds additional predefined models and interfaces. These building blocks make defining REST resources and operations based on standard patterns extremely simple.
+This package provides [TypeSpec](https://github.com/microsoft/TypeSpec) decorators, models, and interfaces to describe APIs using the [REST style](https://en.wikipedia.org/wiki/Representational_state_transfer). These building blocks make defining REST resources and operations based on standard patterns extremely simple.
 
 ## Install
 
-In your cadl project root
+In your TypeSpec project root
 
 ```bash
-npm install @cadl-lang/rest
+npm install @typespec/rest
 ```
 
 ## Usage
 
-```Cadl
-import "@cadl-lang/rest";
+```TypeSpec
+import "@typespec/rest";
 
-using Cadl.Http;
-using Cadl.Rest;
+using TypeSpec.Rest;
 ```
 
-See [Http and rest](https://microsoft.github.io/cadl/docs/standard-library/http/).
+See [Http and rest](https://microsoft.github.io/typespec/docs/standard-library/rest/).
 
 ## Library Tour
 
-`@cadl-lang/rest` library defines of the following artifacts:
+`@typespec/rest` library defines of the following artifacts:
 
-- [Cadl HTTP/Rest Library](#cadl-httprest-library)
+- [TypeSpec HTTP/Rest Library](#typespec-httprest-library)
   - [Install](#install)
   - [Usage](#usage)
   - [Library Tour](#library-tour)
@@ -36,65 +35,20 @@ See [Http and rest](https://microsoft.github.io/cadl/docs/standard-library/http/
 
 ## Models
 
-- ### HTTP namespace
-
-  | Model                        | Notes                                                                                                                                  |
-  | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-  | LocationHeader               | Location header                                                                                                                        |
-  | Response&lt;Status>          | &lt;Status> is numerical status code.                                                                                                  |
-  | OkResponse&lt;T>             | Response&lt;200> with T as the response body model type.                                                                               |
-  | CreatedResponse              | Response&lt;201>                                                                                                                       |
-  | AcceptedResponse             | Response&lt;202>                                                                                                                       |
-  | NoContentResponse            | Response&lt;204>                                                                                                                       |
-  | MovedResponse                | Response&lt;301> with LocationHeader for redirected URL                                                                                |
-  | NotModifiedResponse          | Response&lt;304>                                                                                                                       |
-  | UnauthorizedResponse         | Response&lt;401>                                                                                                                       |
-  | NotFoundResponse             | Response&lt;404>                                                                                                                       |
-  | ConflictResponse             | Response&lt;409>                                                                                                                       |
-  | PlainData&lt;T>              | Produces a new model with the same properties as T, but with @query, @header, @body, and @path decorators removed from all properties. |
-  | BasicAuth                    | Configure `basic` authentication with @useAuth                                                                                         |
-  | BearerAuth                   | Configure `bearer` authentication with @useAuth                                                                                        |
-  | ApiKeyAuth<TLocation, TName> | Configure `apiKey` authentication with @useAuth                                                                                        |
-  | OAuth2Auth<TFlows>           | Configure `oauth2` authentication with @useAuth                                                                                        |
-
-- ### REST namespace
-  | Model                                      | Notes                                                                                                       |
-  | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-  | KeysOf&lt;T>                               | Dynamically gathers keys of the model type T.                                                               |
-  | Page&lt;T>                                 | A model defines page of T which includes an array of T and optional next link.                              |
-  | ParentKeysOf&lt;T>                         | Dynamically gathers parent keys of the model type T, which are referenced with `@parentResource` decorator. |
-  | ResourceError                              | The default error response for resource operations that includes <br> `code: int32` and `message string`.   |
-  | ResourceParameters&lt;TResource>           | Represents operation parameters for resource TResource. Default to KeysOf&lt;T>.                            |
-  | ResourceCollectionParameters&lt;TResource> | Represents collection operation parameters for resource TResource. Default to ParentKeysOf&lt;T>            |
-  | ResourceCreatedResponse&lt;T>              | Resource create operation completed successfully.                                                           |
-  | ResourceDeletedResponse                    | Resource deleted successfully.                                                                              |
+| Model                                      | Notes                                                                                                       |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| KeysOf&lt;T>                               | Dynamically gathers keys of the model type T.                                                               |
+| Page&lt;T>                                 | A model defines page of T which includes an array of T and optional next link.                              |
+| ParentKeysOf&lt;T>                         | Dynamically gathers parent keys of the model type T, which are referenced with `@parentResource` decorator. |
+| ResourceError                              | The default error response for resource operations that includes <br> `code: int32` and `message string`.   |
+| ResourceParameters&lt;TResource>           | Represents operation parameters for resource TResource. Default to KeysOf&lt;T>.                            |
+| ResourceCollectionParameters&lt;TResource> | Represents collection operation parameters for resource TResource. Default to ParentKeysOf&lt;T>            |
+| ResourceCreatedResponse&lt;T>              | Resource create operation completed successfully.                                                           |
+| ResourceDeletedResponse                    | Resource deleted successfully.                                                                              |
 
 ## Decorators
 
-- ### HTTP namespace
-
-The `@cadl-lang/rest` library defines the following decorators in `Cadl.Http` namespace:
-
-| Declarator  | Scope                                     | Usage                                                                                                                                                                                                                                                                                                                                                                                          |
-| ----------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| @get        | operations                                | indicating operation uses HTTP `GET` verb.                                                                                                                                                                                                                                                                                                                                                     |
-| @put        | operations                                | indicating operation uses HTTP `PUT` verb.                                                                                                                                                                                                                                                                                                                                                     |
-| @post       | operations                                | indicating operation uses HTTP `POST` verb.                                                                                                                                                                                                                                                                                                                                                    |
-| @patch      | operations                                | indicating operation uses HTTP `PATCH` verb.                                                                                                                                                                                                                                                                                                                                                   |
-| @delete     | operations                                | indicating operation uses HTTP `DEL` verb.                                                                                                                                                                                                                                                                                                                                                     |
-| @head       | operations                                | indicating operation uses HTTP `HEAD` verb.                                                                                                                                                                                                                                                                                                                                                    |
-| @header     | model properties and operation parameters | indicating the properties are request or response headers.                                                                                                                                                                                                                                                                                                                                     |
-| @query      | model properties and operation parameters | indicating the properties are in the request query string.                                                                                                                                                                                                                                                                                                                                     |
-| @body       | model properties and operation parameters | indicating the property is in request or response body. Only one allowed per model and operation.                                                                                                                                                                                                                                                                                              |
-| @path       | model properties and operation parameters | indicating the properties are in request path.                                                                                                                                                                                                                                                                                                                                                 |
-| @statusCode | model properties and operation parameters | indicating the property is the return status code. Only one allowed per model.                                                                                                                                                                                                                                                                                                                 |
-| @server     | namespace                                 | Configure the server url for the service.                                                                                                                                                                                                                                                                                                                                                      |
-| @route      | operations, namespaces, interfaces        | Syntax:<br> `@route(routeString)`<br><br>Note:<br>`@route` defines the relative route URI for the target operation. The `routeString` argument should be a URI fragment that may contain one or more path parameter fields. If the namespace or interface that contains the operation is also marked with a `@route` decorator, it will be used as a prefix to the route URI of the operation. |
-| @useAuth    | namespace                                 | Configure the service authentication.                                                                                                                                                                                                                                                                                                                                                          |
-
-- ### REST namespace
-
-The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` namespace:
+The `@typespec/rest` library defines the following decorators in `TypeSpec.Rest` namespace:
 
 | Declarator                | Scope                                                 | Syntax                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -115,10 +69,6 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 
 ## Interfaces
 
-- ### HTTP namespace
-  None
-- ### REST namespace
-
 These standard interfaces defines resource operations in basic building blocks that you can expose on the resources. You can use `extends` to compose the operations to meet the exact needs of your resource APIs.
 
 For example, for below `Widget` model
@@ -133,13 +83,13 @@ model Widget {
 
 - `Widget` resource supports full CRUDL operations.
 
-```Cadl
+```TypeSpec
 interface WidgetService extends Resource.ResourceOperations<Widget, Error>;
 ```
 
 - `Widget` resource supports only CRD operations.
 
-```Cadl
+```TypeSpec
 interface WidgetService
    extends Resource.ResourceRead<Widget, Error>,
     Resource.ResourceCreate<Widget, Error>,
@@ -173,33 +123,11 @@ interface WidgetService
 | ExtensionResourceCollectionOperations&lt;TExtension, TResource, TError> | Combines extension resource POST + LIST operations.                                                                  |
 | ExtensionResourceOperations&lt;TExtension, TResource, TError>           | Combines extension resource instance and collection operations. Includes GET + PATCH + DEL + POST + LIST operations. |
 
-## How to
-
-### Specify content type
-
-To specify the content type you can add a `@header contentType: <value>` in the operation parameter(For request content type) or return type(For response content type)
-
-Example: return `application/png` byte body
-
-```cadl
-op getPng(): {
-  @header contentType: "application/png";
-  @body _: bytes;
-};
-```
-
-Example: expect `application/png` byte body
-
-```cadl
-op getPng(@header contentType: "application/png", @body _: bytes): void;
-```
-
 ## See also
 
-- [HTTP example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7CnVzaW5nIENhZGwuSHR0cDsKCm1vZGVsIMdAewogIEBrZXkgaWQ6IHN0cmluZzsKICB3ZWlnaHQ6IGludDMyxBFjb2xvcjogInJlZCIgfCAiYmx1ZSI7Cn0KCkBlcnJvcsdWRcQMxVVjb2Rly0BtZXNzYWdlymR9CgppbnRlcmbkALLmAI3nALTFP0DkAJ1saXN0KCk6xx9bXSB8xmHEUUByb3V0ZSgid8Uccy97aWR9IinGOHJlYWQoQHBhdGjrANfJSM1GcG9zdCBjcmVhdGUoQGJvZHkgxAXIK9Y0x3pjdXN0b21HZXTId8kR6gC0yjh9Cg%3D%3D):
 - [REST example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7Cgp1c2luZyBDYWRsLkh0dHA7zBFSZXN0OwoKbW9kZWwgx1J7CiAgQGtleSBpZDogc3RyaW5nOwogIHdlaWdodDogaW50MzLEEWNvbG9yOiAicmVkIiB8ICJibHVlIjsKfQoKQGVycm9yx1ZFxAzFVWNvZGXLQG1lc3NhZ2XKZH0KCmludGVyZuQAxOYAjecAxiBleHRlbmRzIFJlc291cmNl5AC5xQlPcGVyYXRpb25zPMYyLMZxPsVyQOQA0EByb3V0ZSgiY3VzdG9tR2V0IikgyQwoKTrHa%2BQAgA%3D%3D):
-- [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Website](https://microsoft.github.io/cadl)
+- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
+- [TypeSpec Website](https://microsoft.github.io/typespec)
 
 ```
 

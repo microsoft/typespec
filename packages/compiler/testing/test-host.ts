@@ -8,18 +8,18 @@ import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
-import { compile as compileProgram, Program } from "../core/program.js";
+import { Program, compile as compileProgram } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { createTestWrapper } from "./test-utils.js";
 import {
   BasicTestRunner,
-  CadlTestLibrary,
   TestFileSystem,
   TestHost,
   TestHostConfig,
   TestHostError,
+  TypeSpecTestLibrary,
 } from "./types.js";
 
 export interface TestHostOptions {
@@ -41,9 +41,9 @@ function createTestCompilerHost(
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions
 ): CompilerHost {
-  const libDirs = [resolveVirtualPath(".cadl/lib")];
+  const libDirs = [resolveVirtualPath(".tsp/lib")];
   if (!options?.excludeTestLib) {
-    libDirs.push(resolveVirtualPath(".cadl/test-lib"));
+    libDirs.push(resolveVirtualPath(".tsp/test-lib"));
   }
 
   return {
@@ -99,7 +99,7 @@ function createTestCompilerHost(
     },
 
     getExecutionRoot() {
-      return resolveVirtualPath(".cadl");
+      return resolveVirtualPath(".tsp");
     },
 
     async getJsImport(path) {
@@ -164,16 +164,16 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
   const compilerHost = createTestCompilerHost(virtualFs, jsImports, options);
   return {
-    addCadlFile,
+    addTypeSpecFile,
     addJsFile,
-    addRealCadlFile,
+    addRealTypeSpecFile,
     addRealJsFile,
-    addCadlLibrary,
+    addTypeSpecLibrary,
     compilerHost,
     fs: virtualFs,
   };
 
-  function addCadlFile(path: string, contents: string) {
+  function addTypeSpecFile(path: string, contents: string) {
     virtualFs.set(resolveVirtualPath(path), contents);
   }
 
@@ -183,7 +183,7 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
     jsImports.set(key, new Promise((r) => r(contents)));
   }
 
-  async function addRealCadlFile(path: string, existingPath: string) {
+  async function addRealTypeSpecFile(path: string, existingPath: string) {
     virtualFs.set(resolveVirtualPath(path), await readFile(existingPath, "utf8"));
   }
 
@@ -195,7 +195,7 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
     jsImports.set(key, exports);
   }
 
-  async function addCadlLibrary(testLibrary: CadlTestLibrary) {
+  async function addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary) {
     for (const { realDir, pattern, virtualPath } of testLibrary.files) {
       const lookupDir = resolvePath(testLibrary.packageRoot, realDir);
       const entries = await findFilesFromPattern(lookupDir, pattern);
@@ -203,10 +203,10 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
         const fileRealPath = resolvePath(lookupDir, entry);
         const fileVirtualPath = resolveVirtualPath(virtualPath, entry);
         switch (getAnyExtensionFromPath(fileRealPath)) {
-          case ".cadl":
+          case ".tsp":
           case ".json":
             const contents = await readFile(fileRealPath, "utf-8");
-            addCadlFile(fileVirtualPath, contents);
+            addTypeSpecFile(fileVirtualPath, contents);
             break;
           case ".js":
           case ".mjs":
@@ -218,41 +218,41 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
   }
 }
 
-export const StandardTestLibrary: CadlTestLibrary = {
-  name: "@cadl-lang/compiler",
+export const StandardTestLibrary: TypeSpecTestLibrary = {
+  name: "@typespec/compiler",
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../"),
   files: [
-    { virtualPath: "./.cadl/dist/lib", realDir: "./dist/lib", pattern: "*" },
-    { virtualPath: "./.cadl/lib", realDir: "./lib", pattern: "*" },
+    { virtualPath: "./.tsp/dist/lib", realDir: "./dist/lib", pattern: "*" },
+    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "*" },
   ],
 };
 
 export async function createTestHost(config: TestHostConfig = {}): Promise<TestHost> {
   const testHost = await createTestHostInternal();
-  await testHost.addCadlLibrary(StandardTestLibrary);
+  await testHost.addTypeSpecLibrary(StandardTestLibrary);
   if (config.libraries) {
     for (const library of config.libraries) {
-      await testHost.addCadlLibrary(library);
+      await testHost.addTypeSpecLibrary(library);
     }
   }
   return testHost;
 }
 
-export async function createTestRunner(): Promise<BasicTestRunner> {
-  const testHost = await createTestHost();
+export async function createTestRunner(host?: TestHost): Promise<BasicTestRunner> {
+  const testHost = host ?? (await createTestHost());
   return createTestWrapper(testHost);
 }
 
 async function createTestHostInternal(): Promise<TestHost> {
   let program: Program | undefined;
-  const libraries: CadlTestLibrary[] = [];
+  const libraries: TypeSpecTestLibrary[] = [];
   const testTypes: Record<string, Type> = {};
   const fileSystem = await createTestFileSystem();
 
   // add test decorators
-  fileSystem.addCadlFile(".cadl/test-lib/main.cadl", 'import "./test.js";');
-  fileSystem.addJsFile(".cadl/test-lib/test.js", {
-    namespace: "Cadl",
+  fileSystem.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
+  fileSystem.addJsFile(".tsp/test-lib/test.js", {
+    namespace: "TypeSpec",
     $test(_: any, target: Type, name?: string) {
       if (!name) {
         if (
@@ -278,11 +278,11 @@ async function createTestHostInternal(): Promise<TestHost> {
 
   return {
     ...fileSystem,
-    addCadlLibrary: async (lib) => {
+    addTypeSpecLibrary: async (lib) => {
       if (lib !== StandardTestLibrary) {
         libraries.push(lib);
       }
-      await fileSystem.addCadlLibrary(lib);
+      await fileSystem.addTypeSpecLibrary(lib);
     },
     compile,
     diagnose,

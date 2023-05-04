@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Model, Union, UnionVariant } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost } from "../../testing/index.js";
 
 describe("compiler: union declarations", () => {
   let testHost: TestHost;
@@ -16,8 +16,8 @@ describe("compiler: union declarations", () => {
         blues.add(t);
       },
     });
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       import "./test.js";
       @test @blue union Foo { @blue x: int32; y: int16 };
@@ -42,8 +42,8 @@ describe("compiler: union declarations", () => {
   });
 
   it("can be templated", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test union Foo<T> { x: T };
       alias T = Foo<int32>;
@@ -61,8 +61,8 @@ describe("compiler: union declarations", () => {
   });
 
   it("reduces union expressions and gives them symbol keys", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Foo<T, U> { x: T | U };
       alias T = Foo<int16 | int32, string | int8>;
@@ -71,15 +71,15 @@ describe("compiler: union declarations", () => {
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
     const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.options.length, 4);
+    strictEqual(type.variants.size, 4);
     for (const key of type.variants.keys()) {
       strictEqual(typeof key, "symbol");
     }
   });
 
   it("doesn't reduce union statements", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Foo<T, U> { x: T | U };
       union Bar { x: int16, y: int32 };
@@ -89,15 +89,15 @@ describe("compiler: union declarations", () => {
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
     const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.options.length, 3);
+    strictEqual(type.variants.size, 3);
     for (const key of type.variants.keys()) {
       strictEqual(typeof key, "symbol");
     }
   });
 
   it("reduces nevers", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test model Foo { x: int32 | never };
       `
@@ -105,6 +105,6 @@ describe("compiler: union declarations", () => {
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
     const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.options.length, 1);
+    strictEqual(type.variants.size, 1);
   });
 });

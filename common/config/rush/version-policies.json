@@ -11,8 +11,8 @@
 [
   {
     "definitionName": "lockStepVersion",
-    "policyName": "cadl",
-    "version": "0.38.0",
+    "policyName": "typespec",
+    "version": "0.43.0",
     "nextBump": "minor"
   }
   // {

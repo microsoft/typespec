@@ -2,8 +2,8 @@ import { strictEqual, throws } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../formatter/index.js";
 
-type TestParser = "cadl" | "markdown";
-function format(code: string, parser: TestParser = "cadl"): string {
+type TestParser = "typespec" | "markdown";
+function format(code: string, parser: TestParser = "typespec"): string {
   const output = prettier.format(code, {
     parser,
     plugins: [plugin],
@@ -20,7 +20,7 @@ function assertFormat({
   expected: string;
   parser?: TestParser;
 }) {
-  const result = format(code, parser ?? "cadl");
+  const result = format(code, parser ?? "typespec");
   strictEqual(result.trim(), expected.trim());
 }
 
@@ -288,18 +288,47 @@ model Foo {
       });
     });
 
-    it("remove unnecessary quotes", () => {
+    it("remove unnecessary backticks", () => {
       assertFormat({
         code: `
-model Foo {
-  "abc": string;
-  "this-needs-quotes": int32;
+model \`Foo\` {
+  \`abc\`: string;
+  \`import\`: boolean;
+  \`this-needs-backticks\`: int32;
 }
 `,
         expected: `
 model Foo {
   abc: string;
+  \`import\`: boolean;
+  \`this-needs-backticks\`: int32;
+}
+`,
+      });
+    });
+
+    it("format quoted string to identifier or backticked identifier when necessary", () => {
+      assertFormat({
+        code: `
+model Foo {
+  "abc": string;
   "this-needs-quotes": int32;
+  "foo\\nbar\\\\not\`": int32;
+}
+enum \`2Colors\` {
+  "red color",
+  "green-color",
+}
+`,
+        expected: `
+model Foo {
+  abc: string;
+  \`this-needs-quotes\`: int32;
+  \`foo\\nbar\\\\not\\\`\`: int32;
+}
+enum \`2Colors\` {
+  \`red color\`,
+  \`green-color\`,
 }
 `,
       });
@@ -1602,15 +1631,21 @@ model Foo {
   });
 
   describe("projections", () => {
-    it("format to and from", () => {
+    it("format projections", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to{} from {}}
+  {pre to{} to{} pre from {} from {}}
 `,
         expected: `
 projection model#proj {
+  pre to {
+
+  }
   to {
+
+  }
+  pre from {
 
   }
   from {
@@ -1621,17 +1656,34 @@ projection model#proj {
       });
     });
 
-    it("format to and from with args", () => {
+    it("format empty projection on single line", () => {
+      assertFormat({
+        code: `
+projection    model#proj    {
+
+}`,
+        expected: `
+projection model#proj {}`,
+      });
+    });
+
+    it("format projections with args", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to(   val) {} from(  
+  {pre to ( val ) {} to(   val) {} pre from(  
     
-    val) {}}
+    val) {} from (val  ){}
 `,
         expected: `
 projection model#proj {
+  pre to(val) {
+
+  }
   to(val) {
+
+  }
+  pre from(val) {
 
   }
   from(val) {
@@ -1825,7 +1877,7 @@ projection model#proj {
         parser: "markdown",
         code: `
 This is markdown
-\`\`\`cadl
+\`\`\`typespec
 
 op test(): string;
 
@@ -1835,7 +1887,7 @@ op test(): string;
         expected: `
 This is markdown
 
-\`\`\`cadl
+\`\`\`typespec
 op test(): string;
 \`\`\`
 `,

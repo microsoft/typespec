@@ -1,24 +1,24 @@
 {
-  "name": "@cadl-lang/lint",
-  "version": "0.38.0",
+  "name": "@typespec/lint",
+  "version": "0.43.0",
   "author": "Microsoft Corporation",
   "description": "Helper ",
-  "homepage": "https://github.com/Azure/cadl",
-  "readme": "https://github.com/Azure/cadl/blob/main/README.md",
+  "homepage": "https://microsoft.github.io/typespec",
+  "readme": "https://github.com/Azure/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/cadl.git"
+    "url": "git+https://github.com/Azure/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/cadl/issues"
+    "url": "https://github.com/Azure/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "cadlMain": "dist/src/index.js",
+  "tspMain": "dist/src/index.js",
   "exports": {
     ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
@@ -50,20 +50,20 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.38.5"
+    "@typespec/compiler": "~0.43.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@cadl-lang/compiler": "~0.38.5",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "@cadl-lang/eslint-plugin": "~0.38.0",
-    "eslint": "^8.12.0",
-    "mocha": "~10.1.0",
+    "@typespec/compiler": "~0.43.0",
+    "@typespec/eslint-config-typespec": "~0.6.0",
+    "@typespec/eslint-plugin": "~0.43.0",
+    "eslint": "^8.36.0",
+    "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.12.0",
-    "rimraf": "~3.0.2",
-    "typescript": "~4.9.3"
+    "c8": "~7.13.0",
+    "rimraf": "~5.0.0",
+    "typescript": "~5.0.2"
   }
 }

@@ -1,18 +1,26 @@
+import { interpolatePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   resolveVirtualPath,
-} from "@cadl-lang/compiler/testing";
-import { OpenAPITestLibrary } from "@cadl-lang/openapi/testing";
-import { RestTestLibrary } from "@cadl-lang/rest/testing";
-import { VersioningTestLibrary } from "@cadl-lang/versioning/testing";
+} from "@typespec/compiler/testing";
+import { HttpTestLibrary } from "@typespec/http/testing";
+import { OpenAPITestLibrary } from "@typespec/openapi/testing";
+import { RestTestLibrary } from "@typespec/rest/testing";
+import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
 
 export async function createOpenAPITestHost() {
   return createTestHost({
-    libraries: [RestTestLibrary, VersioningTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
+    libraries: [
+      HttpTestLibrary,
+      RestTestLibrary,
+      VersioningTestLibrary,
+      OpenAPITestLibrary,
+      OpenAPI3TestLibrary,
+    ],
   });
 }
 
@@ -21,33 +29,31 @@ export async function createOpenAPITestRunner({
 }: { withVersioning?: boolean } = {}) {
   const host = await createOpenAPITestHost();
   const importAndUsings = `
-  import "@cadl-lang/rest"; import "@cadl-lang/openapi";
-  import "@cadl-lang/openapi3"; 
-  ${withVersioning ? `import "@cadl-lang/versioning"` : ""};
-  using Cadl.Rest;
-  using Cadl.Http;
+  import "@typespec/http";
+  import "@typespec/rest";
+  import "@typespec/openapi";
+  import "@typespec/openapi3"; 
+  ${withVersioning ? `import "@typespec/versioning"` : ""};
+  using TypeSpec.Rest;
+  using TypeSpec.Http;
   using OpenAPI;
-  ${withVersioning ? "using Cadl.Versioning;" : ""}
+  ${withVersioning ? "using TypeSpec.Versioning;" : ""}
 `;
   return createTestWrapper(host, {
     wrapper: (code) => `${importAndUsings} ${code}`,
     compilerOptions: {
-      emit: ["@cadl-lang/openapi3"],
+      emit: ["@typespec/openapi3"],
     },
   });
-}
-
-function versionedOutput(path: string, version: string) {
-  return path.replace(".json", "." + version + ".json");
 }
 
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const runner = await createOpenAPITestRunner();
   const diagnostics = await runner.diagnose(code, {
-    emit: ["@cadl-lang/openapi3"],
-    options: { "@cadl-lang/openapi3": options as any },
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": options as any },
   });
-  return diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes");
+  return diagnostics.filter((x) => x.code !== "@typespec/http/no-routes");
 }
 
 export async function openApiFor(
@@ -56,26 +62,26 @@ export async function openApiFor(
   options: OpenAPI3EmitterOptions = {}
 ) {
   const host = await createOpenAPITestHost();
-  const outPath = resolveVirtualPath("openapi.json");
-  host.addCadlFile(
-    "./main.cadl",
-    `import "@cadl-lang/rest"; import "@cadl-lang/openapi"; import "@cadl-lang/openapi3"; ${
-      versions ? `import "@cadl-lang/versioning"; using Cadl.Versioning;` : ""
-    }using Cadl.Rest;using Cadl.Http;using OpenAPI;${code}`
+  const outPath = resolveVirtualPath("{version}.openapi.json");
+  host.addTypeSpecFile(
+    "./main.tsp",
+    `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3"; ${
+      versions ? `import "@typespec/versioning"; using TypeSpec.Versioning;` : ""
+    }using TypeSpec.Rest;using TypeSpec.Http;using OpenAPI;${code}`
   );
-  const diagnostics = await host.diagnose("./main.cadl", {
+  const diagnostics = await host.diagnose("./main.tsp", {
     noEmit: false,
-    emit: ["@cadl-lang/openapi3"],
-    options: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
+  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
 
   if (!versions) {
-    return JSON.parse(host.fs.get(outPath)!);
+    return JSON.parse(host.fs.get(resolveVirtualPath("openapi.json"))!);
   } else {
     const output: any = {};
     for (const version of versions) {
-      output[version] = JSON.parse(host.fs.get(versionedOutput(outPath, version))!);
+      output[version] = JSON.parse(host.fs.get(interpolatePath(outPath, { version: version }))!);
     }
     return output;
   }

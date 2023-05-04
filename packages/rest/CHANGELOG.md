@@ -1,6 +1,50 @@
-# Change Log - @cadl-lang/rest
+# Change Log - @typespec/rest
 
-This log was last generated on Wed, 14 Dec 2022 20:34:58 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Fix issue where `@action("")` was treated the same as `@action`. Now this emits an error.
+
+## 0.42.0
+Mon, 13 Mar 2023 21:30:44 GMT
+
+_Version update only_
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Revert back changelog
+- Fix issue with filtering of visibility decorator on resource key not working when multiple copies of the compiler are loaded.
+- Move core HTTP functionality from `@typespec/rest` into a new `@typespec/http` library
+- **Breaking change:** The `@autoRoute` decorator can no longer be applied to namespaces
+- **Breaking change:** The unimplemented `@routeReset` decorator has been removed
+- Update package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Readme.md update
+- Update homepage link
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Updates
+
+- Give KeysOf and ParentKeysOf friendly name to dedupe parameters
+- Removed `@segmentSeparator`, `@produces` and `@consumes` decorators. Removed `getSegmentSeparator`, `getProduces` and `getConsumes` functions.
+- Allow @route and @autoRoute to be used together.
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Patches
+
+- Support query/header/path encoding options
+- Generate recursive update schemas with optional properties for resource update operation
 
 ## 0.38.1
 Wed, 14 Dec 2022 20:34:58 GMT

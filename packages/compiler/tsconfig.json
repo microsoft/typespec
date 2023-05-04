@@ -7,5 +7,5 @@
     "types": ["node", "mocha"]
   },
   "include": ["./**/*.ts"],
-  "exclude": ["dist", "node_modules", "temp", "cadl-output"]
+  "exclude": ["dist", "node_modules", "temp", "tsp-output"]
 }

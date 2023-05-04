@@ -1,4 +1,5 @@
 import {
+  validateDecoratorNotOnType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
@@ -26,7 +27,7 @@ import {
 } from "../core/types.js";
 export * from "./service.js";
 
-export const namespace = "Cadl";
+export const namespace = "TypeSpec";
 
 function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
   // Template parameters are not valid source objects, just skip them
@@ -55,7 +56,7 @@ function setTemplatedStringProperty(
 }
 
 function createStateSymbol(name: string) {
-  return Symbol.for(`Cadl.${name}`);
+  return Symbol.for(`TypeSpec.${name}`);
 }
 
 const summaryKey = createStateSymbol("summary");
@@ -192,9 +193,9 @@ const formatValuesKey = createStateSymbol("formatValues");
  * `@format` - specify the data format hint for a string type
  *
  * The first argument is a string that identifies the format that the string type expects.  Any string
- * can be entered here, but a Cadl emitter must know how to interpret
+ * can be entered here, but a TypeSpec emitter must know how to interpret
  *
- * For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
+ * For TypeSpec specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
  * valid values for a string type's format:
  *
  * https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes
@@ -362,7 +363,7 @@ export function $minValue(
   minValue: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $minValue);
-
+  validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
   if (!isNumericType(program, getPropertyType(target))) {
@@ -376,7 +377,13 @@ export function $minValue(
     return;
   }
 
-  if (!validateRange(context, minValue, getMaxValue(context.program, target))) {
+  if (
+    !validateRange(
+      context,
+      minValue,
+      getMaxValue(context.program, target) ?? getMaxValueExclusive(context.program, target)
+    )
+  ) {
     return;
   }
   program.stateMap(minValuesKey).set(target, minValue);
@@ -396,7 +403,7 @@ export function $maxValue(
   maxValue: number
 ) {
   validateDecoratorUniqueOnNode(context, target, $maxValue);
-
+  validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
   if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
@@ -409,7 +416,13 @@ export function $maxValue(
     return;
   }
 
-  if (!validateRange(context, getMinValue(context.program, target), maxValue)) {
+  if (
+    !validateRange(
+      context,
+      getMinValue(context.program, target) ?? getMinValueExclusive(context.program, target),
+      maxValue
+    )
+  ) {
     return;
   }
   program.stateMap(maxValuesKey).set(target, maxValue);
@@ -417,6 +430,85 @@ export function $maxValue(
 
 export function getMaxValue(program: Program, target: Type): number | undefined {
   return program.stateMap(maxValuesKey).get(target);
+}
+
+// -- @minValueExclusive decorator ---------------------
+
+const minValueExclusiveKey = createStateSymbol("minValueExclusive");
+
+export function $minValueExclusive(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  minValueExclusive: number
+) {
+  validateDecoratorUniqueOnNode(context, target, $minValueExclusive);
+  validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
+  const { program } = context;
+
+  if (!isNumericType(program, getPropertyType(target))) {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minValueExclusive", to: "non-numeric type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (
+    !validateRange(
+      context,
+      minValueExclusive,
+      getMaxValue(context.program, target) ?? getMaxValueExclusive(context.program, target)
+    )
+  ) {
+    return;
+  }
+  program.stateMap(minValueExclusiveKey).set(target, minValueExclusive);
+}
+
+export function getMinValueExclusive(program: Program, target: Type): number | undefined {
+  return program.stateMap(minValueExclusiveKey).get(target);
+}
+
+// -- @maxValueExclusive decorator ---------------------
+
+const maxValueExclusiveKey = createStateSymbol("maxValueExclusive");
+
+export function $maxValueExclusive(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  maxValueExclusive: number
+) {
+  validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
+  validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
+  const { program } = context;
+  if (!isNumericType(program, getPropertyType(target))) {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@maxValue", to: "non-numeric type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (
+    !validateRange(
+      context,
+      getMinValue(context.program, target) ?? getMinValueExclusive(context.program, target),
+      maxValueExclusive
+    )
+  ) {
+    return;
+  }
+  program.stateMap(maxValueExclusiveKey).set(target, maxValueExclusive);
+}
+
+export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
+  return program.stateMap(maxValueExclusiveKey).get(target);
 }
 
 // -- @secret decorator ---------------------
@@ -513,9 +605,9 @@ export function $withoutOmittedProperties(
   if (typeof omitProperties === "string") {
     omitNames.add(omitProperties);
   } else {
-    for (const value of omitProperties.options) {
-      if (value.kind === "String") {
-        omitNames.add(value.value);
+    for (const variant of omitProperties.variants.values()) {
+      if (variant.type.kind === "String") {
+        omitNames.add(variant.type.value);
       }
     }
   }
@@ -669,7 +761,7 @@ export function $knownValues(
         code: "known-values-invalid-enum",
         format: {
           member: member.name,
-          type: context.program.checker.getTypeName(propertyType),
+          type: getTypeName(propertyType),
         },
         target,
       });
@@ -729,15 +821,6 @@ export function getKeyName(program: Program, property: ModelProperty): string {
   return program.stateMap(keyKey).get(property);
 }
 
-/**
- * `@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
- *
- * The first argument accepts a string representing the desired default
- * visibility value.  If a key property already has a `visibility` decorator
- * then the default visibility is not applied.
- *
- * `@withDefaultKeyVisibility` can only be applied to model types.
- */
 export function $withDefaultKeyVisibility(
   context: DecoratorContext,
   entity: Model,
@@ -842,8 +925,26 @@ export function $overload(context: DecoratorContext, target: Operation, overload
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
   return op1.interface || op2.interface
-    ? op1.interface === op2.interface
+    ? equalsWithoutProjection(op1.interface, op2.interface)
     : op1.namespace === op2.namespace;
+}
+
+// note: because the 'interface' property of Operation types is projected after the
+// type is finalized, the target operation or overloadBase may reference an un-projected
+// interface at the time of decorator execution during projections.  This normalizes
+// the interfaces to their unprojected form before comparison.
+function equalsWithoutProjection(
+  interface1: Interface | undefined,
+  interface2: Interface | undefined
+): boolean {
+  if (interface1 === undefined || interface2 === undefined) return false;
+  return getBaseInterface(interface1) === getBaseInterface(interface2);
+}
+
+function getBaseInterface(int1: Interface): Interface {
+  return int1.projectionSource === undefined
+    ? int1
+    : getBaseInterface(int1.projectionSource as Interface);
 }
 
 /**
@@ -869,7 +970,7 @@ export function getOverloadedOperation(
   return program.stateMap(overloadsOperationKey).get(operation);
 }
 
-const projectedNameKey = Symbol("projectedNameKey");
+const projectedNameKey = createStateSymbol("projectedNameKey");
 
 /**
  * `@projectedName` - Indicate that this entity should be renamed according to the given projection.

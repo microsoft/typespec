@@ -3,7 +3,7 @@ import {
   createTestHost,
   createTestWrapper,
   TestHost,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { VersioningTestLibrary } from "../src/testing/index.js";
 
 export async function createVersioningTestHost(): Promise<TestHost> {
@@ -13,5 +13,5 @@ export async function createVersioningTestHost(): Promise<TestHost> {
 }
 export async function createVersioningTestRunner(): Promise<BasicTestRunner> {
   const host = await createVersioningTestHost();
-  return createTestWrapper(host, { autoUsings: ["Cadl.Versioning"] });
+  return createTestWrapper(host, { autoUsings: ["TypeSpec.Versioning"] });
 }

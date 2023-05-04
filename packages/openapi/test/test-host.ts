@@ -1,10 +1,11 @@
-import { createTestHost, createTestWrapper } from "@cadl-lang/compiler/testing";
-import { RestTestLibrary } from "@cadl-lang/rest/testing";
+import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
+import { HttpTestLibrary } from "@typespec/http/testing";
+import { RestTestLibrary } from "@typespec/rest/testing";
 import { OpenAPITestLibrary } from "../src/testing/index.js";
 
 export async function createOpenAPITestHost() {
   return createTestHost({
-    libraries: [RestTestLibrary, OpenAPITestLibrary],
+    libraries: [HttpTestLibrary, RestTestLibrary, OpenAPITestLibrary],
   });
 }
 export async function createOpenAPITestRunner() {

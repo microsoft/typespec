@@ -1,3 +1,5 @@
+import { printId } from "../../formatter/print/printer.js";
+import { isTemplateInstance } from "../type-utils.js";
 import {
   Enum,
   Interface,
@@ -11,7 +13,8 @@ import {
 } from "../types.js";
 
 export interface TypeNameOptions {
-  namespaceFilter: (ns: Namespace) => boolean;
+  namespaceFilter?: (ns: Namespace) => boolean;
+  printable?: boolean;
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
@@ -19,7 +22,7 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "Namespace":
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
-      return type.node.id.sv;
+      return getIdentifierName(type.node.id.sv, options);
     case "Scalar":
       return getScalarName(type, options);
     case "Model":
@@ -33,9 +36,11 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "Enum":
       return getEnumName(type, options);
     case "EnumMember":
-      return `${getEnumName(type.enum, options)}.${type.name}`;
+      return `${getEnumName(type.enum, options)}.${getIdentifierName(type.name, options)}`;
     case "Union":
-      return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
+      return type.name
+        ? getIdentifierName(type.name, options)
+        : [...type.variants.values()].map((x) => getTypeName(x.type, options)).join(" | ");
     case "UnionVariant":
       return getTypeName(type.type, options);
     case "Tuple":
@@ -51,6 +56,15 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
   return "(unnamed type)";
 }
 
+export function isStdNamespace(namespace: Namespace): boolean {
+  return (
+    (namespace.name === "TypeSpec" && namespace.namespace?.name === "") ||
+    (namespace.name === "Reflection" &&
+      namespace.namespace?.name === "TypeSpec" &&
+      namespace.namespace?.namespace?.name === "")
+  );
+}
+
 /**
  * Return the full name of the namespace(e.g. "Foo.Bar")
  * @param type namespace type
@@ -59,24 +73,36 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
  */
 export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions): string {
   const filter = options?.namespaceFilter;
-  if (filter && !filter(type)) {
-    return "";
+  const segments = [];
+  let current: Namespace | undefined = type;
+  while (current && current.name !== "") {
+    if (filter && !filter(current)) {
+      break;
+    }
+    segments.unshift(getIdentifierName(current.name, options));
+    current = current.namespace;
   }
 
-  return `${getNamespacePrefix(type.namespace, options)}${type.name}`;
+  return segments.join(".");
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
-  const namespaceFullName = type ? getNamespaceFullName(type, options) : "";
+  if (type === undefined || isStdNamespace(type)) {
+    return "";
+  }
+  const namespaceFullName = getNamespaceFullName(type, options);
   return namespaceFullName !== "" ? namespaceFullName + "." : "";
 }
 
 function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(e.namespace, options)}${e.name}`;
+  return `${getNamespacePrefix(e.namespace, options)}${getIdentifierName(e.name, options)}`;
 }
 
 function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(scalar.namespace, options)}${scalar.name}`;
+  return `${getNamespacePrefix(scalar.namespace, options)}${getIdentifierName(
+    scalar.name,
+    options
+  )}`;
 }
 
 function getModelName(model: Model, options: TypeNameOptions | undefined) {
@@ -85,7 +111,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     return "{}";
   }
   if (model.indexer && model.indexer.key.kind === "Scalar") {
-    if (model.name === "Array" && isInCadlNamespace(model)) {
+    if (model.name === "Array" && isInTypeSpecNamespace(model)) {
       return `${getTypeName(model.indexer.value!, options)}[]`;
     }
   }
@@ -93,14 +119,16 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   if (model.name === "") {
     return nsPrefix + "(anonymous model)";
   }
-  const modelName = nsPrefix + model.name;
-  if (model.templateArguments && model.templateArguments.length > 0) {
+  const modelName = nsPrefix + getIdentifierName(model.name, options);
+  if (isTemplateInstance(model)) {
     // template instantiation
-    const args = model.templateArguments.map((x) => getTypeName(x, options));
+    const args = model.templateMapper.args.map((x) => getTypeName(x, options));
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
-    const params = (model.node as ModelStatementNode).templateParameters.map((t) => t.id.sv);
+    const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
+      getIdentifierName(t.id.sv, options)
+    );
     return `${model.name}<${params.join(", ")}>`;
   } else {
     // regular old model.
@@ -109,19 +137,19 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
 }
 
 /**
- * Check if the given namespace is the standard library `Cadl` namespace.
+ * Check if the given namespace is the standard library `TypeSpec` namespace.
  */
-function isCadlNamespace(
+function isTypeSpecNamespace(
   namespace: Namespace
-): namespace is Namespace & { name: "Cadl"; namespace: Namespace } {
-  return namespace.name === "Cadl" && namespace.namespace?.name === "";
+): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
+  return namespace.name === "TypeSpec" && namespace.namespace?.name === "";
 }
 
 /**
- * Check if the given type is defined right in the Cadl namespace.
+ * Check if the given type is defined right in the TypeSpec namespace.
  */
-function isInCadlNamespace(type: Type & { namespace?: Namespace }): boolean {
-  return Boolean(type.namespace && isCadlNamespace(type.namespace));
+function isInTypeSpecNamespace(type: Type & { namespace?: Namespace }): boolean {
+  return Boolean(type.namespace && isTypeSpecNamespace(type.namespace));
 }
 
 function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {
@@ -131,13 +159,19 @@ function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | un
 }
 
 function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {
-  let interfaceName = iface.name;
-  if (iface.templateArguments && iface.templateArguments.length > 0) {
-    interfaceName += `<${iface.templateArguments.map((x) => getTypeName(x, options)).join(", ")}>`;
+  let interfaceName = getIdentifierName(iface.name, options);
+  if (isTemplateInstance(iface)) {
+    interfaceName += `<${iface.templateMapper.args
+      .map((x) => getTypeName(x, options))
+      .join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
-  return `${getNamespacePrefix(op.namespace, options)}${op.name}`;
+  return `${getNamespacePrefix(op.namespace, options)}${getIdentifierName(op.name, options)}`;
+}
+
+function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
+  return options?.printable ? printId(name) : name;
 }

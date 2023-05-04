@@ -3,20 +3,60 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+  TestHost,
+} from "@typespec/compiler/testing";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
+
+describe("versioning: incompatible use of decorators", () => {
+  let runner: BasicTestRunner;
+  let host: TestHost;
+  const imports: string[] = [];
+
+  beforeEach(async () => {
+    host = await createVersioningTestHost();
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
+      import "@typespec/versioning";
+      ${imports.map((i) => `import "${i}";`).join("\n")}
+      using TypeSpec.Versioning;
+      ${code}`,
+    });
+  });
+
+  it("emit diagnostic when @service({version: 'X'}) is used with @versioned", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    @service({
+      title: "Widget Service",
+      version: "v3"
+    })
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2,
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/no-service-fixed-version",
+      severity: "error",
+    });
+  });
+});
 
 describe("versioning: validate incompatible references", () => {
   let runner: BasicTestRunner;
+  let host: TestHost;
+  const imports: string[] = [];
 
   beforeEach(async () => {
-    const host = await createVersioningTestHost();
+    host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
-      import "@cadl-lang/versioning";
+      import "@typespec/versioning";
+      ${imports.map((i) => `import "${i}";`).join("\n")}
+      using TypeSpec.Versioning;
 
-      using Cadl.Versioning;
-      
       @versioned(Versions)
       namespace TestService {
         enum Versions {v1, v2, v3, v4}
@@ -34,7 +74,7 @@ describe("versioning: validate incompatible references", () => {
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
@@ -49,7 +89,7 @@ describe("versioning: validate incompatible references", () => {
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
@@ -64,7 +104,7 @@ describe("versioning: validate incompatible references", () => {
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
@@ -110,7 +150,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
@@ -127,7 +167,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
@@ -144,7 +184,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
@@ -202,7 +242,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was added on version 'v3' but contains type 'TestService.Bar.foo' added in version 'v2'.",
       });
@@ -217,7 +257,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.Bar.foo' removed in version 'v3'.",
       });
@@ -247,9 +287,22 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("emit diagnostic when property marked @madeOptional but is required", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          @madeOptional(Versions.v2)
+          name: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/made-optional-not-optional",
+        message: "Property 'name' marked with @madeOptional but is required. Should be 'name?'",
+      });
+    });
   });
 
-  describe("model template arguments", () => {
+  describe("complex type references", () => {
     it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
@@ -262,22 +315,60 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
       });
     });
-  });
-
-  describe("interface operations", () => {
-    it("succeed when unversioned interface has versioned operation", async () => {
+    it("emit diagnostic when using versioned union variant in non versioned operation return type", async () => {
       const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned array element in non versioned operation return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned[];
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned tuple element in non versioned operation return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): [Versioned, string]; 
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    describe("interface operations", () => {
+      it("succeed when unversioned interface has versioned operation", async () => {
+        const diagnostics = await runner.diagnose(`
         interface Bar {
           @added(Versions.v2)
           foo(): string;
         }
       `);
-      expectDiagnosticEmpty(diagnostics);
+        expectDiagnosticEmpty(diagnostics);
+      });
     });
 
     it("emit diagnostic when operation was added before interface itself", async () => {
@@ -289,7 +380,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was added on version 'v3' but contains type 'TestService.foo' added in version 'v2'.",
       });
@@ -304,7 +395,7 @@ describe("versioning: validate incompatible references", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.foo' removed in version 'v3'.",
       });
@@ -324,7 +415,72 @@ describe("versioning: validate incompatible references", () => {
     });
   });
 
-  describe("with versioned dependencies", () => {
+  describe("interface templates", () => {
+    beforeEach(() => {
+      imports.push("./lib.tsp");
+      host.addTypeSpecFile(
+        "lib.tsp",
+        `
+        namespace Lib;
+        interface Ops<T extends object> {
+          get(): T[];
+        }
+        `
+      );
+    });
+    it("emit diagnostic when extending interface with versioned type argument from unversioned interface", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v2)
+        model Widget {
+          id: string;
+        }
+        interface WidgetService extends Lib.Ops<Widget> {}
+        `
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.WidgetService' is referencing versioned type 'TestService.Widget' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when extending interface with versioned type argument added after interface", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v2)
+        model Widget {
+          id: string;
+        }
+      
+        @added(Versions.v1)
+        interface WidgetService extends Lib.Ops<Widget> {}
+      `
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.WidgetService' was added on version 'v1' but referencing type 'TestService.Widget' added in version 'v2'.",
+      });
+    });
+
+    it("succeed when extending interface with versioned type argument added before interface", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v2)
+        model Widget {
+          id: string;
+        }
+      
+        @added(Versions.v2)
+        interface WidgetService extends Lib.Ops<Widget> {}
+      `
+      );
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("with @useDependency", () => {
     let runner: BasicTestRunner;
 
     beforeEach(async () => {
@@ -342,21 +498,24 @@ describe("versioning: validate incompatible references", () => {
         }
 
         @versioned(Versions)
-        @versionedDependency([
-          [Versions.v1, VersionedLib.Versions.l1],
-          [Versions.v2, VersionedLib.Versions.l1],
-          [Versions.v3, VersionedLib.Versions.l2],
-          [Versions.v4, VersionedLib.Versions.l2]
-        ])
         namespace TestService {
-          enum Versions {v1, v2, v3, v4}
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l1)
+            v2,
+            @useDependency(VersionedLib.Versions.l2)
+            v3,
+            @useDependency(VersionedLib.Versions.l2)
+            v4
+          }
 
           @added(Versions.v1)
           op test(): VersionedLib.Foo;
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added on version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
       });
@@ -373,14 +532,17 @@ describe("versioning: validate incompatible references", () => {
         }
 
         @versioned(Versions)
-         @versionedDependency([
-          [Versions.v1, VersionedLib.Versions.l2],
-          [Versions.v2, VersionedLib.Versions.l2],
-          [Versions.v3, VersionedLib.Versions.l2],
-          [Versions.v4, VersionedLib.Versions.l2]
-        ])
         namespace TestService {
-          enum Versions {v1, v2, v3, v4}
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l2)
+            v1,
+            @useDependency(VersionedLib.Versions.l2)
+            v2,
+            @useDependency(VersionedLib.Versions.l2)
+            v3,
+            @useDependency(VersionedLib.Versions.l2)
+            v4
+          }
           op test(): VersionedLib.Foo;
         }
       `);
@@ -397,13 +559,13 @@ describe("versioning: validate incompatible references", () => {
           model Foo {}
         }
 
-        @versionedDependency(VersionedLib.Versions.l1)
+        @useDependency(VersionedLib.Versions.l1)
         namespace TestService {
           op test(): VersionedLib.Foo;
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
       });
@@ -419,13 +581,13 @@ describe("versioning: validate incompatible references", () => {
           model Foo {}
         }
 
-        @versionedDependency(VersionedLib.Versions.l2)
+        @useDependency(VersionedLib.Versions.l2)
         namespace TestService {
           op test(): VersionedLib.Foo;
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is l2.",
       });

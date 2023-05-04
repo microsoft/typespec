@@ -128,7 +128,7 @@ describe("compiler: server: foldingRange", () => {
 
   async function getFoldingRanges(source: string): Promise<FoldingRange[]> {
     const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
+    const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
     return await testHost.server.getFoldingRanges({
       textDocument,
     });

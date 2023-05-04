@@ -1,6 +1,6 @@
-import { strictEqual } from "assert";
-import { Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { deepEqual, strictEqual } from "assert";
+import { Model, Operation, Type } from "../../core/types.js";
+import { TestHost, createTestHost, expectDiagnosticEmpty } from "../../testing/index.js";
 
 describe("compiler: checker: augment decorators", () => {
   let testHost: TestHost;
@@ -18,8 +18,8 @@ describe("compiler: checker: augment decorators", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
 
@@ -29,7 +29,7 @@ describe("compiler: checker: augment decorators", () => {
       `
     );
 
-    const { Foo } = await testHost.compile("test.cadl");
+    const { Foo } = await testHost.compile("test.tsp");
     strictEqual(Foo, blueThing);
   });
 
@@ -42,8 +42,8 @@ describe("compiler: checker: augment decorators", () => {
       },
     });
 
-    testHost.addCadlFile(
-      "test.cadl",
+    testHost.addTypeSpecFile(
+      "test.tsp",
       `
       import "./test.js";
 
@@ -53,7 +53,7 @@ describe("compiler: checker: augment decorators", () => {
       `
     );
 
-    await testHost.compile("test.cadl");
+    await testHost.compile("test.tsp");
     strictEqual(customName, "FooCustom");
   });
 
@@ -69,8 +69,8 @@ describe("compiler: checker: augment decorators", () => {
       });
     });
     it("can be defined at the root of document", async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
   
@@ -80,13 +80,13 @@ describe("compiler: checker: augment decorators", () => {
         `
       );
 
-      const { Foo } = await testHost.compile("test.cadl");
+      const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
 
     it("can be defined in blockless namespace", async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
   
@@ -98,13 +98,13 @@ describe("compiler: checker: augment decorators", () => {
         `
       );
 
-      const { Foo } = await testHost.compile("test.cadl");
+      const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
 
     it("can be defined in namespace", async () => {
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
         import "./test.js";
   
@@ -116,7 +116,7 @@ describe("compiler: checker: augment decorators", () => {
         `
       );
 
-      const { Foo } = await testHost.compile("test.cadl");
+      const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
   });
@@ -133,8 +133,8 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
 
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
       import "./test.js";
 
@@ -144,9 +144,10 @@ describe("compiler: checker: augment decorators", () => {
       `
       );
 
-      const { target } = await testHost.compile("test.cadl");
-      strictEqual(runOnTarget?.kind, target.kind);
-      strictEqual(runOnTarget, target);
+      const [result, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
+      expectDiagnosticEmpty(diagnostics);
+      strictEqual(runOnTarget?.kind, result.target.kind);
+      strictEqual(runOnTarget, result.target);
       strictEqual(customName, "FooCustom");
     }
 
@@ -170,37 +171,116 @@ describe("compiler: checker: augment decorators", () => {
     it("interface", () => expectTarget(`@test("target") interface Foo { }`, "Foo"));
     it("operation in interface", () =>
       expectTarget(`interface Foo { @test("target") list(): void }`, "Foo.list"));
-  });
-
-  describe("augment location", () => {
-    async function expectAugmentTarget(code: string) {
-      let customName: string | undefined;
-      let runOnTarget: Type | undefined;
-
+    it("uninstantiated template", async () => {
       testHost.addJsFile("test.js", {
         $customName(_: any, t: Type, n: string) {
-          runOnTarget = t;
-          customName = n;
+          const runOnTarget: Type | undefined = t;
+          const customName: string | undefined = n;
+          if (runOnTarget) {
+          }
+          if (customName) {
+          }
         },
       });
 
-      testHost.addCadlFile(
-        "test.cadl",
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
+          import "./test.js";
+  
+          model Foo<T> {
+            testProp: T;
+          };
+  
+          @test
+          op stringTest(): Foo<string>;
+  
+          @@customName(Foo, "Some foo thing");
+          @@customName(Foo.testProp, "Some test prop");
+          `
+      );
+      const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
+      expectDiagnosticEmpty(diagnostics);
+      const stringTest = results.stringTest as Operation;
+      strictEqual(stringTest.kind, "Operation");
+      deepEqual((stringTest.returnType as Model).decorators[0].args[0].value, {
+        kind: "String",
+        value: "Some foo thing",
+      });
+      for (const prop of (stringTest.returnType as Model).properties) {
+        deepEqual(prop[1].decorators[0].args[0].value, {
+          kind: "String",
+          value: "Some test prop",
+        });
+      }
+    });
+
+    it("emit diagnostic if target is instantiated template", async () => {
+      testHost.addJsFile("test.js", {
+        $customName(_: any, t: Type, n: string) {
+          const runOnTarget: Type | undefined = t;
+          const customName: string | undefined = n;
+          if (runOnTarget) {
+          }
+          if (customName) {
+          }
+        },
+      });
+
+      testHost.addTypeSpecFile(
+        "test.tsp",
+        `
+        import "./test.js";
+
+        model Foo<T> {
+          testProp: T;
+        };
+
+        alias StringFoo = Foo<string>;
+
+        @test
+        op stringTest(): Foo<string>;
+
+        @@customName(Foo<string>, "A string Foo");
+        @@customName(StringFoo, "A string Foo");
+        `
+      );
+      const diagnostics = await testHost.diagnose("test.tsp");
+      strictEqual(diagnostics.length, 2);
+      for (const diagnostic of diagnostics) {
+        strictEqual(diagnostic.message, "Cannot reference template instances");
+      }
+    });
+
+    describe("augment location", () => {
+      async function expectAugmentTarget(code: string) {
+        let customName: string | undefined;
+        let runOnTarget: Type | undefined;
+
+        testHost.addJsFile("test.js", {
+          $customName(_: any, t: Type, n: string) {
+            runOnTarget = t;
+            customName = n;
+          },
+        });
+
+        testHost.addTypeSpecFile(
+          "test.tsp",
+          `
       import "./test.js";
 
       ${code}
       `
-      );
+        );
 
-      const { target } = await testHost.compile("test.cadl");
-      strictEqual(runOnTarget?.kind, target.kind);
-      strictEqual(runOnTarget, target);
-      strictEqual(customName, "FooCustom");
-    }
+        const { target } = await testHost.compile("test.tsp");
+        strictEqual(runOnTarget?.kind, target.kind);
+        strictEqual(runOnTarget, target);
+        strictEqual(customName, "FooCustom");
+      }
 
-    it("augment type in another namespace", async () => {
-      await expectAugmentTarget(`
+      it("augment type in another namespace", async () => {
+        await expectAugmentTarget(`
         namespace Lib {
           @test("target") model Foo {}
         }
@@ -209,25 +289,73 @@ describe("compiler: checker: augment decorators", () => {
           @@customName(Lib.Foo, "FooCustom")
         }
       `);
-    });
+      });
 
-    it("augment type in another file checked before", async () => {
-      testHost.addCadlFile("lib.cadl", `@test("target") model Foo {} `);
+      it("augment type in another file checked before", async () => {
+        testHost.addTypeSpecFile("lib.tsp", `@test("target") model Foo {} `);
 
-      await expectAugmentTarget(`
-        import "./lib.cadl";
+        await expectAugmentTarget(`
+        import "./lib.tsp";
         @@customName(Foo, "FooCustom")
       `);
-    });
+      });
 
-    it("augment type in another file checked after", async () => {
-      testHost.addCadlFile("lib.cadl", `@@customName(Foo, "FooCustom") `);
+      it("augment type in another file checked after", async () => {
+        testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom") `);
 
-      await expectAugmentTarget(`
-        import "./lib.cadl";
+        await expectAugmentTarget(`
+        import "./lib.tsp";
 
         @test("target") model Foo {}
       `);
+      });
+    });
+
+    describe("augment order", () => {
+      async function expectAugmentTarget(code: string) {
+        let customName: string | undefined;
+        let runOnTarget: Type | undefined;
+
+        testHost.addJsFile("test.js", {
+          $customName(_: any, t: Type, n: string) {
+            runOnTarget = t;
+            customName = n;
+          },
+        });
+
+        testHost.addTypeSpecFile(
+          "test.tsp",
+          `
+      import "./test.js";
+
+      ${code}
+      `
+        );
+
+        const { target } = await testHost.compile("test.tsp");
+        strictEqual(runOnTarget?.kind, target.kind);
+        strictEqual(runOnTarget, target);
+        strictEqual(customName, "FooCustom");
+      }
+
+      it("augment decorator should be applied at last", async () => {
+        await expectAugmentTarget(`
+          @test("target") 
+          @customName("Foo")
+          model Foo {}
+          @@customName(Foo, "FooCustom")
+      `);
+      });
+
+      it("augment decorator - last win", async () => {
+        await expectAugmentTarget(`
+          @test("target") 
+          @customName("Foo")
+          model Foo {}
+          @@customName(Foo, "NonCustom")
+          @@customName(Foo, "FooCustom")
+      `);
+      });
     });
   });
 });

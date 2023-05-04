@@ -1,5 +1,5 @@
-import { Model } from "@cadl-lang/compiler";
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { Model } from "@typespec/compiler";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { getResourceTypeKey } from "../src/resource.js";
 import { getSegment } from "../src/rest.js";
@@ -15,7 +15,7 @@ describe("rest: resources", () => {
       `);
 
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/rest/resource-missing-key",
+      code: "@typespec/rest/resource-missing-key",
       message:
         "Type 'Thing' is used as a resource and therefore must have a key. Use @key to designate a property as the key.",
     });
@@ -41,7 +41,7 @@ describe("rest: resources", () => {
   it("@resource decorator applies @segment decorator that reaches route generation", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       @test
       @resource("things")
@@ -68,7 +68,7 @@ describe("rest: resources", () => {
   it("resources: generates standard operations for resource types and their children", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -149,28 +149,22 @@ describe("rest: resources", () => {
   it("resources: collection action paths are generated correctly", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
+
+      model Thing {
+        @key
+        @segment("things")
+        thingId: string;
+      }
 
       @autoRoute
-      namespace Things {
-        model Thing {
-          @key
-          @segment("things")
-          thingId: string;
-        }
-
+      interface Things {
         @post
         @collectionAction(Thing, "export1")
         op exportThing(): {};
 
-        #suppress "deprecated"
         @post
         @collectionAction(Thing, "export2")
-        @segmentSeparator(":")
-        op exportThingWithColon1(): {};
-
-        @post
-        @collectionAction(Thing, "export3")
         @actionSeparator(":")
         op exportThingWithColon2(): {};
       }
@@ -185,12 +179,7 @@ describe("rest: resources", () => {
       },
       {
         verb: "post",
-        path: "/:things:export2",
-        params: [],
-      },
-      {
-        verb: "post",
-        path: "/things:export3",
+        path: "/things:export2",
         params: [],
       },
     ]);
@@ -198,7 +187,7 @@ describe("rest: resources", () => {
 
   it("resources: emit diagnostic if using 2 @key on the same model", async () => {
     const [_, diagnostics] = await compileOperations(`
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       model Thing {
         @key("thingId")
@@ -211,7 +200,7 @@ describe("rest: resources", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "@cadl-lang/rest/duplicate-key",
+        code: "@typespec/rest/duplicate-key",
         message: `More than one key found on model type Thing`,
       },
     ]);
@@ -219,7 +208,7 @@ describe("rest: resources", () => {
 
   it("resources: resources with parents must not have duplicate their parents' key names", async () => {
     const [_, diagnostics] = await compileOperations(`
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -253,15 +242,15 @@ describe("rest: resources", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "@cadl-lang/rest/duplicate-parent-key",
+        code: "@typespec/rest/duplicate-parent-key",
         message: `Resource type 'Subthing' has a key property named 'thingId' which conflicts with the key name of a parent or child resource.`,
       },
       {
-        code: "@cadl-lang/rest/duplicate-parent-key",
+        code: "@typespec/rest/duplicate-parent-key",
         message: `Resource type 'Thing' has a key property named 'thingId' which conflicts with the key name of a parent or child resource.`,
       },
       {
-        code: "@cadl-lang/rest/duplicate-parent-key",
+        code: "@typespec/rest/duplicate-parent-key",
         message: `Resource type 'SubSubSubthing' has a key property named 'thingId' which conflicts with the key name of a parent or child resource.`,
       },
     ]);
@@ -270,7 +259,7 @@ describe("rest: resources", () => {
   it("resources: standard lifecycle operations have expected paths and verbs", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       model Thing {
         @key
@@ -322,7 +311,7 @@ describe("rest: resources", () => {
   it("singleton resource: generates standard operations", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -366,7 +355,7 @@ describe("rest: resources", () => {
   it("extension resources: generates standard operations for extensions on parent and child resources", async () => {
     const routes = await getRoutesFor(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -454,7 +443,7 @@ describe("rest: resources", () => {
     const runner = await createRestTestRunner();
     const diagnostics = await runner.diagnose(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       interface Dogs extends ResourceOperations<Dog, Error> {}
 
@@ -463,7 +452,7 @@ describe("rest: resources", () => {
       `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/rest/resource-missing-key",
+      code: "@typespec/rest/resource-missing-key",
       message:
         "Type 'Dog' is used as a resource and therefore must have a key. Use @key to designate a property as the key.",
     });
@@ -473,7 +462,7 @@ describe("rest: resources", () => {
     const runner = await createRestTestRunner();
     const diagnostics = await runner.diagnose(
       `
-      using Cadl.Rest.Resource;
+      using TypeSpec.Rest.Resource;
 
       interface Dogs extends ResourceOperations<Dog, Error> {}
       
@@ -484,7 +473,7 @@ describe("rest: resources", () => {
       `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/rest/resource-missing-error",
+      code: "@typespec/rest/resource-missing-error",
       message:
         "Type 'Error' is used as an error and therefore must have the @error decorator applied.",
     });

@@ -1,5 +1,6 @@
-import cadlPrismDefinition from "./cadl-lang-prism";
+import typespecPrismDefinition from "./typespec-lang-prism";
 
 export default function prismIncludeLanguages(PrismObject) {
-  PrismObject.languages.cadl = cadlPrismDefinition;
+  PrismObject.languages.tsp = typespecPrismDefinition;
+  PrismObject.languages.typespec = typespecPrismDefinition;
 }

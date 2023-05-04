@@ -4,7 +4,7 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.88.0",
+  "rushVersion": "5.90.0",
   "pnpmVersion": "6.32.9",
   "ensureConsistentVersions": true,
   /**
@@ -20,7 +20,7 @@
   "gitPolicy": {},
   "repository": {
     "defaultBranch": "main",
-    "url": "https://github.com/microsoft/cadl"
+    "url": "https://github.com/microsoft/typespec"
   },
   /**
    * Event hooks are customized script actions that Rush executes when specific events occur
@@ -49,19 +49,19 @@
   "telemetryEnabled": false,
   "projects": [
     {
-      "packageName": "@cadl-lang/compiler",
+      "packageName": "@typespec/compiler",
       "projectFolder": "packages/compiler",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/samples",
+      "packageName": "@typespec/samples",
       "projectFolder": "packages/samples",
       "reviewCategory": "production",
       "shouldPublish": false
     },
     {
-      // TMLanguage generator not in an @scope because it is neither cadl nor azure-specific.
+      // TMLanguage generator not in an @scope because it is neither typespec nor azure-specific.
       // Eventually, it should be split off into its own repo
       "packageName": "tmlanguage-generator",
       "projectFolder": "packages/tmlanguage-generator",
@@ -71,118 +71,130 @@
     {
       // VS Code package can't be in an @scope as it breaks VSIX package
       // Eventually, this package should probably be deprecated in favor of publishing to VS marketplace
-      "packageName": "cadl-vscode",
-      "projectFolder": "packages/cadl-vscode",
+      "packageName": "typespec-vscode",
+      "projectFolder": "packages/typespec-vscode",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
       // VS package not in @scope purely for symmetry with VSCode package
       // Eventually this package will also be deprecated in favor or VS marketplace
-      "packageName": "cadl-vs",
-      "projectFolder": "packages/cadl-vs",
+      "packageName": "typespec-vs",
+      "projectFolder": "packages/typespec-vs",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/prettier-plugin-cadl",
-      "projectFolder": "packages/prettier-plugin-cadl",
+      "packageName": "@typespec/prettier-plugin-typespec",
+      "projectFolder": "packages/prettier-plugin-typespec",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/rest",
+      "packageName": "@typespec/http",
+      "projectFolder": "packages/http",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
+    },
+    {
+      "packageName": "@typespec/rest",
       "projectFolder": "packages/rest",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/openapi",
+      "packageName": "@typespec/openapi",
       "projectFolder": "packages/openapi",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/lint",
+      "packageName": "@typespec/lint",
       "projectFolder": "packages/lint",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/migrate",
+      "packageName": "@typespec/migrate",
       "projectFolder": "packages/migrate",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/library-linter",
+      "packageName": "@typespec/library-linter",
       "projectFolder": "packages/library-linter",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/eslint-plugin",
-      "projectFolder": "packages/eslint-plugin-cadl",
+      "packageName": "@typespec/eslint-plugin",
+      "projectFolder": "packages/eslint-plugin-typespec",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/openapi3",
+      "packageName": "@typespec/openapi3",
       "projectFolder": "packages/openapi3",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/html-program-viewer",
+      "packageName": "@typespec/html-program-viewer",
       "projectFolder": "packages/html-program-viewer",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/versioning",
+      "packageName": "@typespec/versioning",
       "projectFolder": "packages/versioning",
       "reviewCategory": "production",
-      "versionPolicyName": "cadl"
+      "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@cadl-lang/eslint-config-cadl",
-      "projectFolder": "packages/eslint-config-cadl",
+      "packageName": "@typespec/eslint-config-typespec",
+      "projectFolder": "packages/eslint-config-typespec",
       "reviewCategory": "production",
       "shouldPublish": true
     },
     {
-      "packageName": "@cadl-lang/internal-build-utils",
+      "packageName": "@typespec/internal-build-utils",
       "projectFolder": "packages/internal-build-utils",
       "reviewCategory": "production",
       "shouldPublish": true
     },
     {
-      "packageName": "@cadl-lang/spec",
+      "packageName": "@typespec/spec",
       "projectFolder": "packages/spec",
       "reviewCategory": "production",
       "shouldPublish": false
     },
 
     {
-      "packageName": "@cadl-lang/playground",
+      "packageName": "@typespec/playground",
       "projectFolder": "packages/playground",
       "reviewCategory": "production",
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/website",
+      "packageName": "@typespec/website",
       "projectFolder": "packages/website",
       "reviewCategory": "production",
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/bundler",
+      "packageName": "@typespec/bundler",
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
       "shouldPublish": false
     },
     {
-      "packageName": "@cadl-lang/ref-doc",
+      "packageName": "@typespec/protobuf",
+      "projectFolder": "packages/protobuf",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@typespec/ref-doc",
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false

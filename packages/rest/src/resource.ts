@@ -9,8 +9,8 @@ import {
   Program,
   Type,
   validateDecoratorTarget,
-} from "@cadl-lang/compiler";
-import { $path } from "./http/decorators.js";
+} from "@typespec/compiler";
+import { $path } from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 export interface ResourceKey {
@@ -97,10 +97,11 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
 
-    // Filter out the @visibility decorator because it might affect metadata
-    // filtering
     const decorators = [
-      ...keyProperty.decorators.filter((d) => d.decorator !== $visibility),
+      // Filter out the @visibility decorator because it might affect metadata
+      // filtering. NOTE: Check for name equality instead of function equality
+      // to deal with multiple copies of core being used.
+      ...keyProperty.decorators.filter((d) => d.decorator.name !== $visibility.name),
       {
         decorator: $path,
         args: [],
@@ -140,7 +141,7 @@ export function $copyResourceKeyParameters(
       code: "not-key-type",
       target: entity,
     });
-  const templateArguments = entity.templateArguments;
+  const templateArguments = entity.templateMapper?.args;
   if (!templateArguments || templateArguments.length !== 1) {
     return reportNoKeyError();
   }

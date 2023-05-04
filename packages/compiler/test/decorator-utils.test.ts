@@ -1,8 +1,9 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import {
-  cadlTypeToJson,
-  CadlValue,
   DecoratorContext,
+  TypeSpecValue,
+  typespecTypeToJson,
+  validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import { Type } from "../core/types.js";
@@ -15,27 +16,27 @@ import {
 } from "../testing/index.js";
 
 describe("compiler: decorator utils", () => {
-  describe("cadlTypeToJson", () => {
+  describe("typespecTypeToJson", () => {
     async function convertDecoratorDataToJson(code: string) {
       const host = await createTestHost();
       let result: any;
 
       // add test decorators
       host.addJsFile("mapToJson.js", {
-        $jsonData(context: DecoratorContext, target: Type, value: CadlValue) {
-          result = cadlTypeToJson(value, target);
+        $jsonData(context: DecoratorContext, target: Type, value: TypeSpecValue) {
+          result = typespecTypeToJson(value, target);
         },
       });
 
-      host.addCadlFile(
-        "main.cadl",
+      host.addTypeSpecFile(
+        "main.tsp",
         `
         import "./mapToJson.js";
 
         ${code};
       `
       );
-      await host.compile("main.cadl");
+      await host.compile("main.tsp");
       return result;
     }
     it("can convert a string", async () => {
@@ -142,37 +143,37 @@ describe("compiler: decorator utils", () => {
       const host = await createTestHost();
       runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
 
-      function $tag(context: DecoratorContext, target: Type) {
-        validateDecoratorUniqueOnNode(context, target, $tag);
+      function $bar(context: DecoratorContext, target: Type) {
+        validateDecoratorUniqueOnNode(context, target, $bar);
       }
       // add test decorators
       host.addJsFile("lib.js", {
-        $tag,
+        $bar,
       });
     });
 
     it("emit diagnostics if using the same decorator on the same node", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
-        @tag
+        @bar
+        @bar
         model Foo {}
       `);
 
       expectDiagnostics(diagnostics, [
         {
           code: "duplicate-decorator",
-          message: "Decorator @tag cannot be used twice on the same node.",
+          message: "Decorator @bar cannot be used twice on the same declaration.",
         },
         {
           code: "duplicate-decorator",
-          message: "Decorator @tag cannot be used twice on the same node.",
+          message: "Decorator @bar cannot be used twice on the same declaration.",
         },
       ]);
     });
 
     it("shouldn't emit diagnostic if decorator is used once only", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @bar
         model Foo {}
       `);
 
@@ -181,9 +182,9 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is defined twice via `model is`", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @bar
         model Bar {}
-        @tag
+        @bar
         model Foo is Bar;
       `);
 
@@ -192,13 +193,117 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is used again as augment decorator", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @bar
         model Foo {}
 
-        @@tag(Foo)
+        @@bar(Foo)
       `);
 
       expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("validateDecoratorNotOnType", () => {
+    let runner: BasicTestRunner;
+
+    beforeEach(async () => {
+      const host = await createTestHost();
+      runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
+
+      function $red(context: DecoratorContext, target: Type) {
+        validateDecoratorNotOnType(context, target, $blue, $red);
+      }
+      function $blue(context: DecoratorContext, target: Type) {
+        validateDecoratorNotOnType(context, target, $red, $blue);
+      }
+      // add test decorators
+      host.addJsFile("lib.js", {
+        $red,
+        $blue,
+      });
+    });
+
+    it("emit diagnostics if using the decorator has a conflict", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        @blue
+        model Foo {}
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+        {
+          code: "decorator-conflict",
+        },
+      ]);
+    });
+
+    it("emit diagnostics if using the decorator has a conflict with model is", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        model Bar {}
+        @blue
+        model Foo is Bar;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+        {
+          code: "decorator-conflict",
+        },
+      ]);
+    });
+
+    it("emit diagnostics if using the decorator has a conflict with model extends", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        model Bar {}
+        @blue
+        model Foo extends Bar {};
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+      ]);
+    });
+
+    it("emit diagnostics if using the decorator has a conflict with scalar extends", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        scalar foo extends int32;
+        @blue
+        scalar bar extends foo;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+      ]);
+    });
+
+    it("should emit diagnostic if decorator conflict is created via augment decorator", async () => {
+      const diagnostics = await runner.diagnose(`
+        @red
+        model Foo {}
+
+        @@blue(Foo)
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-conflict",
+        },
+        {
+          code: "decorator-conflict",
+        },
+      ]);
     });
   });
 });

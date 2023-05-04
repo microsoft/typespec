@@ -2,14 +2,14 @@ import { createDiagnosticCreator } from "./diagnostics.js";
 import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
-  CadlLibrary,
-  CadlLibraryDef,
   CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
+  TypeSpecLibrary,
+  TypeSpecLibraryDef,
 } from "./types.js";
 
-const globalLibraryUrlsLoadedSym = Symbol.for("CADL_LIBRARY_URLS_LOADED");
+const globalLibraryUrlsLoadedSym = Symbol.for("TYPESPEC_LIBRARY_URLS_LOADED");
 if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
   (globalThis as any)[globalLibraryUrlsLoadedSym] = new Set<string>();
 }
@@ -17,14 +17,17 @@ if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
 const loadedUrls = (globalThis as any)[globalLibraryUrlsLoadedSym];
 
 /**
- * @internal List of urls that used `createCadlLibrary`. Used to keep track of the loaded version of library and make sure they are compatible.
+ * @internal List of urls that used `createTypeSpecLibrary`. Used to keep track of the loaded version of library and make sure they are compatible.
  */
 export function getLibraryUrlsLoaded(): Set<string> {
   return loadedUrls;
 }
 
+/** @deprecated use createTypeSpecLibrary */
+export const createCadlLibrary = createTypeSpecLibrary;
+
 /**
- * Create a new Cadl library definition.
+ * Create a new TypeSpec library definition.
  * @param lib Library definition.
  * @returns Library with utility functions.
  *
@@ -39,12 +42,12 @@ export function getLibraryUrlsLoaded(): Set<string> {
  *   },
  * } as const;
  *
- * const lib = createCadlLibrary(libDef);
+ * const lib = createTypeSpecLibrary(libDef);
  */
-export function createCadlLibrary<
+export function createTypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any>
->(lib: Readonly<CadlLibraryDef<T, E>>): CadlLibrary<T, E> {
+>(lib: Readonly<TypeSpecLibraryDef<T, E>>): TypeSpecLibrary<T, E> {
   let emitterOptionValidator: JSONSchemaValidator;
 
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
@@ -96,12 +99,15 @@ export function paramMessage<T extends string[]>(
   return template;
 }
 
+/** @deprecated use setTypeSpecNamespace */
+export const setCadlNamespace = setTypeSpecNamespace;
+
 /**
- * Set the Cadl namespace for that function.
+ * Set the TypeSpec namespace for that function.
  * @param namespace Namespace string (e.g. "Foo.Bar")
  * @param functions Functions
  */
-export function setCadlNamespace(
+export function setTypeSpecNamespace(
   namespace: string,
   ...functions: Array<(...args: any[]) => any>
 ): void {

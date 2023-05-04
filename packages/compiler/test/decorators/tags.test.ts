@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { Interface, Namespace, Operation } from "../../core/types.js";
 import { getAllTags } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { TestHost, createTestHost } from "../../testing/index.js";
 
 describe("compiler: tag decorator", () => {
   let testHost: TestHost;
@@ -11,8 +11,8 @@ describe("compiler: tag decorator", () => {
   });
 
   it("applies @tag decorator to namespaces, interfaces, and operations", async (): Promise<void> => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
       @test
       @tag("namespace")

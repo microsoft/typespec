@@ -1,6 +1,256 @@
 {
-  "name": "@cadl-lang/compiler",
+  "name": "@typespec/compiler",
   "entries": [
+    {
+      "version": "0.43.0",
+      "tag": "@typespec/compiler_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bug: Emitter framework will now visit scalar declarations"
+          },
+          {
+            "comment": "Emit diagnostic when ambiguous symbol exists between global and usings."
+          },
+          {
+            "comment": "Feature: Add support for referencing metatypes ModelProperty `::type` and Operation `::returnType` and `::parameters`"
+          },
+          {
+            "comment": "Relax constraint on derived type overrides"
+          },
+          {
+            "comment": "Fix: Alias unknown ref crash"
+          },
+          {
+            "comment": "Fix: Empty model expression assignable to array"
+          },
+          {
+            "comment": "Fix `tsp code uninstall` not finding extension to uninstall."
+          },
+          {
+            "comment": "Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation."
+          },
+          {
+            "comment": "Prevent use of augment decorators on instantiated templates."
+          },
+          {
+            "comment": "Allow projectedNames helpers to work with previous projections"
+          },
+          {
+            "comment": "Add helper `interpolatePath` for emitter to do additional interpolation on config properties"
+          },
+          {
+            "comment": "Api: Update `getTypeName` to omit standard library namespace"
+          },
+          {
+            "comment": "Allow overloads in interfaces to work under projection"
+          },
+          {
+            "comment": "Add pre-projection support."
+          },
+          {
+            "comment": "Provide access to extended interfaces in type graph."
+          },
+          {
+            "comment": "Document member ordering and fix projection rename reordering."
+          },
+          {
+            "comment": "Replaced zonedDateTime with utcDateTime and offsetDateTime"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.42.0",
+      "tag": "@typespec/compiler_v0.42.0",
+      "date": "Mon, 13 Mar 2023 21:30:44 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**Breaking Change**. Removes `emitters` option in cadl-project.yaml. Use `emit` and `options` instead."
+          },
+          {
+            "comment": "Export formatIdentifier function from the lib"
+          },
+          {
+            "comment": "Add `--config` option to `tsp compile`."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.41.0",
+      "tag": "@typespec/compiler_v0.41.0",
+      "date": "Fri, 03 Mar 2023 19:59:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Adding back all compiler exported public artifacts contains Cadl that got renamed to TypeSpec."
+          },
+          {
+            "comment": "Fix ambiguous references diagnostic for decorators"
+          },
+          {
+            "comment": "Add loading cadl-project.yaml for back compat"
+          },
+          {
+            "comment": "Remove support for Visual Studio 2019"
+          },
+          {
+            "comment": "Allow escaping identifiers using backticks"
+          },
+          {
+            "comment": "Format `StringLiteral` to `Identifier` (backticked when necessary)"
+          },
+          {
+            "comment": "Apply augmented decorator at last."
+          },
+          {
+            "comment": "Adding .cadl & package.json cadlMain back compat support"
+          },
+          {
+            "comment": "Fix projection of template arguments"
+          },
+          {
+            "comment": "Revert back changelog"
+          },
+          {
+            "comment": "Revert PR #1634."
+          },
+          {
+            "comment": "Fix issue with projectedName decorator not working correctly when multiple copies of the compiler are loaded."
+          },
+          {
+            "comment": "Updating default output to tsp-output and package.json entrypoint to tspMain"
+          },
+          {
+            "comment": "Rename to TypeSpec"
+          },
+          {
+            "comment": "Fixing cli help message, package homepage link"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.5.0` to `~0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.3.3` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.2` to `~0.4.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.40.0",
+      "tag": "@cadl-lang/compiler_v0.40.0",
+      "date": "Tue, 07 Feb 2023 21:56:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix giving a default value to custom numeric scalar"
+          },
+          {
+            "comment": "Feature: add an emitter framework to simplify building emitters"
+          },
+          {
+            "comment": "Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter"
+          },
+          {
+            "comment": "Bug: properly parse logical and (`&&`) expressions in projections"
+          },
+          {
+            "comment": "Support --option=path/to/emitter.js.option=value in cli args"
+          },
+          {
+            "comment": "Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.39.0",
+      "tag": "@cadl-lang/compiler_v0.39.0",
+      "date": "Fri, 13 Jan 2023 00:05:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Api: Provide more accurate `parent` type for Nodes"
+          },
+          {
+            "comment": "Add IDE completion and signature help for augment decorators"
+          },
+          {
+            "comment": "Fix `(anonymous model).paramName` showing in operation signatures in IDE"
+          },
+          {
+            "comment": "Add double quote to autoClosingPairs"
+          },
+          {
+            "comment": "Only warn when an invalid identifier is used in a doc comment"
+          },
+          {
+            "comment": "Add @minValueExclusive and @maxValueExclusive decorators."
+          },
+          {
+            "comment": "Feature: Templated operation inside of interfaces"
+          },
+          {
+            "comment": "Feature: Add templated operation inside of interface"
+          },
+          {
+            "comment": "Fix: Alias cause types to be resolved before some binding"
+          },
+          {
+            "comment": "Fix `cadl format` works with windows backslash paths"
+          },
+          {
+            "comment": "[Language Server] Fix: Completion of library imports replace import correctly\""
+          },
+          {
+            "comment": "Fix issue with using server lib at the root of filesystem"
+          },
+          {
+            "comment": "Fix: Projecting model property with type referencing sibling"
+          },
+          {
+            "comment": "Fix: Issue with referencing spread members"
+          },
+          {
+            "comment": "Internal: Update resolution of member symbols to have more ahead of time resolution"
+          },
+          {
+            "comment": "Internal: Update TS module resolution to node16"
+          },
+          {
+            "comment": "Type graph navigation navigate decorators"
+          },
+          {
+            "comment": "Internal: Refactor organization of completions logic for language server"
+          },
+          {
+            "comment": "Fix issue with referencing spread properties or enum member depending on the order of declaration"
+          },
+          {
+            "comment": "Fix: `resolveUsages` shouldn't include base model"
+          },
+          {
+            "comment": "Added `changeReturnType` projection method for operations."
+          },
+          {
+            "comment": "Improve visibility decorator documentation"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.2` to `~0.3.3`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.38.5",
       "tag": "@cadl-lang/compiler_v0.38.5",

@@ -36,10 +36,10 @@ function getVersionLabels() {
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Cadl",
-  tagline: "API first with Cadl for Azure services",
+  title: "TypeSpec",
+  tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
-  baseUrl: process.env.CADL_WEBSITE_BASE_PATH ?? "/",
+  baseUrl: process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
@@ -47,7 +47,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "Microsoft", // Usually your GitHub org/user name.
-  projectName: "cadl", // Usually your repo name.
+  projectName: "typespec", // Usually your repo name.
   trailingSlash: false,
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -83,13 +83,13 @@ const config = {
       }),
     ],
   ],
-  staticDirectories: [resolve(__dirname, "./node_modules/@cadl-lang/spec/dist")],
+  staticDirectories: [resolve(__dirname, "./node_modules/@typespec/spec/dist")],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: "Cadl",
+        title: "TypeSpec",
         items: [
           {
             type: "doc",
@@ -108,7 +108,7 @@ const config = {
             position: "right",
           },
           {
-            href: "https://github.com/Microsoft/cadl",
+            href: "https://github.com/Microsoft/typespec",
             position: "right",
             className: "header-github-link",
             "aria-label": "Github repository",
@@ -136,11 +136,11 @@ const config = {
         //     items: [
         //       {
         //         label: "Stack Overflow",
-        //         href: "https://stackoverflow.microsoft.com/search?q=cadl",
+        //         href: "https://stackoverflow.microsoft.com/search?q=typespec",
         //       },
         //       {
         //         label: "Microsoft Teams Channel",
-        //         href: "http://aka.ms/cadl/discussions",
+        //         href: "http://aka.ms/typespec/discussions",
         //       },
         //     ],
         //   },
@@ -155,9 +155,9 @@ const config = {
       mermaid: {},
       algolia: {
         // cspell:disable-next-line
-        appId: "WQXW45O51C",
-        apiKey: "9bfd71f94d516117e3022e788f2cc83c",
-        indexName: "cadl",
+        appId: "V3T9EUVLJR",
+        apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
+        indexName: "typespec",
       },
     }),
 };

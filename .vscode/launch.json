@@ -71,7 +71,7 @@
         "compile",
         "../samples/scratch",
         "--output-dir=temp/scratch-output",
-        "--emit=@cadl-lang/openapi3"
+        "--emit=@typespec/openapi3"
       ],
       "smartStep": true,
       "sourceMaps": true,
@@ -106,9 +106,9 @@
     {
       "name": "Regenerate .tmlanguage",
       "type": "node",
-      "program": "${workspaceFolder}/packages/cadl-vscode/scripts/generate-tmlanguage.js",
+      "program": "${workspaceFolder}/packages/typespec-vscode/scripts/generate-tmlanguage.js",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cadl-vscode",
+      "cwd": "${workspaceFolder}/packages/typespec-vscode",
       "presentation": {
         "order": 999
       }
@@ -117,24 +117,43 @@
       "name": "VS Code Extension (Client)",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/cadl-vscode"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/typespec-vscode"],
       "env": {
         // Log elapsed time for each call to server.
-        //"CADL_SERVER_LOG_TIMING": "true",
+        //"TYPESPEC_SERVER_LOG_TIMING": "true",
 
         // Save .cpuprofile for last run of each server function here
         // NOTE: This will add a lot of lag so don't trust logged timing if also enabled above.
-        //"CADL_SERVER_PROFILE_DIR": "${workspaceRoot}/temp",
+        //"TYPESPEC_SERVER_PROFILE_DIR": "${workspaceRoot}/temp",
 
         // Use empty node options and don't debug while profiling to get the most accurate timing
-        //"CADL_SERVER_NODE_OPTIONS": "",
+        //"TYPESPEC_SERVER_NODE_OPTIONS": "",
 
-        "CADL_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
-        "CADL_DEVELOPMENT_MODE": "true"
+        "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
+        "TYPESPEC_DEVELOPMENT_MODE": "true"
       },
       "presentation": {
         "hidden": true
       }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug TypeSpec Migrate",
+      "program": "${workspaceFolder}/packages/migrate/dist/src/cli.js",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "cwd": "C:/Github/Sandbox/playground/cadl/migrate/0.37"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Docs Generation",
+      "program": "${workspaceFolder}/packages/website/.scripts/regen-ref-docs.mjs",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"]
     }
   ],
   "compounds": [

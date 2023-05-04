@@ -1,13 +1,13 @@
 import { access, readFile, realpath, stat } from "fs/promises";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
-import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
+import { ResolveModuleHost, resolveModule } from "../core/module-resolver.js";
 
 /**
- * Run script given by relative path from @cadl-lang/compiler package root.
+ * Run script given by relative path from @typespec/compiler package root.
  * Prefer local install resolved from cwd over current package.
  *
- * Prevents loading two conflicting copies of Cadl modules from global and
+ * Prevents loading two conflicting copies of TypeSpec modules from global and
  * local package locations.
  */
 export async function runScript(relativePath: string, backupPath: string): Promise<void> {
@@ -22,7 +22,7 @@ export async function runScript(relativePath: string, backupPath: string): Promi
     await import(scriptUrl);
   } else {
     throw new Error(
-      "Couldn't resolve Cadl compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/cadl."
+      "Couldn't resolve TypeSpec compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/typespec."
     );
   }
 }
@@ -34,7 +34,7 @@ function checkFileExists(file: string) {
 }
 
 async function resolvePackageRoot(): Promise<string> {
-  if (process.env.CADL_SKIP_COMPILER_RESOLVE === "1") {
+  if (process.env.TYPESPEC_SKIP_COMPILER_RESOLVE === "1") {
     return await getThisPackageRoot();
   }
 
@@ -44,12 +44,12 @@ async function resolvePackageRoot(): Promise<string> {
       readFile: async (path: string) => await readFile(path, "utf-8"),
       stat,
     };
-    const resolved = await resolveModule(host, "@cadl-lang/compiler", {
+    const resolved = await resolveModule(host, "@typespec/compiler", {
       baseDir: process.cwd(),
     });
     if (resolved.type !== "module") {
       throw new Error(
-        `Error resolving "@cadl-lang/compiler", expected to find a node module but found a file: "${resolved.path}".`
+        `Error resolving "@typespec/compiler", expected to find a node module but found a file: "${resolved.path}".`
       );
     }
     return resolved.path;

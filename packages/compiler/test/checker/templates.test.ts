@@ -3,12 +3,12 @@ import { getSourceLocation } from "../../core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: templates", () => {
@@ -27,8 +27,8 @@ describe("compiler: templates", () => {
   }
 
   it("emit diagnostics when using template params on non templated model", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         model A {}
         model B { 
@@ -36,7 +36,7 @@ describe("compiler: templates", () => {
         };
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Can't pass template arguments to non-templated type");
@@ -48,8 +48,8 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics when using template without passing any arguments", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         model A<T> {}
         model B { 
@@ -57,7 +57,7 @@ describe("compiler: templates", () => {
         };
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Too few template arguments provided.");
@@ -69,8 +69,8 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics when using template with too many arguments", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         model A<T> {}
         model B { 
@@ -78,7 +78,7 @@ describe("compiler: templates", () => {
         };
       `
     );
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Too many template arguments provided.");
@@ -91,8 +91,8 @@ describe("compiler: templates", () => {
   });
 
   it("allows default template parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T, U = "hi"> { a: T, b: U }
         model B { 
@@ -101,7 +101,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
@@ -111,8 +111,8 @@ describe("compiler: templates", () => {
   });
 
   it("allows default template parameters that are models", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T = string> { a: T }
         model B { 
@@ -121,15 +121,15 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const a = A.properties.get("a")!;
     strictEqual(a.type.kind, "Scalar");
-    strictEqual((a.type as Model).name, "string");
+    strictEqual(a.type.name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         model Foo<A = string, B=string> { a: A, b: B }
         @test model Test { 
@@ -140,7 +140,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+    const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
     const a = Test.properties.get("a")!;
     const b = Test.properties.get("b")!;
     const c = Test.properties.get("c")!;
@@ -149,8 +149,8 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics when using too few template parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T, U, V = "hi"> { a: T, b: U, c: V }
         model B { 
@@ -159,33 +159,33 @@ describe("compiler: templates", () => {
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Too few template arguments provided.");
   });
 
   it("emits diagnostics when non-defaulted template parameter comes after defaulted one", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T = "hi", U> { a: T, b: U }
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, { code: "default-required" });
   });
 
   it("emits diagnostics when defaulted template use later template parameter", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<A = B, B = "hi"> { a: A, b: B }
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -194,14 +194,14 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics when defaulted template use later template parameter in complex type", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<A = "one" | B, B = "hi"> { a: A, b: B }
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -210,14 +210,14 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics for template parameter defaults that are incorrect", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T = Record> { a: T }
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-args",
       message: "Too few template arguments provided.",
@@ -233,12 +233,12 @@ describe("compiler: templates", () => {
     
     alias NoConstaint<T> = Bar<┆T>;
   `);
-      testHost.addCadlFile("main.cadl", source);
-      const diagnostics = await testHost.diagnose("main.cadl");
+      testHost.addTypeSpecFile("main.tsp", source);
+      const diagnostics = await testHost.diagnose("main.tsp");
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'Cadl.object'",
+        message: "Type 'unknown' is not assignable to type 'object'",
         pos,
       });
     });
@@ -249,20 +249,20 @@ describe("compiler: templates", () => {
 
     op foo is Action<┆"abc">;
   `);
-      testHost.addCadlFile("main.cadl", source);
-      const diagnostics = await testHost.diagnose("main.cadl");
+      testHost.addTypeSpecFile("main.tsp", source);
+      const diagnostics = await testHost.diagnose("main.tsp");
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'abc' is not assignable to type 'Cadl.object'",
+        message: "Type 'abc' is not assignable to type 'object'",
         pos,
       });
     });
   });
 
   it("can reference other parameters", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T, X = T> { a: T, b: X }
         model B { 
@@ -271,7 +271,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
@@ -281,8 +281,8 @@ describe("compiler: templates", () => {
   });
 
   it("can reference other parameters in default in a model expression", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T, X = {t: T}> { b: X }
         model B { 
@@ -291,7 +291,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
     const t = b.type.properties.get("t")!.type;
@@ -300,8 +300,8 @@ describe("compiler: templates", () => {
   });
 
   it("can reference other parameters in default via another template", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T, X = Foo<T>> { b: X }
         model B { 
@@ -314,7 +314,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
+    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
     const t = b.type.properties.get("t")!.type;
@@ -323,8 +323,8 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics if referencing itself", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T = T> { a: T }
         model B { 
@@ -333,7 +333,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -342,8 +342,8 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics if args reference each other", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T = K, K = T> { a: T }
         model B { 
@@ -352,7 +352,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -361,8 +361,8 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics if referencing itself nested", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
+    testHost.addTypeSpecFile(
+      "main.tsp",
       `
         @test model A<T = {foo: T}> { a: T }
         model B { 
@@ -371,7 +371,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -409,7 +409,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type '123' is not assignable to type 'Cadl.string'",
+        message: "Type '123' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -426,7 +426,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type '456' is not assignable to type 'Cadl.string'",
+        message: "Type '456' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -453,7 +453,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'Cadl.string'",
+        message: "Type 'unknown' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -466,15 +466,15 @@ describe("compiler: templates", () => {
         $mark: () => fail("Should not have called decorator"),
       });
 
-      testHost.addCadlFile(
-        "main.cadl",
+      testHost.addTypeSpecFile(
+        "main.tsp",
         `
       import "./mark.js";
       ${code}
      `
       );
 
-      await testHost.compile("main.cadl");
+      await testHost.compile("main.tsp");
     }
 
     it("on model", async () => {

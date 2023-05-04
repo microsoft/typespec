@@ -1,6 +1,20 @@
-# Change Log - @cadl-lang/internal-build-utils
+# Change Log - @typespec/internal-build-utils
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Mar 2023 19:59:17 GMT and should not be manually modified.
+
+## 0.4.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Minor changes
+
+- Rename to TypeSpec
+
+## 0.3.3
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Patches
+
+- Update preview release script to work with pinned versions
 
 ## 0.3.2
 Wed, 07 Dec 2022 17:21:52 GMT

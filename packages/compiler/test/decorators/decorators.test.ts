@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
+import { Model, Operation, Scalar, getVisibility, isSecret } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -138,7 +138,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'Cadl.string'`,
+        message: `Argument '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -188,7 +188,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
       strictEqual(
         diagnostics[0].message,
-        `Cannot apply @error decorator to A since it is not assignable to Cadl.object`
+        `Cannot apply @error decorator to A since it is not assignable to Model`
       );
     });
   });
@@ -235,7 +235,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
       });
     });
 
@@ -265,7 +265,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.string | Cadl.numeric | Cadl.Reflection.ModelProperty",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
       });
     });
 
@@ -278,7 +278,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' is not assignable to parameter of type 'Cadl.Reflection.Enum'",
+        message: "Argument 'Foo' is not assignable to parameter of type 'Enum'",
       });
     });
   });
@@ -295,7 +295,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'Cadl.string'",
+          message: "Argument '4' is not assignable to parameter of type 'string'",
         },
       ]);
     });
@@ -309,8 +309,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message:
-            "Cannot apply @key decorator to M since it is not assignable to Cadl.Reflection.ModelProperty",
+          message: "Cannot apply @key decorator to M since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -509,8 +508,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument 'foo' is not assignable to parameter of type 'Cadl.Reflection.Operation'",
+        message: "Argument 'foo' is not assignable to parameter of type 'Operation'",
         severity: "error",
       });
     });
@@ -538,7 +536,7 @@ describe("compiler: built-in decorators", () => {
         },
         {
           code: "unassignable",
-          message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.string | Cadl.int32'",
+          message: "Type 'boolean' is not assignable to type 'string | int32'",
           severity: "error",
         },
       ]);
@@ -777,7 +775,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @secret decorator to A since it is not assignable to Cadl.string | Cadl.Reflection.ModelProperty",
+          "Cannot apply @secret decorator to A since it is not assignable to string | ModelProperty",
       });
     });
 
@@ -793,7 +791,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @secret decorator to A since it is not assignable to Cadl.string | Cadl.Reflection.ModelProperty",
+          "Cannot apply @secret decorator to A since it is not assignable to string | ModelProperty",
       });
     });
 

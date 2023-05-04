@@ -5,10 +5,11 @@ import {
   Interface,
   Model,
   Operation,
+  Scalar,
   Union,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 
-export type CadlRefDoc = {
+export type TypeSpecRefDoc = {
   namespaces: NamespaceRefDoc[];
 };
 
@@ -20,6 +21,7 @@ export type NamespaceRefDoc = {
   models: ModelRefDoc[];
   enums: EnumRefDoc[];
   unions: UnionRefDoc[];
+  scalars: ScalarRefDoc[];
 };
 
 export type NamedTypeRefDoc = {
@@ -82,6 +84,12 @@ export type EnumRefDoc = NamedTypeRefDoc & {
 
 export type UnionRefDoc = NamedTypeRefDoc & {
   type: Union;
+
+  templateParameters?: TemplateParameterRefDoc[];
+};
+
+export type ScalarRefDoc = NamedTypeRefDoc & {
+  type: Scalar;
 
   templateParameters?: TemplateParameterRefDoc[];
 };

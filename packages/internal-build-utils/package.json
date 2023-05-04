@@ -1,25 +1,25 @@
 {
-  "name": "@cadl-lang/internal-build-utils",
-  "version": "0.3.2",
+  "name": "@typespec/internal-build-utils",
+  "version": "0.4.0",
   "author": "Microsoft Corporation",
-  "description": "Internal library to Cadl providing helpers to build.",
-  "homepage": "https://github.com/Azure/cadl",
-  "readme": "https://github.com/Azure/cadl/blob/master/README.md",
+  "description": "Internal library to TypeSpec providing helpers to build.",
+  "homepage": "https://microsoft.github.io/typespec",
+  "readme": "https://github.com/Azure/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/cadl.git"
+    "url": "git+https://github.com/Azure/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/cadl/issues"
+    "url": "https://github.com/Azure/typespec/issues"
   },
   "keywords": [
-    "cadl"
+    "typespec"
   ],
   "type": "module",
   "main": "dist/src/index.js",
   "bin": {
-    "cadl-build-tool": "cmd/cli.js"
+    "typespec-build-tool": "cmd/cli.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -34,27 +34,27 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
-    "lib/*.cadl",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "dependencies": {
-    "yargs": "~17.6.2",
-    "strip-json-comments": "~4.0.0",
-    "cspell": "~6.14.3"
+    "yargs": "~17.7.1",
+    "strip-json-comments": "~5.0.0",
+    "cspell": "~6.31.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.5.0",
-    "eslint": "^8.12.0",
-    "mocha": "~10.1.0",
+    "@types/yargs": "~17.0.24",
+    "@typespec/eslint-config-typespec": "~0.6.0",
+    "eslint": "^8.36.0",
+    "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.12.0",
-    "rimraf": "~3.0.2",
-    "typescript": "~4.9.3",
+    "c8": "~7.13.0",
+    "rimraf": "~5.0.0",
+    "typescript": "~5.0.2",
     "chokidar": "~3.5.3"
   }
 }

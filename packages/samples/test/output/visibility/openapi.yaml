@@ -4,30 +4,6 @@ info:
   version: '0000-00-00'
 tags: []
 paths:
-  /hello/{id}:
-    get:
-      operationId: Hello_read
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: fieldMask
-          in: query
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
   /hello:
     post:
       operationId: Hello_create
@@ -38,14 +14,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/WritablePersonCreate'
+              $ref: '#/components/schemas/WritablePerson'
     put:
       operationId: Hello_update
       parameters: []
@@ -55,14 +29,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/WriteableOptionalPerson'
+              $ref: '#/components/schemas/WriteableOptionalPerson'
     get:
       operationId: Hello_list
       parameters: []
@@ -77,12 +49,11 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref:
-                        value: '#/components/schemas/PersonReadItem'
-                    x-cadl-name: Person[]
+                      $ref: '#/components/schemas/Person'
+                    x-typespec-name: Person[]
                 required:
                   - items
-                x-cadl-name: ListResult<Person>
+                x-typespec-name: ListResult<Person>
     patch:
       operationId: Hello_updateRest
       parameters: []
@@ -92,17 +63,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ReadablePersonRead'
+                $ref: '#/components/schemas/ReadablePerson'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/PersonUpdate'
+              $ref: '#/components/schemas/PersonUpdate'
+  /hello/{id}:
+    get:
+      operationId: Hello_read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fieldMask
+          in: query
+          style: form
+          explode: true
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadablePerson'
 components:
   schemas:
-    ReadablePersonRead:
+    OptionalPerson:
       type: object
       properties:
         id:
@@ -117,13 +111,138 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeReadItem'
-          x-cadl-name: PersonRelative[]
+            $ref: '#/components/schemas/PersonRelative'
+          x-typespec-name: PersonRelative[]
+    Person:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelative'
+          x-typespec-name: PersonRelative[]
       required:
         - id
         - name
         - test
+        - other
+        - relatives
+    PersonCreateItem:
+      type: object
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
+          x-typespec-name: PersonRelative[]
+      required:
+        - secret
+        - name
+        - test
+        - relatives
+    PersonCreateOrUpdateItem:
+      type: object
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
+          x-typespec-name: PersonRelative[]
+      required:
+        - secret
+        - name
+        - test
+        - other
+        - relatives
+    PersonRelative:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        relationship:
+          type: string
+      required:
+        - person
+        - relationship
+    PersonRelativeCreateItem:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonCreateItem'
+        relationship:
+          type: string
+      required:
+        - person
+        - relationship
+    PersonRelativeCreateOrUpdateItem:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonCreateOrUpdateItem'
+        relationship:
+          type: string
+      required:
+        - person
+        - relationship
+    PersonRelativeUpdateItem:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonUpdateItem'
+        relationship:
+          type: string
+      required:
+        - person
+        - relationship
+    PersonUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeUpdateItem'
+          x-typespec-name: PersonRelative[]
+    PersonUpdateItem:
+      type: object
+      properties:
+        name:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeUpdateItem'
+          x-typespec-name: PersonRelative[]
+      required:
+        - name
         - other
         - relatives
     ReadablePerson:
@@ -141,34 +260,13 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
+            $ref: '#/components/schemas/PersonRelative'
+          x-typespec-name: PersonRelative[]
       required:
         - id
         - name
         - test
         - other
-        - relatives
-    WritablePersonCreate:
-      type: object
-      properties:
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeCreateItem'
-          x-cadl-name: PersonRelative[]
-      required:
-        - secret
-        - name
-        - test
         - relatives
     WritablePerson:
       type: object
@@ -182,9 +280,8 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
+          x-typespec-name: PersonRelative[]
       required:
         - secret
         - name
@@ -202,171 +299,5 @@ components:
         relatives:
           type: array
           items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
-    PersonReadItem:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        test:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeReadItem'
-          x-cadl-name: PersonRelative[]
-      required:
-        - id
-        - name
-        - test
-        - other
-        - relatives
-    PersonUpdate:
-      type: object
-      properties:
-        name:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeUpdateItem'
-          x-cadl-name: PersonRelative[]
-    Person:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
-      required:
-        - id
-        - secret
-        - name
-        - test
-        - other
-        - relatives
-    PersonCreateItem:
-      type: object
-      properties:
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeCreateItem'
-          x-cadl-name: PersonRelative[]
-      required:
-        - secret
-        - name
-        - test
-        - relatives
-    PersonUpdateItem:
-      type: object
-      properties:
-        name:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelativeUpdateItem'
-          x-cadl-name: PersonRelative[]
-      required:
-        - name
-        - other
-        - relatives
-    PersonRelative:
-      type: object
-      properties:
-        person:
-          $ref:
-            value: '#/components/schemas/Person'
-        relationship:
-          type: string
-      required:
-        - person
-        - relationship
-    PersonRelativeReadItem:
-      type: object
-      properties:
-        person:
-          $ref:
-            value: '#/components/schemas/PersonReadItem'
-        relationship:
-          type: string
-      required:
-        - person
-        - relationship
-    PersonRelativeCreateItem:
-      type: object
-      properties:
-        person:
-          $ref:
-            value: '#/components/schemas/PersonCreateItem'
-        relationship:
-          type: string
-      required:
-        - person
-        - relationship
-    PersonRelativeUpdateItem:
-      type: object
-      properties:
-        person:
-          $ref:
-            value: '#/components/schemas/PersonUpdateItem'
-        relationship:
-          type: string
-      required:
-        - person
-        - relationship
-    OptionalPerson:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-        secret:
-          type: string
-        name:
-          type: string
-        test:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref:
-              value: '#/components/schemas/PersonRelative'
-          x-cadl-name: PersonRelative[]
+            $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
+          x-typespec-name: PersonRelative[]

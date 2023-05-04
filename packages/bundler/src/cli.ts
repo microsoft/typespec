@@ -2,11 +2,11 @@
 // Todo.
 
 import { resolve } from "path";
-import { bundleCadlLibrary } from "./bundler.js";
+import { bundleTypeSpecLibrary } from "./bundler.js";
 
 const name = process.argv[2];
 const libraryPath = resolve(`../${name}`);
-bundleCadlLibrary(libraryPath, resolve(process.cwd(), "output")).catch((e) => {
+bundleTypeSpecLibrary(libraryPath, resolve(process.cwd(), "output")).catch((e) => {
   // eslint-disable-next-line no-console
   console.error(e);
   process.exit(1);

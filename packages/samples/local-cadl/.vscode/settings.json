@@ -1,3 +1,0 @@
-{
-  "cadl.cadl-server.path": "${workspaceFolder}/node_modules/@cadl-lang/compiler"
-}

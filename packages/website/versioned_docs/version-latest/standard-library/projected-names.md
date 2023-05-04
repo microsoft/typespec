@@ -5,7 +5,7 @@ title: Projected names
 
 # Projected Names
 
-There is some cases where the name you have in Cadl might differ from the name over the wire or for a certain language.
+There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.
 
 ## Known targets
 
@@ -16,6 +16,7 @@ List of known targets.
   - `xml`: Configure XML representation of data
 - Language:
   - `csharp`: Configure C# generated code
+  - `java`: Configure Java generated code
   - `python`: Configure python generated code
   - `javascript`: Configure javascript generated code
   - `swift` : Configure swift generated code
@@ -28,14 +29,14 @@ List of known targets.
 
 ### With decorator
 
-To update the name of a Cadl entity you can use the `@projectedName` decorator. This decorator takes 2 parameters:
+To update the name of a TypeSpec entity you can use the `@projectedName` decorator. This decorator takes 2 parameters:
 
 - `string` target name. See [known targets](#known-targets)
 - `string` projected name. Whatever the name should be in the given target.
 
 Example:
 
-```cadl
+```typespec
 model Foo {
   // Specify that when serializing to JSON `expireAt` property should be named `exp`
   @projectedName("json", "exp")
@@ -47,7 +48,7 @@ model Foo {
 
 The decorator is just a syntax sugar for the `target` projection behind the scenes. In more complex cases you might want to just implement the projection manually.
 
-```cadl
+```typespec
 model Foo {
   expireAt: string;
 }
@@ -63,7 +64,7 @@ projection Foo#target {
 
 ## Example
 
-```cadl
+```typespec
 model CertificateAttributes {
   @projectedName("json", "nbf")
   @projectedName("csharp", "ValidAfter")
@@ -71,6 +72,8 @@ model CertificateAttributes {
 
   @projectedName("json", "exp")
   expires: int32;
+
+  @projectedName("client", "createdAt")
   created: int32;
   updated: int32;
 }
@@ -108,7 +111,7 @@ model CertificateAttributes {
 interface Attributes {
   notBefore: number;
   expires: number;
-  created: number;
+  createdAt: number;
   updated: number;
 }
 ```
@@ -126,7 +129,8 @@ class CertificateAttributes
   [JsonProperty("exp")]
   public int Expires {get; set;}
 
-  public int Created {get; set;}
+  [JsonProperty("created")]
+  public int CreatedAt {get; set;}
 
   public int Updated {get; set;}
 }

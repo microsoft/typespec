@@ -20,8 +20,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/HasOptional'
+                $ref: '#/components/schemas/HasOptional'
       requestBody:
         content:
           application/json:
@@ -49,7 +48,7 @@ components:
           type: array
           items:
             type: string
-          x-cadl-name: string[]
+          x-typespec-name: string[]
           default:
             - foo
             - bar
@@ -58,12 +57,11 @@ components:
           enum:
             - foo
             - bar
-          x-cadl-name: foo | bar
+          x-typespec-name: foo | bar
           default: foo
         optionalEnum:
           allOf:
-            - $ref:
-                value: '#/components/schemas/MyEnum'
+            - $ref: '#/components/schemas/MyEnum'
           default: a
     MyEnum:
       type: string

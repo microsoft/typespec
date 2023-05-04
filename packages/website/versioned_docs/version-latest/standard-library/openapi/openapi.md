@@ -4,18 +4,18 @@ title: Emitter operation
 
 # How the OpenAPI emitter works
 
-The OpenAPI emitter converts Cadl language elements into their natural OpenAPI expression as described below.
+The OpenAPI emitter converts TypeSpec language elements into their natural OpenAPI expression as described below.
 
 ## Servers
 
-If the Cadl file contains an [(Http) `@server` decorator](../rest/reference/decorators.md#@Cadl.Http.server)
+If the TypeSpec file contains an [(Http) `@server` decorator](../rest/reference/decorators.md#@TypeSpec.Http.server)
 the OpenAPI emitter will generate a `servers` object with the server URL, description, and variables specified in the decorator.
 
 You can specify multiple `@server` decorators to obtain multiple entries in the `servers` object.
 
 ## Operations
 
-Each Cadl operation becomes an OpenAPI operation.
+Each TypeSpec operation becomes an OpenAPI operation.
 
 The HTTP method for the operation is either explicitly specified with an [(Http) `@get`, `@post`, `@put`, `@patch`, or `@delete` decorator][http-verb-decorators] on the operation or it is inferred from the operation name and signature.
 
@@ -24,7 +24,7 @@ The `@route` decorator can also be specified on a namespace and/or an interface 
 When specified, the route for the enclosing namespace(s) and interface are prefixed to the operation route.
 
 [http-verb-decorators]: ../rest/reference/decorators.md
-[http-route-decorator]: ../rest/reference/decorators.md#@Cadl.Http.route
+[http-route-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.route
 
 The fields of the [OpenAPI Operation object][] are set as described below.
 
@@ -32,13 +32,13 @@ The fields of the [OpenAPI Operation object][] are set as described below.
 
 ### description
 
-The description field is set from the [(built-in) `@doc` decorator][doc-decorator] on the Cadl operation, and omitted when `@doc` is not present.
+The description field is set from the [(built-in) `@doc` decorator][doc-decorator] on the TypeSpec operation, and omitted when `@doc` is not present.
 
 [doc-decorator]: ../built-in-decorators.md#doc
 
 ### summary
 
-The summary field is set from the [(built-in) `@summary` decorator][summary-decorator] on the Cadl operation, and omitted when `@summary` is not present.
+The summary field is set from the [(built-in) `@summary` decorator][summary-decorator] on the TypeSpec operation, and omitted when `@summary` is not present.
 
 [summary-decorator]: ../built-in-decorators.md#summary
 
@@ -51,7 +51,7 @@ and otherwise is simple the operation name, prefixed with "<interface*name>*" wh
 
 ### parameters and requestBody
 
-The parameters of the Cadl operation are translated into the parameter list and requestBody for the OpenAPI operation.
+The parameters of the TypeSpec operation are translated into the parameter list and requestBody for the OpenAPI operation.
 
 The `in` field of a parameter is specified with an [(Http) `@query`, `@header`, or `@path` decorator][http-parameter-decorators].
 A parameter without one of these decorators is assumed to be passed in the request body.
@@ -60,11 +60,11 @@ The request body parameter can also be explicitly decorated with an [(Http) `@bo
 In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body.
 
 [http-parameter-decorators]: ../rest/reference/decorators.md#data-types
-[http-body-decorator]: ../rest/reference/decorators.md#@Cadl.Http.body
+[http-body-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.body
 
 The content of a (built-in) `@doc` decorator on a parameter will be set in the description.
 
-The Cadl parameter type will be translated into an appropriate OpenAPI schema for the parameter.
+The TypeSpec parameter type will be translated into an appropriate OpenAPI schema for the parameter.
 
 Likewise, the type of the body parameter(s) will be translated into an appropriate OpenAPI schema for the requestBody.
 The request body will use the "application/json" media type unless the body model includes an explicit `content-type`
@@ -74,7 +74,7 @@ See also [metadata](../rest/operations.md#metadata) for more advanced details.
 
 ### responses
 
-The return type(s) of the Cadl operation are translated into responses for the OpenAPI operation.
+The return type(s) of the TypeSpec operation are translated into responses for the OpenAPI operation.
 The status code for a response can be specified as a property in the return type model with the [(Http) `@statusCode` decorator][http-statuscode-decorator] (the property name is ignored).
 If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "default" response for the operation.
 The media type for a response will be "application/json" unless the return type model includes an explicit `content-type`
@@ -85,7 +85,7 @@ When a return type model has a property explicitly decorated with an [(Http) `@b
 is taken as the response body.
 In the absence of explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 
-[http-statuscode-decorator]: ../rest/reference/decorators.md#@Cadl.Http.statuscode
+[http-statuscode-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.statuscode
 [error-decorator]: ../built-in-decorators.md#error
 
 See also [metadata](../rest/operations.md#metadata) for more advanced details.
@@ -106,41 +106,42 @@ deprecated field is set to true.
 
 ### externalDocs
 
-If the Cadl operation has an [(OpenAPI) `@externalDocs` decorator](./reference/decorators.md#@OpenAPI.externaldocs) this will produce
+If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](./reference/decorators.md#@OpenAPI.externaldocs) this will produce
 an externalDocs field in the OpenAPI operation.
 
 ### Specification extensions
 
-Any extensions specified on the Cadl operation with the [(OpenAPI) `@extension` decorator](./reference/decorators.md#OpenAPI.extension)
+Any extensions specified on the TypeSpec operation with the [(OpenAPI) `@extension` decorator](./reference/decorators.md#OpenAPI.extension)
 are included in the emitted OpenAPI operation.
 
 ## Models and enums
 
-Models and enums are converted into schemas in the generated OpenAPI definition. Intrinsic types in Cadl are represented
-with a JSON Schema type that most closely matches the semantics of the Cadl type.
+Models and enums are converted into schemas in the generated OpenAPI definition. Intrinsic types in TypeSpec are represented
+with a JSON Schema type that most closely matches the semantics of the TypeSpec type.
 
 Models defined inline will result in an inline schema. Explicitly declared models will be defined in the `components/schemas`
-section with the Cadl name qualified by any enclosing namespaces.
+section with the TypeSpec name qualified by any enclosing namespaces.
 
 A special case is an instantiation of a model template, it is treated as an inline model unless the model template has
 a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
 
 [friendlyname]: ../built-in-decorators.md#friendlyname
 
-The following table shows how Cadl types are translated to JSON Schema types:
+The following table shows how TypeSpec types are translated to JSON Schema types:
 
-| Cadl type       | OpenAPI `type`/`format`           | Notes                                                                     |
-| --------------- | --------------------------------- | ------------------------------------------------------------------------- |
-| `int32`         | `type: integer, format: int32`    |                                                                           |
-| `int64`         | `type: integer, format: int64`    |                                                                           |
-| `float32`       | `type: number, format: float`     |                                                                           |
-| `float64`       | `type: number, format: double`    |                                                                           |
-| `string`        | `type: string`                    |                                                                           |
-| `bytes`         | `type: string, format: byte`      | for content-type == 'application/json' or 'text/plain'                    |
-| `bytes`         | `type: string, format: binary`    | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
-| `boolean`       | `type: boolean`                   |                                                                           |
-| `plainDate`     | `type: string, format: date`      |                                                                           |
-| `zonedDateTime` | `type: string, format: date-time` | RFC 3339 date                                                             |
+| TypeSpec type    | OpenAPI `type`/`format`           | Notes                                                                     |
+| ---------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| `int32`          | `type: integer, format: int32`    |                                                                           |
+| `int64`          | `type: integer, format: int64`    |                                                                           |
+| `float32`        | `type: number, format: float`     |                                                                           |
+| `float64`        | `type: number, format: double`    |                                                                           |
+| `string`         | `type: string`                    |                                                                           |
+| `bytes`          | `type: string, format: byte`      | for content-type == 'application/json' or 'text/plain'                    |
+| `bytes`          | `type: string, format: binary`    | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
+| `boolean`        | `type: boolean`                   |                                                                           |
+| `plainDate`      | `type: string, format: date`      |                                                                           |
+| `utcDateTime`    | `type: string, format: date-time` | RFC 3339 date in coordinated universal time (UTC)                         |
+| `offsetDateTime` | `type: string, format: date-time` | RFC 3339 date with timezone offset                                        |
 
 There are a variety of decorators that can modify or add metadata to the definitions produced in the generated OpenAPI.
 
@@ -168,21 +169,21 @@ For an array type:
 | `@minItems(value)` | built-in | `minItems: value`           |       |
 | `@maxItems(value)` | built-in | `maxItems: value`           |       |
 
-The OpenAPI emitter provides an [`@useRef` decorator](./reference/decorators.md#@OpenAPI.useref) which will replace the Cadl model type in emitter output
+The OpenAPI emitter provides an [`@useRef` decorator](./reference/decorators.md#@OpenAPI.useref) which will replace the TypeSpec model type in emitter output
 with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
 
 Example:
 
-```cadl
+```typespec
 @useRef("common.json#/components/schemas/Sku")
 model Sku {
 ...
 }
 ```
 
-Enums can be defined in Cadl with the [`enum` statement](../../language-basics/enums.md), e.g.:
+Enums can be defined in TypeSpec with the [`enum` statement](../../language-basics/enums.md), e.g.:
 
-```cadl
+```typespec
 enum Color {
   Red: "red",
   Blue: "blue",
@@ -192,7 +193,7 @@ enum Color {
 
 The union operator can also be used to define the enum values inline, e.g.:
 
-```cadl
+```typespec
 status: "Running" | "Stopped" | "Failed"
 ```
 
@@ -200,7 +201,7 @@ The OpenAPI emitter converts both of these into a schema definition containing a
 
 ### Model composition
 
-Cadl has several mechanisms for model composition and extension. The following describes how these are handled in the OpenAPI emitter.
+TypeSpec has several mechanisms for model composition and extension. The following describes how these are handled in the OpenAPI emitter.
 
 #### Spread
 
@@ -234,17 +235,17 @@ all the same properties as the model named by the `is` keyword, plus any propert
 
 Unions are another form of model composition.
 
-Unions can be defined in two different ways in Cadl. One way is with
+Unions can be defined in two different ways in TypeSpec. One way is with
 [the union type operator](../../language-basics/unions.md#union-expressions), `|`:
 
-```cadl
+```typespec
 alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
 ```
 
 The second way is with [the `union` statement](../../language-basics/unions.md#named-unions)
 which not only declares the variant models but also assigns a name for each.
 
-```cadl
+```typespec
 union GoodBreed {
   beagle: Beagle,
   shepherd: GermanShepherd,
@@ -260,13 +261,13 @@ that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Security Definitions
 
-The OpenAPI emitter takes the [(http) `@useAuth` decorator](../rest/reference/decorators.md#@Cadl.Http.useauth)
+The OpenAPI emitter takes the [(http) `@useAuth` decorator](../rest/reference/decorators.md#@TypeSpec.Http.useauth)
 
 ### Examples
 
 The following example shows how to define a security scheme for Azure Active Directory authentication:
 
-```cadl
+```typespec
 @useAuth(AADToken)
 namespace Contoso.WidgetManager;
 @doc("The Azure Active Directory OAuth2 Flow")

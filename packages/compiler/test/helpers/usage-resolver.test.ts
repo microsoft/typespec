@@ -137,7 +137,7 @@ describe("compiler: helpers: usage resolver", () => {
       op test(): Record<Bar>;
     `);
 
-    deepStrictEqual(usages, { inputs: [], outputs: ["Cadl.Record<Bar>", "Bar"] });
+    deepStrictEqual(usages, { inputs: [], outputs: ["Record<Bar>", "Bar"] });
   });
 
   it("track enum referenced in returnType", async () => {

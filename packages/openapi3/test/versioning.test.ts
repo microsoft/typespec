@@ -1,5 +1,5 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@cadl-lang/compiler";
-import { createTestWrapper } from "@cadl-lang/compiler/testing";
+import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
+import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
@@ -8,10 +8,15 @@ describe("openapi3: versioning", () => {
     const { v1, v2, v3 } = await openApiFor(
       `
       @versioned(Versions)
-      @versionedDependency([[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
-      @service({title: "My Service", version: "hi"})
+      @service({title: "My Service"})
       namespace MyService {
-        enum Versions {"v1", "v2", "v3"}
+        enum Versions {
+          @useDependency(MyLibrary.Versions.A)
+          "v1",
+          @useDependency(MyLibrary.Versions.B)
+          "v2",
+          @useDependency(MyLibrary.Versions.C)
+          "v3"}
         model Test {
           prop1: string;
           @added(Versions.v2) prop2: string;
@@ -45,10 +50,10 @@ describe("openapi3: versioning", () => {
       properties: {
         prop1: { type: "string" },
         prop3: { type: "string" },
-        prop5: { type: "string" },
         prop4: { type: "string" },
+        prop5: { type: "string" },
       },
-      required: ["prop1", "prop3", "prop5", "prop4"],
+      required: ["prop1", "prop3", "prop4", "prop5"],
     });
 
     deepStrictEqual(v1.components.schemas["MyLibrary.Foo"], {
@@ -65,10 +70,10 @@ describe("openapi3: versioning", () => {
       properties: {
         prop1: { type: "string" },
         prop2: { type: "string" },
-        prop5: { type: "string" },
         prop4: { type: "string" },
+        prop5: { type: "string" },
       },
-      required: ["prop1", "prop2", "prop5", "prop4"],
+      required: ["prop1", "prop2", "prop4", "prop5"],
     });
     deepStrictEqual(v2.components.schemas["MyLibrary.Foo"], {
       type: "object",
@@ -85,8 +90,8 @@ describe("openapi3: versioning", () => {
       properties: {
         prop1: { type: "string" },
         prop2: { type: "string" },
-        prop5: { type: "string" },
         prop4new: { type: "string" },
+        prop5: { type: "string" },
       },
       required: ["prop1", "prop2", "prop4new"],
     });
@@ -113,8 +118,8 @@ describe("openapi3: versioning", () => {
 
     const runner = createTestWrapper(host, {
       autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-      autoUsings: ["Cadl.Rest", "Cadl.Http", "OpenAPI", "Cadl.Versioning"],
-      compilerOptions: { emit: ["@cadl-lang/openapi3"] },
+      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "OpenAPI", "TypeSpec.Versioning"],
+      compilerOptions: { emit: ["@typespec/openapi3"] },
     });
 
     await runner.compile(`
@@ -125,7 +130,7 @@ describe("openapi3: versioning", () => {
     }
     @armNamespace
     @service({title: "Widgets 'r' Us"})
-    @versionedDependency(Contoso.Library.Versions.v1)
+    @useDependency(Contoso.Library.Versions.v1)
     namespace Contoso.WidgetService {
       model Widget {
         @key
@@ -142,7 +147,7 @@ describe("openapi3: versioning", () => {
     strictEqual(storedNamespace, "Contoso.WidgetService");
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/812
+  // Test for https://github.com/microsoft/typespec/issues/812
   it("doesn't throw errors when using UpdateableProperties", async () => {
     // if this test throws a duplicate name diagnostic, check that getEffectiveType
     // is returning the projected type.
@@ -157,7 +162,7 @@ describe("openapi3: versioning", () => {
       }
       
       @service({title: "Service"})
-      @versionedDependency(Library.Versions.v1)
+      @useDependency(Library.Versions.v1)
       namespace Service {
         model Widget {
           details?: WidgetDetails;
@@ -169,5 +174,79 @@ describe("openapi3: versioning", () => {
         }
       }
     `);
+  });
+
+  describe("versioned resource", () => {
+    it("reports diagnostic without crashing for mismatched versions", async () => {
+      const runner = await createOpenAPITestRunner({ withVersioning: true });
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        @service
+        namespace DemoService;
+
+        enum Versions { 
+          v1, 
+          v2 
+        }
+
+        model Toy {
+          @key id: string;
+        }
+
+        @added(Versions.v2)
+        model Widget { 
+          @key id: string; 
+        }
+
+        @error
+        model Error {
+          message: string;
+        }
+
+        @route("/toys")
+        interface Toys extends Resource.ResourceOperations<Toy, Error> {}
+
+        @route("/widgets")
+        interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+
+    it("succeeds for aligned versions", async () => {
+      const runner = await createOpenAPITestRunner({ withVersioning: true });
+      await runner.compile(`
+        @versioned(Versions)
+        @service
+        namespace DemoService;
+
+        enum Versions { 
+          v1, 
+          v2 
+        }
+
+        model Toy {
+          @key id: string;
+        }
+
+        @added(Versions.v2)
+        model Widget { 
+          @key id: string; 
+        }
+
+        @error
+        model Error {
+          message: string;
+        }
+
+        @route("/toys")
+        interface Toys extends Resource.ResourceOperations<Toy, Error> {}
+
+        @added(Versions.v2)
+        @route("/widgets")
+        interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
+    `);
+    });
   });
 });

@@ -1,27 +1,31 @@
 import prettier from "prettier";
-import * as cadlPrettierPlugin from "../formatter/index.js";
+import * as typespecPrettierPlugin from "../formatter/index.js";
+export { printId as formatIdentifier } from "../formatter/print/printer.js";
 
-export function formatCadl(code: string, prettierConfig?: prettier.Options): string {
+export function formatTypeSpec(code: string, prettierConfig?: prettier.Options): string {
   const output = prettier.format(code, {
     ...prettierConfig,
-    parser: "cadl",
-    plugins: [cadlPrettierPlugin],
+    parser: "typespec",
+    plugins: [typespecPrettierPlugin],
   });
 
   return output;
 }
 
+/** @deprecated use checkFormatTypeSpec */
+export const checkFormatCadl = checkFormatTypeSpec;
+
 /**
  * Check the given is correctly formatted.
  * @returns true if code is formatted correctly.
  */
-export async function checkFormatCadl(
+export async function checkFormatTypeSpec(
   code: string,
   prettierConfig?: prettier.Options
 ): Promise<boolean> {
   return prettier.check(code, {
     ...prettierConfig,
-    parser: "cadl",
-    plugins: [cadlPrettierPlugin],
+    parser: "typespec",
+    plugins: [typespecPrettierPlugin],
   });
 }

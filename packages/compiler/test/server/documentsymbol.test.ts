@@ -19,7 +19,7 @@ describe("compiler: server: SymbolInformation", () => {
 
   async function getSymbols(source: string): Promise<SimplifiedSymbol[]> {
     const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
+    const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
     const symbols = await testHost.server.getDocumentSymbols({
       textDocument,
     });

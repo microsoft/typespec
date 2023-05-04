@@ -1,6 +1,62 @@
-# Change Log - @cadl-lang/openapi3
+# Change Log - @typespec/openapi3
 
-This log was last generated on Wed, 07 Dec 2022 17:21:52 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Support shared routes.
+- Update to use new `interpolatePath` logic to resolve the `output-file`
+- Add tests for overloads within interfaces
+- Support new datetime types
+
+## 0.42.0
+Mon, 13 Mar 2023 21:30:44 GMT
+
+### Updates
+
+- Avoid Read suffix in schemas split by visibility.
+
+## 0.41.0
+Fri, 03 Mar 2023 19:59:17 GMT
+
+### Updates
+
+- Support additionalProperties
+- Stop treating models spread into parameters as unreferenced.
+- Revert back changelog
+- Use new `@typespec/http` library
+- Update package.json entrypoint to tspMain
+- Rename to TypeSpec
+- Update homepage link
+
+## 0.40.0
+Tue, 07 Feb 2023 21:56:17 GMT
+
+### Patches
+
+- Convert Ref objects to ref string in OpenAPI YAML output
+
+### Updates
+
+- Fix issue where operation parameters could not target a ModelProperty.
+- Sort OpenAPI 3 output
+- Don't emit extra "canonical" model when always impacted by visibility
+
+## 0.39.0
+Fri, 13 Jan 2023 00:05:26 GMT
+
+### Patches
+
+- Emit style & explode per encoding options
+- Generate recursive update schemas with optional properties for resource update operation
+
+### Updates
+
+- Add support for emitting exclusiveMinimum and exclusiveMaximum based on the corresponding decorators
+- **Breaking Change** Add yaml serialization for openapi output. Default has been changed to yaml. Use `file-type: json` or `output-file: myfile.json` to use json
 
 ## 0.38.0
 Wed, 07 Dec 2022 17:21:52 GMT

@@ -3,29 +3,32 @@ id: getting-started
 title: Getting Started
 ---
 
-# Getting Started with Cadl
+# Getting Started with TypeSpec
 
-<!-- cspell:ignore cadl, etag, openapi -->
+<!-- cspell:ignore typespec, etag, openapi -->
 
-Let's create a REST API definition with Cadl. Cadl has an official REST API "binding" called `@cadl-lang/rest`. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
+Let's create a REST API definition with TypeSpec. TypeSpec has an official REST API "binding" called `@typespec/rest`. It's a set of TypeSpec declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
 
-Cadl also has an official OpenAPI emitter called `@cadl-lang/openapi3` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
+TypeSpec also has an official OpenAPI emitter called `@typespec/openapi3` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
-The following examples assume you have imported both `@cadl-lang/openapi3` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention). For detailed library reference, please see rest library's [Readme.md](https://github.com/microsoft/cadl/blob/main/packages/rest/README.md).
+The following examples assume you have imported both `@typespec/openapi3` and `@typespec/rest` somewhere in your TypeSpec program (though importing them in `main.tsp` is the standard convention). For detailed library reference, please see rest library's [Readme.md](https://github.com/microsoft/typespec/blob/main/packages/rest/README.md).
 
 ## Service definition and metadata
 
-A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
+A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. TypeSpec offers the following decorators for providing this metadata, and all are optional.
 
 - @service - Mark a namespace as a service namespace. Takes in the following options:
   - `title`: Name of the service
   - `version`: Version of the service
-- @server - (In `Cadl.Http`) the host of the service. Can accept parameters.
+- @server - (In `TypeSpec.Http`) the host of the service. Can accept parameters.
 
 Here's an example that uses these to define a Pet Store service:
 
-```cadl
-@service({title: "Pet Store Service", version: "2021-03-25")
+```typespec
+@service({
+  title: "Pet Store Service",
+  version: "2021-03-25",
+})
 @server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
 namespace PetStore;
@@ -33,7 +36,7 @@ namespace PetStore;
 
 The `server` keyword can take a third parameter with parameters as necessary:
 
-```cadl
+```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
   @doc("Region name")
   region?: string = "westus",
@@ -44,8 +47,8 @@ The `server` keyword can take a third parameter with parameters as necessary:
 
 Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
 
-```cadl
-using Cadl.Http;
+```typespec
+using TypeSpec.Http;
 
 @route("/pets")
 namespace Pets {
@@ -55,7 +58,7 @@ namespace Pets {
 
 To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(): Pet[];
@@ -67,9 +70,7 @@ namespace Pets {
 
 ### Automatic route generation
 
-Instead of manually specifying routes using the `@route` decorator, you automatically generate
-routes from operation parameters by applying the `@autoRoute` decorator to an operation, namespace,
-or interface containing operations.
+Instead of manually specifying routes using the `@route` decorator, you automatically generate routes from operation parameters by applying the `@autoRoute` decorator to an operation or interface containing operations.
 
 For this to work, an operation's path parameters (those marked with `@path`) must also be marked with
 the `@segment` decorator to define the preceding path segment.
@@ -78,7 +79,7 @@ This is especially useful when reusing common parameter sets defined as model ty
 
 For example:
 
-```cadl
+```typespec
 model CommonParameters {
   @path
   @segment("tenants")
@@ -109,7 +110,7 @@ This will result in the following route for both operations
 
 Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` parameters respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
@@ -117,9 +118,9 @@ namespace Pets {
 }
 ```
 
-Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
+Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following TypeSpec. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
 
-```cadl
+```typespec
 @route("/pets/{petId}/toys")
 namespace PetToys {
   op list(@path petId: int32): Toy[];
@@ -130,7 +131,7 @@ namespace PetToys {
 
 Model properties and parameters that should be passed in a header use the `@header` decorator. The decorator takes the header name as a parameter. If a header name is not provided, it is inferred from the property or parameter name. Let's add `etag` support to our pet store's read operation.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
@@ -149,7 +150,7 @@ namespace Pets {
 
 Request and response bodies can be declared explicitly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
@@ -172,7 +173,7 @@ Note that in the absence of explicit `@body`:
 This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
 create in the same terse style by spreading the Pet object into the parameter list like this:
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   @post
@@ -184,7 +185,7 @@ namespace Pets {
 
 Use the `@header` decorator on a property named `statusCode` to declare a status code for a response. Generally, setting this to just `int32` isn't particularly useful. Instead, use number literal types to create a discriminated union of response types. Let's add status codes to our responses, and add a 404 response to our read endpoint.
 
-```cadl
+```typespec
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {

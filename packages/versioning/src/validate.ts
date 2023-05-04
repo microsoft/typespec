@@ -1,5 +1,6 @@
 import {
   getNamespaceFullName,
+  getService,
   getTypeName,
   isTemplateInstance,
   Namespace,
@@ -7,31 +8,31 @@ import {
   NoTarget,
   Program,
   Type,
-} from "@cadl-lang/compiler";
+} from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
+import { Version } from "./types.js";
 import {
   Availability,
   findVersionedNamespace,
   getAvailabilityMap,
+  getMadeOptionalOn,
+  getUseDependencies,
   getVersionDependencies,
   getVersions,
-  Version,
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
-  const namespaceDependencies = new Map();
+  const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
+
   function addDependency(source: Namespace | undefined, target: Type | undefined) {
-    if (target === undefined || !("namespace" in target) || target.namespace === undefined) {
+    if (!target || !("namespace" in target) || !target.namespace) {
       return;
     }
-    let set = namespaceDependencies.get(source);
-    if (set === undefined) {
-      set = new Set();
-      namespaceDependencies.set(source, set);
-    }
+    const set = namespaceDependencies.get(source) ?? new Set<Namespace>();
     if (target.namespace !== source) {
       set.add(target.namespace);
     }
+    namespaceDependencies.set(source, set);
   }
 
   navigateProgram(
@@ -42,6 +43,7 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
+        addDependency(model.namespace, model.sourceModel);
         addDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
           addDependency(model.namespace, prop.type);
@@ -51,18 +53,31 @@ export function $onValidate(program: Program) {
 
           // Validate model property -> type have correct versioning
           validateReference(program, prop, prop.type);
+
+          // Validate model property type is correct when madeOptional
+          validateMadeOptional(program, prop);
         }
       },
       union: (union) => {
+        // If this is an instantiated type we don't want to keep the mapping.
+        if (isTemplateInstance(union)) {
+          return;
+        }
         if (union.namespace === undefined) {
           return;
         }
-        for (const option of union.options.values()) {
-          addDependency(union.namespace, option);
+        for (const variant of union.variants.values()) {
+          addDependency(union.namespace, variant.type);
         }
       },
       operation: (op) => {
+        // If this is an instantiated type we don't want to keep the mapping.
+        if (isTemplateInstance(op)) {
+          return;
+        }
+
         const namespace = op.namespace ?? op.interface?.namespace;
+        addDependency(namespace, op.sourceOperation);
         addDependency(namespace, op.parameters);
         addDependency(namespace, op.returnType);
 
@@ -70,9 +85,27 @@ export function $onValidate(program: Program) {
           // Validate model -> property have correct versioning
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
-        validateTargetVersionCompatible(program, op, op.returnType);
+
+        validateReference(program, op, op.returnType);
+      },
+      interface: (iface) => {
+        for (const source of iface.sourceInterfaces) {
+          validateReference(program, iface, source);
+        }
       },
       namespace: (namespace) => {
+        const [_, versionMap] = getVersions(program, namespace);
+        const serviceProps = getService(program, namespace);
+        if (serviceProps?.version !== undefined && versionMap !== undefined) {
+          reportDiagnostic(program, {
+            code: "no-service-fixed-version",
+            format: {
+              name: getNamespaceFullName(namespace),
+              version: serviceProps.version,
+            },
+            target: namespace,
+          });
+        }
         const versionedNamespace = findVersionedNamespace(program, namespace);
         const dependencies = getVersionDependencies(program, namespace);
         if (dependencies === undefined) {
@@ -81,7 +114,13 @@ export function $onValidate(program: Program) {
 
         for (const [dependencyNs, value] of dependencies.entries()) {
           if (versionedNamespace) {
-            if (!(value instanceof Map)) {
+            const usingUseDependency = getUseDependencies(program, namespace, false) !== undefined;
+            if (usingUseDependency) {
+              reportDiagnostic(program, {
+                code: "incompatible-versioned-namespace-use-dependency",
+                target: namespace,
+              });
+            } else if (!(value instanceof Map)) {
               reportDiagnostic(program, {
                 code: "versioned-dependency-record-not-mapping",
                 format: { dependency: getNamespaceFullName(dependencyNs) },
@@ -99,6 +138,25 @@ export function $onValidate(program: Program) {
           }
         }
       },
+      enum: (en) => {
+        // construct the list of tuples in the old format if version
+        // information is placed in the Version enum members
+        const useDependencies = getUseDependencies(program, en);
+        if (!useDependencies) {
+          return;
+        }
+        for (const [depNs, deps] of useDependencies) {
+          const set = new Set<Namespace>();
+          if (deps instanceof Map) {
+            for (const val of deps.values()) {
+              set.add(val.namespace);
+            }
+          } else {
+            set.add(deps.namespace);
+          }
+          namespaceDependencies.set(depNs, set);
+        }
+      },
     },
     { includeTemplateDeclaration: true }
   );
@@ -113,7 +171,6 @@ function validateVersionedNamespaceUsage(
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
       const targetVersionedNamespace = findVersionedNamespace(program, target);
-
       if (
         targetVersionedNamespace !== undefined &&
         !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
@@ -145,6 +202,26 @@ function isSubNamespace(parent: Namespace, child: Namespace): boolean {
   return false;
 }
 
+function validateMadeOptional(program: Program, target: Type) {
+  if (target.kind === "ModelProperty") {
+    const madeOptionalOn = getMadeOptionalOn(program, target);
+    if (!madeOptionalOn) {
+      return;
+    }
+    // if the @madeOptional decorator is on a property it MUST be optional
+    if (!target.optional) {
+      reportDiagnostic(program, {
+        code: "made-optional-not-optional",
+        format: {
+          name: target.name,
+        },
+        target: target,
+      });
+      return;
+    }
+  }
+}
+
 interface IncompatibleVersionValidateOptions {
   isTargetADependent?: boolean;
 }
@@ -159,10 +236,23 @@ interface IncompatibleVersionValidateOptions {
 function validateReference(program: Program, source: Type, target: Type) {
   validateTargetVersionCompatible(program, source, target);
 
-  if (target.kind === "Model" && target.templateArguments) {
-    for (const param of target.templateArguments) {
+  if ("templateMapper" in target) {
+    for (const param of target.templateMapper?.args ?? []) {
       validateTargetVersionCompatible(program, source, param);
     }
+  }
+
+  switch (target.kind) {
+    case "Union":
+      for (const variant of target.variants.values()) {
+        validateTargetVersionCompatible(program, source, variant.type);
+      }
+      break;
+    case "Tuple":
+      for (const value of target.values) {
+        validateTargetVersionCompatible(program, source, value);
+      }
+      break;
   }
 }
 
@@ -215,9 +305,8 @@ function validateTargetVersionCompatible(
   if (!targetAvailability || !targetNamespace) return;
 
   if (sourceNamespace !== targetNamespace) {
-    const versionMap = getVersionDependencies(program, (source as any).namespace)?.get(
-      targetNamespace
-    );
+    const dependencies = getVersionDependencies(program, (source as any).namespace);
+    const versionMap = dependencies?.get(targetNamespace);
     if (versionMap === undefined) return;
 
     targetAvailability = translateAvailability(

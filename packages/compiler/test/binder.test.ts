@@ -20,6 +20,7 @@ import {
   SyntaxKind,
   UnionStatementNode,
 } from "../core/types.js";
+import { expectDiagnosticEmpty } from "../testing/expect.js";
 
 describe("compiler: binder", () => {
   let binder: Binder;
@@ -35,7 +36,7 @@ describe("compiler: binder", () => {
       }
       model D { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 3);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -66,7 +67,7 @@ describe("compiler: binder", () => {
         }
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 2);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -90,7 +91,7 @@ describe("compiler: binder", () => {
 
         }
 
-        op get1() { }
+        op get1(): void;
       }
 
       namespace A {
@@ -98,10 +99,10 @@ describe("compiler: binder", () => {
 
         }
 
-        op get2() { }
+        op get2(): void;
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 5);
     assertBindings("root", script.symbol.exports!, {
       test: {
@@ -138,7 +139,7 @@ describe("compiler: binder", () => {
 
       model B<Foo, Bar> { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -170,7 +171,7 @@ describe("compiler: binder", () => {
 
       enum B { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -195,9 +196,9 @@ describe("compiler: binder", () => {
         op Foo(): void;
       }
 
-      op Foo(): void
+      op Foo(): void;
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -225,7 +226,7 @@ describe("compiler: binder", () => {
 
       interface Bar<T, U> { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -259,7 +260,7 @@ describe("compiler: binder", () => {
 
       union Bar<T, U> { }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -293,7 +294,7 @@ describe("compiler: binder", () => {
 
       alias Bar<T, U> = { a: T, b: U };
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 1);
     assertBindings("root", script.symbol.exports!, {
       A: {
@@ -325,14 +326,14 @@ describe("compiler: binder", () => {
         to(a) { }
       }
       projection model#proj {
-        to(a) { },
+        to(a) { }
         from(a) { }
       }
       projection op#proj {
-        to(a) { },
+        to(a) { }
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     strictEqual(script.namespaces.length, 0);
     assertBindings("root", script.symbol.exports!, {
       proj: {
@@ -354,11 +355,11 @@ describe("compiler: binder", () => {
     const code = `
       projection model#proj {
         to() {
-          (a) => 1;
+          (a) => { 1; };
         }
       }
     `;
-    const script = bindCadl(code);
+    const script = bindTypeSpec(code);
     const lambdaNode = (
       (script.statements[0] as ProjectionStatementNode).to!
         .body[0] as ProjectionExpressionStatementNode
@@ -418,8 +419,9 @@ describe("compiler: binder", () => {
     });
   });
 
-  function bindCadl(code: string) {
+  function bindTypeSpec(code: string) {
     const sourceFile = parse(code);
+    expectDiagnosticEmpty(sourceFile.parseDiagnostics);
     binder.bindSourceFile(sourceFile);
     return sourceFile;
   }

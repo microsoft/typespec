@@ -2,28 +2,27 @@ import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
+  Token,
+  TokenDisplay,
+  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
   isTrivia,
-  Token,
-  TokenDisplay,
-  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
   AnyKeywordNode,
   AugmentDecoratorStatementNode,
   BooleanLiteralNode,
-  CadlScriptNode,
   Comment,
   DeclarationNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   Diagnostic,
-  DiagnosticReport,
+  DiagnosticReportWithoutTarget,
   DirectiveArgument,
   DirectiveExpressionNode,
   DocContent,
@@ -63,6 +62,7 @@ import {
   OperationStatementNode,
   ParseOptions,
   ProjectionBlockExpressionNode,
+  ProjectionEnumMemberSelectorNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
   ProjectionExpressionStatementNode,
@@ -72,6 +72,7 @@ import {
   ProjectionLambdaParameterDeclarationNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
+  ProjectionModelPropertySelectorNode,
   ProjectionModelSelectorNode,
   ProjectionModelSpreadPropertyNode,
   ProjectionNode,
@@ -81,6 +82,7 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
+  ProjectionUnionVariantSelectorNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -91,6 +93,7 @@ import {
   TextRange,
   TupleExpressionNode,
   TypeReferenceNode,
+  TypeSpecScriptNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
@@ -141,7 +144,7 @@ interface UnannotatedListKind extends ListKind {
 }
 
 /**
- * The fixed set of options for each of the kinds of delimited lists in Cadl.
+ * The fixed set of options for each of the kinds of delimited lists in TypeSpec.
  */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ListKind {
@@ -267,9 +270,9 @@ const enum ParseMode {
   Doc,
 }
 
-export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
+export function parse(code: string | SourceFile, options: ParseOptions = {}): TypeSpecScriptNode {
   const parser = createParser(code, options);
-  return parser.parseCadlScript();
+  return parser.parseTypeSpecScript();
 }
 
 export function parseStandaloneTypeReference(
@@ -282,7 +285,7 @@ export function parseStandaloneTypeReference(
 
 interface Parser {
   parseDiagnostics: Diagnostic[];
-  parseCadlScript(): CadlScriptNode;
+  parseTypeSpecScript(): TypeSpecScriptNode;
   parseStandaloneReferenceExpression(): TypeReferenceNode;
 }
 
@@ -302,14 +305,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   nextToken();
   return {
     parseDiagnostics,
-    parseCadlScript,
+    parseTypeSpecScript,
     parseStandaloneReferenceExpression,
   };
 
-  function parseCadlScript(): CadlScriptNode {
-    const statements = parseCadlScriptItemList();
+  function parseTypeSpecScript(): TypeSpecScriptNode {
+    const statements = parseTypeSpecScriptItemList();
     return {
-      kind: SyntaxKind.CadlScript,
+      kind: SyntaxKind.TypeSpecScript,
       statements,
       file: scanner.file,
       id: {
@@ -331,7 +334,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseCadlScriptItemList(): Statement[] {
+  function parseTypeSpecScriptItemList(): Statement[] {
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
@@ -643,7 +646,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier({
+      message: "property",
+      allowStringLiteral: true,
+    });
 
     parseExpected(Token.Colon);
 
@@ -682,7 +688,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
 
     const id = parseIdentifier();
-    const templateParameters = inInterface ? [] : parseTemplateParameterList();
+    const templateParameters = parseTemplateParameterList();
 
     // Make sure the next token is one that is expected
     const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
@@ -837,16 +843,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier({
+      message: "property",
+      allowStringLiteral: true,
+    });
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
     const value = parseExpression();
 
     const hasDefault = parseOptional(Token.Equals);
-    if (hasDefault && !optional) {
-      error({ code: "default-optional" });
-    }
     const defaultValue = hasDefault ? parseExpression() : undefined;
     return {
       kind: SyntaxKind.ModelProperty,
@@ -926,8 +932,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
-    const id =
-      token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("enumMember");
+    const id = parseIdentifier({
+      message: "enumMember",
+      allowStringLiteral: true,
+    });
 
     let value: StringLiteralNode | NumericLiteralNode | undefined;
     if (parseOptional(Token.Colon)) {
@@ -1195,19 +1203,37 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     recoverFromKeyword = true
   ): IdentifierNode | MemberExpressionNode {
     const pos = tokenPos();
-    let base: IdentifierNode | MemberExpressionNode = parseIdentifier(message, recoverFromKeyword);
-    while (parseOptional(Token.Dot)) {
-      base = {
-        kind: SyntaxKind.MemberExpression,
-        base,
-        // Error recovery: false arg here means don't treat a keyword as an
-        // identifier after `.` in member expression. Otherwise we will
-        // parse `@Outer.<missing identifier> model M{}` as having decorator
-        // `@Outer.model` applied to invalid statement `M {}` instead of
-        // having incomplete decorator `@Outer.` applied to `model M {}`.
-        id: parseIdentifier(undefined, false),
-        ...finishNode(pos),
-      };
+    let base: IdentifierNode | MemberExpressionNode = parseIdentifier({
+      message,
+      recoverFromKeyword,
+    });
+    while (token() !== Token.EndOfFile) {
+      if (parseOptional(Token.Dot)) {
+        base = {
+          kind: SyntaxKind.MemberExpression,
+          base,
+          // Error recovery: false arg here means don't treat a keyword as an
+          // identifier after `.` in member expression. Otherwise we will
+          // parse `@Outer.<missing identifier> model M{}` as having decorator
+          // `@Outer.model` applied to invalid statement `M {}` instead of
+          // having incomplete decorator `@Outer.` applied to `model M {}`.
+          id: parseIdentifier({
+            recoverFromKeyword: false,
+          }),
+          selector: ".",
+          ...finishNode(pos),
+        };
+      } else if (parseOptional(Token.ColonColon)) {
+        base = {
+          kind: SyntaxKind.MemberExpression,
+          base,
+          id: parseIdentifier(),
+          selector: "::",
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
     }
 
     return base;
@@ -1350,16 +1376,20 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseIdentifier(
-    message?: keyof CompilerDiagnostics["token-expected"],
-    recoverFromKeyword = true
-  ): IdentifierNode {
-    if (recoverFromKeyword && isKeyword(token())) {
+  function parseIdentifier(options?: {
+    message?: keyof CompilerDiagnostics["token-expected"];
+    allowStringLiteral?: boolean; // Allow string literals to be used as identifiers for backward-compatibility, but convert to an identifier node.
+    recoverFromKeyword?: boolean;
+  }): IdentifierNode {
+    if (options?.recoverFromKeyword !== false && isKeyword(token())) {
       error({ code: "reserved-identifier" });
-    } else if (token() !== Token.Identifier) {
+    } else if (
+      token() !== Token.Identifier &&
+      (!options?.allowStringLiteral || token() !== Token.StringLiteral)
+    ) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
-      error({ code: "token-expected", messageId: message ?? "identifier" });
+      error({ code: "token-expected", messageId: options?.message ?? "identifier" });
       return createMissingIdentifier();
     }
 
@@ -1493,7 +1523,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseFunctionParameter(): FunctionParameterNode {
     const pos = tokenPos();
     const rest = parseOptional(Token.Ellipsis);
-    const id = parseIdentifier("property");
+    const id = parseIdentifier({ message: "property" });
 
     const optional = parseOptional(Token.Question);
     let type;
@@ -1530,29 +1560,31 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
 
     parseExpected(Token.OpenBrace);
-    let from, to;
-    let proj1, proj2;
-    if (token() === Token.Identifier) {
-      proj1 = parseProjection();
 
-      if (token() === Token.Identifier) {
-        proj2 = parseProjection();
+    const projectionMap = new Map<string, ProjectionNode>();
+    const projections: ProjectionNode[] = [];
+    while (token() === Token.Identifier) {
+      const projection = parseProjection();
+      if (projection.direction !== "<error>") {
+        if (projectionMap.has(projection.direction)) {
+          error({ code: "duplicate-symbol", target: projection, format: { name: "projection" } });
+        } else {
+          projectionMap.set(projection.direction, projection);
+        }
       }
+      // NOTE: Don't drop projections with error in direction definition from the AST.
+      projections.push(projection);
     }
-
-    if (proj1 && proj2 && proj1.direction === proj2.direction) {
-      error({ code: "duplicate-symbol", target: proj2, format: { name: "projection" } });
-    } else if (proj1) {
-      [to, from] = proj1.direction === "to" ? [proj1, proj2] : [proj2, proj1];
-    }
-
     parseExpected(Token.CloseBrace);
 
     return {
       kind: SyntaxKind.ProjectionStatement,
       selector,
-      from,
-      to,
+      projections,
+      preTo: projectionMap.get("pre_to"),
+      preFrom: projectionMap.get("pre_from"),
+      from: projectionMap.get("from"),
+      to: projectionMap.get("to"),
       id,
       ...finishNode(pos),
     };
@@ -1560,20 +1592,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
-    const directionId = parseIdentifier("projectionDirection");
-    let direction: "to" | "from";
-    if (directionId.sv !== "from" && directionId.sv !== "to") {
+    let directionId = parseIdentifier({ message: "projectionDirection" });
+    let direction: "to" | "from" | "pre_to" | "pre_from" | "<error>";
+    const modifierIds: IdentifierNode[] = [];
+    let isPre = false;
+
+    if (directionId.sv === "pre") {
+      isPre = true;
+      modifierIds.push(directionId);
+      directionId = parseIdentifier({ message: "projectionDirection" });
+    }
+    if (directionId.sv !== "to" && directionId.sv !== "from") {
       error({ code: "token-expected", messageId: "projectionDirection" });
-      direction = "from";
+      direction = "<error>";
+    } else if (isPre) {
+      direction = directionId.sv === "to" ? "pre_to" : "pre_from";
     } else {
       direction = directionId.sv;
     }
+
     let parameters: ProjectionParameterDeclarationNode[];
     if (token() === Token.OpenParen) {
       parameters = parseList(ListKind.ProjectionParameter, parseProjectionParameter);
     } else {
       parameters = [];
     }
+
     parseExpected(Token.OpenBrace);
     const body: ProjectionStatementItem[] = parseProjectionStatementList();
     parseExpected(Token.CloseBrace);
@@ -1583,6 +1627,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       body,
       direction,
       directionId,
+      modifierIds,
       parameters,
       ...finishNode(pos),
     };
@@ -1679,7 +1724,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "&&",
           left: expr,
-          right: parseIdentifier(),
+          right: parseProjectionEqualityExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {
@@ -1898,7 +1943,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       case Token.UnknownKeyword:
         return parseUnknownKeyword();
       default:
-        return parseIdentifier("expression");
+        return parseIdentifier({ message: "expression" });
     }
   }
 
@@ -2000,16 +2045,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode {
-    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
+    const id = parseIdentifier({ message: "property", allowStringLiteral: true });
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
     const value = parseProjectionExpression();
 
     const hasDefault = parseOptional(Token.Equals);
-    if (hasDefault && !optional) {
-      error({ code: "default-optional" });
-    }
     const defaultValue = hasDefault ? parseProjectionExpression() : undefined;
     return {
       kind: SyntaxKind.ProjectionModelProperty,
@@ -2071,9 +2113,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
+    | ProjectionModelPropertySelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
-    | ProjectionEnumSelectorNode {
+    | ProjectionUnionVariantSelectorNode
+    | ProjectionEnumSelectorNode
+    | ProjectionEnumMemberSelectorNode {
     const pos = tokenPos();
     const selectorTok = expectTokenIsOneOf(
       Token.Identifier,
@@ -2086,7 +2131,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseIdentifierOrMemberExpression(undefined, true);
+        const id = parseIdentifierOrMemberExpression(undefined, true);
+        if (id.kind === SyntaxKind.Identifier) {
+          switch (id.sv) {
+            case "modelproperty":
+              return {
+                kind: SyntaxKind.ProjectionModelPropertySelector,
+                ...finishNode(pos),
+              };
+            case "unionvariant":
+              return {
+                kind: SyntaxKind.ProjectionUnionVariantSelector,
+                ...finishNode(pos),
+              };
+            case "enummember":
+              return {
+                kind: SyntaxKind.ProjectionEnumMemberSelector,
+                ...finishNode(pos),
+              };
+          }
+        }
+        return id;
       case Token.ModelKeyword:
         nextToken();
         return {
@@ -2167,7 +2232,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.EndOfFile:
           break loop;
         case Token.At:
-          tags.push(parseDocTag());
+          const tag = parseDocTag();
+          tags.push(tag);
           break;
         default:
           content.push(...parseDocContent());
@@ -2241,12 +2307,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseDocTag(): DocTag {
     const pos = tokenPos();
     parseExpected(Token.At);
-    const tagName = parseIdentifier();
+    const tagName = parseDocIdentifier("tag");
     switch (tagName.sv) {
       case "param":
-        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocParamTag);
+        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocParamTag, "param");
       case "template":
-        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocTemplateTag);
+        return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocTemplateTag, "templateParam");
       case "return":
       case "returns":
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocReturnsTag);
@@ -2258,9 +2324,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseDocParamLikeTag(
     pos: number,
     tagName: IdentifierNode,
-    kind: ParamLikeTag["kind"]
+    kind: ParamLikeTag["kind"],
+    messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
   ): ParamLikeTag {
-    const name = parseDocIdentifier();
+    const name = parseDocIdentifier(messageId);
     const content = parseDocContent();
     return {
       kind,
@@ -2269,11 +2336,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       content,
       ...finishNode(pos),
     };
-  }
-
-  function parseDocIdentifier() {
-    while (parseOptional(Token.Whitespace));
-    return parseIdentifier();
   }
 
   function parseDocSimpleTag(
@@ -2286,6 +2348,33 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       kind,
       tagName,
       content,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseDocIdentifier(
+    messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
+  ): IdentifierNode {
+    // We don't allow whitespace between @ and tag name, but allow
+    // whitespace before all other identifiers.
+    if (messageId !== "tag") {
+      while (parseOptional(Token.Whitespace));
+    }
+
+    const pos = tokenPos();
+    let sv: string;
+
+    if (token() === Token.Identifier) {
+      sv = tokenValue();
+      nextDocToken();
+    } else {
+      sv = "";
+      warning({ code: "doc-invalid-identifier", messageId });
+    }
+
+    return {
+      kind: SyntaxKind.Identifier,
+      sv,
       ...finishNode(pos),
     };
   }
@@ -2575,8 +2664,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     C extends keyof CompilerDiagnostics,
     M extends keyof CompilerDiagnostics[C] = "default"
   >(
-    report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target"> & {
-      target?: TextRange & { realPos?: number };
+    report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
+      target?: Partial<TextRange> & { realPos?: number };
       printable?: boolean;
     }
   ) {
@@ -2607,7 +2696,38 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target: location,
     } as any);
 
-    assert(diagnostic.severity === "error", "This function assumes it's reporting an error.");
+    assert(
+      diagnostic.severity === "error",
+      "This function is for reporting errors. Use warning() for warnings."
+    );
+
+    parseDiagnostics.push(diagnostic);
+  }
+
+  function warning<
+    C extends keyof CompilerDiagnostics,
+    M extends keyof CompilerDiagnostics[C] = "default"
+  >(
+    report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
+      target?: Partial<TextRange>;
+    }
+  ) {
+    const location = {
+      file: scanner.file,
+      pos: report.target?.pos ?? tokenPos(),
+      end: report.target?.end ?? tokenEnd(),
+    };
+
+    const diagnostic = createDiagnostic({
+      ...report,
+      target: location,
+    } as any);
+
+    assert(
+      diagnostic.severity === "warning",
+      "This function is for reporting warnings only. Use error() for errors."
+    );
+
     parseDiagnostics.push(diagnostic);
   }
 
@@ -2721,7 +2841,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
   }
 
   switch (node.kind) {
-    case SyntaxKind.CadlScript:
+    case SyntaxKind.TypeSpecScript:
       return visitNode(cb, node.id) || visitEach(cb, node.statements);
     case SyntaxKind.ArrayExpression:
       return visitNode(cb, node.elementType);
@@ -2844,6 +2964,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.Projection:
       return (
         visitNode(cb, node.directionId) ||
+        visitEach(cb, node.modifierIds) ||
         visitEach(cb, node.parameters) ||
         visitEach(cb, node.body)
       );
@@ -2884,10 +3005,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.parameters) || visitNode(cb, node.body);
     case SyntaxKind.ProjectionStatement:
       return (
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.selector) ||
-        visitNode(cb, node.from) ||
-        visitNode(cb, node.to)
+        visitNode(cb, node.id) || visitNode(cb, node.selector) || visitEach(cb, node.projections)
       );
     case SyntaxKind.ProjectionDecoratorReferenceExpression:
       return visitNode(cb, node.target);
@@ -2921,10 +3039,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.Identifier:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
+    case SyntaxKind.ProjectionModelPropertySelector:
     case SyntaxKind.ProjectionUnionSelector:
+    case SyntaxKind.ProjectionUnionVariantSelector:
     case SyntaxKind.ProjectionInterfaceSelector:
     case SyntaxKind.ProjectionOperationSelector:
     case SyntaxKind.ProjectionEnumSelector:
+    case SyntaxKind.ProjectionEnumMemberSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
     case SyntaxKind.ExternKeyword:
@@ -2962,12 +3083,12 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
 
 /**
  * Resolve the node in the syntax tree that that is at the given position.
- * @param script Cadl Script node
+ * @param script TypeSpec Script node
  * @param position Position
  * @param filter Filter if wanting to return a parent containing node early.
  */
 export function getNodeAtPosition(
-  script: CadlScriptNode,
+  script: TypeSpecScriptNode,
   position: number,
   filter = (node: Node) => true
 ): Node | undefined {

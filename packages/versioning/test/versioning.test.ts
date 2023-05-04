@@ -7,12 +7,15 @@ import {
   Operation,
   ProjectionApplication,
   projectProgram,
+  Scalar,
   Type,
   Union,
-} from "@cadl-lang/compiler";
-import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler";
+import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
-import { getVersions, indexVersions, Version } from "../src/versioning.js";
+import { Version } from "../src/types.js";
+import { VersioningTimeline } from "../src/versioning-timeline.js";
+import { getVersions, indexTimeline } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -21,12 +24,12 @@ import {
   assertHasVariants,
 } from "./utils.js";
 
-describe("compiler: versioning", () => {
+describe("versioning: logic", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(host, { autoUsings: ["Cadl.Versioning"] });
+    runner = createTestWrapper(host, { autoUsings: ["TypeSpec.Versioning"] });
   });
 
   describe("version compare", () => {
@@ -64,7 +67,7 @@ describe("compiler: versioning", () => {
   });
 
   describe("models", () => {
-    it("can rename itself", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2],
@@ -86,7 +89,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can add models", async () => {
+    it("can be added", async () => {
       const {
         projections: [v1, v2],
       } = await versionedModel(["v1", "v2"], `@added(Versions.v2) model Test {}`);
@@ -95,7 +98,114 @@ describe("compiler: versioning", () => {
       strictEqual(v2.kind, "Model");
     });
 
-    it("can add properties", async () => {
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedModel(["v1", "v2"], `@removed(Versions.v2) model Test {}`);
+
+      strictEqual(v1.kind, "Model");
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+    });
+
+    it("can be spread when versioned", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedModel(
+        ["v1", "v2"],
+        `model Test {
+          t: string;
+          ...Spreadable
+        }
+        model Spreadable {
+          a: int32;
+          @added(Versions.v2) b: int32;
+        }
+        `
+      );
+
+      assertHasProperties(v1, ["t", "a"]);
+      assertHasProperties(v2, ["t", "a", "b"]);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedModel(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        @renamedFrom(Versions.v2, "Foo")
+        @renamedFrom(Versions.v3, "Bar")
+        @renamedFrom(Versions.v5, "Baz")
+        model Test {
+          name: string,
+        }`
+      );
+      strictEqual((v1 as Model).name, "Foo");
+      strictEqual((v2 as Model).name, "Bar");
+      strictEqual((v3 as Model).name, "Baz");
+      strictEqual((v4 as Model).name, "Baz");
+      strictEqual((v5 as Model).name, "Test");
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedModel(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        @added(Versions.v2)
+        @removed(Versions.v3)
+        @added(Versions.v5)
+        @removed(Versions.v6)
+        model Test {
+          val: int32;
+        }`
+      );
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Model");
+      strictEqual((v2 as Model).name, "Test");
+      strictEqual(v3.kind, "Intrinsic");
+      strictEqual((v3 as any as IntrinsicType).name, "never");
+      strictEqual(v4.kind, "Intrinsic");
+      strictEqual((v4 as any as IntrinsicType).name, "never");
+      strictEqual(v5.kind, "Model");
+      strictEqual((v5 as Model).name, "Test");
+      strictEqual(v6.kind, "Intrinsic");
+      strictEqual((v6 as any as IntrinsicType).name, "never");
+    });
+
+    async function versionedModel(versions: string[], model: string) {
+      const { Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace MyService;
+
+      enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+      @test ${model}
+      `)) as { Test: Model };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("model properties", () => {
+    it("can be added", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -130,17 +240,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can remove models", async () => {
-      const {
-        projections: [v1, v2],
-      } = await versionedModel(["v1", "v2"], `@removed(Versions.v2) model Test {}`);
-
-      strictEqual(v1.kind, "Model");
-      strictEqual(v2.kind, "Intrinsic");
-      strictEqual((v2 as any as IntrinsicType).name, "never");
-    });
-
-    it("can remove properties", async () => {
+    it("can be removed", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -173,7 +273,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can rename properties", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -199,7 +299,38 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can add/remove properties multiple times", async () => {
+    it("can be renamed multiple times", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedModel(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `model Test {
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          d: int32;
+        }`
+      );
+      assertHasProperties(v1, ["a"]);
+      assertHasProperties(v2, ["b"]);
+      assertHasProperties(v3, ["c"]);
+      assertHasProperties(v4, ["c"]);
+      assertHasProperties(v5, ["d"]);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
+          [v5, "v5"],
+        ],
+        source
+      );
+    });
+
+    it("can be added/removed multiple times", async () => {
       const {
         source,
         projections: [v1, v2, v3, v4, v5, v6],
@@ -233,7 +364,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can make properties optional", async () => {
+    it("can be made optional", async () => {
       const {
         projections: [v1, v2],
       } = await versionedModel(
@@ -250,33 +381,25 @@ describe("compiler: versioning", () => {
       ok(v2.properties.get("b")!.optional === true);
     });
 
-    it("can spread versioned model", async () => {
+    it("can change type", async () => {
       const {
-        source,
-        projections: [v1, v2],
+        projections: [v1, v2, v3],
       } = await versionedModel(
-        ["v1", "v2"],
-        `model Test {
-          t: string;
-          ...Spreadable
+        ["v1", "v2", "v3"],
+        `
+        model Test {
+          @typeChangedFrom(Versions.v2, string)
+          @typeChangedFrom(Versions.v3, utcDateTime)
+          changed: MyDate;
         }
-        model Spreadable {
-          a: int32;
-          @added(Versions.v2) b: int32;
-        }
+        
+        model MyDate {}
         `
       );
 
-      assertHasProperties(v1, ["t", "a"]);
-      assertHasProperties(v2, ["t", "a", "b"]);
-
-      assertModelProjectsTo(
-        [
-          [v1, "v1"],
-          [v2, "v2"],
-        ],
-        source
-      );
+      ok((v1.properties.get("changed")!.type as Scalar).name === "string");
+      ok((v2.properties.get("changed")!.type as Scalar).name === "utcDateTime");
+      ok((v3.properties.get("changed")!.type as Model).name === "MyDate");
     });
 
     async function versionedModel(versions: string[], model: string) {
@@ -299,7 +422,7 @@ describe("compiler: versioning", () => {
   });
 
   describe("unions", () => {
-    it("can rename itself", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2],
@@ -320,7 +443,7 @@ describe("compiler: versioning", () => {
         source
       );
     });
-    it("can add unions", async () => {
+    it("can be added", async () => {
       const {
         projections: [v1, v2],
       } = await versionedUnion(["v1", "v2"], `@added(Versions.v2) union Test {}`);
@@ -330,7 +453,81 @@ describe("compiler: versioning", () => {
       strictEqual(v2.kind, "Union");
     });
 
-    it("can add variants", async () => {
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedUnion(["v1", "v2"], `@removed(Versions.v2) union Test {}`);
+
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+      strictEqual(v1.kind, "Union");
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedUnion(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        @renamedFrom(Versions.v2, "a")
+        @renamedFrom(Versions.v3, "b")
+        @renamedFrom(Versions.v5, "c")
+        union Test {}`
+      );
+      strictEqual((v1 as Union).name, "a");
+      strictEqual((v2 as Union).name, "b");
+      strictEqual((v3 as Union).name, "c");
+      strictEqual((v4 as Union).name, "c");
+      strictEqual((v5 as Union).name, "Test");
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedUnion(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        @added(Versions.v2)
+        @removed(Versions.v3)
+        @added(Versions.v5)
+        @removed(Versions.v6)
+        union Test {}`
+      );
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Union");
+      strictEqual((v2 as Union).name, "Test");
+      strictEqual(v3.kind, "Intrinsic");
+      strictEqual((v3 as any as IntrinsicType).name, "never");
+      strictEqual(v4.kind, "Intrinsic");
+      strictEqual((v4 as any as IntrinsicType).name, "never");
+      strictEqual(v5.kind, "Union");
+      strictEqual((v5 as Union).name, "Test");
+      strictEqual(v6.kind, "Intrinsic");
+      strictEqual((v6 as any as IntrinsicType).name, "never");
+    });
+
+    async function versionedUnion(versions: string[], union: string) {
+      const { Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace MyService;
+
+      enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+      @test ${union}
+      `)) as { Test: Union };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("union variants", () => {
+    it("can be added", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -364,17 +561,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can remove unions", async () => {
-      const {
-        projections: [v1, v2],
-      } = await versionedUnion(["v1", "v2"], `@removed(Versions.v2) union Test {}`);
-
-      strictEqual(v2.kind, "Intrinsic");
-      strictEqual((v2 as any as IntrinsicType).name, "never");
-      strictEqual(v1.kind, "Union");
-    });
-
-    it("can remove variants", async () => {
+    it("can be removed", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -407,7 +594,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can rename variants", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -433,6 +620,49 @@ describe("compiler: versioning", () => {
       );
     });
 
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedUnion(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        union Test {
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          d: int32;
+        }`
+      );
+      assertHasVariants(v1, ["a"]);
+      assertHasVariants(v2, ["b"]);
+      assertHasVariants(v3, ["c"]);
+      assertHasVariants(v4, ["c"]);
+      assertHasVariants(v5, ["d"]);
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedUnion(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        union Test {
+          a: int32;
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)  
+          b: string;
+        }`
+      );
+      assertHasVariants(v1, ["a"]);
+      assertHasVariants(v2, ["a", "b"]);
+      assertHasVariants(v3, ["a"]);
+      assertHasVariants(v4, ["a"]);
+      assertHasVariants(v5, ["a", "b"]);
+      assertHasVariants(v6, ["a"]);
+    });
+
     async function versionedUnion(versions: string[], union: string) {
       const { Test } = (await runner.compile(`
       @versioned(Versions)
@@ -453,7 +683,7 @@ describe("compiler: versioning", () => {
   });
 
   describe("operations", () => {
-    it("can rename itself", async () => {
+    it("can be renamed", async () => {
       const {
         projections: [v1, v2],
       } = await versionedOperation(
@@ -485,7 +715,72 @@ describe("compiler: versioning", () => {
       strictEqual((v2 as any as IntrinsicType).name, "never");
       strictEqual(v1.kind, "Operation");
     });
-    it("can version parameters", async () => {
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        @renamedFrom(Versions.v2, "a")
+        @renamedFrom(Versions.v3, "b")
+        @renamedFrom(Versions.v5, "c")
+        op Test(): void;`
+      );
+      strictEqual((v1 as Operation).name, "a");
+      strictEqual((v2 as Operation).name, "b");
+      strictEqual((v3 as Operation).name, "c");
+      strictEqual((v4 as Operation).name, "c");
+      strictEqual((v5 as Operation).name, "Test");
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        @added(Versions.v2)
+        @removed(Versions.v3)
+        @added(Versions.v5)
+        @removed(Versions.v6)  
+        op Test(): void;`
+      );
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Operation");
+      strictEqual((v2 as Operation).name, "Test");
+      strictEqual(v3.kind, "Intrinsic");
+      strictEqual((v3 as any as IntrinsicType).name, "never");
+      strictEqual(v4.kind, "Intrinsic");
+      strictEqual((v4 as any as IntrinsicType).name, "never");
+      strictEqual(v5.kind, "Operation");
+      strictEqual((v5 as Operation).name, "Test");
+      strictEqual(v6.kind, "Intrinsic");
+      strictEqual((v6 as any as IntrinsicType).name, "never");
+    });
+
+    async function versionedOperation(versions: string[], operation: string) {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+        @test ${operation}
+      `)) as { Test: Operation };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("operation parameters", () => {
+    it("can be added", async () => {
       const {
         projections: [v1, v2],
       } = await versionedOperation(["v1", "v2"], `op Test(@added(Versions.v2) a: string): void;`);
@@ -493,7 +788,89 @@ describe("compiler: versioning", () => {
       assertHasProperties(v1.parameters, []);
       assertHasProperties(v2.parameters, ["a"]);
     });
-    it("can version return type", async () => {
+
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(["v1", "v2"], `op Test(@removed(Versions.v2) a: string): void;`);
+
+      assertHasProperties(v1.parameters, ["a"]);
+      assertHasProperties(v2.parameters, []);
+    });
+
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `op Test(@renamedFrom(Versions.v2, "a") b: string): void;`
+      );
+
+      assertHasProperties(v1.parameters, ["a"]);
+      assertHasProperties(v2.parameters, ["b"]);
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `op Test(
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          d: string
+        ): void;`
+      );
+      assertHasProperties(v1.parameters, ["a"]);
+      assertHasProperties(v2.parameters, ["b"]);
+      assertHasProperties(v3.parameters, ["c"]);
+      assertHasProperties(v4.parameters, ["c"]);
+      assertHasProperties(v5.parameters, ["d"]);
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `op Test(
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)
+          a: string
+        ): void;`
+      );
+      assertHasProperties(v1.parameters, []);
+      assertHasProperties(v2.parameters, ["a"]);
+      assertHasProperties(v3.parameters, []);
+      assertHasProperties(v4.parameters, []);
+      assertHasProperties(v5.parameters, ["a"]);
+      assertHasProperties(v6.parameters, []);
+    });
+
+    async function versionedOperation(versions: string[], operation: string) {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+        @test ${operation}
+      `)) as { Test: Operation };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("operation return type", () => {
+    it("can be added", async () => {
       const {
         projections: [v1, v2],
       } = await versionedOperation(
@@ -509,6 +886,106 @@ describe("compiler: versioning", () => {
 
       assertHasVariants(v1.returnType as Union, ["a"]);
       assertHasVariants(v2.returnType as Union, ["a", "b"]);
+    });
+
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          a: string;
+          @removed(Versions.v2) b: int32;
+        }
+        `
+      );
+
+      assertHasVariants(v1.returnType as Union, ["a", "b"]);
+      assertHasVariants(v2.returnType as Union, ["a"]);
+    });
+
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          a: string;
+          @renamedFrom(Versions.v2, "b") c: int32;
+        }
+        `
+      );
+
+      assertHasVariants(v1.returnType as Union, ["a", "b"]);
+      assertHasVariants(v2.returnType as Union, ["a", "c"]);
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          d: int32;
+          err: string;
+        }`
+      );
+      assertHasVariants(v1.returnType as Union, ["a", "err"]);
+      assertHasVariants(v2.returnType as Union, ["b", "err"]);
+      assertHasVariants(v3.returnType as Union, ["c", "err"]);
+      assertHasVariants(v4.returnType as Union, ["c", "err"]);
+      assertHasVariants(v5.returnType as Union, ["d", "err"]);
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          a: int32;
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)  
+          b: string;
+        }`
+      );
+      assertHasVariants(v1.returnType as Union, ["a"]);
+      assertHasVariants(v2.returnType as Union, ["a", "b"]);
+      assertHasVariants(v3.returnType as Union, ["a"]);
+      assertHasVariants(v4.returnType as Union, ["a"]);
+      assertHasVariants(v5.returnType as Union, ["a", "b"]);
+      assertHasVariants(v6.returnType as Union, ["a"]);
+    });
+
+    it("can change type", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedOperation(
+        ["v1", "v2", "v3"],
+        `
+        @returnTypeChangedFrom(Versions.v2, string)
+        @returnTypeChangedFrom(Versions.v3, utcDateTime)  
+        op Test(): MyDate;
+
+        model MyDate {};
+        `
+      );
+      ok((v1.returnType as Scalar).name === "string");
+      ok((v2.returnType as Scalar).name === "utcDateTime");
+      ok((v3.returnType as Model).name === "MyDate");
     });
 
     async function versionedOperation(versions: string[], operation: string) {
@@ -531,7 +1008,7 @@ describe("compiler: versioning", () => {
   });
 
   describe("interfaces", () => {
-    it("can rename itself", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2],
@@ -572,7 +1049,71 @@ describe("compiler: versioning", () => {
       strictEqual(v1.kind, "Interface");
     });
 
-    it("can add members", async () => {
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedInterface(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        @renamedFrom(Versions.v2, "a")
+        @renamedFrom(Versions.v3, "b")
+        @renamedFrom(Versions.v5, "c")
+        interface Test {}`
+      );
+      strictEqual((v1 as Interface).name, "a");
+      strictEqual((v2 as Interface).name, "b");
+      strictEqual((v3 as Interface).name, "c");
+      strictEqual((v4 as Interface).name, "c");
+      strictEqual((v5 as Interface).name, "Test");
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedInterface(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        @added(Versions.v2)
+        @removed(Versions.v3)
+        @added(Versions.v5)
+        @removed(Versions.v6)  
+        interface Test {}`
+      );
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Interface");
+      strictEqual((v2 as Interface).name, "Test");
+      strictEqual(v3.kind, "Intrinsic");
+      strictEqual((v3 as any as IntrinsicType).name, "never");
+      strictEqual(v4.kind, "Intrinsic");
+      strictEqual((v4 as any as IntrinsicType).name, "never");
+      strictEqual(v5.kind, "Interface");
+      strictEqual((v5 as Interface).name, "Test");
+      strictEqual(v6.kind, "Intrinsic");
+      strictEqual((v6 as any as IntrinsicType).name, "never");
+    });
+
+    async function versionedInterface(versions: string[], iface: string) {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+        @test ${iface}
+      `)) as { Test: Interface };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("interface members", () => {
+    it("can be added", async () => {
       const {
         source,
         projections: [v1, v2],
@@ -594,7 +1135,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can remove members", async () => {
+    it("can be removed", async () => {
       const {
         source,
         projections: [v1, v2],
@@ -616,19 +1157,19 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can rename members", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2],
       } = await versionedInterface(
         ["v1", "v2"],
         `interface Test {
-          @renamedFrom(Versions.v2, "bar") foo(): void;
-        }`
+        @renamedFrom(Versions.v2, "foo") bar(): void;
+      }`
       );
 
-      assertHasOperations(v1, ["bar"]);
-      assertHasOperations(v2, ["foo"]);
+      assertHasOperations(v1, ["foo"]);
+      assertHasOperations(v2, ["bar"]);
       assertInterfaceProjectsTo(
         [
           [v1, "v1"],
@@ -638,7 +1179,87 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can version parameters", async () => {
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedInterface(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `interface Test {
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          op Test(): void;
+        }`
+      );
+      assertHasOperations(v1, ["a"]);
+      assertHasOperations(v2, ["b"]);
+      assertHasOperations(v3, ["c"]);
+      assertHasOperations(v4, ["c"]);
+      assertHasOperations(v5, ["Test"]);
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedInterface(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `interface Test {
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)  
+          op Test(): void;
+        }`
+      );
+      assertHasOperations(v1, []);
+      assertHasOperations(v2, ["Test"]);
+      assertHasOperations(v3, []);
+      assertHasOperations(v4, []);
+      assertHasOperations(v5, ["Test"]);
+      assertHasOperations(v6, []);
+    });
+
+    it("can change return type", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedInterface(
+        ["v1", "v2", "v3"],
+        `
+        interface Test {
+          @returnTypeChangedFrom(Versions.v2, string)
+          @returnTypeChangedFrom(Versions.v3, utcDateTime)  
+          op foo(): MyDate;  
+        }
+
+        model MyDate {};
+        `
+      );
+      ok((v1.operations.get("foo")!.returnType as Scalar).name === "string");
+      ok((v2.operations.get("foo")!.returnType as Scalar).name === "utcDateTime");
+      ok((v3.operations.get("foo")!.returnType as Model).name === "MyDate");
+    });
+
+    async function versionedInterface(versions: string[], iface: string) {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+        @test ${iface}
+      `)) as { Test: Interface };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("interface member parameters", () => {
+    it("can be added", async () => {
       const {
         projections: [v1, v2],
       } = await versionedInterface(
@@ -650,6 +1271,78 @@ describe("compiler: versioning", () => {
 
       assertHasProperties(v1.operations.get("foo")!.parameters, []);
       assertHasProperties(v2.operations.get("foo")!.parameters, ["a"]);
+    });
+
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface(
+        ["v1", "v2"],
+        `interface Test {
+        op foo(@removed(Versions.v2) a: string): void;
+      }`
+      );
+
+      assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v2.operations.get("foo")!.parameters, []);
+    });
+
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface(
+        ["v1", "v2"],
+        `interface Test {
+          op foo(@renamedFrom(Versions.v2, "a") b: string): void;
+        }`
+      );
+
+      assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v2.operations.get("foo")!.parameters, ["b"]);
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedInterface(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `interface Test {
+          op foo(
+            @renamedFrom(Versions.v2, "a")
+            @renamedFrom(Versions.v3, "b")
+            @renamedFrom(Versions.v5, "c")
+            d: string
+          ): void;
+        }`
+      );
+      assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v2.operations.get("foo")!.parameters, ["b"]);
+      assertHasProperties(v3.operations.get("foo")!.parameters, ["c"]);
+      assertHasProperties(v4.operations.get("foo")!.parameters, ["c"]);
+      assertHasProperties(v5.operations.get("foo")!.parameters, ["d"]);
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedInterface(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `interface Test {
+          op foo(
+            @added(Versions.v2)
+            @removed(Versions.v3)
+            @added(Versions.v5)
+            @removed(Versions.v6)
+            a: string
+          ): void;
+        }`
+      );
+      assertHasProperties(v1.operations.get("foo")!.parameters, []);
+      assertHasProperties(v2.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v3.operations.get("foo")!.parameters, []);
+      assertHasProperties(v4.operations.get("foo")!.parameters, []);
+      assertHasProperties(v5.operations.get("foo")!.parameters, ["a"]);
+      assertHasProperties(v6.operations.get("foo")!.parameters, []);
     });
 
     async function versionedInterface(versions: string[], iface: string) {
@@ -672,7 +1365,7 @@ describe("compiler: versioning", () => {
   });
 
   describe("enums", () => {
-    it("can rename itself", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2],
@@ -694,7 +1387,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can add enums", async () => {
+    it("can be added", async () => {
       const {
         projections: [v1, v2],
       } = await versionedEnum(["v1", "v2"], `@added(Versions.v2) enum Test {}`);
@@ -703,7 +1396,81 @@ describe("compiler: versioning", () => {
       strictEqual(v2.kind, "Enum");
     });
 
-    it("can add members", async () => {
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedEnum(["v1", "v2"], `@removed(Versions.v2) enum Test {}`);
+
+      strictEqual(v1.kind, "Enum");
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedEnum(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        @renamedFrom(Versions.v2, "a")
+        @renamedFrom(Versions.v3, "b")
+        @renamedFrom(Versions.v5, "c")
+        enum Test {}`
+      );
+      strictEqual((v1 as Enum).name, "a");
+      strictEqual((v2 as Enum).name, "b");
+      strictEqual((v3 as Enum).name, "c");
+      strictEqual((v4 as Enum).name, "c");
+      strictEqual((v5 as Enum).name, "Test");
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedEnum(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        @added(Versions.v2)
+        @removed(Versions.v3)
+        @added(Versions.v5)
+        @removed(Versions.v6)
+        enum Test {}`
+      );
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Enum");
+      strictEqual((v2 as Enum).name, "Test");
+      strictEqual(v3.kind, "Intrinsic");
+      strictEqual((v3 as any as IntrinsicType).name, "never");
+      strictEqual(v4.kind, "Intrinsic");
+      strictEqual((v4 as any as IntrinsicType).name, "never");
+      strictEqual(v5.kind, "Enum");
+      strictEqual((v5 as Enum).name, "Test");
+      strictEqual(v6.kind, "Intrinsic");
+      strictEqual((v6 as any as IntrinsicType).name, "never");
+    });
+
+    async function versionedEnum(versions: string[], enumCode: string) {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+        @test ${enumCode}
+      `)) as { Test: Enum };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return project(Test, v);
+        }),
+      };
+    }
+  });
+
+  describe("enum members", () => {
+    it("can be added", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -730,17 +1497,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can remove enums", async () => {
-      const {
-        projections: [v1, v2],
-      } = await versionedEnum(["v1", "v2"], `@removed(Versions.v2) enum Test {}`);
-
-      strictEqual(v1.kind, "Enum");
-      strictEqual(v2.kind, "Intrinsic");
-      strictEqual((v2 as any as IntrinsicType).name, "never");
-    });
-
-    it("can remove members", async () => {
+    it("can be removed", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -767,7 +1524,7 @@ describe("compiler: versioning", () => {
       );
     });
 
-    it("can rename members", async () => {
+    it("can be renamed", async () => {
       const {
         source,
         projections: [v1, v2, v3],
@@ -791,6 +1548,49 @@ describe("compiler: versioning", () => {
         ],
         source
       );
+    });
+
+    it("can be renamed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedEnum(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `
+        enum Test {
+          @renamedFrom(Versions.v2, "a")
+          @renamedFrom(Versions.v3, "b")
+          @renamedFrom(Versions.v5, "c")
+          d: 1;
+        }`
+      );
+      assertHasMembers(v1, ["a"]);
+      assertHasMembers(v2, ["b"]);
+      assertHasMembers(v3, ["c"]);
+      assertHasMembers(v4, ["c"]);
+      assertHasMembers(v5, ["d"]);
+    });
+
+    it("can be added/removed multiple times", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5, v6],
+      } = await versionedEnum(
+        ["v1", "v2", "v3", "v4", "v5", "v6"],
+        `
+        enum Test {
+          a: 1;
+          @added(Versions.v2)
+          @removed(Versions.v3)
+          @added(Versions.v5)
+          @removed(Versions.v6)  
+          b: 2;
+        }`
+      );
+      assertHasMembers(v1, ["a"]);
+      assertHasMembers(v2, ["a", "b"]);
+      assertHasMembers(v3, ["a"]);
+      assertHasMembers(v4, ["a"]);
+      assertHasMembers(v5, ["a", "b"]);
+      assertHasMembers(v6, ["a"]);
     });
 
     async function versionedEnum(versions: string[], enumCode: string) {
@@ -859,7 +1659,8 @@ describe("compiler: versioning", () => {
       fail(`Should have found the version ${version}`);
     }
     const versionMap = new Map<Namespace, Version>([[actualVersion.namespace, actualVersion]]);
-    const versionKey = indexVersions(runner.program, versionMap);
+    const timeline = new VersioningTimeline(runner.program, [versionMap]);
+    const versionKey = indexTimeline(runner.program, timeline, timeline.get(actualVersion));
     const projection: ProjectionApplication = {
       arguments: [versionKey],
       projectionName: "v",

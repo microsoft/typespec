@@ -1,30 +1,30 @@
-import { createCadlLibrary, Diagnostic } from "@cadl-lang/compiler";
+import { createTypeSpecLibrary, Diagnostic } from "@typespec/compiler";
 import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { createRule, getLinter, LibraryLinter } from "../src/index.js";
 
 describe("lint: linter", () => {
   let linter: LibraryLinter;
 
   beforeEach(() => {
-    linter = getLinter(createCadlLibrary({ name: "test-lib", diagnostics: {} }));
-    const linterSingletonKey = Symbol.for("@cadl-lang/lint.singleton");
+    linter = getLinter(createTypeSpecLibrary({ name: "test-lib", diagnostics: {} }));
+    const linterSingletonKey = Symbol.for("@typespec/lint.singleton");
     (globalThis as any)[linterSingletonKey] = undefined;
   });
 
   async function runLinter(code: string): Promise<readonly Diagnostic[]> {
     const host = await createTestHost();
-    host.addCadlFile(
-      "main.cadl",
+    host.addTypeSpecFile(
+      "main.tsp",
       `
       ${code};
     `
     );
 
-    await host.compile("main.cadl");
+    await host.compile("main.tsp");
     linter.lintProgram(host.program);
     return host.program.diagnostics;
   }
@@ -56,7 +56,7 @@ describe("lint: linter", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("registering with enabling a rule shouldn't emit diagnostic unless autoEnableMyRules is called", async () => {
+  it("registering with enabling a rule shouldn't emit diagnostic unless autoEnableRules is called", async () => {
     linter.registerRule(noModelFoo, { autoEnable: true });
 
     const diagnostics = await runLinter(`
@@ -65,7 +65,7 @@ describe("lint: linter", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("registering with enabling a rule should emit diagnostics iof autoEnableMyRules is called", async () => {
+  it("registering with enabling a rule should emit diagnostics iof autoEnableRules is called", async () => {
     linter.registerRule(noModelFoo, { autoEnable: true });
     linter.autoEnableRules();
 

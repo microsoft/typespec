@@ -6,14 +6,158 @@ toc_max_heading_level: 3
 
 # Interfaces and Operations
 
-## Cadl.Rest.Resource
+## TypeSpec.Rest.Resource
 
-### `ResourceRead` {#Cadl.Rest.Resource.ResourceRead}
+### `ExtensionResourceCollectionOperations` {#TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations}
 
-Represent the resource GET operation.
+Extension resource operation templates for extension resource collections.
 
-```cadl
-interface Cadl.Rest.Resource.ResourceRead<TResource, TError>
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceCreate` {#TypeSpec.Rest.Resource.ExtensionResourceCreate}
+
+Extension resource create operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceCreate<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceCreateOrUpdate` {#TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate}
+
+Extension resource create or update operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceDelete` {#TypeSpec.Rest.Resource.ExtensionResourceDelete}
+
+Extension resource delete operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceDelete<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceInstanceOperations` {#TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations}
+
+Extension resource operation templates for extension resource instances.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceList` {#TypeSpec.Rest.Resource.ExtensionResourceList}
+
+Extension resource list operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceList<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceOperations` {#TypeSpec.Rest.Resource.ExtensionResourceOperations}
+
+Extension resource operation templates for extension resource instances and collections.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceOperations<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceRead` {#TypeSpec.Rest.Resource.ExtensionResourceRead}
+
+Extension resource read operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceRead<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ExtensionResourceUpdate` {#TypeSpec.Rest.Resource.ExtensionResourceUpdate}
+
+Extension resource update operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ExtensionResourceUpdate<TExtension, TResource, TError>
+```
+
+#### Template Parameters
+
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TExtension | The extension resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
+
+### `ResourceCollectionOperations` {#TypeSpec.Rest.Resource.ResourceCollectionOperations}
+
+Resource operation templates for resource collections.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceCollectionOperations<TResource, TError>
 ```
 
 #### Template Parameters
@@ -23,287 +167,185 @@ interface Cadl.Rest.Resource.ResourceRead<TResource, TError>
 | TResource | The resource model. |
 | TError    | The error response. |
 
-### `ResourceCreateOrReplace` {#Cadl.Rest.Resource.ResourceCreateOrReplace}
+### `ResourceCreate` {#TypeSpec.Rest.Resource.ResourceCreate}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceCreateOrReplace<TResource, TError>
+Resource create operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceCreate<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to create. |
+| TError    | The error response.           |
 
-### `ResourceCreateOrUpdate` {#Cadl.Rest.Resource.ResourceCreateOrUpdate}
+### `ResourceCreateOrReplace` {#TypeSpec.Rest.Resource.ResourceCreateOrReplace}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceCreateOrUpdate<TResource, TError>
+Resource create or replace operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceCreateOrReplace<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description                              |
+| --------- | ---------------------------------------- |
+| TResource | The resource model to create or replace. |
+| TError    | The error response.                      |
 
-### `ResourceCreate` {#Cadl.Rest.Resource.ResourceCreate}
+### `ResourceCreateOrUpdate` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdate}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceCreate<TResource, TError>
+Resource create or update operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceCreateOrUpdate<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description                             |
+| --------- | --------------------------------------- |
+| TResource | The resource model to create or update. |
+| TError    | The error response.                     |
 
-### `ResourceUpdate` {#Cadl.Rest.Resource.ResourceUpdate}
+### `ResourceDelete` {#TypeSpec.Rest.Resource.ResourceDelete}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceUpdate<TResource, TError>
+Resource delete operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceDelete<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to delete. |
+| TError    | The error response.           |
 
-### `ResourceDelete` {#Cadl.Rest.Resource.ResourceDelete}
+### `ResourceInstanceOperations` {#TypeSpec.Rest.Resource.ResourceInstanceOperations}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceDelete<TResource, TError>
+Resource operation templates for resource instances.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceInstanceOperations<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |
+| TError    | The error response. |
 
-### `ResourceList` {#Cadl.Rest.Resource.ResourceList}
+### `ResourceList` {#TypeSpec.Rest.Resource.ResourceList}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceList<TResource, TError>
+Resource list operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceList<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description                 |
+| --------- | --------------------------- |
+| TResource | The resource model to list. |
+| TError    | The error response.         |
 
-### `ResourceInstanceOperations` {#Cadl.Rest.Resource.ResourceInstanceOperations}
+### `ResourceOperations` {#TypeSpec.Rest.Resource.ResourceOperations}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceInstanceOperations<TResource, TError>
+Resource operation templates for resources.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceOperations<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |
+| TError    | The error response. |
 
-### `ResourceCollectionOperations` {#Cadl.Rest.Resource.ResourceCollectionOperations}
+### `ResourceRead` {#TypeSpec.Rest.Resource.ResourceRead}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceCollectionOperations<TResource, TError>
+Represent the resource GET operation.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceRead<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description         |
+| --------- | ------------------- |
+| TResource | The resource model. |
+| TError    | The error response. |
 
-### `ResourceOperations` {#Cadl.Rest.Resource.ResourceOperations}
+### `ResourceUpdate` {#TypeSpec.Rest.Resource.ResourceUpdate}
 
-```cadl
-interface Cadl.Rest.Resource.ResourceOperations<TResource, TError>
+Resource update operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.ResourceUpdate<TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TResource |             |
-| TError    |             |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| TResource | The resource model to update. |
+| TError    | The error response.           |
 
-### `SingletonResourceRead` {#Cadl.Rest.Resource.SingletonResourceRead}
+### `SingletonResourceOperations` {#TypeSpec.Rest.Resource.SingletonResourceOperations}
 
-```cadl
-interface Cadl.Rest.Resource.SingletonResourceRead<TSingleton, TResource, TError>
+Singleton resource operation templates for singleton resource instances.
+
+```typespec
+interface TypeSpec.Rest.Resource.SingletonResourceOperations<TSingleton, TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name       | Description |
-| ---------- | ----------- |
-| TSingleton |             |
-| TResource  |             |
-| TError     |             |
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TSingleton | The singleton resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
 
-### `SingletonResourceUpdate` {#Cadl.Rest.Resource.SingletonResourceUpdate}
+### `SingletonResourceRead` {#TypeSpec.Rest.Resource.SingletonResourceRead}
 
-```cadl
-interface Cadl.Rest.Resource.SingletonResourceUpdate<TSingleton, TResource, TError>
+Singleton resource read operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.SingletonResourceRead<TSingleton, TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name       | Description |
-| ---------- | ----------- |
-| TSingleton |             |
-| TResource  |             |
-| TError     |             |
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TSingleton | The singleton resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |
 
-### `SingletonResourceOperations` {#Cadl.Rest.Resource.SingletonResourceOperations}
+### `SingletonResourceUpdate` {#TypeSpec.Rest.Resource.SingletonResourceUpdate}
 
-```cadl
-interface Cadl.Rest.Resource.SingletonResourceOperations<TSingleton, TResource, TError>
+Singleton resource update operation template.
+
+```typespec
+interface TypeSpec.Rest.Resource.SingletonResourceUpdate<TSingleton, TResource, TError>
 ```
 
 #### Template Parameters
 
-| Name       | Description |
-| ---------- | ----------- |
-| TSingleton |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceRead` {#Cadl.Rest.Resource.ExtensionResourceRead}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceRead<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceCreateOrUpdate` {#Cadl.Rest.Resource.ExtensionResourceCreateOrUpdate}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceCreateOrUpdate<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceCreate` {#Cadl.Rest.Resource.ExtensionResourceCreate}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceCreate<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceUpdate` {#Cadl.Rest.Resource.ExtensionResourceUpdate}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceUpdate<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceDelete` {#Cadl.Rest.Resource.ExtensionResourceDelete}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceDelete<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceList` {#Cadl.Rest.Resource.ExtensionResourceList}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceList<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceInstanceOperations` {#Cadl.Rest.Resource.ExtensionResourceInstanceOperations}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceInstanceOperations<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceCollectionOperations` {#Cadl.Rest.Resource.ExtensionResourceCollectionOperations}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceCollectionOperations<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
-
-### `ExtensionResourceOperations` {#Cadl.Rest.Resource.ExtensionResourceOperations}
-
-```cadl
-interface Cadl.Rest.Resource.ExtensionResourceOperations<TExtension, TResource, TError>
-```
-
-#### Template Parameters
-
-| Name       | Description |
-| ---------- | ----------- |
-| TExtension |             |
-| TResource  |             |
-| TError     |             |
+| Name       | Description                   |
+| ---------- | ----------------------------- |
+| TSingleton | The singleton resource model. |
+| TResource  | The resource model.           |
+| TError     | The error response.           |

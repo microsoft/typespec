@@ -18,16 +18,20 @@
       "shellCommand": "node eng/scripts/watch.js"
     },
     {
-      "commandKind": "global",
+      "commandKind": "bulk",
       "name": "test",
       "summary": "(CUSTOM) Runs all tests.",
-      "shellCommand": "node eng/scripts/npm-run.js test"
+      "enableParallelism": true,
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
-      "commandKind": "global",
+      "commandKind": "bulk",
       "name": "test-official",
       "summary": "(CUSTOM) Runs all tests for CI or PR validation. Disallows .only.",
-      "shellCommand": "node eng/scripts/npm-run.js test-official"
+      "enableParallelism": true,
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
       "commandKind": "global",
@@ -52,7 +56,7 @@
       "commandKind": "global",
       "name": "regen-docs",
       "summary": "(CUSTOM) Regenerate the reference docs.",
-      "shellCommand": "node eng/scripts/regen-docs.js"
+      "shellCommand": "node eng/scripts/npm-run.js regen-ref-docs"
     },
     {
       "commandKind": "global",
@@ -76,7 +80,7 @@
       "commandKind": "global",
       "safeForSimultaneousRushProcesses": true,
       "name": "dogfood",
-      "summary": "(CUSTOM) Globally installs local builds of @cadl-lang/compiler and cadl-vscode.",
+      "summary": "(CUSTOM) Globally installs local builds of @typespec/compiler and typespec-vscode.",
       "shellCommand": "node eng/scripts/dogfood.js"
     },
     {
@@ -84,14 +88,16 @@
       "name": "lint",
       "summary": "Lint projects. Runs `npm run lint` on all projects.",
       "enableParallelism": true,
-      "ignoreMissingScript": true
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
       "commandKind": "bulk",
       "name": "lint:fix",
       "summary": "Fix lint issues in projects. Runs `npm run lint:fix` on all projects.",
       "enableParallelism": true,
-      "ignoreMissingScript": true
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     },
     {
       "commandKind": "global",
@@ -105,7 +111,8 @@
       "name": "clean",
       "summary": "(CUSTOM) Run `npm run clean` on all the projects.",
       "enableParallelism": true,
-      "ignoreMissingScript": true
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
     }
   ],
   /**

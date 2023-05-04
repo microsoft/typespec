@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import {
   Enum,
   EnumMember,
@@ -13,8 +14,7 @@ import {
   Type,
   Union,
   UnionVariant,
-} from "@cadl-lang/compiler";
-import { css } from "@emotion/react";
+} from "@typespec/compiler";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { KeyValueSection, Literal } from "./common.js";
@@ -29,11 +29,11 @@ function expandNamespaces(namespace: Namespace): Namespace[] {
 const ProgramContext = React.createContext<Program>({} as any);
 
 export function renderProgram(program: Program) {
-  const html = ReactDOMServer.renderToString(<CadlProgramViewer program={program} />);
+  const html = ReactDOMServer.renderToString(<TypeSpecProgramViewer program={program} />);
   return html;
 }
 
-export interface CadlProgramViewerProps {
+export interface TypeSpecProgramViewerProps {
   program: Program;
 }
 
@@ -47,7 +47,9 @@ const ProgramViewerStyles = css({
   },
 });
 
-export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ program }) => {
+export const TypeSpecProgramViewer: FunctionComponent<TypeSpecProgramViewerProps> = ({
+  program,
+}) => {
   const root = program.checker!.getGlobalNamespaceType();
   const namespaces = expandNamespaces(root);
   return (
@@ -98,6 +100,7 @@ const omittedProps = [
   "namespace",
   "templateNode",
   "templateArguments",
+  "templateMapper",
   "instantiationParameters",
   "decorators",
   "projectionBase",
@@ -107,7 +110,7 @@ const omittedProps = [
   "projections",
 ] as const;
 const omittedPropsSet = new Set(omittedProps);
-type OmittedProps = typeof omittedProps[number];
+type OmittedProps = (typeof omittedProps)[number];
 type NamedTypeUIProps<T extends NamedType> = {
   type: T;
   properties: Record<Exclude<keyof T, OmittedProps>, "skip" | "ref" | "nested" | "value">;
@@ -133,7 +136,7 @@ const NamedTypeUI = <T extends NamedType>({ type, name, properties }: NamedTypeU
         valueUI = value;
       } else if (value.kind) {
         valueUI = render(value);
-      } else if (value instanceof Map || Array.isArray(value)) {
+      } else if (value[Symbol.iterator]) {
         valueUI = <ItemList items={value} render={render} />;
       } else {
         valueUI = value;
@@ -208,6 +211,7 @@ const InterfaceUI: FunctionComponent<{ type: Interface }> = ({ type }) => {
       type={type}
       properties={{
         operations: "nested",
+        sourceInterfaces: "ref",
       }}
     />
   );
@@ -221,6 +225,7 @@ const OperationUI: FunctionComponent<{ type: Operation }> = ({ type }) => {
         interface: "skip",
         parameters: "nested",
         returnType: "ref",
+        sourceOperation: "ref",
       }}
     />
   );
@@ -243,6 +248,7 @@ const ModelUI: FunctionComponent<{ type: Model }> = ({ type }) => {
         baseModel: "ref",
         derivedModels: "ref",
         properties: "nested",
+        sourceModel: "ref",
       }}
     />
   );

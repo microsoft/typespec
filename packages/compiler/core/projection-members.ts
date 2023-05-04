@@ -1,13 +1,12 @@
 import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
 import { Checker } from "./checker.js";
-import { assertType, ProjectionError } from "./diagnostics.js";
+import { ProjectionError, assertType } from "./diagnostics.js";
 import { ObjectType, Type, UnionVariant } from "./types.js";
 
 export function createProjectionMembers(checker: Checker): {
   [TKind in Type["kind"]]?: Record<string, (base: Type & { kind: TKind }) => Type>;
 } {
-  const { voidType, neverType, createType, createFunctionType, createLiteralType, cloneType } =
-    checker;
+  const { voidType, neverType, createType, createFunctionType, createLiteralType } = checker;
 
   function createBaseMembers<T extends Type>() {
     return {
@@ -59,8 +58,21 @@ export function createProjectionMembers(checker: Checker): {
           }
 
           prop.name = newName;
-          base.properties.delete(oldName);
-          base.properties.set(newName, prop);
+          base.properties.rekey(oldName, newName);
+
+          return voidType;
+        });
+      },
+      changePropertyType(base) {
+        return createFunctionType((nameT: Type, newType: Type) => {
+          assertType("property name", nameT, "String");
+          const propertyName = nameT.value;
+
+          const prop = base.properties.get(propertyName);
+          if (!prop) {
+            throw new ProjectionError(`Property ${propertyName} not found`);
+          }
+          prop.type = newType;
 
           return voidType;
         });
@@ -90,7 +102,6 @@ export function createProjectionMembers(checker: Checker): {
           return voidType;
         });
       },
-
       deleteProperty(base) {
         return createFunctionType((nameT: Type) => {
           assertType("property", nameT, "String");
@@ -105,6 +116,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     ModelProperty: {
+      ...createBaseMembers(),
       name(base) {
         return createLiteralType(base.name);
       },
@@ -152,11 +164,8 @@ export function createProjectionMembers(checker: Checker): {
           if (!variant) {
             throw new ProjectionError(`Couldn't find variant ${variant}`);
           }
-          base.variants.delete(oldName);
-          base.variants.set(newName, variant);
-          if (variant.kind === "UnionVariant") {
-            variant.name = newName;
-          }
+          base.variants.rekey(oldName, newName);
+          variant.name = newName;
 
           return voidType;
         });
@@ -187,6 +196,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     UnionVariant: {
+      ...createBaseMembers(),
       name(base) {
         if (typeof base.name === "string") {
           return createLiteralType(base.name);
@@ -212,6 +222,12 @@ export function createProjectionMembers(checker: Checker): {
       },
       returnType(base) {
         return base.returnType;
+      },
+      changeReturnType(base) {
+        return createFunctionType((newType: Type) => {
+          base.returnType = newType;
+          return voidType;
+        });
       },
     },
     Interface: {
@@ -241,11 +257,8 @@ export function createProjectionMembers(checker: Checker): {
           if (!op) {
             throw new ProjectionError(`Couldn't find operation named ${oldName}`);
           }
-          const clone = cloneType(op);
-          clone.name = newName;
-          base.operations.delete(oldName);
-          base.operations.set(newName, clone);
-
+          op.name = newName;
+          base.operations.rekey(oldName, newName);
           return voidType;
         });
       },
@@ -289,12 +302,7 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     Enum: {
-      projectionSource(base) {
-        return base.projectionSource ?? voidType;
-      },
-      projectionBase(base) {
-        return base.projectionBase || voidType;
-      },
+      ...createBaseMembers(),
       ...createNameableMembers(),
       members(base) {
         return createType({
@@ -353,25 +361,25 @@ export function createProjectionMembers(checker: Checker): {
         });
       },
       renameMember(base) {
-        return createFunctionType((nameT: Type, newNameT: Type) => {
-          assertType("enum member", nameT, "String");
+        return createFunctionType((oldNameT: Type, newNameT: Type) => {
+          assertType("enum member", oldNameT, "String");
           assertType("enum member", newNameT, "String");
 
-          const name = nameT.value;
+          const oldName = oldNameT.value;
           const newName = newNameT.value;
 
-          const member = base.members.get(name);
+          const member = base.members.get(oldName);
           if (!member) {
-            throw new ProjectionError(`Enum doesn't have member ${name}`);
+            throw new ProjectionError(`Enum doesn't have member ${oldName}`);
           }
           member.name = newName;
-          base.members.delete(name);
-          base.members.set(newName, member);
+          base.members.rekey(oldName, newName);
           return voidType;
         });
       },
     },
     EnumMember: {
+      ...createBaseMembers(),
       name(base) {
         return createLiteralType(base.name);
       },

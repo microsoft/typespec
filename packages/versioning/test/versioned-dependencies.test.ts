@@ -1,10 +1,10 @@
-import { Model, Namespace, Program, projectProgram } from "@cadl-lang/compiler";
+import { Model, Namespace, Operation, Program, projectProgram } from "@typespec/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "@cadl-lang/compiler/testing";
+} from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { buildVersionProjections } from "../src/versioning.js";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
@@ -17,10 +17,8 @@ describe("versioning: reference versioned library", () => {
     const host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
-      import "@cadl-lang/versioning";
-
-      using Cadl.Versioning;
-
+      import "@typespec/versioning";
+      using TypeSpec.Versioning;
       @versioned(Versions)
       namespace VersionedLib {
         enum Versions {l1, l2}
@@ -28,6 +26,9 @@ describe("versioning: reference versioned library", () => {
           name: string;
           @added(Versions.l2) age: int32;
         }
+
+        @removed(Versions.l2)
+        op Operation<TParams, TResponse>(...TParams): TResponse;
       }
       ${code}`,
     });
@@ -46,9 +47,11 @@ describe("versioning: reference versioned library", () => {
   describe("when project is not-versioned", () => {
     it("use a versioned library given version", async () => {
       const { MyService, Test } = (await runner.compile(`
-        @versionedDependency(VersionedLib.Versions.l1)
+        @useDependency(VersionedLib.Versions.l1)
         @test namespace MyService {
           @test model Test extends VersionedLib.Foo {}
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -62,17 +65,48 @@ describe("versioning: reference versioned library", () => {
       assertFooV1(Foo);
     });
 
-    it("emit diagnostic if passing version mapping", async () => {
+    it("use multiple versioned libraries given version", async () => {
+      const { MyService, Test, getBar } = (await runner.compile(`
+        @versioned(Versions)
+        namespace OtherVersionedLib {
+          enum Versions {
+            m1,
+          }
+          model Bar {};
+        }
+        @useDependency(VersionedLib.Versions.l1, OtherVersionedLib.Versions.m1)
+        @test namespace MyService {
+          @test model Test extends VersionedLib.Foo {}
+          
+          @test op getBar(): OtherVersionedLib.Bar;
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
+        } 
+    `)) as { MyService: Namespace; Test: Model; getBar: Operation };
+      const versions = buildVersionProjections(runner.program, MyService);
+      strictEqual(versions.length, 1);
+      strictEqual(versions[0].version, undefined);
+      strictEqual(versions[0].projections.length, 1);
+
+      const projector = projectProgram(runner.program, versions[0].projections, Test).projector;
+      const Foo = (projector.projectedTypes.get(Test) as any).baseModel;
+
+      assertFooV1(Foo);
+      ok((getBar.returnType as Model).name === "Bar");
+      ok((getBar.returnType as Model).namespace?.name === "OtherVersionedLib");
+    });
+
+    it("emit diagnostic if passing anything but an enum member", async () => {
       const diagnostics = await runner.diagnose(`
-        @versionedDependency([[VersionedLib.Versions.l1, VersionedLib.Versions.l1]])
+        @useDependency([[VersionedLib.Versions.l1, VersionedLib.Versions.l1]])
         namespace MyService {
           model Test extends VersionedLib.Foo {}
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/versioned-dependency-not-picked",
+        code: "invalid-argument",
         message:
-          "The versionedDependency decorator must provide a version of the dependency 'VersionedLib'.",
+          "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'EnumMember'",
       });
     });
   });
@@ -81,10 +115,16 @@ describe("versioning: reference versioned library", () => {
     it("use a versioned library given version", async () => {
       const { MyService, Test } = (await runner.compile(`
         @versioned(Versions)
-        @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l2]])
         @test namespace MyService {
-          enum Versions {v1, v2}
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l2)
+            v2
+          }
           @test model Test extends VersionedLib.Foo {}
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -105,10 +145,16 @@ describe("versioning: reference versioned library", () => {
     it("use the same versioned library version for multiple service versions", async () => {
       const { MyService, Test } = (await runner.compile(`
         @versioned(Versions)
-        @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l1]])
         @test namespace MyService {
-          enum Versions {v1, v2}
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l1)
+            v2
+          }
           @test model Test extends VersionedLib.Foo {}
+          @test op test1 is VersionedLib.Operation<{name: string}, int32>;
+          alias test2 = VersionedLib.Operation<{name: string}, int32>;
         } 
     `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
@@ -126,34 +172,109 @@ describe("versioning: reference versioned library", () => {
       assertFooV1(FooV2);
     });
 
-    it("emit diagnostic if passing a specific version", async () => {
+    it("emit diagnostic if @useDependency and @versioned are used on a Namespace", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
-        @versionedDependency(VersionedLib.Versions.l1)
+        @useDependency(VersionedLib.Versions.l1)
         namespace MyService {
           enum Versions {v1, v2}
           model Test extends VersionedLib.Foo {}
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/versioned-dependency-record-not-mapping",
+        code: "@typespec/versioning/incompatible-versioned-namespace-use-dependency",
         message:
-          "The versionedDependency decorator must provide a model mapping local versions to dependency 'VersionedLib' versions",
+          "The useDependency decorator can only be used on a Namespace if the namespace is unversioned. For versioned namespaces, put the useDependency decorator on the version enum members.",
+      });
+    });
+
+    it("emit diagnostic if @useDependency is used on an enum that isn't in the namespace.", async () => {
+      const diagnostics = await runner.diagnose(`
+        enum TestServiceVersions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1,
+          @useDependency(VersionedLib.Versions.l2)
+          v2,
+        }
+        @versioned(TestServiceVersions)
+        namespace TestService {
+          @added(TestServiceVersions.v2)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/version-not-found",
+        message:
+          "The provided version 'v2' from 'TestServiceVersions' is not declared as a version enum. Use '@versioned(TestServiceVersions)' on the containing namespace.",
       });
     });
   });
 
-  describe("when using versioned library without @versionedDependency", () => {
-    it("emit diagnostic when used in extends", async () => {
+  describe("when using versioned library without @useDependency", () => {
+    it("emit diagnostic when model uses extends", async () => {
       const diagnostics = await runner.diagnose(`
         namespace MyService {
           model Test extends VersionedLib.Foo {}
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
-          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when model uses is", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test is VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when model uses alias", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          alias Test = VersionedLib.Foo;
+          op test(): Test;
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when operation uses is", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          op test is VersionedLib.Operation<{name: string}, int32>;
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
+      });
+    });
+
+    it("emit diagnostic when operation uses alias", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          alias test = VersionedLib.Operation<{name: string}, int32>;
+          op myTest is test;
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
     });
 
@@ -166,9 +287,9 @@ describe("versioning: reference versioned library", () => {
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
-          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
     });
 
@@ -177,9 +298,9 @@ describe("versioning: reference versioned library", () => {
         model Test extends VersionedLib.Foo {}
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
-          "Namespace '' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+          "Namespace '' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
     });
 
@@ -190,7 +311,6 @@ describe("versioning: reference versioned library", () => {
             foo: T;
           }
         }
-
         @versioned(Versions)
         namespace MyService {
           enum Versions {v1, v2}
@@ -198,7 +318,6 @@ describe("versioning: reference versioned library", () => {
           model Bar {}
           model Test extends NonVersioned.Foo<Bar> {}
         } 
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -210,7 +329,6 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           
           model Foo {}
-
           interface Test {
             test(): Foo;
           }
@@ -226,10 +344,8 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           
           model Foo {}
-
           interface Test extends NonVersioned.Foo<Foo> {}
         }
-
         namespace NonVersioned {
           interface Foo<T> {
             foo(): T | {};
@@ -248,12 +364,10 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           
           model Foo {}
-
           namespace SubNamespace {
             op use(): Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -266,14 +380,12 @@ describe("versioning: reference versioned library", () => {
           
           model Foo {}
         }
-
-        @versionedDependency(Lib.Versions.v1)
+        @useDependency(Lib.Versions.v1)
         namespace MyService {
           namespace SubNamespace {
             op use(): Lib.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -286,16 +398,16 @@ describe("versioning: reference versioned library", () => {
           
           model Foo {}
         }
-
         @versioned(Versions)
-        @versionedDependency([[Versions.m1, Lib.Versions.v1]])
         namespace MyService {
-          enum Versions {m1}
+          enum Versions {
+            @useDependency(Lib.Versions.v1)
+            m1
+          }
           namespace SubNamespace {
             op use(): Lib.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -305,13 +417,11 @@ describe("versioning: reference versioned library", () => {
         @versioned(Versions)
         namespace MyService {
           enum Versions {m1}
-
           op use(): SubNamespace.Foo;
           namespace SubNamespace {
             model Foo {}
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -321,21 +431,20 @@ describe("versioning: reference versioned library", () => {
         @versioned(Versions)
         namespace Lib {
           enum Versions {v1, v2}
-
           namespace LibSub {
             model Foo {}
           }
         }
-
         @versioned(Versions)
-        @versionedDependency([[Versions.m1, Lib.Versions.v1]])
         namespace MyService {
-          enum Versions {m1}
+          enum Versions {
+            @useDependency(Lib.Versions.v1)
+            m1
+          }
           namespace ServiceSub {
             op use(): Lib.LibSub.Foo;
           }
         }
-
     `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -350,9 +459,9 @@ describe("versioning: reference versioned library", () => {
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/using-versioned-library",
+        code: "@typespec/versioning/using-versioned-library",
         message:
-          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @useDependency.",
       });
     });
   });
@@ -368,17 +477,14 @@ describe("versioning: dependencies", () => {
   it("use model defined in non versioned library spreading properties", async () => {
     const { MyService, Test } = (await runner.compile(`
       namespace NonVersionedLib {
-        enum Versions {l1, l2}
         model Spread<T> {
           t: string;
           ...T;
         }
       }
-
       @versioned(Versions)
       @test namespace MyService {
         enum Versions {v1, v2}
-
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -405,12 +511,14 @@ describe("versioning: dependencies", () => {
           ...T;
         }
       }
-
       @versioned(Versions)
-      @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l2]])
       @test namespace MyService {
-        enum Versions {v1, v2}
-
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1,
+          @useDependency(VersionedLib.Versions.l2)
+          v2
+        }
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -425,6 +533,179 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance1, ["t", "a"]);
     const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
+  });
+
+  it("use a templated version in a non-versioned library", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      namespace NonVersionedLib {
+        model VersionedProp<T extends TypeSpec.Reflection.EnumMember> {
+          a: string;
+
+          @added(T)
+          b: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions { v1, v2 }
+        @test model Test extends NonVersionedLib.VersionedProp<Versions.v2> {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b"]);
+  });
+
+  it("use a templated version in a versioned library", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {l1, l2}
+        model VersionedProp<T extends TypeSpec.Reflection.EnumMember> {
+          a: string;
+
+          @added(T)
+          b: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l2)
+          v2
+        }
+        @test model Test extends VersionedLib.VersionedProp<Versions.v2> {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b"]);
+  });
+
+  it("respect changes in library between linked versions", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {l1, l2, l3, l4}
+        model VersionedLibModel {
+          a: string;
+
+          @added(Versions.l2)
+          b: string;
+
+          @added(Versions.l3)
+          c: string;
+
+          @added(Versions.l4)
+          d: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l3)
+          v2
+        }
+        @test model Test extends VersionedLib.VersionedLibModel {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b", "c"]);
+  });
+
+  it("respect changes in library between linked versions with multiple added and removed", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {l1, l2, l3, l4, l5, l6, l7, l8}
+        model VersionedLibModel {
+          a: string;
+
+          @added(Versions.l2)
+          @removed(Versions.l3)
+          @added(Versions.l4)
+          @removed(Versions.l5)
+          @added(Versions.l6)
+          @removed(Versions.l7)
+          @added(Versions.l8)
+          b: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l4)
+          v2,
+          @useDependency(VersionedLib.Versions.l7)
+          v3
+        }
+        @test model Test extends VersionedLib.VersionedLibModel {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2, v3] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b"]);
+    const SpreadInstance3 = (v3.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance3, ["a"]);
+  });
+
+  it("multiple version pin same dependency version", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {l1, l2}
+        model VersionedLibModel {
+          a: string;
+
+          @added(Versions.l2)
+          b: string;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.l1)
+          v1, 
+          @useDependency(VersionedLib.Versions.l2)
+          v2,
+          @useDependency(VersionedLib.Versions.l2)
+          v3
+        }
+        @test model Test extends VersionedLib.VersionedLibModel {}
+      }
+      `)) as { MyService: Namespace; Test: Model };
+
+    const [v1, v2, v3] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["a", "b"]);
+    const SpreadInstance3 = (v3.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance3, ["a", "b"]);
   });
 
   it("can handle when the versions name are the same across different libraries", async () => {
@@ -437,12 +718,14 @@ describe("versioning: dependencies", () => {
           ...T;
         }
       }
-
       @versioned(Versions)
-      @versionedDependency([[Versions.v1, VersionedLib.Versions.v1], [Versions.v2, VersionedLib.Versions.v2]])
       @test namespace MyService {
-        enum Versions {v1, v2}
-
+        enum Versions {
+          @useDependency(VersionedLib.Versions.v1)
+          v1,
+          @useDependency(VersionedLib.Versions.v2)
+          v2
+        }
         model Spreadable {
           a: int32;
           @added(Versions.v2) b: int32;
@@ -459,16 +742,14 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/760
+  // Test for https://github.com/microsoft/typespec/issues/760
   it("have a nested service namespace", async () => {
     const { MyService } = (await runner.compile(`
         @service({title: "Test"})
-        @versionedDependency(Lib.Versions.v1)
+        @useDependency(Lib.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
-
         }
-
         @versioned(Versions)
         namespace Lib {
           enum Versions {
@@ -481,24 +762,21 @@ describe("versioning: dependencies", () => {
     ok(v1.projectedTypes.get(MyService));
   });
 
-  // Test for https://github.com/microsoft/cadl/issues/786
+  // Test for https://github.com/microsoft/typespec/issues/786
   it("have a nested service namespace and libraries sharing common parent namespace", async () => {
     const { MyService } = (await runner.compile(`
         @service({title: "Test"})
-        @versionedDependency(Lib.One.Versions.v1)
+        @useDependency(Lib.One.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
-
         }
-
         @versioned(Versions)
         namespace Lib.One {
           enum Versions { v1: "v1" }
         }
         
-        @versionedDependency(Lib.One.Versions.v1)
+        @useDependency(Lib.One.Versions.v1)
         namespace Lib.Two { }
-
       `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
@@ -508,5 +786,7 @@ describe("versioning: dependencies", () => {
 
 function runProjections(program: Program, rootNs: Namespace) {
   const versions = buildVersionProjections(program, rootNs);
-  return versions.map((x) => projectProgram(program, x.projections).projector);
+  const projectedPrograms = versions.map((x) => projectProgram(program, x.projections));
+  projectedPrograms.forEach((p) => expectDiagnosticEmpty(p.diagnostics));
+  return projectedPrograms.map((p) => p.projector);
 }

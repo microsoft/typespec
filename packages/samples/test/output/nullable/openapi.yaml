@@ -20,18 +20,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/HasNullables'
+                $ref: '#/components/schemas/HasNullables'
       requestBody:
         content:
           application/json:
             schema:
               type: object
               allOf:
-                - $ref:
-                    value: '#/components/schemas/AnotherModel'
+                - $ref: '#/components/schemas/AnotherModel'
               nullable: true
-              x-cadl-name: AnotherModel | null
+              x-typespec-name: AnotherModel | null
 components:
   schemas:
     AnotherModel:
@@ -53,37 +51,36 @@ components:
         strOrNull:
           type: string
           nullable: true
-          x-cadl-name: string | null
+          x-typespec-name: string | null
         modelOrNull:
           type: object
           allOf:
-            - $ref:
-                value: '#/components/schemas/AnotherModel'
+            - $ref: '#/components/schemas/AnotherModel'
           nullable: true
-          x-cadl-name: AnotherModel | null
+          x-typespec-name: AnotherModel | null
         literalsOrNull:
           type: string
           enum:
             - one
             - two
           nullable: true
-          x-cadl-name: one | two | null
+          x-typespec-name: one | two | null
         manyNullsOneString:
           type: string
           nullable: true
-          x-cadl-name: null | null | string | null
+          x-typespec-name: null | null | string | null
         manyNullsSomeValues:
           type: number
           enum:
             - 42
             - 100
           nullable: true
-          x-cadl-name: null | 42 | null | 100 | null
+          x-typespec-name: null | 42 | null | 100 | null
         arr:
           type: array
           items:
             type: string
-          x-cadl-name: string[] | null
+          x-typespec-name: string[] | null
           nullable: true
       required:
         - str

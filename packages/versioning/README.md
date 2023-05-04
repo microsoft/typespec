@@ -1,19 +1,19 @@
-# `@cadl-lang/versioning` library
+# `@typespec/versioning` library
 
-This package provide [Cadl](https://github.com/microsoft/cadl) decorators and projections to define versioning in a service.
+This package provide [TypeSpec](https://github.com/microsoft/typespec) decorators and projections to define versioning in a service.
 
 ## Install
 
-Run the following command in your cadl project root directory.
+Run the following command in your typespec project root directory.
 
 ```bash
-npm install @cadl-lang/versioning
+npm install @typespec/versioning
 ```
 
 ## Usage
 
-```cadl
-import "@cadl-lang/versioning";
+```typespec
+import "@typespec/versioning";
 
 using Versioning;
 ```
@@ -22,7 +22,7 @@ using Versioning;
 
 Use [`@versioned`](#versioned) decorator to mark a namespace as versioned.
 
-```cadl
+```typespec
 @versioned(Versions)
 namespace MyService;
 
@@ -43,14 +43,14 @@ The following decorators can then be used to provide version evolution of a serv
 ### Consume a versioned library
 
 When consuming a versioned library, it is required to indicate which version of the library to use.
-See [`@versionedDependency`](#versioneddependency) decorator for information about this.
+See [`@useDependency`](#useDependency) decorator for information about this.
 
 ## References
 
 Decorators:
 
 - [`@versioned`](#versioned) <!-- no toc -->
-- [`@versionedDependency`](#versioneddependency)
+- [`@useDependency`](#usedependency)
 - [`@added`](#added)
 - [`@removed`](#removed)
 - [`@renamedFrom`](#renamedfrom)
@@ -60,7 +60,7 @@ Decorators:
 
 Mark a namespace as being versioned. It takes as an argument an `enum` of versions for that namespace.
 
-```cadl
+```typespec
 @versioned(Versions)
 namespace MyService;
 
@@ -71,18 +71,18 @@ enum Versions {
 }
 ```
 
-### `@versionedDependency`
+### `@useDependency`
 
 When using elements from another versioned namespace, the consuming namespace **MUST** specify which version of the consumed namespace to use even if the consuming namespace is not versioned itself.
 
-The decorator either takes:
+The decorator can either target:
 
-- a single `enum member` if using the same version or the consuming namespace is not versioned.
-- a mapping of consuming namespace version to consumed namespace version
+- an unversioned namespace.
+- individual enum members of a versioned namespace's version enum.
 
 If we have a library with the following definition:
 
-```cadl
+```typespec
 @versioned(Versions)
 namespace MyLib;
 
@@ -95,9 +95,9 @@ enum Versions {
 
 Pick a specific version to be used for all version of the service.
 
-```cadl
+```typespec
 @versioned(Versions)
-@versionedDependency(MyLib.Versions.v1_1)
+@useDependency(MyLib.Versions.v1_1)
 namespace MyService1;
 
 enum Version {
@@ -109,28 +109,25 @@ enum Version {
 
 Service is not versioned, pick which version of `MyLib` should be used.
 
-```cadl
-@versionedDependency(MyLib.Versions.v1_1)
+```typespec
+@useDependency(MyLib.Versions.v1_1)
 namespace NonVersionedService;
 ```
 
 Select mapping of version to use
 
-```cadl
+```typespec
 @versioned(Versions)
-@versionedDependency([
-  [Versions.v1, MyLib.Versions.v1_1], // V1 use lib v1_1
-  [Versions.v2, MyLib.Versions.v1_1], // V2 use lib v1_1
-  [Versions.v3, MyLib.Versions.v2],   // V3 use lib v2
-])
 namespace MyService1;
 
 enum Version {
+  @useDependency(MyLib.Versions.v1_1) // V1 use lib v1_1
   v1,
+  @useDependency(MyLib.Versions.v1_1) // V2 use lib v1_1
   v2,
+  @useDependency(MyLib.Versions.v2) // V3 use lib v2
   v3,
 }
-
 ```
 
 ### `@added`
@@ -139,7 +136,7 @@ Specify which version an entity was added. Take the enum version member.
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
-```cadl
+```typespec
 @added(Versions.v2)
 op addedInV2(): void;
 
@@ -160,7 +157,7 @@ Specify which version an entity was removed. Take the enum version member.
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
-```cadl
+```typespec
 @removed(Versions.v2)
 op removedInV2(): void;
 
@@ -181,7 +178,7 @@ Specify which version an entity was renamed and what is is old name.
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
-```cadl
+```typespec
 @renamedFrom(Versions.v2, "oldName")
 op newName(): void;
 ```
@@ -192,7 +189,7 @@ Specify which version a property was made optional
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
-```cadl
+```typespec
 model Foo {
   name: string;
 

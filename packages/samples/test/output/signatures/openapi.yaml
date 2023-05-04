@@ -4,35 +4,10 @@ info:
   version: '0000-00-00'
 tags: []
 paths:
-  /codeSignAccounts/{name}:
-    get:
-      operationId: CodeSignAccounts_get
-      description: Reads an instance of the CodeSignAccount resource.
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/CodeSignAccount'
-        default:
-          description: An unexpected error response.
-          content:
-            application/json:
-              schema:
-                $ref:
-                  value: '#/components/schemas/ErrorDetails'
-  /codeSignAccounts:
+  /accountProfiles:
     post:
-      operationId: CodeSignAccounts_create
-      description: Reads an instance of the CodeSignAccount resource.
+      operationId: AccountProfiles_create
+      description: Reads an instance of the AccountProfile resource.
       parameters: []
       responses:
         '200':
@@ -40,21 +15,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/CodeSignAccount'
+                $ref: '#/components/schemas/AccountProfile'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ErrorDetails'
+                $ref: '#/components/schemas/ErrorDetails'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/CodeSignAccount'
+              $ref: '#/components/schemas/AccountProfile'
   /accountProfiles/{name}:
     get:
       operationId: AccountProfiles_get
@@ -71,19 +43,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/AccountProfile'
+                $ref: '#/components/schemas/AccountProfile'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ErrorDetails'
-  /accountProfiles:
+                $ref: '#/components/schemas/ErrorDetails'
+  /codeSignAccounts:
     post:
-      operationId: AccountProfiles_create
-      description: Reads an instance of the AccountProfile resource.
+      operationId: CodeSignAccounts_create
+      description: Reads an instance of the CodeSignAccount resource.
       parameters: []
       responses:
         '200':
@@ -91,23 +61,51 @@ paths:
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/AccountProfile'
+                $ref: '#/components/schemas/CodeSignAccount'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref:
-                  value: '#/components/schemas/ErrorDetails'
+                $ref: '#/components/schemas/ErrorDetails'
       requestBody:
         content:
           application/json:
             schema:
-              $ref:
-                value: '#/components/schemas/AccountProfile'
+              $ref: '#/components/schemas/CodeSignAccount'
+  /codeSignAccounts/{name}:
+    get:
+      operationId: CodeSignAccounts_get
+      description: Reads an instance of the CodeSignAccount resource.
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeSignAccount'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
 components:
   schemas:
+    AccountProfile:
+      type: object
+      properties:
+        value:
+          type: integer
+          format: int32
+      required:
+        - value
     CodeSignAccount:
       type: object
       properties:
@@ -126,11 +124,3 @@ components:
       required:
         - code
         - message
-    AccountProfile:
-      type: object
-      properties:
-        value:
-          type: integer
-          format: int32
-      required:
-        - value

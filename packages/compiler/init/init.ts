@@ -2,11 +2,11 @@ import { readdir } from "fs/promises";
 import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
-import { CadlConfigFilename } from "../config/config-loader.js";
+import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
-import { formatCadl } from "../core/formatter.js";
+import { formatTypeSpec } from "../core/formatter.js";
 import { NodePackage } from "../core/module-resolver.js";
-import { getBaseFileName, joinPaths } from "../core/path-utils.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
@@ -19,9 +19,14 @@ interface ScaffoldingConfig extends InitTemplate {
   templateUri: string;
 
   /**
-   * Directory where the project should be initialized.
+   * Directory full path where the project should be initialized.
    */
   directory: string;
+
+  /**
+   * folder name where the project should be initialized.
+   */
+  folderName: string;
 
   /**
    * Name of the project.
@@ -34,12 +39,51 @@ interface ScaffoldingConfig extends InitTemplate {
   libraries: string[];
 
   /**
+   * A flag to indicate not adding @typespec/compiler package to package.json.
+   * Other libraries may already brought in the dependency such as Azure template.
+   */
+  skipCompilerPackage: boolean;
+
+  /**
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
+
+  /**
+   * NormalizeVersion function replaces `-` with `_`.
+   */
+  normalizeVersion: () => (text: string, render: any) => string;
+
+  /**
+   * toLowerCase function for template replacement
+   */
+  toLowerCase: () => (text: string, render: any) => string;
+
+  /**
+   * Normalize package name for langauges other than C#. It replaces `.` with `-` and toLowerCase
+   */
+  normalizePackageName: () => (text: string, render: any) => string;
 }
 
-export async function initCadlProject(
+const normalizeVersion = function () {
+  return function (text: string, render: any): string {
+    return render(text).replaceAll("-", "_");
+  };
+};
+
+const toLowerCase = function () {
+  return function (text: string, render: any): string {
+    return render(text).toLowerCase();
+  };
+};
+
+const normalizePackageName = function () {
+  return function (text: string, render: any): string {
+    return render(text).replaceAll(".", "-").toLowerCase();
+  };
+};
+
+export async function initTypeSpecProject(
   host: CompilerHost,
   directory: string,
   templatesUrl?: string
@@ -67,7 +111,12 @@ export async function initCadlProject(
     libraries,
     name,
     directory,
+    skipCompilerPackage: template.skipCompilerPackage ?? false,
+    folderName,
     parameters,
+    normalizeVersion,
+    toLowerCase,
+    normalizePackageName,
   };
   await scaffoldNewProject(host, scaffoldingConfig);
 }
@@ -116,9 +165,9 @@ const builtInTemplates: Record<string, InitTemplate> = {
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
-    libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
+    libraries: ["@typespec/rest", "@typespec/openapi3"],
     config: {
-      emit: ["@cadl-lang/openapi3"],
+      emit: ["@typespec/openapi3"],
     },
   },
 };
@@ -203,13 +252,15 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writeFiles(host, config);
 
   // eslint-disable-next-line no-console
-  console.log("Cadl init completed. You can run `cadl install` now to install dependencies.");
+  console.log("TypeSpec init completed. You can run `tsp install` now to install dependencies.");
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
-  const dependencies: Record<string, string> = {
-    "@cadl-lang/compiler": "latest",
-  };
+  const dependencies: Record<string, string> = {};
+
+  if (!config.skipCompilerPackage) {
+    dependencies["@typespec/compiler"] = "latest";
+  }
 
   for (const library of config.libraries) {
     dependencies[library] = "latest";
@@ -234,7 +285,7 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
     return;
   }
   const content = jsyaml.dump(config.config);
-  return host.writeFile(joinPaths(config.directory, CadlConfigFilename), content);
+  return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
 async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
@@ -247,7 +298,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(joinPaths(config.directory, "main.cadl"), formatCadl(content));
+  return host.writeFile(joinPaths(config.directory, "main.tsp"), formatTypeSpec(content));
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
@@ -260,11 +311,12 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
-  const template = await readUrlOrPath(
-    host,
-    resolveRelativeUrlOrPath(config.templateUri, file.path)
-  );
+  const baseDir = getDirectoryPath(config.templateUri) + "/";
+  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
   const content = Mustache.render(template.text, config);
+  const destinationFilePath = joinPaths(config.directory, file.destination);
+  // create folders in case they don't exist
+  await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 

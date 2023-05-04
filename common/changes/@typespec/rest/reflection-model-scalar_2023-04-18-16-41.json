@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Update decorator declaration to use `Model` instead of `object`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}

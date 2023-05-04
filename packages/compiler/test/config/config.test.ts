@@ -1,8 +1,8 @@
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
-import { CadlConfigJsonSchema } from "../../config/config-schema.js";
-import { CadlRawConfig, loadCadlConfigForPath } from "../../config/index.js";
+import { TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { NodeHost } from "../../core/node-host.js";
 import { createJSONSchemaValidator } from "../../core/schema-validator.js";
@@ -12,20 +12,37 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 describe("compiler: config file loading", () => {
   describe("file discovery", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
-    const loadTestConfig = async (folderName: string) => {
-      const folderPath = join(scenarioRoot, folderName);
-      const { filename, projectRoot, ...config } = await loadCadlConfigForPath(
+    const loadTestConfig = async (path: string, errorIfNotFound: boolean = true) => {
+      const fullPath = join(scenarioRoot, path);
+      const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
-        folderPath
+        fullPath,
+        errorIfNotFound
       );
       return config;
     };
+
+    it("loads full path to custom config file", async () => {
+      const config = await loadTestConfig("custom/myConfig.yaml");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        emit: ["openapi"],
+      });
+    });
+
+    it("emits diagnostic for bad custom config file path", async () => {
+      const config = await loadTestConfig("custom/myConfigY.yaml");
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-path-not-found");
+      strictEqual(config.diagnostics[0].severity, "error");
+    });
 
     it("loads yaml config file", async () => {
       const config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
     });
@@ -34,26 +51,52 @@ describe("compiler: config file loading", () => {
       const config = await loadTestConfig("extends");
       deepStrictEqual(config, {
         diagnostics: [],
-        extends: "./cadl-base.yaml",
-        outputDir: "{cwd}/cadl-output",
+        extends: "./typespec-base.yaml",
+        outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
     });
 
-    it("loads empty config if it can't find any config files", async () => {
-      const config = await loadTestConfig("empty");
+    it("backcompat: loads old cadl-project.yaml config file if tspconfig.yaml not found", async () => {
+      const config = await loadTestConfig("backcompat/cadl-project-only");
+      deepStrictEqual(config, {
+        diagnostics: [
+          {
+            code: "deprecated",
+            message:
+              "Deprecated: `cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
+            severity: "warning",
+            target: Symbol.for("NoTarget"),
+          },
+        ],
+        outputDir: "{cwd}/tsp-output",
+        emit: ["old-emitter"],
+      });
+    });
+
+    it("backcompat: loads tspconfig.yaml even if cadl-project.yaml is found", async () => {
+      const config = await loadTestConfig("backcompat/mixed");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/tsp-output",
+        emit: ["new-emitter"],
+      });
+    });
+
+    it("loads empty config if it can't find any config files", async () => {
+      const config = await loadTestConfig("empty", false);
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
       });
     });
 
     it("deep clones defaults when not found", async () => {
-      let config = await loadTestConfig("empty");
-      config = await loadTestConfig("empty");
+      let config = await loadTestConfig("empty", false);
+      config = await loadTestConfig("empty", false);
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/tsp-output",
       });
     });
 
@@ -63,17 +106,17 @@ describe("compiler: config file loading", () => {
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
-        outputDir: "{cwd}/cadl-output",
+        outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
     });
   });
 
   describe("validation", () => {
-    const validator = createJSONSchemaValidator(CadlConfigJsonSchema);
+    const validator = createJSONSchemaValidator(TypeSpecConfigJsonSchema);
     const file = createSourceFile("<content>", "<path>");
 
-    function validate(data: CadlRawConfig) {
+    function validate(data: TypeSpecRawConfig) {
       return validator.validate(data, file);
     }
 

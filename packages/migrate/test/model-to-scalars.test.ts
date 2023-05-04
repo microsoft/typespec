@@ -1,10 +1,10 @@
 import { strictEqual } from "assert";
-import { migrateCadlContent } from "../src/migrate.js";
+import { migrateTypeSpecContent } from "../src/migration-impl.js";
 import { migrateModelToScalar } from "../src/migrations/v0.38/model-to-scalars.js";
 
 describe("migration: model to scalars", () => {
   it("various models", async () => {
-    const [result] = await migrateCadlContent(
+    const [result] = await migrateTypeSpecContent(
       `
 model foo is string;
 
@@ -37,7 +37,7 @@ scalar Resource<T> extends int32;
   });
 
   it("inside namespace", async () => {
-    const [result] = await migrateCadlContent(
+    const [result] = await migrateTypeSpecContent(
       `
 namespace MyService {        
   model foo is string;
@@ -57,7 +57,7 @@ namespace MyService {
   });
 
   it("with operations", async () => {
-    const [result] = await migrateCadlContent(
+    const [result] = await migrateTypeSpecContent(
       `
 model foo is string;
 
