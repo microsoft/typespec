@@ -105,7 +105,7 @@ namespace Microsoft.TypeSpec.VisualStudio
             }
             catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.ERROR_FILE_NOT_FOUND)
             {
-                throw new TypeSpecServerNotFoundException(info.FileName, e);
+                throw new TypeSpecServerNotFoundException(info, e);
             }
         }
 
