@@ -46,6 +46,8 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, command
 export function useMonacoModel(uri: string, language?: string): editor.IModel {
   return useMemo(() => {
     const monacoUri = Uri.parse(uri);
-    return editor.getModel(monacoUri) ?? editor.createModel("", language, monacoUri);
+    const model = editor.getModel(monacoUri) ?? editor.createModel("", language, monacoUri);
+    console.log("Uir", model.getLanguageId(), uri, monacoUri);
+    return model;
   }, [uri, language]);
 }

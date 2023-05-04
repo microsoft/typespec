@@ -92,8 +92,8 @@ export class HttpLowLevelEmitter extends CodeTypeEmitter {
     return JSON.stringify(string.value);
   }
 
-  modelScalar(scalar: Scalar) {
-    return this.emitter.result.rawCode(scalar.name);
+  scalarDeclaration(scalar: Scalar) {
+    return scalar.name;
   }
 
   modelLiteral(model: Model) {
@@ -332,10 +332,11 @@ export class HttpLowLevelEmitter extends CodeTypeEmitter {
     try {
       emittedSourceFile.contents = formatTypeSpec(emittedSourceFile.contents);
     } catch (e) {
+      console.error(e);
       this.emitter.getProgram().reportDiagnostic({
         code: "format-fail",
         severity: "warning",
-        message: "Failed to format",
+        message: `Failed to format: ${e}`,
         target: NoTarget,
       });
     }

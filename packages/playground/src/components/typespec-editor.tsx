@@ -34,7 +34,7 @@ export const OutputEditor: FunctionComponent<{ filename: string; value: string }
       enabled: false,
     },
   };
-  const model = useMonacoModel(`inmemory://test/${filename}`);
+  const model = useMonacoModel(`inmemory://test/${filename.replace(/\//g, "-")}`);
   model.setValue(value);
   return <Editor model={model} options={options}></Editor>;
 };
