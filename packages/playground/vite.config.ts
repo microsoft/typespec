@@ -9,6 +9,7 @@ const config = definePlaygroundViteConfig({
     "@typespec/rest",
     "@typespec/openapi",
     "@typespec/versioning",
+    "@typespec/http-low-level",
     "@typespec/openapi3",
     "@typespec/protobuf",
   ],

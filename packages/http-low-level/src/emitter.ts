@@ -345,7 +345,7 @@ export class HttpLowLevelEmitter extends CodeTypeEmitter {
 
 class SingleFileEmitter extends HttpLowLevelEmitter {
   programContext(): Context {
-    const outputFile = this.emitter.createSourceFile("cadl-output/output.cadl");
+    const outputFile = this.emitter.createSourceFile("cadl-output/output.tsp");
     return { scope: outputFile.globalScope };
   }
 }
