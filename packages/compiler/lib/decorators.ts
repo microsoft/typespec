@@ -708,9 +708,9 @@ export function $withoutOmittedProperties(
   if (typeof omitProperties === "string") {
     omitNames.add(omitProperties);
   } else {
-    for (const value of omitProperties.options) {
-      if (value.kind === "String") {
-        omitNames.add(value.value);
+    for (const variant of omitProperties.variants.values()) {
+      if (variant.type.kind === "String") {
+        omitNames.add(variant.type.value);
       }
     }
   }
@@ -864,7 +864,7 @@ export function $knownValues(
         code: "known-values-invalid-enum",
         format: {
           member: member.name,
-          type: context.program.checker.getTypeName(propertyType),
+          type: getTypeName(propertyType),
         },
         target,
       });

@@ -335,10 +335,13 @@ export async function compile(
   if (resolvedMain) {
     let emit = options.emit;
     let emitterOptions = options.options;
+    /* eslint-disable deprecation/deprecation */
     if (options.emitters) {
       emit ??= Object.keys(options.emitters);
       emitterOptions ??= options.emitters;
     }
+    /* eslint-enable deprecation/deprecation */
+
     await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
   }
 
@@ -1199,6 +1202,7 @@ export function createStateAccessors(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
+  // eslint-disable-next-line deprecation/deprecation
   const outputDir = options.outputDir ?? options.outputPath;
   return {
     ...options,

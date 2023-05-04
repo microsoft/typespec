@@ -303,20 +303,26 @@ export function createServer(host: ServerHost): Server {
           changeNotifications: true,
         },
       };
+      // eslint-disable-next-line deprecation/deprecation
     } else if (params.rootUri) {
       workspaceFolders = [
         {
           name: "<root>",
+          // eslint-disable-next-line deprecation/deprecation
           uri: params.rootUri,
+          // eslint-disable-next-line deprecation/deprecation
           path: ensureTrailingDirectorySeparator(await fileURLToRealPath(params.rootUri)),
         },
       ];
+      // eslint-disable-next-line deprecation/deprecation
     } else if (params.rootPath) {
       workspaceFolders = [
         {
           name: "<root>",
+          // eslint-disable-next-line deprecation/deprecation
           uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(
+            // eslint-disable-next-line deprecation/deprecation
             await getNormalizedRealPath(compilerHost, params.rootPath)
           ),
         },
