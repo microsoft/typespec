@@ -13,6 +13,7 @@ import {
   TemplateDeclarationNode,
   TemplatedType,
   Type,
+  TypeMapper,
   UnknownType,
   VoidType,
 } from "./types.js";
@@ -63,7 +64,7 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
  */
 export function isTemplateInstance(
   type: Type
-): type is TemplatedType & { templateArguments: Type[] } {
+): type is TemplatedType & { templateArguments: Type[]; templateMapper: TypeMapper } {
   const maybeTemplateType = type as TemplatedType;
   return (
     maybeTemplateType.templateMapper !== undefined && !maybeTemplateType.templateMapper.partial

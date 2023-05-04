@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Cleanup deprecated use",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
