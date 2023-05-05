@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Normalizing cwd before first use in getCompilerOptions()",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

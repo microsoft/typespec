@@ -1,11 +1,15 @@
 import {
+  isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
 import {
+  StdTypeName,
   getDiscriminatedUnion,
   getTypeName,
+  ignoreDiagnostics,
+  reportDeprecated,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
@@ -208,6 +212,14 @@ export function $format(context: DecoratorContext, target: Scalar | ModelPropert
   if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
     return;
   }
+  const targetType = getPropertyType(target);
+  if (targetType.kind === "Scalar" && isIntrinsicType(context.program, targetType, "bytes")) {
+    reportDeprecated(
+      context.program,
+      "Using `@format` on a bytes scalar is deprecated. Use `@encode` instead. https://github.com/microsoft/typespec/issues/1873",
+      target
+    );
+  }
 
   context.program.stateMap(formatValuesKey).set(target, format);
 }
@@ -227,7 +239,7 @@ export function $pattern(
 ) {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", "string")) {
+  if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", ["string"])) {
     return;
   }
 
@@ -250,7 +262,7 @@ export function $minLength(
   validateDecoratorUniqueOnNode(context, target, $minLength);
 
   if (
-    !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string") ||
+    !validateDecoratorTargetIntrinsic(context, target, "@minLength", ["string"]) ||
     !validateRange(context, minLength, getMaxLength(context.program, target))
   ) {
     return;
@@ -275,7 +287,7 @@ export function $maxLength(
   validateDecoratorUniqueOnNode(context, target, $maxLength);
 
   if (
-    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string") ||
+    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", ["string"]) ||
     !validateRange(context, getMinLength(context.program, target), maxLength)
   ) {
     return;
@@ -523,7 +535,7 @@ const secretTypesKey = createStateSymbol("secretTypes");
 export function $secret(context: DecoratorContext, target: Scalar | ModelProperty) {
   validateDecoratorUniqueOnNode(context, target, $secret);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@secret", "string")) {
+  if (!validateDecoratorTargetIntrinsic(context, target, "@secret", ["string"])) {
     return;
   }
   context.program.stateMap(secretTypesKey).set(target, true);
@@ -531,6 +543,107 @@ export function $secret(context: DecoratorContext, target: Scalar | ModelPropert
 
 export function isSecret(program: Program, target: Type): boolean | undefined {
   return program.stateMap(secretTypesKey).get(target);
+}
+
+export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimeStamp";
+export type DurationKnownEncoding = "ISO8601" | "seconds";
+export type BytesKnownEncoding = "base64" | "base64url";
+export interface EncodeData {
+  encoding: DateTimeKnownEncoding | DurationKnownEncoding | string;
+  type: Scalar;
+}
+
+const encodeKey = createStateSymbol("encode");
+export function $encode(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  encoding: string | EnumMember,
+  encodeAs?: Scalar
+) {
+  validateDecoratorUniqueOnNode(context, target, $encode);
+
+  const encodeData: EncodeData = {
+    encoding: typeof encoding === "string" ? encoding : encoding.value?.toString() ?? encoding.name,
+    type: encodeAs ?? context.program.checker.getStdType("string"),
+  };
+  const targetType = getPropertyType(target);
+  if (targetType.kind !== "Scalar") {
+    return;
+  }
+  validateEncodeData(context, targetType, encodeData);
+  context.program.stateMap(encodeKey).set(target, encodeData);
+}
+
+function validateEncodeData(context: DecoratorContext, target: Scalar, encodeData: EncodeData) {
+  function check(validTargets: StdTypeName[], validEncodeTypes: StdTypeName[]) {
+    const checker = context.program.checker;
+    const isTargetValid = validTargets.some((validTarget) => {
+      return ignoreDiagnostics(
+        checker.isTypeAssignableTo(
+          target.projectionBase ?? target,
+          checker.getStdType(validTarget),
+          target
+        )
+      );
+    });
+
+    if (!isTargetValid) {
+      reportDiagnostic(context.program, {
+        code: "invalid-encode",
+        messageId: "wrongType",
+        format: {
+          encoding: encodeData.encoding,
+          type: getTypeName(target),
+          expected: validTargets.join(", "),
+        },
+        target: context.decoratorTarget,
+      });
+    }
+    const isEncodingTypeValid = validEncodeTypes.some((validEncoding) => {
+      return ignoreDiagnostics(
+        checker.isTypeAssignableTo(
+          encodeData.type.projectionBase ?? encodeData.type,
+          checker.getStdType(validEncoding),
+          target
+        )
+      );
+    });
+
+    if (!isEncodingTypeValid) {
+      reportDiagnostic(context.program, {
+        code: "invalid-encode",
+        messageId: "wrongEncodingType",
+        format: {
+          encoding: encodeData.encoding,
+          type: getTypeName(target),
+          expected: validEncodeTypes.join(", "),
+        },
+        target: context.decoratorTarget,
+      });
+    }
+  }
+
+  switch (encodeData.encoding) {
+    case "rfc3339":
+      return check(["utcDateTime", "offsetDateTime"], ["string"]);
+    case "rfc7231":
+      return check(["utcDateTime", "offsetDateTime"], ["string"]);
+    case "unixTimeStamp":
+      return check(["utcDateTime"], ["string"]);
+    case "seconds":
+      return check(["duration"], ["numeric"]);
+    case "base64":
+      return check(["bytes"], ["string"]);
+    case "base64url":
+      return check(["bytes"], ["string"]);
+  }
+}
+
+export function getEncode(
+  program: Program,
+  target: Scalar | ModelProperty
+): EncodeData | undefined {
+  return program.stateMap(encodeKey).get(target);
 }
 
 // -- @visibility decorator ---------------------
@@ -605,9 +718,9 @@ export function $withoutOmittedProperties(
   if (typeof omitProperties === "string") {
     omitNames.add(omitProperties);
   } else {
-    for (const value of omitProperties.options) {
-      if (value.kind === "String") {
-        omitNames.add(value.value);
+    for (const variant of omitProperties.variants.values()) {
+      if (variant.type.kind === "String") {
+        omitNames.add(variant.type.value);
       }
     }
   }
@@ -761,7 +874,7 @@ export function $knownValues(
         code: "known-values-invalid-enum",
         format: {
           member: member.name,
-          type: context.program.checker.getTypeName(propertyType),
+          type: getTypeName(propertyType),
         },
         target,
       });
@@ -821,15 +934,6 @@ export function getKeyName(program: Program, property: ModelProperty): string {
   return program.stateMap(keyKey).get(property);
 }
 
-/**
- * `@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
- *
- * The first argument accepts a string representing the desired default
- * visibility value.  If a key property already has a `visibility` decorator
- * then the default visibility is not applied.
- *
- * `@withDefaultKeyVisibility` can only be applied to model types.
- */
 export function $withDefaultKeyVisibility(
   context: DecoratorContext,
   entity: Model,

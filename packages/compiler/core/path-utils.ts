@@ -436,7 +436,7 @@ export function getPathFromPathComponents(pathComponents: readonly string[]) {
 export function removeTrailingDirectorySeparator(path: string): string;
 export function removeTrailingDirectorySeparator(path: string) {
   if (hasTrailingDirectorySeparator(path)) {
-    return path.substr(0, path.length - 1);
+    return path.substring(0, path.length - 1);
   }
 
   return path;

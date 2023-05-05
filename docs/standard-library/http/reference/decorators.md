@@ -129,9 +129,9 @@ dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: b
 
 #### Parameters
 
-| Name  | Type             | Description |
-| ----- | ---------------- | ----------- |
-| value | `scalar boolean` |             |
+| Name  | Type             | Description                                                     |
+| ----- | ---------------- | --------------------------------------------------------------- |
+| value | `scalar boolean` | If true, inapplicable metadata will be included in the payload. |
 
 ### `@patch` {#@TypeSpec.Http.patch}
 
@@ -255,10 +255,10 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 
 #### Parameters
 
-| Name    | Type                      | Description                                           |
-| ------- | ------------------------- | ----------------------------------------------------- |
-| path    | `scalar string`           | Relative route path. Cannot include query parameters. |
-| options | `model (anonymous model)` |                                                       |
+| Name    | Type                      | Description                                                                                                                                  |
+| ------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| path    | `scalar string`           | Relative route path. Cannot include query parameters.                                                                                        |
+| options | `model (anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ### `@server` {#@TypeSpec.Http.server}
 

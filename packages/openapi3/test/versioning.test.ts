@@ -8,7 +8,7 @@ describe("openapi3: versioning", () => {
     const { v1, v2, v3 } = await openApiFor(
       `
       @versioned(Versions)
-      @service({title: "My Service", version: "hi"})
+      @service({title: "My Service"})
       namespace MyService {
         enum Versions {
           @useDependency(MyLibrary.Versions.A)

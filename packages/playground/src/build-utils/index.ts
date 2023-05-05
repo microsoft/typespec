@@ -63,11 +63,23 @@ function playgroundManifestPlugin(config: PlaygroundConfig): Plugin {
     load(id: string) {
       if (id === `playground-manifest.js`) {
         const sampleImport = Object.values(samples)
-          .map((path, index) => `import s${index} from "${viteConfig.root}/${path}?raw"`)
+          .map(
+            (sampleValue, index) =>
+              `import s${index} from "${viteConfig.root}/${sampleValue.fileName}?raw"`
+          )
           .join("\n");
         const sampleObj = [
           "{",
-          ...Object.keys(samples).map((label, index) => `${JSON.stringify(label)}: s${index}, `),
+          ...Object.entries(samples).map(
+            ([label, config], index) =>
+              `${JSON.stringify(label)}: {
+                fileName: ${JSON.stringify(config.fileName)},
+                preferredEmitter: ${
+                  config.preferredEmitter ? JSON.stringify(config.preferredEmitter) : "undefined"
+                },
+                content: s${index}
+              }, `
+          ),
           "}",
         ].join("\n");
 

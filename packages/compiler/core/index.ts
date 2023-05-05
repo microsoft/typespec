@@ -8,9 +8,11 @@ export * from "./emitter-utils.js";
 export * from "./formatter.js";
 export * from "./helpers/index.js";
 export {
+  // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,
   createTypeSpecLibrary,
   paramMessage,
+  // eslint-disable-next-line deprecation/deprecation
   setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";

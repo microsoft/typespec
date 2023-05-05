@@ -22,6 +22,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HasNullables'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
