@@ -592,6 +592,33 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance2, ["a", "b"]);
   });
 
+  it("use template from another library with versioned model", async () => {
+    await runner.compile(`
+      @versioned(Versions)
+      namespace VersionedLib {
+        enum Versions {v1, v2}
+        model Template<T> {
+          t: T;
+        }
+      }
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {
+          @useDependency(VersionedLib.Versions.v1)
+          v1,
+          @useDependency(VersionedLib.Versions.v2)
+          v2
+        }
+
+        @test @added(Versions.v2)
+        model Test is VersionedLib.Template<Bar>;
+
+        @added(Versions.v2)
+        model Bar {}
+      }
+      `);
+  });
+
   it("respect changes in library between linked versions", async () => {
     const { MyService, Test } = (await runner.compile(`
       @versioned(Versions)
