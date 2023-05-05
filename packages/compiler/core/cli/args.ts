@@ -75,7 +75,7 @@ export async function getCompilerOptions(
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
     outputDir: expandedConfig.outputDir,
-    config: args["config"],
+    config: config.filename,
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,
