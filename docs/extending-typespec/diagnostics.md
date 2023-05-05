@@ -14,7 +14,7 @@ TypeSpec compiler report errors and warnings in the spec using the diagnostic AP
 - Each diagnostic MUST have a `code`. The full code is the the library name followed by the declared code. (`<lib-name>/<local-code>`)
 - Each diagnostic MUST have a `severity`. It can be `error`, `warning`. Errors cannot be suppressed
 - Each diagnostics MUST have at least one message. Using `default` as the `messageId` will allow it to be the default selected.
-- Each diagnostics message CAN have parameters to interpolate information into the message
+- Each diagnostics message MAY have parameters to interpolate information into the message
 
 ## Usage
 
