@@ -781,7 +781,7 @@ export async function compile(
     };
     try {
       await emitter.emitFunction(context);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
       if (emitter.metadata.bugs?.url) {
         msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
@@ -789,7 +789,12 @@ export async function compile(
         msg.push(`Please contact emitter author to report this issue.`);
       }
       msg.push("");
-      if ("stack" in error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "stack" in error &&
+        typeof error.stack === "string"
+      ) {
         msg.push(error.stack);
       } else {
         msg.push(String(error));
