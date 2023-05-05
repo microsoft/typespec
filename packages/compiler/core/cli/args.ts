@@ -8,6 +8,7 @@ import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
 import { normalizePath, resolvePath } from "../path-utils.js";
 import { CompilerHost, Diagnostic } from "../types.js";
+import { deepClone, omitUndefined } from "../util.js";
 
 export interface CompileCliArgs {
   "output-dir"?: string;
