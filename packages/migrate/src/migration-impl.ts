@@ -202,8 +202,16 @@ function ContentMigration(
   const newContent = segments.join("");
 
   try {
+    if ("formatCadl" in toCompiler) {
+      // For migration before rename.
+      return [(toCompiler as any).formatCadl(newContent), true];
+    }
     return [(toCompiler as any).formatTypeSpec(newContent), true];
   } catch (e) {
+    console.log(
+      "TSP compiler",
+      Object.keys(toCompiler).filter((x) => x.startsWith("format"))
+    );
     // eslint-disable-next-line no-console
     console.error("Failed to format new code", e);
     return [newContent, true];

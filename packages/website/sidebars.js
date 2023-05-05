@@ -88,8 +88,9 @@ const sidebars = {
           label: "Http",
           items: [
             "standard-library/http/overview",
-            createLibraryReferenceStructure("http"),
             "standard-library/http/authentication",
+            "standard-library/http/operations",
+            createLibraryReferenceStructure("http"),
           ],
         },
         {
@@ -97,9 +98,8 @@ const sidebars = {
           label: "Rest",
           items: [
             "standard-library/rest/overview",
-            createLibraryReferenceStructure("rest"),
-            "standard-library/rest/operations",
             "standard-library/rest/resource-routing",
+            createLibraryReferenceStructure("rest"),
           ],
         },
         {
@@ -107,8 +107,8 @@ const sidebars = {
           label: "OpenAPI",
           items: [
             "standard-library/openapi/overview",
-            createLibraryReferenceStructure("openapi", ["standard-library/openapi/diagnostics"]),
             "standard-library/openapi/openapi",
+            createLibraryReferenceStructure("openapi", ["standard-library/openapi/diagnostics"]),
           ],
         },
         {
@@ -134,6 +134,7 @@ const sidebars = {
       label: "Writing TypeSpec Libraries",
       items: [
         "extending-typespec/basics",
+        "extending-typespec/diagnostics",
         "extending-typespec/create-decorators",
         "extending-typespec/linters",
         "extending-typespec/emitters",
