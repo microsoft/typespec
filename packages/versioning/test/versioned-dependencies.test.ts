@@ -602,7 +602,7 @@ describe("versioning: dependencies", () => {
         }
       }
       @versioned(Versions)
-      @test namespace MyService {
+      namespace MyService {
         enum Versions {
           @useDependency(VersionedLib.Versions.v1)
           v1,
@@ -610,7 +610,7 @@ describe("versioning: dependencies", () => {
           v2
         }
 
-        @test @added(Versions.v2)
+        @added(Versions.v2)
         model Test is VersionedLib.Template<Bar>;
 
         @added(Versions.v2)

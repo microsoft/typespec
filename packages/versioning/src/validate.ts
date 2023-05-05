@@ -322,8 +322,8 @@ function validateTargetVersionCompatible(
   const [targetNamespace] = getVersions(program, target);
   if (!targetAvailability || !targetNamespace) return;
 
-  if (sourceNamespace && sourceNamespace !== targetNamespace) {
-    const dependencies = getVersionDependencies(program, sourceNamespace);
+  if (sourceNamespace !== targetNamespace) {
+    const dependencies = sourceNamespace && getVersionDependencies(program, sourceNamespace);
     const versionMap = dependencies?.get(targetNamespace);
     if (versionMap === undefined) return;
 
