@@ -109,8 +109,8 @@ export const updatePackageVersion = createPackageVersionMigration({
 export const migrateCadlNameToTypeSpec = createContentMigration({
   name: "Migrate Model To scalar",
   kind: MigrationKind.AstContentMigration,
-  from: "0.40.0",
-  to: "0.41.0",
+  from: "0.40",
+  to: "0.41",
   migrate: (
     { printNode, printNodes }: MigrationContext,
     compilerV40: TypeSpecCompilerV0_40,

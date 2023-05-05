@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add `projectRoot` to program",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
