@@ -631,6 +631,8 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
 
     if (nsVersion !== undefined) {
       return cacheVersion(t, [t, nsVersion]);
+    } else if (getUseDependencies(p, t) !== undefined) {
+      return cacheVersion(t, [t, undefined!]);
     } else if (t.namespace) {
       return cacheVersion(t, getVersions(p, t.namespace));
     } else {

@@ -681,6 +681,15 @@ const diagnostics = {
     },
   },
 
+  "invalid-encode": {
+    severity: "error",
+    messages: {
+      default: "Invalid encoding",
+      wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type ${"type"}. Expected a ${"expected"}.`,
+      wrongEncodingType: paramMessage`Encoding '${"encoding"}' cannot be used on type ${"type"}. Expected a ${"expected"}.`,
+    },
+  },
+
   /**
    * Service
    */

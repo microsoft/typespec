@@ -11,6 +11,7 @@ import {
   getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
+  getEncode,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -1076,6 +1077,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const requestBody: any = {
       description: body.parameter ? getDoc(program, body.parameter) : undefined,
+      required: body.parameter ? !body.parameter.optional : true,
       content: {},
     };
 
@@ -1690,6 +1692,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.format = "password";
     }
 
+    const encodeData = getEncode(program, typespecType);
+    if (encodeData) {
+      const newType = getSchemaForScalar(encodeData.type);
+      newTarget.type = newType.type;
+      newTarget.format = mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
+    }
+
     if (isString) {
       const values = getKnownValues(program, typespecType);
       if (values) {
@@ -1702,6 +1711,24 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     attachExtensions(program, typespecType, newTarget);
 
     return newTarget;
+  }
+
+  function mergeFormatAndEncoding(format: string | undefined, encoding: string): string {
+    switch (format) {
+      case undefined:
+        return encoding;
+      case "date-time":
+        switch (encoding) {
+          case "rfc3339":
+            return "date-time";
+          case "unixTimestamp":
+            return "unix-timestamp";
+          default:
+            return `date-time-${encoding}`;
+        }
+      default:
+        return encoding;
+    }
   }
 
   function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {

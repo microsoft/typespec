@@ -1,7 +1,7 @@
 module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: { project: "./tsconfig.json" },
-  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "mocha"],
+  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "mocha", "deprecation"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   env: {
     node: true,
@@ -22,6 +22,11 @@ module.exports = {
     ],
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-misused-promises": "error",
+
+    /**
+     * Unicorn
+     */
+    "deprecation/deprecation": ["warn"],
 
     /**
      * Unicorn

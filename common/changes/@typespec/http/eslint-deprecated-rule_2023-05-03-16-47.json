@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Cleanup deprecated use",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
