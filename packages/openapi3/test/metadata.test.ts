@@ -468,6 +468,67 @@ describe("openapi3: metadata", () => {
     });
   });
 
+  it("Constructs an implicit body from non-metadata parameters", async () => {
+    const res = await openApiFor(
+      `
+      @route("/test") @post op test(
+        @query q: string;
+        @header h: string;
+        foo: string;
+        bar: int32;
+      ): string;
+      `
+    );
+    deepStrictEqual(res.paths, {
+      "/test": {
+        post: {
+          operationId: "test",
+          parameters: [
+            {
+              name: "q",
+              in: "query",
+              required: true,
+              schema: { type: "string" },
+            },
+            {
+              name: "h",
+              in: "header",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "The request has succeeded.",
+              content: { "application/json": { schema: { type: "string" } } },
+            },
+          },
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  properties: {
+                    bar: {
+                      format: "int32",
+                      type: "integer",
+                    },
+                    foo: {
+                      type: "string",
+                    },
+                  },
+                  required: ["foo", "bar"],
+                  type: "object",
+                  "x-typespec-name": "(anonymous model)",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
   it("Supports optional request bodies", async () => {
     const res = await openApiFor(
       `
@@ -711,6 +772,7 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
+            required: true,
             content: {
               "application/json": {
                 schema: {
