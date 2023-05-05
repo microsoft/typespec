@@ -67,7 +67,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.30.7
   '@typescript-eslint/utils': ~5.26.0
   '@typespec/compiler-v0.37': npm:@cadl-lang/compiler@0.37.0
-  '@typespec/compiler-v0.38': npm:@cadl-lang/compiler@0.38.0
+  '@typespec/compiler-v0.38': npm:@cadl-lang/compiler@0.38.5
   '@typespec/compiler-v0.40': npm:@cadl-lang/compiler@0.40.0
   '@typespec/compiler-v0.41': npm:@typespec/compiler@0.41.0
   '@typespec/compiler-v0.42': npm:@typespec/compiler@0.42.0
@@ -205,7 +205,7 @@ dependencies:
   '@typescript-eslint/parser': 5.58.0_eslint@8.38.0+typescript@5.0.4
   '@typescript-eslint/utils': 5.26.0_eslint@8.38.0+typescript@5.0.4
   '@typespec/compiler-v0.37': /@cadl-lang/compiler/0.37.0
-  '@typespec/compiler-v0.38': /@cadl-lang/compiler/0.38.0
+  '@typespec/compiler-v0.38': /@cadl-lang/compiler/0.38.5
   '@typespec/compiler-v0.40': /@cadl-lang/compiler/0.40.0
   '@typespec/compiler-v0.41': /@typespec/compiler/0.41.0
   '@typespec/compiler-v0.42': /@typespec/compiler/0.42.0
@@ -1831,8 +1831,8 @@ packages:
       yargs: 17.3.1
     dev: false
 
-  /@cadl-lang/compiler/0.38.0:
-    resolution: {integrity: sha512-SvKEbPdlNzkK7DWd/yM2+IiIVn593rv2bntzU+JY15LzbKmTDH6rrkArkr0nR7lMzcBXpBEEvU3vfRdeRrOTyg==}
+  /@cadl-lang/compiler/0.38.5:
+    resolution: {integrity: sha512-jd6a8TEp9ApBzekTb39aBPocYrkuqzsQbLTDcc/c6tA47Wmr87463MAXpeB80ziEsr15sccI01j3g63jt5W0Aw==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:
@@ -16082,7 +16082,7 @@ packages:
     dev: false
 
   file:projects/migrate.tgz:
-    resolution: {integrity: sha512-f3WvrJGpREicOhpHF9DScH5LqpU0gzUkil1BlMhU83OhD0VP9Fbu2ATNjR2KnwDXafWjcphRLjzyO1pIQw9Ixg==, tarball: file:projects/migrate.tgz}
+    resolution: {integrity: sha512-9RqAwH5VVmuPxK0rRgSO4RUB8P3pGeLsYC478Vwchz32QazimcvfzI6EGLhZokz/gREugF3/UybmwtG+Cthu5A==, tarball: file:projects/migrate.tgz}
     name: '@rush-temp/migrate'
     version: 0.0.0
     dependencies:
@@ -16093,7 +16093,7 @@ packages:
       '@types/semver': 7.3.13
       '@types/yargs': 17.0.24
       '@typespec/compiler-v0.37': /@cadl-lang/compiler/0.37.0
-      '@typespec/compiler-v0.38': /@cadl-lang/compiler/0.38.0
+      '@typespec/compiler-v0.38': /@cadl-lang/compiler/0.38.5
       '@typespec/compiler-v0.40': /@cadl-lang/compiler/0.40.0
       '@typespec/compiler-v0.41': /@typespec/compiler/0.41.0
       '@typespec/compiler-v0.42': /@typespec/compiler/0.42.0

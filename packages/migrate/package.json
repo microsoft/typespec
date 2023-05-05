@@ -40,7 +40,7 @@
   "dependencies": {
     "@typespec/compiler": "~0.43.0",
     "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0",
-    "@typespec/compiler-v0.38": "npm:@cadl-lang/compiler@0.38.0",
+    "@typespec/compiler-v0.38": "npm:@cadl-lang/compiler@0.38.5",
     "@typespec/compiler-v0.40": "npm:@cadl-lang/compiler@0.40.0",
     "@typespec/compiler-v0.41": "npm:@typespec/compiler@0.41.0",
     "@typespec/compiler-v0.42": "npm:@typespec/compiler@0.42.0",
