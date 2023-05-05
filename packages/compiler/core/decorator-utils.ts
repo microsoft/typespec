@@ -1,6 +1,6 @@
 import { getPropertyType } from "../lib/decorators.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
-import { compilerAssert, Interface, Model, SyntaxKind } from "./index.js";
+import { compilerAssert, ignoreDiagnostics, Interface, Model, SyntaxKind } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -59,6 +59,20 @@ export function validateDecoratorTarget<K extends TypeKind>(
   }
 
   return true;
+}
+
+export function isIntrinsicType(
+  program: Program,
+  type: Scalar,
+  kind: IntrinsicScalarName
+): boolean {
+  return ignoreDiagnostics(
+    program.checker.isTypeAssignableTo(
+      type.projectionBase ?? type,
+      program.checker.getStdType(kind),
+      type
+    )
+  );
 }
 
 export function validateDecoratorTargetIntrinsic(
