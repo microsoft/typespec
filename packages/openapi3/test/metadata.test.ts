@@ -413,6 +413,7 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
+            required: true,
             content: {
               "application/json": {
                 schema: {
@@ -447,6 +448,64 @@ describe("openapi3: metadata", () => {
           schema: { type: "string" },
         },
       },
+      schemas: {
+        Parameters: {
+          properties: {
+            h: {
+              type: "string",
+            },
+            p: {
+              type: "string",
+            },
+            q: {
+              type: "string",
+            },
+          },
+          required: ["q", "p", "h"],
+          type: "object",
+        },
+      },
+    });
+  });
+
+  it("Supports optional request bodies", async () => {
+    const res = await openApiFor(
+      `
+      model Parameters {
+        @query q: string;
+        @path p: string;
+        @header h: string;
+      }
+      @route("/batch") @post op batch(@body body?: Parameters[]): string;
+      `
+    );
+    deepStrictEqual(res.paths, {
+      "/batch": {
+        post: {
+          operationId: "batch",
+          parameters: [],
+          responses: {
+            "200": {
+              description: "The request has succeeded.",
+              content: { "application/json": { schema: { type: "string" } } },
+            },
+          },
+          requestBody: {
+            required: false,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Parameters" },
+                  "x-typespec-name": "Parameters[]",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    deepStrictEqual(res.components, {
       schemas: {
         Parameters: {
           properties: {
