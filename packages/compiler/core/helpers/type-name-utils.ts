@@ -129,7 +129,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
       getIdentifierName(t.id.sv, options)
     );
-    return `${model.name}<${params.join(", ")}>`;
+    return `${modelName}<${params.join(", ")}>`;
   } else {
     // regular old model.
     return modelName;
