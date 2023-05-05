@@ -30,7 +30,7 @@ test.describe("playground UI tests", () => {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       // cspell:disable-next-line
-      page.waitForNavigation({ url: `${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7` }),
+      page.waitForURL(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`),
       page.keyboard.press(`${ctrlOrCmd}+KeyS`),
     ]);
   });

@@ -85,6 +85,7 @@ specifiers:
   es-module-shims: ~1.7.1
   eslint: ^8.36.0
   eslint-config-prettier: ^8.5.0
+  eslint-plugin-deprecation: ^1.4.1
   eslint-plugin-mocha: ^10.0.5
   eslint-plugin-prettier: ^4.0.0
   eslint-plugin-unicorn: ^42.0.0
@@ -222,6 +223,7 @@ dependencies:
   es-module-shims: 1.7.1
   eslint: 8.38.0
   eslint-config-prettier: 8.8.0_eslint@8.38.0
+  eslint-plugin-deprecation: 1.4.1_eslint@8.38.0+typescript@5.0.4
   eslint-plugin-mocha: 10.1.0_eslint@8.38.0
   eslint-plugin-prettier: 4.2.1_6472200cd43a82c27b17d90e3a5649bd
   eslint-plugin-unicorn: 42.0.0_eslint@8.38.0
@@ -9034,6 +9036,21 @@ packages:
       chalk: 4.1.2
     dev: false
 
+  /eslint-plugin-deprecation/1.4.1_eslint@8.38.0+typescript@5.0.4:
+    resolution: {integrity: sha512-4vxTghWzxsBukPJVQupi6xlTuDc8Pyi1QlRCrFiLgwLPMJQW3cJCNaehJUKQqQFvuue5m4W27e179Y3Qjzeghg==}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      typescript: ^3.7.5 || ^4.0.0 || ^5.0.0
+    dependencies:
+      '@typescript-eslint/utils': 5.58.0_eslint@8.38.0+typescript@5.0.4
+      eslint: 8.38.0
+      tslib: 2.5.0
+      tsutils: 3.21.0_typescript@5.0.4
+      typescript: 5.0.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /eslint-plugin-mocha/10.1.0_eslint@8.38.0:
     resolution: {integrity: sha512-xLqqWUF17llsogVOC+8C6/jvQ+4IoOREbN7ZCHuOHuD6cT5cDD4h7f2LgsZuzMAiwswWE21tO7ExaknHVDrSkw==}
     engines: {node: '>=14.0.0'}
@@ -15919,7 +15936,7 @@ packages:
     dev: false
 
   file:projects/eslint-config-typespec.tgz_prettier@2.8.7:
-    resolution: {integrity: sha512-JjIrskoqFs1KNtSyUVey+BCj6uAsCBVChtJM/0S+rfXztr5HeL+oF4VkQpDjRRCg22QTXfTPo/Uf/qt55Kjkxw==, tarball: file:projects/eslint-config-typespec.tgz}
+    resolution: {integrity: sha512-KyAHbftv5uSu7zVaUPqzhy5Mkbm2kJ2Ca/AisnoJu7rsvqVK2tVx0k4uFy+XpmXJuACsEOQ2uoyv260WheNWRw==, tarball: file:projects/eslint-config-typespec.tgz}
     id: file:projects/eslint-config-typespec.tgz
     name: '@rush-temp/eslint-config-typespec'
     version: 0.0.0
@@ -15929,6 +15946,7 @@ packages:
       '@typescript-eslint/parser': 5.58.0_eslint@8.38.0+typescript@5.0.4
       eslint: 8.38.0
       eslint-config-prettier: 8.8.0_eslint@8.38.0
+      eslint-plugin-deprecation: 1.4.1_eslint@8.38.0+typescript@5.0.4
       eslint-plugin-mocha: 10.1.0_eslint@8.38.0
       eslint-plugin-prettier: 4.2.1_6472200cd43a82c27b17d90e3a5649bd
       eslint-plugin-unicorn: 42.0.0_eslint@8.38.0

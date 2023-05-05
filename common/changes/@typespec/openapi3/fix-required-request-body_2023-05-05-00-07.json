@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix openapi3 emitter to mark request body required",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
