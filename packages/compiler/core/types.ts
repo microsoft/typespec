@@ -100,6 +100,13 @@ export type Type =
   | ObjectType
   | Projection;
 
+export type StdTypes = {
+  // Models
+  Array: Model;
+  Record: Model;
+} & Record<IntrinsicScalarName, Scalar>;
+export type StdTypeName = keyof StdTypes;
+
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
 export interface ObjectType extends BaseType {

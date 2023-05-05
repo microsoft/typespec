@@ -202,6 +202,7 @@ extern dec useAuth(target: Namespace, auth: object | Union | object[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
+ * @param value If true, inapplicable metadata will be included in the payload.
  */
 extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);
 
@@ -215,7 +216,7 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean)
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param path Relative route path. Cannot include query parameters.
- * @param parameters Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ * @param options Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  *
  * @example
  *

@@ -242,7 +242,7 @@ extern dec tag(target: Namespace | Interface | Operation, tag: string);
 /**
  * Specifies how a templated type should name their instances.
  * @param name name the template instance should take
- * @formatArgs Model with key value used to interpolate the name
+ * @param formatArgs Model with key value used to interpolate the name
  *
  * @example
  * ```typespec
@@ -274,6 +274,7 @@ extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
 
 /**
  * Mark a model property as the key to identify instances of that type
+ * @param altName Name of the property. If not specified, the decorated property name is used.
  *
  * @example
  * ```typespec
@@ -316,6 +317,7 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
 
 /**
  * Specify the property to be used to discriminate this type.
+ * @param propertyName The property name to use for discrimination
  *
  * @example
  *
@@ -338,6 +340,79 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
 extern dec discriminator(target: Model | Union, propertyName: string);
 
 /**
+ * Known encoding to use on utcDateTime or offsetDateTime
+ */
+enum DateTimeKnownEncoding {
+  /**
+   * RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt
+   * Encode to string.
+   */
+  rfc3339: "rfc3339",
+  /**
+   * RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt
+   * Encode to string.
+   */
+  rfc7231: "rfc7231",
+  /**
+   * Encode to integer
+   */
+  unixTimestamp: "unixTimestamp",
+}
+
+/**
+ * Known encoding to use on duration
+ */
+enum DurationKnownEncoding {
+  /**
+   * ISO8601 duration
+   */
+  ISO8601: "ISO8601",
+  /**
+   * Encode to integer or float
+   */
+  seconds: "seconds",
+}
+
+/**
+ * Known encoding to use on bytes
+ */
+enum BytesKnownEncoding {
+  /**
+   * ISO8601 duration
+   */
+  ISO8601: "ISO8601",
+  /**
+   * Encode to integer or float
+   */
+  seconds: "seconds",
+}
+
+/**
+ * Specify how to encode the target type.
+ * @param encoding Known name of an encoding.
+ * @param encodedAs What target type is this being encoded as. Default to string.
+ *
+ * @example offsetDateTime encoded with rfc7231
+ *
+ * ```tsp
+ * @encode("rfc7231")
+ * scalar myDateTime extends offsetDateTime;
+ * ```
+ *
+ * @example utcDateTime encoded with unixTimestamp
+ *
+ * ```tsp
+ * @encode("unixTimestamp", int32)
+ * scalar myDateTime extends unixTimestamp;
+ * ```
+ */
+extern dec encode(
+  target: Scalar | ModelProperty,
+  encoding: string | EnumMember,
+  encodedAs?: string | numeric
+);
+
+/**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.
@@ -353,6 +428,8 @@ extern dec discriminator(target: Model | Union, propertyName: string);
  * - "delete": input to operations that delete data.
  *
  * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+ *
+ * @param visibilities List of visibilities which apply to this property.
  *
  * @example
  *
@@ -379,6 +456,8 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  *
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.
+ *
+ * @param visibilities List of visibilities which apply to this property.
  *
  * @example
  * ```typespec
@@ -408,13 +487,42 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * ```
  */
 extern dec withVisibility(target: Model, ...visibilities: string[]);
+
+/**
+ * Set the visibility of key properties in a model if not already set.
+ *
+ * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
+ */
 extern dec withDefaultKeyVisibility(target: Model, visibility: unknown);
+
+/**
+ * Returns the model with non-updateable properties removed.
+ */
 extern dec withUpdateableProperties(target: Model);
+
+/**
+ * Returns the model with any default values removed.
+ */
 extern dec withoutDefaultValues(target: Model);
+
+/**
+ * Returns the model with the given properties omitted.
+ * @param omit List of properties to omit
+ */
 extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 
 //---------------------------------------------------------------------------
 // Debugging
 //---------------------------------------------------------------------------
+
+/**
+ * A debugging decorator used to inspect a type.
+ * @param text Custom text to log
+ */
 extern dec inspectType(target: unknown, text: string);
+
+/**
+ * A debugging decorator used to inspect a type name.
+ * @param text Custom text to log
+ */
 extern dec inspectTypeName(target: unknown, text: string);

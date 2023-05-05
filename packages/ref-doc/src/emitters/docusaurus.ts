@@ -6,6 +6,7 @@ import {
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  ScalarRefDoc,
   TemplateParameterRefDoc,
   TypeSpecRefDoc,
   UnionRefDoc,
@@ -268,7 +269,12 @@ function renderDataTypes(refDoc: TypeSpecRefDoc): string | undefined {
 
   content.push(
     groupByNamespace(refDoc.namespaces, (namespace) => {
-      if (namespace.models.length === 0) {
+      const modelCount =
+        namespace.models.length +
+        namespace.enums.length +
+        namespace.unions.length +
+        namespace.scalars.length;
+      if (modelCount === 0) {
         return undefined;
       }
       const content = [];
@@ -280,6 +286,9 @@ function renderDataTypes(refDoc: TypeSpecRefDoc): string | undefined {
       }
       for (const union of namespace.unions) {
         content.push(renderUnion(union), "");
+      }
+      for (const scalar of namespace.scalars) {
+        content.push(renderScalar(scalar), "");
       }
       return content.join("\n");
     })
@@ -315,6 +324,7 @@ function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
 
   return content.join("\n");
 }
+
 function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
   const content = [
     headings.hx(headingLevel, `${inlinecode(union.name)} {#${union.id}}`),
@@ -326,6 +336,22 @@ function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
 
   if (union.templateParameters) {
     content.push(renderTemplateParametersTable(union.templateParameters, headingLevel + 1));
+  }
+
+  return content.join("\n");
+}
+
+function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
+  const content = [
+    headings.hx(headingLevel, `${inlinecode(scalar.name)} {#${scalar.id}}`),
+    "",
+    scalar.doc,
+    codeblock(scalar.signature, "typespec"),
+    "",
+  ];
+
+  if (scalar.templateParameters) {
+    content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
   }
 
   return content.join("\n");

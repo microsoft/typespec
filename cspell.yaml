@@ -52,6 +52,7 @@ words:
   - safeint
   - segmentof
   - sfixed
+  - sint
   - strs
   - TRYIT
   - TSES

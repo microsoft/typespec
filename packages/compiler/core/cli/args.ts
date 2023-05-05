@@ -6,7 +6,7 @@ import {
 import { EmitterOptions, TypeSpecConfig } from "../../config/types.js";
 import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
-import { resolvePath } from "../path-utils.js";
+import { normalizePath, resolvePath } from "../path-utils.js";
 import { CompilerHost, Diagnostic } from "../types.js";
 import { deepClone, omitUndefined } from "../util.js";
 
@@ -32,6 +32,8 @@ export async function getCompilerOptions(
   args: CompileCliArgs,
   env: Record<string, string | undefined>
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
+  cwd = normalizePath(cwd);
+
   const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
   const configPath = args["config"] ?? cwd;
@@ -73,7 +75,7 @@ export async function getCompilerOptions(
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
     outputDir: expandedConfig.outputDir,
-    config: args["config"],
+    config: config.filename,
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,

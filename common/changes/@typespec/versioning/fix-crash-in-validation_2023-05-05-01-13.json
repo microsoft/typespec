@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Fix: Crash during validation when using certain templated models from versioned library",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

@@ -57,7 +57,9 @@ The `in` field of a parameter is specified with an [(Http) `@query`, `@header`, 
 A parameter without one of these decorators is assumed to be passed in the request body.
 
 The request body parameter can also be explicitly decorated with an [(Http) `@body` decorator][http-body-decorator].
-In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body.
+In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body
+and this request body is defined as required. If the request body should be optional, the body must be declared as
+optional property with the `@body` decorator.
 
 [http-parameter-decorators]: ../rest/reference/decorators.md#data-types
 [http-body-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.body

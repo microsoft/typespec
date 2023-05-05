@@ -49,6 +49,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:

@@ -94,6 +94,8 @@ import {
   ReturnRecord,
   Scalar,
   ScalarStatementNode,
+  StdTypeName,
+  StdTypes,
   StringLiteral,
   StringLiteralNode,
   Sym,
@@ -247,12 +249,6 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
-type StdTypeName = IntrinsicScalarName | "Array" | "Record" | "object";
-type StdTypes = {
-  // Models
-  Array: Model;
-  Record: Model;
-} & Record<IntrinsicScalarName, Scalar>;
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
 let currentSymbolId = 0;
