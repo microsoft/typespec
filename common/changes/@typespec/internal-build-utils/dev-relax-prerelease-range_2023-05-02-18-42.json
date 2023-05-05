@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/internal-build-utils",
+      "comment": "Make dev version dependency range compatible with other dev versions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/internal-build-utils"
+}
