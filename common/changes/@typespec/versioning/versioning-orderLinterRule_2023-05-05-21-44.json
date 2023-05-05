@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Add validation for numeric and date-based versions to be in ascending order.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

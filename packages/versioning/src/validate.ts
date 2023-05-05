@@ -1,4 +1,5 @@
 import {
+  Enum,
   getNamespaceFullName,
   getService,
   getTypeName,
@@ -19,6 +20,7 @@ import {
   getUseDependencies,
   getVersionDependencies,
   getVersions,
+  VersionMap,
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
@@ -95,7 +97,7 @@ export function $onValidate(program: Program) {
       },
       namespace: (namespace) => {
         const [_, versionMap] = getVersions(program, namespace);
-        validateVersionEnumValuesUnique(program, namespace);
+        validateVersionEnum(program, namespace);
         const serviceProps = getService(program, namespace);
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
@@ -167,18 +169,94 @@ export function $onValidate(program: Program) {
 /**
  * Ensures that the version enum for a @versioned namespace has unique values.
  */
-function validateVersionEnumValuesUnique(program: Program, namespace: Namespace) {
-  const [_, versionMap] = getVersions(program, namespace);
-  if (versionMap === undefined) return;
+function validateVersionEnumDuplicates(
+  program: Program,
+  versionEnum: Enum,
+  versionMap: VersionMap
+) {
   const values = new Set(versionMap.getVersions().map((v) => v.value));
   if (versionMap.size !== values.size) {
-    const enumName = versionMap.getVersions()[0].enumMember.enum.name;
     reportDiagnostic(program, {
       code: "version-duplicate",
-      format: { name: enumName },
-      target: namespace,
+      format: { name: versionEnum.name },
+      target: versionEnum,
     });
   }
+}
+
+function splitSuffix(value: string): [string, string?] {
+  const betaSuffixes = ["-beta", "-preview"];
+  for (const suffix of betaSuffixes) {
+    if (value.endsWith(suffix)) {
+      return [value.slice(0, -suffix.length), suffix];
+    }
+  }
+  return [value, undefined];
+}
+
+/**
+ * Ensures that is a @versioned enum uses dates, the are in ascending order and
+ * that any preview of beta versions precede their non-beta counterparts.
+ */
+function validateVersionEnumDatesOrdering(program: Program, versionEnum: Enum) {
+  const values = [...versionEnum.members.values()].map((m) => m.value ?? m.name);
+  // if using numeric values, we aren't using dates
+  if (!values.every((v) => typeof v === "string")) return;
+  let curr: [Date, string?] | undefined = undefined;
+  for (const value of values) {
+    if (typeof value !== "string") return;
+    const [date, suffix] = splitSuffix(value);
+    const parsed = new Date(Date.parse(date));
+    if (curr === undefined) {
+      curr = [parsed, suffix];
+      continue;
+    }
+    const [lastDate, lastSuffix] = curr;
+    if (parsed < lastDate) {
+      reportDiagnostic(program, {
+        code: "versioned-dates-not-ascending",
+        target: versionEnum,
+      });
+      return;
+    } else if (
+      parsed.getTime() === lastDate.getTime() &&
+      lastSuffix === undefined &&
+      suffix !== undefined
+    ) {
+      reportDiagnostic(program, {
+        code: "versioned-dates-preview-first",
+        target: versionEnum,
+      });
+      return;
+    }
+  }
+}
+
+/**
+ * Ensures that is a @versioned enum uses numeric values, they are in ascending order
+ */
+function validateVersionEnumNumericOrdering(program: Program, versionEnum: Enum) {
+  const values = [...versionEnum.members.values()].map((m) => m.value ?? m.name);
+  if (!values.every((v) => typeof v === "number")) return;
+  for (let i = 1; i < values.length; i++) {
+    if (values[i] < values[i - 1]) {
+      reportDiagnostic(program, {
+        code: "versioned-numbers-not-ascending",
+        target: versionEnum,
+      });
+      return;
+    }
+  }
+}
+
+function validateVersionEnum(program: Program, namespace: Namespace) {
+  const [_, versionMap] = getVersions(program, namespace);
+  if (versionMap === undefined) return;
+  const versionEnum = versionMap.getVersions()[0].enumMember.enum;
+  if (versionEnum === undefined) return;
+  validateVersionEnumDuplicates(program, versionEnum, versionMap);
+  validateVersionEnumDatesOrdering(program, versionEnum);
+  validateVersionEnumNumericOrdering(program, versionEnum);
 }
 
 function validateVersionedNamespaceUsage(

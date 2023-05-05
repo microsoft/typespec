@@ -11,7 +11,12 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
+import {
+  BasicTestRunner,
+  createTestWrapper,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
@@ -30,6 +35,117 @@ describe("versioning: logic", () => {
   beforeEach(async () => {
     const host = await createVersioningTestHost();
     runner = createTestWrapper(host, { autoUsings: ["TypeSpec.Versioning"] });
+  });
+
+  describe("versions ordered", () => {
+    it("allow dated-based versions with preview if in ascending ordre", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "2021-01-01",
+          v2: "2022-01-01-preview",
+          v3: "2022-01-01"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+          @added(Versions.v3) c: 1;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("emit diagnostic if date-based versions are not in ascending order", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "2022-01-01",
+          v2: "2021-01-01",
+          v3: "2023-01-01"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+          @added(Versions.v3) c: 1;
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          severity: "warning",
+          code: "@typespec/versioning/versioned-dates-not-ascending",
+        },
+      ]);
+    });
+
+    it("emit diagnostic if preview versions do not appear before non-preview versions", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "2022-01-01",
+          v2: "2022-01-01-preview",
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          severity: "warning",
+          code: "@typespec/versioning/versioned-dates-preview-first",
+        },
+      ]);
+    });
+
+    it("emit diagnostic if numeric versions are not in ascending order", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v2: 2,
+          v1: 1,
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          severity: "warning",
+          code: "@typespec/versioning/versioned-numbers-not-ascending",
+        },
+      ]);
+    });
+
+    it("allow numeric versions in ascending order", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: 1,
+          v2: 2,
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("version compare", () => {

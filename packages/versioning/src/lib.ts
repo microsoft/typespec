@@ -88,6 +88,25 @@ const libDef = {
         default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
       },
     },
+    "versioned-dates-not-ascending": {
+      severity: "warning",
+      messages: {
+        default: "Date-based versions should be in ascending order.",
+      },
+    },
+    "versioned-dates-preview-first": {
+      severity: "warning",
+      messages: {
+        default:
+          "Date-based versions with a beta and non-beta version should list the beta version first.",
+      },
+    },
+    "versioned-numbers-not-ascending": {
+      severity: "warning",
+      messages: {
+        default: "Number-based versions should be in ascending order.",
+      },
+    },
   },
 } as const;
 export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);
