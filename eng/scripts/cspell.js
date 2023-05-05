@@ -12,6 +12,7 @@ await run(
     "--no-progress",
     "**/*.md",
     "**/*.ts",
+    "**/*.tsx",
     "**/*.js",
     "**/changelog.json",
     "common/changes/**/*.json",
