@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Minor reorganization of standard library docs",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

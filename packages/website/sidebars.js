@@ -90,6 +90,7 @@ const sidebars = {
             "standard-library/http/overview",
             createLibraryReferenceStructure("http"),
             "standard-library/http/authentication",
+            "standard-library/http/operations",
           ],
         },
         {
@@ -98,7 +99,6 @@ const sidebars = {
           items: [
             "standard-library/rest/overview",
             createLibraryReferenceStructure("rest"),
-            "standard-library/rest/operations",
             "standard-library/rest/resource-routing",
           ],
         },
