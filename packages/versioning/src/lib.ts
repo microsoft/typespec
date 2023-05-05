@@ -39,6 +39,12 @@ const libDef = {
         default: paramMessage`The provided version '${"version"}' from '${"enumName"}' is not declared as a version enum. Use '@versioned(${"enumName"})' on the containing namespace.`,
       },
     },
+    "version-duplicate": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple versions from '${"name"}' resolve to the same value. Version enums must resolve to unique values.`,
+      },
+    },
     "using-versioned-library": {
       severity: "error",
       messages: {

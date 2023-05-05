@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Added** `@encode` decorator used to specify encoding of types",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

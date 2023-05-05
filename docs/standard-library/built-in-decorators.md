@@ -61,6 +61,25 @@ dec doc(target: unknown, doc: string, formatArgs?: object)
 | formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
 
 
+### `@encode` {#@encode}
+
+Specify how to encode the target type.
+
+```typespec
+dec encode(target: Scalar | ModelProperty, encoding: string | EnumMember, encodedAs?: string | numeric)
+```
+
+#### Target
+
+`union Scalar | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| encoding | `union string \| EnumMember` | Known name of an encoding. |
+| encodedAs | `union string \| numeric` | What target type is this being encoded as. Default to string. |
+
+
 ### `@error` {#@error}
 
 Specify that this model is an error type. Operations return error types when the operation has failed.
