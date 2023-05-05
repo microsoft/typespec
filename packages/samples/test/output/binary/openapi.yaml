@@ -16,6 +16,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HasBytes'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -33,6 +34,7 @@ paths:
                 type: string
                 format: binary
       requestBody:
+        required: true
         content:
           application/octect-stream:
             schema:
@@ -51,6 +53,7 @@ paths:
                 type: string
                 format: binary
       requestBody:
+        required: true
         content:
           image/png:
             schema:
@@ -69,6 +72,7 @@ paths:
                 type: string
                 format: byte
       requestBody:
+        required: true
         content:
           text/plain:
             schema:

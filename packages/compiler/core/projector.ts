@@ -272,6 +272,7 @@ export function createProjector(
 
     if (model.templateMapper) {
       projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
       projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
@@ -336,6 +337,7 @@ export function createProjector(
 
     if (scalar.templateMapper) {
       projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
       projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
 
@@ -406,6 +408,7 @@ export function createProjector(
 
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
       projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
     }
 
@@ -436,6 +439,7 @@ export function createProjector(
 
     if (iface.templateMapper) {
       projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
       projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
     }
 
@@ -468,6 +472,7 @@ export function createProjector(
 
     if (union.templateMapper) {
       projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
+      // eslint-disable-next-line deprecation/deprecation
       projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
     }
 

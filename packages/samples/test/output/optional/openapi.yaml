@@ -22,6 +22,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HasOptional'
       requestBody:
+        required: false
         content:
           application/json:
             schema:
