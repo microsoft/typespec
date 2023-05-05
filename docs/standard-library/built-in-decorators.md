@@ -513,7 +513,7 @@ with standard emitters that interpret them as follows:
 - "update": input to operations that update data.
 - "delete": input to operations that delete data.
 
-See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
 
 ```typespec
 dec visibility(target: ModelProperty, ...visibilities: string[])
@@ -604,7 +604,7 @@ Removes properties that are not considered to be present or applicable
 together with spread to effectively spread only visible properties into
 a new model.
 
-See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
 
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
