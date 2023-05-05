@@ -266,6 +266,47 @@ describe("openapi3: shared routes", () => {
     });
   });
 
+  it("model shared routes with different request body model types", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        model A {
+          a: string;
+        }
+
+        model B {
+          b: int32;
+        }
+
+        @sharedRoute
+        op updateA(a: A): void;
+
+        @sharedRoute
+        op updateB(b: B): int32;
+      }
+      `
+    );
+    deepStrictEqual(results.paths["/"].post.operationId, "updateA_updateB");
+    const requestBody = results.paths["/"].post.requestBody;
+    deepStrictEqual(requestBody, {
+      content: {
+        "application/json": {
+          schema: {
+            oneOf: [
+              {
+                $ref: "#/components/schemas/A",
+              },
+              {
+                $ref: "#/components/schemas/B",
+              },
+            ],
+          },
+        },
+      },
+    });
+  });
+
   it("model shared routes with different request and response body types", async () => {
     const results = await openApiFor(
       `
