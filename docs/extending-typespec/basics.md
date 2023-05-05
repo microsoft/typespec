@@ -137,7 +137,7 @@ model Person {
 
 ## Defining Dependencies
 
-Defining dependencies in a TypeSpec library should be following the following rules:
+Defining dependencies in a TypeSpec library should be following these rules:
 
 - use `peerDependencies` for all TypeSpec libraries(+ compiler) that you use in your own library/emitter
 - use `devDependencies` for the other typespec libraries used only in tests
