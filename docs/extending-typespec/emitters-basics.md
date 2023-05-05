@@ -26,7 +26,7 @@ import Path from "path";
 
 export async function $onEmit(context: EmitContext) {
   const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
-  await program.host.writeFile(outputDir, "hello world!");
+  await context.program.host.writeFile(outputDir, "hello world!");
 }
 ```
 
@@ -68,7 +68,7 @@ export const $lib = createTypeSpecLibrary({
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
   const name = context.options.targetName;
-  await program.host.writeFile(outputDir, `hello ${name}!`);
+  await context.program.host.writeFile(outputDir, `hello ${name}!`);
 }
 ```
 
