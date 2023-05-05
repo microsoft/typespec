@@ -27,6 +27,7 @@ paths:
                 $ref: '#/components/schemas/RpcStatus'
       requestBody:
         description: The shelf to create.
+        required: true
         content:
           application/json:
             schema:
@@ -155,6 +156,7 @@ paths:
                 $ref: '#/components/schemas/RpcStatus'
       requestBody:
         description: The book to create.
+        required: true
         content:
           application/json:
             schema:
@@ -222,6 +224,7 @@ paths:
                 $ref: '#/components/schemas/RpcStatus'
       requestBody:
         description: The name of the shelf we're removing books from and deleting.
+        required: true
         content:
           application/json:
             schema:

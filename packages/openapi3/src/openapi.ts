@@ -1077,6 +1077,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const requestBody: any = {
       description: body.parameter ? getDoc(program, body.parameter) : undefined,
+      required: body.parameter ? !body.parameter.optional : true,
       content: {},
     };
 
