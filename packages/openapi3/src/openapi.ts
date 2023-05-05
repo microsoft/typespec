@@ -430,17 +430,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    * Validates that common bodies are consistent and returns the minimal set that describes the differences.
    */
   function validateCommonBodies(ops: HttpOperation[]): HttpOperationRequestBody[] | undefined {
-    const bodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
-    const ref = bodies[0];
-    const sameOptionality = bodies.every((b) => b.parameter?.optional === ref.parameter?.optional);
-    const sameTypeKind = bodies.every((b) => b.parameter?.type.kind === ref.parameter?.type.kind);
-    const sameTypeValue = bodies.every((b) => b.parameter?.type === ref.parameter?.type);
-    if (sameOptionality && sameTypeKind && sameTypeValue) {
-      // param is consistent and in all shared operations. Only need one copy.
-      return [ref];
-    } else {
-      return bodies;
-    }
+    const allBodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
+    return [...new Set(allBodies)];
   }
 
   /**
@@ -507,7 +498,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
     const results: SharedHttpOperation[] = [];
     const paramMap = new Map<string, HttpOperation[]>();
-    const bodyMap = new Map<string, HttpOperation[]>();
     const responseMap = new Map<string, HttpOperation[]>();
 
     for (const op of operations) {
@@ -519,16 +509,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           paramMap.set(param.name, [op]);
         }
       }
-      // determine which body parameters are shared by shared route operations
-      const bodyParam = op.parameters.body;
-      if (bodyParam?.parameter) {
-        if (bodyMap.has(bodyParam.parameter.name)) {
-          bodyMap.get(bodyParam.parameter.name)!.push(op);
-        } else {
-          bodyMap.set(bodyParam.parameter.name, [op]);
-        }
-      }
-
       // determine which responses are shared by shared route operations
       for (const response of op.responses) {
         if (responseMap.has(response.statusCode)) {
@@ -558,9 +538,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const commonParams = validateCommonParameters(ops, paramName, totalOps);
       shared.parameters.parameters.push(...commonParams);
     }
-    for (const [_, ops] of bodyMap) {
-      shared.bodies = validateCommonBodies(ops);
-    }
+    shared.bodies = validateCommonBodies(operations);
     for (const [statusCode, ops] of responseMap) {
       shared.responses.set(statusCode, validateCommonResponses(ops, statusCode));
     }

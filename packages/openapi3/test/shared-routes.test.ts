@@ -227,27 +227,49 @@ describe("openapi3: shared routes", () => {
     });
   });
 
-  it("model shared routes with different request body types", async () => {
+  it("model shared routes with different request bodies", async () => {
     const results = await openApiFor(
       `
       @service({title: "My Service"})
       namespace Foo {
         @sharedRoute
-        @route("/sharedroutes/resources")
-        op processInt(@body body: int32, @query options: string): void;
+        @route("/1")
+        op processInt(@body a: int32, @query options: string): void;
 
         @sharedRoute
-        @route("/sharedroutes/resources")
-        op processString(@body body: string, @query options: string): void;
+        @route("/1")
+        op processString(@body b: string, @query options: string): void;
+
+        @sharedRoute
+        @route("/2")
+        op updateInt(@body a: int32, @query options: string): void;
+
+        @sharedRoute
+        @route("/2")
+        op updateString(@body b: string, @query options: string): void;
       }
       `
     );
-    deepStrictEqual(
-      results.paths["/sharedroutes/resources"].post.operationId,
-      "processInt_processString"
-    );
-    const requestBody = results.paths["/sharedroutes/resources"].post.requestBody;
-    deepStrictEqual(requestBody, {
+    deepStrictEqual(results.paths["/1"].post.operationId, "processInt_processString");
+    deepStrictEqual(results.paths["/1"].post.requestBody, {
+      content: {
+        "application/json": {
+          schema: {
+            oneOf: [
+              {
+                type: "integer",
+                format: "int32",
+              },
+              {
+                type: "string",
+              },
+            ],
+          },
+        },
+      },
+    });
+    deepStrictEqual(results.paths["/2"].post.operationId, "updateInt_updateString");
+    deepStrictEqual(results.paths["/2"].post.requestBody, {
       content: {
         "application/json": {
           schema: {
@@ -266,17 +288,17 @@ describe("openapi3: shared routes", () => {
     });
   });
 
-  it("model shared routes with different request body model types", async () => {
+  it("model shared routes with different implicit request bodies", async () => {
     const results = await openApiFor(
       `
       @service({title: "My Service"})
       namespace Foo {
         model A {
-          a: string;
+          name: string;
         }
 
         model B {
-          b: int32;
+          age: int32;
         }
 
         @sharedRoute
@@ -295,10 +317,20 @@ describe("openapi3: shared routes", () => {
           schema: {
             oneOf: [
               {
-                $ref: "#/components/schemas/A",
+                "x-typespec-name": "(anonymous model)",
+                properties: {
+                  a: { $ref: "#/components/schemas/A" },
+                },
+                required: ["a"],
+                type: "object",
               },
               {
-                $ref: "#/components/schemas/B",
+                "x-typespec-name": "(anonymous model)",
+                properties: {
+                  b: { $ref: "#/components/schemas/B" },
+                },
+                required: ["b"],
+                type: "object",
               },
             ],
           },
