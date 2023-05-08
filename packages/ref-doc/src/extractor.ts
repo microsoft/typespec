@@ -9,6 +9,7 @@ import {
   getTypeName,
   ignoreDiagnostics,
   Interface,
+  isDeclaredType,
   isTemplateDeclaration,
   Model,
   Namespace,
@@ -58,6 +59,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       unions: [],
       scalars: [],
     };
+
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
       namespace,
@@ -66,23 +68,38 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
           namespaceDoc.decorators.push(extractDecoratorRefDoc(program, dec));
         },
         operation(operation) {
+          if (!isDeclaredType(operation)) {
+            return;
+          }
           if (operation.interface === undefined) {
             namespaceDoc.operations.push(extractOperationRefDoc(program, operation));
           }
         },
         interface(iface) {
+          if (!isDeclaredType(iface)) {
+            return;
+          }
           namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
         },
         model(model) {
+          if (!isDeclaredType(model)) {
+            return;
+          }
           if (model.name === "") {
             return;
           }
           namespaceDoc.models.push(extractModelRefDocs(program, model));
         },
         enum(e) {
+          if (!isDeclaredType(e)) {
+            return;
+          }
           namespaceDoc.enums.push(extractEnumRefDoc(program, e));
         },
         union(union) {
+          if (!isDeclaredType(union)) {
+            return;
+          }
           if (union.name !== undefined) {
             namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
           }

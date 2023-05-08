@@ -41,6 +41,15 @@ export interface BaseType {
   projectionSource?: Type;
   projectionBase?: Type;
   projector?: Projector;
+
+  /**
+   * Reflect if a type has been finished(Decorators have been called).
+   * There is multiple reasons a type might not be finished:
+   * - a template declaration will not
+   * - a template instance that argument that are still template parameters
+   * - a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+   */
+  isFinished: boolean;
 }
 
 export interface DecoratedType {
