@@ -184,12 +184,21 @@ function extractOperationRefDoc(
 ): OperationRefDoc {
   const doc = extractMainDoc(program, operation);
   if (doc === undefined || doc === "") {
-    reportDiagnostic(program, {
-      code: "documentation-missing",
-      messageId: "operation",
-      format: { name: operation.name ?? "" },
-      target: NoTarget,
-    });
+    if (operation.interface !== undefined) {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "interfaceOperation",
+        format: { name: `${operation.interface.name}.${operation.name}` ?? "" },
+        target: NoTarget,
+      });
+    } else {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "operation",
+        format: { name: operation.name ?? "" },
+        target: NoTarget,
+      });
+    }
   }
   return {
     id: getNamedTypeId(operation),
