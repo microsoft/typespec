@@ -251,6 +251,12 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
     content.push(renderTemplateParametersTable(iface.templateParameters, headingLevel + 1));
   }
 
+  if (iface.interfaceOperations.length > 0) {
+    for (const op of iface.interfaceOperations) {
+      content.push(renderOperationMarkdown(op, headingLevel + 1));
+    }
+  }
+
   return content.join("\n");
 }
 

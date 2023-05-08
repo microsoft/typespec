@@ -72,7 +72,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
             return;
           }
           if (operation.interface === undefined) {
-            namespaceDoc.operations.push(extractOperationRefDoc(program, operation));
+            namespaceDoc.operations.push(extractOperationRefDoc(program, operation, undefined));
           }
         },
         interface(iface) {
@@ -169,12 +169,19 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
     signature: getTypeSignature(iface),
     type: iface,
     templateParameters: extractTemplateParameterDocs(program, iface),
+    interfaceOperations: [...iface.operations.values()].map((x) =>
+      extractOperationRefDoc(program, x, iface.name)
+    ),
     doc: doc,
     examples: extractExamples(iface),
   };
 }
 
-function extractOperationRefDoc(program: Program, operation: Operation): OperationRefDoc {
+function extractOperationRefDoc(
+  program: Program,
+  operation: Operation,
+  interfaceName: string | undefined
+): OperationRefDoc {
   const doc = extractMainDoc(program, operation);
   if (doc === undefined || doc === "") {
     reportDiagnostic(program, {
@@ -186,7 +193,7 @@ function extractOperationRefDoc(program: Program, operation: Operation): Operati
   }
   return {
     id: getNamedTypeId(operation),
-    name: operation.name,
+    name: interfaceName ? `${interfaceName}.${operation.name}` : operation.name,
     signature: getTypeSignature(operation),
     type: operation,
     templateParameters: extractTemplateParameterDocs(program, operation),
