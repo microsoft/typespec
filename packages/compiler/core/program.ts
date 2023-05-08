@@ -94,6 +94,11 @@ export interface Program {
 
   getGlobalNamespaceType(): Namespace;
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+
+  /**
+   * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
+   */
+  readonly projectRoot: string;
 }
 
 interface LibraryMetadata {
@@ -276,6 +281,7 @@ export async function compile(
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
+  const resolvedMain = await resolveTypeSpecEntrypoint(mainFile);
 
   const program: Program = {
     checker: undefined!,
@@ -304,6 +310,7 @@ export async function compile(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
@@ -317,7 +324,6 @@ export async function compile(
     await loadStandardLibrary(program);
   }
 
-  const resolvedMain = await resolveTypeSpecEntrypoint(mainFile);
   // Load additional imports prior to compilation
   if (resolvedMain && options.additionalImports) {
     const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
@@ -775,7 +781,7 @@ export async function compile(
     };
     try {
       await emitter.emitFunction(context);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
       if (emitter.metadata.bugs?.url) {
         msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
@@ -783,7 +789,12 @@ export async function compile(
         msg.push(`Please contact emitter author to report this issue.`);
       }
       msg.push("");
-      if ("stack" in error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "stack" in error &&
+        typeof error.stack === "string"
+      ) {
         msg.push(error.stack);
       } else {
         msg.push(String(error));
@@ -891,7 +902,7 @@ export async function compile(
    */
   async function resolveTypeSpecEntrypoint(path: string): Promise<string | undefined> {
     const resolvedPath = resolvePath(path);
-    const mainStat = await doIO(host.stat, resolvedPath, program.reportDiagnostic);
+    const mainStat = await doIO(host.stat, resolvedPath, reportDiagnostic);
     if (!mainStat) {
       return undefined;
     }
@@ -905,7 +916,7 @@ export async function compile(
 
   async function resolveTypeSpecEntrypointForDir(dir: string): Promise<string> {
     const pkgJsonPath = resolvePath(dir, "package.json");
-    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
       allowFileNotFound: true,
     });
     const tspMain = resolveTspMain(pkg);

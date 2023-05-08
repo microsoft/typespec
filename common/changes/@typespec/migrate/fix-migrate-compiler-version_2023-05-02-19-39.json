@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Fix: always loading current version of compile",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

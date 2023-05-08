@@ -25,3 +25,8 @@ export const selectedEmitterState = atom({
   key: "selectedEmitter",
   default: PlaygroundManifest.defaultEmitter,
 });
+
+export const selectedSampleState = atom<string | undefined>({
+  key: "selectedSampleState",
+  default: undefined,
+});

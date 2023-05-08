@@ -10,8 +10,8 @@ import {
 export const migrateQueryHeaderRequiredFormat = createContentMigration({
   name: "Migrate Model To scalar",
   kind: MigrationKind.AstContentMigration,
-  from: "0.42.0",
-  to: "0.43.0",
+  from: "0.42",
+  to: "0.43",
   migrate: (
     { printNode, printNodes }: MigrationContext,
     compilerV37: TypeSpecCompilerV0_42,

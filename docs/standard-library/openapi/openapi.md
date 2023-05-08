@@ -72,7 +72,7 @@ Likewise, the type of the body parameter(s) will be translated into an appropria
 The request body will use the "application/json" media type unless the body model includes an explicit `content-type`
 header.
 
-See also [metadata](../rest/operations.md#metadata) for more advanced details.
+See also [metadata](../http/operations.md#metadata) for more advanced details.
 
 ### responses
 
@@ -90,7 +90,7 @@ In the absence of explicit `@body`, the properties that are not marked `@statusC
 [http-statuscode-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.statuscode
 [error-decorator]: ../built-in-decorators.md#error
 
-See also [metadata](../rest/operations.md#metadata) for more advanced details.
+See also [metadata](../http/operations.md#metadata) for more advanced details.
 
 ### tags
 
