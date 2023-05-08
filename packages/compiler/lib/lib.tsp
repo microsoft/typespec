@@ -113,8 +113,8 @@ scalar boolean;
 /**
  * Represent a model
  */
-// Deprecated May 2023 spring
-@deprecated("object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record, `unknown[]` for an array or `Record<unknown> | unknown[]` for the same meaning.")
+// Deprecated June 2023 sprint
+// @deprecated("object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record, `unknown[]` for an array or `Record<unknown> | unknown[]` for the same meaning.")
 model object {}
 
 /**
