@@ -29,7 +29,7 @@ interface TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations<TExtensio
 Creates a new instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource: ResourceCreateModel<TResource>): TExtension | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 #### `ExtensionResourceCollectionOperations.list` {#TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list}
@@ -37,7 +37,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource:
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
 ```
 
 ### `ExtensionResourceCreate` {#TypeSpec.Rest.Resource.ExtensionResourceCreate}
@@ -61,7 +61,7 @@ interface TypeSpec.Rest.Resource.ExtensionResourceCreate<TExtension, TResource, 
 Creates a new instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCreate.create(resource: ResourceCreateModel<TResource>): TExtension | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCreate.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 ### `ExtensionResourceCreateOrUpdate` {#TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate}
@@ -85,7 +85,7 @@ interface TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate<TExtension, TRe
 Creates or update an instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate.createOrUpdate(resource: ResourceCreateOrUpdateModel<TResource>): TExtension | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate.createOrUpdate(resource: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 ### `ExtensionResourceDelete` {#TypeSpec.Rest.Resource.ExtensionResourceDelete}
@@ -141,7 +141,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.get(): TExtension 
 Updates an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.update(properties: ResourceCreateOrUpdateModel<TResource>): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TError
 ```
 
 #### `ExtensionResourceInstanceOperations.delete` {#TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.delete}
@@ -173,7 +173,7 @@ interface TypeSpec.Rest.Resource.ExtensionResourceList<TExtension, TResource, TE
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceList.list(): CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
 ```
 
 ### `ExtensionResourceOperations` {#TypeSpec.Rest.Resource.ExtensionResourceOperations}
@@ -205,7 +205,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.get(): TExtension | TError
 Updates an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.update(properties: ResourceCreateOrUpdateModel<TResource>): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TError
 ```
 
 #### `ExtensionResourceOperations.delete` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.delete}
@@ -221,7 +221,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.delete(): TypeSpec.Rest.Re
 Creates a new instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: ResourceCreateModel<TResource>): TExtension | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 #### `ExtensionResourceOperations.list` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.list}
@@ -229,7 +229,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: ResourceC
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
 ```
 
 ### `ExtensionResourceRead` {#TypeSpec.Rest.Resource.ExtensionResourceRead}
@@ -277,7 +277,7 @@ interface TypeSpec.Rest.Resource.ExtensionResourceUpdate<TExtension, TResource, 
 Updates an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceUpdate.update(properties: ResourceCreateOrUpdateModel<TResource>): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TError
 ```
 
 ### `ResourceCollectionOperations` {#TypeSpec.Rest.Resource.ResourceCollectionOperations}
@@ -300,7 +300,7 @@ interface TypeSpec.Rest.Resource.ResourceCollectionOperations<TResource, TError>
 Creates a new instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: ResourceCreateModel<TResource>): TResource | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 #### `ResourceCollectionOperations.list` {#TypeSpec.Rest.Resource.ResourceCollectionOperations.list}
@@ -308,7 +308,7 @@ op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: Resource
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
 ```
 
 ### `ResourceCreate` {#TypeSpec.Rest.Resource.ResourceCreate}
@@ -331,7 +331,7 @@ interface TypeSpec.Rest.Resource.ResourceCreate<TResource, TError>
 Creates a new instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCreate.create(resource: ResourceCreateModel<TResource>): TResource | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCreate.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 ### `ResourceCreateOrReplace` {#TypeSpec.Rest.Resource.ResourceCreateOrReplace}
@@ -354,7 +354,7 @@ interface TypeSpec.Rest.Resource.ResourceCreateOrReplace<TResource, TError>
 Creates or replaces a instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCreateOrReplace.createOrReplace(resource: ResourceCreateModel<TResource>): TResource | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCreateOrReplace.createOrReplace(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 ### `ResourceCreateOrUpdate` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdate}
@@ -377,7 +377,7 @@ interface TypeSpec.Rest.Resource.ResourceCreateOrUpdate<TResource, TError>
 Creates or update an instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCreateOrUpdate.createOrUpdate(resource: ResourceCreateOrUpdateModel<TResource>): TResource | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCreateOrUpdate.createOrUpdate(resource: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 ### `ResourceDelete` {#TypeSpec.Rest.Resource.ResourceDelete}
@@ -431,7 +431,7 @@ op TypeSpec.Rest.Resource.ResourceInstanceOperations.get(): TResource | TError
 Updates an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceInstanceOperations.update(properties: ResourceCreateOrUpdateModel<TResource>): TResource | TError
+op TypeSpec.Rest.Resource.ResourceInstanceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TError
 ```
 
 #### `ResourceInstanceOperations.delete` {#TypeSpec.Rest.Resource.ResourceInstanceOperations.delete}
@@ -462,7 +462,7 @@ interface TypeSpec.Rest.Resource.ResourceList<TResource, TError>
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceList.list(): CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
 ```
 
 ### `ResourceOperations` {#TypeSpec.Rest.Resource.ResourceOperations}
@@ -493,7 +493,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.get(): TResource | TError
 Updates an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.update(properties: ResourceCreateOrUpdateModel<TResource>): TResource | TError
+op TypeSpec.Rest.Resource.ResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TError
 ```
 
 #### `ResourceOperations.delete` {#TypeSpec.Rest.Resource.ResourceOperations.delete}
@@ -509,7 +509,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.delete(): TypeSpec.Rest.Resource.Re
 Creates a new instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.create(resource: ResourceCreateModel<TResource>): TResource | ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
 ```
 
 #### `ResourceOperations.list` {#TypeSpec.Rest.Resource.ResourceOperations.list}
@@ -517,7 +517,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.create(resource: ResourceCreateMode
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.list(): CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
 ```
 
 ### `ResourceRead` {#TypeSpec.Rest.Resource.ResourceRead}
@@ -563,7 +563,7 @@ interface TypeSpec.Rest.Resource.ResourceUpdate<TResource, TError>
 Updates an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceUpdate.update(properties: ResourceCreateOrUpdateModel<TResource>): TResource | TError
+op TypeSpec.Rest.Resource.ResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TError
 ```
 
 ### `SingletonResourceOperations` {#TypeSpec.Rest.Resource.SingletonResourceOperations}
@@ -595,7 +595,7 @@ op TypeSpec.Rest.Resource.SingletonResourceOperations.get(): TSingleton | TError
 Updates the singleton resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.SingletonResourceOperations.update(properties: ResourceCreateOrUpdateModel<TResource>): TSingleton | TError
+op TypeSpec.Rest.Resource.SingletonResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TSingleton | TError
 ```
 
 ### `SingletonResourceRead` {#TypeSpec.Rest.Resource.SingletonResourceRead}
@@ -643,5 +643,5 @@ interface TypeSpec.Rest.Resource.SingletonResourceUpdate<TSingleton, TResource, 
 Updates the singleton resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.SingletonResourceUpdate.update(properties: ResourceCreateOrUpdateModel<TResource>): TSingleton | TError
+op TypeSpec.Rest.Resource.SingletonResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TSingleton | TError
 ```
