@@ -1652,7 +1652,9 @@ export function createChecker(program: Program): Checker {
         finishType(operationType);
       }
 
-      namespace?.operations.set(name, operationType);
+      if (mapper === undefined) {
+        namespace?.operations.set(name, operationType);
+      }
     }
 
     if (links) {
