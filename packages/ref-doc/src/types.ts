@@ -65,6 +65,8 @@ export type OperationRefDoc = NamedTypeRefDoc & {
 export type InterfaceRefDoc = NamedTypeRefDoc & {
   type: Interface;
   templateParameters?: TemplateParameterRefDoc[];
+
+  interfaceOperations: OperationRefDoc[];
 };
 
 export type TemplateParameterRefDoc = {

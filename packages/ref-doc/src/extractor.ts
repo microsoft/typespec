@@ -72,7 +72,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
             return;
           }
           if (operation.interface === undefined) {
-            namespaceDoc.operations.push(extractOperationRefDoc(program, operation));
+            namespaceDoc.operations.push(extractOperationRefDoc(program, operation, undefined));
           }
         },
         interface(iface) {
@@ -169,24 +169,40 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
     signature: getTypeSignature(iface),
     type: iface,
     templateParameters: extractTemplateParameterDocs(program, iface),
+    interfaceOperations: [...iface.operations.values()].map((x) =>
+      extractOperationRefDoc(program, x, iface.name)
+    ),
     doc: doc,
     examples: extractExamples(iface),
   };
 }
 
-function extractOperationRefDoc(program: Program, operation: Operation): OperationRefDoc {
+function extractOperationRefDoc(
+  program: Program,
+  operation: Operation,
+  interfaceName: string | undefined
+): OperationRefDoc {
   const doc = extractMainDoc(program, operation);
   if (doc === undefined || doc === "") {
-    reportDiagnostic(program, {
-      code: "documentation-missing",
-      messageId: "operation",
-      format: { name: operation.name ?? "" },
-      target: NoTarget,
-    });
+    if (operation.interface !== undefined) {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "interfaceOperation",
+        format: { name: `${operation.interface.name}.${operation.name}` ?? "" },
+        target: NoTarget,
+      });
+    } else {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "operation",
+        format: { name: operation.name ?? "" },
+        target: NoTarget,
+      });
+    }
   }
   return {
     id: getNamedTypeId(operation),
-    name: operation.name,
+    name: interfaceName ? `${interfaceName}.${operation.name}` : operation.name,
     signature: getTypeSignature(operation),
     type: operation,
     templateParameters: extractTemplateParameterDocs(program, operation),
