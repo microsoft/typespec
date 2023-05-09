@@ -30,10 +30,11 @@
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@typespec/compiler": "~0.43.0"
   },
   "devDependencies": {
+    "@typespec/compiler": "~0.43.0",
     "@typespec/eslint-config-typespec": "~0.6.0",
     "@typespec/eslint-plugin": "~0.43.0",
     "@types/mocha": "~10.0.0",
