@@ -1,4 +1,4 @@
-import { getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $doc, getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { ProjectionError, compilerAssert } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -29,6 +29,7 @@ import {
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticTarget,
+  DocContent,
   Enum,
   EnumMember,
   EnumMemberNode,
@@ -2959,7 +2960,20 @@ export function createChecker(program: Program): Checker {
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
     linkMapper(type, mapper);
+
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
+      if (
+        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
+        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
+      ) {
+        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
+        if (doc) {
+          type.decorators.unshift({
+            decorator: $doc,
+            args: [{ value: createLiteralType(doc) }],
+          });
+        }
+      }
       finishType(type);
     }
 
@@ -5270,12 +5284,56 @@ function linkMapper<T extends Type>(typeDef: T, mapper?: TypeMapper) {
   }
 }
 
+function extractMainDoc(type: Type): string | undefined {
+  if (type.node?.docs === undefined) {
+    return undefined;
+  }
+  let mainDoc: string = "";
+  for (const doc of type.node.docs) {
+    mainDoc += getDocContent(doc.content);
+  }
+  return mainDoc;
+}
+
+function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
+  if (node.docs === undefined) {
+    return undefined;
+  }
+  for (const doc of node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocParamTag && tag.paramName.sv === paramName) {
+        return getDocContent(tag.content);
+      }
+    }
+  }
+  return undefined;
+}
+
+function getDocContent(content: readonly DocContent[]) {
+  const docs = [];
+  for (const node of content) {
+    compilerAssert(
+      node.kind === SyntaxKind.DocText,
+      "No other doc content node kinds exist yet. Update this code appropriately when more are added."
+    );
+    docs.push(node.text);
+  }
+  return docs.join("");
+}
+
 function finishTypeForProgramAndChecker<T extends Type>(
   program: Program,
   typePrototype: TypePrototype,
   typeDef: T
 ): T {
   if ("decorators" in typeDef) {
+    const docComment = extractMainDoc(typeDef);
+    if (docComment) {
+      typeDef.decorators.unshift({
+        decorator: $doc,
+        args: [{ value: program.checker.createLiteralType(docComment) }],
+      });
+    }
     for (const decApp of typeDef.decorators) {
       applyDecoratorToType(program, decApp, typeDef);
     }
