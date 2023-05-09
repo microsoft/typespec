@@ -1617,42 +1617,42 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, typespecType);
-    if (isString && !target.format && formatStr) {
+    if (isString && formatStr) {
       newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, typespecType);
-    if (isString && !target.pattern && pattern) {
+    if (isString && pattern) {
       newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, typespecType);
-    if (isString && !target.minLength && minLength !== undefined) {
+    if (isString && minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, typespecType);
-    if (isString && !target.maxLength && maxLength !== undefined) {
+    if (isString && maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
     const minValue = getMinValue(program, typespecType);
-    if (isNumeric && !target.minimum && minValue !== undefined) {
+    if (isNumeric && minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
     const minValueExclusive = getMinValueExclusive(program, typespecType);
-    if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
+    if (isNumeric && minValueExclusive !== undefined) {
       newTarget.exclusiveMinimum = minValueExclusive;
     }
 
     const maxValue = getMaxValue(program, typespecType);
-    if (isNumeric && !target.maximum && maxValue !== undefined) {
+    if (isNumeric && maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
     const maxValueExclusive = getMaxValueExclusive(program, typespecType);
-    if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
+    if (isNumeric && maxValueExclusive !== undefined) {
       newTarget.exclusiveMaximum = maxValueExclusive;
     }
 
