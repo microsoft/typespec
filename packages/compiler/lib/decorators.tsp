@@ -378,13 +378,13 @@ enum DurationKnownEncoding {
  */
 enum BytesKnownEncoding {
   /**
-   * ISO8601 duration
+   * Encode to Base64
    */
-  ISO8601: "ISO8601",
+  base64: "base64",
   /**
-   * Encode to integer or float
+   * Encode to Base64 Url
    */
-  seconds: "seconds",
+  base64url: "base64url",
 }
 
 /**
