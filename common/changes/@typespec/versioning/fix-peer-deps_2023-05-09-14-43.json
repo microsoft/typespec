@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Update compiler to be a peer dependency",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
