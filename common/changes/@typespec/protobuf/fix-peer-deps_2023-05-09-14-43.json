@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Update compiler to be a peer dependency",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}

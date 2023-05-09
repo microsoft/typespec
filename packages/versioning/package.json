@@ -51,12 +51,13 @@
     "dist/**",
     "!dist/test/**"
   ],
-  "dependencies": {
+  "peerDependencies": {
     "@typespec/compiler": "~0.43.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
+    "@typespec/compiler": "~0.43.0",
     "@typespec/eslint-config-typespec": "~0.6.0",
     "@typespec/library-linter": "~0.43.0",
     "@typespec/eslint-plugin": "~0.43.0",
