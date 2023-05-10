@@ -1,7 +1,25 @@
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok } from "assert";
+import { OpenAPI3Document, OpenAPI3SecurityScheme } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: security", () => {
+  function schemesEquals(
+    res: OpenAPI3Document,
+    expectedSchemes: Record<string, OpenAPI3SecurityScheme>
+  ) {
+    const schemes = res.components?.securitySchemes;
+
+    const schemesWithoutDoc =
+      schemes &&
+      Object.fromEntries(
+        Object.entries(schemes).map(([k, v]) => {
+          const { description, ...omitted } = v;
+          return [k, omitted];
+        })
+      );
+
+    deepStrictEqual(schemesWithoutDoc, expectedSchemes);
+  }
   it("set a basic auth", async () => {
     const res = await openApiFor(
       `
@@ -10,7 +28,7 @@ describe("openapi3: security", () => {
       namespace MyService {}
       `
     );
-    deepStrictEqual(res.components.securitySchemes, {
+    schemesEquals(res, {
       BasicAuth: {
         type: "http",
         scheme: "basic",
@@ -27,7 +45,8 @@ describe("openapi3: security", () => {
       namespace MyService {}
       `
     );
-    deepStrictEqual(res.components.securitySchemes, {
+    ok(res.components.securitySchemes.BearerAuth);
+    schemesEquals(res, {
       BearerAuth: {
         type: "http",
         scheme: "bearer",
@@ -44,7 +63,7 @@ describe("openapi3: security", () => {
       namespace MyService {}
       `
     );
-    deepStrictEqual(res.components.securitySchemes, {
+    schemesEquals(res, {
       ApiKeyAuth: {
         type: "apiKey",
         in: "header",
@@ -70,7 +89,7 @@ describe("openapi3: security", () => {
       }
       `
     );
-    deepStrictEqual(res.components.securitySchemes, {
+    schemesEquals(res, {
       OAuth2Auth: {
         type: "oauth2",
         flows: {
@@ -117,7 +136,7 @@ describe("openapi3: security", () => {
       namespace MyService {}
       `
     );
-    deepStrictEqual(res.components.securitySchemes, {
+    schemesEquals(res, {
       ApiKeyAuth: {
         in: "header",
         name: "x-my-header",
