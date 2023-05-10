@@ -11,6 +11,7 @@ using Private;
  *
  * @template Status The status code of the response.
  */
+@doc("")
 model Response<Status> {
   @doc("The status code.")
   @statusCode
@@ -25,6 +26,7 @@ model Response<Status> {
  *
  * @template T The type of the model's `body` property.
  */
+@doc("")
 model Body<T> {
   @body
   body: T;
