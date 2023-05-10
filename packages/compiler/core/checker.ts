@@ -1,4 +1,4 @@
-import { $doc, getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { ProjectionError, compilerAssert } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -2969,7 +2969,7 @@ export function createChecker(program: Program): Checker {
         const doc = extractParamDoc(prop.parent.parent.parent, type.name);
         if (doc) {
           type.decorators.unshift({
-            decorator: $doc,
+            decorator: $docFromComment,
             args: [{ value: createLiteralType(doc) }],
           });
         }
@@ -5330,7 +5330,7 @@ function finishTypeForProgramAndChecker<T extends Type>(
     const docComment = extractMainDoc(typeDef);
     if (docComment) {
       typeDef.decorators.unshift({
-        decorator: $doc,
+        decorator: $docFromComment,
         args: [{ value: program.checker.createLiteralType(docComment) }],
       });
     }

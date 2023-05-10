@@ -16,6 +16,10 @@ model PetBase {
   name: string;
 }
 
+/**
+ * This is doc comment
+ */
+@doc("This is real doc")
 model Dog extends PetBase {
   type: "dog";
   nextWalkTime: utcDateTime;
