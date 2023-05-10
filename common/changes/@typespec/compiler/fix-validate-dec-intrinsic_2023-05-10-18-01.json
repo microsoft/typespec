@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Fix** diagnostic validating type is intrinsic always showing `string` as expected",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
