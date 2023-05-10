@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { Operation } from "../../core/index.js";
+import { Model, Operation } from "../../core/index.js";
 import { getDoc } from "../../lib/decorators.js";
 import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
 
@@ -71,6 +71,19 @@ describe("compiler: checker: doc comments", () => {
       `${docComment}
       @test("target") interface Foo {}`
     );
+  });
+
+  it("using @doc() decorator will override the doc comment", async () => {
+    const { Foo } = (await runner.compile(`
+    
+    /**
+     * This is a doc comment.
+     */
+    @doc("This is the actual doc.")
+    @test model Foo {}
+    `)) as { Foo: Model };
+
+    strictEqual(getDoc(runner.program, Foo), "This is the actual doc.");
   });
 
   it("using @param in doc comment of operation applies doc on the parameters", async () => {
