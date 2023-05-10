@@ -2,6 +2,97 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.44.0",
+      "tag": "@typespec/compiler_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Allow use of defaults on non-optional properties."
+          },
+          {
+            "comment": "Cleanup deprecated use"
+          },
+          {
+            "comment": "**Added** `@encode` decorator used to specify encoding of types"
+          },
+          {
+            "comment": "Add `projectRoot` to program"
+          },
+          {
+            "comment": "Api: Added `sourceModel` and `sourceOperation` on `Model` and `Operation` respectively."
+          },
+          {
+            "comment": "Add relative file path utils, and allow emitter framework's ObjectBuilder to be initialized with a placeholder object."
+          },
+          {
+            "comment": "Better error recovery when error thrown from emitter is not an object"
+          },
+          {
+            "comment": "Fix compiler mismatch error recommendation"
+          },
+          {
+            "comment": "Fix: Interface with templated operation causing crash if defined after use"
+          },
+          {
+            "comment": "Fix: Issue with templated operations in templated interface would get cached only by keying on the operation template args."
+          },
+          {
+            "comment": "Fix: `missing-index` diagnostic showing at the wrong location"
+          },
+          {
+            "comment": "Fix `--emit` pointing to emitter js entrypoint resolve correct options"
+          },
+          {
+            "comment": "Fix: `scalar` template parameter name conflict with each other"
+          },
+          {
+            "comment": "Added a new `isFinished` property to types to differentiate template instance that are not finalized (Still have template arguments to be resolved)"
+          },
+          {
+            "comment": "**Breaking** `isTemplateDeclaration` will only return true for the original declaration and not partially instantiated templates."
+          },
+          {
+            "comment": "**Fix** `unsupported-default` diagnostic showing at the wrong location"
+          },
+          {
+            "comment": "Fix `url` doc to not mention \"URI\""
+          },
+          {
+            "comment": "Minor reorganization of standard library docs"
+          },
+          {
+            "comment": "Language server: Allow main file to be outside workspace."
+          },
+          {
+            "comment": "Added `Model` and `Scalar` to Reflection namespace"
+          },
+          {
+            "comment": "Fix `@format` decorator doc."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Normalizing cwd before first use in getCompilerOptions()"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.0` to `~0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.43.0",
       "tag": "@typespec/compiler_v0.43.0",
       "date": "Tue, 11 Apr 2023 18:49:17 GMT",
