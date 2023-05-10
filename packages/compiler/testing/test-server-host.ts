@@ -23,7 +23,7 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
   getURL(path: string): string;
 }
 
-export async function createTestServerHost(options?: TestHostOptions) {
+export async function createTestServerHost(options?: TestHostOptions & { workspaceDir?: string }) {
   const logMessages: string[] = [];
   const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
   const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
@@ -78,7 +78,8 @@ export async function createTestServerHost(options?: TestHostOptions) {
     },
   };
 
-  const rootUri = serverHost.getURL("./");
+  const workspaceDir = options?.workspaceDir ?? "./";
+  const rootUri = serverHost.getURL(workspaceDir);
   const server = createServer(serverHost);
   await server.initialize({
     rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,

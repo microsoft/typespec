@@ -178,13 +178,13 @@ export function createProjector(
     }
 
     const projectedNs = shallowClone(ns, {
-      namespaces: createRekeyableMap(),
-      scalars: createRekeyableMap(),
-      models: createRekeyableMap(),
-      operations: createRekeyableMap(),
-      interfaces: createRekeyableMap(),
-      unions: createRekeyableMap(),
-      enums: createRekeyableMap(),
+      namespaces: new Map(),
+      scalars: new Map(),
+      models: new Map(),
+      operations: new Map(),
+      interfaces: new Map(),
+      unions: new Map(),
+      enums: new Map(),
       decorators: [],
     });
 
