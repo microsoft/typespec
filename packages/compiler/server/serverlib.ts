@@ -1132,7 +1132,7 @@ export function createServer(host: ServerHost): Server {
     let dir = getDirectoryPath(path);
     const options = { allowFileNotFound: true };
 
-    while (inWorkspace(dir)) {
+    while (true) {
       let mainFile = "main.tsp";
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
@@ -1183,11 +1183,6 @@ export function createServer(host: ServerHost): Server {
         formatDiagnostic(diagnostic)
       );
     }
-  }
-
-  function inWorkspace(path: string) {
-    path = ensureTrailingDirectorySeparator(path);
-    return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 
   async function getPath(document: TextDocument | TextDocumentIdentifier) {
