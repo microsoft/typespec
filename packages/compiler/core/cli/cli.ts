@@ -15,7 +15,7 @@ import { resolve } from "path";
 import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { loadTypeSpecConfigForPath } from "../../config/index.js";
-import { initTypeSpecProject } from "../../init/index.js";
+import { InitTemplateError, initTypeSpecProject } from "../../init/index.js";
 import { compilerAssert, logDiagnostics } from "../diagnostics.js";
 import { findUnformattedTypeSpecFiles, formatTypeSpecFiles } from "../formatter-fs.js";
 import { installTypeSpecDependencies } from "../install.js";
@@ -229,7 +229,18 @@ async function main() {
           description: "Url of the initialization template",
           type: "string",
         }),
-      (args) => initTypeSpecProject(createCLICompilerHost(args), process.cwd(), args.templatesUrl)
+      async (args) => {
+        const host = createCLICompilerHost(args);
+        try {
+          await initTypeSpecProject(host, process.cwd(), args.templatesUrl);
+        } catch (e) {
+          if (e instanceof InitTemplateError) {
+            logDiagnostics(e.diagnostics, host.logSink);
+            process.exit(1);
+          }
+          throw e;
+        }
+      }
     )
     .command(
       "install",
