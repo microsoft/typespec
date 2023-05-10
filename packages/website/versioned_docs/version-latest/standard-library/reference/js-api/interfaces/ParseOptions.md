@@ -23,4 +23,4 @@ ___
 
 • `Optional` `Readonly` **docs**: `boolean`
 
-When true, parse doc comments into Node.docs.
+When true, parse doc comments into [docs](BaseNode.md#docs).

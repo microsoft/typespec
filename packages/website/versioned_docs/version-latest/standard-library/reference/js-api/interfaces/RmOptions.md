@@ -20,4 +20,6 @@ operations are retried on failure.
 
 **`Default`**
 
+```ts
 false
+```
