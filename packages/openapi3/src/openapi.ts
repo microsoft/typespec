@@ -1804,12 +1804,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
     let result: OpenAPI3Schema = {};
-    if (program.checker.isStdType(scalar)) {
+    const isStd = program.checker.isStdType(scalar);
+    if (isStd) {
       result = getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = getSchemaForScalar(scalar.baseScalar);
     }
-    return applyIntrinsicDecorators(scalar, result);
+    const withDecorators = applyIntrinsicDecorators(scalar, result);
+    if (isStd) {
+      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+      delete withDecorators.description;
+    }
+    return withDecorators;
   }
 
   function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
