@@ -2,6 +2,23 @@
   "name": "@typespec/prettier-plugin-typespec",
   "entries": [
     {
+      "version": "0.44.0",
+      "tag": "@typespec/prettier-plugin-typespec_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.43.0",
       "tag": "@typespec/prettier-plugin-typespec_v0.43.0",
       "date": "Tue, 11 Apr 2023 18:49:17 GMT",

@@ -2,6 +2,38 @@
   "name": "@typespec/versioning",
   "entries": [
     {
+      "version": "0.44.0",
+      "tag": "@typespec/versioning_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: Crash during validation when using certain templated models from versioned library"
+          },
+          {
+            "comment": "Update compiler to be a peer dependency"
+          },
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Added validation preventing version enums from having duplicate values."
+          },
+          {
+            "comment": "Fix issue where \"is\" dependencies were not detected."
+          },
+          {
+            "comment": "Raise error if versioned spec specifies a single service version."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.43.0",
       "tag": "@typespec/versioning_v0.43.0",
       "date": "Tue, 11 Apr 2023 18:49:17 GMT",

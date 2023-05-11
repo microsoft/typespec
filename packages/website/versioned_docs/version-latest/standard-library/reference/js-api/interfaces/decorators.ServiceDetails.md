@@ -10,8 +10,6 @@
 
   ↳ [`Service`](decorators.Service.md)
 
-  ↳ [`Service`](Service.md)
-
 ## Table of contents
 
 ### Properties

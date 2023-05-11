@@ -1,6 +1,13 @@
 # Change Log - @typespec/lint
 
-This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- Update dependencies
 
 ## 0.43.0
 Tue, 11 Apr 2023 18:49:17 GMT
