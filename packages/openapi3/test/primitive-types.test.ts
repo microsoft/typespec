@@ -125,7 +125,7 @@ describe("openapi3: primitives", () => {
   });
 
   describe("using @doc decorator", () => {
-    it("apply description on extended primitive (string)", async () => {
+    it("apply description on extended scalar (string)", async () => {
       const res = await oapiForModel(
         "shortString",
         `
@@ -135,14 +135,13 @@ describe("openapi3: primitives", () => {
       );
 
       ok(res.isRef);
-      ok(res.schemas.shortString, "expected definition named shortString");
       deepStrictEqual(res.schemas.shortString, {
         type: "string",
         description: "My custom description",
       });
     });
 
-    it("apply description on extended primitive (int32)", async () => {
+    it("apply description on extended scalar (int32)", async () => {
       const res = await oapiForModel(
         "specialint",
         `
@@ -152,11 +151,30 @@ describe("openapi3: primitives", () => {
       );
 
       ok(res.isRef);
-      ok(res.schemas.specialint, "expected definition named shortString");
       deepStrictEqual(res.schemas.specialint, {
         type: "integer",
         format: "int32",
         description: "My custom description",
+      });
+    });
+
+    it("apply description on extended custom scalars", async () => {
+      const res = await oapiForModel(
+        "superSpecialint",
+        `
+      @doc("My custom description")
+      scalar specialint extends int32;
+
+      @doc("Override specialint description")
+      scalar superSpecialint extends specialint;
+      `
+      );
+
+      ok(res.isRef);
+      deepStrictEqual(res.schemas.superSpecialint, {
+        type: "integer",
+        format: "int32",
+        description: "Override specialint description",
       });
     });
   });
