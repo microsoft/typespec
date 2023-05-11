@@ -10,7 +10,7 @@ toc_max_heading_level: 3
 
 ### `@action` {#@TypeSpec.Rest.action}
 
-Specify this operation is an action. (Scopped to a resource item /pets/{petId}/my-action)
+Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
 
 ```typespec
 dec TypeSpec.Rest.action(target: Operation, name?: string)
@@ -22,21 +22,21 @@ dec TypeSpec.Rest.action(target: Operation, name?: string)
 
 #### Parameters
 
-| Name | Type            | Description |
-| ---- | --------------- | ----------- |
-| name | `scalar string` |             |
+| Name | Type            | Description                                                                   |
+| ---- | --------------- | ----------------------------------------------------------------------------- |
+| name | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@actionSeparator` {#@TypeSpec.Rest.actionSeparator}
 
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```typespec
-dec TypeSpec.Rest.actionSeparator(target: object | ModelProperty | Operation, seperator: / | : | /:)
+dec TypeSpec.Rest.actionSeparator(target: Model | ModelProperty | Operation, seperator: / | : | /:)
 ```
 
 #### Target
 
-`union object | ModelProperty | Operation`
+`union Model | ModelProperty | Operation`
 
 #### Parameters
 
@@ -74,7 +74,7 @@ get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
 Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
 
 ```typespec
-dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: object, name?: string)
+dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?: string)
 ```
 
 #### Target
@@ -83,17 +83,17 @@ dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: object, name
 
 #### Parameters
 
-| Name         | Type            | Description |
-| ------------ | --------------- | ----------- |
-| resourceType | `model object`  |             |
-| name         | `scalar string` |             |
+| Name         | Type            | Description                                                                   |
+| ------------ | --------------- | ----------------------------------------------------------------------------- |
+| resourceType | `Model`         | Resource marked with                                                          |
+| name         | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
 
 Specify that this is a CreateOrReplace operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsOrReplacesResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.createsOrReplacesResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -102,16 +102,16 @@ dec TypeSpec.Rest.createsOrReplacesResource(target: Operation, resourceType: obj
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@createsOrUpdatesResource` {#@TypeSpec.Rest.createsOrUpdatesResource}
 
 Specify that this is a CreatesOrUpdate operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsOrUpdatesResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.createsOrUpdatesResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -120,16 +120,16 @@ dec TypeSpec.Rest.createsOrUpdatesResource(target: Operation, resourceType: obje
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@createsResource` {#@TypeSpec.Rest.createsResource}
 
 Specify that this is a Create operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.createsResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -138,16 +138,16 @@ dec TypeSpec.Rest.createsResource(target: Operation, resourceType: object)
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@deletesResource` {#@TypeSpec.Rest.deletesResource}
 
 Specify that this is a Delete operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.deletesResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.deletesResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -156,16 +156,16 @@ dec TypeSpec.Rest.deletesResource(target: Operation, resourceType: object)
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@listsResource` {#@TypeSpec.Rest.listsResource}
 
 Specify that this is a List operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.listsResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.listsResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -174,16 +174,16 @@ dec TypeSpec.Rest.listsResource(target: Operation, resourceType: object)
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@readsResource` {#@TypeSpec.Rest.readsResource}
 
 Specify that this is a Read operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.readsResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.readsResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -192,21 +192,21 @@ dec TypeSpec.Rest.readsResource(target: Operation, resourceType: object)
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |
 
 ### `@resource` {#@TypeSpec.Rest.resource}
 
 Mark this model as a resource type with a name.
 
 ```typespec
-dec TypeSpec.Rest.resource(target: object, collectionName: string)
+dec TypeSpec.Rest.resource(target: Model, collectionName: string)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 
@@ -219,12 +219,12 @@ dec TypeSpec.Rest.resource(target: object, collectionName: string)
 Defines the preceding path segment for a
 
 ```typespec
-dec TypeSpec.Rest.segment(target: object | ModelProperty | Operation, name: string)
+dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: string)
 ```
 
 #### Target
 
-`union object | ModelProperty | Operation`
+`union Model | ModelProperty | Operation`
 
 #### Parameters
 
@@ -237,7 +237,7 @@ dec TypeSpec.Rest.segment(target: object | ModelProperty | Operation, name: stri
 Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
 
 ```typespec
-dec TypeSpec.Rest.segmentOf(target: Operation, type: object)
+dec TypeSpec.Rest.segmentOf(target: Operation, type: Model)
 ```
 
 #### Target
@@ -246,16 +246,16 @@ dec TypeSpec.Rest.segmentOf(target: Operation, type: object)
 
 #### Parameters
 
-| Name | Type           | Description |
-| ---- | -------------- | ----------- |
-| type | `model object` |             |
+| Name | Type    | Description  |
+| ---- | ------- | ------------ |
+| type | `Model` | Target model |
 
 ### `@updatesResource` {#@TypeSpec.Rest.updatesResource}
 
 Specify that this is a Update operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.updatesResource(target: Operation, resourceType: object)
+dec TypeSpec.Rest.updatesResource(target: Operation, resourceType: Model)
 ```
 
 #### Target
@@ -264,6 +264,6 @@ dec TypeSpec.Rest.updatesResource(target: Operation, resourceType: object)
 
 #### Parameters
 
-| Name         | Type           | Description |
-| ------------ | -------------- | ----------- |
-| resourceType | `model object` |             |
+| Name         | Type    | Description          |
+| ------------ | ------- | -------------------- |
+| resourceType | `Model` | Resource marked with |

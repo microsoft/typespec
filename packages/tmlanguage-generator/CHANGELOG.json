@@ -2,6 +2,23 @@
   "name": "tmlanguage-generator",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "tmlanguage-generator_v0.4.1",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "tmlanguage-generator_v0.4.0",
       "date": "Fri, 03 Mar 2023 19:59:17 GMT",

@@ -2,6 +2,26 @@
   "name": "@typespec/internal-build-utils",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "@typespec/internal-build-utils_v0.4.1",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Make dev version dependency range compatible with other dev versions"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@typespec/internal-build-utils_v0.4.0",
       "date": "Fri, 03 Mar 2023 19:59:17 GMT",

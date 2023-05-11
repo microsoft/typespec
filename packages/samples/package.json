@@ -34,16 +34,16 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/versioning": "~0.43.0",
-    "@typespec/compiler": "~0.43.0",
-    "@typespec/http": "~0.43.1",
-    "@typespec/rest": "~0.43.0",
-    "@typespec/openapi": "~0.43.0",
-    "@typespec/openapi3": "~0.43.0",
-    "@typespec/html-program-viewer": "~0.43.0"
+    "@typespec/versioning": "~0.44.0",
+    "@typespec/compiler": "~0.44.0",
+    "@typespec/http": "~0.44.0",
+    "@typespec/rest": "~0.44.0",
+    "@typespec/openapi": "~0.44.0",
+    "@typespec/openapi3": "~0.44.0",
+    "@typespec/html-program-viewer": "~0.44.0"
   },
   "devDependencies": {
-    "@typespec/internal-build-utils": "~0.4.0",
+    "@typespec/internal-build-utils": "~0.4.1",
     "autorest": "~3.3.2",
     "mkdirp": "~2.1.6",
     "rimraf": "~5.0.0",

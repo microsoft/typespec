@@ -4,6 +4,90 @@ JS Api
 
 ## Table of contents
 
+### References
+
+- [$deprecated](index.md#$deprecated)
+- [$discriminator](index.md#$discriminator)
+- [$doc](index.md#$doc)
+- [$error](index.md#$error)
+- [$format](index.md#$format)
+- [$friendlyName](index.md#$friendlyname)
+- [$indexer](index.md#$indexer)
+- [$inspectType](index.md#$inspecttype)
+- [$inspectTypeName](index.md#$inspecttypename)
+- [$key](index.md#$key)
+- [$knownValues](index.md#$knownvalues)
+- [$list](index.md#$list)
+- [$maxItems](index.md#$maxitems)
+- [$maxLength](index.md#$maxlength)
+- [$maxValue](index.md#$maxvalue)
+- [$maxValueExclusive](index.md#$maxvalueexclusive)
+- [$minItems](index.md#$minitems)
+- [$minLength](index.md#$minlength)
+- [$minValue](index.md#$minvalue)
+- [$minValueExclusive](index.md#$minvalueexclusive)
+- [$overload](index.md#$overload)
+- [$pattern](index.md#$pattern)
+- [$projectedName](index.md#$projectedname)
+- [$secret](index.md#$secret)
+- [$service](index.md#$service)
+- [$summary](index.md#$summary)
+- [$tag](index.md#$tag)
+- [$visibility](index.md#$visibility)
+- [$withDefaultKeyVisibility](index.md#$withdefaultkeyvisibility)
+- [$withOptionalProperties](index.md#$withoptionalproperties)
+- [$withUpdateableProperties](index.md#$withupdateableproperties)
+- [$withVisibility](index.md#$withvisibility)
+- [$withoutDefaultValues](index.md#$withoutdefaultvalues)
+- [$withoutOmittedProperties](index.md#$withoutomittedproperties)
+- [Discriminator](index.md#discriminator)
+- [Service](index.md#service)
+- [ServiceDetails](index.md#servicedetails)
+- [addService](index.md#addservice)
+- [getAllTags](index.md#getalltags)
+- [getDeprecated](index.md#getdeprecated)
+- [getDiscriminatedTypes](index.md#getdiscriminatedtypes)
+- [getDiscriminator](index.md#getdiscriminator)
+- [getDoc](index.md#getdoc)
+- [getFormat](index.md#getformat)
+- [getFriendlyName](index.md#getfriendlyname)
+- [getIndexer](index.md#getindexer)
+- [getKeyName](index.md#getkeyname)
+- [getKnownValues](index.md#getknownvalues)
+- [getListOperationType](index.md#getlistoperationtype)
+- [getMaxItems](index.md#getmaxitems)
+- [getMaxLength](index.md#getmaxlength)
+- [getMaxValue](index.md#getmaxvalue)
+- [getMaxValueExclusive](index.md#getmaxvalueexclusive)
+- [getMinItems](index.md#getminitems)
+- [getMinLength](index.md#getminlength)
+- [getMinValue](index.md#getminvalue)
+- [getMinValueExclusive](index.md#getminvalueexclusive)
+- [getOverloadedOperation](index.md#getoverloadedoperation)
+- [getOverloads](index.md#getoverloads)
+- [getPattern](index.md#getpattern)
+- [getProjectedName](index.md#getprojectedname)
+- [getProjectedNames](index.md#getprojectednames)
+- [getPropertyType](index.md#getpropertytype)
+- [getService](index.md#getservice)
+- [getSummary](index.md#getsummary)
+- [getTags](index.md#gettags)
+- [getVisibility](index.md#getvisibility)
+- [hasProjectedName](index.md#hasprojectedname)
+- [isArrayModelType](index.md#isarraymodeltype)
+- [isDeprecated](index.md#isdeprecated)
+- [isErrorModel](index.md#iserrormodel)
+- [isKey](index.md#iskey)
+- [isListOperation](index.md#islistoperation)
+- [isNumericType](index.md#isnumerictype)
+- [isRecordModelType](index.md#isrecordmodeltype)
+- [isSecret](index.md#issecret)
+- [isService](index.md#isservice)
+- [isStringType](index.md#isstringtype)
+- [isVisible](index.md#isvisible)
+- [listServices](index.md#listservices)
+- [namespace](index.md#namespace)
+
 ### Namespaces
 
 - [decorators](modules/decorators.md)
@@ -67,7 +151,6 @@ JS Api
 - [DirectiveExpressionNode](interfaces/DirectiveExpressionNode.md)
 - [Dirent](interfaces/Dirent.md)
 - [DiscriminatedUnion](interfaces/DiscriminatedUnion.md)
-- [Discriminator](interfaces/Discriminator.md)
 - [DocNode](interfaces/DocNode.md)
 - [DocParamTagNode](interfaces/DocParamTagNode.md)
 - [DocReturnsTagNode](interfaces/DocReturnsTagNode.md)
@@ -181,8 +264,6 @@ JS Api
 - [ServerHost](interfaces/ServerHost.md)
 - [ServerSourceFile](interfaces/ServerSourceFile.md)
 - [ServerWorkspaceFolder](interfaces/ServerWorkspaceFolder.md)
-- [Service](interfaces/Service.md)
-- [ServiceDetails](interfaces/ServiceDetails.md)
 - [SourceFile](interfaces/SourceFile.md)
 - [SourceLocation](interfaces/SourceLocation.md)
 - [StringLiteral](interfaces/StringLiteral.md)
@@ -298,46 +379,10 @@ JS Api
 - [altDirectorySeparator](index.md#altdirectoryseparator)
 - [cadlVersion](index.md#cadlversion)
 - [directorySeparator](index.md#directoryseparator)
-- [namespace](index.md#namespace)
 - [typespecVersion](index.md#typespecversion)
 
 ### Functions
 
-- [$deprecated](index.md#$deprecated)
-- [$discriminator](index.md#$discriminator)
-- [$doc](index.md#$doc)
-- [$error](index.md#$error)
-- [$format](index.md#$format)
-- [$friendlyName](index.md#$friendlyname)
-- [$indexer](index.md#$indexer)
-- [$inspectType](index.md#$inspecttype)
-- [$inspectTypeName](index.md#$inspecttypename)
-- [$key](index.md#$key)
-- [$knownValues](index.md#$knownvalues)
-- [$list](index.md#$list)
-- [$maxItems](index.md#$maxitems)
-- [$maxLength](index.md#$maxlength)
-- [$maxValue](index.md#$maxvalue)
-- [$maxValueExclusive](index.md#$maxvalueexclusive)
-- [$minItems](index.md#$minitems)
-- [$minLength](index.md#$minlength)
-- [$minValue](index.md#$minvalue)
-- [$minValueExclusive](index.md#$minvalueexclusive)
-- [$overload](index.md#$overload)
-- [$pattern](index.md#$pattern)
-- [$projectedName](index.md#$projectedname)
-- [$secret](index.md#$secret)
-- [$service](index.md#$service)
-- [$summary](index.md#$summary)
-- [$tag](index.md#$tag)
-- [$visibility](index.md#$visibility)
-- [$withDefaultKeyVisibility](index.md#$withdefaultkeyvisibility)
-- [$withOptionalProperties](index.md#$withoptionalproperties)
-- [$withUpdateableProperties](index.md#$withupdateableproperties)
-- [$withVisibility](index.md#$withvisibility)
-- [$withoutDefaultValues](index.md#$withoutdefaultvalues)
-- [$withoutOmittedProperties](index.md#$withoutomittedproperties)
-- [addService](index.md#addservice)
 - [assertType](index.md#asserttype)
 - [cadlTypeToJson](index.md#cadltypetojson)
 - [checkFormatCadl](index.md#checkformatcadl)
@@ -357,94 +402,56 @@ JS Api
 - [createStateAccessors](index.md#createstateaccessors)
 - [createTypeSpecLibrary](index.md#createtypespeclibrary)
 - [emitFile](index.md#emitfile)
+- [ensurePathIsNonModuleName](index.md#ensurepathisnonmodulename)
 - [ensureTrailingDirectorySeparator](index.md#ensuretrailingdirectoryseparator)
 - [filterModelProperties](index.md#filtermodelproperties)
 - [finishTypeForProgram](index.md#finishtypeforprogram)
 - [formatDiagnostic](index.md#formatdiagnostic)
 - [formatIdentifier](index.md#formatidentifier)
 - [formatTypeSpec](index.md#formattypespec)
-- [getAllTags](index.md#getalltags)
 - [getAnyExtensionFromPath](index.md#getanyextensionfrompath)
 - [getBaseFileName](index.md#getbasefilename)
 - [getCompletionNodeAtPosition](index.md#getcompletionnodeatposition)
-- [getDeprecated](index.md#getdeprecated)
 - [getDirectoryPath](index.md#getdirectorypath)
-- [getDiscriminatedTypes](index.md#getdiscriminatedtypes)
 - [getDiscriminatedUnion](index.md#getdiscriminatedunion)
-- [getDiscriminator](index.md#getdiscriminator)
-- [getDoc](index.md#getdoc)
 - [getEffectiveModelType](index.md#geteffectivemodeltype)
 - [getFirstAncestor](index.md#getfirstancestor)
-- [getFormat](index.md#getformat)
-- [getFriendlyName](index.md#getfriendlyname)
 - [getIdentifierContext](index.md#getidentifiercontext)
-- [getIndexer](index.md#getindexer)
-- [getKeyName](index.md#getkeyname)
-- [getKnownValues](index.md#getknownvalues)
-- [getListOperationType](index.md#getlistoperationtype)
-- [getMaxItems](index.md#getmaxitems)
-- [getMaxLength](index.md#getmaxlength)
-- [getMaxValue](index.md#getmaxvalue)
-- [getMaxValueExclusive](index.md#getmaxvalueexclusive)
-- [getMinItems](index.md#getminitems)
-- [getMinLength](index.md#getminlength)
-- [getMinValue](index.md#getminvalue)
-- [getMinValueExclusive](index.md#getminvalueexclusive)
 - [getNamespaceFullName](index.md#getnamespacefullname)
 - [getNodeAtPosition](index.md#getnodeatposition)
 - [getNormalizedAbsolutePath](index.md#getnormalizedabsolutepath)
 - [getNormalizedAbsolutePathWithoutRoot](index.md#getnormalizedabsolutepathwithoutroot)
 - [getNormalizedPathComponents](index.md#getnormalizedpathcomponents)
-- [getOverloadedOperation](index.md#getoverloadedoperation)
-- [getOverloads](index.md#getoverloads)
 - [getOverriddenProperty](index.md#getoverriddenproperty)
 - [getParentTemplateNode](index.md#getparenttemplatenode)
 - [getPathComponents](index.md#getpathcomponents)
 - [getPathFromPathComponents](index.md#getpathfrompathcomponents)
-- [getPattern](index.md#getpattern)
-- [getProjectedName](index.md#getprojectedname)
-- [getProjectedNames](index.md#getprojectednames)
 - [getProperty](index.md#getproperty)
-- [getPropertyType](index.md#getpropertytype)
+- [getRelativePathFromDirectory](index.md#getrelativepathfromdirectory)
 - [getRootLength](index.md#getrootlength)
-- [getService](index.md#getservice)
 - [getSourceFileKindFromExt](index.md#getsourcefilekindfromext)
 - [getSourceLocation](index.md#getsourcelocation)
-- [getSummary](index.md#getsummary)
-- [getTags](index.md#gettags)
 - [getTypeName](index.md#gettypename)
-- [getVisibility](index.md#getvisibility)
 - [hasParseError](index.md#hasparseerror)
-- [hasProjectedName](index.md#hasprojectedname)
 - [hasTrailingDirectorySeparator](index.md#hastrailingdirectoryseparator)
 - [ignoreDiagnostics](index.md#ignorediagnostics)
 - [interpolatePath](index.md#interpolatepath)
 - [isAnyDirectorySeparator](index.md#isanydirectoryseparator)
-- [isArrayModelType](index.md#isarraymodeltype)
 - [isCadlValueTypeOf](index.md#iscadlvaluetypeof)
 - [isComment](index.md#iscomment)
 - [isDeclaredInNamespace](index.md#isdeclaredinnamespace)
-- [isDeprecated](index.md#isdeprecated)
-- [isErrorModel](index.md#iserrormodel)
 - [isErrorType](index.md#iserrortype)
 - [isGlobalNamespace](index.md#isglobalnamespace)
 - [isImportStatement](index.md#isimportstatement)
-- [isKey](index.md#iskey)
 - [isKeyword](index.md#iskeyword)
-- [isListOperation](index.md#islistoperation)
 - [isModifier](index.md#ismodifier)
 - [isNeverType](index.md#isnevertype)
 - [isNullType](index.md#isnulltype)
-- [isNumericType](index.md#isnumerictype)
 - [isPathAbsolute](index.md#ispathabsolute)
 - [isProjectedProgram](index.md#isprojectedprogram)
 - [isPunctuation](index.md#ispunctuation)
-- [isRecordModelType](index.md#isrecordmodeltype)
-- [isSecret](index.md#issecret)
-- [isService](index.md#isservice)
 - [isStatementKeyword](index.md#isstatementkeyword)
 - [isStdNamespace](index.md#isstdnamespace)
-- [isStringType](index.md#isstringtype)
 - [isTemplateDeclaration](index.md#istemplatedeclaration)
 - [isTemplateDeclarationOrInstance](index.md#istemplatedeclarationorinstance)
 - [isTemplateInstance](index.md#istemplateinstance)
@@ -452,11 +459,9 @@ JS Api
 - [isTypeSpecValueTypeOf](index.md#istypespecvaluetypeof)
 - [isUnknownType](index.md#isunknowntype)
 - [isUrl](index.md#isurl)
-- [isVisible](index.md#isvisible)
 - [isVoidType](index.md#isvoidtype)
 - [joinPaths](index.md#joinpaths)
 - [listOperationsIn](index.md#listoperationsin)
-- [listServices](index.md#listservices)
 - [logDiagnostics](index.md#logdiagnostics)
 - [logVerboseTestOutput](index.md#logverbosetestoutput)
 - [mapEventEmitterToNodeListener](index.md#mapeventemittertonodelistener)
@@ -489,6 +494,492 @@ JS Api
 - [validateDecoratorUniqueOnNode](index.md#validatedecoratoruniqueonnode)
 - [visitChildren](index.md#visitchildren)
 - [walkPropertiesInherited](index.md#walkpropertiesinherited)
+
+## References
+
+### $deprecated
+
+Re-exports [$deprecated](modules/decorators.md#$deprecated)
+
+___
+
+### $discriminator
+
+Re-exports [$discriminator](modules/decorators.md#$discriminator)
+
+___
+
+### $doc
+
+Re-exports [$doc](modules/decorators.md#$doc)
+
+___
+
+### $error
+
+Re-exports [$error](modules/decorators.md#$error)
+
+___
+
+### $format
+
+Re-exports [$format](modules/decorators.md#$format)
+
+___
+
+### $friendlyName
+
+Re-exports [$friendlyName](modules/decorators.md#$friendlyname)
+
+___
+
+### $indexer
+
+Re-exports [$indexer](modules/decorators.md#$indexer)
+
+___
+
+### $inspectType
+
+Re-exports [$inspectType](modules/decorators.md#$inspecttype)
+
+___
+
+### $inspectTypeName
+
+Re-exports [$inspectTypeName](modules/decorators.md#$inspecttypename)
+
+___
+
+### $key
+
+Re-exports [$key](modules/decorators.md#$key)
+
+___
+
+### $knownValues
+
+Re-exports [$knownValues](modules/decorators.md#$knownvalues)
+
+___
+
+### $list
+
+Re-exports [$list](modules/decorators.md#$list)
+
+___
+
+### $maxItems
+
+Re-exports [$maxItems](modules/decorators.md#$maxitems)
+
+___
+
+### $maxLength
+
+Re-exports [$maxLength](modules/decorators.md#$maxlength)
+
+___
+
+### $maxValue
+
+Re-exports [$maxValue](modules/decorators.md#$maxvalue)
+
+___
+
+### $maxValueExclusive
+
+Re-exports [$maxValueExclusive](modules/decorators.md#$maxvalueexclusive)
+
+___
+
+### $minItems
+
+Re-exports [$minItems](modules/decorators.md#$minitems)
+
+___
+
+### $minLength
+
+Re-exports [$minLength](modules/decorators.md#$minlength)
+
+___
+
+### $minValue
+
+Re-exports [$minValue](modules/decorators.md#$minvalue)
+
+___
+
+### $minValueExclusive
+
+Re-exports [$minValueExclusive](modules/decorators.md#$minvalueexclusive)
+
+___
+
+### $overload
+
+Re-exports [$overload](modules/decorators.md#$overload)
+
+___
+
+### $pattern
+
+Re-exports [$pattern](modules/decorators.md#$pattern)
+
+___
+
+### $projectedName
+
+Re-exports [$projectedName](modules/decorators.md#$projectedname)
+
+___
+
+### $secret
+
+Re-exports [$secret](modules/decorators.md#$secret)
+
+___
+
+### $service
+
+Re-exports [$service](modules/decorators.md#$service)
+
+___
+
+### $summary
+
+Re-exports [$summary](modules/decorators.md#$summary)
+
+___
+
+### $tag
+
+Re-exports [$tag](modules/decorators.md#$tag)
+
+___
+
+### $visibility
+
+Re-exports [$visibility](modules/decorators.md#$visibility)
+
+___
+
+### $withDefaultKeyVisibility
+
+Re-exports [$withDefaultKeyVisibility](modules/decorators.md#$withdefaultkeyvisibility)
+
+___
+
+### $withOptionalProperties
+
+Re-exports [$withOptionalProperties](modules/decorators.md#$withoptionalproperties)
+
+___
+
+### $withUpdateableProperties
+
+Re-exports [$withUpdateableProperties](modules/decorators.md#$withupdateableproperties)
+
+___
+
+### $withVisibility
+
+Re-exports [$withVisibility](modules/decorators.md#$withvisibility)
+
+___
+
+### $withoutDefaultValues
+
+Re-exports [$withoutDefaultValues](modules/decorators.md#$withoutdefaultvalues)
+
+___
+
+### $withoutOmittedProperties
+
+Re-exports [$withoutOmittedProperties](modules/decorators.md#$withoutomittedproperties)
+
+___
+
+### Discriminator
+
+Re-exports [Discriminator](interfaces/decorators.Discriminator.md)
+
+___
+
+### Service
+
+Re-exports [Service](interfaces/decorators.Service.md)
+
+___
+
+### ServiceDetails
+
+Re-exports [ServiceDetails](interfaces/decorators.ServiceDetails.md)
+
+___
+
+### addService
+
+Re-exports [addService](modules/decorators.md#addservice)
+
+___
+
+### getAllTags
+
+Re-exports [getAllTags](modules/decorators.md#getalltags)
+
+___
+
+### getDeprecated
+
+Re-exports [getDeprecated](modules/decorators.md#getdeprecated)
+
+___
+
+### getDiscriminatedTypes
+
+Re-exports [getDiscriminatedTypes](modules/decorators.md#getdiscriminatedtypes)
+
+___
+
+### getDiscriminator
+
+Re-exports [getDiscriminator](modules/decorators.md#getdiscriminator)
+
+___
+
+### getDoc
+
+Re-exports [getDoc](modules/decorators.md#getdoc)
+
+___
+
+### getFormat
+
+Re-exports [getFormat](modules/decorators.md#getformat)
+
+___
+
+### getFriendlyName
+
+Re-exports [getFriendlyName](modules/decorators.md#getfriendlyname)
+
+___
+
+### getIndexer
+
+Re-exports [getIndexer](modules/decorators.md#getindexer)
+
+___
+
+### getKeyName
+
+Re-exports [getKeyName](modules/decorators.md#getkeyname)
+
+___
+
+### getKnownValues
+
+Re-exports [getKnownValues](modules/decorators.md#getknownvalues)
+
+___
+
+### getListOperationType
+
+Re-exports [getListOperationType](modules/decorators.md#getlistoperationtype)
+
+___
+
+### getMaxItems
+
+Re-exports [getMaxItems](modules/decorators.md#getmaxitems)
+
+___
+
+### getMaxLength
+
+Re-exports [getMaxLength](modules/decorators.md#getmaxlength)
+
+___
+
+### getMaxValue
+
+Re-exports [getMaxValue](modules/decorators.md#getmaxvalue)
+
+___
+
+### getMaxValueExclusive
+
+Re-exports [getMaxValueExclusive](modules/decorators.md#getmaxvalueexclusive)
+
+___
+
+### getMinItems
+
+Re-exports [getMinItems](modules/decorators.md#getminitems)
+
+___
+
+### getMinLength
+
+Re-exports [getMinLength](modules/decorators.md#getminlength)
+
+___
+
+### getMinValue
+
+Re-exports [getMinValue](modules/decorators.md#getminvalue)
+
+___
+
+### getMinValueExclusive
+
+Re-exports [getMinValueExclusive](modules/decorators.md#getminvalueexclusive)
+
+___
+
+### getOverloadedOperation
+
+Re-exports [getOverloadedOperation](modules/decorators.md#getoverloadedoperation)
+
+___
+
+### getOverloads
+
+Re-exports [getOverloads](modules/decorators.md#getoverloads)
+
+___
+
+### getPattern
+
+Re-exports [getPattern](modules/decorators.md#getpattern)
+
+___
+
+### getProjectedName
+
+Re-exports [getProjectedName](modules/decorators.md#getprojectedname)
+
+___
+
+### getProjectedNames
+
+Re-exports [getProjectedNames](modules/decorators.md#getprojectednames)
+
+___
+
+### getPropertyType
+
+Re-exports [getPropertyType](modules/decorators.md#getpropertytype)
+
+___
+
+### getService
+
+Re-exports [getService](modules/decorators.md#getservice)
+
+___
+
+### getSummary
+
+Re-exports [getSummary](modules/decorators.md#getsummary)
+
+___
+
+### getTags
+
+Re-exports [getTags](modules/decorators.md#gettags)
+
+___
+
+### getVisibility
+
+Re-exports [getVisibility](modules/decorators.md#getvisibility)
+
+___
+
+### hasProjectedName
+
+Re-exports [hasProjectedName](modules/decorators.md#hasprojectedname)
+
+___
+
+### isArrayModelType
+
+Re-exports [isArrayModelType](modules/decorators.md#isarraymodeltype)
+
+___
+
+### isDeprecated
+
+Re-exports [isDeprecated](modules/decorators.md#isdeprecated)
+
+___
+
+### isErrorModel
+
+Re-exports [isErrorModel](modules/decorators.md#iserrormodel)
+
+___
+
+### isKey
+
+Re-exports [isKey](modules/decorators.md#iskey)
+
+___
+
+### isListOperation
+
+Re-exports [isListOperation](modules/decorators.md#islistoperation)
+
+___
+
+### isNumericType
+
+Re-exports [isNumericType](modules/decorators.md#isnumerictype)
+
+___
+
+### isRecordModelType
+
+Re-exports [isRecordModelType](modules/decorators.md#isrecordmodeltype)
+
+___
+
+### isSecret
+
+Re-exports [isSecret](modules/decorators.md#issecret)
+
+___
+
+### isService
+
+Re-exports [isService](modules/decorators.md#isservice)
+
+___
+
+### isStringType
+
+Re-exports [isStringType](modules/decorators.md#isstringtype)
+
+___
+
+### isVisible
+
+Re-exports [isVisible](modules/decorators.md#isvisible)
+
+___
+
+### listServices
+
+Re-exports [listServices](modules/decorators.md#listservices)
+
+___
+
+### namespace
+
+Re-exports [namespace](modules/decorators.md#namespace)
 
 ## Type Aliases
 
@@ -1158,732 +1649,11 @@ we expect the host to correctly handle paths in our specified format.
 
 ___
 
-### namespace
-
-• `Const` **namespace**: ``"TypeSpec"``
-
-___
-
 ### typespecVersion
 
 • `Const` **typespecVersion**: `any` = `manifest.version`
 
 ## Functions
-
-### $deprecated
-
-▸ **$deprecated**(`context`, `target`, `message`): `Map`<[`Type`](index.md#type), `any`\>
-
-Mark a type as deprecated
-
-**`Example`**
-
-``` @deprecated("Foo is deprecated, use Bar instead.")
-    model Foo {}
-```
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) | DecoratorContext |
-| `target` | [`Type`](index.md#type) | Decorator target |
-| `message` | `string` | Deprecation target. |
-
-#### Returns
-
-`Map`<[`Type`](index.md#type), `any`\>
-
-___
-
-### $discriminator
-
-▸ **$discriminator**(`context`, `entity`, `propertyName`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `entity` | [`Model`](interfaces/Model.md) \| [`Union`](interfaces/Union.md) |
-| `propertyName` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $doc
-
-▸ **$doc**(`context`, `target`, `text`, `sourceObject?`): `void`
-
-**`Doc`**
-
-attaches a documentation string. Works great with multi-line string literals.
-
-The first argument to
-
-**`Doc`**
-
-is a string, which may contain template parameters, enclosed in braces,
-which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
-
-**`Doc`**
-
-can be specified on any language element -- a model, an operation, a namespace, etc.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Type`](index.md#type) |
-| `text` | `string` |
-| `sourceObject?` | [`Type`](index.md#type) |
-
-#### Returns
-
-`void`
-
-___
-
-### $error
-
-▸ **$error**(`context`, `entity`): `void`
-
-`@error` decorator marks a model as an error type.
-
-`@error` can only be specified on a model.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `entity` | [`Model`](interfaces/Model.md) |
-
-#### Returns
-
-`void`
-
-___
-
-### $format
-
-▸ **$format**(`context`, `target`, `format`): `void`
-
-`@format` - specify the data format hint for a string type
-
-The first argument is a string that identifies the format that the string type expects.  Any string
-can be entered here, but a TypeSpec emitter must know how to interpret
-
-For TypeSpec specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
-valid values for a string type's format:
-
-https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes
-
-`@format` can be specified on a type that extends from `string` or a `string`-typed model property.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `format` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $friendlyName
-
-▸ **$friendlyName**(`context`, `target`, `friendlyName`, `sourceObject`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Type`](index.md#type) |
-| `friendlyName` | `string` |
-| `sourceObject` | `undefined` \| [`Type`](index.md#type) |
-
-#### Returns
-
-`void`
-
-___
-
-### $indexer
-
-▸ **$indexer**(`context`, `target`, `key`, `value`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Type`](index.md#type) |
-| `key` | [`Scalar`](interfaces/Scalar.md) |
-| `value` | [`Type`](index.md#type) |
-
-#### Returns
-
-`void`
-
-___
-
-### $inspectType
-
-▸ **$inspectType**(`program`, `target`, `text`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-| `text` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $inspectTypeName
-
-▸ **$inspectTypeName**(`program`, `target`, `text`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-| `text` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $key
-
-▸ **$key**(`context`, `entity`, `altName?`): `void`
-
-`@key` - mark a model property as the key to identify instances of that type
-
-The optional first argument accepts an alternate key name which may be used by emitters.
-Otherwise, the name of the target property will be used.
-
-`@key` can only be applied to model properties.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `entity` | [`ModelProperty`](interfaces/ModelProperty.md) |
-| `altName?` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $knownValues
-
-▸ **$knownValues**(`context`, `target`, `knownValues`): `void`
-
-`@knownValues` marks a string type with an enum that contains all known values
-
-The first parameter is a reference to an enum type that describes all possible values that the
-type accepts.
-
-`@knownValues` can only be applied to model types that extend `string`.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) | - |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) | Decorator target. Must be a string. (model Foo extends string) |
-| `knownValues` | [`Enum`](interfaces/Enum.md) | Must be an enum. |
-
-#### Returns
-
-`void`
-
-___
-
-### $list
-
-▸ **$list**(`context`, `target`, `listedType?`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Operation`](interfaces/Operation.md) |
-| `listedType?` | [`Type`](index.md#type) |
-
-#### Returns
-
-`void`
-
-___
-
-### $maxItems
-
-▸ **$maxItems**(`context`, `target`, `maxItems`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Model`](interfaces/Model.md) \| [`ModelProperty`](interfaces/ModelProperty.md) |
-| `maxItems` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $maxLength
-
-▸ **$maxLength**(`context`, `target`, `maxLength`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `maxLength` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $maxValue
-
-▸ **$maxValue**(`context`, `target`, `maxValue`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `maxValue` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $maxValueExclusive
-
-▸ **$maxValueExclusive**(`context`, `target`, `maxValueExclusive`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `maxValueExclusive` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $minItems
-
-▸ **$minItems**(`context`, `target`, `minItems`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Model`](interfaces/Model.md) \| [`ModelProperty`](interfaces/ModelProperty.md) |
-| `minItems` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $minLength
-
-▸ **$minLength**(`context`, `target`, `minLength`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `minLength` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $minValue
-
-▸ **$minValue**(`context`, `target`, `minValue`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `minValue` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $minValueExclusive
-
-▸ **$minValueExclusive**(`context`, `target`, `minValueExclusive`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `minValueExclusive` | `number` |
-
-#### Returns
-
-`void`
-
-___
-
-### $overload
-
-▸ **$overload**(`context`, `target`, `overloadBase`): `void`
-
-`@overload` - Indicate that the target overloads (specializes) the overloads type.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) | DecoratorContext |
-| `target` | [`Operation`](interfaces/Operation.md) | The specializing operation declaration |
-| `overloadBase` | [`Operation`](interfaces/Operation.md) | The operation to be overloaded. |
-
-#### Returns
-
-`void`
-
-___
-
-### $pattern
-
-▸ **$pattern**(`context`, `target`, `pattern`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-| `pattern` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $projectedName
-
-▸ **$projectedName**(`context`, `target`, `projectionName`, `projectedName`): `void`
-
-`@projectedName` - Indicate that this entity should be renamed according to the given projection.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) | DecoratorContext |
-| `target` | [`Type`](index.md#type) | The that should have a different name. |
-| `projectionName` | `string` | Name of the projection (e.g. "toJson", "toCSharp") |
-| `projectedName` | `string` | Name of the type should have in the scope of the projection specified. |
-
-#### Returns
-
-`void`
-
-___
-
-### $secret
-
-▸ **$secret**(`context`, `target`): `void`
-
-Mark a string as a secret value that should be treated carefully to avoid exposure
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) | Decorator context |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) | Decorator target, either a string model or a property with type string. |
-
-#### Returns
-
-`void`
-
-___
-
-### $service
-
-▸ **$service**(`context`, `target`, `options?`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Namespace`](interfaces/Namespace.md) |
-| `options?` | [`Model`](interfaces/Model.md) |
-
-#### Returns
-
-`void`
-
-___
-
-### $summary
-
-▸ **$summary**(`context`, `target`, `text`, `sourceObject`): `void`
-
-**`Summary`**
-
-attaches a documentation string. It is typically used to give a short, single-line
-description, and can be used in combination with or instead of @doc.
-
-The first argument to
-
-**`Summary`**
-
-is a string, which may contain template parameters, enclosed in braces,
-which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
-
-**`Summary`**
-
-can be specified on any language element -- a model, an operation, a namespace, etc.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Type`](index.md#type) |
-| `text` | `string` |
-| `sourceObject` | [`Type`](index.md#type) |
-
-#### Returns
-
-`void`
-
-___
-
-### $tag
-
-▸ **$tag**(`context`, `target`, `tag`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Interface`](interfaces/Interface.md) \| [`Namespace`](interfaces/Namespace.md) \| [`Operation`](interfaces/Operation.md) |
-| `tag` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $visibility
-
-▸ **$visibility**(`context`, `target`, `...visibilities`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) |
-| `...visibilities` | `string`[] |
-
-#### Returns
-
-`void`
-
-___
-
-### $withDefaultKeyVisibility
-
-▸ **$withDefaultKeyVisibility**(`context`, `entity`, `visibility`): `void`
-
-`@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
-
-The first argument accepts a string representing the desired default
-visibility value.  If a key property already has a `visibility` decorator
-then the default visibility is not applied.
-
-`@withDefaultKeyVisibility` can only be applied to model types.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `entity` | [`Model`](interfaces/Model.md) |
-| `visibility` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### $withOptionalProperties
-
-▸ **$withOptionalProperties**(`context`, `target`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Model`](interfaces/Model.md) |
-
-#### Returns
-
-`void`
-
-___
-
-### $withUpdateableProperties
-
-▸ **$withUpdateableProperties**(`context`, `target`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`void`
-
-___
-
-### $withVisibility
-
-▸ **$withVisibility**(`context`, `target`, `...visibilities`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Model`](interfaces/Model.md) |
-| `...visibilities` | `string`[] |
-
-#### Returns
-
-`void`
-
-___
-
-### $withoutDefaultValues
-
-▸ **$withoutDefaultValues**(`context`, `target`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Model`](interfaces/Model.md) |
-
-#### Returns
-
-`void`
-
-___
-
-### $withoutOmittedProperties
-
-▸ **$withoutOmittedProperties**(`context`, `target`, `omitProperties`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `context` | [`DecoratorContext`](interfaces/DecoratorContext.md) |
-| `target` | [`Model`](interfaces/Model.md) |
-| `omitProperties` | `string` \| [`Union`](interfaces/Union.md) |
-
-#### Returns
-
-`void`
-
-___
-
-### addService
-
-▸ **addService**(`program`, `namespace`, `details?`): `void`
-
-Mark the given namespace as a service.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `namespace` | [`Namespace`](interfaces/Namespace.md) | Namespace |
-| `details` | [`ServiceDetails`](interfaces/decorators.ServiceDetails.md) | Service details |
-
-#### Returns
-
-`void`
-
-___
 
 ### assertType
 
@@ -1895,7 +1665,7 @@ Assert that the input type has one of the kinds provided
 
 | Name | Type |
 | :------ | :------ |
-| `TKind` | extends (``"Projection"`` \| ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"``)[] |
+| `TKind` | extends (``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"``)[] |
 
 #### Parameters
 
@@ -2316,6 +2086,32 @@ Helper to emit a file.
 
 ___
 
+### ensurePathIsNonModuleName
+
+▸ **ensurePathIsNonModuleName**(`path`): `string`
+
+Ensures a path is either absolute (prefixed with `/` or `c:`) or dot-relative (prefixed
+with `./` or `../`) so as not to be confused with an unprefixed module name.
+
+```ts
+ensurePathIsNonModuleName("/path/to/file.ext") === "/path/to/file.ext"
+ensurePathIsNonModuleName("./path/to/file.ext") === "./path/to/file.ext"
+ensurePathIsNonModuleName("../path/to/file.ext") === "../path/to/file.ext"
+ensurePathIsNonModuleName("path/to/file.ext") === "./path/to/file.ext"
+```
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `path` | `string` |
+
+#### Returns
+
+`string`
+
+___
+
 ### ensureTrailingDirectorySeparator
 
 ▸ **ensureTrailingDirectorySeparator**(`path`): `string`
@@ -2427,23 +2223,6 @@ ___
 
 ___
 
-### getAllTags
-
-▸ **getAllTags**(`program`, `target`): `string`[] \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Interface`](interfaces/Interface.md) \| [`Namespace`](interfaces/Namespace.md) \| [`Operation`](interfaces/Operation.md) |
-
-#### Returns
-
-`string`[] \| `undefined`
-
-___
-
 ### getAnyExtensionFromPath
 
 ▸ **getAnyExtensionFromPath**(`path`): `string`
@@ -2535,25 +2314,6 @@ It will try to guess what node it could be as during auto complete the ast might
 
 ___
 
-### getDeprecated
-
-▸ **getDeprecated**(`program`, `type`): `string` \| `undefined`
-
-Return the deprecated message or undefined if not deprecated
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `type` | [`Type`](index.md#type) | Type |
-
-#### Returns
-
-`string` \| `undefined`
-
-___
-
 ### getDirectoryPath
 
 ▸ **getDirectoryPath**(`path`): `string`
@@ -2567,22 +2327,6 @@ ___
 #### Returns
 
 `string`
-
-___
-
-### getDiscriminatedTypes
-
-▸ **getDiscriminatedTypes**(`program`): [[`Model`](interfaces/Model.md) \| [`Union`](interfaces/Union.md), [`Discriminator`](interfaces/decorators.Discriminator.md)][]
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-
-#### Returns
-
-[[`Model`](interfaces/Model.md) \| [`Union`](interfaces/Union.md), [`Discriminator`](interfaces/decorators.Discriminator.md)][]
 
 ___
 
@@ -2600,40 +2344,6 @@ ___
 #### Returns
 
 [[`DiscriminatedUnion`](interfaces/DiscriminatedUnion.md), readonly [`Diagnostic`](interfaces/Diagnostic.md)[]]
-
-___
-
-### getDiscriminator
-
-▸ **getDiscriminator**(`program`, `entity`): [`Discriminator`](interfaces/decorators.Discriminator.md) \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `entity` | [`Type`](index.md#type) |
-
-#### Returns
-
-[`Discriminator`](interfaces/decorators.Discriminator.md) \| `undefined`
-
-___
-
-### getDoc
-
-▸ **getDoc**(`program`, `target`): `string` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string` \| `undefined`
 
 ___
 
@@ -2683,40 +2393,6 @@ ___
 
 ___
 
-### getFormat
-
-▸ **getFormat**(`program`, `target`): `string` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string` \| `undefined`
-
-___
-
-### getFriendlyName
-
-▸ **getFriendlyName**(`program`, `target`): `string`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string`
-
-___
-
 ### getIdentifierContext
 
 ▸ **getIdentifierContext**(`id`): [`IdentifierContext`](interfaces/IdentifierContext.md)
@@ -2730,210 +2406,6 @@ ___
 #### Returns
 
 [`IdentifierContext`](interfaces/IdentifierContext.md)
-
-___
-
-### getIndexer
-
-▸ **getIndexer**(`program`, `target`): [`ModelIndexer`](index.md#modelindexer) \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-[`ModelIndexer`](index.md#modelindexer) \| `undefined`
-
-___
-
-### getKeyName
-
-▸ **getKeyName**(`program`, `property`): `string`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `property` | [`ModelProperty`](interfaces/ModelProperty.md) |
-
-#### Returns
-
-`string`
-
-___
-
-### getKnownValues
-
-▸ **getKnownValues**(`program`, `target`): [`Enum`](interfaces/Enum.md) \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
-
-#### Returns
-
-[`Enum`](interfaces/Enum.md) \| `undefined`
-
-___
-
-### getListOperationType
-
-▸ **getListOperationType**(`program`, `target`): [`Model`](interfaces/Model.md) \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-[`Model`](interfaces/Model.md) \| `undefined`
-
-___
-
-### getMaxItems
-
-▸ **getMaxItems**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMaxLength
-
-▸ **getMaxLength**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMaxValue
-
-▸ **getMaxValue**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMaxValueExclusive
-
-▸ **getMaxValueExclusive**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMinItems
-
-▸ **getMinItems**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMinLength
-
-▸ **getMinLength**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMinValue
-
-▸ **getMinValue**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
-
-___
-
-### getMinValueExclusive
-
-▸ **getMinValueExclusive**(`program`, `target`): `number` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`number` \| `undefined`
 
 ___
 
@@ -3033,48 +2505,6 @@ getNormalizedPathComponents("to/dir/../file.ext", "/path/") === ["/", "path", "t
 #### Returns
 
 `string`[]
-
-___
-
-### getOverloadedOperation
-
-▸ **getOverloadedOperation**(`program`, `operation`): [`Operation`](interfaces/Operation.md) \| `undefined`
-
-If the given operation overloads another operation, return that operation.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `operation` | [`Operation`](interfaces/Operation.md) | The operation to check for an overload target. |
-
-#### Returns
-
-[`Operation`](interfaces/Operation.md) \| `undefined`
-
-The operation this operation overloads, if any.
-
-___
-
-### getOverloads
-
-▸ **getOverloads**(`program`, `operation`): [`Operation`](interfaces/Operation.md)[] \| `undefined`
-
-Get all operations that are marked as overloads of the given operation
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `operation` | [`Operation`](interfaces/Operation.md) | Operation |
-
-#### Returns
-
-[`Operation`](interfaces/Operation.md)[] \| `undefined`
-
-An array of operations that overload the given operation.
 
 ___
 
@@ -3187,64 +2617,6 @@ getPathFromPathComponents(["/", "path", "to", "file.ext"]) === "/path/to/file.ex
 
 ___
 
-### getPattern
-
-▸ **getPattern**(`program`, `target`): `string` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string` \| `undefined`
-
-___
-
-### getProjectedName
-
-▸ **getProjectedName**(`program`, `target`, `projectionName`): `string` \| `undefined`
-
-Get the projected name of the given entity for the given projection.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `target` | [`Type`](index.md#type) | Target |
-| `projectionName` | `string` | - |
-
-#### Returns
-
-`string` \| `undefined`
-
-Projected name for the given projection
-
-___
-
-### getProjectedNames
-
-▸ **getProjectedNames**(`program`, `target`): `ReadonlyMap`<`string`, `string`\> \| `undefined`
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `target` | [`Type`](index.md#type) | Target |
-
-#### Returns
-
-`ReadonlyMap`<`string`, `string`\> \| `undefined`
-
-Map of the projected names for the given entity.
-
-___
-
 ### getProperty
 
 ▸ **getProperty**(`type`, `propertyName`): [`ModelProperty`](interfaces/ModelProperty.md) \| `undefined`
@@ -3262,21 +2634,39 @@ ___
 
 ___
 
-### getPropertyType
+### getRelativePathFromDirectory
 
-▸ **getPropertyType**(`target`): [`Type`](index.md#type)
+▸ **getRelativePathFromDirectory**(`from`, `to`, `ignoreCase`): `string`
 
-Return the type of the property or the model itself.
+Gets a relative path that can be used to traverse between `from` and `to`.
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `target` | [`ModelProperty`](interfaces/ModelProperty.md) \| [`Scalar`](interfaces/Scalar.md) |
+| `from` | `string` |
+| `to` | `string` |
+| `ignoreCase` | `boolean` |
 
 #### Returns
 
-[`Type`](index.md#type)
+`string`
+
+▸ **getRelativePathFromDirectory**(`fromDirectory`, `to`, `getCanonicalFileName`): `string`
+
+Gets a relative path that can be used to traverse between `from` and `to`.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `fromDirectory` | `string` |
+| `to` | `string` |
+| `getCanonicalFileName` | `GetCanonicalFileName` |
+
+#### Returns
+
+`string`
 
 ___
 
@@ -3317,27 +2707,6 @@ getRootLength("http://server/path") === 14 // "http://server/"
 #### Returns
 
 `number`
-
-___
-
-### getService
-
-▸ **getService**(`program`, `namespace`): [`Service`](interfaces/decorators.Service.md) \| `undefined`
-
-Get the service information for the given namespace.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `namespace` | [`Namespace`](interfaces/Namespace.md) | Service namespace |
-
-#### Returns
-
-[`Service`](interfaces/decorators.Service.md) \| `undefined`
-
-Service information or undefined if namespace is not a service namespace.
 
 ___
 
@@ -3397,40 +2766,6 @@ ___
 
 ___
 
-### getSummary
-
-▸ **getSummary**(`program`, `type`): `string` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `type` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string` \| `undefined`
-
-___
-
-### getTags
-
-▸ **getTags**(`program`, `target`): `string`[]
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string`[]
-
-___
-
 ### getTypeName
 
 ▸ **getTypeName**(`type`, `options?`): `string`
@@ -3448,23 +2783,6 @@ ___
 
 ___
 
-### getVisibility
-
-▸ **getVisibility**(`program`, `target`): `string`[] \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`string`[] \| `undefined`
-
-___
-
 ### hasParseError
 
 ▸ **hasParseError**(`node`): `number` \| ``true``
@@ -3478,28 +2796,6 @@ ___
 #### Returns
 
 `number` \| ``true``
-
-___
-
-### hasProjectedName
-
-▸ **hasProjectedName**(`program`, `target`, `projectionName`): `boolean`
-
-Get the projected name of the given entity for the given projection.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `target` | [`Type`](index.md#type) | Target |
-| `projectionName` | `string` | - |
-
-#### Returns
-
-`boolean`
-
-Projected name for the given projection
 
 ___
 
@@ -3584,25 +2880,6 @@ Determines whether a charCode corresponds to `/` or ``.
 
 ___
 
-### isArrayModelType
-
-▸ **isArrayModelType**(`program`, `type`): type is ArrayModelType
-
-Check if a model is an array type.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | - |
-| `type` | [`Model`](interfaces/Model.md) | Model type |
-
-#### Returns
-
-type is ArrayModelType
-
-___
-
 ### isCadlValueTypeOf
 
 ▸ **isCadlValueTypeOf**<`K`\>(`target`, `expectedType`): target is InferredTypeSpecValue<K\>
@@ -3667,42 +2944,6 @@ Check if the given type is declared in the specified namespace or, optionally, i
 
 ___
 
-### isDeprecated
-
-▸ **isDeprecated**(`program`, `type`): `boolean`
-
-Check if the given type is deprecated
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `type` | [`Type`](index.md#type) | Type |
-
-#### Returns
-
-`boolean`
-
-___
-
-### isErrorModel
-
-▸ **isErrorModel**(`program`, `target`): `boolean`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`boolean`
-
-___
-
 ### isErrorType
 
 ▸ **isErrorType**(`type`): type is ErrorType
@@ -3754,23 +2995,6 @@ node is ImportStatementNode
 
 ___
 
-### isKey
-
-▸ **isKey**(`program`, `property`): `boolean`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `property` | [`ModelProperty`](interfaces/ModelProperty.md) |
-
-#### Returns
-
-`boolean`
-
-___
-
 ### isKeyword
 
 ▸ **isKeyword**(`token`): `boolean`
@@ -3780,23 +3004,6 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `token` | [`Token`](enums/Token.md) |
-
-#### Returns
-
-`boolean`
-
-___
-
-### isListOperation
-
-▸ **isListOperation**(`program`, `target`): `boolean`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Operation`](interfaces/Operation.md) |
 
 #### Returns
 
@@ -3852,23 +3059,6 @@ type is NullType
 
 ___
 
-### isNumericType
-
-▸ **isNumericType**(`program`, `target`): target is Scalar
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) \| [`ProjectedProgram`](interfaces/ProjectedProgram.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-target is Scalar
-
-___
-
 ### isPathAbsolute
 
 ▸ **isPathAbsolute**(`path`): `boolean`
@@ -3917,63 +3107,6 @@ ___
 
 ___
 
-### isRecordModelType
-
-▸ **isRecordModelType**(`program`, `type`): type is ArrayModelType
-
-Check if a model is an array type.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | - |
-| `type` | [`Model`](interfaces/Model.md) | Model type |
-
-#### Returns
-
-type is ArrayModelType
-
-___
-
-### isSecret
-
-▸ **isSecret**(`program`, `target`): `boolean` \| `undefined`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-`boolean` \| `undefined`
-
-___
-
-### isService
-
-▸ **isService**(`program`, `namespace`): `boolean`
-
-Check if the namespace is defined as a service.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-| `namespace` | [`Namespace`](interfaces/Namespace.md) | Namespace |
-
-#### Returns
-
-`boolean`
-
-Boolean
-
-___
-
 ### isStatementKeyword
 
 ▸ **isStatementKeyword**(`token`): `boolean`
@@ -4003,23 +3136,6 @@ ___
 #### Returns
 
 `boolean`
-
-___
-
-### isStringType
-
-▸ **isStringType**(`program`, `target`): target is Scalar
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) \| [`ProjectedProgram`](interfaces/ProjectedProgram.md) |
-| `target` | [`Type`](index.md#type) |
-
-#### Returns
-
-target is Scalar
 
 ___
 
@@ -4154,24 +3270,6 @@ Determines whether a path starts with a URL scheme (e.g. starts with `http://`, 
 
 ___
 
-### isVisible
-
-▸ **isVisible**(`program`, `property`, `visibilities`): `boolean`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) |
-| `property` | [`ModelProperty`](interfaces/ModelProperty.md) |
-| `visibilities` | readonly `string`[] |
-
-#### Returns
-
-`boolean`
-
-___
-
 ### isVoidType
 
 ▸ **isVoidType**(`type`): type is VoidType
@@ -4238,26 +3336,6 @@ List operations in the given container. Will list operation recursively by defau
 #### Returns
 
 [`Operation`](interfaces/Operation.md)[]
-
-___
-
-### listServices
-
-▸ **listServices**(`program`): [`Service`](interfaces/decorators.Service.md)[]
-
-List all the services defined in the typespec program
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `program` | [`Program`](interfaces/Program.md) | Program |
-
-#### Returns
-
-[`Service`](interfaces/decorators.Service.md)[]
-
-List of service.
 
 ___
 
@@ -4808,7 +3886,7 @@ createDecoratorDefinition#validate instead.
 
 | Name | Type |
 | :------ | :------ |
-| `K` | extends ``"Projection"`` \| ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` |
+| `K` | extends ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"`` |
 
 #### Parameters
 
