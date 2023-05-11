@@ -6,7 +6,7 @@ import {
 import { EmitterOptions, TypeSpecConfig } from "../../config/types.js";
 import { createDiagnosticCollector } from "../index.js";
 import { CompilerOptions } from "../options.js";
-import { normalizePath, resolvePath } from "../path-utils.js";
+import { getDirectoryPath, normalizePath, resolvePath } from "../path-utils.js";
 import { CompilerHost, Diagnostic } from "../types.js";
 import { deepClone, omitUndefined } from "../util.js";
 
@@ -28,6 +28,7 @@ export interface CompileCliArgs {
 
 export async function getCompilerOptions(
   host: CompilerHost,
+  entrypoint: string,
   cwd: string,
   args: CompileCliArgs,
   env: Record<string, string | undefined>
@@ -36,7 +37,9 @@ export async function getCompilerOptions(
 
   const diagnostics = createDiagnosticCollector();
   const pathArg = args["output-dir"] ?? args["output-path"];
-  const configPath = args["config"] ?? cwd;
+  const configPath = args["config"]
+    ? resolvePath(cwd, args["config"])
+    : getDirectoryPath(entrypoint);
 
   const config = await loadTypeSpecConfigForPath(host, configPath, "config" in args);
   if (config.diagnostics.length > 0) {
