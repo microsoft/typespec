@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Uptake doc comment changes",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

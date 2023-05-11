@@ -44,21 +44,6 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
   });
 }
 
-function setTemplatedStringProperty(
-  key: symbol,
-  program: Program,
-  target: Type,
-  text: string,
-  sourceObject?: Type
-) {
-  // If an object was passed in, use it to format the documentation string
-  if (sourceObject) {
-    text = replaceTemplatedStringFromProperties(text, sourceObject);
-  }
-
-  program.stateMap(key).set(target, text);
-}
-
 function createStateSymbol(name: string) {
   return Symbol.for(`TypeSpec.${name}`);
 }
@@ -79,7 +64,11 @@ export function $summary(
   text: string,
   sourceObject: Type
 ) {
-  setTemplatedStringProperty(summaryKey, context.program, target, text, sourceObject);
+  if (sourceObject) {
+    text = replaceTemplatedStringFromProperties(text, sourceObject);
+  }
+
+  context.program.stateMap(summaryKey).set(target, text);
 }
 
 export function getSummary(program: Program, type: Type): string | undefined {
@@ -87,6 +76,19 @@ export function getSummary(program: Program, type: Type): string | undefined {
 }
 
 const docsKey = createStateSymbol("docs");
+export interface DocData {
+  /**
+   * Doc value.
+   */
+  value: string;
+
+  /**
+   * How was the doc set.
+   * - `@doc` means the `@doc` decorator was used
+   * - `comment` means it was set from a `/** comment * /`
+   */
+  source: "@doc" | "comment";
+}
 /**
  * @doc attaches a documentation string. Works great with multi-line string literals.
  *
@@ -97,11 +99,40 @@ const docsKey = createStateSymbol("docs");
  */
 export function $doc(context: DecoratorContext, target: Type, text: string, sourceObject?: Type) {
   validateDecoratorUniqueOnNode(context, target, $doc);
-  setTemplatedStringProperty(docsKey, context.program, target, text, sourceObject);
+  if (sourceObject) {
+    text = replaceTemplatedStringFromProperties(text, sourceObject);
+  }
+  setDocData(context.program, target, { value: text, source: "@doc" });
 }
 
-export function getDoc(program: Program, target: Type): string | undefined {
+/**
+ * @internal to be used to set the `@doc` from doc comment.
+ */
+export function $docFromComment(context: DecoratorContext, target: Type, text: string) {
+  setDocData(context.program, target, { value: text, source: "comment" });
+}
+
+function setDocData(program: Program, target: Type, data: DocData) {
+  program.stateMap(docsKey).set(target, data);
+}
+/**
+ * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getDocData(program: Program, target: Type): DocData | undefined {
   return program.stateMap(docsKey).get(target);
+}
+
+/**
+ * Get the documentation string for the given type.
+ * @param program Program
+ * @param target Type
+ * @returns Documentation value
+ */
+export function getDoc(program: Program, target: Type): string | undefined {
+  return getDocData(program, target)?.value;
 }
 
 export function $inspectType(program: Program, target: Type, text: string) {

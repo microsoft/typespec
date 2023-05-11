@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Feature** Doc comment will be applied as the doc for types unless an explicit @doc is provided.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
