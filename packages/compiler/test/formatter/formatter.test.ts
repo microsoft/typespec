@@ -574,6 +574,21 @@ model Bar {}
       });
     });
 
+    it("format comment between decorator and op statement", () => {
+      assertFormat({
+        code: `
+@foo
+  // comment
+op test(foo: string): void;
+`,
+        expected: `
+@foo
+// comment
+op test(foo: string): void;
+`,
+      });
+    });
+
     it("keeps comment in between decorators", () => {
       assertFormat({
         code: `
