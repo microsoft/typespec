@@ -132,7 +132,6 @@ model Record<T> {}
 /**
  * Represent a URL string as described by https://url.spec.whatwg.org/
  */
-@format("url")
 scalar url extends string;
 
 /**
