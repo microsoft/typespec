@@ -400,14 +400,14 @@ export interface Namespace extends BaseType, DecoratedType {
   operations: Map<string, Operation>;
 
   /**
-   * The scalars in the namespace.
+   * The sub-namespaces in the namespace.
    *
    * Order is implementation-defined and may change.
    */
   namespaces: Map<string, Namespace>;
 
   /**
-   * The scalars in the namespace.
+   * The interfaces in the namespace.
    *
    * Order is implementation-defined and may change.
    */

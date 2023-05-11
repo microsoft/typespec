@@ -127,7 +127,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
+• `Optional` `Readonly` **parent**: [`NamespaceStatementNode`](NamespaceStatementNode.md) \| [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 
 #### Overrides
 

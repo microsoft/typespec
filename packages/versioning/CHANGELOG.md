@@ -1,6 +1,18 @@
 # Change Log - @typespec/versioning
 
-This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- Fix: Crash during validation when using certain templated models from versioned library
+- Update compiler to be a peer dependency
+- Update dependencies
+- Added validation preventing version enums from having duplicate values.
+- Fix issue where "is" dependencies were not detected.
+- Raise error if versioned spec specifies a single service version.
 
 ## 0.43.0
 Tue, 11 Apr 2023 18:49:17 GMT

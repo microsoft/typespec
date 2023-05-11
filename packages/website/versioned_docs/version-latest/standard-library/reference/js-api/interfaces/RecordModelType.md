@@ -25,6 +25,7 @@
 - [projectionSource](RecordModelType.md#projectionsource)
 - [projector](RecordModelType.md#projector)
 - [properties](RecordModelType.md#properties)
+- [sourceModel](RecordModelType.md#sourcemodel)
 - [symbol](RecordModelType.md#symbol)
 - [templateArguments](RecordModelType.md#templatearguments)
 - [templateMapper](RecordModelType.md#templatemapper)
@@ -66,7 +67,7 @@ ___
 
 • **derivedModels**: [`Model`](Model.md)[]
 
-Direct children. This is the reverse relation of [baseModel](RecordModelType.md#basemodel)
+Direct children. This is the reverse relation of [baseModel](ArrayModelType.md#basemodel)
 
 #### Inherited from
 
@@ -189,6 +190,18 @@ inheritance hierarchy.
 #### Inherited from
 
 [Model](Model.md).[properties](Model.md#properties)
+
+___
+
+### sourceModel
+
+• `Optional` **sourceModel**: [`Model`](Model.md)
+
+The model that is referenced via `model is`.
+
+#### Inherited from
+
+[Model](Model.md).[sourceModel](Model.md#sourcemodel)
 
 ___
 

@@ -18,4 +18,6 @@ Recursively navigate sub namespaces.
 
 **`Default`**
 
+```ts
 false
+```

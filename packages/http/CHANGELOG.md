@@ -1,6 +1,17 @@
 # Change Log - @typespec/http
 
-This log was last generated on Fri, 14 Apr 2023 15:09:01 GMT and should not be manually modified.
+This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- Cleanup deprecated use
+- No longer issues an error for multiple different responses for the same status code.
+- Add `@sharedRoute` decorator for marking operations as sharing a route with other operations
+- Deprecate the `shared` option in the `@route` decorator.  `@sharedRoute` is the new way to accomplish the same behavior.
+- Update dependencies
 
 ## 0.43.1
 Fri, 14 Apr 2023 15:09:01 GMT

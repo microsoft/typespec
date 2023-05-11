@@ -1,6 +1,14 @@
 # Change Log - @typespec/internal-build-utils
 
-This log was last generated on Fri, 03 Mar 2023 19:59:17 GMT and should not be manually modified.
+This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+
+## 0.4.1
+Wed, 10 May 2023 21:24:00 GMT
+
+### Patches
+
+- Make dev version dependency range compatible with other dev versions
+- Update dependencies
 
 ## 0.4.0
 Fri, 03 Mar 2023 19:59:17 GMT
