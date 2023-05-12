@@ -93,7 +93,8 @@ export async function initTypeSpecProject(
   }
   const folderName = getBaseFileName(directory);
 
-  const template = await selectTemplate(host, templatesUrl);
+  const url: TemplatesUrl | undefined = templatesUrl ? { url: templatesUrl } : undefined;
+  const template = await selectTemplate(host, url);
 
   const { name } = await prompts([
     {
@@ -108,7 +109,7 @@ export async function initTypeSpecProject(
   const parameters = await promptCustomParameters(template);
   const scaffoldingConfig: ScaffoldingConfig = {
     ...template,
-    templateUri: templatesUrl ?? ".",
+    templateUri: url?.finalUrl ?? ".",
     libraries,
     name,
     directory,
@@ -185,17 +186,18 @@ async function confirm(message: string): Promise<boolean> {
 
 async function downloadTemplates(
   host: CompilerHost,
-  templatesUrl: string
+  templatesUrl: TemplatesUrl
 ): Promise<Record<string, InitTemplate>> {
   let file: SourceFile;
   try {
-    file = await readUrlOrPath(host, templatesUrl);
+    file = await readUrlOrPath(host, templatesUrl.url);
+    templatesUrl.finalUrl = file.path;
   } catch (e: any) {
     throw new InitTemplateError([
       createDiagnostic({
         code: "init-template-download-failed",
         target: NoTarget,
-        format: { url: templatesUrl, message: e.message },
+        format: { url: templatesUrl.url, message: e.message },
       }),
     ]);
   }
@@ -208,7 +210,7 @@ async function downloadTemplates(
       createDiagnostic({
         code: "init-template-invalid-json",
         target: NoTarget,
-        format: { url: templatesUrl, message: e.message },
+        format: { url: templatesUrl.url, message: e.message },
       }),
     ]);
   }
@@ -217,9 +219,16 @@ async function downloadTemplates(
   return json;
 }
 
+export interface TemplatesUrl {
+  /** The original URL specified by the user. */
+  url: string;
+  /** The final URL after HTTP redirects. */
+  finalUrl?: string;
+}
+
 async function selectTemplate(
   host: CompilerHost,
-  templatesUrl: string | undefined
+  templatesUrl: TemplatesUrl | undefined
 ): Promise<InitTemplate> {
   const templates =
     templatesUrl === undefined ? builtInTemplates : await downloadTemplates(host, templatesUrl);
