@@ -65,6 +65,13 @@ interface ScaffoldingConfig extends InitTemplate {
   normalizePackageName: () => (text: string, render: any) => string;
 }
 
+interface TemplatesUrl {
+  /** The original URL specified by the user. */
+  url: string;
+  /** The final URL after HTTP redirects. Populated when template is downloaded. */
+  finalUrl?: string;
+}
+
 const normalizeVersion = function () {
   return function (text: string, render: any): string {
     return render(text).replaceAll("-", "_");
@@ -217,13 +224,6 @@ async function downloadTemplates(
 
   validateTemplateDefinitions(json, file);
   return json;
-}
-
-export interface TemplatesUrl {
-  /** The original URL specified by the user. */
-  url: string;
-  /** The final URL after HTTP redirects. */
-  finalUrl?: string;
 }
 
 async function selectTemplate(
