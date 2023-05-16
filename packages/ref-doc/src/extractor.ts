@@ -33,6 +33,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { readFile } from "fs/promises";
+import { pathToFileURL } from "url";
 import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
@@ -70,7 +71,7 @@ export async function extractLibraryRefDocs(
   }
 
   if (pkgJson.main) {
-    const entrypoint = await import(resolvePath(libraryPath, pkgJson.main));
+    const entrypoint = await import(pathToFileURL(resolvePath(libraryPath, pkgJson.main)).href);
     const lib: TypeSpecLibrary<any> | undefined = entrypoint.$lib;
     if (lib?.emitter?.options) {
       refDoc.emitter = {
