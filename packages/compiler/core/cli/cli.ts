@@ -15,14 +15,15 @@ import { resolve } from "path";
 import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { loadTypeSpecConfigForPath } from "../../config/index.js";
-import { initTypeSpecProject } from "../../init/index.js";
+import { InitTemplateError, initTypeSpecProject } from "../../init/index.js";
 import { compilerAssert, logDiagnostics } from "../diagnostics.js";
+import { resolveTypeSpecEntrypoint } from "../entrypoint-resolution.js";
 import { findUnformattedTypeSpecFiles, formatTypeSpecFiles } from "../formatter-fs.js";
 import { installTypeSpecDependencies } from "../install.js";
 import { createConsoleSink } from "../logger/index.js";
 import { NodeHost } from "../node-host.js";
 import { CompilerOptions } from "../options.js";
-import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../path-utils.js";
+import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "../path-utils.js";
 import { compile, Program } from "../program.js";
 import { CompilerHost, Diagnostic } from "../types.js";
 import { ExternalError, typespecVersion } from "../util.js";
@@ -127,9 +128,19 @@ async function main() {
       },
       async (args) => {
         const host = createCLICompilerHost(args);
-        const cliOptions = await getCompilerOptionsOrExit(host, args);
+        const diagnostics: Diagnostic[] = [];
+        const entrypoint = await resolveTypeSpecEntrypoint(
+          host,
+          resolvePath(process.cwd(), args.path),
+          (diag) => diagnostics.push(diag)
+        );
+        if (entrypoint === undefined || diagnostics.length > 0) {
+          logDiagnostics(diagnostics, host.logSink);
+          process.exit(1);
+        }
+        const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
 
-        const program = await compileInput(host, args.path, cliOptions);
+        const program = await compileInput(host, entrypoint, cliOptions);
         if (program.hasError()) {
           process.exit(1);
         }
@@ -229,7 +240,18 @@ async function main() {
           description: "Url of the initialization template",
           type: "string",
         }),
-      (args) => initTypeSpecProject(createCLICompilerHost(args), process.cwd(), args.templatesUrl)
+      async (args) => {
+        const host = createCLICompilerHost(args);
+        try {
+          await initTypeSpecProject(host, process.cwd(), args.templatesUrl);
+        } catch (e) {
+          if (e instanceof InitTemplateError) {
+            logDiagnostics(e.diagnostics, host.logSink);
+            process.exit(1);
+          }
+          throw e;
+        }
+      }
     )
     .command(
       "install",
@@ -348,9 +370,16 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
 
 async function getCompilerOptionsOrExit(
   host: CompilerHost,
+  entrypoint: string,
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
-  const [options, diagnostics] = await getCompilerOptions(host, process.cwd(), args, process.env);
+  const [options, diagnostics] = await getCompilerOptions(
+    host,
+    entrypoint,
+    process.cwd(),
+    args,
+    process.env
+  );
   if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);
   }

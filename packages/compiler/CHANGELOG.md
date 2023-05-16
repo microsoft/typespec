@@ -1,6 +1,38 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Tue, 11 Apr 2023 18:49:17 GMT and should not be manually modified.
+This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Patches
+
+- Normalizing cwd before first use in getCompilerOptions()
+
+### Updates
+
+- Allow use of defaults on non-optional properties.
+- Cleanup deprecated use
+- **Added** `@encode` decorator used to specify encoding of types
+- Add `projectRoot` to program
+- Api: Added `sourceModel` and `sourceOperation` on `Model` and `Operation` respectively.
+- Add relative file path utils, and allow emitter framework's ObjectBuilder to be initialized with a placeholder object.
+- Better error recovery when error thrown from emitter is not an object
+- Fix compiler mismatch error recommendation
+- Fix: Interface with templated operation causing crash if defined after use
+- Fix: Issue with templated operations in templated interface would get cached only by keying on the operation template args.
+- Fix: `missing-index` diagnostic showing at the wrong location
+- Fix `--emit` pointing to emitter js entrypoint resolve correct options
+- Fix: `scalar` template parameter name conflict with each other
+- Added a new `isFinished` property to types to differentiate template instance that are not finalized (Still have template arguments to be resolved)
+- **Breaking** `isTemplateDeclaration` will only return true for the original declaration and not partially instantiated templates.
+- **Fix** `unsupported-default` diagnostic showing at the wrong location
+- Fix `url` doc to not mention "URI"
+- Minor reorganization of standard library docs
+- Language server: Allow main file to be outside workspace.
+- Added `Model` and `Scalar` to Reflection namespace
+- Fix `@format` decorator doc.
+- Update dependencies
 
 ## 0.43.0
 Tue, 11 Apr 2023 18:49:17 GMT

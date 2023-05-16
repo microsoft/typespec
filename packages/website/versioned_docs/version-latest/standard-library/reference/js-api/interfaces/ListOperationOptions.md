@@ -18,4 +18,6 @@ If the container is a namespace look for operation in sub namespaces.
 
 **`Default`**
 
+```ts
 true
+```

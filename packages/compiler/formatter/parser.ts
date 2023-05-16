@@ -8,7 +8,7 @@ export function parse(
   parsers: { [parserName: string]: Parser },
   opts: ParserOptions & { parentParser?: string }
 ): TypeSpecScriptNode {
-  const result = typespecParse(text, { comments: true });
+  const result = typespecParse(text, { comments: true, docs: false });
   const errors = result.parseDiagnostics.filter((x) => x.severity === "error");
   if (errors.length > 0 && !result.printable) {
     throw new PrettierParserError(errors[0]);

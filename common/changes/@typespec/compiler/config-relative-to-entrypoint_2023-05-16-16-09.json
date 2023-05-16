@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: `tspconfig.yaml` should always get resolved relative to the entrypoint",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

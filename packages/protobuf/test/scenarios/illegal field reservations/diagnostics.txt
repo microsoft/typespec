@@ -1,2 +1,2 @@
-/test/.tsp/lib/lib.tsp:81:1 - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
-/test/.tsp/lib/lib.tsp:51:1 - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
+/test/.tsp/lib/lib.tsp:78:1 - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
+/test/.tsp/lib/lib.tsp:48:1 - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: formatting of comment between decorator and `op` statement",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

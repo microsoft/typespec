@@ -93,7 +93,7 @@ ___
 
 ### node
 
-• **node**: [`UnionStatementNode`](UnionStatementNode.md) \| [`UnionExpressionNode`](UnionExpressionNode.md)
+• **node**: [`UnionExpressionNode`](UnionExpressionNode.md) \| [`UnionStatementNode`](UnionStatementNode.md)
 
 #### Overrides
 

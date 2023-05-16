@@ -3,6 +3,10 @@ import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
+import {
+  resolveTypeSpecEntrypoint,
+  resolveTypeSpecEntrypointForDir,
+} from "./entrypoint-resolution.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
@@ -51,7 +55,6 @@ import {
   doIO,
   findProjectRoot,
   isDefined,
-  loadFile,
   mapEquals,
   mutate,
   resolveTspMain,
@@ -281,7 +284,7 @@ export async function compile(
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
-  const resolvedMain = await resolveTypeSpecEntrypoint(mainFile);
+  const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
 
   const program: Program = {
     checker: undefined!,
@@ -468,7 +471,7 @@ export async function compile(
     dir: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
-    const mainFile = await resolveTypeSpecEntrypointForDir(dir);
+    const mainFile = await resolveTypeSpecEntrypointForDir(host, dir, reportDiagnostic);
     await loadTypeSpecFile(mainFile, diagnosticTarget);
     return mainFile;
   }
@@ -893,50 +896,6 @@ export async function compile(
         return file.text;
       },
     };
-  }
-
-  /**
-   * Resolve the path to the main file
-   * @param path path to the entrypoint of the program. Can be the main.tsp, folder containing main.tsp or a project/library root.
-   * @returns Absolute path to the entrypoint.
-   */
-  async function resolveTypeSpecEntrypoint(path: string): Promise<string | undefined> {
-    const resolvedPath = resolvePath(path);
-    const mainStat = await doIO(host.stat, resolvedPath, reportDiagnostic);
-    if (!mainStat) {
-      return undefined;
-    }
-
-    if (mainStat.isDirectory()) {
-      return resolveTypeSpecEntrypointForDir(resolvedPath);
-    } else {
-      return resolvedPath;
-    }
-  }
-
-  async function resolveTypeSpecEntrypointForDir(dir: string): Promise<string> {
-    const pkgJsonPath = resolvePath(dir, "package.json");
-    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
-      allowFileNotFound: true,
-    });
-    const tspMain = resolveTspMain(pkg);
-    if (tspMain !== undefined) {
-      return resolvePath(dir, tspMain);
-    }
-
-    // Back Compat: if main.cadl exist, return main.cadl
-    let mainFile = resolvePath(dir, "main.cadl");
-    const stat = await doIO(
-      () => host.stat(mainFile),
-      mainFile,
-      () => {}
-    );
-    // if not found, use the normal resolution.
-    if (stat?.isFile() !== true) {
-      mainFile = resolvePath(dir, "main.tsp");
-    }
-
-    return mainFile;
   }
 
   /**

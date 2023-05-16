@@ -95,6 +95,22 @@ const diagnostics = {
   },
 
   /**
+   * Init templates
+   */
+  "init-template-invalid-json": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unable to parse ${"url"}: ${"message"}. Check that the template URL is correct.`,
+    },
+  },
+  "init-template-download-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to download template from ${"url"}: ${"message"}. Check that the template URL is correct.`,
+    },
+  },
+
+  /**
    * Parser errors.
    */
   "multiple-blockless-namespace": {

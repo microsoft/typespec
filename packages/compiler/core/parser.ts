@@ -2210,7 +2210,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseDocList(): [pos: number, nodes: DocNode[]] {
-    if (docRanges.length === 0 || !options.docs) {
+    if (docRanges.length === 0 || options.docs === false) {
       return [tokenPos(), []];
     }
     const docs: DocNode[] = [];
