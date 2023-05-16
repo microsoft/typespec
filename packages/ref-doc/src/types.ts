@@ -9,8 +9,20 @@ import {
   Union,
 } from "@typespec/compiler";
 
-export type TypeSpecRefDoc = {
+export type TypeSpecRefDoc = TypeSpecLibraryRefDoc;
+
+export type TypeSpecLibraryRefDoc = {
+  emitter?: EmitterRefDoc;
   namespaces: NamespaceRefDoc[];
+};
+
+export type EmitterRefDoc = {
+  options: EmitterOptionRefDoc[];
+};
+
+export type EmitterOptionRefDoc = {
+  name: string;
+  doc: string;
 };
 
 export type NamespaceRefDoc = {

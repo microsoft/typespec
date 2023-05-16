@@ -48,6 +48,17 @@ if (openapiDiag.length) {
   diagnostics.set("@typespec/openapi", openapiDiag);
 }
 
+// OpenAPI3
+const openapi3Diag = await generateLibraryDocs(
+  join(repoRoot, "packages/openapi3"),
+  ["OpenAPI"],
+  join(repoRoot, "docs/standard-library/openapi3/reference"),
+  true
+);
+if (openapi3Diag.length) {
+  diagnostics.set("@typespec/openapi3", openapi3Diag);
+}
+
 // Protobuf
 const protobufDiag = await generateLibraryDocs(
   join(repoRoot, "packages/protobuf"),

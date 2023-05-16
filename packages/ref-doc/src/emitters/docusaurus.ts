@@ -37,6 +37,11 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
     files["data-types.md"] = dataTypes;
   }
 
+  const emitter = renderEmitter(refDoc);
+  if (emitter) {
+    files["emitter.md"] = emitter;
+  }
+
   for (const [file, content] of Object.entries(files)) {
     try {
       files[file] = prettier.format(content, {
@@ -60,8 +65,14 @@ function renderIndexFile(refDoc: TypeSpecRefDoc): string {
     "---",
   ];
 
+  if (refDoc.emitter?.options) {
+    content.push(headings.h3("Emitter usage"), "");
+    content.push(`[See documentation](./emitter.md)`);
+  }
+
   for (const namespace of refDoc.namespaces) {
     content.push(headings.h2(namespace.id), "");
+
     if (namespace.decorators.length > 0) {
       content.push(headings.h3("Decorators"), "");
       const listContent = [];
@@ -358,6 +369,28 @@ function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
 
   if (scalar.templateParameters) {
     content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
+  }
+
+  return content.join("\n");
+}
+
+function renderEmitter(refDoc: TypeSpecRefDoc): string | undefined {
+  if (refDoc.emitter?.options === undefined) {
+    return undefined;
+  }
+  const content = [
+    "---",
+    `title: "Emitter usage"`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+    headings.h1("Emitter usage"),
+  ];
+
+  content.push(headings.h2("Emitter options"));
+  for (const option of refDoc.emitter.options) {
+    content.push(headings.h3(`\`${option.name}\``));
+    content.push(option.doc);
   }
 
   return content.join("\n");

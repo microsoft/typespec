@@ -113,6 +113,15 @@ const sidebars = {
         },
         {
           type: "category",
+          label: "OpenAPI3",
+          items: [
+            "standard-library/openapi3/overview",
+            "standard-library/openapi3/openapi",
+            createLibraryReferenceStructure("openapi3", ["standard-library/openapi/diagnostics"]),
+          ],
+        },
+        {
+          type: "category",
           label: "Protobuf",
           items: [
             "standard-library/protobuf/overview",
