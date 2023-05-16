@@ -16,7 +16,7 @@ export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
     const response = await fetch(url);
     const text = await response.text();
-    return createSourceFile(text, url);
+    return createSourceFile(text, response.url);
   },
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
