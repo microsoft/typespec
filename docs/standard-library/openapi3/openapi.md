@@ -108,12 +108,12 @@ deprecated field is set to true.
 
 ### externalDocs
 
-If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](./reference/decorators.md#@OpenAPI.externaldocs) this will produce
+If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](../openapi/reference/decorators.md#@OpenAPI.externaldocs) this will produce
 an externalDocs field in the OpenAPI operation.
 
 ### Specification extensions
 
-Any extensions specified on the TypeSpec operation with the [(OpenAPI) `@extension` decorator](./reference/decorators.md#OpenAPI.extension)
+Any extensions specified on the TypeSpec operation with the [(OpenAPI) `@extension` decorator](../openapi/reference/decorators.md#OpenAPI.extension)
 are included in the emitted OpenAPI operation.
 
 ## Models and enums
@@ -171,7 +171,7 @@ For an array type:
 | `@minItems(value)` | built-in | `minItems: value`           |       |
 | `@maxItems(value)` | built-in | `maxItems: value`           |       |
 
-The OpenAPI emitter provides an [`@useRef` decorator](./reference/decorators.md#@OpenAPI.useref) which will replace the TypeSpec model type in emitter output
+The OpenAPI emitter provides an [`@useRef` decorator](../openapi/reference/decorators.md#@OpenAPI.useref) which will replace the TypeSpec model type in emitter output
 with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
 
 Example:
@@ -258,7 +258,7 @@ union GoodBreed {
 The OpenAPI emitter represents either form of union with an `anyOf` with an element for each option of the union.
 The OpenAPI emitter ignores the "names" for variants in named unions.
 
-The OpenAPI emitter also defines the[`@oneOf` decorator](./reference/decorators.md#OpenAPI.oneof) which can be specified on a `union` statement to indicate
+The OpenAPI emitter also defines the[`@oneOf` decorator](../openapi/reference/decorators.md#OpenAPI.oneof) which can be specified on a `union` statement to indicate
 that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Security Definitions

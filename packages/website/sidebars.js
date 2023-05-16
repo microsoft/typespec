@@ -105,11 +105,7 @@ const sidebars = {
         {
           type: "category",
           label: "OpenAPI",
-          items: [
-            "standard-library/openapi/overview",
-            "standard-library/openapi/openapi",
-            createLibraryReferenceStructure("openapi", ["standard-library/openapi/diagnostics"]),
-          ],
+          items: [createLibraryReferenceStructure("openapi")],
         },
         {
           type: "category",
@@ -117,7 +113,7 @@ const sidebars = {
           items: [
             "standard-library/openapi3/overview",
             "standard-library/openapi3/openapi",
-            createLibraryReferenceStructure("openapi3", ["standard-library/openapi/diagnostics"]),
+            createLibraryReferenceStructure("openapi3", ["standard-library/openapi3/diagnostics"]),
           ],
         },
         {

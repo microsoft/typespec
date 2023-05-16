@@ -6,10 +6,25 @@ toc_max_heading_level: 3
 
 # Emitter usage
 
+## Install
+
+```bash
+npm install @typespec/protobuf
+```
+
 ## Usage
 
-```
+1. Via the command line
+
+```bash
 tsp compile . --emit=@typespec/protobuf
+```
+
+1. Via the config
+
+```yaml
+emit:
+  - "@typespec/protobuf"
 ```
 
 ## Emitter options
