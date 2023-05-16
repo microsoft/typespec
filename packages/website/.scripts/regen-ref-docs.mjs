@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 // @ts-check
 import { NodeHost, logDiagnostics } from "@typespec/compiler";
-import { generateJsApiDocs, generateLibraryDocs, resolveLibraryRefDocs } from "@typespec/ref-doc";
+import {
+  generateJsApiDocs,
+  generateLibraryDocs,
+  resolveLibraryRefDocsBase,
+} from "@typespec/ref-doc";
 import { renderDecoratorFile } from "@typespec/ref-doc/emitters/docusaurus";
 import assert from "assert";
 import { writeFile } from "fs/promises";
@@ -92,7 +96,7 @@ process.exit(exitCode);
 async function generateCompilerDocs() {
   const compilerPath = join(repoRoot, "packages/compiler");
   const outputDir = join(repoRoot, "docs/standard-library");
-  const results = await resolveLibraryRefDocs(compilerPath, ["TypeSpec"]);
+  const results = await resolveLibraryRefDocsBase(compilerPath, ["TypeSpec"]);
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
   const [refDoc, diagnostics] = results;
   const decoratorContent = renderDecoratorFile(refDoc, { title: "Built-in Decorators" });

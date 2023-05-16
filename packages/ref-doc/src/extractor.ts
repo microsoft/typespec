@@ -46,7 +46,7 @@ import {
   OperationRefDoc,
   ScalarRefDoc,
   TypeSpecLibraryRefDoc,
-  TypeSpecRefDoc,
+  TypeSpecRefDocBase,
   UnionRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
@@ -57,13 +57,13 @@ export async function extractLibraryRefDocs(
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
-  let refDoc: TypeSpecLibraryRefDoc = { namespaces: [] };
+  const refDoc: TypeSpecLibraryRefDoc = { name: pkgJson.name, namespaces: [] };
   if (pkgJson.tspMain) {
     const main = resolvePath(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    refDoc = extractRefDocs(program, namespaces);
+    refDoc.namespaces = extractRefDocs(program, namespaces).namespaces;
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }
@@ -87,12 +87,15 @@ async function readPackageJson(libraryPath: string): Promise<NodePackage> {
   return JSON.parse(buffer.toString());
 }
 
-export function extractRefDocs(program: Program, filterToNamespace: string[] = []): TypeSpecRefDoc {
+export function extractRefDocs(
+  program: Program,
+  filterToNamespace: string[] = []
+): TypeSpecRefDocBase {
   const namespaceTypes = filterToNamespace
     .map((x) => ignoreDiagnostics(program.resolveTypeReference(x)))
     .filter((x): x is Namespace => x !== undefined);
 
-  const refDoc: TypeSpecRefDoc = {
+  const refDoc: TypeSpecRefDocBase = {
     namespaces: [],
   };
 
@@ -501,6 +504,9 @@ function extractEmitterOptionsRefDoc(
   return Object.entries(options.properties).map(([name, value]: [string, any]) => {
     return {
       name,
+      type: value.enum
+        ? value.enum.map((x: string | number) => (typeof x === "string" ? `"${x}"` : x)).join(" | ")
+        : value.type,
       doc: value.description ?? "",
     };
   });

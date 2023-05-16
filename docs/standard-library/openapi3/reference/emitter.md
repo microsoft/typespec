@@ -6,13 +6,23 @@ toc_max_heading_level: 3
 
 # Emitter usage
 
+## Usage
+
+```
+tsp compile . --emit=@typespec/openapi3
+```
+
 ## Emitter options
 
 ### `file-type`
 
+**Type:** `"yaml" | "json"`
+
 If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension
 
 ### `output-file`
+
+**Type:** `string`
 
 Name of the output file.
 Output file will interpolate the following values:
@@ -45,9 +55,13 @@ Output file will interpolate the following values:
 
 ### `new-line`
 
+**Type:** `"crlf" | "lf"`
+
 Set the newline character for emitting files.
 
 ### `omit-unreachable-types`
+
+**Type:** `boolean`
 
 Omit unreachable types.
 By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.

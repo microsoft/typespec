@@ -1,6 +1,7 @@
 import prettier from "prettier";
 import {
   DecoratorRefDoc,
+  EmitterOptionRefDoc,
   EnumRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
@@ -8,7 +9,9 @@ import {
   OperationRefDoc,
   ScalarRefDoc,
   TemplateParameterRefDoc,
+  TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
+  TypeSpecRefDocBase,
   UnionRefDoc,
 } from "../types.js";
 import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
@@ -116,7 +119,7 @@ export type DecoratorRenderOptions = {
   title?: string;
 };
 export function renderDecoratorFile(
-  refDoc: TypeSpecRefDoc,
+  refDoc: TypeSpecRefDocBase,
   options?: DecoratorRenderOptions
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
@@ -374,7 +377,7 @@ function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
   return content.join("\n");
 }
 
-function renderEmitter(refDoc: TypeSpecRefDoc): string | undefined {
+function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
   if (refDoc.emitter?.options === undefined) {
     return undefined;
   }
@@ -387,12 +390,22 @@ function renderEmitter(refDoc: TypeSpecRefDoc): string | undefined {
     headings.h1("Emitter usage"),
   ];
 
-  content.push(headings.h2("Emitter options"));
-  for (const option of refDoc.emitter.options) {
-    content.push(headings.h3(`\`${option.name}\``));
+  content.push(headings.h2("Usage"));
+  content.push(codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"));
+
+  content.push(renderEmitterOptions(refDoc.emitter.options));
+
+  return content.join("\n");
+}
+
+function renderEmitterOptions(options: EmitterOptionRefDoc[]): string {
+  const content = [headings.h2("Emitter options")];
+  for (const option of options) {
+    content.push(headings.h3(`${inlinecode(option.name)}`));
+    content.push(`**Type:** ${inlinecode(option.type)}`, "");
+
     content.push(option.doc);
   }
-
   return content.join("\n");
 }
 

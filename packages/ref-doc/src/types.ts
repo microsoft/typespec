@@ -11,8 +11,12 @@ import {
 
 export type TypeSpecRefDoc = TypeSpecLibraryRefDoc;
 
-export type TypeSpecLibraryRefDoc = {
+export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
+  name: string;
   emitter?: EmitterRefDoc;
+};
+
+export type TypeSpecRefDocBase = {
   namespaces: NamespaceRefDoc[];
 };
 
@@ -22,6 +26,7 @@ export type EmitterRefDoc = {
 
 export type EmitterOptionRefDoc = {
   name: string;
+  type: string;
   doc: string;
 };
 

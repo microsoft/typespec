@@ -10,7 +10,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
 import { extractLibraryRefDocs, extractRefDocs } from "./extractor.js";
-import { TypeSpecRefDoc } from "./types.js";
+import { TypeSpecRefDocBase } from "./types.js";
 
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
@@ -35,10 +35,10 @@ export async function generateLibraryDocs(
   return diagnostics.diagnostics;
 }
 
-export async function resolveLibraryRefDocs(
+export async function resolveLibraryRefDocsBase(
   libraryPath: string,
   namespaces: string[]
-): Promise<[TypeSpecRefDoc, readonly Diagnostic[]] | undefined> {
+): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]] | undefined> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   if (pkgJson.tspMain) {
