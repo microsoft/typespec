@@ -93,7 +93,7 @@ export function validateDecoratorTargetIntrinsic(
         code: "decorator-wrong-target",
         format: {
           decorator: decoratorName,
-          to: `type it is not one of: ${typeof expectedTypeStrs.join(", ")}`,
+          to: `type it is not one of: ${expectedTypeStrs.join(", ")}`,
         },
         target: context.decoratorTarget,
       })
