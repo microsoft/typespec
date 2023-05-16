@@ -23,7 +23,7 @@ import { installTypeSpecDependencies } from "../install.js";
 import { createConsoleSink } from "../logger/index.js";
 import { NodeHost } from "../node-host.js";
 import { CompilerOptions } from "../options.js";
-import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../path-utils.js";
+import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "../path-utils.js";
 import { compile, Program } from "../program.js";
 import { CompilerHost, Diagnostic } from "../types.js";
 import { ExternalError, typespecVersion } from "../util.js";
@@ -129,8 +129,10 @@ async function main() {
       async (args) => {
         const host = createCLICompilerHost(args);
         const diagnostics: Diagnostic[] = [];
-        const entrypoint = await resolveTypeSpecEntrypoint(host, args.path, (diag) =>
-          diagnostics.push(diag)
+        const entrypoint = await resolveTypeSpecEntrypoint(
+          host,
+          resolvePath(process.cwd(), args.path),
+          (diag) => diagnostics.push(diag)
         );
         if (entrypoint === undefined || diagnostics.length > 0) {
           logDiagnostics(diagnostics, host.logSink);
