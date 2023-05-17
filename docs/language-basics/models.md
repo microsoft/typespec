@@ -20,6 +20,7 @@ Record models are structure with named fields called properties.
 
 - name can be an `identifier` or `string literal`.
 - type can be any type reference
+- properties are ordered. See [ordering of properties](#ordering-of-properties)
 
 ```typespec
 model Dog {
@@ -46,6 +47,32 @@ model Dog {
 model Dog {
   address?: string = "wild";
 }
+```
+
+#### Ordering of properties
+
+Properties are ordered in the order that they appear in source. Properties obtained via `model is` appear before properties defined in the model body. Properties obtained via `...` are inserted where the spread appears in source.
+
+Example:
+
+```tsp
+model Pet {
+  name: string;
+  age: int32;
+}
+
+model HasHome {
+  address: string;
+}
+
+model Cat is Pet {
+  meow: boolean;
+  ...HasHome;
+  furColor: string;
+}
+
+// Resulting property order for cat:
+// name, age, meow, address, furColor
 ```
 
 ### Special property types
