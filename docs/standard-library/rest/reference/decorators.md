@@ -232,6 +232,8 @@ dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: strin
 | ---- | --------------- | ---------------------------------------------------------------------------------------------- |
 | name | `scalar string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
+#### Examples
+
 ### `@segmentOf` {#@TypeSpec.Rest.segmentOf}
 
 Returns the URL segment of a given model if it has `@segment` and `@key` decorator.

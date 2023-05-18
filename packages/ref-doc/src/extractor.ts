@@ -356,11 +356,11 @@ function extractExamples(type: Type): ExampleRefDoc[] {
   const examples: ExampleRefDoc[] = [];
   for (const doc of type.node?.docs ?? []) {
     for (const dTag of doc.tags) {
-      if (dTag.kind === SyntaxKind.DocUnknownTag)
+      if (dTag.kind === SyntaxKind.DocUnknownTag) {
         if (dTag.tagName.sv === "example") {
           examples.push(extractExample(dTag));
         }
-      break;
+      }
     }
   }
   return examples;
