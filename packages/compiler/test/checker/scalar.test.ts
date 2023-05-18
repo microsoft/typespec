@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { Model, NumericLiteral } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -60,6 +61,19 @@ describe("compiler: scalars", () => {
 
     strictEqual(A.kind, "Scalar" as const);
     strictEqual(B.kind, "Scalar" as const);
+  });
+
+  it.only("allows a decimal to have a default value", async () => {
+    const { A } = (await runner.compile(`
+      @test model A {
+        x: decimal = 42;
+      }
+    `)) as { A: Model };
+
+    const def = A.properties.get("x")!.default! as NumericLiteral;
+    strictEqual(def.kind, "Number" as const);
+    strictEqual(def.value, 42);
+    strictEqual(def.valueAsString, "42");
   });
 
   describe("custom scalars and default values", () => {

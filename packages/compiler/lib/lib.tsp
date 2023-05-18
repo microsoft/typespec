@@ -76,6 +76,16 @@ scalar float64 extends float;
 scalar float32 extends float64;
 
 /**
+ * A decimal number with any length and precision.
+ */
+scalar decimal extends numeric;
+
+/**
+ * A 128-bit decimal number.
+ */
+scalar decimal128 extends decimal;
+
+/**
  * A sequence of textual characters.
  */
 scalar string;

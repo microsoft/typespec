@@ -1844,6 +1844,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "number", format: "double" };
       case "float32":
         return { type: "number", format: "float" };
+      case "decimal":
+        return { type: "string" };
+      case "decimal128":
+        return { type: "string" };
       case "string":
         return { type: "string" };
       case "boolean":

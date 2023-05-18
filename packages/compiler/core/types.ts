@@ -184,6 +184,8 @@ export type IntrinsicScalarName =
   | "safeint"
   | "float32"
   | "float64"
+  | "decimal"
+  | "decimal128"
   | "string"
   | "plainDate"
   | "plainTime"
@@ -454,6 +456,7 @@ export interface NumericLiteral extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
   value: number;
+  valueAsString: string;
 }
 
 export interface BooleanLiteral extends BaseType {
@@ -1204,6 +1207,7 @@ export interface StringLiteralNode extends BaseNode {
 export interface NumericLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.NumericLiteral;
   readonly value: number;
+  readonly valueAsString: string;
 }
 
 export interface BooleanLiteralNode extends BaseNode {
