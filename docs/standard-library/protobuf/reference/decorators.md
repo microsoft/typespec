@@ -33,6 +33,15 @@ dec TypeSpec.Protobuf.field(target: ModelProperty, index: uint32)
 | ----- | --------------- | ------------------------------------ |
 | index | `scalar uint32` | The whole-number index of the field. |
 
+#### Examples
+
+```typespec
+model ExampleMessage {
+@field(1)
+test: string;
+}
+```
+
 ### `@message` {#@TypeSpec.Protobuf.message}
 
 Declares that a model is a Protobuf message.
@@ -112,6 +121,16 @@ dec TypeSpec.Protobuf.reserve(target: object, ...reservations: string | [uint32,
 | ------------ | ---------------------------------------------- | ---------------------------- |
 | reservations | `model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
+#### Examples
+
+```typespec
+// Reserve the fields 8-15 inclusive, 100, and the field name "test" within a model.
+@reserve([8, 15], 100, "test")
+model Example {
+// ...
+}
+```
+
 ### `@service` {#@TypeSpec.Protobuf.service}
 
 Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to
@@ -146,3 +165,15 @@ dec TypeSpec.Protobuf.stream(target: Operation, mode: TypeSpec.Protobuf.StreamMo
 | Name | Type                                | Description                                    |
 | ---- | ----------------------------------- | ---------------------------------------------- |
 | mode | `enum TypeSpec.Protobuf.StreamMode` | The streaming mode to apply to this operation. |
+
+#### Examples
+
+```typespec
+@stream(StreamMode.Out)
+op logs(...LogsRequest): LogEvent;
+```
+
+```typespec
+@stream(StreamMode.Duplex)
+op connectToMessageService(...Message): Message;
+```
