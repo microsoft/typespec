@@ -1,48 +1,20 @@
 import "@typespec/json-schema";
+import "./user.tsp";
+import "./transaction.tsp";
+
 using JsonSchema;
 
 @jsonSchema
 namespace Example;
 
-@id("user")
-model User {
-  @format("uuid")
-  id: string;
-
-  @minLength(2)
-  @maxLength(20)
-  username: string;
-
-  @format("email")
-  email: string;
-  posts: Page<Post>;
+model Person<T> {
+  holding: T;
 }
 
-@id("postUnion")
-union Post {
-  blog: BlogPost,
-  link: LinkPost,
+model Bus {
+  person: Person<int32>;
 }
 
-model Page<T> {
-  @format("uri-reference")
-  nextLink?: string;
-  items: T[];
-}
-
-model PostBase {
-  author: User.id;
-  postedAt: offsetDateTime;
-  updatedAt?: offsetDateTime;
-}
-
-model BlogPost extends PostBase {
-  @minLength(20)
-  @maxLength(2000)
-  content: string;
-}
-
-model LinkPost extends PostBase {
-  link: url;
-  title?: string;
+namespace Sub {
+  model Bus {}
 }

@@ -31,7 +31,20 @@ describe("implicit ids", () => {
 
     assert.strictEqual(schemas["Foo.json"].$id, "http://example.org/Foo.json");
   });
+
+  it.only("handles duplicate IDs", async () => {
+    const schemas = await emitSchema(`
+        namespace Test1 {
+          model Foo {}
+        }
+        namespace Test2 {
+          model Foo {}
+        }
+      `);
+    console.log(schemas);
+  });
 });
+
 describe("explicit ids with $id", () => {
   it("sets the id explicitly without a baseURI", async () => {
     const schemas = await emitSchema(`
