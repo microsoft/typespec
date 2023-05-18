@@ -53,6 +53,14 @@ dec OpenAPI.extension(target: unknown, key: string, value: unknown)
 | key   | `scalar string`       | Extension key. Must start with `x-` |
 | value | `(intrinsic) unknown` | Extension value.                    |
 
+#### Examples
+
+```typespec
+@extension("x-custom", "My value")
+@extension("x-pageable", {nextLink: "x-next-link"})
+op read(): string;
+```
+
 ### `@externalDocs` {#@OpenAPI.externalDocs}
 
 Specify the OpenAPI `externalDocs` property for this type.
@@ -72,6 +80,13 @@ dec OpenAPI.externalDocs(target: unknown, url: string, description?: string)
 | url         | `scalar string` | Url to the docs         |
 | description | `scalar string` | Description of the docs |
 
+#### Examples
+
+```typespec
+@externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")
+op listPets(): Pet[];
+```
+
 ### `@operationId` {#@OpenAPI.operationId}
 
 Specify the OpenAPI `operationId` property for this operation.
@@ -89,3 +104,10 @@ dec OpenAPI.operationId(target: Operation, operationId: string)
 | Name        | Type            | Description         |
 | ----------- | --------------- | ------------------- |
 | operationId | `scalar string` | Operation id value. |
+
+#### Examples
+
+```typespec
+@operationId("download")
+op read(): string;
+```
