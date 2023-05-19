@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add runtime check for minimum node version",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
