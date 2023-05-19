@@ -58,7 +58,11 @@ export async function extractLibraryRefDocs(
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
-  const refDoc: TypeSpecLibraryRefDoc = { name: pkgJson.name, namespaces: [] };
+  const refDoc: TypeSpecLibraryRefDoc = {
+    name: pkgJson.name,
+    description: pkgJson.description,
+    namespaces: [],
+  };
   if (pkgJson.tspMain) {
     const main = resolvePath(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {

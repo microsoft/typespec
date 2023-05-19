@@ -14,7 +14,7 @@ import {
   TypeSpecRefDocBase,
   UnionRefDoc,
 } from "../types.js";
-import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
+import { codeblock, headings, inlinecode, table, tabs } from "../utils/markdown.js";
 import { getTypeSignature } from "../utils/type-signature.js";
 
 /**
@@ -66,10 +66,25 @@ function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
+    "import Tabs from '@theme/Tabs';",
+    "import TabItem from '@theme/TabItem';",
+    "",
   ];
 
+  if (refDoc.description) {
+    content.push(refDoc.description);
+  }
   content.push(headings.h2("Install"));
-  content.push(codeblock(`npm install ${refDoc.name}`, "bash"));
+  content.push(
+    tabs([
+      { id: "spec", label: "In a spec", content: codeblock(`npm install ${refDoc.name}`, "bash") },
+      {
+        id: "library",
+        label: "In a library",
+        content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
+      },
+    ])
+  );
 
   if (refDoc.emitter?.options) {
     content.push(headings.h3("Emitter usage"), "");

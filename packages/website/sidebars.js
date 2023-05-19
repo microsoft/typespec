@@ -84,13 +84,13 @@ const sidebars = {
         },
         "standard-library/projected-names",
         createLibraryReferenceStructure("http", "Http", [
-          "standard-library/http/overview",
+          "standard-library/http/cheat-sheet",
           "standard-library/http/authentication",
           "standard-library/http/operations",
         ]),
 
         createLibraryReferenceStructure("rest", "Rest", [
-          "standard-library/rest/overview",
+          "standard-library/rest/cheat-sheet",
           "standard-library/rest/resource-routing",
         ]),
         createLibraryReferenceStructure("openapi", "OpenAPI", []),
@@ -99,10 +99,10 @@ const sidebars = {
           "standard-library/openapi3/diagnostics",
         ]),
         createLibraryReferenceStructure("protobuf", "Protobuf", [
-          "standard-library/protobuf/overview",
+          "standard-library/protobuf/guide",
         ]),
         createLibraryReferenceStructure("versioning", "Versioning", [
-          "standard-library/versioning/overview",
+          "standard-library/versioning/guide",
         ]),
       ],
     },

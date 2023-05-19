@@ -5,11 +5,29 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding
+
 ## Install
+
+<Tabs>
+<TabItem value="spec" label="In a spec" default>
 
 ```bash
 npm install @typespec/openapi3
 ```
+
+</TabItem>
+<TabItem value="library" label="In a library" default>
+
+```bash
+npm install --save-peer @typespec/openapi3
+```
+
+</TabItem>
+</Tabs>
 
 ### Emitter usage
 

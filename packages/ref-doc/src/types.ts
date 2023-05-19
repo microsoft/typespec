@@ -12,7 +12,16 @@ import {
 export type TypeSpecRefDoc = TypeSpecLibraryRefDoc;
 
 export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
+  /**
+   * Library name
+   */
   name: string;
+
+  /**
+   * Library description
+   */
+  description?: string;
+
   emitter?: EmitterRefDoc;
 };
 
