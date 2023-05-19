@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 // @ts-check
 import { NodeHost, logDiagnostics } from "@typespec/compiler";
-import { generateJsApiDocs, generateLibraryDocs, resolveLibraryRefDocs } from "@typespec/ref-doc";
+import {
+  generateJsApiDocs,
+  generateLibraryDocs,
+  resolveLibraryRefDocsBase,
+} from "@typespec/ref-doc";
 import { renderDecoratorFile } from "@typespec/ref-doc/emitters/docusaurus";
 import assert from "assert";
 import { writeFile } from "fs/promises";
@@ -48,6 +52,17 @@ if (openapiDiag.length) {
   diagnostics.set("@typespec/openapi", openapiDiag);
 }
 
+// OpenAPI3
+const openapi3Diag = await generateLibraryDocs(
+  join(repoRoot, "packages/openapi3"),
+  ["OpenAPI"],
+  join(repoRoot, "docs/standard-library/openapi3/reference"),
+  true
+);
+if (openapi3Diag.length) {
+  diagnostics.set("@typespec/openapi3", openapi3Diag);
+}
+
 // Protobuf
 const protobufDiag = await generateLibraryDocs(
   join(repoRoot, "packages/protobuf"),
@@ -81,7 +96,7 @@ process.exit(exitCode);
 async function generateCompilerDocs() {
   const compilerPath = join(repoRoot, "packages/compiler");
   const outputDir = join(repoRoot, "docs/standard-library");
-  const results = await resolveLibraryRefDocs(compilerPath, ["TypeSpec"]);
+  const results = await resolveLibraryRefDocsBase(compilerPath, ["TypeSpec"]);
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
   const [refDoc, diagnostics] = results;
   const decoratorContent = renderDecoratorFile(refDoc, { title: "Built-in Decorators" });

@@ -1,41 +1,12 @@
 ---
-title: Overview
+title: Guide
 ---
 
-# The Protobuf Emitter
+# The Protobuf Emitter guide
 
 TypeSpec provides an emitter (`@typespec/protobuf`) that generates Protocol Buffers specifications from TypeSpec sources as part of its standard library. The resulting Protobuf files may be used as inputs for creating gRPC services or any other tools compatible with Protocol Buffers.
 
 **Note**: The Protobuf emitter uses Protocol Buffers 3 (proto3) syntax. Your workflow (`protoc` version, etc.) must support proto3 to utilize this emitter.
-
-## Install
-
-In the project root, install the emitter using your JavaScript package manager of choice. For example, using NPM:
-
-```bash
-npm install @typespec/protobuf
-```
-
-## Installing and enabling
-
-The `@typespec/protobuf` package provides an emitter that must be enabled in order to generate Protobuf files. Enable it by adding it to your TypeSpec compiler invocation on the CLI or the project configuration file:
-
-1. Via the CLI
-
-```bash
-tsp compile . --emit @typespec/protobuf
-```
-
-2. Via the project configuration
-
-Add the Protobuf emitter to the `emitters` entry (or create one if it does not exist) in `tsp-project.yaml`:
-
-```yaml
-emitters:
-  @typespec/protobuf: true
-```
-
-With this configuration entry, Protobuf files will be generated every time the project is compiled using `tsp compile .`.
 
 ## Core concepts
 
