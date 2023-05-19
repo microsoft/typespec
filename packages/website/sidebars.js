@@ -6,10 +6,10 @@
  * @param {any[]} [extra]
  * @returns {any}
  */
-function createLibraryReferenceStructure(libName, extra) {
+function createLibraryReferenceStructure(libName, labelName, extra) {
   return {
     type: "category",
-    label: "Reference",
+    label: labelName,
     link: {
       type: "doc",
       id: `standard-library/${libName}/reference/index`,
@@ -83,55 +83,27 @@ const sidebars = {
           dirName: `standard-library/reference`,
         },
         "standard-library/projected-names",
-        {
-          type: "category",
-          label: "Http",
-          items: [
-            "standard-library/http/overview",
-            "standard-library/http/authentication",
-            "standard-library/http/operations",
-            createLibraryReferenceStructure("http"),
-          ],
-        },
-        {
-          type: "category",
-          label: "Rest",
-          items: [
-            "standard-library/rest/overview",
-            "standard-library/rest/resource-routing",
-            createLibraryReferenceStructure("rest"),
-          ],
-        },
-        {
-          type: "category",
-          label: "OpenAPI",
-          items: [createLibraryReferenceStructure("openapi")],
-        },
-        {
-          type: "category",
-          label: "OpenAPI3",
-          items: [
-            "standard-library/openapi3/overview",
-            "standard-library/openapi3/openapi",
-            createLibraryReferenceStructure("openapi3", ["standard-library/openapi3/diagnostics"]),
-          ],
-        },
-        {
-          type: "category",
-          label: "Protobuf",
-          items: [
-            "standard-library/protobuf/overview",
-            createLibraryReferenceStructure("protobuf"),
-          ],
-        },
-        {
-          type: "category",
-          label: "Versioning",
-          items: [
-            "standard-library/versioning/overview",
-            createLibraryReferenceStructure("versioning"),
-          ],
-        },
+        createLibraryReferenceStructure("http", "Http", [
+          "standard-library/http/overview",
+          "standard-library/http/authentication",
+          "standard-library/http/operations",
+        ]),
+
+        createLibraryReferenceStructure("rest", "Rest", [
+          "standard-library/rest/overview",
+          "standard-library/rest/resource-routing",
+        ]),
+        createLibraryReferenceStructure("openapi", "OpenAPI", []),
+        createLibraryReferenceStructure("openapi3", "OpenAPI3", [
+          "standard-library/openapi3/openapi",
+          "standard-library/openapi3/diagnostics",
+        ]),
+        createLibraryReferenceStructure("protobuf", "Protobuf", [
+          "standard-library/protobuf/overview",
+        ]),
+        createLibraryReferenceStructure("versioning", "Versioning", [
+          "standard-library/versioning/overview",
+        ]),
       ],
     },
     {

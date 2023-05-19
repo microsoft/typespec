@@ -6,12 +6,6 @@ toc_max_heading_level: 3
 
 # Emitter usage
 
-## Install
-
-```bash
-npm install @typespec/openapi3
-```
-
 ## Usage
 
 1. Via the command line

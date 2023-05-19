@@ -1,9 +1,15 @@
 ---
-title: Index
+title: Overview
 sidebar_position: 0
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
+
+## Install
+
+```bash
+npm install @typespec/versioning
+```
 
 ## TypeSpec.Versioning
 

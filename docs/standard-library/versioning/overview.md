@@ -1,28 +1,6 @@
 ---
-title: Overview
+title: Guide
 ---
-
-# Versioning
-
-TypeSpec has an official library called `@typespec/versioning`. It's a set of TypeSpec declarations and decorators that describe how APIs can be versioned.
-
-## Installation
-
-In your typespec project
-
-```bash
-npm install @typespec/versioning
-```
-
-To avoid having to use the fully qualified name for all versioning types, you can include the following:
-
-```typespec
-using TypeSpec.Versioning;
-```
-
-## Details
-
-- [References](./reference/index.md)
 
 ## Creating Versioned APIs
 

@@ -58,15 +58,18 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
   return files;
 }
 
-function renderIndexFile(refDoc: TypeSpecRefDoc): string {
+function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
   const content = [
     "---",
-    `title: Index`,
+    `title: Overview`,
     `sidebar_position: 0`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
   ];
+
+  content.push(headings.h2("Install"));
+  content.push(codeblock(`npm install ${refDoc.name}`, "bash"));
 
   if (refDoc.emitter?.options) {
     content.push(headings.h3("Emitter usage"), "");
@@ -389,9 +392,6 @@ function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
     "---",
     headings.h1("Emitter usage"),
   ];
-
-  content.push(headings.h2("Install"));
-  content.push(codeblock(`npm install ${refDoc.name}`, "bash"));
 
   content.push(headings.h2("Usage"));
   content.push("1. Via the command line");
