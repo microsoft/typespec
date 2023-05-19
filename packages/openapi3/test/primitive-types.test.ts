@@ -25,6 +25,8 @@ describe("openapi3: primitives", () => {
       ["plainTime", { type: "string", format: "time" }],
       ["duration", { type: "string", format: "duration" }],
       ["bytes", { type: "string", format: "byte" }],
+      ["decimal", { type: "string", format: "decimal" }],
+      ["decimal128", { type: "string", format: "decimal128" }],
     ];
 
     for (const [name, expectedSchema] of cases) {
