@@ -411,7 +411,7 @@ function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
   content.push(headings.h2("Usage"));
   content.push("1. Via the command line");
   content.push(codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"));
-  content.push("1. Via the config");
+  content.push("2. Via the config");
   content.push(codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"));
 
   content.push(renderEmitterOptions(refDoc.emitter.options));

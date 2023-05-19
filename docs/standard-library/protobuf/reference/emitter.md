@@ -14,7 +14,7 @@ toc_max_heading_level: 3
 tsp compile . --emit=@typespec/protobuf
 ```
 
-1. Via the config
+2. Via the config
 
 ```yaml
 emit:

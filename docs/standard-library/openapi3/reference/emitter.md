@@ -14,7 +14,7 @@ toc_max_heading_level: 3
 tsp compile . --emit=@typespec/openapi3
 ```
 
-1. Via the config
+2. Via the config
 
 ```yaml
 emit:
@@ -39,23 +39,23 @@ Output file will interpolate the following values:
 - service-name: Name of the service if multiple
 - version: Version of the service if multiple
 
-@default `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
+Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
 
-@example Single service no versioning
+Example Single service no versioning
 
 - `openapi.yaml`
 
-@example Multiple services no versioning
+Example Multiple services no versioning
 
 - `openapi.Org1.Service1.yaml`
 - `openapi.Org1.Service2.yaml`
 
-@example Single service with versioning
+Example Single service with versioning
 
 - `openapi.v1.yaml`
 - `openapi.v2.yaml`
 
-@example Multiple service with versioning
+Example Multiple service with versioning
 
 - `openapi.Org1.Service1.v1.yaml`
 - `openapi.Org1.Service1.v2.yaml`
