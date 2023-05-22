@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-// WARNING: Be careful editing this file. For the node version runtime
-// check below to work, we must avoid using JS features that would trigger a
+// WARNING: Be careful editing this file. For the node version runtime check
+// below to work, we must avoid using JS features that would trigger a
 // failure at parse time before it runs.
 //
-// We deliberately do not use `const/let`, `?.`, and backticked string
-// templates, and we obfuscate the dynamic import to avoid triggering a
-// reserved word.
+// We deliberately do not use `const/let`, `?.`, arrow functions or
+// backticked string templates, and we obfuscate the dynamic import to avoid
+// triggering a reserved word.
 //
 // This has been tested back to Node.js v0.12.18
 
