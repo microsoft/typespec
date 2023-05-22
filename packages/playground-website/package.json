@@ -1,9 +1,9 @@
 {
-  "name": "@typespec/playground",
+  "name": "@typespec/playground-website",
   "private": true,
-  "version": "0.44.0",
+  "version": "0.1.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpe playground UI components.",
+  "description": "An app to play with TYPESPEC in the browser",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
@@ -18,20 +18,16 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/index.js",
-  "exports": {
-    ".": "./dist/src/index.js",
-    "./vite": "./dist/src/vite/index.js"
-  },
+  "main": "dist/src/lib.js",
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p . && vite build 2>&1",
     "preview": "npm run build && vite preview",
     "start": "vite",
+    "watch": "vite",
     "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
     "e2e:headed": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
     "test": "npm run e2e 2>&1",
@@ -45,6 +41,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@typespec/playground": "~0.44.0",
     "@typespec/versioning": "~0.44.0",
     "@typespec/compiler": "~0.44.0",
     "@typespec/http": "~0.44.0",

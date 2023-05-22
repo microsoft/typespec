@@ -16,4 +16,3 @@ export interface SampleConfig {
 }
 
 export { createBrowserHost } from "./browser-host.js";
-export { Playground, PlaygroundProps } from "./components/playground.js";

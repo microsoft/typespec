@@ -32,6 +32,7 @@ specifiers:
   '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz
+  '@rush-temp/playground-website': file:./projects/playground-website.tgz
   '@rush-temp/prettier-plugin-typespec': file:./projects/prettier-plugin-typespec.tgz
   '@rush-temp/protobuf': file:./projects/protobuf.tgz
   '@rush-temp/ref-doc': file:./projects/ref-doc.tgz
@@ -169,6 +170,7 @@ dependencies:
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz_rollup@3.4.0
+  '@rush-temp/playground-website': file:projects/playground-website.tgz_rollup@3.4.0
   '@rush-temp/prettier-plugin-typespec': file:projects/prettier-plugin-typespec.tgz
   '@rush-temp/protobuf': file:projects/protobuf.tgz
   '@rush-temp/ref-doc': file:projects/ref-doc.tgz
@@ -16149,8 +16151,64 @@ packages:
       - supports-color
     dev: false
 
+  file:projects/playground-website.tgz_rollup@3.4.0:
+    resolution: {integrity: sha512-0uTIqoOrGy/l1CZJImpkS9U6FLhfnAdb5eAqcZduoTYAQ/nHbFLU3lWLHP32zwofgu9J6MJzTYCfnGa+ynu5dg==, tarball: file:projects/playground-website.tgz}
+    id: file:projects/playground-website.tgz
+    name: '@rush-temp/playground-website'
+    version: 0.0.0
+    dependencies:
+      '@babel/core': 7.21.4
+      '@emotion/react': 11.10.6_03af60b1654f8f66a189eb36a8e3da83
+      '@fluentui/react-components': 9.18.8_123ab3935e1f5f16cb753f614274d7d3
+      '@fluentui/react-icons': 2.0.199_react@18.2.0
+      '@playwright/test': 1.32.3
+      '@types/debounce': 1.2.1
+      '@types/mocha': 10.0.1
+      '@types/node': 18.11.19
+      '@types/prettier': 2.6.0
+      '@types/react': 18.0.34
+      '@types/react-dom': 18.0.11
+      '@types/swagger-ui': 3.52.0
+      '@types/swagger-ui-react': 4.18.0
+      '@vitejs/plugin-react': 3.1.0_vite@4.2.1
+      c8: 7.13.0
+      cross-env: 7.0.3
+      debounce: 1.2.1
+      es-module-shims: 1.7.1
+      eslint: 8.38.0
+      lzutf8: 0.6.3
+      mocha: 10.2.0
+      mocha-junit-reporter: 2.2.0_mocha@10.2.0
+      mocha-multi-reporters: 1.5.1_mocha@10.2.0
+      monaco-editor: 0.37.1
+      prettier: 2.8.7
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      recoil: 0.7.7_react-dom@18.2.0+react@18.2.0
+      rimraf: 5.0.0
+      rollup-plugin-visualizer: 5.9.0_rollup@3.4.0
+      swagger-client: 3.18.5
+      swagger-ui: 4.15.5
+      swagger-ui-react: 4.15.5_react-dom@18.2.0+react@18.2.0
+      typescript: 5.0.4
+      vite: 4.2.1_@types+node@18.11.19
+      vscode-languageserver: 8.1.0
+      vscode-languageserver-textdocument: 1.0.8
+    transitivePeerDependencies:
+      - encoding
+      - less
+      - react-native
+      - rollup
+      - sass
+      - scheduler
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: false
+
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-kaNYeiEHSAYYV3y7YP+gENBrpyA3fwU3qJRk1HlYoe4gOl8xjI7MNTOi6b0o5WMQAgtI31xlb9prLy5pWwnupA==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-OC0okdikjI84D0Svx+YivSqzf2x5Rwi6wFaT7nsu74pOS47iCQzsp5QuoY6fSS80rN6ECLSULktg+B+169GOBg==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0

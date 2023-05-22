@@ -2,18 +2,18 @@
   "extends": "../tsconfig.json",
   "references": [
     { "path": "../compiler/tsconfig.json" },
+    { "path": "../playground/tsconfig.json" },
     { "path": "../rest/tsconfig.json" },
     { "path": "../openapi/tsconfig.json" },
     { "path": "../openapi3/tsconfig.json" }
   ],
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "dist-dev",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "skipLibCheck": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
-    "lib": ["DOM"],
+    "lib": ["DOM", "ES2022"],
     "types": ["@emotion/react"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "e2e/**/*.ts", "vite.config.ts"]
