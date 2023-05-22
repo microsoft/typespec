@@ -63,7 +63,7 @@ describe("compiler: scalars", () => {
     strictEqual(B.kind, "Scalar" as const);
   });
 
-  it.only("allows a decimal to have a default value", async () => {
+  it("allows a decimal to have a default value", async () => {
     const { A } = (await runner.compile(`
       @test model A {
         x: decimal = 42;

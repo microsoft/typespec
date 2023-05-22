@@ -134,6 +134,8 @@ describe("compiler: checker: type relations", () => {
       "uint16",
       "uint32",
       "uint64",
+      "decimal",
+      "decimal128",
       "string",
       "numeric",
       "float",
@@ -420,6 +422,8 @@ describe("compiler: checker: type relations", () => {
       "float",
       "float32",
       "float64",
+      "decimal",
+      "decimal128",
     ].forEach((x) => {
       it(`can assign ${x}`, async () => {
         await expectTypeAssignable({ source: x, target: "numeric" });
@@ -443,6 +447,29 @@ describe("compiler: checker: type relations", () => {
           message: "Type 'string' is not assignable to type 'numeric'",
         }
       );
+    });
+  });
+
+  describe("decimal target", () => {
+    it("can assign decimal", async () => {
+      await expectTypeAssignable({ source: "decimal", target: "decimal" });
+    });
+    it("can assign decimal128", async () => {
+      await expectTypeAssignable({ source: "decimal128", target: "decimal" });
+    });
+    it("can assign numeric literals", async () => {
+      await expectTypeAssignable({ source: "-2147483448", target: "decimal" });
+      await expectTypeAssignable({ source: "2147483448", target: "decimal" });
+    });
+  });
+
+  describe("decimal128 target", () => {
+    it("can assign decimal128", async () => {
+      await expectTypeAssignable({ source: "decimal128", target: "decimal128" });
+    });
+    it("can assign numeric literals", async () => {
+      await expectTypeAssignable({ source: "-2147483448", target: "decimal128" });
+      await expectTypeAssignable({ source: "2147483448", target: "decimal128" });
     });
   });
 
