@@ -405,12 +405,48 @@ describe("compiler: built-in decorators", () => {
         ["duration", "custom-encoding", "int32"],
       ];
       const invalidCases = [
-        ["utcDateTime", "rfc3339", "int32"],
-        ["offsetDateTime", "rfc7231", "int64"],
-        ["offsetDateTime", "unixTimeStamp", undefined],
-        ["duration", "seconds", undefined],
-        ["duration", "rfc3339", undefined],
-        ["bytes", "rfc3339", undefined],
+        [
+          "utcDateTime",
+          "rfc3339",
+          "int32",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected 'string', but got 'int32'.`,
+        ],
+        [
+          "offsetDateTime",
+          "rfc7231",
+          "int64",
+          `Encoding 'rfc7231' cannot be used on type 's'. Expected 'string', but got 'int64'.`,
+        ],
+        [
+          "offsetDateTime",
+          "unixTimeStamp",
+          undefined,
+          `Encoding 'unixTimeStamp' cannot be used on type 's'. Expected: utcDateTime.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          undefined,
+          `Encoding 'seconds' cannot be used on type 's'. Expected 'numeric', but got 'string'.`,
+        ],
+        [
+          "duration",
+          "rfc3339",
+          undefined,
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "bytes",
+          "rfc3339",
+          undefined,
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          '"int32"',
+          `Encoding 'seconds' cannot be used on type 's'. Expected 'numeric', but got 'string'.`,
+        ],
       ];
       describe("valid", () => {
         validCases.forEach(([target, encoding, encodeAs]) => {
@@ -430,7 +466,7 @@ describe("compiler: built-in decorators", () => {
         });
       });
       describe("invalid", () => {
-        invalidCases.forEach(([target, encoding, encodeAs]) => {
+        invalidCases.forEach(([target, encoding, encodeAs, expectedMessage]) => {
           it(`encoding '${encoding}' on ${target}  encoded as ${
             encodeAs ?? "string"
           }`, async () => {
@@ -440,9 +476,10 @@ describe("compiler: built-in decorators", () => {
           @test
           scalar s extends ${target};
         `);
-
             expectDiagnostics(diagnostics, {
               code: "invalid-encode",
+              severity: "error",
+              message: expectedMessage,
             });
           });
         });
