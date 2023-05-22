@@ -460,6 +460,7 @@ describe("compiler: checker: type relations", () => {
     it("can assign numeric literals", async () => {
       await expectTypeAssignable({ source: "-2147483448", target: "decimal" });
       await expectTypeAssignable({ source: "2147483448", target: "decimal" });
+      await expectTypeAssignable({ source: "2147483448.12390812", target: "decimal" });
     });
   });
 
@@ -470,6 +471,7 @@ describe("compiler: checker: type relations", () => {
     it("can assign numeric literals", async () => {
       await expectTypeAssignable({ source: "-2147483448", target: "decimal128" });
       await expectTypeAssignable({ source: "2147483448", target: "decimal128" });
+      await expectTypeAssignable({ source: "2147483448.12390812", target: "decimal128" });
     });
   });
 

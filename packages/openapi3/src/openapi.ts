@@ -1472,8 +1472,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
     }
 
-    function getDefaultValueOfType(type: Type, defaultType: Type) {}
-
     function getStdBaseScalar(scalar: Scalar): Scalar | null {
       let current: Scalar | undefined = scalar;
       while (current) {
