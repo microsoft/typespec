@@ -10,19 +10,20 @@
 //
 // This has been tested back to Node.js v0.12.18
 
-var nodeVersion = Number(process.versions && process.versions.node && process.versions.node.split(".")[0]);
+var nodeVersion = Number(
+  process.versions && process.versions.node && process.versions.node.split(".")[0]
+);
+
 if (!nodeVersion || nodeVersion < 16) {
   console.log("error: TypeSpec requires Node.js version 16.0 or higher.");
   process.exit(1);
 }
 
-// Wrap dynamic import to get around reserved word use
 function _import(module) {
   var f = new Function("module", "return import(module)");
   return f(module);
 }
 
-_import("../dist/cmd/runner.js").then(
-  function (r) {
-    r.runScript("entrypoints/cli.js", "dist/core/cli/cli.js")
-  });
+_import("../dist/cmd/runner.js").then(function (r) {
+  r.runScript("entrypoints/cli.js", "dist/core/cli/cli.js");
+});
