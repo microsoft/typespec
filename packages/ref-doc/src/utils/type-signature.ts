@@ -76,7 +76,9 @@ function getDecoratorSignature(type: Decorator) {
   const ns = getQualifier(type.namespace);
   const name = type.name.slice(1);
   const parameters = [type.target, ...type.parameters].map((x) => getFunctionParameterSignature(x));
-  return `dec ${ns}${name}(${parameters.join(", ")})`;
+  // pop the target parameter
+  parameters.pop();
+  return `@${ns}${name}(${parameters.join(", ")})`;
 }
 
 function getFunctionSignature(type: FunctionType) {
