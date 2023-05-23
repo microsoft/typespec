@@ -231,13 +231,8 @@ describe("openapi3: primitives", () => {
       it("set format to 'date-time-rfc7231' when encoding is rfc7231", () =>
         testEncode("utcDateTime", { type: "string", format: "date-time-rfc7231" }, "rfc7231"));
 
-      it("set type to integer and format to 'unixTimeStamp' when encoding is unixTimestamp", () =>
-        testEncode(
-          "utcDateTime",
-          { type: "integer", format: "unix-timestamp" },
-          "unixTimestamp",
-          "int32"
-        ));
+      it("set type to integer and format to 'int32' when encoding is unixTimestamp (unixTimestamp info is lost)", () =>
+        testEncode("utcDateTime", { type: "integer", format: "int32" }, "unixTimestamp", "int32"));
     });
 
     describe("offsetDateTime", () => {
@@ -250,14 +245,14 @@ describe("openapi3: primitives", () => {
     describe("duration", () => {
       it("set format to 'duration' by default", () =>
         testEncode("duration", { type: "string", format: "duration" }));
-      it("set interger with seconds format setting duration as seconds", () =>
-        testEncode("duration", { type: "integer", format: "seconds" }, "seconds", "int32"));
+      it("set interger with int32 format setting duration as seconds", () =>
+        testEncode("duration", { type: "integer", format: "int32" }, "seconds", "int32"));
     });
 
     describe("bytes", () => {
       it("set format to 'base64' by default", () =>
         testEncode("bytes", { type: "string", format: "byte" }));
-      it("set interger with seconds format setting duration as seconds", () =>
+      it("set format to base64url when encoding bytes as base64url", () =>
         testEncode("bytes", { type: "string", format: "base64url" }, "base64url"));
     });
   });
