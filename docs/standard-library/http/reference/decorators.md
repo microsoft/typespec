@@ -13,7 +13,7 @@ toc_max_heading_level: 3
 Explicitly specify that this property is to be set as the body
 
 ```typespec
-dec TypeSpec.Http.body(target: ModelProperty)
+@TypeSpec.Http.body
 ```
 
 #### Target
@@ -36,7 +36,7 @@ op download(): {@body image: bytes};
 Specify the http verb for the target operation to be `DELETE`.
 
 ```typespec
-dec TypeSpec.Http.delete(target: Operation)
+@TypeSpec.Http.delete
 ```
 
 #### Target
@@ -58,7 +58,7 @@ None
 Specify the http verb for the target operation to be `GET`.
 
 ```typespec
-dec TypeSpec.Http.get(target: Operation)
+@TypeSpec.Http.get
 ```
 
 #### Target
@@ -80,7 +80,7 @@ None
 Specify the http verb for the target operation to be `HEAD`.
 
 ```typespec
-dec TypeSpec.Http.head(target: Operation)
+@TypeSpec.Http.head
 ```
 
 #### Target
@@ -102,7 +102,7 @@ None
 Specify this property is to be sent or received as an http header.
 
 ```typespec
-dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
+@TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
 ```
 
 #### Target
@@ -127,7 +127,7 @@ op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
 Specify if inapplicable metadata should be included in the payload for the given entity.
 
 ```typespec
-dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: boolean)
+@TypeSpec.Http.includeInapplicableMetadataInPayload(value: boolean)
 ```
 
 #### Target
@@ -145,7 +145,7 @@ dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: b
 Specify the http verb for the target operation to be `PATCH`.
 
 ```typespec
-dec TypeSpec.Http.patch(target: Operation)
+@TypeSpec.Http.patch
 ```
 
 #### Target
@@ -167,7 +167,7 @@ None
 Explicitly specify that this property is to be interpolated as a path parameter.
 
 ```typespec
-dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
+@TypeSpec.Http.path(paramName?: string)
 ```
 
 #### Target
@@ -192,7 +192,7 @@ op read(@path explicit: string, implicit: string): void;
 Specify the http verb for the target operation to be `POST`.
 
 ```typespec
-dec TypeSpec.Http.post(target: Operation)
+@TypeSpec.Http.post
 ```
 
 #### Target
@@ -214,7 +214,7 @@ None
 Specify the http verb for the target operation to be `PUT`.
 
 ```typespec
-dec TypeSpec.Http.put(target: Operation)
+@TypeSpec.Http.put
 ```
 
 #### Target
@@ -236,7 +236,7 @@ None
 Specify this property is to be sent as a query parameter.
 
 ```typespec
-dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
+@TypeSpec.Http.query(queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
 ```
 
 #### Target
@@ -267,7 +267,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: (anonymous model))
+@TypeSpec.Http.route(path: string, options?: (anonymous model))
 ```
 
 #### Target
@@ -293,7 +293,7 @@ op getWidget(@path id: string): Widget;
 Specify the endpoint for this service.
 
 ```typespec
-dec TypeSpec.Http.server(target: Namespace, url: string, description: string, parameters?: object)
+@TypeSpec.Http.server(url: string, description: string, parameters?: object)
 ```
 
 #### Target
@@ -341,7 +341,7 @@ op getWidget(@path id: string): Widget;
 ```
 
 ```typespec
-dec TypeSpec.Http.sharedRoute(target: Operation)
+@TypeSpec.Http.sharedRoute
 ```
 
 #### Target
@@ -357,7 +357,7 @@ None
 Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
 
 ```typespec
-dec TypeSpec.Http.statusCode(target: ModelProperty)
+@TypeSpec.Http.statusCode
 ```
 
 #### Target
@@ -380,7 +380,7 @@ op create(): {@statusCode: 201 | 202}
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
 
 ```typespec
-dec TypeSpec.Http.useAuth(target: Namespace, auth: object | Union | object[])
+@TypeSpec.Http.useAuth(auth: object | Union | object[])
 ```
 
 #### Target

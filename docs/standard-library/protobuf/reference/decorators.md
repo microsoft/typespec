@@ -20,7 +20,7 @@ The field index of a Protobuf message must:
 - not fall within any range that was [marked reserved](#
 
 ```typespec
-dec TypeSpec.Protobuf.field(target: ModelProperty, index: uint32)
+@TypeSpec.Protobuf.field(index: uint32)
 ```
 
 #### Target
@@ -54,7 +54,7 @@ Messages can be detected automatically if either of the following two conditions
 This decorator will force the emitter to check and emit a model.
 
 ```typespec
-dec TypeSpec.Protobuf.message(target: object)
+@TypeSpec.Protobuf.message
 ```
 
 #### Target
@@ -71,7 +71,7 @@ Declares that a TypeSpec namespace constitutes a Protobuf package. The contents 
 single Protobuf file.
 
 ```typespec
-dec TypeSpec.Protobuf.package(target: Namespace, details?: TypeSpec.Protobuf.PackageDetails)
+@TypeSpec.Protobuf.package(details?: TypeSpec.Protobuf.PackageDetails)
 ```
 
 #### Target
@@ -108,7 +108,7 @@ See _[Protobuf Language Guide - Reserved Fields](https://protobuf.dev/programmin
 information.
 
 ```typespec
-dec TypeSpec.Protobuf.reserve(target: object, ...reservations: string | [uint32, uint32] | uint32[])
+@TypeSpec.Protobuf.reserve(...reservations: string | [uint32, uint32] | uint32[])
 ```
 
 #### Target
@@ -137,7 +137,7 @@ Declares that a TypeSpec interface constitutes a Protobuf service. The contents 
 a `service` declaration in the resulting Protobuf file.
 
 ```typespec
-dec TypeSpec.Protobuf.service(target: Interface)
+@TypeSpec.Protobuf.service
 ```
 
 #### Target
@@ -153,7 +153,7 @@ None
 Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
 
 ```typespec
-dec TypeSpec.Protobuf.stream(target: Operation, mode: TypeSpec.Protobuf.StreamMode)
+@TypeSpec.Protobuf.stream(mode: TypeSpec.Protobuf.StreamMode)
 ```
 
 #### Target
