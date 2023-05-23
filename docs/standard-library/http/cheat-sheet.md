@@ -1,27 +1,6 @@
 ---
-title: Overview
+title: Cheat sheet
 ---
-
-# HTTP
-
-TypeSpec has an official HTTP API "binding" called `@typespec/http`. It's a set of TypeSpec declarations and decorators that describe HTTP APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
-
-## Installation
-
-In your typespec project
-
-```bash
-npm install @typespec/http
-```
-
-## Details
-
-- [References](./reference/index.md)
-  - [Decorators](./reference/decorators.md)
-  - [Data types](./reference/data-types.md)
-- [Authentication](./authentication.md)
-
-## Cheat sheet
 
 ## Verb
 

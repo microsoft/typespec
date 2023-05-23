@@ -115,6 +115,13 @@ dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | T
 | ------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
 | headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
+#### Examples
+
+```typespec
+op read(@header accept: string): {@header("E-Tag") eTag: string};
+op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+```
+
 ### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
 
 Specify if inapplicable metadata should be included in the payload for the given entity.
@@ -172,6 +179,13 @@ dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
 | Name      | Type            | Description                                         |
 | --------- | --------------- | --------------------------------------------------- |
 | paramName | `scalar string` | Optional name of the parameter in the url template. |
+
+#### Examples
+
+```typespec
+@route("/read/{explicit}/things/{implicit}")
+op read(@path explicit: string, implicit: string): void;
+```
 
 ### `@post` {#@TypeSpec.Http.post}
 
@@ -235,6 +249,13 @@ dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | Typ
 | ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
 | queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
+#### Examples
+
+```typespec
+op read(@query select: string, @query("order-by") orderBy: string): void;
+op list(@query({name: "id", format: "multi"}) ids: string[]): void;
+```
+
 ### `@route` {#@TypeSpec.Http.route}
 
 Defines the relative route URI for the target operation
@@ -260,6 +281,13 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 | path    | `scalar string`           | Relative route path. Cannot include query parameters.                                                                                        |
 | options | `model (anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
+#### Examples
+
+```typespec
+@route("/widgets")
+op getWidget(@path id: string): Widget;
+```
+
 ### `@server` {#@TypeSpec.Http.server}
 
 Specify the endpoint for this service.
@@ -279,6 +307,23 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 | url         | `scalar string` | Server endpoint                                         |
 | description | `scalar string` | Description of the endpoint                             |
 | parameters  | `model object`  | Optional set of parameters used to interpolate the url. |
+
+#### Examples
+
+```typespec
+@service
+@server("https://example.com", "Single server endpoint")
+namespace PetStore;
+```
+
+##### parameterized
+
+```typespec
+@server("https://{region}.foo.com", "Regional endpoint", {
+@doc("Region name")
+region?: string = "westus",
+})
+```
 
 ### `@sharedRoute` {#@TypeSpec.Http.sharedRoute}
 
@@ -347,3 +392,11 @@ dec TypeSpec.Http.useAuth(target: Namespace, auth: object | Union | object[])
 | Name | Type                                | Description                                                                                                                                                    |
 | ---- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union object \| Union \| object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+
+#### Examples
+
+```typespec
+@service
+@useAuth(BasicAuth)
+namespace PetStore;
+```
