@@ -77,7 +77,7 @@ describe("openapi3: Array", () => {
     });
   });
 
-  it.only("can specify array defaults using tuple syntax", async () => {
+  it("can specify array defaults using tuple syntax", async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -111,7 +111,7 @@ describe("openapi3: Array", () => {
     });
   });
 
-  it.only("can specify tuple defaults using tuple syntax", async () => {
+  it("can specify tuple defaults using tuple syntax", async () => {
     const res = await oapiForModel(
       "Pet",
       `
