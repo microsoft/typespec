@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix: Operation can self reference or ciruclar reference other operation via decorators",
+      "comment": "Fix: Operation can self reference or circular reference other operation via decorators",
       "type": "none"
     }
   ],
