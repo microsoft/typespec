@@ -64,6 +64,7 @@ function addStatementDecoratorComment(comment: CommentNode) {
     (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelStatement ||
       enclosingNode.kind === SyntaxKind.EnumStatement ||
+      enclosingNode.kind === SyntaxKind.OperationStatement ||
       enclosingNode.kind === SyntaxKind.ModelProperty ||
       enclosingNode.kind === SyntaxKind.EnumMember ||
       enclosingNode.kind === SyntaxKind.UnionStatement)

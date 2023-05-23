@@ -9,7 +9,7 @@ jobs:
       name: azsdk-pool-mms-ubuntu-2004-general
       vmImage: ubuntu-20.04
     variables:
-      CADL_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
+      TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
     steps:
       - checkout: self
         persistCredentials: true
@@ -34,7 +34,7 @@ jobs:
             az storage blob upload-batch \
               --destination \$web \
               --account-name "cadlplayground" \
-              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/playground/dist/" \
               --overwrite
 
@@ -47,7 +47,7 @@ jobs:
             az storage blob upload-batch \
               --destination \$web \
               --account-name "cadlwebsite" \
-              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/website/build/" \
               --overwrite
 

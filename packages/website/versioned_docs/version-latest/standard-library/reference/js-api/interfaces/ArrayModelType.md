@@ -25,6 +25,7 @@
 - [projectionSource](ArrayModelType.md#projectionsource)
 - [projector](ArrayModelType.md#projector)
 - [properties](ArrayModelType.md#properties)
+- [sourceModel](ArrayModelType.md#sourcemodel)
 - [symbol](ArrayModelType.md#symbol)
 - [templateArguments](ArrayModelType.md#templatearguments)
 - [templateMapper](ArrayModelType.md#templatemapper)
@@ -189,6 +190,18 @@ inheritance hierarchy.
 #### Inherited from
 
 [Model](Model.md).[properties](Model.md#properties)
+
+___
+
+### sourceModel
+
+• `Optional` **sourceModel**: [`Model`](Model.md)
+
+The model that is referenced via `model is`.
+
+#### Inherited from
+
+[Model](Model.md).[sourceModel](Model.md#sourcemodel)
 
 ___
 

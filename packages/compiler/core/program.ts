@@ -3,6 +3,10 @@ import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
+import {
+  resolveTypeSpecEntrypoint,
+  resolveTypeSpecEntrypointForDir,
+} from "./entrypoint-resolution.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
@@ -51,7 +55,6 @@ import {
   doIO,
   findProjectRoot,
   isDefined,
-  loadFile,
   mapEquals,
   mutate,
   resolveTspMain,
@@ -94,6 +97,11 @@ export interface Program {
 
   getGlobalNamespaceType(): Namespace;
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+
+  /**
+   * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
+   */
+  readonly projectRoot: string;
 }
 
 interface LibraryMetadata {
@@ -276,6 +284,7 @@ export async function compile(
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
+  const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
 
   const program: Program = {
     checker: undefined!,
@@ -304,6 +313,7 @@ export async function compile(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
@@ -317,7 +327,6 @@ export async function compile(
     await loadStandardLibrary(program);
   }
 
-  const resolvedMain = await resolveTypeSpecEntrypoint(mainFile);
   // Load additional imports prior to compilation
   if (resolvedMain && options.additionalImports) {
     const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
@@ -335,10 +344,13 @@ export async function compile(
   if (resolvedMain) {
     let emit = options.emit;
     let emitterOptions = options.options;
+    /* eslint-disable deprecation/deprecation */
     if (options.emitters) {
       emit ??= Object.keys(options.emitters);
       emitterOptions ??= options.emitters;
     }
+    /* eslint-enable deprecation/deprecation */
+
     await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
   }
 
@@ -459,7 +471,7 @@ export async function compile(
     dir: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
-    const mainFile = await resolveTypeSpecEntrypointForDir(dir);
+    const mainFile = await resolveTypeSpecEntrypointForDir(host, dir, reportDiagnostic);
     await loadTypeSpecFile(mainFile, diagnosticTarget);
     return mainFile;
   }
@@ -772,7 +784,7 @@ export async function compile(
     };
     try {
       await emitter.emitFunction(context);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
       if (emitter.metadata.bugs?.url) {
         msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
@@ -780,7 +792,12 @@ export async function compile(
         msg.push(`Please contact emitter author to report this issue.`);
       }
       msg.push("");
-      if ("stack" in error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "stack" in error &&
+        typeof error.stack === "string"
+      ) {
         msg.push(error.stack);
       } else {
         msg.push(String(error));
@@ -879,50 +896,6 @@ export async function compile(
         return file.text;
       },
     };
-  }
-
-  /**
-   * Resolve the path to the main file
-   * @param path path to the entrypoint of the program. Can be the main.tsp, folder containing main.tsp or a project/library root.
-   * @returns Absolute path to the entrypoint.
-   */
-  async function resolveTypeSpecEntrypoint(path: string): Promise<string | undefined> {
-    const resolvedPath = resolvePath(path);
-    const mainStat = await doIO(host.stat, resolvedPath, program.reportDiagnostic);
-    if (!mainStat) {
-      return undefined;
-    }
-
-    if (mainStat.isDirectory()) {
-      return resolveTypeSpecEntrypointForDir(resolvedPath);
-    } else {
-      return resolvedPath;
-    }
-  }
-
-  async function resolveTypeSpecEntrypointForDir(dir: string): Promise<string> {
-    const pkgJsonPath = resolvePath(dir, "package.json");
-    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
-      allowFileNotFound: true,
-    });
-    const tspMain = resolveTspMain(pkg);
-    if (tspMain !== undefined) {
-      return resolvePath(dir, tspMain);
-    }
-
-    // Back Compat: if main.cadl exist, return main.cadl
-    let mainFile = resolvePath(dir, "main.cadl");
-    const stat = await doIO(
-      () => host.stat(mainFile),
-      mainFile,
-      () => {}
-    );
-    // if not found, use the normal resolution.
-    if (stat?.isFile() !== true) {
-      mainFile = resolvePath(dir, "main.tsp");
-    }
-
-    return mainFile;
   }
 
   /**
@@ -1199,6 +1172,7 @@ export function createStateAccessors(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
+  // eslint-disable-next-line deprecation/deprecation
   const outputDir = options.outputDir ?? options.outputPath;
   return {
     ...options,

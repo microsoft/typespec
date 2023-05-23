@@ -5,10 +5,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "./browser-host.js";
 import { StyledPlayground } from "./components/playground.js";
 import { attachServices } from "./services.js";
-import {
-  getTypeSpecContentFromQueryParam,
-  saveTypeSpecContentInQueryParameter,
-} from "./state-storage.js";
+import { getStateFromUrl, saveTypeSpecContentInQueryParameter } from "./state-storage.js";
 
 import "./style.css";
 
@@ -24,12 +21,12 @@ import "./style.css";
 const host = await createBrowserHost();
 await attachServices(host);
 
-const initialContent = getTypeSpecContentFromQueryParam("c");
+const initialState = getStateFromUrl();
 const App: FunctionComponent = () => {
   const save = useCallback((content: string) => {
-    void saveTypeSpecContentInQueryParameter("c", content);
+    void saveTypeSpecContentInQueryParameter(content);
   }, []);
-  return <StyledPlayground host={host} typespecContent={initialContent} onSave={save} />;
+  return <StyledPlayground host={host} defaultState={initialState} onSave={save} />;
 };
 
 const root = createRoot(document.getElementById("root")!);

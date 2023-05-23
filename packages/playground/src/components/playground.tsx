@@ -2,7 +2,7 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
-import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
+import { RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
@@ -14,6 +14,7 @@ import {
   compilationState,
   emittersOptionsState,
   selectedEmitterState,
+  selectedSampleState,
 } from "../state.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.jsx";
@@ -21,9 +22,14 @@ import { Footer } from "./footer.js";
 import { OutputView } from "./output-view.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
+export type PlaygroundDefaultState = {
+  sampleName?: string;
+  content?: string;
+};
+
 export interface PlaygroundProps {
   host: BrowserHost;
-  typespecContent?: string;
+  defaultState?: PlaygroundDefaultState;
   onSave?: (value: string) => void;
 }
 
@@ -39,15 +45,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
   </RecoilRoot>
 );
 
-const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
-  host,
-  typespecContent,
-  onSave,
-}) => {
+const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, defaultState, onSave }) => {
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const setCompilationStatus = useSetRecoilState(compilationState);
   const emittersOptions = useRecoilValue(emittersOptionsState);
-  const selectedEmitter = useRecoilValue(selectedEmitterState);
+  const [selectedEmitter, selectEmitter] = useRecoilState(selectedEmitterState);
+  const [selectedSample, selectSample] = useRecoilState(selectedSampleState);
 
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
@@ -75,10 +78,24 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
     },
     [typespecModel]
   );
+  useEffect(() => {
+    if (selectedSample) {
+      const config = PlaygroundManifest.samples[selectedSample];
+      if (config.content) {
+        updateTypeSpec(config.content);
+        if (config.preferredEmitter) {
+          selectEmitter(config.preferredEmitter);
+        }
+      }
+    }
+  }, [updateTypeSpec, selectedSample]);
 
   useEffect(() => {
-    const newContent = typespecContent ?? "";
+    const newContent = defaultState?.content ?? "";
     updateTypeSpec(newContent);
+    if (defaultState?.sampleName) {
+      selectSample(defaultState?.sampleName);
+    }
   }, [updateTypeSpec]);
 
   useEffect(() => {
@@ -132,7 +149,6 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({
         <EditorCommandBar
           saveCode={saveCode}
           newIssue={newIssue}
-          updateTypeSpec={updateTypeSpec}
           documentationUrl={PlaygroundManifest.links.documentation}
         />
         <TypeSpecEditor model={typespecModel} commands={typespecEditorCommands} />

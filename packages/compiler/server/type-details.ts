@@ -1,5 +1,11 @@
-import { compilerAssert, DocContent, Program, SyntaxKind, Type } from "../core/index.js";
-import { getDoc } from "../lib/decorators.js";
+import {
+  compilerAssert,
+  DocContent,
+  getDocData,
+  Program,
+  SyntaxKind,
+  Type,
+} from "../core/index.js";
 import { getTypeSignature } from "./type-signature.js";
 
 /**
@@ -51,9 +57,10 @@ function getTypeDocumentation(program: Program, type: Type) {
   }
 
   // Add @doc(...) API docs
-  const apiDocs = getDoc(program, type);
-  if (apiDocs) {
-    docs.push(apiDocs);
+  const apiDocs = getDocData(program, type);
+  // The doc comment is already included above we don't want to duplicate
+  if (apiDocs && apiDocs.source === "@doc") {
+    docs.push(apiDocs.value);
   }
 
   return docs.join("\n\n");

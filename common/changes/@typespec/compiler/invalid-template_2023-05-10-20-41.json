@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Improve error handling when tsp init template is invalid or fails to download.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

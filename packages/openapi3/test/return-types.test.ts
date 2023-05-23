@@ -356,6 +356,7 @@ describe("openapi3: return types", () => {
     });
     deepStrictEqual(res.components.schemas.object, {
       type: "object",
+      description: "Represent any structured model.(With properties)",
       properties: {},
     });
   });

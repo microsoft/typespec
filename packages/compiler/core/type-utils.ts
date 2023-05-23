@@ -13,6 +13,7 @@ import {
   TemplateDeclarationNode,
   TemplatedType,
   Type,
+  TypeMapper,
   UnknownType,
   VoidType,
 } from "./types.js";
@@ -59,14 +60,31 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
 }
 
 /**
- * Check if the given type has template arguments.
+ * Check the given type is a finished template instance.
  */
 export function isTemplateInstance(
   type: Type
-): type is TemplatedType & { templateArguments: Type[] } {
+): type is TemplatedType & { templateArguments: Type[]; templateMapper: TypeMapper } {
   const maybeTemplateType = type as TemplatedType;
   return (
-    maybeTemplateType.templateMapper !== undefined && !maybeTemplateType.templateMapper.partial
+    maybeTemplateType.templateMapper !== undefined &&
+    !maybeTemplateType.templateMapper.partial &&
+    maybeTemplateType.isFinished
+  );
+}
+
+/**
+ * Check if the type is a declared type. This include:
+ * - non templated type
+ * - template declaration
+ */
+export function isDeclaredType(type: Type): boolean {
+  if (type.node === undefined) {
+    return false;
+  }
+  const node = type.node as TemplateDeclarationNode;
+  return (
+    node.templateParameters === undefined || (type as TemplatedType).templateMapper === undefined
   );
 }
 
@@ -80,7 +98,11 @@ export function isTemplateDeclaration(
     return false;
   }
   const node = type.node as TemplateDeclarationNode;
-  return node.templateParameters && node.templateParameters.length > 0 && !isTemplateInstance(type);
+  return (
+    node.templateParameters &&
+    node.templateParameters.length > 0 &&
+    type.templateMapper === undefined
+  );
 }
 
 /**

@@ -22,9 +22,9 @@ dec TypeSpec.Versioning.added(target: unknown, version: EnumMember)
 
 #### Parameters
 
-| Name    | Type         | Description |
-| ------- | ------------ | ----------- |
-| version | `EnumMember` |             |
+| Name    | Type         | Description                               |
+| ------- | ------------ | ----------------------------------------- |
+| version | `EnumMember` | The version that the target was added in. |
 
 ### `@madeOptional` {#@TypeSpec.Versioning.madeOptional}
 
@@ -40,9 +40,9 @@ dec TypeSpec.Versioning.madeOptional(target: unknown, version: EnumMember)
 
 #### Parameters
 
-| Name    | Type         | Description |
-| ------- | ------------ | ----------- |
-| version | `EnumMember` |             |
+| Name    | Type         | Description                                       |
+| ------- | ------------ | ------------------------------------------------- |
+| version | `EnumMember` | The version that the target was made optional in. |
 
 ### `@removed` {#@TypeSpec.Versioning.removed}
 
@@ -58,9 +58,9 @@ dec TypeSpec.Versioning.removed(target: unknown, version: EnumMember)
 
 #### Parameters
 
-| Name    | Type         | Description |
-| ------- | ------------ | ----------- |
-| version | `EnumMember` |             |
+| Name    | Type         | Description                                 |
+| ------- | ------------ | ------------------------------------------- |
+| version | `EnumMember` | The version that the target was removed in. |
 
 ### `@renamedFrom` {#@TypeSpec.Versioning.renamedFrom}
 
@@ -76,10 +76,10 @@ dec TypeSpec.Versioning.renamedFrom(target: unknown, version: EnumMember, oldNam
 
 #### Parameters
 
-| Name    | Type            | Description |
-| ------- | --------------- | ----------- |
-| version | `EnumMember`    |             |
-| oldName | `scalar string` |             |
+| Name    | Type            | Description                                 |
+| ------- | --------------- | ------------------------------------------- |
+| version | `EnumMember`    | The version that the target was renamed in. |
+| oldName | `scalar string` | The previous name of the target.            |
 
 ### `@typeChangedFrom` {#@TypeSpec.Versioning.typeChangedFrom}
 
@@ -95,10 +95,10 @@ dec TypeSpec.Versioning.typeChangedFrom(target: unknown, version: EnumMember, ol
 
 #### Parameters
 
-| Name    | Type                  | Description |
-| ------- | --------------------- | ----------- |
-| version | `EnumMember`          |             |
-| oldType | `(intrinsic) unknown` |             |
+| Name    | Type                  | Description                                  |
+| ------- | --------------------- | -------------------------------------------- |
+| version | `EnumMember`          | The version that the target type changed in. |
+| oldType | `(intrinsic) unknown` | The previous type of the target.             |
 
 ### `@useDependency` {#@TypeSpec.Versioning.useDependency}
 
@@ -114,9 +114,9 @@ dec TypeSpec.Versioning.useDependency(target: EnumMember | Namespace, ...version
 
 #### Parameters
 
-| Name           | Type                 | Description |
-| -------------- | -------------------- | ----------- |
-| versionRecords | `model EnumMember[]` |             |
+| Name           | Type                 | Description                                                           |
+| -------------- | -------------------- | --------------------------------------------------------------------- |
+| versionRecords | `model EnumMember[]` | The dependent library version(s) for the target namespace or version. |
 
 ### `@versioned` {#@TypeSpec.Versioning.versioned}
 
@@ -132,6 +132,6 @@ dec TypeSpec.Versioning.versioned(target: Namespace, versions: Enum)
 
 #### Parameters
 
-| Name     | Type   | Description |
-| -------- | ------ | ----------- |
-| versions | `Enum` |             |
+| Name     | Type   | Description                                     |
+| -------- | ------ | ----------------------------------------------- |
+| versions | `Enum` | The enum that describes the supported versions. |

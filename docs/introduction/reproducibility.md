@@ -10,9 +10,9 @@ This can be mitigated with a few steps:
 
 ## 1. Defend against dependency changes
 
-_Note: This section applies if using `cadl install` or `npm install` to install dependencies. However other package managers (`yarn`, `pnpm`, etc.) have their own similar lock mechanisms._
+_Note: This section applies if using `tsp install` or `npm install` to install dependencies. However other package managers (`yarn`, `pnpm`, etc.) have their own similar lock mechanisms._
 
-When using `cadl install` or `npm install` a `package-lock.json` will be installed. This file SHOULD be committed to source control. It will ensure that later calls to `cadl install` or `npm install` will use the exact versions resolved in the lock files unless the `package.json` was updated or a command like `npm update` was run.
+When using `tsp install` or `npm install` a `package-lock.json` will be installed. This file SHOULD be committed to source control. It will ensure that later calls to `cadl install` or `npm install` will use the exact versions resolved in the lock files unless the `package.json` was updated or a command like `npm update` was run.
 
 The command `npm ci` can also be used in the CI to ensure that the `package.json` and `package-lock.json` are in sync.
 
@@ -20,7 +20,7 @@ The command `npm ci` can also be used in the CI to ensure that the `package.json
 
 TypeSpec provides a library `@typespec/versioning` that can be used to describe changes to a service or library over time. Using this will ensure that a service can evolve while keeping track of the changes and allowing emitters to see the service representation at different versions.
 
-[See versioning docs](../standard-library/versioning/overview.md)
+[See versioning docs](../standard-library/versioning/reference/index.md)
 
 ## 3. Change to the TypeSpec spec
 
@@ -30,5 +30,5 @@ Using version control and pinning to a specific commit SHA will ensure that the 
 ## Summary
 
 1. Use `package-lock.json`
-2. Use [versioning library](../standard-library/versioning/overview.md)
+2. Use [versioning library](../standard-library/versioning/reference/index.md)
 3. Keep track of commit IDs

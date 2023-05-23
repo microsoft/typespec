@@ -76,6 +76,16 @@ scalar float64 extends float;
 scalar float32 extends float64;
 
 /**
+ * A decimal number with any length and precision.
+ */
+scalar decimal extends numeric;
+
+/**
+ * A 128-bit decimal number.
+ */
+scalar decimal128 extends decimal;
+
+/**
  * A sequence of textual characters.
  */
 scalar string;
@@ -117,12 +127,14 @@ model object {}
 
 /**
  * Array model type, equivalent to `T[]`
+ * @template T The type of the array elements
  */
 @indexer(integer, T)
 model Array<T> {}
 
 /**
  * Model with string properties where all the properties have type `T`
+ * @template T The type of the properties
  */
 @indexer(string, T)
 model Record<T> {}
@@ -130,32 +142,53 @@ model Record<T> {}
 /**
  * Represent a URL string as described by https://url.spec.whatwg.org/
  */
-@format("url")
 scalar url extends string;
 
+/**
+ * Represents a collection of optional properties.
+ * @template T An object whose spread properties are all optional.
+ */
 @doc("The template for adding optional properties.")
 @withOptionalProperties
 model OptionalProperties<T> {
   ...T;
 }
 
+/**
+ * Represents a collection of updateable properties.
+ * @template T An object whose spread properties are all updateable.
+ */
 @doc("The template for adding updateable properties.")
 @withUpdateableProperties
 model UpdateableProperties<T> {
   ...T;
 }
 
+/**
+ * Represents a collection of omitted properties.
+ * @template T An object whose properties are spread.
+ * @template TKeys The property keys to omit.
+ */
 @doc("The template for omitting properties.")
 @withoutOmittedProperties(TKeys)
 model OmitProperties<T, TKeys extends string> {
   ...T;
 }
 
+/**
+ * Represents a collection of properties with default values omitted.
+ * @template T An object whose spread property defaults are all omitted.
+ */
 @withoutDefaultValues
 model OmitDefaults<T> {
   ...T;
 }
 
+/**
+ * Applies a visiblity setting to a collection of properties.
+ * @template T An object whose properties are spread.
+ * @template Visibility The visibility to apply to all properties.
+ */
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
 model DefaultKeyVisibility<T, Visibility extends string> {

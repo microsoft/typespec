@@ -17,6 +17,7 @@ words:
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
+  - debouncer
   - dogfood
   - eastus
   - ecmarkup
@@ -52,6 +53,7 @@ words:
   - safeint
   - segmentof
   - sfixed
+  - sint
   - strs
   - TRYIT
   - TSES
@@ -60,6 +62,7 @@ words:
   - Uncapitalize
   - uninstantiated
   - unioned
+  - unprefixed
   - unprojected
   - unsourced
   - unversioned
@@ -67,9 +70,6 @@ words:
   - vswhere
   - westus
   - xplat
-  - keyer
-  - interner
-  - unprefixed
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

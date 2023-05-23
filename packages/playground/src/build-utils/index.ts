@@ -22,7 +22,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
     },
     assetsInclude: [/\.tsp$/],
     optimizeDeps: {
-      exclude: ["node-fetch", "swagger-ui"],
+      exclude: ["swagger-ui"],
     },
     plugins: [
       (react as any)({

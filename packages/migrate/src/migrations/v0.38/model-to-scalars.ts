@@ -14,8 +14,8 @@ import {
 export const migrateModelToScalar = createContentMigration({
   name: "Migrate Model To scalar",
   kind: MigrationKind.AstContentMigration,
-  from: "0.37.0",
-  to: "0.38.0",
+  from: "0.37",
+  to: "0.38",
   migrate: (
     { printNode, printNodes }: MigrationContext,
     compilerV37: TypeSpecCompilerV0_37,

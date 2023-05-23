@@ -3,12 +3,12 @@ import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
-import { logDiagnostics } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
+import { createDiagnostic } from "../core/messages.js";
 import { NodePackage } from "../core/module-resolver.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { CompilerHost, SourceFile } from "../core/types.js";
+import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
 import { InitTemplate, InitTemplateDefinitionsSchema, InitTemplateFile } from "./init-template.js";
 
@@ -65,6 +65,13 @@ interface ScaffoldingConfig extends InitTemplate {
   normalizePackageName: () => (text: string, render: any) => string;
 }
 
+interface TemplatesUrl {
+  /** The original URL specified by the user. */
+  url: string;
+  /** The final URL after HTTP redirects. Populated when template is downloaded. */
+  finalUrl?: string;
+}
+
 const normalizeVersion = function () {
   return function (text: string, render: any): string {
     return render(text).replaceAll("-", "_");
@@ -93,7 +100,9 @@ export async function initTypeSpecProject(
   }
   const folderName = getBaseFileName(directory);
 
-  const template = await selectTemplate(host, templatesUrl);
+  const url: TemplatesUrl | undefined = templatesUrl ? { url: templatesUrl } : undefined;
+  const template = await selectTemplate(host, url);
+
   const { name } = await prompts([
     {
       type: "text",
@@ -107,7 +116,7 @@ export async function initTypeSpecProject(
   const parameters = await promptCustomParameters(template);
   const scaffoldingConfig: ScaffoldingConfig = {
     ...template,
-    templateUri: templatesUrl ?? ".",
+    templateUri: url?.finalUrl ?? ".",
     libraries,
     name,
     directory,
@@ -184,18 +193,42 @@ async function confirm(message: string): Promise<boolean> {
 
 async function downloadTemplates(
   host: CompilerHost,
-  templatesUrl: string
+  templatesUrl: TemplatesUrl
 ): Promise<Record<string, InitTemplate>> {
-  const file = await readUrlOrPath(host, templatesUrl);
+  let file: SourceFile;
+  try {
+    file = await readUrlOrPath(host, templatesUrl.url);
+    templatesUrl.finalUrl = file.path;
+  } catch (e: any) {
+    throw new InitTemplateError([
+      createDiagnostic({
+        code: "init-template-download-failed",
+        target: NoTarget,
+        format: { url: templatesUrl.url, message: e.message },
+      }),
+    ]);
+  }
 
-  const json = JSON.parse(file.text);
-  validateTemplateDefinitions(host, json, file);
+  let json: unknown;
+  try {
+    json = JSON.parse(file.text);
+  } catch (e: any) {
+    throw new InitTemplateError([
+      createDiagnostic({
+        code: "init-template-invalid-json",
+        target: NoTarget,
+        format: { url: templatesUrl.url, message: e.message },
+      }),
+    ]);
+  }
+
+  validateTemplateDefinitions(json, file);
   return json;
 }
 
 async function selectTemplate(
   host: CompilerHost,
-  templatesUrl: string | undefined
+  templatesUrl: TemplatesUrl | undefined
 ): Promise<InitTemplate> {
   const templates =
     templatesUrl === undefined ? builtInTemplates : await downloadTemplates(host, templatesUrl);
@@ -320,15 +353,24 @@ async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: In
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
+/**
+ * Error thrown when init template acquisition fails or template is invalid.
+ *
+ * Contains diagnostics that can be logged to the user.
+ */
+export class InitTemplateError extends Error {
+  constructor(public diagnostics: readonly Diagnostic[]) {
+    super();
+  }
+}
+
 function validateTemplateDefinitions(
-  host: CompilerHost,
   templates: unknown,
   file: SourceFile
 ): asserts templates is Record<string, InitTemplate> {
   const validator = createJSONSchemaValidator(InitTemplateDefinitionsSchema);
   const diagnostics = validator.validate(templates, file);
   if (diagnostics.length > 0) {
-    logDiagnostics(diagnostics, host.logSink);
-    throw new Error("Template contained error.");
+    throw new InitTemplateError(diagnostics);
   }
 }
