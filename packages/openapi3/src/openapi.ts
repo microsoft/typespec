@@ -1674,7 +1674,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (encodeData) {
       const newType = getSchemaForScalar(encodeData.type);
       newTarget.type = newType.type;
-      newTarget.format = mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
+      // If the target already has a format it takes priority. (e.g. int32)
+      newTarget.format =
+        newType.format ?? mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
     }
 
     if (isString) {
@@ -1699,8 +1701,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         switch (encoding) {
           case "rfc3339":
             return "date-time";
-          case "unixTimestamp":
-            return "unix-timestamp";
           default:
             return `date-time-${encoding}`;
         }
