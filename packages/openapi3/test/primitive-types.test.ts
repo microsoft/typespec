@@ -252,7 +252,7 @@ describe("openapi3: primitives", () => {
     describe("bytes", () => {
       it("set format to 'base64' by default", () =>
         testEncode("bytes", { type: "string", format: "byte" }));
-      it("set interger with seconds format setting duration as seconds", () =>
+      it("set format to base64url when encoding bytes as base64url", () =>
         testEncode("bytes", { type: "string", format: "base64url" }, "base64url"));
     });
   });
