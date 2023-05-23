@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add decimal and decimal128 built-in scalar types.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
