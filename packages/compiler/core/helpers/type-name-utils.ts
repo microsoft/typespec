@@ -53,10 +53,6 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return type.name;
   }
 
-  if (typeof type !== "object") {
-    return typeof type;
-  }
-
   return "(unnamed type)";
 }
 
