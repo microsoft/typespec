@@ -31,6 +31,7 @@ import {
   interpolatePath,
   IntrinsicScalarName,
   IntrinsicType,
+  isArrayModelType,
   isDeprecated,
   isErrorType,
   isGlobalNamespace,
@@ -1457,11 +1458,21 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "Boolean":
         return defaultType.value;
       case "Tuple":
-        compilerAssert(type.kind === "Tuple", "setting tuple default to non-tuple value");
-
-        return defaultType.values.map((defaultTupleValue, index) =>
-          getDefaultValue(type.values[index], defaultTupleValue)
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
         );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
       case "EnumMember":
         return defaultType.value ?? defaultType.name;
       default:

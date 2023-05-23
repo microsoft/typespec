@@ -76,4 +76,72 @@ describe("openapi3: Array", () => {
       "x-typespec-name": "string[]",
     });
   });
+
+  it.only("can specify array defaults using tuple syntax", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        names: string[] = ["bismarck"];
+        decimals: decimal[] = [123, 456.7];
+        decimal128s: decimal128[] = [123, 456.7];
+      };
+      `
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      items: { type: "string" },
+      "x-typespec-name": "string[]",
+      default: ["bismarck"],
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.decimals, {
+      type: "array",
+      items: { type: "string", format: "decimal" },
+      "x-typespec-name": "decimal[]",
+      default: ["123", "456.7"],
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
+      type: "array",
+      items: { type: "string", format: "decimal128" },
+      "x-typespec-name": "decimal128[]",
+      default: ["123", "456.7"],
+    });
+  });
+
+  it.only("can specify tuple defaults using tuple syntax", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        names: [string, int32] = ["bismarck", 12];
+        decimals: [string, decimal] = ["hi", 456.7];
+        decimal128s: [string, decimal128] = ["hi", 456.7];
+      };
+      `
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      items: {},
+      "x-typespec-name": "[string, int32]",
+      default: ["bismarck", 12],
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.decimals, {
+      type: "array",
+      items: {},
+      "x-typespec-name": "[string, decimal]",
+      default: ["hi", "456.7"],
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
+      type: "array",
+      items: {},
+      "x-typespec-name": "[string, decimal128]",
+      default: ["hi", "456.7"],
+    });
+  });
 });
