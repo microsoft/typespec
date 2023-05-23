@@ -58,7 +58,6 @@
     "@typespec/rest": "~0.44.0",
     "@typespec/versioning": "~0.44.0",
     "debounce": "~1.2.1",
-    "es-module-shims": "~1.7.1",
     "lzutf8": "0.6.3",
     "monaco-editor": "~0.37.1",
     "prettier": "~2.8.7",

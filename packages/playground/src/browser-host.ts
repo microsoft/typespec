@@ -4,7 +4,7 @@ import {
   getSourceFileKindFromExt,
   resolvePath,
 } from "@typespec/compiler";
-import { importShim } from "./core.js";
+import { importLibrary } from "./core.js";
 import { PlaygroundManifest } from "./manifest.js";
 
 export interface BrowserHost extends CompilerHost {}
@@ -19,7 +19,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
   const libsToLoad = PlaygroundManifest.libraries;
 
   for (const libName of libsToLoad) {
-    const { _TypeSpecLibrary_ } = (await importShim(libName)) as any;
+    const { _TypeSpecLibrary_ } = (await importLibrary(libName)) as any;
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
