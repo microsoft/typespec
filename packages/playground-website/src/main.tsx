@@ -1,13 +1,19 @@
+import {
+  createBrowserHost,
+  getStateFromUrl,
+  registerMonacoDefaultWorkers,
+  registerMonacoLanguage,
+  saveTypeSpecContentInQueryParameter,
+} from "@typespec/playground";
+import { StyledPlayground } from "@typespec/playground/react";
 import { FunctionComponent, useCallback } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserHost , registerMonacoLanguage, getStateFromUrl, saveTypeSpecContentInQueryParameter, registerMonacoDefaultWorkers} from "@typespec/playground";
-import { StyledPlayground } from "@typespec/playground/react";
 
 import "./style.css";
 
 const host = await createBrowserHost();
 await registerMonacoLanguage(host);
-registerMonacoDefaultWorkers()
+registerMonacoDefaultWorkers();
 
 const initialState = getStateFromUrl();
 const App: FunctionComponent = () => {
