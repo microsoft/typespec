@@ -240,4 +240,50 @@ describe("compiler: operations", () => {
       },
     ]);
   });
+
+  describe("circular ref in decorators", () => {
+    let tracked: any[];
+    beforeEach(() => {
+      tracked = [];
+      testHost.addJsFile("track.js", {
+        $track: (context: DecoratorContext, ...args: any[]) => {
+          tracked.push(args);
+        },
+      });
+    });
+
+    it("operation can reference itself in a decorator", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          import "./track.js";
+          @test @track(foo)
+          op foo(): void;
+        `
+      );
+      const { foo } = await testHost.compile("main.tsp");
+
+      deepStrictEqual(tracked, [[foo, foo]]);
+    });
+
+    it("operation can reference another operation which reference back to this one", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          import "./track.js";
+          @test @track(foo)
+          op bar(): void;
+
+          @test @track(bar)
+          op foo(): void;
+        `
+      );
+      const { foo, bar } = await testHost.compile("main.tsp");
+
+      deepStrictEqual(tracked, [
+        [foo, bar],
+        [bar, foo],
+      ]);
+    });
+  });
 });
