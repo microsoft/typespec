@@ -409,13 +409,13 @@ describe("compiler: built-in decorators", () => {
           "utcDateTime",
           "rfc3339",
           "int32",
-          `Encoding 'rfc3339' cannot be used on type 's'. Expected 'string', but got 'int32'.`,
+          `Encoding 'rfc3339' on type 's' is expected to be serialized as 'string' but got 'int32'.`,
         ],
         [
           "offsetDateTime",
           "rfc7231",
           "int64",
-          `Encoding 'rfc7231' cannot be used on type 's'. Expected 'string', but got 'int64'.`,
+          `Encoding 'rfc7231' on type 's' is expected to be serialized as 'string' but got 'int64'.`,
         ],
         [
           "offsetDateTime",
@@ -427,7 +427,7 @@ describe("compiler: built-in decorators", () => {
           "duration",
           "seconds",
           undefined,
-          `Encoding 'seconds' cannot be used on type 's'. Expected 'numeric', but got 'string'.`,
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
         ],
         [
           "duration",
@@ -445,7 +445,7 @@ describe("compiler: built-in decorators", () => {
           "duration",
           "seconds",
           '"int32"',
-          `Encoding 'seconds' cannot be used on type 's'. Expected 'numeric', but got 'string'.`,
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
         ],
       ];
       describe("valid", () => {
