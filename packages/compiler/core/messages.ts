@@ -606,12 +606,6 @@ const diagnostics = {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
     },
   },
-  "emitter-not-found": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
-    },
-  },
   "missing-import": {
     severity: "error",
     messages: {

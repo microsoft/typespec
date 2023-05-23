@@ -628,27 +628,10 @@ export async function compile(
     emitterNameOrPaths: string[],
     emitterOptions: Record<string, EmitterOptions>
   ) {
-    const emitterThatShouldExists = new Set(Object.keys(emitterOptions));
     for (const emitterNameOrPath of emitterNameOrPaths) {
       const emitter = await loadEmitter(mainFile, emitterNameOrPath, emitterOptions);
       if (emitter) {
         emitters.push(emitter);
-        emitterThatShouldExists.delete(emitter.metadata.name ?? emitterNameOrPath);
-      }
-    }
-
-    // This is the emitter names under options that haven't been used. We need to check if it points to an emitter that wasn't loaded
-    for (const emitterName of emitterThatShouldExists) {
-      // attempt to resolve a node module with this name
-      const [module, _] = await resolveEmitterModuleAndEntrypoint(mainFile, emitterName);
-      if (module?.entrypoint === undefined) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "emitter-not-found",
-            format: { emitterName },
-            target: NoTarget,
-          })
-        );
       }
     }
   }
