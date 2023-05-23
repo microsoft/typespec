@@ -98,16 +98,16 @@ describe("openapi3: Array", () => {
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
-      items: { type: "string", format: "decimal" },
+      items: { type: "number", format: "decimal" },
       "x-typespec-name": "decimal[]",
-      default: ["123", "456.7"],
+      default: [123, 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
-      items: { type: "string", format: "decimal128" },
+      items: { type: "number", format: "decimal128" },
       "x-typespec-name": "decimal128[]",
-      default: ["123", "456.7"],
+      default: [123, 456.7],
     });
   });
 
@@ -134,14 +134,14 @@ describe("openapi3: Array", () => {
       type: "array",
       items: {},
       "x-typespec-name": "[string, decimal]",
-      default: ["hi", "456.7"],
+      default: ["hi", 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       items: {},
       "x-typespec-name": "[string, decimal128]",
-      default: ["hi", "456.7"],
+      default: ["hi", 456.7],
     });
   });
 });
