@@ -11,7 +11,7 @@ toc_max_heading_level: 3
 Mark this type as deprecated
 
 ```typespec
-dec deprecated(target: unknown, message: string)
+@deprecated(message: string)
 ```
 
 #### Target
@@ -36,7 +36,7 @@ op Action<T>(): T;
 Specify the property to be used to discriminate this type.
 
 ```typespec
-dec discriminator(target: Model | Union, propertyName: string)
+@discriminator(propertyName: string)
 ```
 
 #### Target
@@ -72,7 +72,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 Attach a documentation string.
 
 ```typespec
-dec doc(target: unknown, doc: string, formatArgs?: object)
+@doc(doc: string, formatArgs?: object)
 ```
 
 #### Target
@@ -98,7 +98,7 @@ model Pet {}
 Specify how to encode the target type.
 
 ```typespec
-dec encode(target: Scalar | ModelProperty, encoding: string | EnumMember, encodedAs?: string | numeric)
+@encode(encoding: string | EnumMember, encodedAs?: string | numeric)
 ```
 
 #### Target
@@ -134,7 +134,7 @@ scalar myDateTime extends unixTimestamp;
 Specify that this model is an error type. Operations return error types when the operation has failed.
 
 ```typespec
-dec error(target: Model)
+@error
 ```
 
 #### Target
@@ -162,7 +162,7 @@ This differs from the `@pattern` decorator which is meant to specify a regular e
 The format names are open ended and are left to emitter to interpret.
 
 ```typespec
-dec format(target: string | bytes | ModelProperty, format: string)
+@format(format: string)
 ```
 
 #### Target
@@ -187,7 +187,7 @@ scalar uuid extends string;
 Specifies how a templated type should name their instances.
 
 ```typespec
-dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
+@friendlyName(name: string, formatArgs?: unknown)
 ```
 
 #### Target
@@ -216,7 +216,7 @@ nextLink: string;
 A debugging decorator used to inspect a type.
 
 ```typespec
-dec inspectType(target: unknown, text: string)
+@inspectType(text: string)
 ```
 
 #### Target
@@ -234,7 +234,7 @@ dec inspectType(target: unknown, text: string)
 A debugging decorator used to inspect a type name.
 
 ```typespec
-dec inspectTypeName(target: unknown, text: string)
+@inspectTypeName(text: string)
 ```
 
 #### Target
@@ -252,7 +252,7 @@ dec inspectTypeName(target: unknown, text: string)
 Mark a model property as the key to identify instances of that type
 
 ```typespec
-dec key(target: ModelProperty, altName?: string)
+@key(altName?: string)
 ```
 
 #### Target
@@ -278,7 +278,7 @@ model Pet {
 Provide a set of known values to a string type.
 
 ```typespec
-dec knownValues(target: string | numeric | ModelProperty, values: Enum)
+@knownValues(values: Enum)
 ```
 
 #### Target
@@ -308,7 +308,7 @@ Invalid,
 Specify the maximum number of items this array should have.
 
 ```typespec
-dec maxItems(target: unknown[] | ModelProperty, value: integer)
+@maxItems(value: integer)
 ```
 
 #### Target
@@ -333,7 +333,7 @@ model Endpoints is string[];
 Specify the maximum length this string type should be.
 
 ```typespec
-dec maxLength(target: string | ModelProperty, value: integer)
+@maxLength(value: integer)
 ```
 
 #### Target
@@ -358,7 +358,7 @@ scalar Username extends string;
 Specify the maximum value this numeric type should be.
 
 ```typespec
-dec maxValue(target: numeric | ModelProperty, value: numeric)
+@maxValue(value: numeric)
 ```
 
 #### Target
@@ -384,7 +384,7 @@ Specify the maximum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-dec maxValueExclusive(target: numeric | ModelProperty, value: numeric)
+@maxValueExclusive(value: numeric)
 ```
 
 #### Target
@@ -409,7 +409,7 @@ scalar distance is float64;
 Specify the minimum number of items this array should have.
 
 ```typespec
-dec minItems(target: unknown[] | ModelProperty, value: integer)
+@minItems(value: integer)
 ```
 
 #### Target
@@ -434,7 +434,7 @@ model Endpoints is string[];
 Specify the minimum length this string type should be.
 
 ```typespec
-dec minLength(target: string | ModelProperty, value: integer)
+@minLength(value: integer)
 ```
 
 #### Target
@@ -459,7 +459,7 @@ scalar Username extends string;
 Specify the minimum value this numeric type should be.
 
 ```typespec
-dec minValue(target: numeric | ModelProperty, value: numeric)
+@minValue(value: numeric)
 ```
 
 #### Target
@@ -485,7 +485,7 @@ Specify the minimum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-dec minValueExclusive(target: numeric | ModelProperty, value: numeric)
+@minValueExclusive(value: numeric)
 ```
 
 #### Target
@@ -510,7 +510,7 @@ scalar distance is float64;
 Specify this operation is an overload of the given operation.
 
 ```typespec
-dec overload(target: Operation, overloadbase: Operation)
+@overload(overloadbase: Operation)
 ```
 
 #### Target
@@ -540,7 +540,7 @@ The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`,
 Advanced features like look-around, capture groups, and references are not supported.
 
 ```typespec
-dec pattern(target: string | bytes | ModelProperty, pattern: string)
+@pattern(pattern: string)
 ```
 
 #### Target
@@ -565,7 +565,7 @@ scalar LowerAlpha extends string;
 Provide an alternative name for this type.
 
 ```typespec
-dec projectedName(target: unknown, targetName: string, projectedName: string)
+@projectedName(targetName: string, projectedName: string)
 ```
 
 #### Target
@@ -593,7 +593,7 @@ expireAt: int32;
 Mark this string as a secret value that should be treated carefully to avoid exposure
 
 ```typespec
-dec secret(target: string | ModelProperty)
+@secret
 ```
 
 #### Target
@@ -616,7 +616,7 @@ scalar Password is string;
 Mark this namespace as describing a service and configure service properties.
 
 ```typespec
-dec service(target: Namespace, options?: ServiceOptions)
+@service(options?: ServiceOptions)
 ```
 
 #### Target
@@ -655,7 +655,7 @@ namespace PetStore;
 Typically a short, single-line description.
 
 ```typespec
-dec summary(target: unknown, summary: string)
+@summary(summary: string)
 ```
 
 #### Target
@@ -680,7 +680,7 @@ model Pet {}
 Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
 
 ```typespec
-dec tag(target: Namespace | Interface | Operation, tag: string)
+@tag(tag: string)
 ```
 
 #### Target
@@ -712,7 +712,7 @@ with standard emitters that interpret them as follows:
 See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
 
 ```typespec
-dec visibility(target: ModelProperty, ...visibilities: string[])
+@visibility(...visibilities: string[])
 ```
 
 #### Target
@@ -743,7 +743,7 @@ name: string;
 Set the visibility of key properties in a model if not already set.
 
 ```typespec
-dec withDefaultKeyVisibility(target: Model, visibility: unknown)
+@withDefaultKeyVisibility(visibility: unknown)
 ```
 
 #### Target
@@ -761,7 +761,7 @@ dec withDefaultKeyVisibility(target: Model, visibility: unknown)
 Returns the model with any default values removed.
 
 ```typespec
-dec withoutDefaultValues(target: Model)
+@withoutDefaultValues
 ```
 
 #### Target
@@ -777,7 +777,7 @@ None
 Returns the model with the given properties omitted.
 
 ```typespec
-dec withoutOmittedProperties(target: Model, omit: string | Union)
+@withoutOmittedProperties(omit: string | Union)
 ```
 
 #### Target
@@ -795,7 +795,7 @@ dec withoutOmittedProperties(target: Model, omit: string | Union)
 Returns the model with non-updateable properties removed.
 
 ```typespec
-dec withUpdateableProperties(target: Model)
+@withUpdateableProperties
 ```
 
 #### Target
@@ -819,7 +819,7 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: Model, ...visibilities: string[])
+@withVisibility(...visibilities: string[])
 ```
 
 #### Target

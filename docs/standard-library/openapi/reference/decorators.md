@@ -14,7 +14,7 @@ Specify that this model is to be treated as the OpenAPI `default` response.
 This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
 
 ```typespec
-dec OpenAPI.defaultResponse(target: Model)
+@OpenAPI.defaultResponse
 ```
 
 #### Target
@@ -39,7 +39,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-dec OpenAPI.extension(target: unknown, key: string, value: unknown)
+@OpenAPI.extension(key: string, value: unknown)
 ```
 
 #### Target
@@ -66,7 +66,7 @@ op read(): string;
 Specify the OpenAPI `externalDocs` property for this type.
 
 ```typespec
-dec OpenAPI.externalDocs(target: unknown, url: string, description?: string)
+@OpenAPI.externalDocs(url: string, description?: string)
 ```
 
 #### Target
@@ -92,7 +92,7 @@ op listPets(): Pet[];
 Specify the OpenAPI `operationId` property for this operation.
 
 ```typespec
-dec OpenAPI.operationId(target: Operation, operationId: string)
+@OpenAPI.operationId(operationId: string)
 ```
 
 #### Target
