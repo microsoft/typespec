@@ -309,9 +309,7 @@ function compileInput(
       logDiagnosticCount(program.diagnostics);
     } else {
       if (printSuccess) {
-        log(
-          `Compilation completed successfully, output files are in ${compilerOptions.outputDir}.`
-        );
+        log("Compilation completed successfully.");
       }
     }
 
