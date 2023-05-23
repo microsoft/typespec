@@ -29,6 +29,8 @@ graph RL
       float --> numeric
         float32 --> float
         float64 -->  float
+      decimal --> numeric
+        decimal128 --> decimal
     end
     string --> unknown
     boolean --> unknown
