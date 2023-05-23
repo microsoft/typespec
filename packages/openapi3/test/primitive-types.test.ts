@@ -6,6 +6,8 @@ describe("openapi3: primitives", () => {
   describe("handle typespec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
+      ["numeric", { type: "number" }],
+      ["integer", { type: "integer" }],
       ["int8", { type: "integer", format: "int8" }],
       ["int16", { type: "integer", format: "int16" }],
       ["int32", { type: "integer", format: "int32" }],
@@ -15,6 +17,7 @@ describe("openapi3: primitives", () => {
       ["uint16", { type: "integer", format: "uint16" }],
       ["uint32", { type: "integer", format: "uint32" }],
       ["uint64", { type: "integer", format: "uint64" }],
+      ["float", { type: "number" }],
       ["float32", { type: "number", format: "float" }],
       ["float64", { type: "number", format: "double" }],
       ["string", { type: "string" }],
