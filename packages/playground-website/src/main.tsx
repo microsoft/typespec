@@ -1,23 +1,13 @@
-// import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-// import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 import { FunctionComponent, useCallback } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserHost , registerMonacoLanguage, getStateFromUrl, saveTypeSpecContentInQueryParameter} from "@typespec/playground";
+import { createBrowserHost , registerMonacoLanguage, getStateFromUrl, saveTypeSpecContentInQueryParameter, registerMonacoDefaultWorkers} from "@typespec/playground";
 import { StyledPlayground } from "@typespec/playground/react";
 
 import "./style.css";
 
-// (self as any).MonacoEnvironment = {
-//   getWorker(_: any, label: string) {
-//     if (label === "json") {
-//       return new jsonWorker();
-//     }
-//     return new editorWorker();
-//   },
-// };
-
 const host = await createBrowserHost();
 await registerMonacoLanguage(host);
+registerMonacoDefaultWorkers()
 
 const initialState = getStateFromUrl();
 const App: FunctionComponent = () => {
