@@ -10,6 +10,7 @@
   "compilerOptions": {
     "outDir": "dist-dev",
     "rootDir": ".",
+    "skipLibCheck": true,
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",

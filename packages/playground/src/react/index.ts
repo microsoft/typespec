@@ -1,1 +1,1 @@
-export { Playground, PlaygroundProps } from "./playground.jsx";
+export { Playground, PlaygroundProps, StyledPlayground } from "./playground.js";

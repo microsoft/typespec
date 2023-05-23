@@ -21,7 +21,8 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": "./dist/src/index.js",
-    "./vite": "./dist/src/vite/index.js"
+    "./vite": "./dist/src/vite/index.js",
+    "./react": "./dist/src/react/index.js"
   },
   "engines": {
     "node": ">=16.0.0"

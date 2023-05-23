@@ -16,3 +16,5 @@ export interface SampleConfig {
 }
 
 export { createBrowserHost } from "./browser-host.js";
+export { registerMonacoLanguage } from "./services.js";
+export { getStateFromUrl, saveTypeSpecContentInQueryParameter } from "./state-storage.js";
