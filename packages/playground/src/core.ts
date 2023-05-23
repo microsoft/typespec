@@ -14,5 +14,5 @@ export async function importTypeSpecCompiler(): Promise<typeof import("@typespec
  * @returns Promise with the loaded module.
  */
 export async function importLibrary(name: string): Promise<unknown> {
-  return import(name);
+  return import(/* @vite-ignore */ name);
 }
