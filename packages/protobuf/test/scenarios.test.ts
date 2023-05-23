@@ -92,7 +92,7 @@ describe("protobuf scenarios", function () {
           try {
             expectedDiagnostics = (await readFile(diagnosticsExpectationPath)).toString("utf-8");
           } catch {
-            expectedDiagnostics = "";
+            expectedDiagnostics = "\n";
           }
 
           // Fix the start of lines on Windows
