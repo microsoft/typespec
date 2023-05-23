@@ -216,8 +216,6 @@ scalar specializedInt32 extends myInt32;
 | `specializedInt32` | `int32`       | Emitter doesn't know what specializedInt32 is. Check baseScalar, finds myInt32 knows that it is an int32 now and applies minValue override. |
 | `float`            | `float64`     | Emitter knows float but doesn't have a mapping. Emit `float64` and a warning.                                                               |
 
-````
-
 ## Handling Default Values
 
 Several TypeSpec types have a `default` property that can be used to specify a default value. For example, the following model has a default value of `true` for the `isActive` property:
@@ -226,7 +224,7 @@ Several TypeSpec types have a `default` property that can be used to specify a d
 model User {
   isActive?: boolean = true;
 }
-````
+```
 
 These values can be accessed in the emitter using the `default` property on the `ModelProperty` type.
 
