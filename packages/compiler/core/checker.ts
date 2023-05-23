@@ -4472,9 +4472,20 @@ export function createChecker(program: Program): Checker {
         type = createType({ kind: "Boolean", value });
         break;
       case "number":
+        let valueAsString: string;
+        if (node) {
+          compilerAssert(
+            node.kind === SyntaxKind.NumericLiteral,
+            "Must pass numeric literal node or undefined when creating a numeric literal type"
+          );
+          valueAsString = node.valueAsString;
+        } else {
+          valueAsString = String(value);
+        }
         type = createType({
           kind: "Number",
           value,
+          valueAsString,
         });
         break;
     }
@@ -4775,6 +4786,9 @@ export function createChecker(program: Program): Checker {
     }
 
     if (target.name === "numeric") return true;
+    if (target.name === "decimal") return true;
+    if (target.name === "decimal128") return true;
+
     const isInt = Number.isInteger(source.value);
     if (target.name === "integer") return isInt;
     if (target.name === "float") return true;

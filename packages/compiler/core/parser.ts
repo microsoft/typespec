@@ -1354,13 +1354,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseNumericLiteral(): NumericLiteralNode {
     const pos = tokenPos();
-    const text = tokenValue();
-    const value = Number(text);
+    const valueAsString = tokenValue();
+    const value = Number(valueAsString);
 
     parseExpected(Token.NumericLiteral);
     return {
       kind: SyntaxKind.NumericLiteral,
       value,
+      valueAsString,
       ...finishNode(pos),
     };
   }

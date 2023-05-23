@@ -31,6 +31,7 @@ import {
   interpolatePath,
   IntrinsicScalarName,
   IntrinsicType,
+  isArrayModelType,
   isDeprecated,
   isErrorType,
   isGlobalNamespace,
@@ -337,7 +338,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.default ? getDefaultValue(prop.default) : "",
+          default: prop.default ? getDefaultValue(prop.type, prop.default) : "",
           description: getDoc(program, prop),
         };
 
@@ -1104,7 +1105,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
-      schema.default = getDefaultValue(param.default);
+      schema.default = getDefaultValue(param.type, param.default);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1440,24 +1441,54 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
   }
 
-  function getDefaultValue(type: Type): any {
-    switch (type.kind) {
+  function getDefaultValue(type: Type, defaultType: Type): any {
+    switch (defaultType.kind) {
       case "String":
-        return type.value;
+        return defaultType.value;
       case "Number":
-        return type.value;
+        compilerAssert(type.kind === "Scalar", "setting scalar default to non-scalar value");
+        const base = getStdBaseScalar(type);
+        compilerAssert(base, "not allowed to assign default to custom scalars");
+
+        return defaultType.value;
       case "Boolean":
-        return type.value;
+        return defaultType.value;
       case "Tuple":
-        return type.values.map(getDefaultValue);
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
+        );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
       case "EnumMember":
-        return type.value ?? type.name;
+        return defaultType.value ?? defaultType.name;
       default:
         reportDiagnostic(program, {
           code: "invalid-default",
-          format: { type: type.kind },
-          target: type,
+          format: { type: defaultType.kind },
+          target: defaultType,
         });
+    }
+
+    function getStdBaseScalar(scalar: Scalar): Scalar | null {
+      let current: Scalar | undefined = scalar;
+      while (current) {
+        if (program.checker.isStdType(current)) {
+          return current;
+        }
+        current = current.baseScalar;
+      }
+
+      return null;
     }
   }
 
@@ -1563,7 +1594,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
 
     if (prop.default) {
-      additionalProps.default = getDefaultValue(prop.default);
+      additionalProps.default = getDefaultValue(prop.type, prop.default);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -1844,6 +1875,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "number", format: "double" };
       case "float32":
         return { type: "number", format: "float" };
+      case "decimal":
+        return { type: "number", format: "decimal" };
+      case "decimal128":
+        return { type: "number", format: "decimal128" };
       case "string":
         return { type: "string" };
       case "boolean":
