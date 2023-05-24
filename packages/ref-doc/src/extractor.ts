@@ -1,6 +1,9 @@
 import {
+  compile,
   compilerAssert,
+  createDiagnosticCollector,
   Decorator,
+  Diagnostic,
   DocContent,
   DocUnknownTagNode,
   Enum,
@@ -9,22 +12,32 @@ import {
   getTypeName,
   ignoreDiagnostics,
   Interface,
+  isDeclaredType,
   isTemplateDeclaration,
+  joinPaths,
+  JSONSchemaType,
   Model,
   Namespace,
   navigateTypesInNamespace,
+  NodeHost,
+  NodePackage,
   NoTarget,
   Operation,
   Program,
+  resolvePath,
   Scalar,
   SyntaxKind,
   TemplatedType,
   Type,
+  TypeSpecLibrary,
   Union,
 } from "@typespec/compiler";
+import { readFile } from "fs/promises";
+import { pathToFileURL } from "url";
 import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
+  EmitterOptionRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   FunctionParameterRefDoc,
@@ -33,17 +46,61 @@ import {
   NamespaceRefDoc,
   OperationRefDoc,
   ScalarRefDoc,
-  TypeSpecRefDoc,
+  TypeSpecLibraryRefDoc,
+  TypeSpecRefDocBase,
   UnionRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
-export function extractRefDocs(program: Program, filterToNamespace: string[] = []): TypeSpecRefDoc {
+export async function extractLibraryRefDocs(
+  libraryPath: string,
+  namespaces: string[]
+): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
+  const diagnostics = createDiagnosticCollector();
+  const pkgJson = await readPackageJson(libraryPath);
+  const refDoc: TypeSpecLibraryRefDoc = {
+    name: pkgJson.name,
+    description: pkgJson.description,
+    namespaces: [],
+  };
+  if (pkgJson.tspMain) {
+    const main = resolvePath(libraryPath, pkgJson.tspMain);
+    const program = await compile(NodeHost, main, {
+      parseOptions: { comments: true, docs: true },
+    });
+    refDoc.namespaces = extractRefDocs(program, namespaces).namespaces;
+    for (const diag of program.diagnostics ?? []) {
+      diagnostics.add(diag);
+    }
+  }
+
+  if (pkgJson.main) {
+    const entrypoint = await import(pathToFileURL(resolvePath(libraryPath, pkgJson.main)).href);
+    const lib: TypeSpecLibrary<any> | undefined = entrypoint.$lib;
+    if (lib?.emitter?.options) {
+      refDoc.emitter = {
+        options: extractEmitterOptionsRefDoc(lib.emitter.options),
+      };
+    }
+  }
+
+  return diagnostics.wrap(refDoc);
+}
+
+async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+  const buffer = await readFile(joinPaths(libraryPath, "package.json"));
+  return JSON.parse(buffer.toString());
+}
+
+export function extractRefDocs(
+  program: Program,
+  filterToNamespace: string[] = []
+): TypeSpecRefDocBase {
   const namespaceTypes = filterToNamespace
     .map((x) => ignoreDiagnostics(program.resolveTypeReference(x)))
     .filter((x): x is Namespace => x !== undefined);
 
-  const refDoc: TypeSpecRefDoc = {
+  const refDoc: TypeSpecRefDocBase = {
     namespaces: [],
   };
 
@@ -58,6 +115,7 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
       unions: [],
       scalars: [],
     };
+
     refDoc.namespaces.push(namespaceDoc);
     navigateTypesInNamespace(
       namespace,
@@ -66,23 +124,38 @@ export function extractRefDocs(program: Program, filterToNamespace: string[] = [
           namespaceDoc.decorators.push(extractDecoratorRefDoc(program, dec));
         },
         operation(operation) {
+          if (!isDeclaredType(operation)) {
+            return;
+          }
           if (operation.interface === undefined) {
-            namespaceDoc.operations.push(extractOperationRefDoc(program, operation));
+            namespaceDoc.operations.push(extractOperationRefDoc(program, operation, undefined));
           }
         },
         interface(iface) {
+          if (!isDeclaredType(iface)) {
+            return;
+          }
           namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
         },
         model(model) {
+          if (!isDeclaredType(model)) {
+            return;
+          }
           if (model.name === "") {
             return;
           }
           namespaceDoc.models.push(extractModelRefDocs(program, model));
         },
         enum(e) {
+          if (!isDeclaredType(e)) {
+            return;
+          }
           namespaceDoc.enums.push(extractEnumRefDoc(program, e));
         },
         union(union) {
+          if (!isDeclaredType(union)) {
+            return;
+          }
           if (union.name !== undefined) {
             namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
           }
@@ -152,24 +225,40 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
     signature: getTypeSignature(iface),
     type: iface,
     templateParameters: extractTemplateParameterDocs(program, iface),
+    interfaceOperations: [...iface.operations.values()].map((x) =>
+      extractOperationRefDoc(program, x, iface.name)
+    ),
     doc: doc,
     examples: extractExamples(iface),
   };
 }
 
-function extractOperationRefDoc(program: Program, operation: Operation): OperationRefDoc {
+function extractOperationRefDoc(
+  program: Program,
+  operation: Operation,
+  interfaceName: string | undefined
+): OperationRefDoc {
   const doc = extractMainDoc(program, operation);
   if (doc === undefined || doc === "") {
-    reportDiagnostic(program, {
-      code: "documentation-missing",
-      messageId: "operation",
-      format: { name: operation.name ?? "" },
-      target: NoTarget,
-    });
+    if (operation.interface !== undefined) {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "interfaceOperation",
+        format: { name: `${operation.interface.name}.${operation.name}` ?? "" },
+        target: NoTarget,
+      });
+    } else {
+      reportDiagnostic(program, {
+        code: "documentation-missing",
+        messageId: "operation",
+        format: { name: operation.name ?? "" },
+        target: NoTarget,
+      });
+    }
   }
   return {
     id: getNamedTypeId(operation),
-    name: operation.name,
+    name: interfaceName ? `${interfaceName}.${operation.name}` : operation.name,
     signature: getTypeSignature(operation),
     type: operation,
     templateParameters: extractTemplateParameterDocs(program, operation),
@@ -323,11 +412,11 @@ function extractExamples(type: Type): ExampleRefDoc[] {
   const examples: ExampleRefDoc[] = [];
   for (const doc of type.node?.docs ?? []) {
     for (const dTag of doc.tags) {
-      if (dTag.kind === SyntaxKind.DocUnknownTag)
+      if (dTag.kind === SyntaxKind.DocUnknownTag) {
         if (dTag.tagName.sv === "example") {
           examples.push(extractExample(dTag));
         }
-      break;
+      }
     }
   }
   return examples;
@@ -412,4 +501,18 @@ function getDocContent(content: readonly DocContent[]) {
     docs.push(node.text);
   }
   return docs.join("");
+}
+
+function extractEmitterOptionsRefDoc(
+  options: JSONSchemaType<Record<string, never>>
+): EmitterOptionRefDoc[] {
+  return Object.entries(options.properties).map(([name, value]: [string, any]) => {
+    return {
+      name,
+      type: value.enum
+        ? value.enum.map((x: string | number) => (typeof x === "string" ? `"${x}"` : x)).join(" | ")
+        : value.type,
+      doc: value.description ?? "",
+    };
+  });
 }

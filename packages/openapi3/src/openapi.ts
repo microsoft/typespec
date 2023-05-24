@@ -11,6 +11,7 @@ import {
   getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
+  getEncode,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -30,6 +31,7 @@ import {
   interpolatePath,
   IntrinsicScalarName,
   IntrinsicType,
+  isArrayModelType,
   isDeprecated,
   isErrorType,
   isGlobalNamespace,
@@ -336,7 +338,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.default ? getDefaultValue(prop.default) : "",
+          default: prop.default ? getDefaultValue(prop.type, prop.default) : "",
           description: getDoc(program, prop),
         };
 
@@ -429,17 +431,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    * Validates that common bodies are consistent and returns the minimal set that describes the differences.
    */
   function validateCommonBodies(ops: HttpOperation[]): HttpOperationRequestBody[] | undefined {
-    const bodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
-    const ref = bodies[0];
-    const sameOptionality = bodies.every((b) => b.parameter?.optional === ref.parameter?.optional);
-    const sameTypeKind = bodies.every((b) => b.parameter?.type.kind === ref.parameter?.type.kind);
-    const sameTypeValue = bodies.every((b) => b.parameter?.type === ref.parameter?.type);
-    if (sameOptionality && sameTypeKind && sameTypeValue) {
-      // param is consistent and in all shared operations. Only need one copy.
-      return [ref];
-    } else {
-      return bodies;
-    }
+    const allBodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
+    return [...new Set(allBodies)];
   }
 
   /**
@@ -506,7 +499,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
     const results: SharedHttpOperation[] = [];
     const paramMap = new Map<string, HttpOperation[]>();
-    const bodyMap = new Map<string, HttpOperation[]>();
     const responseMap = new Map<string, HttpOperation[]>();
 
     for (const op of operations) {
@@ -518,16 +510,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           paramMap.set(param.name, [op]);
         }
       }
-      // determine which body parameters are shared by shared route operations
-      const bodyParam = op.parameters.body;
-      if (bodyParam?.parameter) {
-        if (bodyMap.has(bodyParam.parameter.name)) {
-          bodyMap.get(bodyParam.parameter.name)!.push(op);
-        } else {
-          bodyMap.set(bodyParam.parameter.name, [op]);
-        }
-      }
-
       // determine which responses are shared by shared route operations
       for (const response of op.responses) {
         if (responseMap.has(response.statusCode)) {
@@ -557,9 +539,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const commonParams = validateCommonParameters(ops, paramName, totalOps);
       shared.parameters.parameters.push(...commonParams);
     }
-    for (const [_, ops] of bodyMap) {
-      shared.bodies = validateCommonBodies(ops);
-    }
+    shared.bodies = validateCommonBodies(operations);
     for (const [statusCode, ops] of responseMap) {
       shared.responses.set(statusCode, validateCommonResponses(ops, statusCode));
     }
@@ -1076,6 +1056,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const requestBody: any = {
       description: body.parameter ? getDoc(program, body.parameter) : undefined,
+      required: body.parameter ? !body.parameter.optional : true,
       content: {},
     };
 
@@ -1124,7 +1105,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     const schema = applyIntrinsicDecorators(param, typeSchema);
     if (param.default) {
-      schema.default = getDefaultValue(param.default);
+      schema.default = getDefaultValue(param.type, param.default);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1460,24 +1441,54 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
   }
 
-  function getDefaultValue(type: Type): any {
-    switch (type.kind) {
+  function getDefaultValue(type: Type, defaultType: Type): any {
+    switch (defaultType.kind) {
       case "String":
-        return type.value;
+        return defaultType.value;
       case "Number":
-        return type.value;
+        compilerAssert(type.kind === "Scalar", "setting scalar default to non-scalar value");
+        const base = getStdBaseScalar(type);
+        compilerAssert(base, "not allowed to assign default to custom scalars");
+
+        return defaultType.value;
       case "Boolean":
-        return type.value;
+        return defaultType.value;
       case "Tuple":
-        return type.values.map(getDefaultValue);
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
+        );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
       case "EnumMember":
-        return type.value ?? type.name;
+        return defaultType.value ?? defaultType.name;
       default:
         reportDiagnostic(program, {
           code: "invalid-default",
-          format: { type: type.kind },
-          target: type,
+          format: { type: defaultType.kind },
+          target: defaultType,
         });
+    }
+
+    function getStdBaseScalar(scalar: Scalar): Scalar | null {
+      let current: Scalar | undefined = scalar;
+      while (current) {
+        if (program.checker.isStdType(current)) {
+          return current;
+        }
+        current = current.baseScalar;
+      }
+
+      return null;
     }
   }
 
@@ -1583,7 +1594,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
 
     if (prop.default) {
-      additionalProps.default = getDefaultValue(prop.default);
+      additionalProps.default = getDefaultValue(prop.type, prop.default);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -1633,46 +1644,46 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const isString = isStringType(program, getPropertyType(typespecType));
     const isNumeric = isNumericType(program, getPropertyType(typespecType));
 
-    if (!target.description && docStr) {
+    if (docStr) {
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, typespecType);
-    if (isString && !target.format && formatStr) {
+    if (isString && formatStr) {
       newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, typespecType);
-    if (isString && !target.pattern && pattern) {
+    if (isString && pattern) {
       newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, typespecType);
-    if (isString && !target.minLength && minLength !== undefined) {
+    if (isString && minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, typespecType);
-    if (isString && !target.maxLength && maxLength !== undefined) {
+    if (isString && maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
     const minValue = getMinValue(program, typespecType);
-    if (isNumeric && !target.minimum && minValue !== undefined) {
+    if (isNumeric && minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
     const minValueExclusive = getMinValueExclusive(program, typespecType);
-    if (isNumeric && !target.exclusiveMinimum && minValueExclusive !== undefined) {
+    if (isNumeric && minValueExclusive !== undefined) {
       newTarget.exclusiveMinimum = minValueExclusive;
     }
 
     const maxValue = getMaxValue(program, typespecType);
-    if (isNumeric && !target.maximum && maxValue !== undefined) {
+    if (isNumeric && maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
     const maxValueExclusive = getMaxValueExclusive(program, typespecType);
-    if (isNumeric && !target.exclusiveMaximum && maxValueExclusive !== undefined) {
+    if (isNumeric && maxValueExclusive !== undefined) {
       newTarget.exclusiveMaximum = maxValueExclusive;
     }
 
@@ -1690,6 +1701,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.format = "password";
     }
 
+    const encodeData = getEncode(program, typespecType);
+    if (encodeData) {
+      const newType = getSchemaForScalar(encodeData.type);
+      newTarget.type = newType.type;
+      // If the target already has a format it takes priority. (e.g. int32)
+      newTarget.format =
+        newType.format ?? mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
+    }
+
     if (isString) {
       const values = getKnownValues(program, typespecType);
       if (values) {
@@ -1702,6 +1722,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     attachExtensions(program, typespecType, newTarget);
 
     return newTarget;
+  }
+
+  function mergeFormatAndEncoding(format: string | undefined, encoding: string): string {
+    switch (format) {
+      case undefined:
+        return encoding;
+      case "date-time":
+        switch (encoding) {
+          case "rfc3339":
+            return "date-time";
+          default:
+            return `date-time-${encoding}`;
+        }
+      default:
+        return encoding;
+    }
   }
 
   function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
@@ -1799,12 +1835,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
     let result: OpenAPI3Schema = {};
-    if (program.checker.isStdType(scalar)) {
+    const isStd = program.checker.isStdType(scalar);
+    if (isStd) {
       result = getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = getSchemaForScalar(scalar.baseScalar);
     }
-    return applyIntrinsicDecorators(scalar, result);
+    const withDecorators = applyIntrinsicDecorators(scalar, result);
+    if (isStd) {
+      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+      delete withDecorators.description;
+    }
+    return withDecorators;
   }
 
   function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
@@ -1833,6 +1875,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "number", format: "double" };
       case "float32":
         return { type: "number", format: "float" };
+      case "decimal":
+        return { type: "number", format: "decimal" };
+      case "decimal128":
+        return { type: "number", format: "decimal128" };
       case "string":
         return { type: "string" };
       case "boolean":

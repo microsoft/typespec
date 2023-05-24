@@ -13,7 +13,7 @@ toc_max_heading_level: 3
 Identifies when the target was added.
 
 ```typespec
-dec TypeSpec.Versioning.added(target: unknown, version: EnumMember)
+@TypeSpec.Versioning.added(version: EnumMember)
 ```
 
 #### Target
@@ -31,7 +31,7 @@ dec TypeSpec.Versioning.added(target: unknown, version: EnumMember)
 Identifies when a target was made optional.
 
 ```typespec
-dec TypeSpec.Versioning.madeOptional(target: unknown, version: EnumMember)
+@TypeSpec.Versioning.madeOptional(version: EnumMember)
 ```
 
 #### Target
@@ -49,7 +49,7 @@ dec TypeSpec.Versioning.madeOptional(target: unknown, version: EnumMember)
 Identifies when the target was removed.
 
 ```typespec
-dec TypeSpec.Versioning.removed(target: unknown, version: EnumMember)
+@TypeSpec.Versioning.removed(version: EnumMember)
 ```
 
 #### Target
@@ -67,7 +67,7 @@ dec TypeSpec.Versioning.removed(target: unknown, version: EnumMember)
 Identifies when the target has been renamed.
 
 ```typespec
-dec TypeSpec.Versioning.renamedFrom(target: unknown, version: EnumMember, oldName: valueof string)
+@TypeSpec.Versioning.renamedFrom(version: EnumMember, oldName: valueof string)
 ```
 
 #### Target
@@ -86,7 +86,7 @@ dec TypeSpec.Versioning.renamedFrom(target: unknown, version: EnumMember, oldNam
 Identifies when the target type changed.
 
 ```typespec
-dec TypeSpec.Versioning.typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown)
+@TypeSpec.Versioning.typeChangedFrom(version: EnumMember, oldType: unknown)
 ```
 
 #### Target
@@ -105,7 +105,7 @@ dec TypeSpec.Versioning.typeChangedFrom(target: unknown, version: EnumMember, ol
 Identifies that a namespace or a given versioning enum member relies upon a versioned package.
 
 ```typespec
-dec TypeSpec.Versioning.useDependency(target: EnumMember | Namespace, ...versionRecords: EnumMember[])
+@TypeSpec.Versioning.useDependency(...versionRecords: EnumMember[])
 ```
 
 #### Target
@@ -123,7 +123,7 @@ dec TypeSpec.Versioning.useDependency(target: EnumMember | Namespace, ...version
 Identifies that the decorated namespace is versioned by the provided enum.
 
 ```typespec
-dec TypeSpec.Versioning.versioned(target: Namespace, versions: Enum)
+@TypeSpec.Versioning.versioned(versions: Enum)
 ```
 
 #### Target

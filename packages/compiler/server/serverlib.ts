@@ -303,20 +303,26 @@ export function createServer(host: ServerHost): Server {
           changeNotifications: true,
         },
       };
+      // eslint-disable-next-line deprecation/deprecation
     } else if (params.rootUri) {
       workspaceFolders = [
         {
           name: "<root>",
+          // eslint-disable-next-line deprecation/deprecation
           uri: params.rootUri,
+          // eslint-disable-next-line deprecation/deprecation
           path: ensureTrailingDirectorySeparator(await fileURLToRealPath(params.rootUri)),
         },
       ];
+      // eslint-disable-next-line deprecation/deprecation
     } else if (params.rootPath) {
       workspaceFolders = [
         {
           name: "<root>",
+          // eslint-disable-next-line deprecation/deprecation
           uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(
+            // eslint-disable-next-line deprecation/deprecation
             await getNormalizedRealPath(compilerHost, params.rootPath)
           ),
         },
@@ -1126,7 +1132,7 @@ export function createServer(host: ServerHost): Server {
     let dir = getDirectoryPath(path);
     const options = { allowFileNotFound: true };
 
-    while (inWorkspace(dir)) {
+    while (true) {
       let mainFile = "main.tsp";
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
@@ -1177,11 +1183,6 @@ export function createServer(host: ServerHost): Server {
         formatDiagnostic(diagnostic)
       );
     }
-  }
-
-  function inWorkspace(path: string) {
-    path = ensureTrailingDirectorySeparator(path);
-    return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 
   async function getPath(document: TextDocument | TextDocumentIdentifier) {

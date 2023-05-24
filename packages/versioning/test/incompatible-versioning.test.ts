@@ -42,6 +42,43 @@ describe("versioning: incompatible use of decorators", () => {
       severity: "error",
     });
   });
+
+  it("emit diagnostic when version enum has duplicate values", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    namespace DemoService;
+
+    enum Versions {
+      v1: "v1",
+      v2: "v2",
+      latest: "v2",
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/version-duplicate",
+      message:
+        "Multiple versions from 'Versions' resolve to the same value. Version enums must resolve to unique values.",
+      severity: "error",
+    });
+  });
+
+  it("emit diagnostic when version enum has duplicate implicit values", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2: "v1",
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/version-duplicate",
+      message:
+        "Multiple versions from 'Versions' resolve to the same value. Version enums must resolve to unique values.",
+      severity: "error",
+    });
+  });
 });
 
 describe("versioning: validate incompatible references", () => {

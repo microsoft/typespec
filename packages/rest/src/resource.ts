@@ -142,7 +142,7 @@ export function $copyResourceKeyParameters(
       code: "not-key-type",
       target: entity,
     });
-  const templateArguments = entity.templateArguments;
+  const templateArguments = entity.templateMapper?.args;
   if (!templateArguments || templateArguments.length !== 1) {
     return reportNoKeyError();
   }

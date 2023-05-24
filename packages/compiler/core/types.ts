@@ -47,6 +47,15 @@ export interface BaseType {
   projectionSource?: Type;
   projectionBase?: Type;
   projector?: Projector;
+
+  /**
+   * Reflect if a type has been finished(Decorators have been called).
+   * There is multiple reasons a type might not be finished:
+   * - a template declaration will not
+   * - a template instance that argument that are still template parameters
+   * - a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+   */
+  isFinished: boolean;
 }
 
 export interface DecoratedType {
@@ -96,6 +105,13 @@ export type Type =
   | FunctionParameter
   | ObjectType
   | Projection;
+
+export type StdTypes = {
+  // Models
+  Array: Model;
+  Record: Model;
+} & Record<IntrinsicScalarName, Scalar>;
+export type StdTypeName = keyof StdTypes;
 
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
@@ -179,6 +195,8 @@ export type IntrinsicScalarName =
   | "safeint"
   | "float32"
   | "float64"
+  | "decimal"
+  | "decimal128"
   | "string"
   | "plainDate"
   | "plainTime"
@@ -395,14 +413,14 @@ export interface Namespace extends BaseType, DecoratedType {
   operations: Map<string, Operation>;
 
   /**
-   * The scalars in the namespace.
+   * The sub-namespaces in the namespace.
    *
    * Order is implementation-defined and may change.
    */
   namespaces: Map<string, Namespace>;
 
   /**
-   * The scalars in the namespace.
+   * The interfaces in the namespace.
    *
    * Order is implementation-defined and may change.
    */
@@ -449,6 +467,7 @@ export interface NumericLiteral extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
   value: number;
+  valueAsString: string;
 }
 
 export interface BooleanLiteral extends BaseType {
@@ -1201,6 +1220,7 @@ export interface StringLiteralNode extends BaseNode {
 export interface NumericLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.NumericLiteral;
   readonly value: number;
+  readonly valueAsString: string;
 }
 
 export interface BooleanLiteralNode extends BaseNode {

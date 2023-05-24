@@ -6,10 +6,10 @@
  * @param {any[]} [extra]
  * @returns {any}
  */
-function createLibraryReferenceStructure(libName, extra) {
+function createLibraryReferenceStructure(libName, labelName, extra) {
   return {
     type: "category",
-    label: "Reference",
+    label: labelName,
     link: {
       type: "doc",
       id: `standard-library/${libName}/reference/index`,
@@ -83,50 +83,27 @@ const sidebars = {
           dirName: `standard-library/reference`,
         },
         "standard-library/projected-names",
-        {
-          type: "category",
-          label: "Http",
-          items: [
-            "standard-library/http/overview",
-            createLibraryReferenceStructure("http"),
-            "standard-library/http/authentication",
-          ],
-        },
-        {
-          type: "category",
-          label: "Rest",
-          items: [
-            "standard-library/rest/overview",
-            createLibraryReferenceStructure("rest"),
-            "standard-library/rest/operations",
-            "standard-library/rest/resource-routing",
-          ],
-        },
-        {
-          type: "category",
-          label: "OpenAPI",
-          items: [
-            "standard-library/openapi/overview",
-            createLibraryReferenceStructure("openapi", ["standard-library/openapi/diagnostics"]),
-            "standard-library/openapi/openapi",
-          ],
-        },
-        {
-          type: "category",
-          label: "Protobuf",
-          items: [
-            "standard-library/protobuf/overview",
-            createLibraryReferenceStructure("protobuf"),
-          ],
-        },
-        {
-          type: "category",
-          label: "Versioning",
-          items: [
-            "standard-library/versioning/overview",
-            createLibraryReferenceStructure("versioning"),
-          ],
-        },
+        createLibraryReferenceStructure("http", "Http", [
+          "standard-library/http/cheat-sheet",
+          "standard-library/http/authentication",
+          "standard-library/http/operations",
+        ]),
+
+        createLibraryReferenceStructure("rest", "Rest", [
+          "standard-library/rest/cheat-sheet",
+          "standard-library/rest/resource-routing",
+        ]),
+        createLibraryReferenceStructure("openapi", "OpenAPI", []),
+        createLibraryReferenceStructure("openapi3", "OpenAPI3", [
+          "standard-library/openapi3/openapi",
+          "standard-library/openapi3/diagnostics",
+        ]),
+        createLibraryReferenceStructure("protobuf", "Protobuf", [
+          "standard-library/protobuf/guide",
+        ]),
+        createLibraryReferenceStructure("versioning", "Versioning", [
+          "standard-library/versioning/guide",
+        ]),
       ],
     },
     {
@@ -134,6 +111,7 @@ const sidebars = {
       label: "Writing TypeSpec Libraries",
       items: [
         "extending-typespec/basics",
+        "extending-typespec/diagnostics",
         "extending-typespec/create-decorators",
         "extending-typespec/linters",
         "extending-typespec/emitters",

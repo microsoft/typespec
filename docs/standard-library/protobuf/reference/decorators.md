@@ -20,7 +20,7 @@ The field index of a Protobuf message must:
 - not fall within any range that was [marked reserved](#
 
 ```typespec
-dec TypeSpec.Protobuf.field(target: ModelProperty, index: valueof uint32)
+@TypeSpec.Protobuf.field(index: valueof uint32)
 ```
 
 #### Target
@@ -32,6 +32,15 @@ dec TypeSpec.Protobuf.field(target: ModelProperty, index: valueof uint32)
 | Name  | Type                    | Description                          |
 | ----- | ----------------------- | ------------------------------------ |
 | index | `valueof scalar uint32` | The whole-number index of the field. |
+
+#### Examples
+
+```typespec
+model ExampleMessage {
+@field(1)
+test: string;
+}
+```
 
 ### `@message` {#@TypeSpec.Protobuf.message}
 
@@ -45,7 +54,7 @@ Messages can be detected automatically if either of the following two conditions
 This decorator will force the emitter to check and emit a model.
 
 ```typespec
-dec TypeSpec.Protobuf.message(target: object)
+@TypeSpec.Protobuf.message
 ```
 
 #### Target
@@ -62,7 +71,7 @@ Declares that a TypeSpec namespace constitutes a Protobuf package. The contents 
 single Protobuf file.
 
 ```typespec
-dec TypeSpec.Protobuf.package(target: Namespace, details?: TypeSpec.Protobuf.PackageDetails)
+@TypeSpec.Protobuf.package(details?: TypeSpec.Protobuf.PackageDetails)
 ```
 
 #### Target
@@ -99,7 +108,7 @@ See _[Protobuf Language Guide - Reserved Fields](https://protobuf.dev/programmin
 information.
 
 ```typespec
-dec TypeSpec.Protobuf.reserve(target: object, ...reservations: valueof string | [uint32, uint32] | uint32[])
+@TypeSpec.Protobuf.reserve(...reservations: valueof string | [uint32, uint32] | uint32[])
 ```
 
 #### Target
@@ -112,13 +121,23 @@ dec TypeSpec.Protobuf.reserve(target: object, ...reservations: valueof string | 
 | ------------ | ------------------------------------------------------ | ---------------------------- |
 | reservations | `valueof model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
+#### Examples
+
+```typespec
+// Reserve the fields 8-15 inclusive, 100, and the field name "test" within a model.
+@reserve([8, 15], 100, "test")
+model Example {
+// ...
+}
+```
+
 ### `@service` {#@TypeSpec.Protobuf.service}
 
 Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to
 a `service` declaration in the resulting Protobuf file.
 
 ```typespec
-dec TypeSpec.Protobuf.service(target: Interface)
+@TypeSpec.Protobuf.service
 ```
 
 #### Target
@@ -134,7 +153,7 @@ None
 Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
 
 ```typespec
-dec TypeSpec.Protobuf.stream(target: Operation, mode: TypeSpec.Protobuf.StreamMode)
+@TypeSpec.Protobuf.stream(mode: TypeSpec.Protobuf.StreamMode)
 ```
 
 #### Target
@@ -146,3 +165,15 @@ dec TypeSpec.Protobuf.stream(target: Operation, mode: TypeSpec.Protobuf.StreamMo
 | Name | Type                                | Description                                    |
 | ---- | ----------------------------------- | ---------------------------------------------- |
 | mode | `enum TypeSpec.Protobuf.StreamMode` | The streaming mode to apply to this operation. |
+
+#### Examples
+
+```typespec
+@stream(StreamMode.Out)
+op logs(...LogsRequest): LogEvent;
+```
+
+```typespec
+@stream(StreamMode.Duplex)
+op connectToMessageService(...Message): Message;
+```

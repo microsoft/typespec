@@ -193,7 +193,7 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   }
 }
 
-function checkVisited(visited: Set<any>, item: any) {
+function checkVisited(visited: Set<any>, item: Type) {
   if (visited.has(item)) {
     return true;
   }
@@ -201,11 +201,21 @@ function checkVisited(visited: Set<any>, item: any) {
   return false;
 }
 
+function shouldNavigateTemplatableType(
+  context: NavigationContext,
+  type: Operation | Interface | Model | Union
+) {
+  if (context.options.includeTemplateDeclaration) {
+    return type.isFinished || isTemplateDeclaration(type);
+  } else {
+    return type.isFinished;
+  }
+}
 function navigateOperationType(operation: Operation, context: NavigationContext) {
   if (checkVisited(context.visited, operation)) {
     return;
   }
-  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(operation)) {
+  if (!shouldNavigateTemplatableType(context, operation)) {
     return;
   }
   if (context.emit("operation", operation) === ListenerFlow.NoRecursion) return;
@@ -213,13 +223,16 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
     navigateTypeInternal(parameter, context);
   }
   navigateTypeInternal(operation.returnType, context);
+  if (operation.sourceOperation) {
+    navigateTypeInternal(operation.sourceOperation, context);
+  }
 }
 
 function navigateModelType(model: Model, context: NavigationContext) {
   if (checkVisited(context.visited, model)) {
     return;
   }
-  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(model)) {
+  if (!shouldNavigateTemplatableType(context, model)) {
     return;
   }
   if (context.emit("model", model) === ListenerFlow.NoRecursion) return;
@@ -259,7 +272,7 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(type)) {
+  if (!shouldNavigateTemplatableType(context, type)) {
     return;
   }
 
@@ -281,7 +294,7 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(type)) {
+  if (!shouldNavigateTemplatableType(context, type)) {
     return;
   }
   if (context.emit("union", type) === ListenerFlow.NoRecursion) return;

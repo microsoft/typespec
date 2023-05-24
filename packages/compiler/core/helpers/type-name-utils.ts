@@ -1,4 +1,5 @@
 import { printId } from "../../formatter/print/printer.js";
+import { isTemplateInstance } from "../type-utils.js";
 import {
   Enum,
   Interface,
@@ -40,7 +41,7 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
     case "Union":
       return type.name
         ? getIdentifierName(type.name, options)
-        : type.options.map((x) => getTypeName(x, options)).join(" | ");
+        : [...type.variants.values()].map((x) => getTypeName(x.type, options)).join(" | ");
     case "UnionVariant":
       return getTypeName(type.type, options);
     case "Tuple":
@@ -122,16 +123,16 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     return nsPrefix + "(anonymous model)";
   }
   const modelName = nsPrefix + getIdentifierName(model.name, options);
-  if (model.templateArguments && model.templateArguments.length > 0) {
+  if (isTemplateInstance(model)) {
     // template instantiation
-    const args = model.templateArguments.map((x) => getTypeName(x, options));
+    const args = model.templateMapper.args.map((x) => getTypeName(x, options));
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
     const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
       getIdentifierName(t.id.sv, options)
     );
-    return `${model.name}<${params.join(", ")}>`;
+    return `${modelName}<${params.join(", ")}>`;
   } else {
     // regular old model.
     return modelName;
@@ -162,8 +163,10 @@ function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | un
 
 function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {
   let interfaceName = getIdentifierName(iface.name, options);
-  if (iface.templateArguments && iface.templateArguments.length > 0) {
-    interfaceName += `<${iface.templateArguments.map((x) => getTypeName(x, options)).join(", ")}>`;
+  if (isTemplateInstance(iface)) {
+    interfaceName += `<${iface.templateMapper.args
+      .map((x) => getTypeName(x, options))
+      .join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }

@@ -39,7 +39,7 @@ Cookie: X-API-KEY=abcdef12345
 ```
 
 ```typespec
-model ApiKeyAuth<TLocation, TName>
+model TypeSpec.Http.ApiKeyAuth<TLocation, TName>
 ```
 
 #### Template Parameters
@@ -101,7 +101,7 @@ This can be useful in situations where you cannot use a bare T as the body
 and it is awkward to add a property.
 
 ```typespec
-model Body<T>
+model TypeSpec.Http.Body<T>
 ```
 
 #### Template Parameters
@@ -206,7 +206,7 @@ For that purpose, an OAuth 2.0 server issues access tokens that the client appli
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ```typespec
-model OAuth2Auth<TFlows>
+model TypeSpec.Http.OAuth2Auth<TFlows>
 ```
 
 #### Template Parameters
@@ -237,7 +237,7 @@ Produces a new model with the same properties as T, but with `@query`,
 `@header`, `@body`, and `@path` decorators removed from all properties.
 
 ```typespec
-model PlainData<T>
+model TypeSpec.Http.PlainData<T>
 ```
 
 #### Template Parameters
@@ -259,7 +259,7 @@ model TypeSpec.Http.QueryOptions
 Describes an HTTP response.
 
 ```typespec
-model Response<Status>
+model TypeSpec.Http.Response<Status>
 ```
 
 #### Template Parameters

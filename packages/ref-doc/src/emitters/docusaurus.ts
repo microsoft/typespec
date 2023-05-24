@@ -1,6 +1,7 @@
 import prettier from "prettier";
 import {
   DecoratorRefDoc,
+  EmitterOptionRefDoc,
   EnumRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
@@ -8,10 +9,12 @@ import {
   OperationRefDoc,
   ScalarRefDoc,
   TemplateParameterRefDoc,
+  TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
+  TypeSpecRefDocBase,
   UnionRefDoc,
 } from "../types.js";
-import { codeblock, headings, inlinecode, table } from "../utils/markdown.js";
+import { codeblock, headings, inlinecode, table, tabs } from "../utils/markdown.js";
 import { getTypeSignature } from "../utils/type-signature.js";
 
 /**
@@ -37,6 +40,11 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
     files["data-types.md"] = dataTypes;
   }
 
+  const emitter = renderEmitter(refDoc);
+  if (emitter) {
+    files["emitter.md"] = emitter;
+  }
+
   for (const [file, content] of Object.entries(files)) {
     try {
       files[file] = prettier.format(content, {
@@ -50,18 +58,42 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
   return files;
 }
 
-function renderIndexFile(refDoc: TypeSpecRefDoc): string {
+function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
   const content = [
     "---",
-    `title: Index`,
+    `title: Overview`,
     `sidebar_position: 0`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
+    "import Tabs from '@theme/Tabs';",
+    "import TabItem from '@theme/TabItem';",
+    "",
   ];
+
+  if (refDoc.description) {
+    content.push(refDoc.description);
+  }
+  content.push(headings.h2("Install"));
+  content.push(
+    tabs([
+      { id: "spec", label: "In a spec", content: codeblock(`npm install ${refDoc.name}`, "bash") },
+      {
+        id: "library",
+        label: "In a library",
+        content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
+      },
+    ])
+  );
+
+  if (refDoc.emitter?.options) {
+    content.push(headings.h3("Emitter usage"), "");
+    content.push(`[See documentation](./emitter.md)`);
+  }
 
   for (const namespace of refDoc.namespaces) {
     content.push(headings.h2(namespace.id), "");
+
     if (namespace.decorators.length > 0) {
       content.push(headings.h3("Decorators"), "");
       const listContent = [];
@@ -105,7 +137,7 @@ export type DecoratorRenderOptions = {
   title?: string;
 };
 export function renderDecoratorFile(
-  refDoc: TypeSpecRefDoc,
+  refDoc: TypeSpecRefDocBase,
   options?: DecoratorRenderOptions
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
@@ -251,6 +283,12 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
     content.push(renderTemplateParametersTable(iface.templateParameters, headingLevel + 1));
   }
 
+  if (iface.interfaceOperations.length > 0) {
+    for (const op of iface.interfaceOperations) {
+      content.push(renderOperationMarkdown(op, headingLevel + 1));
+    }
+  }
+
   return content.join("\n");
 }
 
@@ -354,6 +392,41 @@ function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
     content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
   }
 
+  return content.join("\n");
+}
+
+function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
+  if (refDoc.emitter?.options === undefined) {
+    return undefined;
+  }
+  const content = [
+    "---",
+    `title: "Emitter usage"`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+    headings.h1("Emitter usage"),
+  ];
+
+  content.push(headings.h2("Usage"));
+  content.push("1. Via the command line");
+  content.push(codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"));
+  content.push("2. Via the config");
+  content.push(codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"));
+
+  content.push(renderEmitterOptions(refDoc.emitter.options));
+
+  return content.join("\n");
+}
+
+function renderEmitterOptions(options: EmitterOptionRefDoc[]): string {
+  const content = [headings.h2("Emitter options")];
+  for (const option of options) {
+    content.push(headings.h3(`${inlinecode(option.name)}`));
+    content.push(`**Type:** ${inlinecode(option.type)}`, "");
+
+    content.push(option.doc);
+  }
   return content.join("\n");
 }
 

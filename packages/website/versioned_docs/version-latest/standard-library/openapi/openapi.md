@@ -57,7 +57,9 @@ The `in` field of a parameter is specified with an [(Http) `@query`, `@header`, 
 A parameter without one of these decorators is assumed to be passed in the request body.
 
 The request body parameter can also be explicitly decorated with an [(Http) `@body` decorator][http-body-decorator].
-In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body.
+In the absence of explicit `@body`, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body
+and this request body is defined as required. If the request body should be optional, the body must be declared as
+optional property with the `@body` decorator.
 
 [http-parameter-decorators]: ../rest/reference/decorators.md#data-types
 [http-body-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.body
@@ -70,7 +72,7 @@ Likewise, the type of the body parameter(s) will be translated into an appropria
 The request body will use the "application/json" media type unless the body model includes an explicit `content-type`
 header.
 
-See also [metadata](../rest/operations.md#metadata) for more advanced details.
+See also [metadata](../http/operations.md#metadata) for more advanced details.
 
 ### responses
 
@@ -88,7 +90,7 @@ In the absence of explicit `@body`, the properties that are not marked `@statusC
 [http-statuscode-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.statuscode
 [error-decorator]: ../built-in-decorators.md#error
 
-See also [metadata](../rest/operations.md#metadata) for more advanced details.
+See also [metadata](../http/operations.md#metadata) for more advanced details.
 
 ### tags
 

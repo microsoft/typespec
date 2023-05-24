@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix relative path resolution when init template is behind HTTP redirect",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

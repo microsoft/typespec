@@ -62,7 +62,7 @@ Get an asset emitter to write emitted output to disk using a TypeEmitter
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `TypeEmitterClass` | `Object` | The TypeEmitter to construct your emitted output |
+| `TypeEmitterClass` | typeof `TypeEmitter` | The TypeEmitter to construct your emitted output |
 
 #### Returns
 

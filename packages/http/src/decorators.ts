@@ -179,7 +179,8 @@ export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
       codes.push(String(entity.type.value));
     }
   } else if (entity.type.kind === "Union") {
-    for (const option of entity.type.options) {
+    for (const variant of entity.type.variants.values()) {
+      const option = variant.type;
       if (option.kind === "String") {
         if (validStatusCode(context.program, option.value, option)) {
           codes.push(option.value);
@@ -462,7 +463,8 @@ function extractHttpAuthenticationOptions(
 ): [ServiceAuthentication, readonly Diagnostic[]] {
   const options: AuthenticationOption[] = [];
   const diagnostics = createDiagnosticCollector();
-  for (const value of tuple.options) {
+  for (const variant of tuple.variants.values()) {
+    const value = variant.type;
     switch (value.kind) {
       case "Model":
         const result = diagnostics.pipe(

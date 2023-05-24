@@ -38,6 +38,7 @@ export interface ResolveModuleHost {
  */
 export interface NodePackage {
   name: string;
+  description?: string;
   type?: "module" | "commonjs";
   main?: string;
   version: string;

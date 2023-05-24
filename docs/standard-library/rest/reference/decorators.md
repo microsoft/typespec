@@ -13,7 +13,7 @@ toc_max_heading_level: 3
 Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
 
 ```typespec
-dec TypeSpec.Rest.action(target: Operation, name?: valueof string)
+@TypeSpec.Rest.action(name?: valueof string)
 ```
 
 #### Target
@@ -31,7 +31,7 @@ dec TypeSpec.Rest.action(target: Operation, name?: valueof string)
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```typespec
-dec TypeSpec.Rest.actionSeparator(target: Model | ModelProperty | Operation, seperator: valueof / | : | /:)
+@TypeSpec.Rest.actionSeparator(seperator: valueof / | : | /:)
 ```
 
 #### Target
@@ -49,7 +49,7 @@ dec TypeSpec.Rest.actionSeparator(target: Model | ModelProperty | Operation, sep
 This interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
 
 ```typespec
-dec TypeSpec.Rest.autoRoute(target: Interface | Operation)
+@TypeSpec.Rest.autoRoute
 ```
 
 #### Target
@@ -74,7 +74,7 @@ get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
 Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
 
 ```typespec
-dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?: valueof string)
+@TypeSpec.Rest.collectionAction(resourceType: Model, name?: valueof string)
 ```
 
 #### Target
@@ -93,7 +93,7 @@ dec TypeSpec.Rest.collectionAction(target: Operation, resourceType: Model, name?
 Specify that this is a CreateOrReplace operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsOrReplacesResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.createsOrReplacesResource(resourceType: Model)
 ```
 
 #### Target
@@ -111,7 +111,7 @@ dec TypeSpec.Rest.createsOrReplacesResource(target: Operation, resourceType: Mod
 Specify that this is a CreatesOrUpdate operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsOrUpdatesResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.createsOrUpdatesResource(resourceType: Model)
 ```
 
 #### Target
@@ -129,7 +129,7 @@ dec TypeSpec.Rest.createsOrUpdatesResource(target: Operation, resourceType: Mode
 Specify that this is a Create operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.createsResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.createsResource(resourceType: Model)
 ```
 
 #### Target
@@ -147,7 +147,7 @@ dec TypeSpec.Rest.createsResource(target: Operation, resourceType: Model)
 Specify that this is a Delete operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.deletesResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.deletesResource(resourceType: Model)
 ```
 
 #### Target
@@ -165,7 +165,7 @@ dec TypeSpec.Rest.deletesResource(target: Operation, resourceType: Model)
 Specify that this is a List operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.listsResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.listsResource(resourceType: Model)
 ```
 
 #### Target
@@ -183,7 +183,7 @@ dec TypeSpec.Rest.listsResource(target: Operation, resourceType: Model)
 Specify that this is a Read operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.readsResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.readsResource(resourceType: Model)
 ```
 
 #### Target
@@ -201,7 +201,7 @@ dec TypeSpec.Rest.readsResource(target: Operation, resourceType: Model)
 Mark this model as a resource type with a name.
 
 ```typespec
-dec TypeSpec.Rest.resource(target: Model, collectionName: valueof string)
+@TypeSpec.Rest.resource(collectionName: valueof string)
 ```
 
 #### Target
@@ -219,7 +219,7 @@ dec TypeSpec.Rest.resource(target: Model, collectionName: valueof string)
 Defines the preceding path segment for a
 
 ```typespec
-dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: valueof string)
+@TypeSpec.Rest.segment(name: valueof string)
 ```
 
 #### Target
@@ -232,12 +232,14 @@ dec TypeSpec.Rest.segment(target: Model | ModelProperty | Operation, name: value
 | ---- | ----------------------- | ---------------------------------------------------------------------------------------------- |
 | name | `valueof scalar string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
+#### Examples
+
 ### `@segmentOf` {#@TypeSpec.Rest.segmentOf}
 
 Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
 
 ```typespec
-dec TypeSpec.Rest.segmentOf(target: Operation, type: Model)
+@TypeSpec.Rest.segmentOf(type: Model)
 ```
 
 #### Target
@@ -255,7 +257,7 @@ dec TypeSpec.Rest.segmentOf(target: Operation, type: Model)
 Specify that this is a Update operation for a given resource.
 
 ```typespec
-dec TypeSpec.Rest.updatesResource(target: Operation, resourceType: Model)
+@TypeSpec.Rest.updatesResource(resourceType: Model)
 ```
 
 #### Target

@@ -26,6 +26,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -145,6 +146,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -231,6 +233,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
