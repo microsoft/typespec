@@ -1287,7 +1287,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.UnknownKeyword:
           return parseUnknownKeyword();
         default:
-          console.log("Token", Token[token()]);
           return parseReferenceExpression("expression");
       }
     }
