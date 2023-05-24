@@ -114,7 +114,6 @@ describe("compiler: checker: decorators", () => {
     });
 
     function expectDecoratorCalledWith(target: unknown, ...args: unknown[]) {
-      console.log("cadlled", calledArgs);
       strictEqual(calledArgs.length, 2 + args.length);
       strictEqual(calledArgs[0].program, runner.program);
       strictEqual(calledArgs[1], target);
