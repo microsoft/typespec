@@ -642,6 +642,7 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
     });
 
     if (!isEncodingTypeValid) {
+      const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
         messageId: "wrongEncodingType",
@@ -649,6 +650,7 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
           encoding: encodeData.encoding,
           type: getTypeName(target),
           expected: validEncodeTypes.join(", "),
+          actual: typeName,
         },
         target: context.decoratorTarget,
       });

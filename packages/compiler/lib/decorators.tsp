@@ -413,7 +413,7 @@ enum BytesKnownEncoding {
 extern dec encode(
   target: Scalar | ModelProperty,
   encoding: string | EnumMember,
-  encodedAs?: string | numeric
+  encodedAs?: Scalar
 );
 
 /**
