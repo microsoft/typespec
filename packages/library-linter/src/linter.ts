@@ -1,10 +1,11 @@
-import { Namespace, Program, SymbolFlags, Type } from "@typespec/compiler";
+import { Namespace, Program, Sym, SymbolFlags, SyntaxKind, Type } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {
   const root = program.checker!.getGlobalNamespaceType();
 
   validateNoExportAtRoot(program, root);
+  validateDecoratorSignature(program);
 }
 
 function validateNoExportAtRoot(program: Program, root: Namespace) {
@@ -37,5 +38,34 @@ function validateNoExportAtRoot(program: Program, root: Namespace) {
         target: sym,
       });
     }
+  }
+}
+
+const excludeDecoratorSignature = new Set([
+  "@docFromComment",
+  "@indexer",
+  "@list", // TODO check if we actually need this one
+  "@withOptionalProperties", // TODO add it?
+]);
+function validateDecoratorSignature(program: Program) {
+  function navigate(sym: Sym) {
+    if (sym.flags & SymbolFlags.Decorator) {
+      const hasSignature = sym.declarations.some(
+        (x) => x.kind === SyntaxKind.DecoratorDeclarationStatement
+      );
+      if (!hasSignature && !excludeDecoratorSignature.has(sym.name)) {
+        reportDiagnostic(program, {
+          code: "missing-signature",
+          format: { decName: sym.name.slice(1) },
+          target: sym,
+        });
+      }
+    }
+    for (const exp of sym.exports?.values() ?? []) {
+      navigate(exp);
+    }
+  }
+  for (const jsFile of program.jsSourceFiles.values()) {
+    navigate(jsFile.symbol);
   }
 }
