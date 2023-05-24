@@ -1450,10 +1450,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         const base = getStdBaseScalar(type);
         compilerAssert(base, "not allowed to assign default to custom scalars");
 
-        if (base.name === "decimal" || base.name === "decimal128") {
-          return defaultType.valueAsString;
-        }
-
         return defaultType.value;
       case "Boolean":
         return defaultType.value;
@@ -1709,7 +1705,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (encodeData) {
       const newType = getSchemaForScalar(encodeData.type);
       newTarget.type = newType.type;
-      newTarget.format = mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
+      // If the target already has a format it takes priority. (e.g. int32)
+      newTarget.format =
+        newType.format ?? mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
     }
 
     if (isString) {
@@ -1734,8 +1732,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         switch (encoding) {
           case "rfc3339":
             return "date-time";
-          case "unixTimestamp":
-            return "unix-timestamp";
           default:
             return `date-time-${encoding}`;
         }
@@ -1886,9 +1882,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "float32":
         return { type: "number", format: "float" };
       case "decimal":
-        return { type: "string", format: "decimal" };
+        return { type: "number", format: "decimal" };
       case "decimal128":
-        return { type: "string", format: "decimal128" };
+        return { type: "number", format: "decimal128" };
       case "string":
         return { type: "string" };
       case "boolean":
