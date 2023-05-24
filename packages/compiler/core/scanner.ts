@@ -15,7 +15,7 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { compilerAssert, createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { DiagnosticHandler, compilerAssert, createSourceFile } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
 

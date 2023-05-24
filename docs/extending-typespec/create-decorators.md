@@ -48,7 +48,7 @@ extern dec track(target: Model | Enum, name?: valueof string);
 A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
 ```typespec
-extern dec track(target: Model | Enum, ...names: (valueof string)[]);
+extern dec track(target: Model | Enum, ...names: valueof string[]);
 ```
 
 ## Ask for a value type
