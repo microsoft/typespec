@@ -196,7 +196,7 @@ Recommended logic for emitting scalar is to:
    2.1 After resolving which scalar apply any decorators
 
 :::note
-If scalar is a more generic scalar that doesn't have a mapping(e.g. integer), recommendation is to subsitute with the next closest mapping(e.g. integer->int64) and emit a warning.
+If the scalar is generic and doesn't have a mapping (e.g. integer), we recommend substituting it with the next closest mapping (e.g. integer->int64) and emitting a warning.
 :::
 
 ### Examples
