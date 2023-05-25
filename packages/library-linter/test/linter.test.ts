@@ -68,6 +68,7 @@ describe("library-linter", () => {
       });
       const diagnostics = await runner.diagnose(`
         import "./mylib.js";
+        extern dec myDec(target: unknown);
         namespace Foo { model Bar {}}
       `);
       expectDiagnostics(diagnostics, {
