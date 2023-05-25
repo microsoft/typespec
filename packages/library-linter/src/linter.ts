@@ -44,6 +44,7 @@ function validateNoExportAtRoot(program: Program, root: Namespace) {
 const excludeDecoratorSignature = new Set([
   "@docFromComment",
   "@indexer",
+  "@test",
   "@list", // TODO check if we actually need this one https://github.com/microsoft/typespec/issues/1978
   "@resourceTypeForKeyParam", // TODO check if we actually need this one https://github.com/microsoft/typespec/issues/1981
 ]);
