@@ -38,6 +38,6 @@ Specify an external reference that should be used inside of emitting this type.
 
 #### Parameters
 
-| Name | Type            | Description |
-| ---- | --------------- | ----------- |
-| ref  | `scalar string` |             |
+| Name | Type            | Description                                                          |
+| ---- | --------------- | -------------------------------------------------------------------- |
+| ref  | `scalar string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |

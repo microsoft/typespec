@@ -117,10 +117,15 @@ extern dec action(target: Operation, name?: string);
  */
 extern dec collectionAction(target: Operation, resourceType: Model, name?: string);
 
+/**
+ * Copy the resource key parameters on the model
+ * @param filter Filter to exclude certain properties.
+ */
+extern dec copyResourceKeyParameters(target: Model, filter?: string);
+
 namespace Private {
   extern dec resourceLocation(target: string, resourceType: Model);
   extern dec validateHasKey(target: unknown, value: unknown);
   extern dec validateIsError(target: unknown, value: unknown);
   extern dec actionSegment(target: Operation, value: string);
-  extern dec copyResourceKeyParameters(target: Model, filter?: string);
 }

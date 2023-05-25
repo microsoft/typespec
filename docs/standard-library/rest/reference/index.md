@@ -37,6 +37,7 @@ npm install --save-peer @typespec/rest
 - [`@actionSeparator`](./decorators.md#@TypeSpec.Rest.actionSeparator)
 - [`@autoRoute`](./decorators.md#@TypeSpec.Rest.autoRoute)
 - [`@collectionAction`](./decorators.md#@TypeSpec.Rest.collectionAction)
+- [`@copyResourceKeyParameters`](./decorators.md#@TypeSpec.Rest.copyResourceKeyParameters)
 - [`@createsOrReplacesResource`](./decorators.md#@TypeSpec.Rest.createsOrReplacesResource)
 - [`@createsOrUpdatesResource`](./decorators.md#@TypeSpec.Rest.createsOrUpdatesResource)
 - [`@createsResource`](./decorators.md#@TypeSpec.Rest.createsResource)

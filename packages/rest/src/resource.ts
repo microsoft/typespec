@@ -7,7 +7,6 @@ import {
   Model,
   ModelProperty,
   Program,
-  setTypeSpecNamespace,
   Type,
   validateDecoratorTarget,
 } from "@typespec/compiler";
@@ -163,7 +162,6 @@ export function $copyResourceKeyParameters(
     cloneKeyProperties(context, entity, resourceType);
   }
 }
-setTypeSpecNamespace("Private", $copyResourceKeyParameters);
 
 const parentResourceTypesKey = createStateSymbol("parentResourceTypes");
 export function getParentResource(program: Program, resourceType: Model): Model | undefined {

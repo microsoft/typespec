@@ -88,6 +88,24 @@ Specify this operation is a collection action. (Scopped to a resource, /pets/my-
 | resourceType | `Model`         | Resource marked with                                                          |
 | name         | `scalar string` | Name of the action. If not specified, the name of the operation will be used. |
 
+### `@copyResourceKeyParameters` {#@TypeSpec.Rest.copyResourceKeyParameters}
+
+Copy the resource key parameters on the model
+
+```typespec
+@TypeSpec.Rest.copyResourceKeyParameters(filter?: string)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+
+| Name   | Type            | Description                           |
+| ------ | --------------- | ------------------------------------- |
+| filter | `scalar string` | Filter to exclude certain properties. |
+
 ### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
 
 Specify that this is a CreateOrReplace operation for a given resource.
