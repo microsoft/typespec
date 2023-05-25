@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "author": "Microsoft Corporation",
-  "description": "An app to play with TYPESPEC in the browser",
+  "description": "An app to play with TypeSpec in the browser",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
