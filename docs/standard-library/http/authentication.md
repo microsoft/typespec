@@ -41,7 +41,7 @@ Authentication can be configured using the `@useAuth` decorator on the service n
 
 ## Available security schemes
 
-Models can be found in https://github.com/microsoft/typespec/blob/main/packages/rest/lib/auth.tsp
+Models can be found in https://github.com/microsoft/typespec/blob/main/packages/http/lib/auth.tsp
 
 ### `BasicAuth`
 
