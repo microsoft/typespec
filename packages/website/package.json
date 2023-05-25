@@ -37,6 +37,7 @@
     "@typespec/http": "~0.44.0",
     "@typespec/rest": "~0.44.0",
     "@typespec/openapi": "~0.44.0",
+    "@typespec/openapi3": "~0.44.0",
     "@typespec/protobuf": "~0.43.1",
     "@typespec/versioning": "~0.44.0",
     "@docusaurus/module-type-aliases": "^2.2.0",
