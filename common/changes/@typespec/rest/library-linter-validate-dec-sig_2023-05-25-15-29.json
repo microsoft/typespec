@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Add signature for missing decorators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}
