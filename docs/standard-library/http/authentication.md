@@ -12,7 +12,7 @@ Notes:
 
 Authentication can be configured using the `@useAuth` decorator on the service namespace. The decorator accept a few options:
 
-- A security scheme(see options [here]). This means this is the security scheme to use to authenticate this service.
+- A security scheme (see options [here](https://github.com/microsoft/typespec/blob/main/packages/http/lib/auth.tsp)). This means this is the security scheme to use to authenticate this service.
 
 ```typespec
 @useAuth(Auth1)
