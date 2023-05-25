@@ -187,7 +187,7 @@ In order to know where to emit files, the emitter context has a `emitterOutputDi
 
 ## Handling scalars
 
-Scalars are types in TypeSpec that most likely have a primitive or built-in datastructure represneting those in the target language.
+Scalars are types in TypeSpec that most likely have a primitive or built-in datastructure representing those in the target language.
 
 Recommended logic for emitting scalar is to:
 
