@@ -81,6 +81,25 @@ Identifies when the target has been renamed.
 | version | `EnumMember`    | The version that the target was renamed in. |
 | oldName | `scalar string` | The previous name of the target.            |
 
+### `@returnTypeChangedFrom` {#@TypeSpec.Versioning.returnTypeChangedFrom}
+
+Identifies when the target type changed.
+
+```typespec
+@TypeSpec.Versioning.returnTypeChangedFrom(version: EnumMember, oldType: unknown)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+
+| Name    | Type                  | Description                                  |
+| ------- | --------------------- | -------------------------------------------- |
+| version | `EnumMember`          | The version that the target type changed in. |
+| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+
 ### `@typeChangedFrom` {#@TypeSpec.Versioning.typeChangedFrom}
 
 Identifies when the target type changed.

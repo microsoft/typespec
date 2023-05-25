@@ -32,3 +32,10 @@ npm install --save-peer @typespec/openapi3
 ### Emitter usage
 
 [See documentation](./emitter.md)
+
+## OpenAPI
+
+### Decorators
+
+- [`@oneOf`](./decorators.md#@OpenAPI.oneOf)
+- [`@useRef`](./decorators.md#@OpenAPI.useRef)

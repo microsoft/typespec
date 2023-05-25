@@ -756,6 +756,22 @@ Set the visibility of key properties in a model if not already set.
 | visibility | `(intrinsic) unknown` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
+### `@withOptionalProperties` {#@withOptionalProperties}
+
+Returns the model with required properties removed.
+
+```typespec
+@withOptionalProperties
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+None
+
+
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
 Returns the model with any default values removed.

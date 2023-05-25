@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Add signature for missing decorators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
