@@ -98,7 +98,7 @@ model Pet {}
 Specify how to encode the target type.
 
 ```typespec
-@encode(encoding: string | EnumMember, encodedAs?: string | numeric)
+@encode(encoding: string | EnumMember, encodedAs?: Scalar)
 ```
 
 #### Target
@@ -109,7 +109,7 @@ Specify how to encode the target type.
 | Name | Type | Description |
 |------|------|-------------|
 | encoding | `union string \| EnumMember` | Known name of an encoding. |
-| encodedAs | `union string \| numeric` | What target type is this being encoded as. Default to string. |
+| encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
 ##### offsetDateTime encoded with rfc7231
