@@ -1853,6 +1853,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
+      case "numeric":
+        return { type: "number" };
+      case "integer":
+        return { type: "integer" };
       case "int8":
         return { type: "integer", format: "int8" };
       case "int16":
@@ -1871,6 +1875,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "integer", format: "uint32" };
       case "uint64":
         return { type: "integer", format: "uint64" };
+      case "float":
+        return { type: "number" };
       case "float64":
         return { type: "number", format: "double" };
       case "float32":
@@ -1894,10 +1900,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "duration" };
       case "url":
         return { type: "string", format: "uri" };
-      case "integer":
-      case "numeric":
-      case "float":
-        return {}; // Waiting on design for more precise type https://github.com/microsoft/typespec/issues/1260
       default:
         const _assertNever: never = scalar.name;
         return {};
