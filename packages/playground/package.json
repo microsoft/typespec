@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.44.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpe playground UI components.",
+  "description": "TypeSpec playground UI components.",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
