@@ -42,6 +42,7 @@ npm install --save-peer @typespec/rest
 - [`@createsResource`](./decorators.md#@TypeSpec.Rest.createsResource)
 - [`@deletesResource`](./decorators.md#@TypeSpec.Rest.deletesResource)
 - [`@listsResource`](./decorators.md#@TypeSpec.Rest.listsResource)
+- [`@parentResource`](./decorators.md#@TypeSpec.Rest.parentResource)
 - [`@readsResource`](./decorators.md#@TypeSpec.Rest.readsResource)
 - [`@resource`](./decorators.md#@TypeSpec.Rest.resource)
 - [`@segment`](./decorators.md#@TypeSpec.Rest.segment)

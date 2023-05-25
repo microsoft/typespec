@@ -178,6 +178,24 @@ Specify that this is a List operation for a given resource.
 | ------------ | ------- | -------------------- |
 | resourceType | `Model` | Resource marked with |
 
+### `@parentResource` {#@TypeSpec.Rest.parentResource}
+
+Mark model as a child of the given parent resource.
+
+```typespec
+@TypeSpec.Rest.parentResource(parent: Model)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+
+| Name   | Type    | Description   |
+| ------ | ------- | ------------- |
+| parent | `Model` | Parent model. |
+
 ### `@readsResource` {#@TypeSpec.Rest.readsResource}
 
 Specify that this is a Read operation for a given resource.

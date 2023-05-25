@@ -50,6 +50,12 @@ extern dec actionSeparator(target: Model | ModelProperty | Operation, seperator:
 extern dec resource(target: Model, collectionName: string);
 
 /**
+ * Mark model as a child of the given parent resource.
+ * @param parent Parent model.
+ */
+extern dec parentResource(target: Model, parent: Model);
+
+/**
  * Specify that this is a Read operation for a given resource.
  *
  * @param resourceType Resource marked with @resource
@@ -113,4 +119,8 @@ extern dec collectionAction(target: Operation, resourceType: Model, name?: strin
 
 namespace Private {
   extern dec resourceLocation(target: string, resourceType: Model);
+  extern dec validateHasKey(target: unknown, value: unknown);
+  extern dec validateIsError(target: unknown, value: unknown);
+  extern dec actionSegment(target: Operation, value: string);
+  extern dec copyResourceKeyParameters(target: Model, filter?: string);
 }

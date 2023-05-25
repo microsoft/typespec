@@ -20,7 +20,7 @@ model ResourceError {
  * @template T The target model.
  */
 @doc("Dynamically gathers keys of the model type T.")
-@copyResourceKeyParameters
+@Private.copyResourceKeyParameters
 @friendlyName("{name}Key", T)
 model KeysOf<T> {}
 
@@ -29,7 +29,7 @@ model KeysOf<T> {}
  * @template T The target model.
  */
 @doc("Dynamically gathers parent keys of the model type T.")
-@copyResourceKeyParameters("parent")
+@Private.copyResourceKeyParameters("parent")
 @friendlyName("{name}ParentKey", T)
 model ParentKeysOf<T> {}
 
