@@ -1633,6 +1633,9 @@ export function createChecker(program: Program): Checker {
       sourceOperation,
       interface: parentInterface,
     });
+    if (links) {
+      linkType(links, operationType, mapper);
+    }
 
     decorators.push(...checkDecorators(operationType, node, mapper));
 
@@ -1656,10 +1659,6 @@ export function createChecker(program: Program): Checker {
       if (mapper === undefined) {
         namespace?.operations.set(name, operationType);
       }
-    }
-
-    if (links) {
-      linkType(links, operationType, mapper);
     }
 
     return operationType;
