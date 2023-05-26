@@ -125,9 +125,6 @@ function getDevVersionRange(manifest: BumpManifest) {
 }
 
 function getDevVersion(version: string, changeCount: number) {
-  if (changeCount === 0) {
-    return version;
-  }
   const nextVersion = getNextVersion(version);
   console.log(`Bumping version ${version} to ${nextVersion}-dev.${changeCount}`);
   return `${nextVersion}-dev.${changeCount}`;
