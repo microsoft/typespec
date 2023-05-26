@@ -224,8 +224,10 @@ describe("openapi3: primitives", () => {
     ) {
       const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
       const encodeDecorator = encoding ? `@encode("${encoding}"${encodeAsParam})` : "";
-      const res = await oapiForModel("s", `${encodeDecorator} scalar s extends ${scalar};`);
-      deepStrictEqual(res.schemas.s, expectedOpenApi);
+      const res1 = await oapiForModel("s", `${encodeDecorator} scalar s extends ${scalar};`);
+      deepStrictEqual(res1.schemas.s, expectedOpenApi);
+      const res2 = await oapiForModel("Test", `model Test {prop: ${encodeDecorator} ${scalar}};`);
+      deepStrictEqual(res2.schemas.Test.properties.prop, expectedOpenApi);
     }
 
     describe("utcDateTime", () => {
@@ -235,7 +237,12 @@ describe("openapi3: primitives", () => {
         testEncode("utcDateTime", { type: "string", format: "date-time-rfc7231" }, "rfc7231"));
 
       it("set type to integer and format to 'int32' when encoding is unixTimestamp (unixTimestamp info is lost)", () =>
-        testEncode("utcDateTime", { type: "integer", format: "int32" }, "unixTimestamp", "int32"));
+        testEncode(
+          "utcDateTime",
+          { type: "integer", format: "unixtime" },
+          "unixTimestamp",
+          "int32"
+        ));
     });
 
     describe("offsetDateTime", () => {
@@ -248,7 +255,7 @@ describe("openapi3: primitives", () => {
     describe("duration", () => {
       it("set format to 'duration' by default", () =>
         testEncode("duration", { type: "string", format: "duration" }));
-      it("set interger with int32 format setting duration as seconds", () =>
+      it("set integer with int32 format setting duration as seconds", () =>
         testEncode("duration", { type: "integer", format: "int32" }, "seconds", "int32"));
     });
 
