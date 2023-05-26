@@ -226,7 +226,7 @@ describe("openapi3: primitives", () => {
       const encodeDecorator = encoding ? `@encode("${encoding}"${encodeAsParam})` : "";
       const res1 = await oapiForModel("s", `${encodeDecorator} scalar s extends ${scalar};`);
       deepStrictEqual(res1.schemas.s, expectedOpenApi);
-      const res2 = await oapiForModel("Test", `model Test {prop: ${encodeDecorator} ${scalar}};`);
+      const res2 = await oapiForModel("Test", `model Test {${encodeDecorator} prop: ${scalar}};`);
       deepStrictEqual(res2.schemas.Test.properties.prop, expectedOpenApi);
     }
 
