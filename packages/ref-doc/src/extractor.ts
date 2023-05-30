@@ -412,12 +412,19 @@ function extractExamples(type: Type): ExampleRefDoc[] {
   const examples: ExampleRefDoc[] = [];
   for (const doc of type.node?.docs ?? []) {
     for (const dTag of doc.tags) {
+      if ((type as any).name === "url") {
+        console.log("Here too", dTag.kind === SyntaxKind.DocUnknownTag, dTag.tagName.sv);
+      }
       if (dTag.kind === SyntaxKind.DocUnknownTag) {
         if (dTag.tagName.sv === "example") {
           examples.push(extractExample(dTag));
         }
       }
     }
+  }
+
+  if ((type as any).name === "url") {
+    console.log("Extracting exmple for ", examples);
   }
   return examples;
 }
