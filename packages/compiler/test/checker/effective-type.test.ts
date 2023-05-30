@@ -346,6 +346,29 @@ describe("compiler: effective type", () => {
     expectIdenticalTypes(effective, propType);
   });
 
+  it("empty model and intersect", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      model Source {
+        prop: string;
+      }
+
+      model Test {}
+
+      @test op test(): Test & Source;
+      `
+    );
+    const { test } = await testHost.compile("./");
+    strictEqual(test.kind, "Operation" as const);
+
+    const returnType = test.returnType;
+    strictEqual(returnType?.kind, "Model" as const);
+
+    const effective = getEffectiveModelType(testHost.program, returnType);
+    strictEqual(effective.name, "Test");
+  });
+
   it("unsourced property", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
