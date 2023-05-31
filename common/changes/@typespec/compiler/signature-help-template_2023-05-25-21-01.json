@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add template argument signature help",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
