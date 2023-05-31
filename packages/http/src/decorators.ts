@@ -382,10 +382,7 @@ export function getServers(program: Program, type: Namespace): HttpServer[] | un
   return program.stateMap(serversKey).get(type);
 }
 
-export function $plainData(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@plainData", "Model")) {
-    return;
-  }
+export function $plainData(context: DecoratorContext, entity: Model) {
   const { program } = context;
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];

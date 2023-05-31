@@ -419,6 +419,7 @@ function extractExamples(type: Type): ExampleRefDoc[] {
       }
     }
   }
+
   return examples;
 }
 

@@ -145,6 +145,8 @@ The following table shows how TypeSpec types are translated to JSON Schema types
 | `utcDateTime`    | `type: string, format: date-time` | RFC 3339 date in coordinated universal time (UTC)                         |
 | `offsetDateTime` | `type: string, format: date-time` | RFC 3339 date with timezone offset                                        |
 
+[See encoding and format](#encoding-and-formats) for other way to encode those types.
+
 There are a variety of decorators that can modify or add metadata to the definitions produced in the generated OpenAPI.
 
 For a numeric element (integer or float):
@@ -260,6 +262,30 @@ The OpenAPI emitter ignores the "names" for variants in named unions.
 
 The OpenAPI emitter also defines the[`@oneOf` decorator](../openapi/reference/decorators.md#OpenAPI.oneof) which can be specified on a `union` statement to indicate
 that a union should be emitted as a `oneOf` rather than `anyOf`.
+
+## Encoding and formats
+
+When working with the `@encode` decorator the rule is as follow. Given the 3 values `encoding`, `encodeAs` and `realType` where `@encode(encoding, encodeAs) _: realType`:
+
+1. Is one of those special cases:
+
+   - `unixTimestamp` encoding will produce `type: integer, format: unixtime`
+   - encoding a `utcDateTime` or `offsetDateTime` will produce this format `date-time-<encoding>` (e.g. `date-time-rfc7231` for `rfc7231` encoding)
+
+2. If the schema of encodeAs produce a `format` use it (e.g. encoding as `int32` will produce an `type: integer, format: integer` )
+3. Otherwise use the `encoding` as the format
+
+**Summary table**
+
+| encoding                                         | Openapi3                                  | Swagger 2.0 (autorest)                    |
+| ------------------------------------------------ | ----------------------------------------- | ----------------------------------------- |
+| `@encode("seconds", int32) _: duration`          | `type: integer, format: int32`            | `type: integer, format: int32`            |
+| `@encode("seconds", float32) _: duration`        | `type: number, format: float32`           | `type: number, format: float32`           |
+| `@encode("ISO8601") _: duration`                 | `type: number, format: duration`          | `type: number, format: duration`          |
+| `@encode("unixTimestamp", int32) _: utcDateTime` | `type: integer, format: unixtime`         | `type: integer, format: unixtime`         |
+| `@encode("unixTimestamp", int64) _: utcDateTime` | `type: integer, format: unixtime`         | `type: integer, format: unixtime`         |
+| `@encode("rfc3339") _: utcDateTime`              | `type: string, format: date-time`         | `type: string, format: date-time`         |
+| `@encode("rfc7231") _: utcDateTime`              | `type: string, format: date-time-rfc7321` | `type: string, format: date-time-rfc7321` |
 
 ## Security Definitions
 

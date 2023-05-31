@@ -7,7 +7,7 @@
     { "path": "../openapi3/tsconfig.json" }
   ],
   "compilerOptions": {
-    "outDir": "dist-dev",
+    "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
