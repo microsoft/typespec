@@ -606,12 +606,6 @@ const diagnostics = {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
     },
   },
-  "emitter-not-found": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
-    },
-  },
   "missing-import": {
     severity: "error",
     messages: {
@@ -701,8 +695,8 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Invalid encoding",
-      wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type ${"type"}. Expected a ${"expected"}.`,
-      wrongEncodingType: paramMessage`Encoding '${"encoding"}' cannot be used on type ${"type"}. Expected a ${"expected"}.`,
+      wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
+      wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
     },
   },
 

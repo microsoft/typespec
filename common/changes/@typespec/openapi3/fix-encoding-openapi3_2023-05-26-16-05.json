@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix: Encoding resolution for model properties and add back `unixtime`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}

@@ -11,8 +11,11 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
       chunkSizeWarningLimit: 3000,
       rollupOptions: {
         output: {
-          manualChunks: {
-            monaco: ["monaco-editor"],
+          manualChunks(id) {
+            if (id.includes("/node_modules/monaco-editor/esm/vs/editor")) {
+              return "monaco";
+            }
+            return undefined;
           },
         },
       },

@@ -82,7 +82,7 @@ steps:
     displayName: Publish test results
     condition: always()
 
-  - publish: ./packages/playground/test-results
+  - publish: ./packages/playground-website/test-results
     artifact: "uitestresults-${{ parameters.poolName }}-node-${{ parameters.nodeVersion }}"
     displayName: Publish UI tests artifacts
     condition: ne(variables['Agent.OS'], 'Windows_NT')

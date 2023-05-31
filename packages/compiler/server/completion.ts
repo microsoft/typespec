@@ -27,7 +27,7 @@ import {
 import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
 import { printId } from "../formatter/print/printer.js";
 import { isDeprecated } from "../lib/decorators.js";
-import { getTypeDetails } from "./type-details.js";
+import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {
   program: Program;
@@ -228,7 +228,7 @@ function addIdentifierCompletion(
       kind = getCompletionItemKind(program, type);
       deprecated = isDeprecated(program, type);
     }
-    const documentation = getTypeDetails(program, type);
+    const documentation = getSymbolDetails(program, sym);
     const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation

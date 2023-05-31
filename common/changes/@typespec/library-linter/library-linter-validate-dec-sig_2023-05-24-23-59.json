@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/library-linter",
+      "comment": "Add validation checking library decorators have a signature defined.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/library-linter"
+}

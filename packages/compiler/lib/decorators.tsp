@@ -409,7 +409,7 @@ enum BytesKnownEncoding {
 extern dec encode(
   target: Scalar | ModelProperty,
   encoding: string | EnumMember,
-  encodedAs?: string | numeric
+  encodedAs?: Scalar
 );
 
 /**
@@ -499,6 +499,11 @@ extern dec withDefaultKeyVisibility(target: Model, visibility: unknown);
  * Returns the model with non-updateable properties removed.
  */
 extern dec withUpdateableProperties(target: Model);
+
+/**
+ * Returns the model with required properties removed.
+ */
+extern dec withOptionalProperties(target: Model);
 
 /**
  * Returns the model with any default values removed.

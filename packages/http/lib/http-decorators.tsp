@@ -248,3 +248,10 @@ extern dec route(
  * ```
  */
 extern dec sharedRoute(target: Operation);
+
+/**
+ * Private decorators. Those are meant for internal use inside Http types only.
+ */
+namespace Private {
+  extern dec plainData(target: TypeSpec.Reflection.Model);
+}

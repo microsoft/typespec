@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Emitter option validation will only validate emitters selected with `emit`/`--emit`. Options for other emitter will be ignored. This allows defining options for an emitter that is not installed.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
