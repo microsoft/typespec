@@ -5226,6 +5226,20 @@ export function getEffectiveModelType(
 
   if (model.properties.size === 0) {
     // empty model
+    switch (model.node?.kind) {
+      // workaround where we have an intersection with no resulting properties. Take the name of the canonical thing,
+      // which we assume to be the first type reference in the intersection.
+      case SyntaxKind.IntersectionExpression:
+        for (const opt of model.node.options) {
+          if (opt.kind === SyntaxKind.TypeReference && opt.target.kind === SyntaxKind.Identifier) {
+            model.name = opt.target.sv;
+            break;
+          }
+        }
+        break;
+      default:
+        return model;
+    }
     return model;
   }
 

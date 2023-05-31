@@ -350,13 +350,11 @@ describe("compiler: effective type", () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-      model Source {
-        prop: string;
-      }
+      model Extra {}
 
       model Test {}
 
-      @test op test(): Test & Source;
+      @test op test(): Test & Extra;
       `
     );
     const { test } = await testHost.compile("./");
