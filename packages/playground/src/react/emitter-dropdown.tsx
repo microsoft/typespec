@@ -1,7 +1,7 @@
 import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { importShim } from "../core.js";
+import { importLibrary } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
 import { selectedEmitterState } from "../state.js";
 
@@ -11,7 +11,7 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = () => {
   const [emitters, setEmitters] = useState<string[]>([]);
 
   useEffect(() => {
-    Promise.all(PlaygroundManifest.libraries.map(async (x) => [x, await importShim(x)]))
+    Promise.all(PlaygroundManifest.libraries.map(async (x) => [x, await importLibrary(x)]))
       .then((emitters) => {
         setEmitters(emitters.filter(([, x]) => (x as any).$lib?.emitter).map((x: any) => x[0]));
       })

@@ -17,7 +17,7 @@ import {
   selectedSampleState,
 } from "../state.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
-import { useMonacoModel } from "./editor.jsx";
+import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
 import { OutputView } from "./output-view.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
