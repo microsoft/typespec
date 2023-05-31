@@ -58,7 +58,7 @@ describe("protobuf scenarios", function () {
           await rm(diagnosticsExpectationPath, { force: true });
 
           if (emitResult.diagnostics.length > 0) {
-            const diagnostics = emitResult.diagnostics.join("\n");
+            const diagnostics = removeCoreDiagnostics(emitResult.diagnostics).join("\n") + "\n";
 
             await writeFile(diagnosticsExpectationPath, diagnostics);
           }
@@ -92,7 +92,7 @@ describe("protobuf scenarios", function () {
           try {
             expectedDiagnostics = (await readFile(diagnosticsExpectationPath)).toString("utf-8");
           } catch {
-            expectedDiagnostics = "";
+            expectedDiagnostics = "\n";
           }
 
           // Fix the start of lines on Windows
@@ -101,7 +101,7 @@ describe("protobuf scenarios", function () {
               ? emitResult.diagnostics.map((d) => d.replace(/^Z:/, ""))
               : emitResult.diagnostics;
 
-          const diagnostics = processedDiagnostics.join("\n");
+          const diagnostics = removeCoreDiagnostics(processedDiagnostics).join("\n") + "\n";
 
           assert.strictEqual(diagnostics, expectedDiagnostics, "expected equivalent diagnostics");
 
@@ -110,6 +110,21 @@ describe("protobuf scenarios", function () {
       });
   }
 });
+
+/**
+ * Removes line number references from core diagnostics and replaces them with
+ * a generic "<in core>" string.
+ *
+ * @param diagnostics - raw diagnostics
+ * @returns diagnostics with core diagnostics that do not reference line numbers
+ */
+function removeCoreDiagnostics(diagnostics: string[]): string[] {
+  return diagnostics.map((d) => {
+    if (d.startsWith("/test/.tsp")) {
+      return d.replace(/^[^\s]*:[0-9]+:[0-9]+ - /, "<in core> - ");
+    } else return d;
+  });
+}
 
 interface EmitResult {
   files: Record<string, string>;
