@@ -8,6 +8,7 @@ import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js"
 import { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
 import {
+  getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isNeverType,
   isTemplateInstance,
@@ -667,25 +668,6 @@ export function createChecker(program: Program): Checker {
     // (e.g. imports). errorType should result in an error if it
     // bubbles out somewhere its not supposed to be.
     return errorType;
-  }
-
-  function getFullyQualifiedSymbolName(
-    sym: Sym | undefined,
-    options?: { useGlobalPrefixAtTopLevel?: boolean }
-  ): string {
-    if (!sym) return "";
-    if (sym.symbolSource) sym = sym.symbolSource;
-    const parent =
-      sym.parent && !(sym.parent.flags & SymbolFlags.SourceFile) ? sym.parent : undefined;
-    const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
-
-    if (parent?.name) {
-      return `${getFullyQualifiedSymbolName(parent)}.${name}`;
-    } else if (options?.useGlobalPrefixAtTopLevel) {
-      return `global.${name}`;
-    } else {
-      return name;
-    }
   }
 
   /**
