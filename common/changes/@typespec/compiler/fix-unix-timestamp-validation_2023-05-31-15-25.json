@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix `unixTimestamp` validation was incorrect",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
