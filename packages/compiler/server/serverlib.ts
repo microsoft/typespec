@@ -51,7 +51,7 @@ import {
   loadTypeSpecConfigFile,
 } from "../config/config-loader.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { codePointBefore, isIdentifierContinue } from "../core/charcode.js";
+import { CharCode, codePointBefore, isIdentifierContinue, isWhiteSpace } from "../core/charcode.js";
 import {
   compilerAssert,
   createSourceFile,
@@ -1389,58 +1389,84 @@ type SignatureHelpNode =
   | TypeReferenceNode;
 
 function getSignatureHelpNodeAtPosition(
-  file: TypeSpecScriptNode,
+  script: TypeSpecScriptNode,
   position: number
 ): { node: SignatureHelpNode; argumentIndex: number } | undefined {
-  const node = getNodeAtPosition(file, position);
+  // Move back over any trailing whitespace. Otherwise, if there is no
+  // closing paren/angle bracket, we can find ourselves outside the desired
+  // node altogether in cases like `@dec(test, |`.
+  while (position > 0 && isWhiteSpace(script.file.text.charCodeAt(position - 1))) {
+    position--;
+  }
+
+  const node = getNodeAtPosition<SignatureHelpNode>(
+    script,
+    position,
+    (n): n is SignatureHelpNode => {
+      switch (n.kind) {
+        case SyntaxKind.DecoratorExpression:
+        case SyntaxKind.AugmentDecoratorStatement:
+        case SyntaxKind.TypeReference:
+          // Don't consider nodes if we can't be positioned inside their
+          // argument list. This deals with nesting such as `Outer<Inner|>`
+          // where we want the `Outer<Inner>` node, not the `Inner` node.
+          return position > n.target.end;
+        default:
+          return false;
+      }
+    }
+  );
+
   if (!node) {
     return undefined;
   }
 
-  // Edge case: If the node itself is decorator or type reference and we're
-  // at a position where a type argument can occur, then we are at the last
-  // argument. The syntax tree will not have a missing identifier for the
-  // final argument as the recovery will be to assume there was a trailing
-  // delimiter. For example: @dec(x,y,|) or Template<x,y,|>.
-  switch (node.kind) {
-    case SyntaxKind.DecoratorExpression:
-    case SyntaxKind.TypeReference:
-      if (position > node.target.end) {
-        return { node, argumentIndex: node.arguments.length };
-      }
-      break;
-    case SyntaxKind.AugmentDecoratorStatement:
-      if (position > node.targetType.end) {
-        return { node, argumentIndex: node.arguments.length + 1 };
-      }
-      break;
+  const argumentIndex = getSignatureHelpArgumentIndex(script, node, position);
+  if (argumentIndex < 0) {
+    return undefined;
   }
 
-  // Normal case: Check if the node is parented by a type reference or
-  // decorator and is one of its parent's arguments.
-  for (let current: Node | undefined = node; current; current = current.parent) {
-    let argumentIndex = -1;
-    let signatureNode: SignatureHelpNode | undefined;
-    switch (current.parent?.kind) {
-      case SyntaxKind.TypeReference:
-      case SyntaxKind.DecoratorExpression:
-        signatureNode = current.parent;
-        argumentIndex = current.parent.arguments.indexOf(current as any);
-        break;
-      case SyntaxKind.AugmentDecoratorStatement:
-        signatureNode = current.parent;
-        argumentIndex =
-          current === current.parent.targetType
-            ? 0
-            : current.parent.arguments.indexOf(current as any) + 1;
-        break;
-    }
-    if (signatureNode && argumentIndex >= 0) {
-      return { node: signatureNode, argumentIndex };
+  return { node, argumentIndex };
+}
+
+function getSignatureHelpArgumentIndex(
+  script: TypeSpecScriptNode,
+  node: SignatureHelpNode,
+  position: number
+) {
+  // Normalize arguments into a single list to avoid special case for
+  // augment decorators.
+  const args =
+    node.kind === SyntaxKind.AugmentDecoratorStatement
+      ? [node.targetType, ...node.arguments]
+      : node.arguments;
+
+  // Find the first argument that ends after the position. We don't look at
+  // the argument start position since the cursor might be in leading
+  // trivia, and we skip trivia to get the effective argument end position
+  // since the cursor might be in trailing trivia.
+  for (let i = 0; i < args.length; i++) {
+    if (position <= skipTrivia(script.file.text, args[i].end)) {
+      return i;
     }
   }
 
-  return undefined;
+  // Don't provide signature help at the end position if it has a closing
+  // paren/angle bracket
+  if (position === node.end) {
+    const endChar = script.file.text.charCodeAt(position - 1);
+    const closingChar =
+      node.kind === SyntaxKind.TypeReference ? CharCode.GreaterThan : CharCode.CloseParen;
+    if (endChar === closingChar) {
+      return -1;
+    }
+  }
+
+  // If we reach here, we must be at the next argument after any that are in
+  // the syntax tree. There won't be a missing identifier for this argument
+  // in the tree since the parser error recovery will have assumed a
+  // trailing delimiter or empty list.
+  return args.length;
 }
 
 /**
