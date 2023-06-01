@@ -1,18 +1,33 @@
-import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
-import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogSurface,
+  DialogTrigger,
+  Link,
+  Toolbar,
+  ToolbarButton,
+  Tooltip,
+} from "@fluentui/react-components";
+import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
 import { EmitterDropdown } from "./emitter-dropdown.js";
+import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   newIssue: () => Promise<void> | void;
+  selectedEmitter: string;
+  selectEmitter: (emitter: string) => void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
   newIssue,
+  selectedEmitter,
+  selectEmitter,
 }) => {
   const documentation = documentationUrl ? (
     <label>
@@ -34,7 +49,17 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         </Tooltip>
         <SamplesDropdown />
-        <EmitterDropdown />
+        <EmitterDropdown selectEmitter={selectEmitter} selectedEmitter={selectedEmitter} />
+        <Dialog>
+          <DialogTrigger>
+            <Button icon={<Settings24Regular />} />
+          </DialogTrigger>
+          <DialogSurface>
+            <DialogBody>
+              <OutputSettings selectedEmitter={selectedEmitter} />
+            </DialogBody>
+          </DialogSurface>
+        </Dialog>
         {documentation}
         <div css={{ flex: "1" }}></div>
         <Tooltip content="File Bug Report" relationship="description" withArrow>

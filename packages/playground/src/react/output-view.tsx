@@ -1,5 +1,4 @@
 import { css } from "@emotion/react";
-import { Settings16Filled } from "@fluentui/react-icons";
 import { Diagnostic, Program } from "@typespec/compiler";
 import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
@@ -8,7 +7,6 @@ import "swagger-ui/dist/swagger-ui.css";
 import { CompileResult, compilationState } from "../state.js";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
-import { OutputSettings } from "./output-settings.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
 
 export interface OutputViewProps {}
@@ -67,22 +65,6 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
         name: <ErrorTabLabel diagnostics={diagnostics} />,
         align: "right",
       },
-      {
-        id: "settings",
-        name: (
-          <div
-            css={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-            }}
-          >
-            <Settings16Filled />
-          </div>
-        ),
-        align: "right",
-      },
     ];
   }, [outputFiles, diagnostics]);
   const handleTabSelection = useCallback((tabId: string) => {
@@ -90,8 +72,6 @@ const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }
       setViewSelection({ type: "type-graph" });
     } else if (tabId === "errors") {
       setViewSelection({ type: "errors" });
-    } else if (tabId === "settings") {
-      setViewSelection({ type: "settings" });
     } else {
       void loadOutputFile(tabId);
     }
@@ -122,8 +102,6 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({ viewSelection, p
       return <OpenAPIOutput filename={viewSelection.filename} content={viewSelection.content} />;
     case "errors":
       return <ErrorTab diagnostics={program?.diagnostics} />;
-    case "settings":
-      return <OutputSettings />;
     default:
       return (
         <div
@@ -141,8 +119,7 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({ viewSelection, p
 type ViewSelection =
   | { type: "file"; filename: string; content: string }
   | { type: "type-graph" }
-  | { type: "errors" }
-  | { type: "settings" };
+  | { type: "errors" };
 
 const ErrorTabLabel: FunctionComponent<{
   diagnostics?: readonly Diagnostic[];

@@ -12,10 +12,12 @@ import {
 import { TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState } from "recoil";
-import { emittersOptionsState, selectedEmitterState } from "../state.js";
+import { emittersOptionsState } from "../state.js";
 
-export const OutputSettings: FunctionComponent = () => {
-  const [selectedEmitter] = useRecoilState(selectedEmitterState);
+export type OutputSettingsProps = {
+  selectedEmitter: string;
+};
+export const OutputSettings: FunctionComponent<OutputSettingsProps> = ({ selectedEmitter }) => {
   const library = useTypeSpecLibrary(selectedEmitter);
   return (
     <div css={{ padding: 10 }}>

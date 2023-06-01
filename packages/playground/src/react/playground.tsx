@@ -13,12 +13,12 @@ import {
   CompilationState,
   compilationState,
   emittersOptionsState,
-  selectedEmitterState,
   selectedSampleState,
 } from "../state.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
+import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
@@ -29,6 +29,13 @@ export type PlaygroundDefaultState = {
 
 export interface PlaygroundProps {
   host: BrowserHost;
+  /**Emitter to use */
+  emitter?: string;
+  /** Default emitter is leaving this unmanaged. */
+  defaultEmitter?: string;
+  /** Callback when emitter change */
+  onEmitterChange?: (emitter: string) => void;
+
   defaultState?: PlaygroundDefaultState;
   onSave?: (value: string) => void;
 }
@@ -45,11 +52,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
   </RecoilRoot>
 );
 
-const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, defaultState, onSave }) => {
+const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
+  const { host, defaultState, onSave } = props;
+  const [selectedEmitter, selectEmitter] = useControllableValue(
+    props.emitter,
+    props.defaultEmitter,
+    props.onEmitterChange
+  );
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const setCompilationStatus = useSetRecoilState(compilationState);
   const emittersOptions = useRecoilValue(emittersOptionsState);
-  const [selectedEmitter, selectEmitter] = useRecoilState(selectedEmitterState);
   const [selectedSample, selectSample] = useRecoilState(selectedSampleState);
 
   const doCompile = useCallback(async () => {
@@ -147,6 +159,8 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = ({ host, defaultS
     >
       <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
         <EditorCommandBar
+          selectEmitter={selectEmitter}
+          selectedEmitter={selectedEmitter}
           saveCode={saveCode}
           newIssue={newIssue}
           documentationUrl={PlaygroundManifest.links.documentation}
