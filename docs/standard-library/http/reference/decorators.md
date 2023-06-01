@@ -13,7 +13,7 @@ toc_max_heading_level: 3
 Explicitly specify that this property is to be set as the body
 
 ```typespec
-dec TypeSpec.Http.body(target: ModelProperty)
+@TypeSpec.Http.body
 ```
 
 #### Target
@@ -36,7 +36,7 @@ op download(): {@body image: bytes};
 Specify the http verb for the target operation to be `DELETE`.
 
 ```typespec
-dec TypeSpec.Http.delete(target: Operation)
+@TypeSpec.Http.delete
 ```
 
 #### Target
@@ -58,7 +58,7 @@ None
 Specify the http verb for the target operation to be `GET`.
 
 ```typespec
-dec TypeSpec.Http.get(target: Operation)
+@TypeSpec.Http.get
 ```
 
 #### Target
@@ -80,7 +80,7 @@ None
 Specify the http verb for the target operation to be `HEAD`.
 
 ```typespec
-dec TypeSpec.Http.head(target: Operation)
+@TypeSpec.Http.head
 ```
 
 #### Target
@@ -102,7 +102,7 @@ None
 Specify this property is to be sent or received as an http header.
 
 ```typespec
-dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
+@TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
 ```
 
 #### Target
@@ -115,12 +115,19 @@ dec TypeSpec.Http.header(target: ModelProperty, headerNameOrOptions?: string | T
 | ------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
 | headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
 
+#### Examples
+
+```typespec
+op read(@header accept: string): {@header("E-Tag") eTag: string};
+op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+```
+
 ### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
 
 Specify if inapplicable metadata should be included in the payload for the given entity.
 
 ```typespec
-dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: boolean)
+@TypeSpec.Http.includeInapplicableMetadataInPayload(value: boolean)
 ```
 
 #### Target
@@ -138,7 +145,7 @@ dec TypeSpec.Http.includeInapplicableMetadataInPayload(target: unknown, value: b
 Specify the http verb for the target operation to be `PATCH`.
 
 ```typespec
-dec TypeSpec.Http.patch(target: Operation)
+@TypeSpec.Http.patch
 ```
 
 #### Target
@@ -160,7 +167,7 @@ None
 Explicitly specify that this property is to be interpolated as a path parameter.
 
 ```typespec
-dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
+@TypeSpec.Http.path(paramName?: string)
 ```
 
 #### Target
@@ -173,12 +180,19 @@ dec TypeSpec.Http.path(target: ModelProperty, paramName?: string)
 | --------- | --------------- | --------------------------------------------------- |
 | paramName | `scalar string` | Optional name of the parameter in the url template. |
 
+#### Examples
+
+```typespec
+@route("/read/{explicit}/things/{implicit}")
+op read(@path explicit: string, implicit: string): void;
+```
+
 ### `@post` {#@TypeSpec.Http.post}
 
 Specify the http verb for the target operation to be `POST`.
 
 ```typespec
-dec TypeSpec.Http.post(target: Operation)
+@TypeSpec.Http.post
 ```
 
 #### Target
@@ -200,7 +214,7 @@ None
 Specify the http verb for the target operation to be `PUT`.
 
 ```typespec
-dec TypeSpec.Http.put(target: Operation)
+@TypeSpec.Http.put
 ```
 
 #### Target
@@ -222,7 +236,7 @@ None
 Specify this property is to be sent as a query parameter.
 
 ```typespec
-dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
+@TypeSpec.Http.query(queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
 ```
 
 #### Target
@@ -235,6 +249,13 @@ dec TypeSpec.Http.query(target: ModelProperty, queryNameOrOptions?: string | Typ
 | ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
 | queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
+#### Examples
+
+```typespec
+op read(@query select: string, @query("order-by") orderBy: string): void;
+op list(@query({name: "id", format: "multi"}) ids: string[]): void;
+```
+
 ### `@route` {#@TypeSpec.Http.route}
 
 Defines the relative route URI for the target operation
@@ -246,7 +267,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string, options?: (anonymous model))
+@TypeSpec.Http.route(path: string, options?: (anonymous model))
 ```
 
 #### Target
@@ -260,12 +281,23 @@ dec TypeSpec.Http.route(target: Namespace | Interface | Operation, path: string,
 | path    | `scalar string`           | Relative route path. Cannot include query parameters.                                                                                        |
 | options | `model (anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
+#### Examples
+
+```typespec
+@route("/widgets")
+op getWidget(@path id: string): Widget;
+```
+
 ### `@server` {#@TypeSpec.Http.server}
 
 Specify the endpoint for this service.
 
 ```typespec
+<<<<<<< HEAD
 dec TypeSpec.Http.server(target: Namespace, url: string, description: string, parameters?: Record<unknown>)
+=======
+@TypeSpec.Http.server(url: string, description: string, parameters?: object)
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
 ```
 
 #### Target
@@ -279,6 +311,23 @@ dec TypeSpec.Http.server(target: Namespace, url: string, description: string, pa
 | url         | `scalar string`         | Server endpoint                                         |
 | description | `scalar string`         | Description of the endpoint                             |
 | parameters  | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
+
+#### Examples
+
+```typespec
+@service
+@server("https://example.com", "Single server endpoint")
+namespace PetStore;
+```
+
+##### parameterized
+
+```typespec
+@server("https://{region}.foo.com", "Regional endpoint", {
+@doc("Region name")
+region?: string = "westus",
+})
+```
 
 ### `@sharedRoute` {#@TypeSpec.Http.sharedRoute}
 
@@ -296,7 +345,7 @@ op getWidget(@path id: string): Widget;
 ```
 
 ```typespec
-dec TypeSpec.Http.sharedRoute(target: Operation)
+@TypeSpec.Http.sharedRoute
 ```
 
 #### Target
@@ -312,7 +361,7 @@ None
 Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
 
 ```typespec
-dec TypeSpec.Http.statusCode(target: ModelProperty)
+@TypeSpec.Http.statusCode
 ```
 
 #### Target
@@ -335,7 +384,11 @@ op create(): {@statusCode: 201 | 202}
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
 
 ```typespec
+<<<<<<< HEAD
 dec TypeSpec.Http.useAuth(target: Namespace, auth: {} | Union | {}[])
+=======
+@TypeSpec.Http.useAuth(auth: object | Union | object[])
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
 ```
 
 #### Target
@@ -344,6 +397,20 @@ dec TypeSpec.Http.useAuth(target: Namespace, auth: {} | Union | {}[])
 
 #### Parameters
 
+<<<<<<< HEAD
 | Name | Type                        | Description                                                                                                                                                    |
 | ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+=======
+| Name | Type                                | Description                                                                                                                                                    |
+| ---- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `union object \| Union \| object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+
+#### Examples
+
+```typespec
+@service
+@useAuth(BasicAuth)
+namespace PetStore;
+```
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323

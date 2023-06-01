@@ -22,6 +22,7 @@ toc_max_heading_level: 3
 - [`@query`](./decorators.md#@TypeSpec.Http.query)
 - [`@route`](./decorators.md#@TypeSpec.Http.route)
 - [`@server`](./decorators.md#@TypeSpec.Http.server)
+- [`@sharedRoute`](./decorators.md#@TypeSpec.Http.sharedRoute)
 - [`@statusCode`](./decorators.md#@TypeSpec.Http.statusCode)
 - [`@useAuth`](./decorators.md#@TypeSpec.Http.useAuth)
 

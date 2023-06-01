@@ -340,6 +340,79 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
 extern dec discriminator(target: Model | Union, propertyName: string);
 
 /**
+ * Known encoding to use on utcDateTime or offsetDateTime
+ */
+enum DateTimeKnownEncoding {
+  /**
+   * RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt
+   * Encode to string.
+   */
+  rfc3339: "rfc3339",
+  /**
+   * RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt
+   * Encode to string.
+   */
+  rfc7231: "rfc7231",
+  /**
+   * Encode to integer
+   */
+  unixTimestamp: "unixTimestamp",
+}
+
+/**
+ * Known encoding to use on duration
+ */
+enum DurationKnownEncoding {
+  /**
+   * ISO8601 duration
+   */
+  ISO8601: "ISO8601",
+  /**
+   * Encode to integer or float
+   */
+  seconds: "seconds",
+}
+
+/**
+ * Known encoding to use on bytes
+ */
+enum BytesKnownEncoding {
+  /**
+   * Encode to Base64
+   */
+  base64: "base64",
+  /**
+   * Encode to Base64 Url
+   */
+  base64url: "base64url",
+}
+
+/**
+ * Specify how to encode the target type.
+ * @param encoding Known name of an encoding.
+ * @param encodedAs What target type is this being encoded as. Default to string.
+ *
+ * @example offsetDateTime encoded with rfc7231
+ *
+ * ```tsp
+ * @encode("rfc7231")
+ * scalar myDateTime extends offsetDateTime;
+ * ```
+ *
+ * @example utcDateTime encoded with unixTimestamp
+ *
+ * ```tsp
+ * @encode("unixTimestamp", int32)
+ * scalar myDateTime extends unixTimestamp;
+ * ```
+ */
+extern dec encode(
+  target: Scalar | ModelProperty,
+  encoding: string | EnumMember,
+  encodedAs?: Scalar
+);
+
+/**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.
@@ -354,7 +427,7 @@ extern dec discriminator(target: Model | Union, propertyName: string);
  * - "update": input to operations that update data.
  * - "delete": input to operations that delete data.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
  *
  * @param visibilities List of visibilities which apply to this property.
  *
@@ -379,7 +452,7 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * together with spread to effectively spread only visible properties into
  * a new model.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
  *
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.
@@ -426,6 +499,11 @@ extern dec withDefaultKeyVisibility(target: Model, visibility: unknown);
  * Returns the model with non-updateable properties removed.
  */
 extern dec withUpdateableProperties(target: Model);
+
+/**
+ * Returns the model with required properties removed.
+ */
+extern dec withOptionalProperties(target: Model);
 
 /**
  * Returns the model with any default values removed.

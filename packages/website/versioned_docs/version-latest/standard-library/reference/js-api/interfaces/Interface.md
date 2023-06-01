@@ -144,7 +144,7 @@ The interfaces that provide additional operations via `interface extends`.
 
 Note that despite the same `extends` keyword in source form, this is a
 different semantic relationship than the one from [Model](Model.md) to
-[baseModel](Model.md#basemodel). Operations from extended interfaces are copied
+[baseModel](ArrayModelType.md#basemodel). Operations from extended interfaces are copied
 into [operations](Interface.md#operations).
 
 ___

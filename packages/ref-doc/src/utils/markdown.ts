@@ -35,3 +35,24 @@ export function table([header, ...rows]: string[][]) {
     ...rows.map(renderRow),
   ].join("\n");
 }
+
+export type Tab = {
+  id: string;
+  label: string;
+  content: string;
+};
+
+export function tabs(tabs: Tab[]) {
+  const result = ["<Tabs>"];
+  for (const tab of tabs) {
+    result.push(
+      `<TabItem value="${tab.id}" label="${tab.label}" default>`,
+      "",
+      tab.content,
+      "",
+      "</TabItem>"
+    );
+  }
+  result.push("</Tabs>", "");
+  return result.join("\n");
+}

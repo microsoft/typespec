@@ -48,10 +48,12 @@ Unlike node libraries which support CommonJS (cjs), TypeSpec libraries must be E
 Run the following command:
 
 ```bash
-npm install @typespec/compiler
+npm install --save-peer @typespec/compiler
 ```
 
 You may have need of other dependencies in the TypeSpec standard library depending on what you are doing. E.g. if you want to use the metadata found in `@typespec/openapi` you will need to install that as well.
+
+See [dependency section](#defining-dependencies) for information on how to define your dependencies.
 
 ### 2. Define your main files
 
@@ -67,16 +69,16 @@ Your package.json needs to refer to two main files: your node module main file, 
 Run the following commands:
 
 ```bash
-> npm install -D typescript
-> npx tsc --init --strict
+npm install -D typescript
+npx tsc --init --strict
 ```
 
 This will create `tsconfig.json`. But we need to make a couple changes to this. Open `tsconfig.json` and set the following settings:
 
 ```json
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "target": "es2018",
+    "module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
+    "moduleResolution": "Node16",
+    "target": "es2019",
     "rootDir": "./src",
     "outDir": "./dist",
 ```
@@ -130,6 +132,38 @@ namespace MyLibrary;
 model Person {
   name: string;
   age: uint8;
+}
+```
+
+## Defining Dependencies
+
+Defining dependencies in a TypeSpec library should be following these rules:
+
+- use `peerDependencies` for all TypeSpec libraries(+ compiler) that you use in your own library/emitter
+- use `devDependencies` for the other typespec libraries used only in tests
+- use `dependencies`/`devDependencies` for any other packages depending if using in library code or in test/dev scripts
+
+TypeSpec libraries are defined using `peerDependencies` so we don't end-up with multiple versions of the compiler/library running at the same time.
+
+**Example**
+
+```jsonc
+{
+  "dependencies": {
+    "js-yaml": "~4.1.0" // This is a regular package this library/emitter will use
+  },
+  "peerDependencies": {
+    // Those are all TypeSpec libraries this library/emitter depend on
+    "@typespec/compiler": "~0.43.0",
+    "@typespec/http": "~0.43.1",
+    "@typespec/openapi": "~0.43.0"
+  },
+  "devDependencies": {
+    // This TypeSpec library is only used in the tests but is not required to use this library.
+    "@typespec/versioning": "~0.43.0",
+    // Typescript is only used during development
+    "typescript": "~5.0.2"
+  }
 }
 ```
 

@@ -88,6 +88,7 @@ import {
   StringLiteralNode,
   SyntaxKind,
   TextRange,
+  TypeReferenceNode,
   Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
@@ -100,7 +101,11 @@ import {
 } from "../core/util.js";
 import { resolveCompletion } from "./completion.js";
 import { getSymbolStructure } from "./symbol-structure.js";
-import { getParameterDocumentation, getTypeDetails } from "./type-details.js";
+import {
+  getParameterDocumentation,
+  getSymbolDetails,
+  getTemplateParameterDocumentation,
+} from "./type-details.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -303,20 +308,26 @@ export function createServer(host: ServerHost): Server {
           changeNotifications: true,
         },
       };
+      // eslint-disable-next-line deprecation/deprecation
     } else if (params.rootUri) {
       workspaceFolders = [
         {
           name: "<root>",
+          // eslint-disable-next-line deprecation/deprecation
           uri: params.rootUri,
+          // eslint-disable-next-line deprecation/deprecation
           path: ensureTrailingDirectorySeparator(await fileURLToRealPath(params.rootUri)),
         },
       ];
+      // eslint-disable-next-line deprecation/deprecation
     } else if (params.rootPath) {
       workspaceFolders = [
         {
           name: "<root>",
+          // eslint-disable-next-line deprecation/deprecation
           uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(
+            // eslint-disable-next-line deprecation/deprecation
             await getNormalizedRealPath(compilerHost, params.rootPath)
           ),
         },
@@ -608,8 +619,7 @@ export function createServer(host: ServerHost): Server {
       const sym =
         id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
       if (sym) {
-        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        return getTypeDetails(program, type);
+        return getSymbolDetails(program, sym);
       }
       return undefined;
     });
@@ -625,81 +635,149 @@ export function createServer(host: ServerHost): Server {
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
     return await compile(params.textDocument, (program, document, file) => {
-      const nodeAtPosition = getNodeAtPosition(file, document.offsetAt(params.position));
-      const data = nodeAtPosition && findDecoratorOrParameter(nodeAtPosition);
+      const data = getSignatureHelpNodeAtPosition(file, document.offsetAt(params.position));
       if (data === undefined) {
         return undefined;
       }
       const { node, argumentIndex } = data;
-      const sym = program.checker.resolveIdentifier(
-        node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
-      );
-
-      const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
-        sym?.declarations.find(
-          (x): x is DecoratorDeclarationStatementNode =>
-            x.kind === SyntaxKind.DecoratorDeclarationStatement
-        );
-
-      if (decoratorDeclNode === undefined) {
-        return undefined;
+      switch (node.kind) {
+        case SyntaxKind.TypeReference:
+          return getSignatureHelpForTemplate(program, node, argumentIndex);
+        case SyntaxKind.DecoratorExpression:
+        case SyntaxKind.AugmentDecoratorStatement:
+          return getSignatureHelpForDecorator(program, node, argumentIndex);
+        default:
+          const _assertNever: never = node;
+          compilerAssert(false, "Unreachable");
       }
-      const type = program.checker.getTypeForNode(decoratorDeclNode);
-      compilerAssert(type.kind === "Decorator", "Expected type to be a decorator.");
-
-      const parameterDocs = getParameterDocumentation(program, type);
-      let labelPrefix = "";
-      const parameters: ParameterInformation[] = [];
-      if (node.kind === SyntaxKind.AugmentDecoratorStatement) {
-        const targetType = decoratorDeclNode.target.type
-          ? program.checker.getTypeForNode(decoratorDeclNode.target.type)
-          : undefined;
-
-        parameters.push({
-          label: `${decoratorDeclNode.target.id.sv}: ${
-            targetType ? getTypeName(targetType) : "unknown"
-          }`,
-        });
-
-        labelPrefix = "@";
-      }
-
-      parameters.push(
-        ...type.parameters.map((x) => {
-          const info: ParameterInformation = {
-            // prettier-ignore
-            label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getTypeName(x.type)}`,
-          };
-          const doc = parameterDocs.get(x.name);
-          if (doc) {
-            info.documentation = { kind: MarkupKind.Markdown, value: doc };
-          }
-          return info;
-        })
-      );
-
-      const help: SignatureHelp = {
-        signatures: [
-          {
-            label: `${labelPrefix}${type.name}(${parameters.map((x) => x.label).join(", ")})`,
-            parameters,
-            activeParameter: Math.min(parameters.length - 1, argumentIndex),
-          },
-        ],
-        activeSignature: 0,
-        activeParameter: 0,
-      };
-
-      const doc = getTypeDetails(program, type, {
-        includeSignature: false,
-        includeParameterTags: false,
-      });
-      if (doc) {
-        help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
-      }
-
-      return help;
     });
+  }
+
+  function getSignatureHelpForTemplate(
+    program: Program,
+    node: TypeReferenceNode,
+    argumentIndex: number
+  ): SignatureHelp | undefined {
+    const sym = program.checker.resolveIdentifier(
+      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+    );
+    const templateDeclNode = sym?.declarations[0];
+    if (
+      !templateDeclNode ||
+      !("templateParameters" in templateDeclNode) ||
+      templateDeclNode.templateParameters.length === 0
+    ) {
+      return undefined;
+    }
+
+    const parameterDocs = getTemplateParameterDocumentation(templateDeclNode);
+    const parameters = templateDeclNode.templateParameters.map((x) => {
+      const info: ParameterInformation = { label: x.id.sv };
+      const doc = parameterDocs.get(x.id.sv);
+      if (doc) {
+        info.documentation = { kind: MarkupKind.Markdown, value: doc };
+      }
+      return info;
+    });
+
+    const help: SignatureHelp = {
+      signatures: [
+        {
+          label: `${sym.name}<${parameters.map((x) => x.label).join(", ")}>`,
+          parameters,
+          activeParameter: Math.min(parameters.length - 1, argumentIndex),
+        },
+      ],
+      activeSignature: 0,
+      activeParameter: 0,
+    };
+
+    const doc = getSymbolDetails(program, sym, {
+      includeSignature: false,
+      includeParameterTags: false,
+    });
+    if (doc) {
+      help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
+    }
+
+    return help;
+  }
+
+  function getSignatureHelpForDecorator(
+    program: Program,
+    node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+    argumentIndex: number
+  ): SignatureHelp | undefined {
+    const sym = program.checker.resolveIdentifier(
+      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+    );
+    if (!sym) {
+      return undefined;
+    }
+
+    const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined = sym.declarations.find(
+      (x): x is DecoratorDeclarationStatementNode =>
+        x.kind === SyntaxKind.DecoratorDeclarationStatement
+    );
+    if (decoratorDeclNode === undefined) {
+      return undefined;
+    }
+
+    const type = program.checker.getTypeForNode(decoratorDeclNode);
+    compilerAssert(type.kind === "Decorator", "Expected type to be a decorator.");
+
+    const parameterDocs = getParameterDocumentation(program, type);
+    let labelPrefix = "";
+    const parameters: ParameterInformation[] = [];
+    if (node.kind === SyntaxKind.AugmentDecoratorStatement) {
+      const targetType = decoratorDeclNode.target.type
+        ? program.checker.getTypeForNode(decoratorDeclNode.target.type)
+        : undefined;
+
+      parameters.push({
+        label: `${decoratorDeclNode.target.id.sv}: ${
+          targetType ? getTypeName(targetType) : "unknown"
+        }`,
+      });
+
+      labelPrefix = "@";
+    }
+
+    parameters.push(
+      ...type.parameters.map((x) => {
+        const info: ParameterInformation = {
+          // prettier-ignore
+          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getTypeName(x.type)}`,
+        };
+        const doc = parameterDocs.get(x.name);
+        if (doc) {
+          info.documentation = { kind: MarkupKind.Markdown, value: doc };
+        }
+        return info;
+      })
+    );
+
+    const help: SignatureHelp = {
+      signatures: [
+        {
+          label: `${labelPrefix}${type.name}(${parameters.map((x) => x.label).join(", ")})`,
+          parameters,
+          activeParameter: Math.min(parameters.length - 1, argumentIndex),
+        },
+      ],
+      activeSignature: 0,
+      activeParameter: 0,
+    };
+
+    const doc = getSymbolDetails(program, sym, {
+      includeSignature: false,
+      includeParameterTags: false,
+    });
+    if (doc) {
+      help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
+    }
+
+    return help;
   }
 
   async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
@@ -1126,7 +1204,7 @@ export function createServer(host: ServerHost): Server {
     let dir = getDirectoryPath(path);
     const options = { allowFileNotFound: true };
 
-    while (inWorkspace(dir)) {
+    while (true) {
       let mainFile = "main.tsp";
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
@@ -1177,11 +1255,6 @@ export function createServer(host: ServerHost): Server {
         formatDiagnostic(diagnostic)
       );
     }
-  }
-
-  function inWorkspace(path: string) {
-    path = ensureTrailingDirectorySeparator(path);
-    return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 
   async function getPath(document: TextDocument | TextDocumentIdentifier) {
@@ -1310,38 +1383,63 @@ export function createServer(host: ServerHost): Server {
   }
 }
 
-type DecoratorNode = DecoratorExpressionNode | AugmentDecoratorStatementNode;
+type SignatureHelpNode =
+  | DecoratorExpressionNode
+  | AugmentDecoratorStatementNode
+  | TypeReferenceNode;
 
-function findDecoratorOrParameter(
-  node: Node
-): { node: DecoratorNode; argumentIndex: number } | undefined {
-  if (node.kind === SyntaxKind.DecoratorExpression) {
-    return { node, argumentIndex: node.arguments.length };
+function getSignatureHelpNodeAtPosition(
+  file: TypeSpecScriptNode,
+  position: number
+): { node: SignatureHelpNode; argumentIndex: number } | undefined {
+  const node = getNodeAtPosition(file, position);
+  if (!node) {
+    return undefined;
   }
 
-  if (node.kind === SyntaxKind.AugmentDecoratorStatement) {
-    return { node, argumentIndex: node.arguments.length + 1 };
+  // Edge case: If the node itself is decorator or type reference and we're
+  // at a position where a type argument can occur, then we are at the last
+  // argument. The syntax tree will not have a missing identifier for the
+  // final argument as the recovery will be to assume there was a trailing
+  // delimiter. For example: @dec(x,y,|) or Template<x,y,|>.
+  switch (node.kind) {
+    case SyntaxKind.DecoratorExpression:
+    case SyntaxKind.TypeReference:
+      if (position > node.target.end) {
+        return { node, argumentIndex: node.arguments.length };
+      }
+      break;
+    case SyntaxKind.AugmentDecoratorStatement:
+      if (position > node.targetType.end) {
+        return { node, argumentIndex: node.arguments.length + 1 };
+      }
+      break;
   }
 
-  let current: Node | undefined = node;
-  while (current) {
-    if (current.parent?.kind === SyntaxKind.DecoratorExpression) {
-      return {
-        node: current.parent,
-        argumentIndex: current.parent.arguments.indexOf(current as any),
-      };
-    }
-    if (current.parent?.kind === SyntaxKind.AugmentDecoratorStatement) {
-      return {
-        node: current.parent,
-        argumentIndex:
-          current === current.parent?.targetType
+  // Normal case: Check if the node is parented by a type reference or
+  // decorator and is one of its parent's arguments.
+  for (let current: Node | undefined = node; current; current = current.parent) {
+    let argumentIndex = -1;
+    let signatureNode: SignatureHelpNode | undefined;
+    switch (current.parent?.kind) {
+      case SyntaxKind.TypeReference:
+      case SyntaxKind.DecoratorExpression:
+        signatureNode = current.parent;
+        argumentIndex = current.parent.arguments.indexOf(current as any);
+        break;
+      case SyntaxKind.AugmentDecoratorStatement:
+        signatureNode = current.parent;
+        argumentIndex =
+          current === current.parent.targetType
             ? 0
-            : current.parent.arguments.indexOf(current as any) + 1,
-      };
+            : current.parent.arguments.indexOf(current as any) + 1;
+        break;
     }
-    current = current.parent;
+    if (signatureNode && argumentIndex >= 0) {
+      return { node: signatureNode, argumentIndex };
+    }
   }
+
   return undefined;
 }
 

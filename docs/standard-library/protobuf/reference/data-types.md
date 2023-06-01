@@ -24,7 +24,7 @@ When the TypeSpec definition of `Widget` is encountered, the Protobuf emitter wi
 `test.Widget` and insert an import for it, rather than attempt to convert the model to an equivalent message.
 
 ```typespec
-model Extern<Path, Name>
+model TypeSpec.Protobuf.Extern<Path, Name>
 ```
 
 #### Template Parameters
@@ -33,6 +33,12 @@ model Extern<Path, Name>
 | ---- | ---------------------------------------------------------------------------------------- |
 | Path | the relative path to a `.proto` file to import                                           |
 | Name | the fully-qualified reference to the type this model represents within the `.proto` file |
+
+#### Examples
+
+```typespec
+model Widget is Extern<"path/to/test.proto", "test.Widget">;
+```
 
 ### `Map` {#TypeSpec.Protobuf.Map}
 
@@ -43,7 +49,7 @@ The key type of a Protobuf `map` must be any integral type or `string`. The valu
 another `Map`.
 
 ```typespec
-model Map<K, V>
+model TypeSpec.Protobuf.Map<K, V>
 ```
 
 #### Template Parameters

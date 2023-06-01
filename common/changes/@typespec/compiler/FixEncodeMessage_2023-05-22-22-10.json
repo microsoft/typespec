@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix error message for @encode errors.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -58,7 +58,15 @@ model ResourceCollectionParameters<TResource extends {}> {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
+<<<<<<< HEAD
 interface ResourceRead<TResource extends {}, TError> {
+=======
+interface ResourceRead<TResource extends object, TError> {
+  /**
+   * Gets an instance of the resource.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Gets an instance of the resource.")
   @readsResource(TResource)
@@ -80,9 +88,18 @@ model ResourceCreatedResponse<T> {
  * @template TResource The resource model to create or replace.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ResourceCreateOrReplace<TResource extends {}, TError> {
+=======
+interface ResourceCreateOrReplace<TResource extends object, TError> {
+  /**
+   * Creates or replaces a instance of the resource.
+   * @template TResource The resource model to create or replace.
+   * @template TError The error response.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
-  @doc("Creates or replaces a instance of the resource.")
+  @doc("Creates or replaces an instance of the resource.")
   @createsOrReplacesResource(TResource)
   createOrReplace(
     ...ResourceParameters<TResource>,
@@ -103,9 +120,18 @@ model ResourceCreateOrUpdateModel<TResource extends {}>
  * @template TResource The resource model to create or update.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ResourceCreateOrUpdate<TResource extends {}, TError> {
+=======
+interface ResourceCreateOrUpdate<TResource extends object, TError> {
+  /**
+   * Creates or update an instance of the resource.
+   * @template TResource The resource model to create or update.
+   * @template TError The error response.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
-  @doc("Creates or update a instance of the resource.")
+  @doc("Creates or update an instance of the resource.")
   @createsOrUpdatesResource(TResource)
   createOrUpdate(
     ...ResourceParameters<TResource>,
@@ -126,7 +152,16 @@ model ResourceCreateModel<TResource extends {}>
  * @template TResource The resource model to create.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ResourceCreate<TResource extends {}, TError> {
+=======
+interface ResourceCreate<TResource extends object, TError> {
+  /**
+   * Creates a new instance of the resource.
+   * @template TResource The resource model to create.
+   * @template TError The error response.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Creates a new instance of the resource.")
   @createsResource(TResource)
@@ -143,7 +178,16 @@ interface ResourceCreate<TResource extends {}, TError> {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
+<<<<<<< HEAD
 interface ResourceUpdate<TResource extends {}, TError> {
+=======
+interface ResourceUpdate<TResource extends object, TError> {
+  /**
+   * Updates an existing instance of the resource.
+   * @template TResource The resource model to update.
+   * @template TError The error response.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Updates an existing instance of the resource.")
   @updatesResource(TResource)
@@ -168,6 +212,11 @@ model ResourceDeletedResponse {
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
 interface ResourceDelete<TResource extends {}, TError> {
+  /**
+   * Deletes an existing instance of the resource.
+   * @template TResource The resource model to delete.
+   * @template TError The error response.
+   */
   @autoRoute
   @doc("Deletes an existing instance of the resource.")
   @deletesResource(TResource)
@@ -195,7 +244,16 @@ model CollectionWithNextLink<T extends {}> {
  * @template TResource The resource model to list.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ResourceList<TResource extends {}, TError> {
+=======
+interface ResourceList<TResource extends object, TError> {
+  /**
+   * Lists all instances of the resource.
+   * @template TResource The resource model to list.
+   * @template TError The error response.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Lists all instances of the resource.")
   @listsResource(TResource)
@@ -244,12 +302,21 @@ interface ResourceOperations<TResource extends {}, TError>
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
+<<<<<<< HEAD
 interface SingletonResourceRead<TSingleton extends {}, TResource extends {}, TError> {
+=======
+interface SingletonResourceRead<TSingleton extends object, TResource extends object, TError> {
+  /**
+   * Gets the singleton resource.
+   * @template TSingleton The singleton resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Gets the singleton resource.")
   @segmentOf(TSingleton)
   @readsResource(TSingleton)
-  Get(...ResourceParameters<TResource>): TSingleton | TError;
+  get(...ResourceParameters<TResource>): TSingleton | TError;
 }
 
 /**
@@ -260,12 +327,21 @@ interface SingletonResourceRead<TSingleton extends {}, TResource extends {}, TEr
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
+<<<<<<< HEAD
 interface SingletonResourceUpdate<TSingleton extends {}, TResource extends {}, TError> {
+=======
+interface SingletonResourceUpdate<TSingleton extends object, TResource extends object, TError> {
+  /**
+   * Updates the singleton resource.
+   * @template TSingleton The singleton resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Updates the singleton resource.")
   @segmentOf(TSingleton)
   @updatesResource(TSingleton)
-  Update(
+  update(
     ...ResourceParameters<TResource>,
 
     @body
@@ -291,11 +367,20 @@ interface SingletonResourceOperations<TSingleton extends {}, TResource extends {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
+<<<<<<< HEAD
 interface ExtensionResourceRead<TExtension extends {}, TResource extends {}, TError> {
+=======
+interface ExtensionResourceRead<TExtension extends object, TResource extends object, TError> {
+  /**
+   * Gets an instance of the extension resource.
+   * @template TExtension The extension resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Gets an instance of the extension resource.")
   @readsResource(TExtension)
-  Get(...ResourceParameters<TResource>, ...ResourceParameters<TExtension>): TExtension | TError;
+  get(...ResourceParameters<TResource>, ...ResourceParameters<TExtension>): TExtension | TError;
 }
 
 /**
@@ -304,11 +389,24 @@ interface ExtensionResourceRead<TExtension extends {}, TResource extends {}, TEr
  * @template TResource The resource model.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ExtensionResourceCreateOrUpdate<TExtension extends {}, TResource extends {}, TError> {
+=======
+interface ExtensionResourceCreateOrUpdate<
+  TExtension extends object,
+  TResource extends object,
+  TError
+> {
+  /**
+   * Creates or update an instance of the extension resource.
+   * @template TExtension The extension resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
-  @doc("Creates or update a instance of the extension resource.")
+  @doc("Creates or update an instance of the extension resource.")
   @createsOrUpdatesResource(TExtension)
-  CreateOrUpdate(
+  createOrUpdate(
     ...ResourceParameters<TResource>,
     ...ResourceParameters<TExtension>,
     @body resource: ResourceCreateOrUpdateModel<TExtension>
@@ -321,11 +419,20 @@ interface ExtensionResourceCreateOrUpdate<TExtension extends {}, TResource exten
  * @template TResource The resource model.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ExtensionResourceCreate<TExtension extends {}, TResource extends {}, TError> {
+=======
+interface ExtensionResourceCreate<TExtension extends object, TResource extends object, TError> {
+  /**
+   * Creates a new instance of the extension resource.
+   * @template TExtension The extension resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Creates a new instance of the extension resource.")
   @createsResource(TExtension)
-  Create(
+  create(
     ...ResourceParameters<TResource>,
     @body resource: ResourceCreateModel<TExtension>
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
@@ -337,11 +444,20 @@ interface ExtensionResourceCreate<TExtension extends {}, TResource extends {}, T
  * @template TResource The resource model.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ExtensionResourceUpdate<TExtension extends {}, TResource extends {}, TError> {
+=======
+interface ExtensionResourceUpdate<TExtension extends object, TResource extends object, TError> {
+  /**
+   * Updates an existing instance of the extension resource.
+   * @template TExtension The extension resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Updates an existing instance of the extension resource.")
   @updatesResource(TExtension)
-  Update(
+  update(
     ...ResourceParameters<TResource>,
     ...ResourceParameters<TExtension>,
 
@@ -356,11 +472,20 @@ interface ExtensionResourceUpdate<TExtension extends {}, TResource extends {}, T
  * @template TResource The resource model.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ExtensionResourceDelete<TExtension extends {}, TResource extends {}, TError> {
+=======
+interface ExtensionResourceDelete<TExtension extends object, TResource extends object, TError> {
+  /**
+   * Deletes an existing instance of the extension resource.
+   * @template TExtension The extension resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Deletes an existing instance of the extension resource.")
   @deletesResource(TExtension)
-  Delete(
+  delete(
     ...ResourceParameters<TResource>,
     ...ResourceParameters<TExtension>
   ): ResourceDeletedResponse | TError;
@@ -372,11 +497,20 @@ interface ExtensionResourceDelete<TExtension extends {}, TResource extends {}, T
  * @template TResource The resource model.
  * @template TError The error response.
  */
+<<<<<<< HEAD
 interface ExtensionResourceList<TExtension extends {}, TResource extends {}, TError> {
+=======
+interface ExtensionResourceList<TExtension extends object, TResource extends object, TError> {
+  /**
+   * Lists all instances of the extension resource.
+   * @template TExtension The extension resource model.
+   * @template TResource The resource model.
+   */
+>>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
   @autoRoute
   @doc("Lists all instances of the extension resource.")
   @listsResource(TExtension)
-  List(
+  list(
     ...ResourceParameters<TResource>,
     ...ResourceCollectionParameters<TExtension>
   ): CollectionWithNextLink<TExtension> | TError;

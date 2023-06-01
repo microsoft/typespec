@@ -583,7 +583,17 @@ describe("http: decorators", () => {
       `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] }],
+        options: [
+          {
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+              },
+            ],
+          },
+        ],
       });
     });
 
@@ -613,7 +623,17 @@ describe("http: decorators", () => {
       `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] }],
+        options: [
+          {
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+              },
+            ],
+          },
+        ],
       });
     });
 
@@ -625,7 +645,16 @@ describe("http: decorators", () => {
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
-          { schemes: [{ id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" }] },
+          {
+            schemes: [
+              {
+                id: "ApiKeyAuth",
+                type: "apiKey",
+                in: "header",
+                name: "x-my-header",
+              },
+            ],
+          },
         ],
       });
     });
@@ -672,8 +701,12 @@ describe("http: decorators", () => {
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
-          { schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] },
-          { schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] },
+          {
+            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+          },
+          {
+            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+          },
         ],
       });
     });
@@ -709,7 +742,12 @@ describe("http: decorators", () => {
           },
           {
             schemes: [
-              { id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" },
+              {
+                id: "ApiKeyAuth",
+                type: "apiKey",
+                in: "header",
+                name: "x-my-header",
+              },
               { id: "BasicAuth", type: "http", scheme: "basic" },
             ],
           },

@@ -26,7 +26,9 @@ When resolution reach a directory without package.json look for those files to l
 
 **`Default`**
 
+```ts
 ["index.mjs", "index.js"]
+```
 
 ___
 
@@ -42,7 +44,9 @@ When resolution reach package.json returns the path to the file relative to it.
 
 **`Default`**
 
+```ts
 pkg.main
+```
 
 ##### Parameters
 

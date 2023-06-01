@@ -95,6 +95,22 @@ const diagnostics = {
   },
 
   /**
+   * Init templates
+   */
+  "init-template-invalid-json": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unable to parse ${"url"}: ${"message"}. Check that the template URL is correct.`,
+    },
+  },
+  "init-template-download-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to download template from ${"url"}: ${"message"}. Check that the template URL is correct.`,
+    },
+  },
+
+  /**
    * Parser errors.
    */
   "multiple-blockless-namespace": {
@@ -590,12 +606,6 @@ const diagnostics = {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
     },
   },
-  "emitter-not-found": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`Emitter with name ${"emitterName"} is not found.`,
-    },
-  },
   "missing-import": {
     severity: "error",
     messages: {
@@ -678,6 +688,15 @@ const diagnostics = {
       default: paramMessage`Discriminator value should be a string, union of string or string enum but was ${"kind"}.`,
       required: "The discriminator property must be a required property.",
       duplicate: paramMessage`Discriminator value "${"discriminator"}" is already used in another variant.`,
+    },
+  },
+
+  "invalid-encode": {
+    severity: "error",
+    messages: {
+      default: "Invalid encoding",
+      wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
+      wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
     },
   },
 

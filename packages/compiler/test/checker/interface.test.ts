@@ -303,10 +303,6 @@ describe("compiler: interfaces", () => {
       };
 
       strictEqual(Foo.operations.size, 1);
-      ok(
-        isTemplateDeclaration(Foo.operations.get("bar")!),
-        "Operation inside MyFoo interface is still a template"
-      );
 
       const input = bar.parameters.properties.get("input")!.type;
       strictEqual(input.kind, "Scalar" as const);
@@ -332,11 +328,6 @@ describe("compiler: interfaces", () => {
       };
 
       strictEqual(Foo.operations.size, 1);
-      ok(
-        isTemplateDeclaration(Foo.operations.get("bar")!),
-        "Operation inside MyFoo interface is still a template"
-      );
-
       const input = bar.parameters.properties.get("input")!.type;
       strictEqual(input.kind, "Scalar" as const);
       strictEqual(input.name, "string");
@@ -407,10 +398,6 @@ describe("compiler: interfaces", () => {
       };
 
       strictEqual(Foo.operations.size, 1);
-      ok(
-        isTemplateDeclaration(Foo.operations.get("bar")!),
-        "Operation inside MyFoo interface is still a template"
-      );
 
       const input = bar.parameters.properties.get("input")!.type;
       strictEqual(input.kind, "Scalar" as const);

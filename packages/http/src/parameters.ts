@@ -47,7 +47,7 @@ export function getOperationParameters(
   // strangely such that there is no body if the verb is POST and there is a
   // body if the verb is GET. In that rare case, GET is chosen arbitrarily.
   const post = getOperationParametersForVerb(program, operation, "post", knownPathParamNames);
-  return post[0].bodyType
+  return post[0].body
     ? post
     : getOperationParametersForVerb(program, operation, "get", knownPathParamNames);
 }

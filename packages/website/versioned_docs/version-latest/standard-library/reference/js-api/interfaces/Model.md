@@ -33,6 +33,7 @@
 - [projectionSource](Model.md#projectionsource)
 - [projector](Model.md#projector)
 - [properties](Model.md#properties)
+- [sourceModel](Model.md#sourcemodel)
 - [symbol](Model.md#symbol)
 - [templateArguments](Model.md#templatearguments)
 - [templateMapper](Model.md#templatemapper)
@@ -70,7 +71,7 @@ ___
 
 • **derivedModels**: [`Model`](Model.md)[]
 
-Direct children. This is the reverse relation of [baseModel](Model.md#basemodel)
+Direct children. This is the reverse relation of [baseModel](ArrayModelType.md#basemodel)
 
 ___
 
@@ -166,6 +167,14 @@ spread appears in source.
 Properties inherited via `model extends` are not included. Use
 [walkPropertiesInherited](../index.md#walkpropertiesinherited) to enumerate all properties in the
 inheritance hierarchy.
+
+___
+
+### sourceModel
+
+• `Optional` **sourceModel**: [`Model`](Model.md)
+
+The model that is referenced via `model is`.
 
 ___
 
