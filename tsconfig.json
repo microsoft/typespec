@@ -18,6 +18,7 @@
     { "path": "packages/openapi3/tsconfig.json" },
     { "path": "packages/bundler/tsconfig.json" },
     { "path": "packages/playground/tsconfig.json" },
+    { "path": "packages/playground-website/tsconfig.json" },
     { "path": "packages/ref-doc/tsconfig.json" },
     { "path": "packages/samples/tsconfig.json" }
   ],

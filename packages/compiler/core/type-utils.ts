@@ -9,6 +9,8 @@ import {
   Node,
   NullType,
   Operation,
+  Sym,
+  SymbolFlags,
   SyntaxKind,
   TemplateDeclarationNode,
   TemplatedType,
@@ -157,4 +159,23 @@ export function isDeclaredInNamespace(
   }
 
   return false;
+}
+
+export function getFullyQualifiedSymbolName(
+  sym: Sym | undefined,
+  options?: { useGlobalPrefixAtTopLevel?: boolean }
+): string {
+  if (!sym) return "";
+  if (sym.symbolSource) sym = sym.symbolSource;
+  const parent =
+    sym.parent && !(sym.parent.flags & SymbolFlags.SourceFile) ? sym.parent : undefined;
+  const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
+
+  if (parent?.name) {
+    return `${getFullyQualifiedSymbolName(parent)}.${name}`;
+  } else if (options?.useGlobalPrefixAtTopLevel) {
+    return `global.${name}`;
+  } else {
+    return name;
+  }
 }

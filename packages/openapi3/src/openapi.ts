@@ -1103,7 +1103,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyIntrinsicDecorators(param, typeSchema);
+    const schema = applyEncoding(param, applyIntrinsicDecorators(param, typeSchema));
     if (param.default) {
       schema.default = getDefaultValue(param.type, param.default);
     }
@@ -1586,7 +1586,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function resolveProperty(prop: ModelProperty, visibility: Visibility): OpenAPI3SchemaProperty {
     const description = getDoc(program, prop);
 
-    const schema = getSchemaOrRef(prop.type, visibility);
+    const schema = applyEncoding(prop, getSchemaOrRef(prop.type, visibility));
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = applyIntrinsicDecorators(prop, {});
     if (description) {
@@ -1701,15 +1701,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.format = "password";
     }
 
-    const encodeData = getEncode(program, typespecType);
-    if (encodeData) {
-      const newType = getSchemaForScalar(encodeData.type);
-      newTarget.type = newType.type;
-      // If the target already has a format it takes priority. (e.g. int32)
-      newTarget.format =
-        newType.format ?? mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
-    }
-
     if (isString) {
       const values = getKnownValues(program, typespecType);
       if (values) {
@@ -1724,19 +1715,51 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return newTarget;
   }
 
-  function mergeFormatAndEncoding(format: string | undefined, encoding: string): string {
+  function applyEncoding(
+    typespecType: Scalar | ModelProperty,
+    target: OpenAPI3Schema
+  ): OpenAPI3Schema {
+    const encodeData = getEncode(program, typespecType);
+    if (encodeData) {
+      const newTarget = { ...target };
+      const newType = getSchemaForScalar(encodeData.type);
+      newTarget.type = newType.type;
+      // If the target already has a format it takes priority. (e.g. int32)
+      newTarget.format = mergeFormatAndEncoding(
+        newTarget.format,
+        encodeData.encoding,
+        newType.format
+      );
+      return newTarget;
+    }
+    return target;
+  }
+  function mergeFormatAndEncoding(
+    format: string | undefined,
+    encoding: string,
+    encodeAsFormat: string | undefined
+  ): string {
     switch (format) {
       case undefined:
-        return encoding;
+        return encodeAsFormat ?? encoding;
       case "date-time":
         switch (encoding) {
           case "rfc3339":
             return "date-time";
+          case "unixTimestamp":
+            return "unixtime";
           default:
             return `date-time-${encoding}`;
         }
+      case "duration":
+        switch (encoding) {
+          case "ISO8601":
+            return "duration";
+          default:
+            return encodeAsFormat ?? encoding;
+        }
       default:
-        return encoding;
+        return encodeAsFormat ?? encoding;
     }
   }
 
@@ -1841,7 +1864,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     } else if (scalar.baseScalar) {
       result = getSchemaForScalar(scalar.baseScalar);
     }
-    const withDecorators = applyIntrinsicDecorators(scalar, result);
+    const withDecorators = applyEncoding(scalar, applyIntrinsicDecorators(scalar, result));
     if (isStd) {
       // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
       delete withDecorators.description;
@@ -1853,6 +1876,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
+      case "numeric":
+        return { type: "number" };
+      case "integer":
+        return { type: "integer" };
       case "int8":
         return { type: "integer", format: "int8" };
       case "int16":
@@ -1871,6 +1898,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "integer", format: "uint32" };
       case "uint64":
         return { type: "integer", format: "uint64" };
+      case "float":
+        return { type: "number" };
       case "float64":
         return { type: "number", format: "double" };
       case "float32":
@@ -1894,10 +1923,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "duration" };
       case "url":
         return { type: "string", format: "uri" };
-      case "integer":
-      case "numeric":
-      case "float":
-        return {}; // Waiting on design for more precise type https://github.com/microsoft/typespec/issues/1260
       default:
         const _assertNever: never = scalar.name;
         return {};

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Show alias doc comments in IDE",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

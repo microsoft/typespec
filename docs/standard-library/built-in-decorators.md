@@ -229,6 +229,7 @@ A debugging decorator used to inspect a type.
 | text | `valueof scalar string` | Custom text to log |
 
 
+
 ### `@inspectTypeName` {#@inspectTypeName}
 
 A debugging decorator used to inspect a type name.
@@ -245,6 +246,7 @@ A debugging decorator used to inspect a type name.
 | Name | Type | Description |
 |------|------|-------------|
 | text | `valueof scalar string` | Custom text to log |
+
 
 
 ### `@key` {#@key}
@@ -693,6 +695,7 @@ Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorat
 | tag | `valueof scalar string` | Tag value |
 
 
+
 ### `@visibility` {#@visibility}
 
 Indicates that a property is only considered to be present or applicable ("visible") with
@@ -756,6 +759,24 @@ Set the visibility of key properties in a model if not already set.
 | visibility | `valueof scalar string` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
+
+### `@withOptionalProperties` {#@withOptionalProperties}
+
+Returns the model with required properties removed.
+
+```typespec
+@withOptionalProperties
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+None
+
+
+
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
 Returns the model with any default values removed.
@@ -770,6 +791,7 @@ Returns the model with any default values removed.
 
 #### Parameters
 None
+
 
 
 ### `@withoutOmittedProperties` {#@withoutOmittedProperties}
@@ -790,6 +812,7 @@ Returns the model with the given properties omitted.
 | omit | `union string \| Union` | List of properties to omit |
 
 
+
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
 Returns the model with non-updateable properties removed.
@@ -804,6 +827,7 @@ Returns the model with non-updateable properties removed.
 
 #### Parameters
 None
+
 
 
 ### `@withVisibility` {#@withVisibility}

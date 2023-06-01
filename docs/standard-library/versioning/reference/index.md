@@ -37,6 +37,7 @@ npm install --save-peer @typespec/versioning
 - [`@madeOptional`](./decorators.md#@TypeSpec.Versioning.madeOptional)
 - [`@removed`](./decorators.md#@TypeSpec.Versioning.removed)
 - [`@renamedFrom`](./decorators.md#@TypeSpec.Versioning.renamedFrom)
+- [`@returnTypeChangedFrom`](./decorators.md#@TypeSpec.Versioning.returnTypeChangedFrom)
 - [`@typeChangedFrom`](./decorators.md#@TypeSpec.Versioning.typeChangedFrom)
 - [`@useDependency`](./decorators.md#@TypeSpec.Versioning.useDependency)
 - [`@versioned`](./decorators.md#@TypeSpec.Versioning.versioned)

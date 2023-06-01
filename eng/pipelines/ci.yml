@@ -57,7 +57,7 @@ jobs:
               --destination $web ^
               --account-name "cadlplayground" ^
               --destination-path / ^
-              --source "./packages/playground/dist/" ^
+              --source "./packages/playground-website/dist/" ^
               --overwrite
 
   - job: npm_dev

@@ -505,6 +505,11 @@ extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string);
 extern dec withUpdateableProperties(target: Model);
 
 /**
+ * Returns the model with required properties removed.
+ */
+extern dec withOptionalProperties(target: Model);
+
+/**
  * Returns the model with any default values removed.
  */
 extern dec withoutDefaultValues(target: Model);

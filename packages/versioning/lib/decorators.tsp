@@ -49,6 +49,13 @@ namespace TypeSpec {
     extern dec typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown);
 
     /**
+     * Identifies when the target type changed.
+     * @param version The version that the target type changed in.
+     * @param oldType The previous type of the target.
+     */
+    extern dec returnTypeChangedFrom(target: Operation, version: EnumMember, oldType: unknown);
+
+    /**
      * Returns whether the target exists for the given version.
      * @param version The version to check.
      */
