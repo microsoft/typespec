@@ -93,7 +93,7 @@ Specify this operation is a collection action. (Scopped to a resource, /pets/my-
 Copy the resource key parameters on the model
 
 ```typespec
-@TypeSpec.Rest.copyResourceKeyParameters(filter?: string)
+@TypeSpec.Rest.copyResourceKeyParameters(filter?: valueof string)
 ```
 
 #### Target
@@ -102,9 +102,9 @@ Copy the resource key parameters on the model
 
 #### Parameters
 
-| Name   | Type            | Description                           |
-| ------ | --------------- | ------------------------------------- |
-| filter | `scalar string` | Filter to exclude certain properties. |
+| Name   | Type                    | Description                           |
+| ------ | ----------------------- | ------------------------------------- |
+| filter | `valueof scalar string` | Filter to exclude certain properties. |
 
 ### `@createsOrReplacesResource` {#@TypeSpec.Rest.createsOrReplacesResource}
 
