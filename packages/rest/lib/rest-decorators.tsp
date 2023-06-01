@@ -124,7 +124,7 @@ extern dec collectionAction(target: Operation, resourceType: Model, name?: value
  * Copy the resource key parameters on the model
  * @param filter Filter to exclude certain properties.
  */
-extern dec copyResourceKeyParameters(target: Model, filter?: string);
+extern dec copyResourceKeyParameters(target: Model, filter?: valueof string);
 
 namespace Private {
   extern dec resourceLocation(target: string, resourceType: Model);
