@@ -2,7 +2,12 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix: Array shouldn't be assignable to `object`",
+      "comment": "**BREAKING CHANGE** Fix: Array shouldn't be assignable to an empty model(and `object`)",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**DEPRECATION** `object` is deprecated. Alternative is to use `{}` for an empty model, `Record<unknown>` for a record with unknown propertie types, `unknown[]` for an array.",
       "type": "none"
     }
   ],
