@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Remove `@format(\"url\") from url scalar`",
+      "comment": "**BREAKING CHANGE** Remove `@format(\"url\") from url scalar`",
       "type": "none"
     }
   ],
