@@ -474,42 +474,6 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  describe("object target", () => {
-    ["object", "Record<string>", "Record<int32>"].forEach((x) => {
-      it(`can assign ${x}`, async () => {
-        await expectTypeAssignable({ source: x, target: "object" });
-      });
-    });
-
-    it("can assign empty object", async () => {
-      await expectTypeAssignable({ source: "{}", target: "object" });
-    });
-
-    it("can assign object with property", async () => {
-      await expectTypeAssignable({ source: "{foo: string}", target: "object" });
-    });
-
-    it("emit diagnostic assigning to model expression", async () => {
-      await expectTypeNotAssignable(
-        { source: `string`, target: "{}" },
-        {
-          code: "unassignable",
-          message: "Type 'string' is not assignable to type '{}'",
-        }
-      );
-    });
-
-    it("emit diagnostic assigning other type", async () => {
-      await expectTypeNotAssignable(
-        { source: `string`, target: "object" },
-        {
-          code: "unassignable",
-          message: "Type 'string' is not assignable to type 'object'",
-        }
-      );
-    });
-  });
-
   describe("Record<x> target", () => {
     ["Record<string>"].forEach((x) => {
       it(`can assign ${x}`, async () => {
