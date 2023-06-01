@@ -293,11 +293,7 @@ op getWidget(@path id: string): Widget;
 Specify the endpoint for this service.
 
 ```typespec
-<<<<<<< HEAD
-dec TypeSpec.Http.server(target: Namespace, url: string, description: string, parameters?: Record<unknown>)
-=======
-@TypeSpec.Http.server(url: string, description: string, parameters?: object)
->>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
+@TypeSpec.Http.server(url: string, description: string, parameters?: Record<unknown>)
 ```
 
 #### Target
@@ -384,11 +380,7 @@ op create(): {@statusCode: 201 | 202}
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
 
 ```typespec
-<<<<<<< HEAD
-dec TypeSpec.Http.useAuth(target: Namespace, auth: {} | Union | {}[])
-=======
-@TypeSpec.Http.useAuth(auth: object | Union | object[])
->>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
+@TypeSpec.Http.useAuth(auth: {} | Union | {}[])
 ```
 
 #### Target
@@ -397,14 +389,9 @@ dec TypeSpec.Http.useAuth(target: Namespace, auth: {} | Union | {}[])
 
 #### Parameters
 
-<<<<<<< HEAD
 | Name | Type                        | Description                                                                                                                                                    |
 | ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
-=======
-| Name | Type                                | Description                                                                                                                                                    |
-| ---- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union object \| Union \| object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
 #### Examples
 
@@ -413,4 +400,3 @@ dec TypeSpec.Http.useAuth(target: Namespace, auth: {} | Union | {}[])
 @useAuth(BasicAuth)
 namespace PetStore;
 ```
->>>>>>> 524a210caf33d95d15d33ff06481644dc8021323

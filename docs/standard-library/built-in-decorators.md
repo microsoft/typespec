@@ -72,11 +72,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 Attach a documentation string.
 
 ```typespec
-<<<<<<< HEAD
-dec doc(target: unknown, doc: string, formatArgs?: {})
-=======
-@doc(doc: string, formatArgs?: object)
->>>>>>> 524a210caf33d95d15d33ff06481644dc8021323
+@doc(doc: string, formatArgs?: {})
 ```
 
 #### Target
