@@ -1354,13 +1354,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseNumericLiteral(): NumericLiteralNode {
     const pos = tokenPos();
-    const text = tokenValue();
-    const value = Number(text);
+    const valueAsString = tokenValue();
+    const value = Number(valueAsString);
 
     parseExpected(Token.NumericLiteral);
     return {
       kind: SyntaxKind.NumericLiteral,
       value,
+      valueAsString,
       ...finishNode(pos),
     };
   }
@@ -2210,7 +2211,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseDocList(): [pos: number, nodes: DocNode[]] {
-    if (docRanges.length === 0 || !options.docs) {
+    if (docRanges.length === 0 || options.docs === false) {
       return [tokenPos(), []];
     }
     const docs: DocNode[] = [];

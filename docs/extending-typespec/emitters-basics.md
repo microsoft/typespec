@@ -26,7 +26,7 @@ import Path from "path";
 
 export async function $onEmit(context: EmitContext) {
   const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
-  await program.host.writeFile(outputDir, "hello world!");
+  await context.program.host.writeFile(outputDir, "hello world!");
 }
 ```
 
@@ -68,7 +68,7 @@ export const $lib = createTypeSpecLibrary({
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
   const name = context.options.targetName;
-  await program.host.writeFile(outputDir, `hello ${name}!`);
+  await context.program.host.writeFile(outputDir, `hello ${name}!`);
 }
 ```
 
@@ -78,8 +78,6 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 - An option called `output-dir` can be created and should override the compiler `output-dir`
 
 #### Emitter options vs. decorators
-
-Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputFilename` option could be passed on the command line, or we could have an `@outputFilename` decorator that has the same effect. Which do you use?
 
 The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the TypeSpec program would use the same configuration. This is not the case for `outputFilename` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
@@ -186,6 +184,37 @@ Since an emitter is a node library, you could use standard `fs` APIs to write fi
 Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the node API but works in a wider range of scenarios.
 
 In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/tsp-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`
+
+## Handling scalars
+
+Scalars are types in TypeSpec that most likely have a primitive or built-in datastructure representing those in the target language.
+
+Recommended logic for emitting scalar is to:
+
+1. If scalar is a known scalar(e.g. `int32`), emit the known mapping.
+2. Otherwise check scalar `baseScalar` and go back to `1.`
+   2.1 After resolving which scalar apply any decorators
+
+:::note
+If the scalar is generic and doesn't have a mapping (e.g. integer), we recommend substituting it with the next closest mapping (e.g. integer->int64) and emitting a warning.
+:::
+
+### Examples
+
+```tsp
+@minValue(10)
+scalar myInt32 extends int32;
+
+@minValue(20)
+scalar specializedInt32 extends myInt32;
+```
+
+| Scalar             | Expected type | Description                                                                                                                                 |
+| ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `int16`            | `int16`       | Simple case, emitter can know it is an int16                                                                                                |
+| `myInt32`          | `int32`       | Emitter doesn't know what myInt32 is. Check baseScalar, sees it is an int32, applies minValue decorator.                                    |
+| `specializedInt32` | `int32`       | Emitter doesn't know what specializedInt32 is. Check baseScalar, finds myInt32 knows that it is an int32 now and applies minValue override. |
+| `float`            | `float64`     | Emitter knows float but doesn't have a mapping. Emit `float64` and a warning.                                                               |
 
 ## Handling Default Values
 

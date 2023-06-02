@@ -134,10 +134,11 @@ describe("compiler: checker: type relations", () => {
       "uint16",
       "uint32",
       "uint64",
+      "decimal",
+      "decimal128",
       "string",
       "numeric",
       "float",
-      "object",
       "Record<string>",
       "bytes",
       "duration",
@@ -420,6 +421,8 @@ describe("compiler: checker: type relations", () => {
       "float",
       "float32",
       "float64",
+      "decimal",
+      "decimal128",
     ].forEach((x) => {
       it(`can assign ${x}`, async () => {
         await expectTypeAssignable({ source: x, target: "numeric" });
@@ -446,39 +449,28 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  describe("object target", () => {
-    ["object", "Record<string>", "Record<int32>"].forEach((x) => {
-      it(`can assign ${x}`, async () => {
-        await expectTypeAssignable({ source: x, target: "object" });
-      });
+  describe("decimal target", () => {
+    it("can assign decimal", async () => {
+      await expectTypeAssignable({ source: "decimal", target: "decimal" });
     });
-
-    it("can assign empty object", async () => {
-      await expectTypeAssignable({ source: "{}", target: "object" });
+    it("can assign decimal128", async () => {
+      await expectTypeAssignable({ source: "decimal128", target: "decimal" });
     });
-
-    it("can assign object with property", async () => {
-      await expectTypeAssignable({ source: "{foo: string}", target: "object" });
+    it("can assign numeric literals", async () => {
+      await expectTypeAssignable({ source: "-2147483448", target: "decimal" });
+      await expectTypeAssignable({ source: "2147483448", target: "decimal" });
+      await expectTypeAssignable({ source: "2147483448.12390812", target: "decimal" });
     });
+  });
 
-    it("emit diagnostic assigning to model expression", async () => {
-      await expectTypeNotAssignable(
-        { source: `string`, target: "{}" },
-        {
-          code: "unassignable",
-          message: "Type 'string' is not assignable to type '{}'",
-        }
-      );
+  describe("decimal128 target", () => {
+    it("can assign decimal128", async () => {
+      await expectTypeAssignable({ source: "decimal128", target: "decimal128" });
     });
-
-    it("emit diagnostic assigning other type", async () => {
-      await expectTypeNotAssignable(
-        { source: `string`, target: "object" },
-        {
-          code: "unassignable",
-          message: "Type 'string' is not assignable to type 'object'",
-        }
-      );
+    it("can assign numeric literals", async () => {
+      await expectTypeAssignable({ source: "-2147483448", target: "decimal128" });
+      await expectTypeAssignable({ source: "2147483448", target: "decimal128" });
+      await expectTypeAssignable({ source: "2147483448.12390812", target: "decimal128" });
     });
   });
 
@@ -558,6 +550,7 @@ describe("compiler: checker: type relations", () => {
     it("can assign empty object", async () => {
       await expectTypeAssignable({ source: "{}", target: "{}" });
     });
+
     it("can assign object with the same property", async () => {
       await expectTypeAssignable({ source: "{name: string}", target: "{name: string}" });
     });
@@ -603,6 +596,26 @@ describe("compiler: checker: type relations", () => {
           code: "missing-property",
           message:
             "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+        }
+      );
+    });
+
+    it("emit diagnostic when assigning array to {}", async () => {
+      await expectTypeNotAssignable(
+        { source: `string[]`, target: `{}` },
+        {
+          code: "missing-index",
+          message: "Index signature for type 'integer' is missing in type '{}'.",
+        }
+      );
+    });
+
+    it("emit diagnostic when assigning union of array to {}", async () => {
+      await expectTypeNotAssignable(
+        { source: `string[] | int32[]`, target: `{}` },
+        {
+          code: "unassignable",
+          message: "Type 'string[] | int32[]' is not assignable to type '{}'",
         }
       );
     });
@@ -701,7 +714,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("can a subtype of any of the options", async () => {
-      await expectTypeAssignable({ source: "int32", target: "string | numeric | object" });
+      await expectTypeAssignable({ source: "int32", target: "string | numeric" });
     });
 
     it("emit diagnostic when assigning tuple of different length", async () => {

@@ -498,7 +498,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'object'",
+        message: "Argument '123' is not assignable to parameter of type 'Record<unknown>'",
       });
     });
 
@@ -572,8 +572,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument 'anOp' is not assignable to parameter of type 'object | Union | object[]'",
+        message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
     });
 
@@ -584,7 +583,17 @@ describe("http: decorators", () => {
       `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] }],
+        options: [
+          {
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+              },
+            ],
+          },
+        ],
       });
     });
 
@@ -614,7 +623,17 @@ describe("http: decorators", () => {
       `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] }],
+        options: [
+          {
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+              },
+            ],
+          },
+        ],
       });
     });
 
@@ -626,7 +645,16 @@ describe("http: decorators", () => {
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
-          { schemes: [{ id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" }] },
+          {
+            schemes: [
+              {
+                id: "ApiKeyAuth",
+                type: "apiKey",
+                in: "header",
+                name: "x-my-header",
+              },
+            ],
+          },
         ],
       });
     });
@@ -673,8 +701,12 @@ describe("http: decorators", () => {
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
-          { schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] },
-          { schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] },
+          {
+            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+          },
+          {
+            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+          },
         ],
       });
     });
@@ -710,7 +742,12 @@ describe("http: decorators", () => {
           },
           {
             schemes: [
-              { id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" },
+              {
+                id: "ApiKeyAuth",
+                type: "apiKey",
+                in: "header",
+                name: "x-my-header",
+              },
               { id: "BasicAuth", type: "http", scheme: "basic" },
             ],
           },

@@ -7,6 +7,80 @@ import {
 } from "@typespec/compiler/testing";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
+describe("versioning: incompatible use of decorators", () => {
+  let runner: BasicTestRunner;
+  let host: TestHost;
+  const imports: string[] = [];
+
+  beforeEach(async () => {
+    host = await createVersioningTestHost();
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
+      import "@typespec/versioning";
+      ${imports.map((i) => `import "${i}";`).join("\n")}
+      using TypeSpec.Versioning;
+      ${code}`,
+    });
+  });
+
+  it("emit diagnostic when @service({version: 'X'}) is used with @versioned", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    @service({
+      title: "Widget Service",
+      version: "v3"
+    })
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2,
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/no-service-fixed-version",
+      severity: "error",
+    });
+  });
+
+  it("emit diagnostic when version enum has duplicate values", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    namespace DemoService;
+
+    enum Versions {
+      v1: "v1",
+      v2: "v2",
+      latest: "v2",
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/version-duplicate",
+      message:
+        "Multiple versions from 'Versions' resolve to the same value. Version enums must resolve to unique values.",
+      severity: "error",
+    });
+  });
+
+  it("emit diagnostic when version enum has duplicate implicit values", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2: "v1",
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/version-duplicate",
+      message:
+        "Multiple versions from 'Versions' resolve to the same value. Version enums must resolve to unique values.",
+      severity: "error",
+    });
+  });
+});
+
 describe("versioning: validate incompatible references", () => {
   let runner: BasicTestRunner;
   let host: TestHost;
@@ -385,7 +459,7 @@ describe("versioning: validate incompatible references", () => {
         "lib.tsp",
         `
         namespace Lib;
-        interface Ops<T extends object> {
+        interface Ops<T extends {}> {
           get(): T[];
         }
         `

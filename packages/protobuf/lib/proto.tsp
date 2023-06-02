@@ -1,4 +1,4 @@
-import "../dist/src/proto.js";
+import "../dist/src/index.js";
 
 namespace TypeSpec.Protobuf;
 
@@ -57,6 +57,13 @@ namespace WellKnown {
    * This model references `google.protobuf.Any` from `google/protobuf/any.proto`.
    */
   model Any is Extern<"google/protobuf/any.proto", "google.protobuf.Any">;
+
+  /**
+   * A latitude and longitude.
+   *
+   * This model references `google.type.LatLng` from `google/type/latlng.proto`.
+   */
+  model LatLng is Extern<"google/type/latlng.proto", "google.type.LatLng">;
 }
 
 /**
@@ -136,7 +143,7 @@ model Map<K extends integral | string, V> {}
  *
  * This decorator will force the emitter to check and emit a model.
  */
-extern dec message(target: object);
+extern dec message(target: {});
 
 /**
  * Defines the field index of a model property for conversion to a Protobuf
@@ -204,7 +211,7 @@ extern dec field(target: TypeSpec.Reflection.ModelProperty, index: uint32);
  * }
  * ```
  */
-extern dec reserve(target: object, ...reservations: (string | [uint32, uint32] | uint32)[]);
+extern dec reserve(target: {}, ...reservations: (string | [uint32, uint32] | uint32)[]);
 
 /**
  * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to

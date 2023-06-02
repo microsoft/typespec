@@ -24,7 +24,7 @@ When the TypeSpec definition of `Widget` is encountered, the Protobuf emitter wi
 `test.Widget` and insert an import for it, rather than attempt to convert the model to an equivalent message.
 
 ```typespec
-model Extern<Path, Name>
+model TypeSpec.Protobuf.Extern<Path, Name>
 ```
 
 #### Template Parameters
@@ -33,6 +33,12 @@ model Extern<Path, Name>
 | ---- | ---------------------------------------------------------------------------------------- |
 | Path | the relative path to a `.proto` file to import                                           |
 | Name | the fully-qualified reference to the type this model represents within the `.proto` file |
+
+#### Examples
+
+```typespec
+model Widget is Extern<"path/to/test.proto", "test.Widget">;
+```
 
 ### `Map` {#TypeSpec.Protobuf.Map}
 
@@ -43,7 +49,7 @@ The key type of a Protobuf `map` must be any integral type or `string`. The valu
 another `Map`.
 
 ```typespec
-model Map<K, V>
+model TypeSpec.Protobuf.Map<K, V>
 ```
 
 #### Template Parameters
@@ -74,4 +80,76 @@ See the [`@stream`](./decorators#
 
 ```typespec
 enum TypeSpec.Protobuf.StreamMode
+```
+
+### `fixed32` {#TypeSpec.Protobuf.fixed32}
+
+An unsigned 32-bit integer that will use the `fixed32` encoding when used in a Protobuf message.
+
+#### Protobuf binary format
+
+Always four bytes. More efficient than `uint32` if values are often greater than 2<sup>28</sup>.
+
+```typespec
+scalar TypeSpec.Protobuf.fixed32
+```
+
+### `fixed64` {#TypeSpec.Protobuf.fixed64}
+
+An unsigned 64-bit integer that will use the `fixed64` encoding when used in a Protobuf message.
+
+#### Protobuf binary format
+
+Always eight bytes. More efficient than `uint64` if values are often greater than 2<sup>56</sup>.
+
+```typespec
+scalar TypeSpec.Protobuf.fixed64
+```
+
+### `sfixed32` {#TypeSpec.Protobuf.sfixed32}
+
+A signed 32-bit integer that will use the `sfixed32` encoding when used in a Protobuf message.
+
+#### Protobuf binary format
+
+Always four bytes.
+
+```typespec
+scalar TypeSpec.Protobuf.sfixed32
+```
+
+### `sfixed64` {#TypeSpec.Protobuf.sfixed64}
+
+A signed 64-bit integer that will use the `sfixed64` encoding when used in a Protobuf message.
+
+#### Protobuf binary format
+
+Always eight bytes.
+
+```typespec
+scalar TypeSpec.Protobuf.sfixed64
+```
+
+### `sint32` {#TypeSpec.Protobuf.sint32}
+
+A signed 32-bit integer that will use the `sint32` encoding when used in a Protobuf message.
+
+#### Protobuf binary format
+
+Uses variable-length encoding. These more efficiently encode negative numbers than regular int32s.
+
+```typespec
+scalar TypeSpec.Protobuf.sint32
+```
+
+### `sint64` {#TypeSpec.Protobuf.sint64}
+
+A signed 64-bit integer that will use the `sint64` encoding when used in a Protobuf message.
+
+#### Protobuf binary format
+
+Uses variable-length encoding. These more efficiently encode negative numbers than regular `int64s`.
+
+```typespec
+scalar TypeSpec.Protobuf.sint64
 ```

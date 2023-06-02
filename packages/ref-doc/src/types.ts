@@ -5,11 +5,38 @@ import {
   Interface,
   Model,
   Operation,
+  Scalar,
   Union,
 } from "@typespec/compiler";
 
-export type TypeSpecRefDoc = {
+export type TypeSpecRefDoc = TypeSpecLibraryRefDoc;
+
+export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
+  /**
+   * Library name
+   */
+  name: string;
+
+  /**
+   * Library description
+   */
+  description?: string;
+
+  emitter?: EmitterRefDoc;
+};
+
+export type TypeSpecRefDocBase = {
   namespaces: NamespaceRefDoc[];
+};
+
+export type EmitterRefDoc = {
+  options: EmitterOptionRefDoc[];
+};
+
+export type EmitterOptionRefDoc = {
+  name: string;
+  type: string;
+  doc: string;
 };
 
 export type NamespaceRefDoc = {
@@ -20,6 +47,7 @@ export type NamespaceRefDoc = {
   models: ModelRefDoc[];
   enums: EnumRefDoc[];
   unions: UnionRefDoc[];
+  scalars: ScalarRefDoc[];
 };
 
 export type NamedTypeRefDoc = {
@@ -63,6 +91,8 @@ export type OperationRefDoc = NamedTypeRefDoc & {
 export type InterfaceRefDoc = NamedTypeRefDoc & {
   type: Interface;
   templateParameters?: TemplateParameterRefDoc[];
+
+  interfaceOperations: OperationRefDoc[];
 };
 
 export type TemplateParameterRefDoc = {
@@ -82,6 +112,12 @@ export type EnumRefDoc = NamedTypeRefDoc & {
 
 export type UnionRefDoc = NamedTypeRefDoc & {
   type: Union;
+
+  templateParameters?: TemplateParameterRefDoc[];
+};
+
+export type ScalarRefDoc = NamedTypeRefDoc & {
+  type: Scalar;
 
   templateParameters?: TemplateParameterRefDoc[];
 };

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Uptake doc comment changes",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}

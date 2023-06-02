@@ -104,10 +104,10 @@ describe("compiler: models", () => {
 
   describe("assign default values", () => {
     const testCases: [string, string, any][] = [
-      ["boolean", `false`, { kind: "Boolean", value: false }],
-      ["boolean", `true`, { kind: "Boolean", value: true }],
-      ["string", `"foo"`, { kind: "String", value: "foo" }],
-      ["int32", `123`, { kind: "Number", value: 123 }],
+      ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
+      ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
+      ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
+      ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
     ];
 
     for (const [type, defaultValue, expectedValue] of testCases) {

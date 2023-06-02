@@ -29,35 +29,17 @@ dec deprecated(target: unknown, message: string)
 Specify the property to be used to discriminate this type.
 
 ```typespec
-dec discriminator(target: object | Union, propertyName: string)
+dec discriminator(target: Model | Union, propertyName: string)
 ```
 
 #### Target
 
-`union object | Union`
+`union Model | Union`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `scalar string` |  |
-
-#### Examples
-
-```typespec
-@discriminator("kind")
-union Pet{ cat: Cat, dog: Dog }
-
-model Cat {kind: "cat", meow: boolean}
-model Dog {kind: "dog", bark: boolean}
-```
-
-```typespec
-@discriminator("kind")
-model Pet{ kind: string }
-
-model Cat extends Pet {kind: "cat", meow: boolean}
-model Dog extends Pet  {kind: "dog", bark: boolean}
-```
+| propertyName | `scalar string` | The property name to use for discrimination |
 
 
 ### `@doc` {#@doc}
@@ -79,17 +61,36 @@ dec doc(target: unknown, doc: string, formatArgs?: object)
 | formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
 
 
+### `@encode` {#@encode}
+
+Specify how to encode the target type.
+
+```typespec
+dec encode(target: Scalar | ModelProperty, encoding: string | EnumMember, encodedAs?: string | numeric)
+```
+
+#### Target
+
+`union Scalar | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| encoding | `union string \| EnumMember` | Known name of an encoding. |
+| encodedAs | `union string \| numeric` | What target type is this being encoded as. Default to string. |
+
+
 ### `@error` {#@error}
 
 Specify that this model is an error type. Operations return error types when the operation has failed.
 
 ```typespec
-dec error(target: object)
+dec error(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -108,7 +109,8 @@ message: string;
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
-This differ from the
+This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
+The format names are open ended and are left to emitter to interpret.
 
 ```typespec
 dec format(target: string | bytes | ModelProperty, format: string)
@@ -140,11 +142,12 @@ dec friendlyName(target: unknown, name: string, formatArgs?: unknown)
 | Name | Type | Description |
 |------|------|-------------|
 | name | `scalar string` | name the template instance should take |
-| formatArgs | `(intrinsic) unknown` |  |
+| formatArgs | `(intrinsic) unknown` | Model with key value used to interpolate the name |
 
 
 ### `@inspectType` {#@inspectType}
 
+A debugging decorator used to inspect a type.
 
 ```typespec
 dec inspectType(target: unknown, text: string)
@@ -157,11 +160,12 @@ dec inspectType(target: unknown, text: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` |  |
+| text | `scalar string` | Custom text to log |
 
 
 ### `@inspectTypeName` {#@inspectTypeName}
 
+A debugging decorator used to inspect a type name.
 
 ```typespec
 dec inspectTypeName(target: unknown, text: string)
@@ -174,7 +178,7 @@ dec inspectTypeName(target: unknown, text: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` |  |
+| text | `scalar string` | Custom text to log |
 
 
 ### `@key` {#@key}
@@ -192,15 +196,7 @@ dec key(target: ModelProperty, altName?: string)
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `scalar string` |  |
-
-#### Examples
-
-```typespec
-model Pet {
-@key id: string;
-}
-```
+| altName | `scalar string` | Name of the property. If not specified, the decorated property name is used. |
 
 
 ### `@knownValues` {#@knownValues}
@@ -517,7 +513,7 @@ with standard emitters that interpret them as follows:
 - "update": input to operations that update data.
 - "delete": input to operations that delete data.
 
-See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
 
 ```typespec
 dec visibility(target: ModelProperty, ...visibilities: string[])
@@ -530,49 +526,38 @@ dec visibility(target: ModelProperty, ...visibilities: string[])
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` |  |
-
-#### Examples
-
-```typespec
-model Dog {
-// the service will generate an ID, so you don't need to send it.
-@visibility("read") id: int32;
-// the service will store this secret name, but won't ever return it
-@visibility("create", "update") secretName: string;
-// the regular name is always present
-name: string;
-}
-```
+| visibilities | `model string[]` | List of visibilities which apply to this property. |
 
 
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
+Set the visibility of key properties in a model if not already set.
 
 ```typespec
-dec withDefaultKeyVisibility(target: object, visibility: unknown)
+dec withDefaultKeyVisibility(target: Model, visibility: unknown)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `(intrinsic) unknown` |  |
+| visibility | `(intrinsic) unknown` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
+Returns the model with any default values removed.
 
 ```typespec
-dec withoutDefaultValues(target: object)
+dec withoutDefaultValues(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -580,31 +565,33 @@ None
 
 ### `@withoutOmittedProperties` {#@withoutOmittedProperties}
 
+Returns the model with the given properties omitted.
 
 ```typespec
-dec withoutOmittedProperties(target: object, omit: string | Union)
+dec withoutOmittedProperties(target: Model, omit: string | Union)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| omit | `union string \| Union` |  |
+| omit | `union string \| Union` | List of properties to omit |
 
 
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
+Returns the model with non-updateable properties removed.
 
 ```typespec
-dec withUpdateableProperties(target: object)
+dec withUpdateableProperties(target: Model)
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 None
@@ -617,50 +604,22 @@ Removes properties that are not considered to be present or applicable
 together with spread to effectively spread only visible properties into
 a new model.
 
-See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
 
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-dec withVisibility(target: object, ...visibilities: string[])
+dec withVisibility(target: Model, ...visibilities: string[])
 ```
 
 #### Target
 
-`model object`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` |  |
-
-#### Examples
-
-```typespec
-model Dog {
-@visibility("read") id: int32;
-@visibility("create", "update") secretName: string;
-name: string;
-}
-
-// The spread operator will copy all the properties of Dog into DogRead,
-// and @withVisibility will then remove those that are not visible with
-// create or update visibility.
-//
-// In this case, the id property is removed, and the name and secretName
-// properties are kept.
-@withVisibility("create", "update")
-model DogCreateOrUpdate {
-...Dog;
-}
-
-// In this case the id and name properties are kept and the secretName property
-// is removed.
-@withVisibility("read")
-model DogRead {
-...Dog;
-}
-```
+| visibilities | `model string[]` | List of visibilities which apply to this property. |
 
 

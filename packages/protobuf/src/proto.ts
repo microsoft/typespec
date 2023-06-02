@@ -41,8 +41,8 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
 /**
  * Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
  *
- * ident = letter { letter | decimalDigit | "_" }
- * fullIdent = ident { "." ident }
+ * ident = letter \{ letter | decimalDigit | "_" \}
+ * fullIdent = ident \{ "." ident \}
  */
 export const PROTO_FULL_IDENT = /([a-zA-Z][a-zA-Z0-9_]*)+/;
 
@@ -215,4 +215,3 @@ export async function $onValidate(program: Program) {
 }
 
 export const namespace = "TypeSpec.Protobuf";
-export { TypeSpecProtobufLibrary as $lib };

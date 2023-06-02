@@ -2,6 +2,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { Model, Operation, Scalar, getVisibility, isSecret } from "../../core/index.js";
 import {
   getDoc,
+  getEncode,
   getFriendlyName,
   getKeyName,
   getKnownValues,
@@ -40,7 +41,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends object>  {
+        model Template<T extends {}>  {
         }
 
         @test
@@ -354,6 +355,143 @@ describe("compiler: built-in decorators", () => {
           message: "Property 'prop' marked as key cannot be optional.",
         },
       ]);
+    });
+  });
+
+  describe("@encode", () => {
+    it(`set encoding on scalar`, async () => {
+      const { s } = (await runner.compile(`
+        @encode("rfc3339")
+        @test
+        scalar s extends utcDateTime;
+      `)) as { s: Scalar };
+
+      strictEqual(getEncode(runner.program, s)?.encoding, "rfc3339");
+    });
+
+    it(`encode type default to string`, async () => {
+      const { s } = (await runner.compile(`
+        @encode("rfc3339")
+        @test
+        scalar s extends utcDateTime;
+      `)) as { s: Scalar };
+
+      strictEqual(getEncode(runner.program, s)?.type.name, "string");
+    });
+
+    it(`change encode type`, async () => {
+      const { s } = (await runner.compile(`
+        @encode("unixTimestamp", int32)
+        @test
+        scalar s extends utcDateTime;
+      `)) as { s: Scalar };
+
+      strictEqual(getEncode(runner.program, s)?.type.name, "int32");
+    });
+
+    describe("known encoding validation", () => {
+      const validCases = [
+        ["utcDateTime", "rfc3339", undefined],
+        ["utcDateTime", "rfc7231", undefined],
+        ["offsetDateTime", "rfc3339", undefined],
+        ["offsetDateTime", "rfc7231", undefined],
+        ["utcDateTime", "unixTimeStamp", undefined],
+        ["duration", "ISO8601", undefined],
+        ["duration", "seconds", "int32"],
+        ["bytes", "base64", undefined],
+        ["bytes", "base64url", undefined],
+        // Do not block unknown encoding
+        ["utcDateTime", "custom-encoding", undefined],
+        ["duration", "custom-encoding", "int32"],
+      ];
+      const invalidCases = [
+        [
+          "utcDateTime",
+          "rfc3339",
+          "int32",
+          "invalid-encode",
+          `Encoding 'rfc3339' on type 's' is expected to be serialized as 'string' but got 'int32'.`,
+        ],
+        [
+          "offsetDateTime",
+          "rfc7231",
+          "int64",
+          "invalid-encode",
+          `Encoding 'rfc7231' on type 's' is expected to be serialized as 'string' but got 'int64'.`,
+        ],
+        [
+          "offsetDateTime",
+          "unixTimeStamp",
+          undefined,
+          "invalid-encode",
+          `Encoding 'unixTimeStamp' cannot be used on type 's'. Expected: utcDateTime.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          undefined,
+          "invalid-encode",
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
+        ],
+        [
+          "duration",
+          "rfc3339",
+          undefined,
+          "invalid-encode",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "bytes",
+          "rfc3339",
+          undefined,
+          "invalid-encode",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          '"int32"',
+          // TODO: Arguably this should be improved.
+          "invalid-argument",
+          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+        ],
+      ];
+      describe("valid", () => {
+        validCases.forEach(([target, encoding, encodeAs]) => {
+          it(`encoding '${encoding}' on ${target} encoded as ${encodeAs ?? "string"}`, async () => {
+            const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
+            const { s } = (await runner.compile(`
+          @encode("${encoding}"${encodeAsParam})
+          @test
+          scalar s extends ${target};
+        `)) as { s: Scalar };
+
+            const encodeData = getEncode(runner.program, s);
+            ok(encodeData);
+            strictEqual(encodeData.encoding, encoding);
+            strictEqual(encodeData.type.name, encodeAs ?? "string");
+          });
+        });
+      });
+      describe("invalid", () => {
+        invalidCases.forEach(([target, encoding, encodeAs, expectedCode, expectedMessage]) => {
+          it(`encoding '${encoding}' on ${target}  encoded as ${
+            encodeAs ?? "string"
+          }`, async () => {
+            const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
+            const diagnostics = await runner.diagnose(`
+          @encode("${encoding}"${encodeAsParam})
+          @test
+          scalar s extends ${target};
+        `);
+            expectDiagnostics(diagnostics, {
+              code: expectedCode,
+              severity: "error",
+              message: expectedMessage,
+            });
+          });
+        });
+      });
     });
   });
 

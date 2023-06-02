@@ -1,7 +1,7 @@
 export interface PlaygroundConfig {
   defaultEmitter: string;
   libraries: string[];
-  samples: Record<string, string>;
+  samples: Record<string, SampleConfig>;
   enableSwaggerUI: boolean;
   links: {
     newIssue: string;
@@ -9,5 +9,13 @@ export interface PlaygroundConfig {
   };
 }
 
+export interface SampleConfig {
+  fileName: string;
+  preferredEmitter?: string;
+  content?: string;
+}
+
 export { createBrowserHost } from "./browser-host.js";
-export { Playground, PlaygroundProps } from "./components/playground.js";
+export { registerMonacoDefaultWorkers } from "./monaco-worker.js";
+export { registerMonacoLanguage } from "./services.js";
+export { getStateFromUrl, saveTypeSpecContentInQueryParameter } from "./state-storage.js";

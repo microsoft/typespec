@@ -1,8 +1,8 @@
 import { readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
-import fetch from "node-fetch";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
+import { fetch } from "./fetch.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
 import { CompilerHost, RmOptions } from "./types.js";
@@ -16,7 +16,7 @@ export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
     const response = await fetch(url);
     const text = await response.text();
-    return createSourceFile(text, url);
+    return createSourceFile(text, response.url);
   },
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),

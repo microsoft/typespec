@@ -10,6 +10,17 @@ import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
 import { TypeSpecScope } from "../../server/tmlanguage.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
+// vscode-oniguruma depends on those type from the DOM library.
+// As we are only using this in this test it is better to not add the whole DOM library just for this.
+declare global {
+  type Response = any;
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace WebAssembly {
+    type WebAssemblyInstantiatedSource = any;
+    type ImportValue = any;
+  }
+}
+
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
 

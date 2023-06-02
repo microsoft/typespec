@@ -108,6 +108,7 @@ const omittedProps = [
   "projectionSource",
   "projector",
   "projections",
+  "isFinished",
 ] as const;
 const omittedPropsSet = new Set(omittedProps);
 type OmittedProps = (typeof omittedProps)[number];
@@ -136,7 +137,11 @@ const NamedTypeUI = <T extends NamedType>({ type, name, properties }: NamedTypeU
         valueUI = value;
       } else if (value.kind) {
         valueUI = render(value);
-      } else if (value[Symbol.iterator]) {
+      } else if (
+        typeof value === "object" &&
+        "entries" in value &&
+        typeof value.entries === "function"
+      ) {
         valueUI = <ItemList items={value} render={render} />;
       } else {
         valueUI = value;

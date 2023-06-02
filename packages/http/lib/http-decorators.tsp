@@ -184,7 +184,12 @@ extern dec head(target: Operation);
  * ```
  *
  */
-extern dec server(target: Namespace, url: string, description: string, parameters?: object);
+extern dec server(
+  target: Namespace,
+  url: string,
+  description: string,
+  parameters?: Record<unknown>
+);
 
 /**
  * Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
@@ -198,10 +203,11 @@ extern dec server(target: Namespace, url: string, description: string, parameter
  * namespace PetStore;
  * ```
  */
-extern dec useAuth(target: Namespace, auth: object | Union | object[]);
+extern dec useAuth(target: Namespace, auth: {} | Union | {}[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
+ * @param value If true, inapplicable metadata will be included in the payload.
  */
 extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);
 
@@ -215,7 +221,7 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean)
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param path Relative route path. Cannot include query parameters.
- * @param parameters Optional set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ * @param options Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  *
  * @example
  *
@@ -247,3 +253,10 @@ extern dec route(
  * ```
  */
 extern dec sharedRoute(target: Operation);
+
+/**
+ * Private decorators. Those are meant for internal use inside Http types only.
+ */
+namespace Private {
+  extern dec plainData(target: TypeSpec.Reflection.Model);
+}

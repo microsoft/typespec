@@ -28,6 +28,7 @@
 - [projectionSource](Operation.md#projectionsource)
 - [projector](Operation.md#projector)
 - [returnType](Operation.md#returntype)
+- [sourceOperation](Operation.md#sourceoperation)
 - [templateArguments](Operation.md#templatearguments)
 - [templateMapper](Operation.md#templatemapper)
 - [templateNode](Operation.md#templatenode)
@@ -139,6 +140,14 @@ ___
 ### returnType
 
 • **returnType**: [`Type`](../index.md#type)
+
+___
+
+### sourceOperation
+
+• `Optional` **sourceOperation**: [`Operation`](Operation.md)
+
+The operation that is referenced via `op is`.
 
 ___
 

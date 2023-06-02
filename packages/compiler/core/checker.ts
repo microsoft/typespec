@@ -1,4 +1,4 @@
-import { getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { ProjectionError, compilerAssert } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -8,6 +8,7 @@ import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js"
 import { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
 import {
+  getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isNeverType,
   isTemplateInstance,
@@ -29,6 +30,7 @@ import {
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticTarget,
+  DocContent,
   Enum,
   EnumMember,
   EnumMemberNode,
@@ -94,6 +96,8 @@ import {
   ReturnRecord,
   Scalar,
   ScalarStatementNode,
+  StdTypeName,
+  StdTypes,
   StringLiteral,
   StringLiteralNode,
   Sym,
@@ -123,6 +127,8 @@ import {
   VoidType,
 } from "./types.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
+
+export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -158,10 +164,12 @@ export interface Checker {
   ): Type;
   resolveIdentifier(node: IdentifierNode): Sym | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<T>(typeDef: T): T & TypePrototype;
-  createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
-    typeDef: U
-  ): U & TypePrototype;
+  createType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype & { isFinished: boolean };
+  createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
@@ -243,12 +251,6 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
-type StdTypeName = IntrinsicScalarName | "Array" | "Record" | "object";
-type StdTypes = {
-  // Models
-  Array: Model;
-  Record: Model;
-} & Record<IntrinsicScalarName, Scalar>;
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
 let currentSymbolId = 0;
@@ -666,25 +668,6 @@ export function createChecker(program: Program): Checker {
     // (e.g. imports). errorType should result in an error if it
     // bubbles out somewhere its not supposed to be.
     return errorType;
-  }
-
-  function getFullyQualifiedSymbolName(
-    sym: Sym | undefined,
-    options?: { useGlobalPrefixAtTopLevel?: boolean }
-  ): string {
-    if (!sym) return "";
-    if (sym.symbolSource) sym = sym.symbolSource;
-    const parent =
-      sym.parent && !(sym.parent.flags & SymbolFlags.SourceFile) ? sym.parent : undefined;
-    const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
-
-    if (parent?.name) {
-      return `${getFullyQualifiedSymbolName(parent)}.${name}`;
-    } else if (options?.useGlobalPrefixAtTopLevel) {
-      return `global.${name}`;
-    } else {
-      return name;
-    }
   }
 
   /**
@@ -1430,8 +1413,8 @@ export function createChecker(program: Program): Checker {
         properties.set(prop.name, newPropType);
       }
     }
-
-    return finishType(intersection, mapper);
+    linkMapper(intersection, mapper);
+    return finishType(intersection);
   }
 
   function checkArrayExpression(node: ArrayExpressionNode, mapper: TypeMapper | undefined): Model {
@@ -1632,29 +1615,32 @@ export function createChecker(program: Program): Checker {
       sourceOperation,
       interface: parentInterface,
     });
+    if (links) {
+      linkType(links, operationType, mapper);
+    }
 
     decorators.push(...checkDecorators(operationType, node, mapper));
 
     operationType.parameters.namespace = namespace;
 
     const parent = node.parent!;
+    linkMapper(operationType, mapper);
+
     if (parent.kind === SyntaxKind.InterfaceStatement) {
       if (
         shouldCreateTypeForTemplate(parent, mapper) &&
         shouldCreateTypeForTemplate(node, mapper)
       ) {
-        finishType(operationType, mapper);
+        finishType(operationType);
       }
     } else {
       if (shouldCreateTypeForTemplate(node, mapper)) {
-        finishType(operationType, mapper);
+        finishType(operationType);
       }
 
-      namespace?.operations.set(name, operationType);
-    }
-
-    if (links) {
-      linkType(links, operationType, mapper);
+      if (mapper === undefined) {
+        namespace?.operations.set(name, operationType);
+      }
     }
 
     return operationType;
@@ -2315,7 +2301,6 @@ export function createChecker(program: Program): Checker {
     }
 
     const decorators: DecoratorApplication[] = [];
-
     const type: Model = createType({
       kind: "Model",
       name: node.id.sv,
@@ -2379,8 +2364,11 @@ export function createChecker(program: Program): Checker {
         mutate(sym).type = prop;
       }
     }
+
+    linkMapper(type, mapper);
+
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(type, mapper);
+      finishType(type);
     }
 
     const indexer = getIndexer(program, type);
@@ -2952,8 +2940,22 @@ export function createChecker(program: Program): Checker {
 
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
+    linkMapper(type, mapper);
+
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
-      finishType(type, mapper);
+      if (
+        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
+        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
+      ) {
+        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
+        if (doc) {
+          type.decorators.unshift({
+            decorator: $docFromComment,
+            args: [{ value: createLiteralType(doc) }],
+          });
+        }
+      }
+      finishType(type);
     }
 
     return type;
@@ -3208,8 +3210,9 @@ export function createChecker(program: Program): Checker {
     if (mapper === undefined) {
       type.namespace?.scalars.set(type.name, type);
     }
+    linkMapper(type, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(type, mapper);
+      finishType(type);
     }
     if (isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
@@ -3295,7 +3298,7 @@ export function createChecker(program: Program): Checker {
         kind: "Enum",
         name: node.id.sv,
         node,
-        members: createRekeyableMap(),
+        members: createRekeyableMap<string, EnumMember>(),
         decorators: [],
       }));
 
@@ -3329,8 +3332,8 @@ export function createChecker(program: Program): Checker {
       enumType.namespace = namespace;
       enumType.namespace?.enums.set(enumType.name!, enumType);
       enumType.decorators = checkDecorators(enumType, node, mapper);
-
-      finishType(enumType, mapper);
+      linkMapper(enumType, mapper);
+      finishType(enumType);
     }
 
     return links.type;
@@ -3394,8 +3397,9 @@ export function createChecker(program: Program): Checker {
       interfaceType.operations.set(key, value);
     }
 
+    linkMapper(interfaceType, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(interfaceType, mapper);
+      finishType(interfaceType);
     }
 
     if (mapper === undefined) {
@@ -3456,8 +3460,9 @@ export function createChecker(program: Program): Checker {
 
     checkUnionVariants(unionType, node, variants, mapper);
 
+    linkMapper(unionType, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
-      finishType(unionType, mapper);
+      finishType(unionType);
     }
 
     linkType(links, unionType, mapper);
@@ -3513,8 +3518,9 @@ export function createChecker(program: Program): Checker {
     });
     variantType.decorators = checkDecorators(variantType, variantNode, mapper);
 
+    linkMapper(variantType, mapper);
     if (shouldCreateTypeForTemplate(variantNode.parent!, mapper)) {
-      finishType(variantType, mapper);
+      finishType(variantType);
     }
     if (links) {
       linkType(links, variantType, mapper);
@@ -3614,9 +3620,9 @@ export function createChecker(program: Program): Checker {
 
   // the types here aren't ideal and could probably be refactored.
 
-  function createAndFinishType<
-    U extends Type extends any ? Omit<Type, keyof typeof typePrototype> : never
-  >(typeDef: U): U & typeof typePrototype {
+  function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype & { isFinished: boolean } {
     createType(typeDef);
     return finishType(typeDef as any) as any;
   }
@@ -3626,13 +3632,16 @@ export function createChecker(program: Program): Checker {
    * So far, that amounts to setting the prototype to typePrototype which
    * contains the `projections` getter.
    */
-  function createType<T>(typeDef: T): T & TypePrototype {
+  function createType<T extends Type extends any ? CreateTypeProps : never>(
+    typeDef: T
+  ): T & TypePrototype & { isFinished: boolean } {
     Object.setPrototypeOf(typeDef, typePrototype);
+    (typeDef as any).isFinished = false;
     return typeDef as any;
   }
 
-  function finishType<T extends Type>(typeDef: T, mapper?: TypeMapper): T {
-    return finishTypeForProgramAndChecker(program, typePrototype, typeDef, mapper);
+  function finishType<T extends Type>(typeDef: T): T {
+    return finishTypeForProgramAndChecker(program, typePrototype, typeDef);
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteral;
@@ -4444,9 +4453,20 @@ export function createChecker(program: Program): Checker {
         type = createType({ kind: "Boolean", value });
         break;
       case "number":
+        let valueAsString: string;
+        if (node) {
+          compilerAssert(
+            node.kind === SyntaxKind.NumericLiteral,
+            "Must pass numeric literal node or undefined when creating a numeric literal type"
+          );
+          valueAsString = node.valueAsString;
+        } else {
+          valueAsString = String(value);
+        }
         type = createType({
           kind: "Number",
           value,
+          valueAsString,
         });
         break;
     }
@@ -4626,7 +4646,6 @@ export function createChecker(program: Program): Checker {
     if (source === target) return [true, []];
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
-
     if (isSimpleTypeRelated === true) {
       return [true, []];
     } else if (isSimpleTypeRelated === false) {
@@ -4643,7 +4662,28 @@ export function createChecker(program: Program): Checker {
       return [true, []];
     }
 
-    if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
+    if (
+      target.kind === "Model" &&
+      source.kind === "Model" &&
+      target.name !== "object" &&
+      target.indexer === undefined &&
+      source.indexer &&
+      source.indexer.key.name === "integer"
+    ) {
+      return [
+        false,
+        [
+          createDiagnostic({
+            code: "missing-index",
+            format: {
+              indexType: getTypeName(source.indexer.key),
+              sourceType: getTypeName(target),
+            },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    } else if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
       return isIndexerValid(source, target as Model & { indexer: ModelIndexer }, diagnosticTarget);
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget);
@@ -4747,6 +4787,9 @@ export function createChecker(program: Program): Checker {
     }
 
     if (target.name === "numeric") return true;
+    if (target.name === "decimal") return true;
+    if (target.name === "decimal128") return true;
+
     const isInt = Number.isInteger(source.value);
     if (target.name === "integer") return isInt;
     if (target.name === "float") return true;
@@ -5241,20 +5284,11 @@ function countPropertiesInherited(model: Model, filter?: (property: ModelPropert
   return count;
 }
 
-export function finishTypeForProgram<T extends Type>(
-  program: Program,
-  typeDef: T,
-  mapper?: TypeMapper
-): T {
-  return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef, mapper);
+export function finishTypeForProgram<T extends Type>(program: Program, typeDef: T): T {
+  return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef);
 }
 
-function finishTypeForProgramAndChecker<T extends Type>(
-  program: Program,
-  typePrototype: TypePrototype,
-  typeDef: T,
-  mapper?: TypeMapper
-): T {
+function linkMapper<T extends Type>(typeDef: T, mapper?: TypeMapper) {
   if (mapper) {
     compilerAssert(
       !(typeDef as any).templateArguments,
@@ -5263,15 +5297,65 @@ function finishTypeForProgramAndChecker<T extends Type>(
     (typeDef as any).templateMapper = mapper;
     (typeDef as any).templateArguments = mapper.args;
   }
+}
 
+function extractMainDoc(type: Type): string | undefined {
+  if (type.node?.docs === undefined) {
+    return undefined;
+  }
+  let mainDoc: string = "";
+  for (const doc of type.node.docs) {
+    mainDoc += getDocContent(doc.content);
+  }
+  return mainDoc;
+}
+
+function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
+  if (node.docs === undefined) {
+    return undefined;
+  }
+  for (const doc of node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocParamTag && tag.paramName.sv === paramName) {
+        return getDocContent(tag.content);
+      }
+    }
+  }
+  return undefined;
+}
+
+function getDocContent(content: readonly DocContent[]) {
+  const docs = [];
+  for (const node of content) {
+    compilerAssert(
+      node.kind === SyntaxKind.DocText,
+      "No other doc content node kinds exist yet. Update this code appropriately when more are added."
+    );
+    docs.push(node.text);
+  }
+  return docs.join("");
+}
+
+function finishTypeForProgramAndChecker<T extends Type>(
+  program: Program,
+  typePrototype: TypePrototype,
+  typeDef: T
+): T {
   if ("decorators" in typeDef) {
+    const docComment = extractMainDoc(typeDef);
+    if (docComment) {
+      typeDef.decorators.unshift({
+        decorator: $docFromComment,
+        args: [{ value: program.checker.createLiteralType(docComment) }],
+      });
+    }
     for (const decApp of typeDef.decorators) {
       applyDecoratorToType(program, decApp, typeDef);
     }
   }
 
   Object.setPrototypeOf(typeDef, typePrototype);
-
+  typeDef.isFinished = true;
   return typeDef;
 }
 

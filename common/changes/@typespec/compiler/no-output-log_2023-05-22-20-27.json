@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Remove misleading output dir from compilation success message",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
