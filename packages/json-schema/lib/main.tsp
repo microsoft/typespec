@@ -84,7 +84,7 @@ extern dec maxProperties(target: Record<unknown> | Reflection.ModelProperty, val
  * Specify the encoding used for the contents of a string.
  * @param value
  */
-extern dec contentEncoding(target: string | Reflection.ModelProperty, value: string);
+extern dec contentEncoding(target: string | Reflection.ModelProperty, value: valueof string);
 
 /**
  * Specify that the target array must begin with the provided types.
