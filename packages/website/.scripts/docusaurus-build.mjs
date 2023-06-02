@@ -17,8 +17,16 @@ run("docusaurus", ["build"]);
 
 function loadDotenv() {
   const dirname = path.dirname(fileURLToPath(import.meta.url));
-  const dotenvPath = path.resolve(dirname, "../../../.env");
-  dotenv.config({
-    path: dotenvPath,
-  });
+  const searchPaths = ["../../../.env", "../../../../.env"];
+  for (const searchPath of searchPaths) {
+    const dotenvPath = path.resolve(dirname, searchPath);
+    console.log(`Searching dotEnvPath: ${dotenvPath}`);
+    const result = dotenv.config({
+      path: dotenvPath,
+    });
+    if (result.parsed !== undefined) {
+      console.log(`Loaded dotenv: ${dotenvPath}`);
+      return;
+    }
+  }
 }
