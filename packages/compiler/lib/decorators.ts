@@ -6,6 +6,7 @@ import {
 } from "../core/decorator-utils.js";
 import {
   StdTypeName,
+  StringLiteral,
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
@@ -744,12 +745,12 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
 export function $withoutOmittedProperties(
   context: DecoratorContext,
   target: Model,
-  omitProperties: string | Union
+  omitProperties: StringLiteral | Union
 ) {
   // Get the property or properties to omit
   const omitNames = new Set<string>();
-  if (typeof omitProperties === "string") {
-    omitNames.add(omitProperties);
+  if (omitProperties.kind === "String") {
+    omitNames.add(omitProperties.value);
   } else {
     for (const variant of omitProperties.variants.values()) {
       if (variant.type.kind === "String") {
@@ -990,7 +991,9 @@ export function $withDefaultKeyVisibility(
           ...keyProp.decorators,
           {
             decorator: $visibility,
-            args: [{ value: context.program.checker.createLiteralType(visibility) }],
+            args: [
+              { value: context.program.checker.createLiteralType(visibility), jsValue: visibility },
+            ],
           },
         ],
       })

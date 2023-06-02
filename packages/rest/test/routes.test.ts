@@ -424,7 +424,7 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[0].code, "invalid-argument");
     strictEqual(
       diagnostics[0].message,
-      `Argument 'x' is not assignable to parameter of type '/ | : | /:'`
+      `Argument 'x' is not assignable to parameter of type 'valueof / | : | /:'`
     );
   });
 
