@@ -461,7 +461,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const decls = sourceFile.globalScope.declarations;
 
     let content: object;
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       const base = this.emitter.getOptions().emitterOutputDir;
       const file = sourceFile.path;
       const id = getRelativePathFromDirectory(base, file, false);
@@ -514,7 +514,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     // generate an id
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       if (!type.name) {
         throw new Error("Type needs a name to emit a declaration id");
       }
@@ -552,14 +552,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   // #region context emitters
   programContext(program: Program): Context {
-    if (this.emitter.getOptions().bundle) {
-      return this.#newFileScope("types");
+    if (this.emitter.getOptions().bundleId) {
+      const sourceFile = this.emitter.createSourceFile(this.emitter.getOptions().bundleId!);
+      return { scope: sourceFile.globalScope };
     } else {
       return {};
     }
   }
   modelDeclarationContext(model: Model, name: string): Context {
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
       if (this.#isStdType(model) && model.name === "object") {
@@ -571,7 +572,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelInstantiationContext(model: Model): Context {
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
       return this.#newFileScope(this.declarationName(model));
@@ -579,7 +580,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   arrayDeclarationContext(array: Model): Context {
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
       return this.#newFileScope(array.name);
@@ -587,7 +588,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   enumDeclarationContext(en: Enum): Context {
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
       return this.#newFileScope(en.name);
@@ -595,7 +596,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionDeclarationContext(union: Union): Context {
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
       return this.#newFileScope(union.name!);
@@ -603,7 +604,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarDeclarationContext(scalar: Scalar): Context {
-    if (this.emitter.getOptions().bundle) {
+    if (this.emitter.getOptions().bundleId) {
       return {};
     } else if (this.#isStdType(scalar)) {
       return {};

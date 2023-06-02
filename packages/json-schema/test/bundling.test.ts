@@ -8,10 +8,10 @@ describe("bundling", () => {
       model Foo { }
       model Bar { }
     `,
-      { bundle: true }
+      { bundleId: "test.json" }
     );
 
-    const types = schemas["types.json"];
+    const types = schemas["test.json"];
     assert.strictEqual(types.$defs.Foo.$id, "Foo");
     assert.strictEqual(types.$defs.Bar.$id, "Bar");
   });

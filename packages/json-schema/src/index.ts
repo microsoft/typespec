@@ -24,8 +24,12 @@ const jsonSchemaKey = createStateSymbol("JsonSchema");
 export async function $onEmit(context: EmitContext<JSONSchemaEmitterOptions>) {
   const emitter = context.getAssetEmitter(JsonSchemaEmitter);
 
-  for (const item of getJsonSchemaTypes(context.program)) {
-    emitter.emitType(item);
+  if (emitter.getOptions().emitAllModels) {
+    emitter.emitProgram({ emitTypeSpecNamespace: false });
+  } else {
+    for (const item of getJsonSchemaTypes(context.program)) {
+      emitter.emitType(item);
+    }
   }
 
   await emitter.writeOutput();

@@ -19,10 +19,17 @@ export interface JSONSchemaEmitterOptions {
   "int64-strategy"?: Int64Strategy;
 
   /**
-   * When true, bundle all the schemas into a single json schema document
-   * with schemas under $defs.
+   * When provided, bundle all the schemas into a single json schema document
+   * with schemas under $defs. The provided id is the id of the root document
+   * and is also used for the file name.
    */
-  bundle?: boolean;
+  bundleId?: string;
+
+  /**
+   * When true, emit all model declarations to JSON Schema without requiring
+   * the @jsonSchema decorator.
+   */
+  emitAllModels?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
@@ -31,7 +38,8 @@ const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   properties: {
     "file-type": { type: "string", enum: ["yaml", "json"], nullable: true },
     "int64-strategy": { type: "string", enum: ["string", "number"], nullable: true },
-    bundle: { type: "boolean", nullable: true },
+    bundleId: { type: "string", nullable: true },
+    emitAllModels: { type: "boolean", nullable: true },
   },
   required: [],
 };
