@@ -28,7 +28,7 @@ extern dec baseUri(target: Reflection.Namespace, baseUri: string);
  *
  * @param id the id of the JSON schema for this declaration.
  */
-extern dec id(target: unknown, id: string);
+extern dec id(target: unknown, id: valueof string);
 
 /**
  * Specify that the numeric type must be a multiple of some numeric value.
