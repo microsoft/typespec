@@ -99,7 +99,7 @@ extern dec prefixItems(target: unknown[] | Reflection.ModelProperty, value: unkn
  * @param the media type of the string contents
  *
  */
-extern dec contentMediaType(target: string | Reflection.ModelProperty, value: string);
+extern dec contentMediaType(target: string | Reflection.ModelProperty, value: valueof string);
 
 /**
  * Specify the schema for the contents of a string when interpreted according to the content's
