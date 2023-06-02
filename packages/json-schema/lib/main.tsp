@@ -11,7 +11,7 @@ namespace JsonSchema;
  *
  * @param baseUri Schema IDs are interpreted as relative to this URI.
  */
-extern dec jsonSchema(target: unknown, baseUri?: string);
+extern dec jsonSchema(target: unknown, baseUri?: valueof string);
 
 /**
  * Set the base URI for any schemas emitted from types within this namespace.
