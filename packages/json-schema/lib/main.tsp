@@ -35,7 +35,7 @@ extern dec id(target: unknown, id: string);
  *
  * @param value The numeric type must be a multiple of this value.
  */
-extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: numeric);
+extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof numeric);
 
 /**
  * Specify that the array must contain at least one instance of the provided type.
