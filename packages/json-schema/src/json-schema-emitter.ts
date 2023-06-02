@@ -117,15 +117,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #requiredModelProperties(model: Model): string[] | undefined {
-    const reqs = [];
+    const requiredProps = [];
 
     for (const prop of model.properties.values()) {
       if (!prop.optional) {
-        reqs.push(prop.name);
+        requiredProps.push(prop.name);
       }
     }
 
-    return reqs.length > 0 ? reqs : undefined;
+    return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
   modelProperties(model: Model): EmitterOutput<object> {
