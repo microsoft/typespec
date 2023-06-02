@@ -51,7 +51,7 @@ extern dec contains(target: unknown[] | Reflection.ModelProperty, value: unknown
  *
  * @param value The minimum number of instances the array must contain
  */
-extern dec minContains(target: unknown[] | Reflection.ModelProperty, value: int32);
+extern dec minContains(target: unknown[] | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Specify that the array must contain at most some number of the types provided
