@@ -14,6 +14,7 @@ import {
   SyntaxKind,
   Type,
   UnionVariant,
+  ValueType,
 } from "../core/types.js";
 import { printId } from "../formatter/print/printer.js";
 
@@ -28,7 +29,7 @@ export function getSymbolSignature(program: Program, sym: Sym): string {
   return getTypeSignature(type);
 }
 
-function getTypeSignature(type: Type): string {
+function getTypeSignature(type: Type | ValueType): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
@@ -39,10 +40,13 @@ function getTypeSignature(type: Type): string {
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
+
     case "Function":
       return fence(getFunctionSignature(type));
     case "Operation":
       return fence(getOperationSignature(type));
+    case "Value":
+      return `valueof ${getTypeSignature(type)}`;
     case "String":
       // BUG: https://github.com/microsoft/typespec/issues/1350 - should escape string literal values
       return `(string)\n${fence(`"${type.value}"`)}`;

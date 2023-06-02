@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Diagnostic, Model, ModelPropertyNode, Type } from "../../core/index.js";
+import { Diagnostic, FunctionParameterNode, Model, Type } from "../../core/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,
@@ -19,7 +19,9 @@ interface RelatedTypeOptions {
 describe("compiler: checker: type relations", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost());
+    const host = await createTestHost();
+    host.addJsFile("mock.js", { $mock: () => null });
+    runner = createTestWrapper(host);
   });
 
   async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions): Promise<{
@@ -28,20 +30,21 @@ describe("compiler: checker: type relations", () => {
     expectedDiagnosticPos: number;
   }> {
     const { source: code, pos } = extractCursor(`
+    import "./mock.js";
     ${commonCode ?? ""}
-    
-    @test model Test {
-      source: ┆${source};
-      target: ${target};
-    }`);
-    const { Test } = (await runner.compile(code)) as { Test: Model };
-    const sourceProp = Test.properties.get("source")!.type;
-    const targetProp = Test.properties.get("target")!.type;
+    extern dec mock(target: unknown, source: ┆${source}, value: ${target});
+   `);
+    await runner.compile(code);
+    const decDeclaration = runner.program
+      .getGlobalNamespaceType()
+      .decoratorDeclarations.get("mock");
+    const sourceProp = decDeclaration?.parameters[0].type!;
+    const targetProp = decDeclaration?.parameters[1].type!;
 
     const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
       sourceProp,
       targetProp,
-      (Test.properties.get("source")!.node! as ModelPropertyNode).value
+      (decDeclaration?.parameters[0].node! as FunctionParameterNode).type!
     );
     return { related, diagnostics, expectedDiagnosticPos: pos };
   }
@@ -827,5 +830,158 @@ describe("compiler: checker: type relations", () => {
       });
     });
     testReflectionType("UnionVariant", "Foo.a", `union Foo {a: string, b: int32};`);
+  });
+
+  describe("Value target", () => {
+    describe("valueof string", () => {
+      it("can assign string literal", async () => {
+        await expectTypeAssignable({ source: `"foo bar"`, target: "valueof string" });
+      });
+
+      it("cannot assign numeric literal", async () => {
+        await expectTypeNotAssignable(
+          { source: `123`, target: "valueof string" },
+          {
+            code: "unassignable",
+            message: "Type '123' is not assignable to type 'string'",
+          }
+        );
+      });
+
+      it("cannot assign string scalar", async () => {
+        await expectTypeNotAssignable(
+          { source: `string`, target: "valueof string" },
+          {
+            code: "unassignable",
+            message: "Type 'string' is not assignable to type 'valueof string'",
+          }
+        );
+      });
+    });
+
+    describe("valueof boolean", () => {
+      it("can assign boolean literal", async () => {
+        await expectTypeAssignable({ source: `true`, target: "valueof boolean" });
+      });
+
+      it("cannot assign numeric literal", async () => {
+        await expectTypeNotAssignable(
+          { source: `123`, target: "valueof boolean" },
+          {
+            code: "unassignable",
+            message: "Type '123' is not assignable to type 'boolean'",
+          }
+        );
+      });
+
+      it("cannot assign boolean scalar", async () => {
+        await expectTypeNotAssignable(
+          { source: `boolean`, target: "valueof boolean" },
+          {
+            code: "unassignable",
+            message: "Type 'boolean' is not assignable to type 'valueof boolean'",
+          }
+        );
+      });
+    });
+
+    describe("valueof int16", () => {
+      it("can assign int16 literal", async () => {
+        await expectTypeAssignable({ source: `12`, target: "valueof int16" });
+      });
+
+      it("can assign valueof int8", async () => {
+        await expectTypeAssignable({ source: `valueof int8`, target: "valueof int16" });
+      });
+
+      it("cannot assign int too large", async () => {
+        await expectTypeNotAssignable(
+          { source: `123456`, target: "valueof int16" },
+          {
+            code: "unassignable",
+            message: "Type '123456' is not assignable to type 'int16'",
+          }
+        );
+      });
+
+      it("cannot assign float", async () => {
+        await expectTypeNotAssignable(
+          { source: `12.6`, target: "valueof int16" },
+          {
+            code: "unassignable",
+            message: "Type '12.6' is not assignable to type 'int16'",
+          }
+        );
+      });
+
+      it("cannot assign string literal", async () => {
+        await expectTypeNotAssignable(
+          { source: `"foo bar"`, target: "valueof int16" },
+          {
+            code: "unassignable",
+            message: "Type 'foo bar' is not assignable to type 'int16'",
+          }
+        );
+      });
+
+      it("cannot assign int16 scalar", async () => {
+        await expectTypeNotAssignable(
+          { source: `int16`, target: "valueof int16" },
+          {
+            code: "unassignable",
+            message: "Type 'int16' is not assignable to type 'valueof int16'",
+          }
+        );
+      });
+    });
+
+    describe("valueof float32", () => {
+      it("can assign float32 literal", async () => {
+        await expectTypeAssignable({ source: `12.6`, target: "valueof float32" });
+      });
+
+      it("cannot assign string literal", async () => {
+        await expectTypeNotAssignable(
+          { source: `"foo bar"`, target: "valueof float32" },
+          {
+            code: "unassignable",
+            message: "Type 'foo bar' is not assignable to type 'float32'",
+          }
+        );
+      });
+
+      it("cannot assign float32 scalar", async () => {
+        await expectTypeNotAssignable(
+          { source: `float32`, target: "valueof float32" },
+          {
+            code: "unassignable",
+            message: "Type 'float32' is not assignable to type 'valueof float32'",
+          }
+        );
+      });
+    });
+
+    it("can use valueof in template parameter constraints", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo<T extends valueof string> {
+          @doc(T)
+          prop1: int16;
+        }`);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    // BackCompat added May 2023 Sprint: by June 2023 sprint. From this PR: https://github.com/microsoft/typespec/pull/1877
+    it("BACKCOMPAT: can use valueof in template parameter constraints", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo<T extends string> {
+          @doc(T)
+          prop1: int16;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "deprecated",
+        message:
+          "Deprecated: Template constrainted to 'string' will not be assignable to 'valueof string' in the future. Update the constraint to be 'valueof string'",
+      });
+    });
   });
 });

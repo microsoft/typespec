@@ -11,7 +11,7 @@ toc_max_heading_level: 3
 Mark this type as deprecated
 
 ```typespec
-@deprecated(message: string)
+@deprecated(message: valueof string)
 ```
 
 #### Target
@@ -21,7 +21,7 @@ Mark this type as deprecated
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| message | `scalar string` | Deprecation message. |
+| message | `valueof scalar string` | Deprecation message. |
 
 #### Examples
 
@@ -36,7 +36,7 @@ op Action<T>(): T;
 Specify the property to be used to discriminate this type.
 
 ```typespec
-@discriminator(propertyName: string)
+@discriminator(propertyName: valueof string)
 ```
 
 #### Target
@@ -46,7 +46,7 @@ Specify the property to be used to discriminate this type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `scalar string` | The property name to use for discrimination |
+| propertyName | `valueof scalar string` | The property name to use for discrimination |
 
 #### Examples
 
@@ -72,7 +72,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 Attach a documentation string.
 
 ```typespec
-@doc(doc: string, formatArgs?: {})
+@doc(doc: valueof string, formatArgs?: {})
 ```
 
 #### Target
@@ -82,7 +82,7 @@ Attach a documentation string.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `scalar string` | Documentation string |
+| doc | `valueof scalar string` | Documentation string |
 | formatArgs | `model {}` | Record with key value pair that can be interpolated in the doc. |
 
 #### Examples
@@ -162,7 +162,7 @@ This differs from the `@pattern` decorator which is meant to specify a regular e
 The format names are open ended and are left to emitter to interpret.
 
 ```typespec
-@format(format: string)
+@format(format: valueof string)
 ```
 
 #### Target
@@ -172,7 +172,7 @@ The format names are open ended and are left to emitter to interpret.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| format | `scalar string` | format name. |
+| format | `valueof scalar string` | format name. |
 
 #### Examples
 
@@ -187,7 +187,7 @@ scalar uuid extends string;
 Specifies how a templated type should name their instances.
 
 ```typespec
-@friendlyName(name: string, formatArgs?: unknown)
+@friendlyName(name: valueof string, formatArgs?: unknown)
 ```
 
 #### Target
@@ -197,7 +197,7 @@ Specifies how a templated type should name their instances.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| name | `scalar string` | name the template instance should take |
+| name | `valueof scalar string` | name the template instance should take |
 | formatArgs | `(intrinsic) unknown` | Model with key value used to interpolate the name |
 
 #### Examples
@@ -216,7 +216,7 @@ nextLink: string;
 A debugging decorator used to inspect a type.
 
 ```typespec
-@inspectType(text: string)
+@inspectType(text: valueof string)
 ```
 
 #### Target
@@ -226,7 +226,7 @@ A debugging decorator used to inspect a type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` | Custom text to log |
+| text | `valueof scalar string` | Custom text to log |
 
 
 
@@ -235,7 +235,7 @@ A debugging decorator used to inspect a type.
 A debugging decorator used to inspect a type name.
 
 ```typespec
-@inspectTypeName(text: string)
+@inspectTypeName(text: valueof string)
 ```
 
 #### Target
@@ -245,7 +245,7 @@ A debugging decorator used to inspect a type name.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `scalar string` | Custom text to log |
+| text | `valueof scalar string` | Custom text to log |
 
 
 
@@ -254,7 +254,7 @@ A debugging decorator used to inspect a type name.
 Mark a model property as the key to identify instances of that type
 
 ```typespec
-@key(altName?: string)
+@key(altName?: valueof string)
 ```
 
 #### Target
@@ -264,7 +264,7 @@ Mark a model property as the key to identify instances of that type
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `scalar string` | Name of the property. If not specified, the decorated property name is used. |
+| altName | `valueof scalar string` | Name of the property. If not specified, the decorated property name is used. |
 
 #### Examples
 
@@ -310,7 +310,7 @@ Invalid,
 Specify the maximum number of items this array should have.
 
 ```typespec
-@maxItems(value: integer)
+@maxItems(value: valueof integer)
 ```
 
 #### Target
@@ -320,7 +320,7 @@ Specify the maximum number of items this array should have.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Maximum number |
+| value | `valueof scalar integer` | Maximum number |
 
 #### Examples
 
@@ -335,7 +335,7 @@ model Endpoints is string[];
 Specify the maximum length this string type should be.
 
 ```typespec
-@maxLength(value: integer)
+@maxLength(value: valueof integer)
 ```
 
 #### Target
@@ -345,7 +345,7 @@ Specify the maximum length this string type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Maximum length |
+| value | `valueof scalar integer` | Maximum length |
 
 #### Examples
 
@@ -360,7 +360,7 @@ scalar Username extends string;
 Specify the maximum value this numeric type should be.
 
 ```typespec
-@maxValue(value: numeric)
+@maxValue(value: valueof numeric)
 ```
 
 #### Target
@@ -370,7 +370,7 @@ Specify the maximum value this numeric type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Maximum value |
+| value | `valueof scalar numeric` | Maximum value |
 
 #### Examples
 
@@ -386,7 +386,7 @@ Specify the maximum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-@maxValueExclusive(value: numeric)
+@maxValueExclusive(value: valueof numeric)
 ```
 
 #### Target
@@ -396,7 +396,7 @@ value.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Maximum value |
+| value | `valueof scalar numeric` | Maximum value |
 
 #### Examples
 
@@ -411,7 +411,7 @@ scalar distance is float64;
 Specify the minimum number of items this array should have.
 
 ```typespec
-@minItems(value: integer)
+@minItems(value: valueof integer)
 ```
 
 #### Target
@@ -421,7 +421,7 @@ Specify the minimum number of items this array should have.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Minimum number |
+| value | `valueof scalar integer` | Minimum number |
 
 #### Examples
 
@@ -436,7 +436,7 @@ model Endpoints is string[];
 Specify the minimum length this string type should be.
 
 ```typespec
-@minLength(value: integer)
+@minLength(value: valueof integer)
 ```
 
 #### Target
@@ -446,7 +446,7 @@ Specify the minimum length this string type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar integer` | Minimum length |
+| value | `valueof scalar integer` | Minimum length |
 
 #### Examples
 
@@ -461,7 +461,7 @@ scalar Username extends string;
 Specify the minimum value this numeric type should be.
 
 ```typespec
-@minValue(value: numeric)
+@minValue(value: valueof numeric)
 ```
 
 #### Target
@@ -471,7 +471,7 @@ Specify the minimum value this numeric type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Minimum value |
+| value | `valueof scalar numeric` | Minimum value |
 
 #### Examples
 
@@ -487,7 +487,7 @@ Specify the minimum value this numeric type should be, exclusive of the given
 value.
 
 ```typespec
-@minValueExclusive(value: numeric)
+@minValueExclusive(value: valueof numeric)
 ```
 
 #### Target
@@ -497,7 +497,7 @@ value.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `scalar numeric` | Minimum value |
+| value | `valueof scalar numeric` | Minimum value |
 
 #### Examples
 
@@ -542,7 +542,7 @@ The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`,
 Advanced features like look-around, capture groups, and references are not supported.
 
 ```typespec
-@pattern(pattern: string)
+@pattern(pattern: valueof string)
 ```
 
 #### Target
@@ -552,7 +552,7 @@ Advanced features like look-around, capture groups, and references are not suppo
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| pattern | `scalar string` | Regular expression. |
+| pattern | `valueof scalar string` | Regular expression. |
 
 #### Examples
 
@@ -567,7 +567,7 @@ scalar LowerAlpha extends string;
 Provide an alternative name for this type.
 
 ```typespec
-@projectedName(targetName: string, projectedName: string)
+@projectedName(targetName: valueof string, projectedName: valueof string)
 ```
 
 #### Target
@@ -577,8 +577,8 @@ Provide an alternative name for this type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| targetName | `scalar string` | Projection target |
-| projectedName | `scalar string` | Alternative name |
+| targetName | `valueof scalar string` | Projection target |
+| projectedName | `valueof scalar string` | Alternative name |
 
 #### Examples
 
@@ -657,7 +657,7 @@ namespace PetStore;
 Typically a short, single-line description.
 
 ```typespec
-@summary(summary: string)
+@summary(summary: valueof string)
 ```
 
 #### Target
@@ -667,7 +667,7 @@ Typically a short, single-line description.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| summary | `scalar string` | Summary string. |
+| summary | `valueof scalar string` | Summary string. |
 
 #### Examples
 
@@ -682,7 +682,7 @@ model Pet {}
 Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
 
 ```typespec
-@tag(tag: string)
+@tag(tag: valueof string)
 ```
 
 #### Target
@@ -692,7 +692,7 @@ Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorat
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| tag | `scalar string` | Tag value |
+| tag | `valueof scalar string` | Tag value |
 
 
 
@@ -715,7 +715,7 @@ with standard emitters that interpret them as follows:
 See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
 
 ```typespec
-@visibility(...visibilities: string[])
+@visibility(...visibilities: valueof string[])
 ```
 
 #### Target
@@ -725,7 +725,7 @@ See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-l
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof model string[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
@@ -746,7 +746,7 @@ name: string;
 Set the visibility of key properties in a model if not already set.
 
 ```typespec
-@withDefaultKeyVisibility(visibility: unknown)
+@withDefaultKeyVisibility(visibility: valueof string)
 ```
 
 #### Target
@@ -756,7 +756,7 @@ Set the visibility of key properties in a model if not already set.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `(intrinsic) unknown` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
+| visibility | `valueof scalar string` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
 
@@ -843,7 +843,7 @@ When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 
 ```typespec
-@withVisibility(...visibilities: string[])
+@withVisibility(...visibilities: valueof string[])
 ```
 
 #### Target
@@ -853,7 +853,7 @@ not necessary to use this decorator.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `model string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof model string[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
