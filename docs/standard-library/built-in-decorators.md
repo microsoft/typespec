@@ -72,7 +72,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 Attach a documentation string.
 
 ```typespec
-@doc(doc: string, formatArgs?: object)
+@doc(doc: string, formatArgs?: {})
 ```
 
 #### Target
@@ -83,7 +83,7 @@ Attach a documentation string.
 | Name | Type | Description |
 |------|------|-------------|
 | doc | `scalar string` | Documentation string |
-| formatArgs | `model object` | Record with key value pair that can be interpolated in the doc. |
+| formatArgs | `model {}` | Record with key value pair that can be interpolated in the doc. |
 
 #### Examples
 

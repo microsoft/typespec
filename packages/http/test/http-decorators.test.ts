@@ -498,7 +498,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'object'",
+        message: "Argument '123' is not assignable to parameter of type 'Record<unknown>'",
       });
     });
 
@@ -572,8 +572,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument 'anOp' is not assignable to parameter of type 'object | Union | object[]'",
+        message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
     });
 

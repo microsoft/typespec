@@ -603,8 +603,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Checkup'
-          x-typespec-name: Checkup[]
           description: The items on this page
+          x-typespec-name: Checkup[]
         nextLink:
           type: string
           format: uri
@@ -670,8 +670,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Owner'
-          x-typespec-name: Owner[]
           description: The items on this page
+          x-typespec-name: Owner[]
         nextLink:
           type: string
           format: uri
@@ -731,8 +731,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Pet'
-          x-typespec-name: Pet[]
           description: The items on this page
+          x-typespec-name: Pet[]
         nextLink:
           type: string
           format: uri
@@ -810,8 +810,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Toy'
-          x-typespec-name: Toy[]
           description: The items on this page
+          x-typespec-name: Toy[]
         nextLink:
           type: string
           format: uri

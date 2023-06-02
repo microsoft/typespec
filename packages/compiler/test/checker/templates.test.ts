@@ -227,9 +227,9 @@ describe("compiler: templates", () => {
   describe("instantiating a template with invalid args", () => {
     it("shouldn't pass thru the invalid args", async () => {
       const { pos, source } = extractCursor(`
-    model AnObject<T extends object> { t: T }
+    model AnObject<T extends {}> { t: T }
     
-    alias Bar<T extends object>  = AnObject<T>;
+    alias Bar<T extends {}>  = AnObject<T>;
     
     alias NoConstaint<T> = Bar<┆T>;
   `);
@@ -238,14 +238,14 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'object'",
+        message: "Type 'unknown' is not assignable to type '{}'",
         pos,
       });
     });
 
     it("operation should still be able to be used(no extra diagnostic)", async () => {
       const { pos, source } = extractCursor(`
-    op Action<T extends object>(): T;
+    op Action<T extends {}>(): T;
 
     op foo is Action<┆"abc">;
   `);
@@ -254,7 +254,7 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'abc' is not assignable to type 'object'",
+        message: "Type 'abc' is not assignable to type '{}'",
         pos,
       });
     });
