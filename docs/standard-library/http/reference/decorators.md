@@ -127,7 +127,7 @@ op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
 Specify if inapplicable metadata should be included in the payload for the given entity.
 
 ```typespec
-@TypeSpec.Http.includeInapplicableMetadataInPayload(value: boolean)
+@TypeSpec.Http.includeInapplicableMetadataInPayload(value: valueof boolean)
 ```
 
 #### Target
@@ -136,9 +136,9 @@ Specify if inapplicable metadata should be included in the payload for the given
 
 #### Parameters
 
-| Name  | Type             | Description                                                     |
-| ----- | ---------------- | --------------------------------------------------------------- |
-| value | `scalar boolean` | If true, inapplicable metadata will be included in the payload. |
+| Name  | Type                     | Description                                                     |
+| ----- | ------------------------ | --------------------------------------------------------------- |
+| value | `valueof scalar boolean` | If true, inapplicable metadata will be included in the payload. |
 
 ### `@patch` {#@TypeSpec.Http.patch}
 
@@ -167,7 +167,7 @@ None
 Explicitly specify that this property is to be interpolated as a path parameter.
 
 ```typespec
-@TypeSpec.Http.path(paramName?: string)
+@TypeSpec.Http.path(paramName?: valueof string)
 ```
 
 #### Target
@@ -176,9 +176,9 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 
 #### Parameters
 
-| Name      | Type            | Description                                         |
-| --------- | --------------- | --------------------------------------------------- |
-| paramName | `scalar string` | Optional name of the parameter in the url template. |
+| Name      | Type                    | Description                                         |
+| --------- | ----------------------- | --------------------------------------------------- |
+| paramName | `valueof scalar string` | Optional name of the parameter in the url template. |
 
 #### Examples
 
@@ -267,7 +267,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-@TypeSpec.Http.route(path: string, options?: (anonymous model))
+@TypeSpec.Http.route(path: valueof string, options?: (anonymous model))
 ```
 
 #### Target
@@ -278,7 +278,7 @@ it will be used as a prefix to the route URI of the operation.
 
 | Name    | Type                      | Description                                                                                                                                  |
 | ------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `scalar string`           | Relative route path. Cannot include query parameters.                                                                                        |
+| path    | `valueof scalar string`   | Relative route path. Cannot include query parameters.                                                                                        |
 | options | `model (anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 #### Examples
@@ -293,7 +293,7 @@ op getWidget(@path id: string): Widget;
 Specify the endpoint for this service.
 
 ```typespec
-@TypeSpec.Http.server(url: string, description: string, parameters?: Record<unknown>)
+@TypeSpec.Http.server(url: valueof string, description: valueof string, parameters?: Record<unknown>)
 ```
 
 #### Target
@@ -304,8 +304,8 @@ Specify the endpoint for this service.
 
 | Name        | Type                    | Description                                             |
 | ----------- | ----------------------- | ------------------------------------------------------- |
-| url         | `scalar string`         | Server endpoint                                         |
-| description | `scalar string`         | Description of the endpoint                             |
+| url         | `valueof scalar string` | Server endpoint                                         |
+| description | `valueof scalar string` | Description of the endpoint                             |
 | parameters  | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 #### Examples

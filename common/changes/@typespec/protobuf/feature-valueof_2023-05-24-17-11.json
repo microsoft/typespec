@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Update decorators to use `valueof`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}

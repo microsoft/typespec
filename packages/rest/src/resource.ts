@@ -108,7 +108,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
       },
       {
         decorator: $resourceTypeForKeyParam,
-        args: [{ node: target.node, value: resourceType }],
+        args: [{ node: target.node, value: resourceType, jsValue: resourceType }],
       },
     ];
 
