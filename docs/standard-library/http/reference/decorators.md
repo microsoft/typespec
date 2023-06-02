@@ -293,7 +293,7 @@ op getWidget(@path id: string): Widget;
 Specify the endpoint for this service.
 
 ```typespec
-@TypeSpec.Http.server(url: valueof string, description: valueof string, parameters?: object)
+@TypeSpec.Http.server(url: valueof string, description: valueof string, parameters?: Record<unknown>)
 ```
 
 #### Target
@@ -306,7 +306,7 @@ Specify the endpoint for this service.
 | ----------- | ----------------------- | ------------------------------------------------------- |
 | url         | `valueof scalar string` | Server endpoint                                         |
 | description | `valueof scalar string` | Description of the endpoint                             |
-| parameters  | `model object`          | Optional set of parameters used to interpolate the url. |
+| parameters  | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 #### Examples
 
@@ -380,7 +380,7 @@ op create(): {@statusCode: 201 | 202}
 Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
 
 ```typespec
-@TypeSpec.Http.useAuth(auth: object | Union | object[])
+@TypeSpec.Http.useAuth(auth: {} | Union | {}[])
 ```
 
 #### Target
@@ -389,9 +389,9 @@ Specify this service authentication. See the [documentation in the Http library]
 
 #### Parameters
 
-| Name | Type                                | Description                                                                                                                                                    |
-| ---- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union object \| Union \| object[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+| Name | Type                        | Description                                                                                                                                                    |
+| ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
 #### Examples
 

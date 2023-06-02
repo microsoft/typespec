@@ -143,7 +143,7 @@ model Map<K extends integral | string, V> {}
  *
  * This decorator will force the emitter to check and emit a model.
  */
-extern dec message(target: object);
+extern dec message(target: {});
 
 /**
  * Defines the field index of a model property for conversion to a Protobuf
@@ -211,7 +211,7 @@ extern dec field(target: TypeSpec.Reflection.ModelProperty, index: valueof uint3
  * }
  * ```
  */
-extern dec reserve(target: object, ...reservations: valueof (string | [uint32, uint32] | uint32)[]);
+extern dec reserve(target: {}, ...reservations: valueof (string | [uint32, uint32] | uint32)[]);
 
 /**
  * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to

@@ -188,7 +188,7 @@ extern dec server(
   target: Namespace,
   url: valueof string,
   description: valueof string,
-  parameters?: object
+  parameters?: Record<unknown>
 );
 
 /**
@@ -203,7 +203,7 @@ extern dec server(
  * namespace PetStore;
  * ```
  */
-extern dec useAuth(target: Namespace, auth: object | Union | object[]);
+extern dec useAuth(target: Namespace, auth: {} | Union | {}[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.

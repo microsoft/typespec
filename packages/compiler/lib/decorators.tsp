@@ -27,7 +27,7 @@ extern dec summary(target: unknown, summary: valueof string);
  * model Pet {}
  * ```
  */
-extern dec doc(target: unknown, doc: valueof string, formatArgs?: object);
+extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
  * Mark this type as deprecated
