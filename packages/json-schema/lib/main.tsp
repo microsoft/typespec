@@ -59,7 +59,7 @@ extern dec minContains(target: unknown[] | Reflection.ModelProperty, value: int3
  *
  * @param value The maximum number of instances the array must contain
  */
-extern dec maxContains(target: unknown[] | Reflection.ModelProperty, value: int32);
+extern dec maxContains(target: unknown[] | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Specify that every item in the array must be unique.
