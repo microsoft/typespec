@@ -60,11 +60,9 @@ import {
 } from "./index.js";
 import { JSONSchemaEmitterOptions } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
-  modelDeclaration(model: Model, name: string): EmitterOutput<object> {
-    if (this.emitter.getProgram().checker.isStdType(model) && model.name === "object") {
-      return { type: "object" };
-    }
+  #seenIds = new Set();
 
+  modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
       $id: this.#getDeclId(model),
@@ -85,10 +83,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
-    if (this.emitter.getProgram().checker.isStdType(model) && model.name === "object") {
-      return { type: "object" };
-    }
-
     const schema = new ObjectBuilder({
       type: "object",
       properties: this.emitter.emitModelProperties(model),
@@ -516,7 +510,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const baseUri = findBaseUri(this.emitter.getProgram(), type);
     const explicitId = getId(this.emitter.getProgram(), type);
     if (explicitId) {
-      return idWithBaseURI(explicitId, baseUri);
+      return this.#checkForDuplicateId(idWithBaseURI(explicitId, baseUri));
     }
 
     // generate an id
@@ -524,7 +518,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       if (!type.name) {
         throw new Error("Type needs a name to emit a declaration id");
       }
-      return idWithBaseURI(this.declarationName(type), baseUri);
+      return this.#checkForDuplicateId(idWithBaseURI(this.declarationName(type), baseUri));
     } else {
       // generate the ID based on the file path
       const base = this.emitter.getOptions().emitterOutputDir;
@@ -532,9 +526,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       const relative = getRelativePathFromDirectory(base, file, false);
 
       if (baseUri) {
-        return new URL(relative, baseUri).href;
+        return this.#checkForDuplicateId(new URL(relative, baseUri).href);
       } else {
-        return relative;
+        return this.#checkForDuplicateId(relative);
       }
     }
 
@@ -545,6 +539,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return id;
       }
     }
+  }
+
+  #checkForDuplicateId(id: string) {
+    if (this.#seenIds.has(id)) {
+      throw new Error(`Duplicate id: ${id}`);
+    }
+
+    this.#seenIds.add(id);
+    return id;
   }
 
   // #region context emitters

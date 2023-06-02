@@ -26,6 +26,7 @@ specifiers:
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/http': file:./projects/http.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
+  '@rush-temp/json-schema': file:./projects/json-schema.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
   '@rush-temp/lint': file:./projects/lint.tgz
   '@rush-temp/migrate': file:./projects/migrate.tgz
@@ -75,6 +76,7 @@ specifiers:
   '@vitejs/plugin-react': ~3.1.0
   '@vscode/vsce': ~2.15.0
   ajv: ~8.12.0
+  ajv-formats: ~2.1.1
   autorest: ~3.3.2
   c8: ~7.13.0
   change-case: ~4.1.2
@@ -83,7 +85,6 @@ specifiers:
   cspell: ~6.31.1
   debounce: ~1.2.1
   ecmarkup: ~12.0.3
-  es-module-shims: ~1.7.1
   eslint: ^8.36.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-deprecation: ^1.4.1
@@ -164,6 +165,7 @@ dependencies:
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/http': file:projects/http.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
+  '@rush-temp/json-schema': file:projects/json-schema.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
   '@rush-temp/lint': file:projects/lint.tgz
   '@rush-temp/migrate': file:projects/migrate.tgz
@@ -213,6 +215,7 @@ dependencies:
   '@vitejs/plugin-react': 3.1.0_vite@4.2.1
   '@vscode/vsce': 2.15.0
   ajv: 8.12.0
+  ajv-formats: 2.1.1
   autorest: 3.3.2
   c8: 7.13.0
   change-case: 4.1.2
@@ -221,7 +224,6 @@ dependencies:
   cspell: 6.31.1
   debounce: 1.2.1
   ecmarkup: 12.0.3
-  es-module-shims: 1.7.1
   eslint: 8.38.0
   eslint-config-prettier: 8.8.0_eslint@8.38.0
   eslint-plugin-deprecation: 1.4.1_eslint@8.38.0+typescript@5.0.4
@@ -16045,6 +16047,28 @@ packages:
       - supports-color
     dev: false
 
+  file:projects/json-schema.tgz:
+    resolution: {integrity: sha512-ufiVPW9gyHGwIbQnHbkzXrpKXgDADfpvKoh4prM+YYPqyGh5u6xCH1S8vOcEB0Q3QgjOExZEzepAQm8qvYvHZw==, tarball: file:projects/json-schema.tgz}
+    name: '@rush-temp/json-schema'
+    version: 0.0.0
+    dependencies:
+      '@types/js-yaml': 4.0.5
+      '@types/mocha': 10.0.1
+      '@types/node': 18.11.19
+      ajv: 8.12.0
+      ajv-formats: 2.1.1
+      c8: 7.13.0
+      eslint: 8.38.0
+      js-yaml: 4.1.0
+      mocha: 10.2.0
+      mocha-junit-reporter: 2.2.0_mocha@10.2.0
+      mocha-multi-reporters: 1.5.1_mocha@10.2.0
+      rimraf: 5.0.0
+      typescript: 5.0.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   file:projects/library-linter.tgz:
     resolution: {integrity: sha512-MEvkhVJFIzr14zkv63s1Nl9sdeO19TRTYJFSrB233vXlxOCrYDcErIKoFmLUB6A+TKQabgXzy1yaILQJapb/Rw==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
@@ -16152,7 +16176,7 @@ packages:
     dev: false
 
   file:projects/playground-website.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-0uTIqoOrGy/l1CZJImpkS9U6FLhfnAdb5eAqcZduoTYAQ/nHbFLU3lWLHP32zwofgu9J6MJzTYCfnGa+ynu5dg==, tarball: file:projects/playground-website.tgz}
+    resolution: {integrity: sha512-EqBcvqmkEkz921nsceZoWkdBwoMeEczS2620oSYK+9d5w4XasGoDT3ErgiqTFLWMkmhmEaFsWwyPdm0K5RGLXA==, tarball: file:projects/playground-website.tgz}
     id: file:projects/playground-website.tgz
     name: '@rush-temp/playground-website'
     version: 0.0.0
@@ -16195,12 +16219,9 @@ packages:
       vscode-languageserver: 8.1.0
       vscode-languageserver-textdocument: 1.0.8
     transitivePeerDependencies:
-      - encoding
       - less
-      - react-native
       - rollup
       - sass
-      - scheduler
       - stylus
       - sugarss
       - supports-color
@@ -16208,7 +16229,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-OC0okdikjI84D0Svx+YivSqzf2x5Rwi6wFaT7nsu74pOS47iCQzsp5QuoY6fSS80rN6ECLSULktg+B+169GOBg==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-GgjKNPAJWWrHhyjWPjMGFmtp/SQUXMMs/g7yTrDthcL+WzfgEpDgcXIjCmAPuv/GdLV5vb30OpHwb3pS1/tB7Q==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -16430,7 +16451,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.0.34:
-    resolution: {integrity: sha512-MkySn9PPeTmd8V4nP+Gp8pbX4DqcjaXC6jIUxyofbbc9Ym/mE+4YuakPEjUiCAnNJOr1YOCLo6UkM0bZK68F6A==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-AALxlOc0ogFGUpSuY76JmrE0tUP6syW4tstWmdUNYjmfzoc1QsiJPsbLFnBxtTkNfOp0Fq4k3pZi3j6pYfgzMw==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0

@@ -43,7 +43,7 @@ extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: numeric
  *
  * @param value The type the array must contain.
  */
-extern dec contains(target: object | Reflection.ModelProperty, value: unknown);
+extern dec contains(target: unknown[] | Reflection.ModelProperty, value: unknown);
 
 /**
  * Specify that the array must contain at least some number of the types provided
@@ -51,7 +51,7 @@ extern dec contains(target: object | Reflection.ModelProperty, value: unknown);
  *
  * @param value The minimum number of instances the array must contain
  */
-extern dec minContains(target: object | Reflection.ModelProperty, value: int32);
+extern dec minContains(target: unknown[] | Reflection.ModelProperty, value: int32);
 
 /**
  * Specify that the array must contain at most some number of the types provided
@@ -59,39 +59,58 @@ extern dec minContains(target: object | Reflection.ModelProperty, value: int32);
  *
  * @param value The maximum number of instances the array must contain
  */
-extern dec maxContains(target: object | Reflection.ModelProperty, value: int32);
+extern dec maxContains(target: unknown[] | Reflection.ModelProperty, value: int32);
 
 /**
  * Specify that every item in the array must be unique.
  */
-extern dec uniqueItems(target: object | Reflection.ModelProperty);
+extern dec uniqueItems(target: unknown[] | Reflection.ModelProperty);
 
 /**
  * Specify the minimum number of properties this object can have.
  *
  * @param value The minimum number of properties this object can have.
  */
-extern dec minProperties(target: object | Reflection.ModelProperty, value: int32);
+extern dec minProperties(target: Record<unknown> | Reflection.ModelProperty, value: int32);
 
 /**
  * Specify the maximum number of properties this object can have.
  *
  * @param value The maximum number of properties this object can have.
  */
-extern dec maxProperties(target: object | Reflection.ModelProperty, value: int32);
+extern dec maxProperties(target: Record<unknown> | Reflection.ModelProperty, value: int32);
 
 /**
- * Specify
+ * Specify the encoding used for the contents of a string.
  * @param value
  */
-extern dec contentEncoding(target: string | Reflection.ModelProperty, value: string);
+extern dec contentEncoding(
+  target: string | Reflection.ModelProperty,
+  value: "7bit" | "8bit" | "binary" | "quoted-printable" | "base16" | "base32" | "base64"
+);
 
 /**
  * Specify that the target array must begin with the provided types.
  *
  * @param value a tuple containing the types that must be present at the start of the array
  */
-extern dec prefixItems(target: object | Reflection.ModelProperty, value: unknown[]);
+extern dec prefixItems(target: unknown[] | Reflection.ModelProperty, value: unknown[]);
+
+/**
+ * Specify the content type of content stored in a string.
+ *
+ * @param the media type of the string contents
+ *
+ */
+extern dec contentMediaType(target: string | Reflection.ModelProperty, value: string);
+
+/**
+ * Specify the schema for the contents of a string when interpreted according to the content's
+ * media type and encoding.
+ *
+ * @param value the schema of the string contents
+ */
+extern dec contentSchema(target: string | Reflection.ModelProperty, value: Record<unknown>);
 
 enum Format {
   dateTime: "date-time",

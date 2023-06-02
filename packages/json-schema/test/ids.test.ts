@@ -32,16 +32,17 @@ describe("implicit ids", () => {
     assert.strictEqual(schemas["Foo.json"].$id, "http://example.org/Foo.json");
   });
 
-  it.only("handles duplicate IDs", async () => {
-    const schemas = await emitSchema(`
-        namespace Test1 {
-          model Foo {}
-        }
-        namespace Test2 {
-          model Foo {}
-        }
-      `);
-    console.log(schemas);
+  it("throws errors on duplicate IDs", async () => {
+    await assert.rejects(async () => {
+      const schemas = await emitSchema(`
+      namespace Test1 {
+        model Foo {}
+      }
+      namespace Test2 {
+        model Foo {}
+      }
+    `);
+    });
   });
 });
 
