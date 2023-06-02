@@ -437,8 +437,12 @@ UnionExpressionOrHigher :
     `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
 
 IntersectionExpressionOrHigher :
+  ValueOfExpressionOrHigher
+    `&`? IntersectionExpressionOrHigher `&` ValueOfExpressionOrHigher
+
+ValueOfExpressionOrHigher :
     ArrayExpressionOrHigher
-    `&`? IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
+    `valueof` ArrayExpressionOrHigher
 
 ArrayExpressionOrHigher :
     PrimaryExpression

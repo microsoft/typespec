@@ -286,7 +286,9 @@ export function $resource(context: DecoratorContext, entity: Model, collectionNa
   // Manually push the decorator onto the property so that it's copyable in KeysOf<T>
   key.keyProperty.decorators.push({
     decorator: $segment,
-    args: [{ value: context.program.checker.createLiteralType(collectionName) }],
+    args: [
+      { value: context.program.checker.createLiteralType(collectionName), jsValue: collectionName },
+    ],
   });
 }
 

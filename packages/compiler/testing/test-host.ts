@@ -9,7 +9,7 @@ import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { Program, compile as compileProgram } from "../core/program.js";
-import { CompilerHost, Diagnostic, Type } from "../core/types.js";
+import { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
 import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { createTestWrapper } from "./test-utils.js";
@@ -253,7 +253,8 @@ async function createTestHostInternal(): Promise<TestHost> {
   fileSystem.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
   fileSystem.addJsFile(".tsp/test-lib/test.js", {
     namespace: "TypeSpec",
-    $test(_: any, target: Type, name?: string) {
+    $test(_: any, target: Type, nameLiteral?: StringLiteral) {
+      let name = nameLiteral?.value;
       if (!name) {
         if (
           target.kind === "Model" ||

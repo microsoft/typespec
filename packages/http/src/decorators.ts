@@ -7,6 +7,7 @@ import {
   Namespace,
   Operation,
   Program,
+  StringLiteral,
   Tuple,
   Type,
   Union,
@@ -38,15 +39,15 @@ const headerFieldsKey = createStateSymbol("header");
 export function $header(
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: string | Model
+  headerNameOrOptions?: StringLiteral | Model
 ) {
   const options: HeaderFieldOptions = {
     type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
   };
   if (headerNameOrOptions) {
-    if (typeof headerNameOrOptions === "string") {
-      options.name = headerNameOrOptions;
+    if (headerNameOrOptions.kind === "String") {
+      options.name = headerNameOrOptions.value;
     } else {
       const name = headerNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {
@@ -89,15 +90,15 @@ const queryFieldsKey = createStateSymbol("query");
 export function $query(
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: string | Model
+  queryNameOrOptions?: StringLiteral | Model
 ) {
   const options: QueryParameterOptions = {
     type: "query",
     name: entity.name,
   };
   if (queryNameOrOptions) {
-    if (typeof queryNameOrOptions === "string") {
-      options.name = queryNameOrOptions;
+    if (queryNameOrOptions.kind === "String") {
+      options.name = queryNameOrOptions.value;
     } else {
       const name = queryNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {

@@ -39,7 +39,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@OpenAPI.extension(key: string, value: unknown)
+@OpenAPI.extension(key: valueof string, value: unknown)
 ```
 
 #### Target
@@ -48,10 +48,10 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 #### Parameters
 
-| Name  | Type                  | Description                         |
-| ----- | --------------------- | ----------------------------------- |
-| key   | `scalar string`       | Extension key. Must start with `x-` |
-| value | `(intrinsic) unknown` | Extension value.                    |
+| Name  | Type                    | Description                         |
+| ----- | ----------------------- | ----------------------------------- |
+| key   | `valueof scalar string` | Extension key. Must start with `x-` |
+| value | `(intrinsic) unknown`   | Extension value.                    |
 
 #### Examples
 
@@ -66,7 +66,7 @@ op read(): string;
 Specify the OpenAPI `externalDocs` property for this type.
 
 ```typespec
-@OpenAPI.externalDocs(url: string, description?: string)
+@OpenAPI.externalDocs(url: valueof string, description?: valueof string)
 ```
 
 #### Target
@@ -75,10 +75,10 @@ Specify the OpenAPI `externalDocs` property for this type.
 
 #### Parameters
 
-| Name        | Type            | Description             |
-| ----------- | --------------- | ----------------------- |
-| url         | `scalar string` | Url to the docs         |
-| description | `scalar string` | Description of the docs |
+| Name        | Type                    | Description             |
+| ----------- | ----------------------- | ----------------------- |
+| url         | `valueof scalar string` | Url to the docs         |
+| description | `valueof scalar string` | Description of the docs |
 
 #### Examples
 
@@ -92,7 +92,7 @@ op listPets(): Pet[];
 Specify the OpenAPI `operationId` property for this operation.
 
 ```typespec
-@OpenAPI.operationId(operationId: string)
+@OpenAPI.operationId(operationId: valueof string)
 ```
 
 #### Target
@@ -101,9 +101,9 @@ Specify the OpenAPI `operationId` property for this operation.
 
 #### Parameters
 
-| Name        | Type            | Description         |
-| ----------- | --------------- | ------------------- |
-| operationId | `scalar string` | Operation id value. |
+| Name        | Type                    | Description         |
+| ----------- | ----------------------- | ------------------- |
+| operationId | `valueof scalar string` | Operation id value. |
 
 #### Examples
 

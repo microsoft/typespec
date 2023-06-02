@@ -41,7 +41,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends object>  {
+        model Template<T extends {}>  {
         }
 
         @test
@@ -139,7 +139,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
     });
   });
@@ -296,7 +296,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'string'",
+          message: "Argument '4' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
