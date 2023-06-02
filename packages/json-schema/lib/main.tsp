@@ -18,7 +18,7 @@ extern dec jsonSchema(target: unknown, baseUri?: string);
  *
  * @param baseUri the base URI. Schema IDs inside this namespace are relative to this URI.
  */
-extern dec baseUri(target: Reflection.Namespace, baseUri: string);
+extern dec baseUri(target: Reflection.Namespace, baseUri: valueof string);
 
 /**
  * Specify the JSON Schema id. If this model or a parent namespace has a base URI,
