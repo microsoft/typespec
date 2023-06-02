@@ -37,6 +37,18 @@ describe("openapi3: Array", () => {
     });
   });
 
+  it("named array applies doc", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      @doc("This is a doc for PetNames")
+      model PetNames is string[] {}
+      model Pet { names: PetNames };
+      `
+    );
+    deepStrictEqual(res.schemas.PetNames.description, "This is a doc for PetNames");
+  });
+
   it("can specify minItems using @minItems decorator", async () => {
     const res = await oapiForModel(
       "Pet",

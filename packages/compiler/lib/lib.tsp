@@ -128,14 +128,14 @@ scalar boolean;
 model object {}
 
 /**
- * Array model type, equivalent to `T[]`
+ * @dev Array model type, equivalent to `T[]`
  * @template T The type of the array elements
  */
 @indexer(integer, T)
 model Array<T> {}
 
 /**
- * Model with string properties where all the properties have type `T`
+ * @dev Model with string properties where all the properties have type `T`
  * @template T The type of the properties
  */
 @indexer(string, T)
