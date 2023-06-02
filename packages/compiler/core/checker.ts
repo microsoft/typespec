@@ -5409,7 +5409,8 @@ function extractMainDoc(type: Type): string | undefined {
   for (const doc of type.node.docs) {
     mainDoc += getDocContent(doc.content);
   }
-  return mainDoc;
+  const trimmed = mainDoc.trim();
+  return trimmed === "" ? undefined : trimmed;
 }
 
 function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
