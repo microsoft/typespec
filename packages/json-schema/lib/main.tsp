@@ -71,7 +71,7 @@ extern dec uniqueItems(target: unknown[] | Reflection.ModelProperty);
  *
  * @param value The minimum number of properties this object can have.
  */
-extern dec minProperties(target: Record<unknown> | Reflection.ModelProperty, value: int32);
+extern dec minProperties(target: Record<unknown> | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Specify the maximum number of properties this object can have.
