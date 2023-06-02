@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Update decorators signature to use `{}` instead of object",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}

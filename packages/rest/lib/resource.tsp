@@ -38,7 +38,7 @@ model ParentKeysOf<T> {}
  * @template TResource The resource model.
  */
 @doc("Represents operation parameters for resource TResource.")
-model ResourceParameters<TResource extends object> {
+model ResourceParameters<TResource extends {}> {
   ...KeysOf<TResource>;
 }
 
@@ -47,7 +47,7 @@ model ResourceParameters<TResource extends object> {
  * @template TResource The resource model.
  */
 @doc("Represents collection operation parameters for resource TResource.")
-model ResourceCollectionParameters<TResource extends object> {
+model ResourceCollectionParameters<TResource extends {}> {
   ...ParentKeysOf<TResource>;
 }
 
@@ -58,7 +58,7 @@ model ResourceCollectionParameters<TResource extends object> {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceRead<TResource extends object, TError> {
+interface ResourceRead<TResource extends {}, TError> {
   /**
    * Gets an instance of the resource.
    * @template TResource The resource model.
@@ -84,7 +84,7 @@ model ResourceCreatedResponse<T> {
  * @template TResource The resource model to create or replace.
  * @template TError The error response.
  */
-interface ResourceCreateOrReplace<TResource extends object, TError> {
+interface ResourceCreateOrReplace<TResource extends {}, TError> {
   /**
    * Creates or replaces a instance of the resource.
    * @template TResource The resource model to create or replace.
@@ -104,7 +104,7 @@ interface ResourceCreateOrReplace<TResource extends object, TError> {
  * @template TResource The resource model to create or update.
  */
 @friendlyName("{name}Update", TResource)
-model ResourceCreateOrUpdateModel<TResource extends object>
+model ResourceCreateOrUpdateModel<TResource extends {}>
   is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>>;
 
 /**
@@ -112,7 +112,7 @@ model ResourceCreateOrUpdateModel<TResource extends object>
  * @template TResource The resource model to create or update.
  * @template TError The error response.
  */
-interface ResourceCreateOrUpdate<TResource extends object, TError> {
+interface ResourceCreateOrUpdate<TResource extends {}, TError> {
   /**
    * Creates or update an instance of the resource.
    * @template TResource The resource model to create or update.
@@ -132,7 +132,7 @@ interface ResourceCreateOrUpdate<TResource extends object, TError> {
  * @template TResource The resource model to create.
  */
 @friendlyName("{name}Create", TResource)
-model ResourceCreateModel<TResource extends object>
+model ResourceCreateModel<TResource extends {}>
   is UpdateableProperties<DefaultKeyVisibility<TResource, "read">>;
 
 /**
@@ -140,7 +140,7 @@ model ResourceCreateModel<TResource extends object>
  * @template TResource The resource model to create.
  * @template TError The error response.
  */
-interface ResourceCreate<TResource extends object, TError> {
+interface ResourceCreate<TResource extends {}, TError> {
   /**
    * Creates a new instance of the resource.
    * @template TResource The resource model to create.
@@ -162,7 +162,7 @@ interface ResourceCreate<TResource extends object, TError> {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceUpdate<TResource extends object, TError> {
+interface ResourceUpdate<TResource extends {}, TError> {
   /**
    * Updates an existing instance of the resource.
    * @template TResource The resource model to update.
@@ -191,7 +191,7 @@ model ResourceDeletedResponse {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceDelete<TResource extends object, TError> {
+interface ResourceDelete<TResource extends {}, TError> {
   /**
    * Deletes an existing instance of the resource.
    * @template TResource The resource model to delete.
@@ -211,7 +211,7 @@ interface ResourceDelete<TResource extends object, TError> {
  */
 @doc("Paged response of {name} items", T)
 @friendlyName("{name}CollectionWithNextLink", T)
-model CollectionWithNextLink<T extends object> {
+model CollectionWithNextLink<T extends {}> {
   @doc("The items on this page")
   value: T[];
 
@@ -224,7 +224,7 @@ model CollectionWithNextLink<T extends object> {
  * @template TResource The resource model to list.
  * @template TError The error response.
  */
-interface ResourceList<TResource extends object, TError> {
+interface ResourceList<TResource extends {}, TError> {
   /**
    * Lists all instances of the resource.
    * @template TResource The resource model to list.
@@ -243,7 +243,7 @@ interface ResourceList<TResource extends object, TError> {
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceInstanceOperations<TResource extends object, TError>
+interface ResourceInstanceOperations<TResource extends {}, TError>
   extends ResourceRead<TResource, TError>,
     ResourceUpdate<TResource, TError>,
     ResourceDelete<TResource, TError> {}
@@ -255,7 +255,7 @@ interface ResourceInstanceOperations<TResource extends object, TError>
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceCollectionOperations<TResource extends object, TError>
+interface ResourceCollectionOperations<TResource extends {}, TError>
   extends ResourceCreate<TResource, TError>,
     ResourceList<TResource, TError> {}
 
@@ -266,7 +266,7 @@ interface ResourceCollectionOperations<TResource extends object, TError>
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ResourceOperations<TResource extends object, TError>
+interface ResourceOperations<TResource extends {}, TError>
   extends ResourceInstanceOperations<TResource, TError>,
     ResourceCollectionOperations<TResource, TError> {}
 
@@ -278,7 +278,7 @@ interface ResourceOperations<TResource extends object, TError>
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface SingletonResourceRead<TSingleton extends object, TResource extends object, TError> {
+interface SingletonResourceRead<TSingleton extends {}, TResource extends {}, TError> {
   /**
    * Gets the singleton resource.
    * @template TSingleton The singleton resource model.
@@ -299,7 +299,7 @@ interface SingletonResourceRead<TSingleton extends object, TResource extends obj
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface SingletonResourceUpdate<TSingleton extends object, TResource extends object, TError> {
+interface SingletonResourceUpdate<TSingleton extends {}, TResource extends {}, TError> {
   /**
    * Updates the singleton resource.
    * @template TSingleton The singleton resource model.
@@ -323,7 +323,7 @@ interface SingletonResourceUpdate<TSingleton extends object, TResource extends o
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface SingletonResourceOperations<TSingleton extends object, TResource extends object, TError>
+interface SingletonResourceOperations<TSingleton extends {}, TResource extends {}, TError>
   extends SingletonResourceRead<TSingleton, TResource, TError>,
     SingletonResourceUpdate<TSingleton, TResource, TError> {}
 
@@ -335,7 +335,7 @@ interface SingletonResourceOperations<TSingleton extends object, TResource exten
  */
 @Private.validateHasKey(TResource)
 @Private.validateIsError(TError)
-interface ExtensionResourceRead<TExtension extends object, TResource extends object, TError> {
+interface ExtensionResourceRead<TExtension extends {}, TResource extends {}, TError> {
   /**
    * Gets an instance of the extension resource.
    * @template TExtension The extension resource model.
@@ -353,11 +353,7 @@ interface ExtensionResourceRead<TExtension extends object, TResource extends obj
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceCreateOrUpdate<
-  TExtension extends object,
-  TResource extends object,
-  TError
-> {
+interface ExtensionResourceCreateOrUpdate<TExtension extends {}, TResource extends {}, TError> {
   /**
    * Creates or update an instance of the extension resource.
    * @template TExtension The extension resource model.
@@ -379,7 +375,7 @@ interface ExtensionResourceCreateOrUpdate<
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceCreate<TExtension extends object, TResource extends object, TError> {
+interface ExtensionResourceCreate<TExtension extends {}, TResource extends {}, TError> {
   /**
    * Creates a new instance of the extension resource.
    * @template TExtension The extension resource model.
@@ -400,7 +396,7 @@ interface ExtensionResourceCreate<TExtension extends object, TResource extends o
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceUpdate<TExtension extends object, TResource extends object, TError> {
+interface ExtensionResourceUpdate<TExtension extends {}, TResource extends {}, TError> {
   /**
    * Updates an existing instance of the extension resource.
    * @template TExtension The extension resource model.
@@ -424,7 +420,7 @@ interface ExtensionResourceUpdate<TExtension extends object, TResource extends o
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceDelete<TExtension extends object, TResource extends object, TError> {
+interface ExtensionResourceDelete<TExtension extends {}, TResource extends {}, TError> {
   /**
    * Deletes an existing instance of the extension resource.
    * @template TExtension The extension resource model.
@@ -445,7 +441,7 @@ interface ExtensionResourceDelete<TExtension extends object, TResource extends o
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceList<TExtension extends object, TResource extends object, TError> {
+interface ExtensionResourceList<TExtension extends {}, TResource extends {}, TError> {
   /**
    * Lists all instances of the extension resource.
    * @template TExtension The extension resource model.
@@ -466,11 +462,7 @@ interface ExtensionResourceList<TExtension extends object, TResource extends obj
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceInstanceOperations<
-  TExtension extends object,
-  TResource extends object,
-  TError
->
+interface ExtensionResourceInstanceOperations<TExtension extends {}, TResource extends {}, TError>
   extends ExtensionResourceRead<TExtension, TResource, TError>,
     ExtensionResourceUpdate<TExtension, TResource, TError>,
     ExtensionResourceDelete<TExtension, TResource, TError> {}
@@ -481,11 +473,7 @@ interface ExtensionResourceInstanceOperations<
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceCollectionOperations<
-  TExtension extends object,
-  TResource extends object,
-  TError
->
+interface ExtensionResourceCollectionOperations<TExtension extends {}, TResource extends {}, TError>
   extends ExtensionResourceCreate<TExtension, TResource, TError>,
     ExtensionResourceList<TExtension, TResource, TError> {}
 
@@ -495,6 +483,6 @@ interface ExtensionResourceCollectionOperations<
  * @template TResource The resource model.
  * @template TError The error response.
  */
-interface ExtensionResourceOperations<TExtension extends object, TResource extends object, TError>
+interface ExtensionResourceOperations<TExtension extends {}, TResource extends {}, TError>
   extends ExtensionResourceInstanceOperations<TExtension, TResource, TError>,
     ExtensionResourceCollectionOperations<TExtension, TResource, TError> {}

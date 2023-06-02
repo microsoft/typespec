@@ -41,7 +41,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends object>  {
+        model Template<T extends {}>  {
         }
 
         @test

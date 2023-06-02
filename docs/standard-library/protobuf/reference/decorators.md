@@ -59,7 +59,7 @@ This decorator will force the emitter to check and emit a model.
 
 #### Target
 
-`model object`
+`model {}`
 
 #### Parameters
 
@@ -113,7 +113,7 @@ information.
 
 #### Target
 
-`model object`
+`model {}`
 
 #### Parameters
 
