@@ -34,14 +34,14 @@ describe("implicit ids", () => {
 
   it("throws errors on duplicate IDs", async () => {
     await assert.rejects(async () => {
-      const schemas = await emitSchema(`
-      namespace Test1 {
-        model Foo {}
-      }
-      namespace Test2 {
-        model Foo {}
-      }
-    `);
+      await emitSchema(`
+        namespace Test1 {
+          model Foo {}
+        }
+        namespace Test2 {
+          model Foo {}
+        }
+      `);
     });
   });
 });

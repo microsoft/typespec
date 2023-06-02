@@ -34,7 +34,6 @@ describe("emitting built-in types", () => {
     ["null", { type: "null" }],
     ["bytes", { type: "string", contentEncoding: "base64" }],
     ["boolean", { type: "boolean" }],
-    ["object", { type: "object" }],
   ]);
 
   for (const [type, expectedSchema] of types) {

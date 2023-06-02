@@ -64,7 +64,7 @@ describe("emitting scalars with constraints", () => {
       @contentSchema(JwtToken)
       scalar shortString extends string;
 
-      model JwtToken is Array<object>;
+      model JwtToken is Array<Record<string>>;
     `);
     assert.strictEqual(schemas["shortString.json"].minLength, 1);
     assert.strictEqual(schemas["shortString.json"].maxLength, 2);
@@ -90,7 +90,7 @@ describe("emitting scalars with constraints", () => {
         prop: string;
       }
 
-      model JwtToken is Array<object>;
+      model JwtToken is Array<Record<string>>;
     `);
     assert.strictEqual(schemas["Test.json"].properties.prop.minLength, 1);
     assert.strictEqual(schemas["Test.json"].properties.prop.maxLength, 2);

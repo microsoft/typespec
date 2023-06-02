@@ -84,10 +84,7 @@ extern dec maxProperties(target: Record<unknown> | Reflection.ModelProperty, val
  * Specify the encoding used for the contents of a string.
  * @param value
  */
-extern dec contentEncoding(
-  target: string | Reflection.ModelProperty,
-  value: "7bit" | "8bit" | "binary" | "quoted-printable" | "base16" | "base32" | "base64"
-);
+extern dec contentEncoding(target: string | Reflection.ModelProperty, value: string);
 
 /**
  * Specify that the target array must begin with the provided types.
@@ -110,7 +107,7 @@ extern dec contentMediaType(target: string | Reflection.ModelProperty, value: st
  *
  * @param value the schema of the string contents
  */
-extern dec contentSchema(target: string | Reflection.ModelProperty, value: Record<unknown>);
+extern dec contentSchema(target: string | Reflection.ModelProperty, value: unknown);
 
 enum Format {
   dateTime: "date-time",
