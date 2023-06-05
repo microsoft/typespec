@@ -118,7 +118,6 @@ specifiers:
   react: ~18.2.0
   react-dom: ~18.2.0
   react-is: ~18.1.0
-  recoil: ~0.7.6
   rimraf: ~5.0.0
   rollup: ~3.4.0
   rollup-plugin-visualizer: ~5.9.0
@@ -224,7 +223,7 @@ dependencies:
   cross-env: 7.0.3
   cspell: 6.31.1
   debounce: 1.2.1
-  dotenv: 16.1.3
+  dotenv: 16.1.4
   ecmarkup: 12.0.3
   eslint: 8.38.0
   eslint-config-prettier: 8.8.0_eslint@8.38.0
@@ -258,7 +257,6 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-is: 18.1.0
-  recoil: 0.7.7_react-dom@18.2.0+react@18.2.0
   rimraf: 5.0.0
   rollup: 3.4.0
   rollup-plugin-visualizer: 5.9.0_rollup@3.4.0
@@ -8831,8 +8829,8 @@ packages:
       is-obj: 2.0.0
     dev: false
 
-  /dotenv/16.1.3:
-    resolution: {integrity: sha512-FYssxsmCTtKL72fGBSvb1K9dRz0/VZeWqFme/vSb7r7323x4CRaHu4LvQ5JG3+s6yt2YPbBrkpiEODktfyjI9A==}
+  /dotenv/16.1.4:
+    resolution: {integrity: sha512-m55RtE8AsPeJBpOIFKihEmqUcoVncQIwo7x9U8ZwLEZw9ZpXboz2c+rvog+jUaJvVrZ5kBOeYQBX5+8Aa/OZQw==}
     engines: {node: '>=12'}
     dev: false
 
@@ -15879,7 +15877,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -15915,7 +15912,6 @@ packages:
       ajv: 8.12.0
       c8: 7.13.0
       change-case: 4.1.2
-      dotenv: 16.1.3
       eslint: 8.38.0
       globby: 13.1.4
       grammarkdown: 3.2.0
@@ -15955,7 +15951,6 @@ packages:
       '@rushstack/eslint-patch': 1.1.0
       '@typescript-eslint/eslint-plugin': 5.58.0_325d755b025ed8bfe2ebb6d1477cd868
       '@typescript-eslint/parser': 5.58.0_eslint@8.38.0+typescript@5.0.4
-      dotenv: 16.1.3
       eslint: 8.38.0
       eslint-config-prettier: 8.8.0_eslint@8.38.0
       eslint-plugin-deprecation: 1.4.1_eslint@8.38.0+typescript@5.0.4
@@ -15978,7 +15973,6 @@ packages:
       '@typescript-eslint/parser': 5.58.0_eslint@8.38.0+typescript@5.0.4
       '@typescript-eslint/utils': 5.26.0_eslint@8.38.0+typescript@5.0.4
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16002,7 +15996,6 @@ packages:
       '@types/react': 18.0.34
       '@types/react-dom': 18.0.11
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16025,7 +16018,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16047,7 +16039,6 @@ packages:
       c8: 7.13.0
       chokidar: 3.5.3
       cspell: 6.31.1
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16091,7 +16082,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16110,7 +16100,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16138,7 +16127,6 @@ packages:
       '@typespec/compiler-v0.41': /@typespec/compiler/0.41.0
       '@typespec/compiler-v0.42': /@typespec/compiler/0.42.0
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       globby: 13.1.4
       js-yaml: 4.1.0
@@ -16162,7 +16150,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16182,7 +16169,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       js-yaml: 4.1.0
       mocha: 10.2.0
@@ -16217,7 +16203,6 @@ packages:
       c8: 7.13.0
       cross-env: 7.0.3
       debounce: 1.2.1
-      dotenv: 16.1.3
       es-module-shims: 1.7.1
       eslint: 8.38.0
       lzutf8: 0.6.3
@@ -16249,7 +16234,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-GgjKNPAJWWrHhyjWPjMGFmtp/SQUXMMs/g7yTrDthcL+WzfgEpDgcXIjCmAPuv/GdLV5vb30OpHwb3pS1/tB7Q==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-t4OltX+1CTA7pNiw9hO5t4zMWv6m04CP1IsSJzyY/i2XB1oPxeF41/QnXc5zuMQa3yJNLa/jAbOQU2cToQknSA==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -16271,7 +16256,6 @@ packages:
       c8: 7.13.0
       cross-env: 7.0.3
       debounce: 1.2.1
-      dotenv: 16.1.3
       es-module-shims: 1.7.1
       eslint: 8.38.0
       lzutf8: 0.6.3
@@ -16314,7 +16298,6 @@ packages:
       '@rollup/plugin-json': 5.0.2_rollup@3.4.0
       '@rollup/plugin-node-resolve': 15.0.2_rollup@3.4.0
       '@rollup/plugin-replace': 4.0.0_rollup@3.4.0
-      dotenv: 16.1.3
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
@@ -16333,7 +16316,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       micromatch: 4.0.5
       mocha: 10.2.0
@@ -16352,7 +16334,6 @@ packages:
       '@types/node': 18.11.19
       '@types/prettier': 2.6.0
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16374,7 +16355,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16391,7 +16371,6 @@ packages:
     version: 0.0.0
     dependencies:
       autorest: 3.3.2
-      dotenv: 16.1.3
       mkdirp: 2.1.6
       rimraf: 5.0.0
       typescript: 5.0.4
@@ -16403,7 +16382,6 @@ packages:
     version: 0.0.0
     dependencies:
       '@types/node': 18.11.19
-      dotenv: 16.1.3
       ecmarkup: 12.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -16419,7 +16397,6 @@ packages:
     dependencies:
       '@types/node': 18.11.19
       '@types/plist': 3.0.2
-      dotenv: 16.1.3
       eslint: 8.38.0
       onigasm: 2.2.5
       plist: 3.0.6
@@ -16433,8 +16410,6 @@ packages:
     resolution: {integrity: sha512-Uz2euC/TKajjYNhANzpi+81YS7y15afjNQx8SG7zi2BIZWylrNUvGfnIBuymMvBCwWWfHx2/w9pjtXa+vbMobA==, tarball: file:projects/typespec-vs.tgz}
     name: '@rush-temp/typespec-vs'
     version: 0.0.0
-    dependencies:
-      dotenv: 16.1.3
     dev: false
 
   file:projects/typespec-vscode.tgz:
@@ -16449,7 +16424,6 @@ packages:
       '@types/vscode': 1.53.0
       '@vscode/vsce': 2.15.0
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mkdirp: 2.1.6
       mocha: 10.2.0
@@ -16471,7 +16445,6 @@ packages:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.13.0
-      dotenv: 16.1.3
       eslint: 8.38.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
@@ -16496,7 +16469,7 @@ packages:
       '@mdx-js/react': 1.6.22_react@17.0.2
       '@tsconfig/docusaurus': 1.0.7
       '@types/node': 18.11.19
-      dotenv: 16.1.3
+      dotenv: 16.1.4
       eslint: 8.38.0
       mdx-mermaid: 1.3.2_mermaid@9.1.7+react@17.0.2
       mermaid: 9.1.7
