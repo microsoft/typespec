@@ -17,12 +17,11 @@ import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
-export type PlaygroundDefaultState = {
-  content?: string;
-};
-
 export interface PlaygroundProps {
   host: BrowserHost;
+
+  /** Default emitter if leaving this unmanaged. */
+  defaultContent?: string;
 
   /** Emitter to use */
   emitter?: string;
@@ -45,7 +44,6 @@ export interface PlaygroundProps {
   /** Callback when sample change */
   onSampleNameChange?: (sampleName: string) => void;
 
-  defaultState?: PlaygroundDefaultState;
   onSave?: (value: string) => void;
 }
 
@@ -62,7 +60,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
 );
 
 const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
-  const { host, defaultState, onSave } = props;
+  const { host, onSave } = props;
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
     props.defaultEmitter,
@@ -78,6 +76,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultSampleName,
     props.onSampleNameChange
   );
+  const [content] = useControllableValue(undefined, props.defaultContent);
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
@@ -107,6 +106,12 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
     },
     [typespecModel]
   );
+  useEffect(() => {
+    if (content !== undefined) {
+      const newContent = content ?? "";
+      updateTypeSpec(newContent);
+    }
+  }, [content, updateTypeSpec]);
   useEffect(() => {
     if (selectedSampleName) {
       const config = PlaygroundManifest.samples[selectedSampleName];
