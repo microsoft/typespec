@@ -2,14 +2,13 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { RecoilRoot } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
-import { CompilationState, EmitterOptions } from "../state.js";
+import { CompilationState, EmitterOptions } from "./types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
@@ -53,13 +52,7 @@ export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
   </FluentProvider>
 );
 
-export const Playground: FunctionComponent<PlaygroundProps> = (props) => (
-  <RecoilRoot>
-    <PlaygroundInternal {...props} />
-  </RecoilRoot>
-);
-
-const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
+export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,

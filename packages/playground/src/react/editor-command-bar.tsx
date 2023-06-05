@@ -11,7 +11,7 @@ import {
 } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
-import { EmitterOptions } from "../state.js";
+import { EmitterOptions } from "./types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";

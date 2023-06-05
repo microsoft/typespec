@@ -83,7 +83,6 @@ specifiers:
   cspell: ~6.31.1
   debounce: ~1.2.1
   ecmarkup: ~12.0.3
-  es-module-shims: ~1.7.1
   eslint: ^8.36.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-deprecation: ^1.4.1
@@ -116,7 +115,6 @@ specifiers:
   react: ~18.2.0
   react-dom: ~18.2.0
   react-is: ~18.1.0
-  recoil: ~0.7.6
   rimraf: ~5.0.0
   rollup: ~3.4.0
   rollup-plugin-visualizer: ~5.9.0
@@ -221,7 +219,6 @@ dependencies:
   cspell: 6.31.1
   debounce: 1.2.1
   ecmarkup: 12.0.3
-  es-module-shims: 1.7.1
   eslint: 8.38.0
   eslint-config-prettier: 8.8.0_eslint@8.38.0
   eslint-plugin-deprecation: 1.4.1_eslint@8.38.0+typescript@5.0.4
@@ -254,7 +251,6 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-is: 18.1.0
-  recoil: 0.7.7_react-dom@18.2.0+react@18.2.0
   rimraf: 5.0.0
   rollup: 3.4.0
   rollup-plugin-visualizer: 5.9.0_rollup@3.4.0
@@ -16152,7 +16148,7 @@ packages:
     dev: false
 
   file:projects/playground-website.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-0uTIqoOrGy/l1CZJImpkS9U6FLhfnAdb5eAqcZduoTYAQ/nHbFLU3lWLHP32zwofgu9J6MJzTYCfnGa+ynu5dg==, tarball: file:projects/playground-website.tgz}
+    resolution: {integrity: sha512-EqBcvqmkEkz921nsceZoWkdBwoMeEczS2620oSYK+9d5w4XasGoDT3ErgiqTFLWMkmhmEaFsWwyPdm0K5RGLXA==, tarball: file:projects/playground-website.tgz}
     id: file:projects/playground-website.tgz
     name: '@rush-temp/playground-website'
     version: 0.0.0
@@ -16195,12 +16191,9 @@ packages:
       vscode-languageserver: 8.1.0
       vscode-languageserver-textdocument: 1.0.8
     transitivePeerDependencies:
-      - encoding
       - less
-      - react-native
       - rollup
       - sass
-      - scheduler
       - stylus
       - sugarss
       - supports-color
@@ -16208,7 +16201,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-OC0okdikjI84D0Svx+YivSqzf2x5Rwi6wFaT7nsu74pOS47iCQzsp5QuoY6fSS80rN6ECLSULktg+B+169GOBg==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-t4OltX+1CTA7pNiw9hO5t4zMWv6m04CP1IsSJzyY/i2XB1oPxeF41/QnXc5zuMQa3yJNLa/jAbOQU2cToQknSA==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -16430,7 +16423,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.0.34:
-    resolution: {integrity: sha512-MkySn9PPeTmd8V4nP+Gp8pbX4DqcjaXC6jIUxyofbbc9Ym/mE+4YuakPEjUiCAnNJOr1YOCLo6UkM0bZK68F6A==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-AALxlOc0ogFGUpSuY76JmrE0tUP6syW4tstWmdUNYjmfzoc1QsiJPsbLFnBxtTkNfOp0Fq4k3pZi3j6pYfgzMw==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0

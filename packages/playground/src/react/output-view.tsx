@@ -3,10 +3,10 @@ import { Diagnostic, Program } from "@typespec/compiler";
 import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui/dist/swagger-ui.css";
-import { CompilationState, CompileResult } from "../state.js";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
+import { CompilationState, CompileResult } from "./types.js";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;

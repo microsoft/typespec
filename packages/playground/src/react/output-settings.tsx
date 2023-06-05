@@ -11,7 +11,7 @@ import {
 } from "@fluentui/react-components";
 import { TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { EmitterOptions } from "../state.js";
+import { EmitterOptions } from "./types.js";
 
 export type OutputSettingsProps = {
   selectedEmitter: string;
