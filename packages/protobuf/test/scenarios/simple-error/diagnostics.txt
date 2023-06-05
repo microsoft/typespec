@@ -3,4 +3,4 @@
 /test/main.tsp:14:5 - error @typespec/protobuf/field-index: field index 19000 falls within the implementation-reserved range of 19000-19999 inclusive
 /test/main.tsp:15:5 - error @typespec/protobuf/field-index: field index 19123 falls within the implementation-reserved range of 19000-19999 inclusive
 /test/main.tsp:16:5 - error @typespec/protobuf/field-index: field index 19999 falls within the implementation-reserved range of 19000-19999 inclusive
-/test/main.tsp:21:1 - error decorator-wrong-target: Cannot apply @message decorator to Test.Test since it is not assignable to object
+/test/main.tsp:21:1 - error decorator-wrong-target: Cannot apply @message decorator to Test.Test since it is not assignable to {}

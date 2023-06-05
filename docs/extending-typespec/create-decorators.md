@@ -40,7 +40,7 @@ extern dec track(target: Model | Enum);
 A decorator parameter can be marked optional using `?`
 
 ```typespec
-extern dec track(target: Model | Enum, name?: StringLiteral);
+extern dec track(target: Model | Enum, name?: valueof string);
 ```
 
 ### Rest parameters
@@ -48,7 +48,29 @@ extern dec track(target: Model | Enum, name?: StringLiteral);
 A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
 ```typespec
-extern dec track(target: Model | Enum, ...names: StringLiteral[]);
+extern dec track(target: Model | Enum, ...names: valueof string[]);
+```
+
+## Ask for a value type
+
+It is common that decorators parameter will expect a value(e.g. a string or a number). However just using `: string` as the type will also allow a user of the decorator to pass `string` itself or a custom scalar extending string as well as union of strings.
+Instead the decorator can use `valueof <T>` to specify that it is expecting a value of that kind.
+
+| Example           | Description      |
+| ----------------- | ---------------- |
+| `valueof string`  | Expect a string  |
+| `valueof float64` | Expect a float   |
+| `valueof int32`   | Expect a number  |
+| `valueof boolean` | Expect a boolean |
+
+```tsp
+extern dec tag(target: unknown, value: valueof string);
+
+// bad
+@tag(string)
+
+// good
+@tag("This is the tag name")
 ```
 
 ## Implement the decorator in JS
@@ -63,7 +85,7 @@ Decorators can be implemented in JavaScript by prefixing the function name with 
 // model.ts
 import type { DecoratorContext, Type } from "@typespec/compiler";
 
-export function $logType(context: DecoratorContext, target: Type, name: string) {
+export function $logType(context: DecoratorContext, target: Type, name: valueof string) {
   console.log(name + ": " + targetType.kind);
 }
 ```
@@ -92,13 +114,13 @@ model Dog {
 
 ### Decorator parameter marshalling
 
-For certain TypeSpec types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
+For certain TypeSpec types(Literal types) the decorator do not receive the actual type but a marshalled value if the decorator parmaeter type is a `valueof`. This is to simplify the most common cases.
 
-| TypeSpec Type    | Marshalled value in JS |
-| ---------------- | ---------------------- |
-| `StringLiteral`  | `string`               |
-| `NumericLiteral` | `number`               |
-| `BooleanLiteral` | `boolean`              |
+| TypeSpec Type     | Marshalled value in JS |
+| ----------------- | ---------------------- |
+| `valueof string`  | `string`               |
+| `valueof numeric` | `number`               |
+| `valueof boolean` | `boolean`              |
 
 for all the other types they are not transformed.
 

@@ -41,7 +41,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends object>  {
+        model Template<T extends {}>  {
         }
 
         @test
@@ -139,7 +139,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
     });
   });
@@ -296,7 +296,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'string'",
+          message: "Argument '4' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
@@ -395,7 +395,7 @@ describe("compiler: built-in decorators", () => {
         ["utcDateTime", "rfc7231", undefined],
         ["offsetDateTime", "rfc3339", undefined],
         ["offsetDateTime", "rfc7231", undefined],
-        ["utcDateTime", "unixTimeStamp", undefined],
+        ["utcDateTime", "unixTimestamp", "int32"],
         ["duration", "ISO8601", undefined],
         ["duration", "seconds", "int32"],
         ["bytes", "base64", undefined],
@@ -421,10 +421,17 @@ describe("compiler: built-in decorators", () => {
         ],
         [
           "offsetDateTime",
-          "unixTimeStamp",
-          undefined,
+          "unixTimestamp",
+          "int32",
           "invalid-encode",
-          `Encoding 'unixTimeStamp' cannot be used on type 's'. Expected: utcDateTime.`,
+          `Encoding 'unixTimestamp' cannot be used on type 's'. Expected: utcDateTime.`,
+        ],
+        [
+          "utcDateTime",
+          "unixTimestamp",
+          "string",
+          "invalid-encode",
+          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'.`,
         ],
         [
           "duration",

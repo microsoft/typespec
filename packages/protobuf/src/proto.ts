@@ -14,6 +14,7 @@ import {
   Operation,
   Program,
   resolvePath,
+  StringLiteral,
   Tuple,
   Type,
 } from "@typespec/compiler";
@@ -91,8 +92,13 @@ export function $_map(ctx: DecoratorContext, target: Model) {
   ctx.program.stateSet(state._map).add(target);
 }
 
-export function $externRef(ctx: DecoratorContext, target: Model, path: string, name: string) {
-  ctx.program.stateMap(state.externRef).set(target, [path, name]);
+export function $externRef(
+  ctx: DecoratorContext,
+  target: Model,
+  path: StringLiteral,
+  name: StringLiteral
+) {
+  ctx.program.stateMap(state.externRef).set(target, [path.value, name.value]);
 }
 
 export function $stream(ctx: DecoratorContext, target: Operation, mode: EnumMember) {

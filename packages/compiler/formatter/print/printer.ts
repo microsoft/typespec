@@ -65,6 +65,7 @@ import {
   UnionExpressionNode,
   UnionStatementNode,
   UnionVariantNode,
+  ValueOfExpressionNode,
 } from "../../core/types.js";
 import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
@@ -193,6 +194,8 @@ export function printNode(
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
+    case SyntaxKind.ValueOfExpression:
+      return printValueOfExpression(path as AstPath<ValueOfExpressionNode>, options, print);
     case SyntaxKind.TemplateParameterDeclaration:
       return printTemplateParameterDeclaration(
         path as AstPath<TemplateParameterDeclarationNode>,
@@ -1228,6 +1231,15 @@ export function printTypeReference(
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
   return [type, template];
+}
+
+export function printValueOfExpression(
+  path: prettier.AstPath<ValueOfExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+): prettier.doc.builders.Doc {
+  const type = path.call(print, "target");
+  return ["valueof ", type];
 }
 
 function printTemplateParameterDeclaration(

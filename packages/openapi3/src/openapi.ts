@@ -887,7 +887,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
       // For literal types, we just want to emit them directly as well.
-      return mapTypeSpecTypeToOpenAPI(type, visibility);
+      return getSchemaForLiterals(type);
     }
 
     if (type.kind === "Intrinsic" && type.name === "unknown") {
@@ -1251,7 +1251,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
-    const builtinType = mapTypeSpecTypeToOpenAPI(type, visibility);
+    const builtinType = getSchemaForLiterals(type);
     if (builtinType !== undefined) return builtinType;
 
     switch (type.kind) {
@@ -1364,7 +1364,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = mapTypeSpecTypeToOpenAPI(variant.type, visibility);
+          const enumSchema = getSchemaForLiterals(variant.type);
           literalVariantEnumByType[variant.type.kind] = enumSchema;
           schemaMembers.push({ schema: enumSchema, type: null });
         } else {
@@ -1502,6 +1502,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getSchemaForModel(model: Model, visibility: Visibility) {
+    const arrayOrRecord = mapTypeSpecIntrinsicModelToOpenAPI(model, visibility);
+    if (arrayOrRecord) {
+      const arrayDoc = getDoc(program, model);
+      arrayOrRecord.description = arrayDoc;
+      return arrayOrRecord;
+    }
+
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
@@ -1772,7 +1779,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   // Map an TypeSpec type to an OA schema. Returns undefined when the resulting
   // OA schema is just a regular object schema.
-  function mapTypeSpecTypeToOpenAPI(typespecType: Type, visibility: Visibility): any {
+  function getSchemaForLiterals(
+    typespecType: NumericLiteral | StringLiteral | BooleanLiteral
+  ): OpenAPI3Schema;
+  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined;
+  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined {
     switch (typespecType.kind) {
       case "Number":
         return { type: "number", enum: [typespecType.value] };
@@ -1780,8 +1791,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", enum: [typespecType.value] };
       case "Boolean":
         return { type: "boolean", enum: [typespecType.value] };
-      case "Model":
-        return mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
+      default:
+        return undefined;
     }
   }
 
@@ -1836,7 +1847,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function mapTypeSpecIntrinsicModelToOpenAPI(
     typespecType: Model,
     visibility: Visibility
-  ): any | undefined {
+  ): OpenAPI3Schema | undefined {
     if (typespecType.indexer) {
       if (isNeverType(typespecType.indexer.key)) {
       } else {
@@ -1854,6 +1865,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
     }
+    return undefined;
   }
 
   function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {

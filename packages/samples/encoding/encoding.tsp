@@ -51,7 +51,7 @@ model Encodings {
 @encode(DateTimeKnownEncoding.rfc7231)
 scalar myRfc7231DateTime extends utcDateTime;
 
-@encode(DateTimeKnownEncoding.unixTimestamp)
+@encode(DateTimeKnownEncoding.unixTimestamp, int32)
 scalar myUnixTimestamp extends utcDateTime;
 
 op read(): Encodings;

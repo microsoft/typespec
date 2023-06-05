@@ -70,7 +70,7 @@ extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptio
  * op read(@path explicit: string, implicit: string): void;
  * ```
  */
-extern dec path(target: ModelProperty, paramName?: string);
+extern dec path(target: ModelProperty, paramName?: valueof string);
 
 /**
  * Explicitly specify that this property is to be set as the body
@@ -184,7 +184,12 @@ extern dec head(target: Operation);
  * ```
  *
  */
-extern dec server(target: Namespace, url: string, description: string, parameters?: object);
+extern dec server(
+  target: Namespace,
+  url: valueof string,
+  description: valueof string,
+  parameters?: Record<unknown>
+);
 
 /**
  * Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
@@ -198,13 +203,13 @@ extern dec server(target: Namespace, url: string, description: string, parameter
  * namespace PetStore;
  * ```
  */
-extern dec useAuth(target: Namespace, auth: object | Union | object[]);
+extern dec useAuth(target: Namespace, auth: {} | Union | {}[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
  * @param value If true, inapplicable metadata will be included in the payload.
  */
-extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);
+extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean);
 
 /**
  * Defines the relative route URI for the target operation
@@ -227,7 +232,7 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean)
  */
 extern dec route(
   target: Namespace | Interface | Operation,
-  path: string,
+  path: valueof string,
   options?: {
     shared?: boolean,
   }
