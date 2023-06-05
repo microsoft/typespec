@@ -24,6 +24,8 @@ export interface EditorCommandBarProps {
   onSelectedEmitterChange: (emitter: string) => void;
   emitterOptions: EmitterOptions;
   onEmitterOptionsChange: (options: EmitterOptions) => void;
+  selectedSampleName: string;
+  onSelectedSampleNameChange: (sampleName: string) => void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
@@ -33,6 +35,8 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   onSelectedEmitterChange,
   emitterOptions,
   onEmitterOptionsChange,
+  selectedSampleName,
+  onSelectedSampleNameChange,
 }) => {
   const documentation = documentationUrl ? (
     <label>
@@ -53,7 +57,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             onClick={saveCode as any}
           />
         </Tooltip>
-        <SamplesDropdown />
+        <SamplesDropdown selectedSampleName={selectedSampleName} onSelectedSampleNameChange={onSelectedSampleNameChange}/>
         <EmitterDropdown
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}

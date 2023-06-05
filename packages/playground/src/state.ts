@@ -1,5 +1,4 @@
 import { Program } from "@typespec/compiler";
-import { atom } from "recoil";
 
 export type CompilationCrashed = {
   readonly internalCompilerError: any;
@@ -12,8 +11,3 @@ export type CompileResult = {
 export type CompilationState = CompileResult | CompilationCrashed;
 
 export type EmitterOptions = Record<string, Record<string, unknown>>;
-
-export const selectedSampleState = atom<string | undefined>({
-  key: "selectedSampleState",
-  default: undefined,
-});

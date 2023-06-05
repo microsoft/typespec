@@ -25,6 +25,7 @@ const App: FunctionComponent = () => {
     <StyledPlayground
       host={host}
       defaultState={initialState}
+      defaultSampleName={initialState.sampleName}
       onSave={save}
       defaultEmitter={PlaygroundManifest.defaultEmitter}
     />

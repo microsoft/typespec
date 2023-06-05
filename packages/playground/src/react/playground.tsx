@@ -2,14 +2,14 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { RecoilRoot, useRecoilState } from "recoil";
+import { RecoilRoot } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
-import { CompilationState, EmitterOptions, selectedSampleState } from "../state.js";
+import { CompilationState, EmitterOptions } from "../state.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
@@ -18,14 +18,13 @@ import { OutputView } from "./output-view.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
 export type PlaygroundDefaultState = {
-  sampleName?: string;
   content?: string;
 };
 
 export interface PlaygroundProps {
   host: BrowserHost;
 
-  /**Emitter to use */
+  /** Emitter to use */
   emitter?: string;
   /** Default emitter if leaving this unmanaged. */
   defaultEmitter?: string;
@@ -38,6 +37,13 @@ export interface PlaygroundProps {
   defaultEmitterOptions?: EmitterOptions;
   /** Callback when emitter options change */
   onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
+
+  /** Sample to use */
+  sampleName?: string;
+  /** Default sample if leaving this unmanaged. */
+  defaultSampleName?: string;
+  /** Callback when sample change */
+  onSampleNameChange?: (sampleName: string) => void;
 
   defaultState?: PlaygroundDefaultState;
   onSave?: (value: string) => void;
@@ -67,9 +73,13 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultEmitterOptions ?? {},
     props.onEmitterOptionsChange
   );
+  const [selectedSampleName, onSelectedSampleNameChange] = useControllableValue(
+    props.sampleName,
+    props.defaultSampleName,
+    props.onSampleNameChange
+  );
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
-  const [selectedSample, selectSample] = useRecoilState(selectedSampleState);
 
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
@@ -98,8 +108,8 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
     [typespecModel]
   );
   useEffect(() => {
-    if (selectedSample) {
-      const config = PlaygroundManifest.samples[selectedSample];
+    if (selectedSampleName) {
+      const config = PlaygroundManifest.samples[selectedSampleName];
       if (config.content) {
         updateTypeSpec(config.content);
         if (config.preferredEmitter) {
@@ -107,15 +117,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
         }
       }
     }
-  }, [updateTypeSpec, selectedSample]);
-
-  useEffect(() => {
-    const newContent = defaultState?.content ?? "";
-    updateTypeSpec(newContent);
-    if (defaultState?.sampleName) {
-      selectSample(defaultState?.sampleName);
-    }
-  }, [updateTypeSpec]);
+  }, [updateTypeSpec, selectedSampleName]);
 
   useEffect(() => {
     const debouncer = debounce(() => doCompile(), 200);
@@ -170,6 +172,8 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
           selectedEmitter={selectedEmitter}
           emitterOptions={emitterOptions}
           onEmitterOptionsChange={onEmitterOptionsChange}
+          selectedSampleName={selectedSampleName}
+          onSelectedSampleNameChange={onSelectedSampleNameChange}
           saveCode={saveCode}
           newIssue={newIssue}
           documentationUrl={PlaygroundManifest.links.documentation}
