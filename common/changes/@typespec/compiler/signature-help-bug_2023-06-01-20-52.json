@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix signature help with trailing space in unterminated arg list",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

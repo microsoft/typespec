@@ -3108,6 +3108,16 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
 export function getNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,
+  filter?: (node: Node) => boolean
+): Node | undefined;
+export function getNodeAtPosition<T extends Node>(
+  script: TypeSpecScriptNode,
+  position: number,
+  filter: (node: Node) => node is T
+): T | undefined;
+export function getNodeAtPosition(
+  script: TypeSpecScriptNode,
+  position: number,
   filter = (node: Node) => true
 ): Node | undefined {
   return visit(script);
