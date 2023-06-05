@@ -11,10 +11,10 @@ import {
 } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
-import { EmitterOptions } from "./types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
+import { EmitterOptions } from "./types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
@@ -57,7 +57,10 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             onClick={saveCode as any}
           />
         </Tooltip>
-        <SamplesDropdown selectedSampleName={selectedSampleName} onSelectedSampleNameChange={onSelectedSampleNameChange}/>
+        <SamplesDropdown
+          selectedSampleName={selectedSampleName}
+          onSelectedSampleNameChange={onSelectedSampleNameChange}
+        />
         <EmitterDropdown
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
