@@ -1407,10 +1407,25 @@ function getSignatureHelpNodeAtPosition(
         case SyntaxKind.DecoratorExpression:
         case SyntaxKind.AugmentDecoratorStatement:
         case SyntaxKind.TypeReference:
-          // Don't consider nodes if we can't be positioned inside their
-          // argument list. This deals with nesting such as `Outer<Inner|>`
-          // where we want the `Outer<Inner>` node, not the `Inner` node.
-          return position > n.target.end;
+          // Do not consider node if positioned before the argument list.
+          // This is the standard behavior for signature help and further
+          // deals with nesting such as `Outer<Inner|> where we do not want
+          // we want help with the `Outer` arguments, not the `Inner` ones.
+          if (position <= n.target.end) {
+            return false;
+          }
+
+          // Likewise, no signature help at the end of argument list unless the
+          // it has no closing paren/angle bracket.
+          if (position === n.end) {
+            const endChar = script.file.text.charCodeAt(position - 1);
+            const closeChar =
+              n.kind === SyntaxKind.TypeReference ? CharCode.GreaterThan : CharCode.CloseParen;
+            if (endChar === closeChar) {
+              return false;
+            }
+          }
+          return true;
         default:
           return false;
       }
@@ -1448,17 +1463,6 @@ function getSignatureHelpArgumentIndex(
   for (let i = 0; i < args.length; i++) {
     if (position <= skipTrivia(script.file.text, args[i].end)) {
       return i;
-    }
-  }
-
-  // Don't provide signature help at the end position if it has a closing
-  // paren/angle bracket
-  if (position === node.end) {
-    const endChar = script.file.text.charCodeAt(position - 1);
-    const closingChar =
-      node.kind === SyntaxKind.TypeReference ? CharCode.GreaterThan : CharCode.CloseParen;
-    if (endChar === closingChar) {
-      return -1;
     }
   }
 
