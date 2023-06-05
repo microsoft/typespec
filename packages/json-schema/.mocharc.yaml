@@ -1,0 +1,7 @@
+timeout: 5000
+require: source-map-support/register
+spec: "dist/test/**/*.test.js"
+ignore: "dist/test/manual/**/*.js"
+
+# Config for https://www.npmjs.com/package/mocha-multi-reporters
+reporterOptions: "configFile=mocha.reporter.config.json"

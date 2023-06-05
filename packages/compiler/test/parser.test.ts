@@ -218,6 +218,15 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("valueof expressions", () => {
+    parseEach([
+      "alias A = valueof string;",
+      "alias A = valueof int32;",
+      "alias A = valueof {a: string, b: int32};",
+      "alias A = valueof int8[];",
+    ]);
+  });
+
   describe("template instantiations", () => {
     parseEach(["model A { x: Foo<number, string>; }", "model B { x: Foo<number, string>[]; }"]);
   });

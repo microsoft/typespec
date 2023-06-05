@@ -99,5 +99,5 @@ components:
       type: string
       format: date-time-rfc7231
     myUnixTimestamp:
-      type: string
+      type: integer
       format: unixtime
