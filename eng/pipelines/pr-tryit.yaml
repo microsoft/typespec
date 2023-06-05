@@ -35,7 +35,7 @@ jobs:
               --destination \$web \
               --account-name "cadlplayground" \
               --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-              --source "./packages/playground/dist/" \
+              --source "./packages/playground-website/dist/" \
               --overwrite
 
       - task: AzureCLI@1
