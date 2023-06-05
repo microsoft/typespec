@@ -2,24 +2,24 @@ import { css } from "@emotion/react";
 import { Diagnostic, Program } from "@typespec/compiler";
 import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { useRecoilValue } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
-import { CompileResult, compilationState } from "../state.js";
+import { CompilationState, CompileResult } from "../state.js";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { OpenAPIOutput } from "./openapi-output.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
 
-export interface OutputViewProps {}
+export interface OutputViewProps {
+  compilationState: CompilationState | undefined;
+}
 
-export const OutputView: FunctionComponent<OutputViewProps> = () => {
-  const data = useRecoilValue(compilationState);
-  if (data === undefined) {
+export const OutputView: FunctionComponent<OutputViewProps> = ({ compilationState }) => {
+  if (compilationState === undefined) {
     return <></>;
   }
-  if ("internalCompilerError" in data) {
-    return <InternalCompilerError error={data.internalCompilerError} />;
+  if ("internalCompilerError" in compilationState) {
+    return <InternalCompilerError error={compilationState.internalCompilerError} />;
   }
-  return <OutputViewInternal compilationResult={data} />;
+  return <OutputViewInternal compilationResult={compilationState} />;
 };
 
 const OutputViewInternal: FunctionComponent<{ compilationResult: CompileResult }> = ({

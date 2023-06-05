@@ -1,20 +1,15 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
-import { RecoilRoot, useRecoilState, useSetRecoilState } from "recoil";
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import { RecoilRoot, useRecoilState } from "recoil";
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
-import {
-  CompilationState,
-  EmitterOptions,
-  compilationState,
-  selectedSampleState,
-} from "../state.js";
+import { CompilationState, EmitterOptions, selectedSampleState } from "../state.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
@@ -32,16 +27,16 @@ export interface PlaygroundProps {
 
   /**Emitter to use */
   emitter?: string;
-  /** Default emitter is leaving this unmanaged. */
+  /** Default emitter if leaving this unmanaged. */
   defaultEmitter?: string;
   /** Callback when emitter change */
   onEmitterChange?: (emitter: string) => void;
 
-  /**Emitter to use */
+  /** Emitter options */
   emitterOptions?: EmitterOptions;
-  /** Default emitter is leaving this unmanaged. */
+  /** Default emitter options if leaving this unmanaged. */
   defaultEmitterOptions?: EmitterOptions;
-  /** Callback when emitter change */
+  /** Callback when emitter options change */
   onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
 
   defaultState?: PlaygroundDefaultState;
@@ -73,7 +68,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
     props.onEmitterOptionsChange
   );
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
-  const setCompilationStatus = useSetRecoilState(compilationState);
+  const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
   const [selectedSample, selectSample] = useRecoilState(selectedSampleState);
 
   const doCompile = useCallback(async () => {
@@ -81,7 +76,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
     const typespecCompiler = await importTypeSpecCompiler();
 
     const state = await compile(host, content, selectedEmitter, emitterOptions);
-    setCompilationStatus(state);
+    setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
         ...getMarkerLocation(typespecCompiler, diag.target),
@@ -190,7 +185,7 @@ const PlaygroundInternal: FunctionComponent<PlaygroundProps> = (props) => {
           borderLeft: "1px solid #c5c5c5",
         }}
       >
-        <OutputView />
+        <OutputView compilationState={compilationState} />
       </div>
       <Footer />
     </div>
