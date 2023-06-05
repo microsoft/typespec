@@ -11,20 +11,28 @@ import {
 } from "@fluentui/react-components";
 import { TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { useRecoilState } from "recoil";
-import { emittersOptionsState } from "../state.js";
+import { EmitterOptions } from "../state.js";
 
 export type OutputSettingsProps = {
   selectedEmitter: string;
+  options: EmitterOptions;
+  optionsChanged: (options: EmitterOptions) => void;
 };
-export const OutputSettings: FunctionComponent<OutputSettingsProps> = ({ selectedEmitter }) => {
+
+export const OutputSettings: FunctionComponent<OutputSettingsProps> = ({
+  selectedEmitter,
+  options,
+  optionsChanged,
+}) => {
   const library = useTypeSpecLibrary(selectedEmitter);
   return (
     <div css={{ padding: 10 }}>
       <h2>Settings</h2>
       <>Emitter: {selectedEmitter}</>
       <h3>Options</h3>
-      {library && <EmitterOptionsForm library={library} />}
+      {library && (
+        <EmitterOptionsForm library={library} options={options} optionsChanged={optionsChanged} />
+      )}
     </div>
   );
 };
@@ -52,27 +60,32 @@ function useTypeSpecLibrary(name: string): TypeSpecLibrary<any> | undefined {
 
 type EmitterOptionsFormProps = {
   library: TypeSpecLibrary<any>;
+  options: EmitterOptions;
+  optionsChanged: (options: EmitterOptions) => void;
 };
 
-const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = (props) => {
-  const emitterOptionsSchema = props.library.emitter?.options?.properties;
+const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
+  library,
+  options,
+  optionsChanged,
+}) => {
+  const emitterOptionsSchema = library.emitter?.options?.properties;
   if (emitterOptionsSchema === undefined) {
     return <>"No options"</>;
   }
-  const [emittersOptions, setEmittersOptions] = useRecoilState(emittersOptionsState);
   const entries = Object.entries(emitterOptionsSchema);
 
   const handleChange = useCallback(
     ({ name, value }: { name: string; value: unknown }) => {
-      setEmittersOptions((existingOptions) => ({
-        ...existingOptions,
-        [props.library.name]: {
-          ...existingOptions[props.library.name],
+      optionsChanged({
+        ...options,
+        [library.name]: {
+          ...options[library.name],
           [name]: value,
         },
-      }));
+      });
     },
-    [setEmittersOptions]
+    [options, optionsChanged]
   );
   return (
     <div>
@@ -80,7 +93,7 @@ const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = (props) =
         return (
           <div key={key} css={{ margin: "16px 0" }}>
             <JsonSchemaPropertyInput
-              emitterOptions={emittersOptions[props.library.name] ?? {}}
+              emitterOptions={options[library.name] ?? {}}
               name={key}
               prop={value as any}
               onChange={handleChange}

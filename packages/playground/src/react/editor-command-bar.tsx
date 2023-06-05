@@ -11,6 +11,7 @@ import {
 } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
+import { EmitterOptions } from "../state.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
@@ -20,14 +21,18 @@ export interface EditorCommandBarProps {
   saveCode: () => Promise<void> | void;
   newIssue: () => Promise<void> | void;
   selectedEmitter: string;
-  selectEmitter: (emitter: string) => void;
+  onSelectedEmitterChange: (emitter: string) => void;
+  emitterOptions: EmitterOptions;
+  onEmitterOptionsChange: (options: EmitterOptions) => void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
   newIssue,
   selectedEmitter,
-  selectEmitter,
+  onSelectedEmitterChange,
+  emitterOptions,
+  onEmitterOptionsChange,
 }) => {
   const documentation = documentationUrl ? (
     <label>
@@ -49,14 +54,21 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         </Tooltip>
         <SamplesDropdown />
-        <EmitterDropdown selectEmitter={selectEmitter} selectedEmitter={selectedEmitter} />
+        <EmitterDropdown
+          onSelectedEmitterChange={onSelectedEmitterChange}
+          selectedEmitter={selectedEmitter}
+        />
         <Dialog>
           <DialogTrigger>
             <Button icon={<Settings24Regular />} />
           </DialogTrigger>
           <DialogSurface>
             <DialogBody>
-              <OutputSettings selectedEmitter={selectedEmitter} />
+              <OutputSettings
+                selectedEmitter={selectedEmitter}
+                options={emitterOptions}
+                optionsChanged={onEmitterOptionsChange}
+              />
             </DialogBody>
           </DialogSurface>
         </Dialog>

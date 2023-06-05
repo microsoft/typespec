@@ -5,11 +5,11 @@ import { PlaygroundManifest } from "../manifest.js";
 
 export interface EmitterDropdownProps {
   selectedEmitter: string;
-  selectEmitter: (emitter: string) => void;
+  onSelectedEmitterChange: (emitter: string) => void;
 }
 
 export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = ({
-  selectEmitter,
+  onSelectedEmitterChange,
   selectedEmitter,
 }) => {
   const [emitters, setEmitters] = useState<string[]>([]);
@@ -29,9 +29,9 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = ({
 
   const handleSelected = useCallback(
     (evt: any) => {
-      selectEmitter(evt.target.value);
+      onSelectedEmitterChange(evt.target.value);
     },
-    [selectEmitter]
+    [onSelectedEmitterChange]
   );
   return (
     <Select className="sample-dropdown" onChange={handleSelected} value={selectedEmitter}>

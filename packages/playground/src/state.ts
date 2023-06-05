@@ -11,13 +11,11 @@ export type CompileResult = {
 };
 export type CompilationState = CompileResult | CompilationCrashed;
 
+export type EmitterOptions = Record<string, Record<string, unknown>>;
+
 export const compilationState = atom<CompilationState | undefined>({
   key: "compile",
   default: undefined,
-});
-export const emittersOptionsState = atom<Record<string, Record<string, unknown>>>({
-  key: "emitterOptions",
-  default: {},
 });
 
 export const selectedSampleState = atom<string | undefined>({
