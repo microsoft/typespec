@@ -104,6 +104,15 @@ describe("compiler: server: signature help", () => {
         assertHelp(help, 1);
       });
 
+      it("trailing comment and no close paren", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple("abc", /*Test*/┆
+          `
+        );
+        assertHelp(help, 1);
+      });
+
       it("leading trivia", async () => {
         const help = await getSignatureHelpAtCursor(
           `
@@ -342,6 +351,15 @@ describe("compiler: server: signature help", () => {
         assertHelp(help, 2);
       });
 
+      it("trailing comment and no close paren", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, "abc", /* Test */ ┆
+          `
+        );
+        assertHelp(help, 2);
+      });
+
       it("leading trivia", async () => {
         const help = await getSignatureHelpAtCursor(
           `
@@ -553,10 +571,19 @@ describe("compiler: server: signature help", () => {
             assertHelp(help, 0);
           });
 
-          it("trailing space and no close paren", async () => {
+          it("trailing space and no closing angle bracket", async () => {
             const help = await getSignatureHelpAtCursor(
               `
               alias A = ${type}2<"abc", ┆
+              `
+            );
+            assertHelp(help, 1);
+          });
+
+          it("trailing comment and no closing angle bracket", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<"abc", /*Test*/┆
               `
             );
             assertHelp(help, 1);
