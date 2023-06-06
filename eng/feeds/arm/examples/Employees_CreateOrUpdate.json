@@ -1,0 +1,77 @@
+{
+  "title": "Employees_CreateOrUpdate",
+  "operationId": "Employees_CreateOrUpdate",
+  "parameters": {
+    "api-version": "2021-10-01-preview",
+    "subscriptionId": "11809CA1-E126-4017-945E-AA795CD5C5A9",
+    "resourceGroupName": "rgopenapi",
+    "employeeName": "9KF-f-8b",
+    "resource": {
+      "properties": {
+        "age": 30,
+        "city": "gydhnntudughbmxlkyzrskcdkotrxn",
+        "profile": "ms",
+        "provisioningState": "Succeeded"
+      },
+      "tags": {
+        "key2913": "urperxmkkhhkp"
+      },
+      "location": "itajgxyqozseoygnl"
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "properties": {
+          "age": 30,
+          "city": "gydhnntudughbmxlkyzrskcdkotrxn",
+          "profile": "ms",
+          "provisioningState": "Succeeded"
+        },
+        "tags": {
+          "key2913": "urperxmkkhhkp"
+        },
+        "location": "itajgxyqozseoygnl",
+        "id": "dnkyotqlrefuwxribpzbl",
+        "name": "xepyxhpb",
+        "type": "svvamxrdnnv",
+        "systemData": {
+          "createdBy": "iewyxsnriqktsvp",
+          "createdByType": "User",
+          "createdAt": "2023-05-19T00:28:48.610Z",
+          "lastModifiedBy": "xrchbnnuzierzpxw",
+          "lastModifiedByType": "User",
+          "lastModifiedAt": "2023-05-19T00:28:48.610Z"
+        }
+      }
+    },
+    "201": {
+      "headers": {
+        "Azure-AsyncOperation": "https://contoso.com/operationstatus"
+      },
+      "body": {
+        "properties": {
+          "age": 30,
+          "city": "gydhnntudughbmxlkyzrskcdkotrxn",
+          "profile": "ms",
+          "provisioningState": "Succeeded"
+        },
+        "tags": {
+          "key2913": "urperxmkkhhkp"
+        },
+        "location": "itajgxyqozseoygnl",
+        "id": "dnkyotqlrefuwxribpzbl",
+        "name": "xepyxhpb",
+        "type": "svvamxrdnnv",
+        "systemData": {
+          "createdBy": "iewyxsnriqktsvp",
+          "createdByType": "User",
+          "createdAt": "2023-05-19T00:28:48.610Z",
+          "lastModifiedBy": "xrchbnnuzierzpxw",
+          "lastModifiedByType": "User",
+          "lastModifiedAt": "2023-05-19T00:28:48.610Z"
+        }
+      }
+    }
+  }
+}
