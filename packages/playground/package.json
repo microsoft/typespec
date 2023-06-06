@@ -22,6 +22,7 @@
   "exports": {
     ".": "./dist/src/index.js",
     "./vite": "./dist/src/vite/index.js",
+    "./manifest": "./dist/src/manifest.js",
     "./react": "./dist/src/react/index.js"
   },
   "engines": {
@@ -63,7 +64,6 @@
     "prettier": "~2.8.7",
     "react-dom": "~18.2.0",
     "react": "~18.2.0",
-    "recoil": "~0.7.6",
     "swagger-client": "~3.18.5",
     "swagger-ui-react": "~4.15.5",
     "swagger-ui": "~4.15.5",

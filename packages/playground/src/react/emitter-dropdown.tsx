@@ -1,13 +1,17 @@
 import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
 import { importLibrary } from "../core.js";
 import { PlaygroundManifest } from "../manifest.js";
-import { selectedEmitterState } from "../state.js";
 
-export interface EmitterDropdownProps {}
+export interface EmitterDropdownProps {
+  selectedEmitter: string;
+  onSelectedEmitterChange: (emitter: string) => void;
+}
 
-export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = () => {
+export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = ({
+  onSelectedEmitterChange,
+  selectedEmitter,
+}) => {
   const [emitters, setEmitters] = useState<string[]>([]);
 
   useEffect(() => {
@@ -22,13 +26,12 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = () => {
   const options = emitters.map((emitterName) => {
     return <option key={emitterName}>{emitterName}</option>;
   });
-  const [selectedEmitter, selectEmitter] = useRecoilState(selectedEmitterState);
 
   const handleSelected = useCallback(
     (evt: any) => {
-      selectEmitter(evt.target.value);
+      onSelectedEmitterChange(evt.target.value);
     },
-    [selectEmitter]
+    [onSelectedEmitterChange]
   );
   return (
     <Select className="sample-dropdown" onChange={handleSelected} value={selectedEmitter}>

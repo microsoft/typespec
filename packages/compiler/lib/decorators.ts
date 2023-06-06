@@ -577,7 +577,7 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
   return program.stateMap(secretTypesKey).get(target);
 }
 
-export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimeStamp";
+export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
 export type DurationKnownEncoding = "ISO8601" | "seconds";
 export type BytesKnownEncoding = "base64" | "base64url";
 export interface EncodeData {
@@ -662,8 +662,8 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
       return check(["utcDateTime", "offsetDateTime"], ["string"]);
     case "rfc7231":
       return check(["utcDateTime", "offsetDateTime"], ["string"]);
-    case "unixTimeStamp":
-      return check(["utcDateTime"], ["string"]);
+    case "unixTimestamp":
+      return check(["utcDateTime"], ["integer"]);
     case "seconds":
       return check(["duration"], ["numeric"]);
     case "base64":

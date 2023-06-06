@@ -94,6 +94,33 @@ describe("compiler: server: signature help", () => {
         );
         assertHelp(help, 0);
       });
+
+      it("trailing space and no close paren", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple("abc", ┆
+          `
+        );
+        assertHelp(help, 1);
+      });
+
+      it("leading trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple( ┆ /* first arg */ "hello", "world")
+          `
+        );
+        assertHelp(help, 0);
+      });
+
+      it("trailing trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple("hello" /* ┆ test */, "world")
+          `
+        );
+        assertHelp(help, 0);
+      });
     });
 
     describe("decorator with rest parameter", () => {
@@ -305,6 +332,33 @@ describe("compiler: server: signature help", () => {
         );
         assertHelp(help, 1);
       });
+
+      it("trailing space and no close paren", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, "abc", ┆
+          `
+        );
+        assertHelp(help, 2);
+      });
+
+      it("leading trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, ┆ /* first arg */ "hello", "world")
+          `
+        );
+        assertHelp(help, 1);
+      });
+
+      it("trailing trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, "hello" /* ┆ test */, "world" )
+          `
+        );
+        assertHelp(help, 1);
+      });
     });
 
     describe("decorator with rest parameter", () => {
@@ -494,6 +548,33 @@ describe("compiler: server: signature help", () => {
             const help = await getSignatureHelpAtCursor(
               `
               alias A = ${type}2<string┆, int32>
+              `
+            );
+            assertHelp(help, 0);
+          });
+
+          it("trailing space and no close paren", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<"abc", ┆
+              `
+            );
+            assertHelp(help, 1);
+          });
+
+          it("leading trivia", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2< ┆ /* first arg */ "hello", "world">
+              `
+            );
+            assertHelp(help, 0);
+          });
+
+          it("trailing trivia", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<"hello" /* ┆ test */, "world" >
               `
             );
             assertHelp(help, 0);

@@ -110,6 +110,10 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
   }
 
   modelInstantiation(model: Model, name: string): EmitterOutput<string> {
+    if (this.emitter.getProgram().checker.isStdType(model, "Record")) {
+      const indexerValue = model.indexer!.value;
+      return code`Record<string, ${this.emitter.emitTypeReference(indexerValue)}>`;
+    }
     return this.modelDeclaration(model, name);
   }
 

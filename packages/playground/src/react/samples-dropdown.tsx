@@ -1,12 +1,16 @@
 import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback } from "react";
-import { useRecoilState } from "recoil";
 import { PlaygroundManifest } from "../manifest.js";
-import { selectedSampleState } from "../state.js";
-export interface SamplesDropdownProps {}
-export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = () => {
-  const [selected, setSelected] = useRecoilState(selectedSampleState);
 
+export interface SamplesDropdownProps {
+  selectedSampleName: string;
+  onSelectedSampleNameChange: (sampleName: string) => void;
+}
+
+export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({
+  selectedSampleName,
+  onSelectedSampleNameChange,
+}) => {
   const options = Object.keys(PlaygroundManifest.samples).map((sample) => {
     return <option key={sample}>{sample}</option>;
   });
@@ -14,13 +18,13 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = () => {
   const handleSelected = useCallback(
     (evt: any) => {
       if (PlaygroundManifest.samples[evt.target.value]) {
-        setSelected(evt.target.value);
+        onSelectedSampleNameChange(evt.target.value);
       }
     },
-    [setSelected]
+    [onSelectedSampleNameChange]
   );
   return (
-    <Select className="sample-dropdown" onChange={handleSelected} value={selected ?? ""}>
+    <Select className="sample-dropdown" onChange={handleSelected} value={selectedSampleName ?? ""}>
       <option value="" disabled>
         Select sample...
       </option>

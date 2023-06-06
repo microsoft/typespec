@@ -1,18 +1,42 @@
-import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
-import { Bug16Regular, Save16Regular } from "@fluentui/react-icons";
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogSurface,
+  DialogTrigger,
+  Link,
+  Toolbar,
+  ToolbarButton,
+  Tooltip,
+} from "@fluentui/react-components";
+import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
 import { FunctionComponent } from "react";
 import { EmitterDropdown } from "./emitter-dropdown.js";
+import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
+import { EmitterOptions } from "./types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   newIssue: () => Promise<void> | void;
+  selectedEmitter: string;
+  onSelectedEmitterChange: (emitter: string) => void;
+  emitterOptions: EmitterOptions;
+  onEmitterOptionsChange: (options: EmitterOptions) => void;
+  selectedSampleName: string;
+  onSelectedSampleNameChange: (sampleName: string) => void;
 }
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
   newIssue,
+  selectedEmitter,
+  onSelectedEmitterChange,
+  emitterOptions,
+  onEmitterOptionsChange,
+  selectedSampleName,
+  onSelectedSampleNameChange,
 }) => {
   const documentation = documentationUrl ? (
     <label>
@@ -33,8 +57,28 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             onClick={saveCode as any}
           />
         </Tooltip>
-        <SamplesDropdown />
-        <EmitterDropdown />
+        <SamplesDropdown
+          selectedSampleName={selectedSampleName}
+          onSelectedSampleNameChange={onSelectedSampleNameChange}
+        />
+        <EmitterDropdown
+          onSelectedEmitterChange={onSelectedEmitterChange}
+          selectedEmitter={selectedEmitter}
+        />
+        <Dialog>
+          <DialogTrigger>
+            <Button icon={<Settings24Regular />} />
+          </DialogTrigger>
+          <DialogSurface>
+            <DialogBody>
+              <OutputSettings
+                selectedEmitter={selectedEmitter}
+                options={emitterOptions}
+                optionsChanged={onEmitterOptionsChange}
+              />
+            </DialogBody>
+          </DialogSurface>
+        </Dialog>
         {documentation}
         <div css={{ flex: "1" }}></div>
         <Tooltip content="File Bug Report" relationship="description" withArrow>

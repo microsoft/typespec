@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "**BREAKING CHANGE** Remove `@format(\"url\") from url scalar`",
+      "comment": "Fix signature help with trailing space in unterminated arg list",
       "type": "none"
     }
   ],

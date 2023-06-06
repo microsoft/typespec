@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Emitter framework: uppercase type argument type names when constructing a declaration name from a template instantiation.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

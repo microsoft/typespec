@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Add @typespec/json-schema for defining and emitting TypeSpec to standard JSON Schema",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}
