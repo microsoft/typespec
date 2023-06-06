@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Feature** adding boolean flag in init template to allow bypass file generation",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
