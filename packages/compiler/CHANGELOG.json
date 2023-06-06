@@ -2,6 +2,95 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.45.0",
+      "tag": "@typespec/compiler_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: `tspconfig.yaml` should always get resolved relative to the entrypoint"
+          },
+          {
+            "comment": "Add decimal and decimal128 built-in scalar types."
+          },
+          {
+            "comment": "**Feature** Doc comment will be applied as the doc for types unless an explicit @doc is provided."
+          },
+          {
+            "comment": "Added new keyword `valueof` designed to request for a value type in a decorator parameter."
+          },
+          {
+            "comment": "**BREAKING** Decorator API will not be marshalling values unless the parameter type is using `valueof`. `extern dec foo(target, value: string)` should be changed to `extern dec foo(target, value: valueof string)`."
+          },
+          {
+            "comment": "**DEPRECATION** To make transition to valueof smoother if using a template parameter inside a decorator that is now using valueof the existing parmater constraint will still be compatible but emit a warning."
+          },
+          {
+            "comment": "**BREAKING CHANGE** Fix: Array shouldn't be assignable to an empty model(and `object`)"
+          },
+          {
+            "comment": "**DEPRECATION** `object` is deprecated. Alternative is to use `{}` for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array."
+          },
+          {
+            "comment": "Mark `Array` and `Record` doc comment as for dev only"
+          },
+          {
+            "comment": "Fix: formatting of comment between decorator and `op` statement"
+          },
+          {
+            "comment": "Fix: Operation can self reference or circular reference other operation via decorators"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Remove `@format(\"url\") from url scalar`"
+          },
+          {
+            "comment": "Fix `unixTimestamp` validation was incorrect"
+          },
+          {
+            "comment": "**Fix** diagnostic validating type is intrinsic always showing `string` as expected"
+          },
+          {
+            "comment": "Fix error message for @encode errors."
+          },
+          {
+            "comment": "Improve error handling when tsp init template is invalid or fails to download."
+          },
+          {
+            "comment": "Emitter framework: uppercase type argument type names when constructing a declaration name from a template instantiation."
+          },
+          {
+            "comment": "Add signature for missing decorators"
+          },
+          {
+            "comment": "Remove dependency on `node-fetch`"
+          },
+          {
+            "comment": "Remove misleading output dir from compilation success message"
+          },
+          {
+            "comment": "Fix relative path resolution when init template is behind HTTP redirect"
+          },
+          {
+            "comment": "Emitter option validation will only validate emitters selected with `emit`/`--emit`. Options for other emitter will be ignored. This allows defining options for an emitter that is not installed."
+          },
+          {
+            "comment": "Fix signature help with trailing space in unterminated arg list"
+          },
+          {
+            "comment": "Add template argument signature help"
+          },
+          {
+            "comment": "Show alias doc comments in IDE"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.1` to `~0.4.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.44.0",
       "tag": "@typespec/compiler_v0.44.0",
       "date": "Wed, 10 May 2023 21:24:00 GMT",

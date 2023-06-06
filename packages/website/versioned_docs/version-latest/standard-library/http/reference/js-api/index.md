@@ -312,7 +312,7 @@ ___
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
-| `headerNameOrOptions?` | `string` \| `Model` |
+| `headerNameOrOptions?` | `Model` \| `StringLiteral` |
 
 #### Returns
 
@@ -406,7 +406,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
+| `entity` | `Model` |
 
 #### Returns
 
@@ -458,7 +458,7 @@ ___
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
-| `queryNameOrOptions?` | `string` \| `Model` |
+| `queryNameOrOptions?` | `Model` \| `StringLiteral` |
 
 #### Returns
 

@@ -11,22 +11,24 @@ Built in types are related to each other according to the rules described in [ty
 
 ## Numeric types
 
-| Type      | Range                                                                                                        | Description                               |
-| --------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
-| `numeric` |                                                                                                              | Parent type for all numeric types         |
-| `integer` |                                                                                                              | A whole-number                            |
-| `float`   |                                                                                                              | A number with decimal value               |
-| `int64`   | `-9,223,372,036,854,775,808` to `9,223,372,036,854,775,807`                                                  | A 64-bit integer                          |
-| `int32`   | `-2,147,483,648` to `2,147,483,647`                                                                          | A 32-bit integer                          |
-| `int16`   | `-32,768` to `32,767`                                                                                        | A 16-bit integer                          |
-| `int8`    | `-128` to `127`                                                                                              | A 8-bit integer                           |
-| `safeint` | <code>−9007199254740991 (−(2<sup>53</sup> − 1))</code> to <code>9007199254740991 (2<sup>53</sup> − 1)</code> | An integer that can be serialized to JSON |
-| `uint64`  | `0` to `18,446,744,073,709,551,615`                                                                          | Unsigned 64-bit integer                   |
-| `uint32`  | `0` to `4,294,967,295`                                                                                       | Unsigned 32-bit integer                   |
-| `uint16`  | `0` to `65,535`                                                                                              | Unsigned 16-bit integer                   |
-| `uint8`   | `0` to `255 `                                                                                                | Unsigned 8-bit integer                    |
-| `float32` | <code> ±1.5 x 10<sup>45</sup></code> to <code>±3.4 x 10<sup>38</sup></code>                                  | A 32 bit floating point number            |
-| `float64` | <code>±5.0 × 10<sup>−324</sup></code> to <code>±1.7 × 10<sup>308</sup></code>                                | A 64 bit floating point number            |
+| Type         | Range                                                                                                        | Description                               |
+| ------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| `numeric`    |                                                                                                              | Parent type for all numeric types         |
+| `integer`    |                                                                                                              | A whole-number                            |
+| `float`      |                                                                                                              | A binary number                           |
+| `int64`      | `-9,223,372,036,854,775,808` to `9,223,372,036,854,775,807`                                                  | A 64-bit integer                          |
+| `int32`      | `-2,147,483,648` to `2,147,483,647`                                                                          | A 32-bit integer                          |
+| `int16`      | `-32,768` to `32,767`                                                                                        | A 16-bit integer                          |
+| `int8`       | `-128` to `127`                                                                                              | A 8-bit integer                           |
+| `safeint`    | <code>−9007199254740991 (−(2<sup>53</sup> − 1))</code> to <code>9007199254740991 (2<sup>53</sup> − 1)</code> | An integer that can be serialized to JSON |
+| `uint64`     | `0` to `18,446,744,073,709,551,615`                                                                          | Unsigned 64-bit integer                   |
+| `uint32`     | `0` to `4,294,967,295`                                                                                       | Unsigned 32-bit integer                   |
+| `uint16`     | `0` to `65,535`                                                                                              | Unsigned 16-bit integer                   |
+| `uint8`      | `0` to `255 `                                                                                                | Unsigned 8-bit integer                    |
+| `float32`    | <code> ±1.5 x 10<sup>45</sup></code> to <code>±3.4 x 10<sup>38</sup></code>                                  | A 32 bit floating point number            |
+| `float64`    | <code>±5.0 × 10<sup>−324</sup></code> to <code>±1.7 × 10<sup>308</sup></code>                                | A 64 bit floating point number            |
+| `decimal`    |                                                                                                              | A decimal number                          |
+| `decimal128` | 34 decimal digits with an exponent range from `-6143` to `6144`                                              | A 128 bit decimal number                  |
 
 ## Date and time types
 

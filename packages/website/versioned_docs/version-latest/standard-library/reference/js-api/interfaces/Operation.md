@@ -19,6 +19,7 @@
 - [decorators](Operation.md#decorators)
 - [instantiationParameters](Operation.md#instantiationparameters)
 - [interface](Operation.md#interface)
+- [isFinished](Operation.md#isfinished)
 - [kind](Operation.md#kind)
 - [name](Operation.md#name)
 - [namespace](Operation.md#namespace)
@@ -66,6 +67,22 @@ ___
 ### interface
 
 • `Optional` **interface**: [`Interface`](Interface.md)
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+
+#### Inherited from
+
+[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
 
 ___
 

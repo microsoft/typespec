@@ -652,7 +652,7 @@ ___
 
 ### indexTimeline
 
-▸ **indexTimeline**(`program`, `timeline`, `projectingMoment`): `ObjectType` & `TypePrototype`
+▸ **indexTimeline**(`program`, `timeline`, `projectingMoment`): `ObjectType` & `TypePrototype` & { `isFinished`: `boolean`  }
 
 #### Parameters
 
@@ -664,7 +664,7 @@ ___
 
 #### Returns
 
-`ObjectType` & `TypePrototype`
+`ObjectType` & `TypePrototype` & { `isFinished`: `boolean`  }
 
 ___
 

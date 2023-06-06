@@ -182,7 +182,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
+| `entity` | `Model` |
 | `filter?` | `string` |
 
 #### Returns
@@ -315,7 +315,7 @@ the target type to show up in operations of the `Resource*<T>` interfaces define
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
-| `parentType` | `Type` |
+| `parentType` | `Model` |
 
 #### Returns
 

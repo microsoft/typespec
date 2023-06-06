@@ -13,12 +13,14 @@
 ### Properties
 
 - [instantiationParameters](NumericLiteral.md#instantiationparameters)
+- [isFinished](NumericLiteral.md#isfinished)
 - [kind](NumericLiteral.md#kind)
 - [node](NumericLiteral.md#node)
 - [projectionBase](NumericLiteral.md#projectionbase)
 - [projectionSource](NumericLiteral.md#projectionsource)
 - [projector](NumericLiteral.md#projector)
 - [value](NumericLiteral.md#value)
+- [valueAsString](NumericLiteral.md#valueasstring)
 
 ### Accessors
 
@@ -37,6 +39,22 @@
 #### Inherited from
 
 [BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+
+#### Inherited from
+
+[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
 
 ___
 
@@ -93,6 +111,12 @@ ___
 ### value
 
 • **value**: `number`
+
+___
+
+### valueAsString
+
+• **valueAsString**: `string`
 
 ## Accessors
 

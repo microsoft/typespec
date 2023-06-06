@@ -7,8 +7,16 @@
 ### Interfaces
 
 - [Discriminator](../interfaces/decorators.Discriminator.md)
+- [DocData](../interfaces/decorators.DocData.md)
+- [EncodeData](../interfaces/decorators.EncodeData.md)
 - [Service](../interfaces/decorators.Service.md)
 - [ServiceDetails](../interfaces/decorators.ServiceDetails.md)
+
+### Type Aliases
+
+- [BytesKnownEncoding](decorators.md#bytesknownencoding)
+- [DateTimeKnownEncoding](decorators.md#datetimeknownencoding)
+- [DurationKnownEncoding](decorators.md#durationknownencoding)
 
 ### Variables
 
@@ -19,6 +27,8 @@
 - [$deprecated](decorators.md#$deprecated)
 - [$discriminator](decorators.md#$discriminator)
 - [$doc](decorators.md#$doc)
+- [$docFromComment](decorators.md#$docfromcomment)
+- [$encode](decorators.md#$encode)
 - [$error](decorators.md#$error)
 - [$format](decorators.md#$format)
 - [$friendlyName](decorators.md#$friendlyname)
@@ -56,6 +66,8 @@
 - [getDiscriminatedTypes](decorators.md#getdiscriminatedtypes)
 - [getDiscriminator](decorators.md#getdiscriminator)
 - [getDoc](decorators.md#getdoc)
+- [getDocData](decorators.md#getdocdata)
+- [getEncode](decorators.md#getencode)
 - [getFormat](decorators.md#getformat)
 - [getFriendlyName](decorators.md#getfriendlyname)
 - [getIndexer](decorators.md#getindexer)
@@ -93,6 +105,24 @@
 - [isStringType](decorators.md#isstringtype)
 - [isVisible](decorators.md#isvisible)
 - [listServices](decorators.md#listservices)
+
+## Type Aliases
+
+### BytesKnownEncoding
+
+Ƭ **BytesKnownEncoding**: ``"base64"`` \| ``"base64url"``
+
+___
+
+### DateTimeKnownEncoding
+
+Ƭ **DateTimeKnownEncoding**: ``"rfc3339"`` \| ``"rfc7231"`` \| ``"unixTimestamp"``
+
+___
+
+### DurationKnownEncoding
+
+Ƭ **DurationKnownEncoding**: ``"ISO8601"`` \| ``"seconds"``
 
 ## Variables
 
@@ -173,6 +203,45 @@ can be specified on any language element -- a model, an operation, a namespace, 
 | `target` | [`Type`](../index.md#type) |
 | `text` | `string` |
 | `sourceObject?` | [`Type`](../index.md#type) |
+
+#### Returns
+
+`void`
+
+___
+
+### $docFromComment
+
+▸ **$docFromComment**(`context`, `target`, `text`): `void`
+
+to be used to set the `@doc` from doc comment.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
+| `target` | [`Type`](../index.md#type) |
+| `text` | `string` |
+
+#### Returns
+
+`void`
+
+___
+
+### $encode
+
+▸ **$encode**(`context`, `target`, `encoding`, `encodeAs?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+| `encoding` | `string` \| [`EnumMember`](../interfaces/EnumMember.md) |
+| `encodeAs?` | [`Scalar`](../interfaces/Scalar.md) |
 
 #### Returns
 
@@ -688,14 +757,6 @@ ___
 
 ▸ **$withDefaultKeyVisibility**(`context`, `entity`, `visibility`): `void`
 
-`@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
-
-The first argument accepts a string representing the desired default
-visibility value.  If a key property already has a `visibility` decorator
-then the default visibility is not applied.
-
-`@withDefaultKeyVisibility` can only be applied to model types.
-
 #### Parameters
 
 | Name | Type |
@@ -789,7 +850,7 @@ ___
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
-| `omitProperties` | `string` \| [`Union`](../interfaces/Union.md) |
+| `omitProperties` | [`StringLiteral`](../interfaces/StringLiteral.md) \| [`Union`](../interfaces/Union.md) |
 
 #### Returns
 
@@ -890,16 +951,58 @@ ___
 
 ▸ **getDoc**(`program`, `target`): `string` \| `undefined`
 
+Get the documentation string for the given type.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `program` | [`Program`](../interfaces/Program.md) | Program |
+| `target` | [`Type`](../index.md#type) | Type |
+
+#### Returns
+
+`string` \| `undefined`
+
+Documentation value
+
+___
+
+### getDocData
+
+▸ **getDocData**(`program`, `target`): [`DocData`](../interfaces/decorators.DocData.md) \| `undefined`
+
+Get the documentation information for the given type. In most cases you probably just want to use [getDoc](decorators.md#getdoc)
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `program` | [`Program`](../interfaces/Program.md) | Program |
+| `target` | [`Type`](../index.md#type) | Type |
+
+#### Returns
+
+[`DocData`](../interfaces/decorators.DocData.md) \| `undefined`
+
+Doc data with source information.
+
+___
+
+### getEncode
+
+▸ **getEncode**(`program`, `target`): [`EncodeData`](../interfaces/decorators.EncodeData.md) \| `undefined`
+
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../index.md#type) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 
 #### Returns
 
-`string` \| `undefined`
+[`EncodeData`](../interfaces/decorators.EncodeData.md) \| `undefined`
 
 ___
 
