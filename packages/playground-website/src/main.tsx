@@ -1,5 +1,6 @@
 import {
   createBrowserHost,
+  filterEmitters,
   getStateFromUrl,
   registerMonacoDefaultWorkers,
   registerMonacoLanguage,
@@ -12,7 +13,8 @@ import { createRoot } from "react-dom/client";
 import { PlaygroundManifest } from "@typespec/playground/manifest";
 import "./style.css";
 
-const host = await createBrowserHost();
+const host = await createBrowserHost(PlaygroundManifest.libraries);
+const emitters = await filterEmitters(PlaygroundManifest.libraries)
 await registerMonacoLanguage(host);
 registerMonacoDefaultWorkers();
 
@@ -24,6 +26,7 @@ const App: FunctionComponent = () => {
   return (
     <StyledPlayground
       host={host}
+      emitters={emitters}
       defaultContent={initialState.content}
       defaultSampleName={initialState.sampleName}
       onSave={save}

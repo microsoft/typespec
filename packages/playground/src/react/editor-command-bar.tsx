@@ -20,6 +20,7 @@ export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   newIssue: () => Promise<void> | void;
+  emitters: string[];
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
   emitterOptions: EmitterOptions;
@@ -31,6 +32,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
   newIssue,
+  emitters,
   selectedEmitter,
   onSelectedEmitterChange,
   emitterOptions,
@@ -62,6 +64,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           onSelectedSampleNameChange={onSelectedSampleNameChange}
         />
         <EmitterDropdown
+          emitters={emitters}
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
         />

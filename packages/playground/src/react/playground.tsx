@@ -22,6 +22,9 @@ export interface PlaygroundProps {
   /** Default emitter if leaving this unmanaged. */
   defaultContent?: string;
 
+  /** List of available emitters */
+  emitters: string[];
+
   /** Emitter to use */
   emitter?: string;
   /** Default emitter if leaving this unmanaged. */
@@ -166,8 +169,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     >
       <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
         <EditorCommandBar
-          onSelectedEmitterChange={onSelectedEmitterChange}
+          emitters={props.emitters}
           selectedEmitter={selectedEmitter}
+          onSelectedEmitterChange={onSelectedEmitterChange}
           emitterOptions={emitterOptions}
           onEmitterOptionsChange={onEmitterOptionsChange}
           selectedSampleName={selectedSampleName}
