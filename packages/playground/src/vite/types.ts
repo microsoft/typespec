@@ -1,3 +1,4 @@
+import { PlaygroundLinks } from "../react/playground.js";
 import { PlaygroundSample } from "../types.js";
 
 type PlaygroundSampleConfig = Omit<PlaygroundSample, "content">;
@@ -10,8 +11,5 @@ export interface PlaygroundConfig {
   libraries: string[];
   samples: Record<string, PlaygroundSample>;
   enableSwaggerUI: boolean;
-  links: {
-    newIssue: string;
-    documentation: string;
-  };
+  links?: PlaygroundLinks;
 }

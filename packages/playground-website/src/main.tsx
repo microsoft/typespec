@@ -32,6 +32,7 @@ const App: FunctionComponent = () => {
       defaultSampleName={initialState.sampleName}
       onSave={save}
       defaultEmitter={PlaygroundManifest.defaultEmitter}
+      links={PlaygroundManifest.links}
     />
   );
 };

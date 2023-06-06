@@ -6,7 +6,6 @@ import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
-import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
@@ -40,6 +39,7 @@ export interface PlaygroundProps {
   /** Callback when emitter options change */
   onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
 
+  /** Samples available */
   samples?: Record<string, PlaygroundSample>;
 
   /** Sample to use */
@@ -49,7 +49,16 @@ export interface PlaygroundProps {
   /** Callback when sample change */
   onSampleNameChange?: (sampleName: string) => void;
 
+  links?: PlaygroundLinks;
+
   onSave?: (value: string) => void;
+}
+
+export interface PlaygroundLinks {
+  /** Link to documentation */
+  documentationUrl?: string;
+  /** Issue to github issue to open a new issue. */
+  githubIssueUrl?: string;
 }
 
 export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
@@ -145,7 +154,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const newIssue = useCallback(async () => {
     await saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
-    const url = `${PlaygroundManifest.links.newIssue}?body=${bodyPayload}`;
+    const url = `${props?.links?.githubIssueUrl}?body=${bodyPayload}`;
     window.open(url, "_blank");
   }, [saveCode, typespecModel]);
 
@@ -181,8 +190,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           selectedSampleName={selectedSampleName}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
           saveCode={saveCode}
-          newIssue={newIssue}
-          documentationUrl={PlaygroundManifest.links.documentation}
+          newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+          documentationUrl={props.links?.documentationUrl}
         />
         <TypeSpecEditor model={typespecModel} commands={typespecEditorCommands} />
       </div>

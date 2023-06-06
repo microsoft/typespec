@@ -30,8 +30,8 @@ const config = definePlaygroundViteConfig({
   },
   enableSwaggerUI: true,
   links: {
-    newIssue: `https://github.com/microsoft/typespec/issues/new`,
-    documentation: "https://microsoft.github.io/typespec",
+    githubIssueUrl: `https://github.com/microsoft/typespec/issues/new`,
+    documentationUrl: "https://microsoft.github.io/typespec",
   },
 });
 
