@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -97,7 +97,7 @@
     "@types/prompts": "~2.4.3",
     "@types/yargs": "~17.0.24",
     "@typespec/eslint-config-typespec": "~0.7.0",
-    "@typespec/internal-build-utils": "~0.4.1",
+    "@typespec/internal-build-utils": "~0.4.2",
     "eslint": "^8.36.0",
     "grammarkdown": "~3.2.0",
     "mocha": "~10.2.0",

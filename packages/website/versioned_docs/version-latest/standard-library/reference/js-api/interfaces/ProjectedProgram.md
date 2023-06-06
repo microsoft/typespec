@@ -20,6 +20,7 @@
 - [jsSourceFiles](ProjectedProgram.md#jssourcefiles)
 - [literalTypes](ProjectedProgram.md#literaltypes)
 - [mainFile](ProjectedProgram.md#mainfile)
+- [projectRoot](ProjectedProgram.md#projectroot)
 - [projector](ProjectedProgram.md#projector)
 - [sourceFiles](ProjectedProgram.md#sourcefiles)
 - [stateMaps](ProjectedProgram.md#statemaps)
@@ -120,6 +121,18 @@ ___
 #### Inherited from
 
 [Program](Program.md).[mainFile](Program.md#mainfile)
+
+___
+
+### projectRoot
+
+• `Readonly` **projectRoot**: `string`
+
+Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
+
+#### Inherited from
+
+[Program](Program.md).[projectRoot](Program.md#projectroot)
 
 ___
 

@@ -1,0 +1,22 @@
+{
+  "name": "@typespec/json-schema",
+  "entries": [
+    {
+      "version": "0.45.0",
+      "tag": "@typespec/json-schema_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add @typespec/json-schema for defining and emitting TypeSpec to standard JSON Schema"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.1` to `~0.4.2`"
+          }
+        ]
+      }
+    }
+  ]
+}

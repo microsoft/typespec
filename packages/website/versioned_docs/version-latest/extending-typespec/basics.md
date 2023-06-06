@@ -69,16 +69,16 @@ Your package.json needs to refer to two main files: your node module main file, 
 Run the following commands:
 
 ```bash
-> npm install -D typescript
-> npx tsc --init --strict
+npm install -D typescript
+npx tsc --init --strict
 ```
 
 This will create `tsconfig.json`. But we need to make a couple changes to this. Open `tsconfig.json` and set the following settings:
 
 ```json
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "target": "es2018",
+    "module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
+    "moduleResolution": "Node16",
+    "target": "es2019",
     "rootDir": "./src",
     "outDir": "./dist",
 ```

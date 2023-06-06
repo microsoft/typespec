@@ -17,6 +17,7 @@
 - [decorators](EnumMember.md#decorators)
 - [enum](EnumMember.md#enum)
 - [instantiationParameters](EnumMember.md#instantiationparameters)
+- [isFinished](EnumMember.md#isfinished)
 - [kind](EnumMember.md#kind)
 - [name](EnumMember.md#name)
 - [node](EnumMember.md#node)
@@ -59,6 +60,22 @@ ___
 #### Inherited from
 
 [BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+
+#### Inherited from
+
+[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
 
 ___
 
