@@ -3418,9 +3418,9 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
     });
 
-    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
-
     linkType(links, interfaceType, mapper);
+
+    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
 
     const ownMembers = checkInterfaceMembers(node, mapper, interfaceType);
 
@@ -3517,6 +3517,8 @@ export function createChecker(program: Program): Checker {
       },
       expression: false,
     });
+    linkType(links, unionType, mapper);
+
     unionType.decorators = checkDecorators(unionType, node, mapper);
 
     checkUnionVariants(unionType, node, variants, mapper);
@@ -3526,7 +3528,6 @@ export function createChecker(program: Program): Checker {
       finishType(unionType);
     }
 
-    linkType(links, unionType, mapper);
     if (mapper === undefined) {
       unionType.namespace?.unions.set(unionType.name!, unionType);
     }
