@@ -41,7 +41,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends object>  {
+        model Template<T extends {}>  {
         }
 
         @test
@@ -139,7 +139,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
     });
   });
@@ -296,7 +296,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'string'",
+          message: "Argument '4' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
@@ -395,7 +395,7 @@ describe("compiler: built-in decorators", () => {
         ["utcDateTime", "rfc7231", undefined],
         ["offsetDateTime", "rfc3339", undefined],
         ["offsetDateTime", "rfc7231", undefined],
-        ["utcDateTime", "unixTimeStamp", undefined],
+        ["utcDateTime", "unixTimestamp", "int32"],
         ["duration", "ISO8601", undefined],
         ["duration", "seconds", "int32"],
         ["bytes", "base64", undefined],
@@ -405,12 +405,63 @@ describe("compiler: built-in decorators", () => {
         ["duration", "custom-encoding", "int32"],
       ];
       const invalidCases = [
-        ["utcDateTime", "rfc3339", "int32"],
-        ["offsetDateTime", "rfc7231", "int64"],
-        ["offsetDateTime", "unixTimeStamp", undefined],
-        ["duration", "seconds", undefined],
-        ["duration", "rfc3339", undefined],
-        ["bytes", "rfc3339", undefined],
+        [
+          "utcDateTime",
+          "rfc3339",
+          "int32",
+          "invalid-encode",
+          `Encoding 'rfc3339' on type 's' is expected to be serialized as 'string' but got 'int32'.`,
+        ],
+        [
+          "offsetDateTime",
+          "rfc7231",
+          "int64",
+          "invalid-encode",
+          `Encoding 'rfc7231' on type 's' is expected to be serialized as 'string' but got 'int64'.`,
+        ],
+        [
+          "offsetDateTime",
+          "unixTimestamp",
+          "int32",
+          "invalid-encode",
+          `Encoding 'unixTimestamp' cannot be used on type 's'. Expected: utcDateTime.`,
+        ],
+        [
+          "utcDateTime",
+          "unixTimestamp",
+          "string",
+          "invalid-encode",
+          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          undefined,
+          "invalid-encode",
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
+        ],
+        [
+          "duration",
+          "rfc3339",
+          undefined,
+          "invalid-encode",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "bytes",
+          "rfc3339",
+          undefined,
+          "invalid-encode",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          '"int32"',
+          // TODO: Arguably this should be improved.
+          "invalid-argument",
+          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+        ],
       ];
       describe("valid", () => {
         validCases.forEach(([target, encoding, encodeAs]) => {
@@ -430,7 +481,7 @@ describe("compiler: built-in decorators", () => {
         });
       });
       describe("invalid", () => {
-        invalidCases.forEach(([target, encoding, encodeAs]) => {
+        invalidCases.forEach(([target, encoding, encodeAs, expectedCode, expectedMessage]) => {
           it(`encoding '${encoding}' on ${target}  encoded as ${
             encodeAs ?? "string"
           }`, async () => {
@@ -440,9 +491,10 @@ describe("compiler: built-in decorators", () => {
           @test
           scalar s extends ${target};
         `);
-
             expectDiagnostics(diagnostics, {
-              code: "invalid-encode",
+              code: expectedCode,
+              severity: "error",
+              message: expectedMessage,
             });
           });
         });

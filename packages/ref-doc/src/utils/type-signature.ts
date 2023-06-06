@@ -12,10 +12,14 @@ import {
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
+  ValueType,
 } from "@typespec/compiler";
 
 /** @internal */
-export function getTypeSignature(type: Type): string {
+export function getTypeSignature(type: Type | ValueType): string {
+  if (type.kind === "Value") {
+    return `valueof ${getTypeSignature(type.target)}`;
+  }
   if (isReflectionType(type)) {
     return type.name;
   }
@@ -42,6 +46,7 @@ export function getTypeSignature(type: Type): string {
       return `(number) ${type.value.toString()}`;
     case "Intrinsic":
       return `(intrinsic) ${type.name}`;
+
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
     case "ModelProperty":
@@ -75,8 +80,12 @@ function isReflectionType(type: Type): type is Model & { name: "" } {
 function getDecoratorSignature(type: Decorator) {
   const ns = getQualifier(type.namespace);
   const name = type.name.slice(1);
-  const parameters = [type.target, ...type.parameters].map((x) => getFunctionParameterSignature(x));
-  return `dec ${ns}${name}(${parameters.join(", ")})`;
+  const parameters = [...type.parameters].map((x) => getFunctionParameterSignature(x));
+  let signature = `@${ns}${name}`;
+  if (parameters.length > 0) {
+    signature += `(${parameters.join(", ")})`;
+  }
+  return signature;
 }
 
 function getFunctionSignature(type: FunctionType) {

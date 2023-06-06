@@ -10,6 +10,17 @@ import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
 import { TypeSpecScope } from "../../server/tmlanguage.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
+// vscode-oniguruma depends on those type from the DOM library.
+// As we are only using this in this test it is better to not add the whole DOM library just for this.
+declare global {
+  type Response = any;
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace WebAssembly {
+    type WebAssemblyInstantiatedSource = any;
+    type ImportValue = any;
+  }
+}
+
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
 
@@ -45,6 +56,7 @@ const Token = {
     else: createToken("else", "keyword.other.tsp"),
     to: createToken("to", "keyword.other.tsp"),
     from: createToken("from", "keyword.other.tsp"),
+    valueof: createToken("valueof", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
 
@@ -144,6 +156,24 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.typeParameters.end,
           Token.operators.assignment,
           Token.identifiers.type("T"),
+        ]);
+      });
+    });
+
+    describe("valueof", () => {
+      it("simple valueof", async () => {
+        const tokens = await tokenize("model Foo<T extends valueof string> {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.keywords.valueof,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
         ]);
       });
     });

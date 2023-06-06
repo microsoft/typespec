@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { Model, NumericLiteral } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -39,7 +40,7 @@ describe("compiler: scalars", () => {
     const { A } = await runner.compile(`
       @doc(T)
       @test
-      scalar A<T extends string>;
+      scalar A<T extends valueof string>;
 
       alias B = A<"123">;
     `);
@@ -48,11 +49,11 @@ describe("compiler: scalars", () => {
     strictEqual(A.name, "A");
   });
 
-  // https://github.com/microsoft/typespec/issues/1764
+  // Test for https://github.com/microsoft/typespec/issues/1764
   it("template parameter are scoped to the scalar", async () => {
     const { A, B } = await runner.compile(`
-      @test @doc(T) scalar A<T extends string>;
-      @test @doc(T) scalar B<T extends string>;
+      @test @doc(T) scalar A<T extends valueof string>;
+      @test @doc(T) scalar B<T extends valueof string>;
 
       alias AIns = A<"">;
       alias BIns = B<"">;
@@ -60,6 +61,19 @@ describe("compiler: scalars", () => {
 
     strictEqual(A.kind, "Scalar" as const);
     strictEqual(B.kind, "Scalar" as const);
+  });
+
+  it("allows a decimal to have a default value", async () => {
+    const { A } = (await runner.compile(`
+      @test model A {
+        x: decimal = 42;
+      }
+    `)) as { A: Model };
+
+    const def = A.properties.get("x")!.default! as NumericLiteral;
+    strictEqual(def.kind, "Number" as const);
+    strictEqual(def.value, 42);
+    strictEqual(def.valueAsString, "42");
   });
 
   describe("custom scalars and default values", () => {

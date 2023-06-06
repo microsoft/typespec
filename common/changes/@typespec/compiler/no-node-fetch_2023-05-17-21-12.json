@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Remove dependency on `node-fetch`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

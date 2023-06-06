@@ -1,19 +1,35 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
+import { Program } from "../core/program.js";
+import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
 import {
+  AliasStatementNode,
   Decorator,
   EnumMember,
   FunctionParameter,
   FunctionType,
   ModelProperty,
   Operation,
+  Sym,
+  SyntaxKind,
   Type,
   UnionVariant,
+  ValueType,
 } from "../core/types.js";
 import { printId } from "../formatter/print/printer.js";
 
 /** @internal */
-export function getTypeSignature(type: Type): string {
+export function getSymbolSignature(program: Program, sym: Sym): string {
+  const decl = sym.declarations[0];
+  switch (decl?.kind) {
+    case SyntaxKind.AliasStatement:
+      return fence(`alias ${getAliasSignature(decl)}`);
+  }
+  const type = sym.type ?? program.checker.getTypeForNode(decl);
+  return getTypeSignature(type);
+}
+
+function getTypeSignature(type: Type | ValueType): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
@@ -24,10 +40,13 @@ export function getTypeSignature(type: Type): string {
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
+
     case "Function":
       return fence(getFunctionSignature(type));
     case "Operation":
       return fence(getOperationSignature(type));
+    case "Value":
+      return `valueof ${getTypeSignature(type)}`;
     case "String":
       // BUG: https://github.com/microsoft/typespec/issues/1350 - should escape string literal values
       return `(string)\n${fence(`"${type.value}"`)}`;
@@ -36,7 +55,7 @@ export function getTypeSignature(type: Type): string {
     case "Number":
       return `(number)\n${fence(type.value.toString())}`;
     case "Intrinsic":
-      return `(intrinsic)\n${fence(type.name)}`;
+      return "";
     case "FunctionParameter":
       return `(function parameter)\n${fence(getFunctionParameterSignature(type))}`;
     case "ModelProperty":
@@ -56,7 +75,6 @@ export function getTypeSignature(type: Type): string {
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
-      return "";
   }
 }
 
@@ -106,6 +124,12 @@ function getEnumMemberSignature(member: EnumMember) {
   return value === undefined
     ? `${ns}${printId(member.name)}`
     : `${ns}${printId(member.name)}: ${value}`;
+}
+
+function getAliasSignature(alias: AliasStatementNode) {
+  const fullName = getFullyQualifiedSymbolName(alias.symbol);
+  const args = alias.templateParameters.map((t) => t.id.sv);
+  return args.length === 0 ? fullName : `${fullName}<${args.join(", ")}>`;
 }
 
 function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {

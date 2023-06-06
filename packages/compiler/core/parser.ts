@@ -97,6 +97,7 @@ import {
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
+  ValueOfExpressionNode,
   VoidKeywordNode,
 } from "./types.js";
 import { isArray, mutate } from "./util.js";
@@ -1050,6 +1051,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
     return expr;
   }
+
+  function parseValueOfExpression(): ValueOfExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.ValueOfKeyword);
+    const target = parseExpression();
+
+    return {
+      kind: SyntaxKind.ValueOfExpression,
+      target,
+      ...finishNode(pos),
+    };
+  }
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
@@ -1242,6 +1255,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
+        case Token.ValueOfKeyword:
+          return parseValueOfExpression();
         case Token.Identifier:
           return parseReferenceExpression();
         case Token.StringLiteral:
@@ -1354,13 +1369,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseNumericLiteral(): NumericLiteralNode {
     const pos = tokenPos();
-    const text = tokenValue();
-    const value = Number(text);
+    const valueAsString = tokenValue();
+    const value = Number(valueAsString);
 
     parseExpected(Token.NumericLiteral);
     return {
       kind: SyntaxKind.NumericLiteral,
       value,
+      valueAsString,
       ...finishNode(pos),
     };
   }
@@ -2956,6 +2972,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitNode(cb, node.type);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.ValueOfExpression:
+      return visitNode(cb, node.target);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
@@ -3087,6 +3105,16 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
  * @param position Position
  * @param filter Filter if wanting to return a parent containing node early.
  */
+export function getNodeAtPosition(
+  script: TypeSpecScriptNode,
+  position: number,
+  filter?: (node: Node) => boolean
+): Node | undefined;
+export function getNodeAtPosition<T extends Node>(
+  script: TypeSpecScriptNode,
+  position: number,
+  filter: (node: Node) => node is T
+): T | undefined;
 export function getNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,

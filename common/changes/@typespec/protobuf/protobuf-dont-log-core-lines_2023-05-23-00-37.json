@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Fixed a test harness issue requiring unnecessary re-recording of protobuf tests.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}

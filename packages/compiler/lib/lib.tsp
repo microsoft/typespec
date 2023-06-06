@@ -76,6 +76,16 @@ scalar float64 extends float;
 scalar float32 extends float64;
 
 /**
+ * A decimal number with any length and precision.
+ */
+scalar decimal extends numeric;
+
+/**
+ * A 128-bit decimal number.
+ */
+scalar decimal128 extends decimal;
+
+/**
  * A sequence of textual characters.
  */
 scalar string;
@@ -111,19 +121,21 @@ scalar duration;
 scalar boolean;
 
 /**
- * Represent any structured model.(With properties)
+ * Represent a model
  */
+// Deprecated June 2023 sprint
+@deprecated("object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.")
 model object {}
 
 /**
- * Array model type, equivalent to `T[]`
+ * @dev Array model type, equivalent to `T[]`
  * @template T The type of the array elements
  */
 @indexer(integer, T)
 model Array<T> {}
 
 /**
- * Model with string properties where all the properties have type `T`
+ * @dev Model with string properties where all the properties have type `T`
  * @template T The type of the properties
  */
 @indexer(string, T)
@@ -181,6 +193,6 @@ model OmitDefaults<T> {
  */
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<T, Visibility extends string> {
+model DefaultKeyVisibility<T, Visibility extends valueof string> {
   ...T;
 }

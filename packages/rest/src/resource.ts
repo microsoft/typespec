@@ -108,7 +108,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
       },
       {
         decorator: $resourceTypeForKeyParam,
-        args: [{ node: target.node, value: resourceType }],
+        args: [{ node: target.node, value: resourceType, jsValue: resourceType }],
       },
     ];
 
@@ -129,13 +129,9 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
 
 export function $copyResourceKeyParameters(
   context: DecoratorContext,
-  entity: Type,
+  entity: Model,
   filter?: string
 ) {
-  if (!validateDecoratorTarget(context, entity, "@copyResourceKeyParameters", "Model")) {
-    return;
-  }
-
   const reportNoKeyError = () =>
     reportDiagnostic(context.program, {
       code: "not-key-type",
@@ -181,10 +177,7 @@ export function getParentResource(program: Program, resourceType: Model): Model 
  *
  * `@parentResource` can only be applied to models.
  */
-export function $parentResource(context: DecoratorContext, entity: Type, parentType: Type) {
-  if (!validateDecoratorTarget(context, parentType, "@parentResource", "Model")) {
-    return;
-  }
+export function $parentResource(context: DecoratorContext, entity: Type, parentType: Model) {
   const { program } = context;
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);

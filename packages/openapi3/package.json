@@ -18,6 +18,7 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
+  "tspMain": "lib/main.tsp",
   "exports": {
     ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
@@ -32,7 +33,6 @@
       ]
     }
   },
-  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=16.0.0"
   },

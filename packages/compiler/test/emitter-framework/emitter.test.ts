@@ -120,9 +120,9 @@ describe("emitter-framework: typescript emitter", () => {
     `);
 
     assert.match(contents, /interface Test1/);
-    assert.match(contents, /interface Templateint32/);
+    assert.match(contents, /interface TemplateInt32/);
     assert.match(contents, /interface Test2/);
-    assert.match(contents, /prop: Templateint32/);
+    assert.match(contents, /prop: TemplateInt32/);
   });
 
   it("emits literal types", async () => {
@@ -260,9 +260,9 @@ describe("emitter-framework: typescript emitter", () => {
     `);
 
     assert.match(contents, /a: 1 \| 2 \| SomeModel/);
-    assert.match(contents, /b: TUstring/);
+    assert.match(contents, /b: TUString/);
     assert.match(contents, /export type U = 1 \| "hello" \| SomeModel/);
-    assert.match(contents, /export type TUstring = string \| null/);
+    assert.match(contents, /export type TUString = string \| null/);
   });
 
   it("emits tuple types", async () => {

@@ -1,9 +1,33 @@
 ---
-title: Index
+title: Overview
 sidebar_position: 0
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+TypeSpec library for declaring and emitting versioned APIs
+
+## Install
+
+<Tabs>
+<TabItem value="spec" label="In a spec" default>
+
+```bash
+npm install @typespec/versioning
+```
+
+</TabItem>
+<TabItem value="library" label="In a library" default>
+
+```bash
+npm install --save-peer @typespec/versioning
+```
+
+</TabItem>
+</Tabs>
 
 ## TypeSpec.Versioning
 
@@ -13,6 +37,7 @@ toc_max_heading_level: 3
 - [`@madeOptional`](./decorators.md#@TypeSpec.Versioning.madeOptional)
 - [`@removed`](./decorators.md#@TypeSpec.Versioning.removed)
 - [`@renamedFrom`](./decorators.md#@TypeSpec.Versioning.renamedFrom)
+- [`@returnTypeChangedFrom`](./decorators.md#@TypeSpec.Versioning.returnTypeChangedFrom)
 - [`@typeChangedFrom`](./decorators.md#@TypeSpec.Versioning.typeChangedFrom)
 - [`@useDependency`](./decorators.md#@TypeSpec.Versioning.useDependency)
 - [`@versioned`](./decorators.md#@TypeSpec.Versioning.versioned)

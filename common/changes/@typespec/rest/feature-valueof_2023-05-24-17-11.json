@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Update decorators to use `valueof`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}

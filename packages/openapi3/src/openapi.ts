@@ -31,6 +31,7 @@ import {
   interpolatePath,
   IntrinsicScalarName,
   IntrinsicType,
+  isArrayModelType,
   isDeprecated,
   isErrorType,
   isGlobalNamespace,
@@ -337,7 +338,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.default ? getDefaultValue(prop.default) : "",
+          default: prop.default ? getDefaultValue(prop.type, prop.default) : "",
           description: getDoc(program, prop),
         };
 
@@ -886,7 +887,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
       // For literal types, we just want to emit them directly as well.
-      return mapTypeSpecTypeToOpenAPI(type, visibility);
+      return getSchemaForLiterals(type);
     }
 
     if (type.kind === "Intrinsic" && type.name === "unknown") {
@@ -1102,9 +1103,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyIntrinsicDecorators(param, typeSchema);
+    const schema = applyEncoding(param, applyIntrinsicDecorators(param, typeSchema));
     if (param.default) {
-      schema.default = getDefaultValue(param.default);
+      schema.default = getDefaultValue(param.type, param.default);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1250,7 +1251,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
-    const builtinType = mapTypeSpecTypeToOpenAPI(type, visibility);
+    const builtinType = getSchemaForLiterals(type);
     if (builtinType !== undefined) return builtinType;
 
     switch (type.kind) {
@@ -1363,7 +1364,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = mapTypeSpecTypeToOpenAPI(variant.type, visibility);
+          const enumSchema = getSchemaForLiterals(variant.type);
           literalVariantEnumByType[variant.type.kind] = enumSchema;
           schemaMembers.push({ schema: enumSchema, type: null });
         } else {
@@ -1440,24 +1441,54 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
   }
 
-  function getDefaultValue(type: Type): any {
-    switch (type.kind) {
+  function getDefaultValue(type: Type, defaultType: Type): any {
+    switch (defaultType.kind) {
       case "String":
-        return type.value;
+        return defaultType.value;
       case "Number":
-        return type.value;
+        compilerAssert(type.kind === "Scalar", "setting scalar default to non-scalar value");
+        const base = getStdBaseScalar(type);
+        compilerAssert(base, "not allowed to assign default to custom scalars");
+
+        return defaultType.value;
       case "Boolean":
-        return type.value;
+        return defaultType.value;
       case "Tuple":
-        return type.values.map(getDefaultValue);
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
+        );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
       case "EnumMember":
-        return type.value ?? type.name;
+        return defaultType.value ?? defaultType.name;
       default:
         reportDiagnostic(program, {
           code: "invalid-default",
-          format: { type: type.kind },
-          target: type,
+          format: { type: defaultType.kind },
+          target: defaultType,
         });
+    }
+
+    function getStdBaseScalar(scalar: Scalar): Scalar | null {
+      let current: Scalar | undefined = scalar;
+      while (current) {
+        if (program.checker.isStdType(current)) {
+          return current;
+        }
+        current = current.baseScalar;
+      }
+
+      return null;
     }
   }
 
@@ -1471,6 +1502,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getSchemaForModel(model: Model, visibility: Visibility) {
+    const arrayOrRecord = mapTypeSpecIntrinsicModelToOpenAPI(model, visibility);
+    if (arrayOrRecord) {
+      const arrayDoc = getDoc(program, model);
+      arrayOrRecord.description = arrayDoc;
+      return arrayOrRecord;
+    }
+
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
@@ -1555,7 +1593,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function resolveProperty(prop: ModelProperty, visibility: Visibility): OpenAPI3SchemaProperty {
     const description = getDoc(program, prop);
 
-    const schema = getSchemaOrRef(prop.type, visibility);
+    const schema = applyEncoding(prop, getSchemaOrRef(prop.type, visibility));
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = applyIntrinsicDecorators(prop, {});
     if (description) {
@@ -1563,7 +1601,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
 
     if (prop.default) {
-      additionalProps.default = getDefaultValue(prop.default);
+      additionalProps.default = getDefaultValue(prop.type, prop.default);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -1670,13 +1708,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.format = "password";
     }
 
-    const encodeData = getEncode(program, typespecType);
-    if (encodeData) {
-      const newType = getSchemaForScalar(encodeData.type);
-      newTarget.type = newType.type;
-      newTarget.format = mergeFormatAndEncoding(newTarget.format, encodeData.encoding);
-    }
-
     if (isString) {
       const values = getKnownValues(program, typespecType);
       if (values) {
@@ -1691,21 +1722,51 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return newTarget;
   }
 
-  function mergeFormatAndEncoding(format: string | undefined, encoding: string): string {
+  function applyEncoding(
+    typespecType: Scalar | ModelProperty,
+    target: OpenAPI3Schema
+  ): OpenAPI3Schema {
+    const encodeData = getEncode(program, typespecType);
+    if (encodeData) {
+      const newTarget = { ...target };
+      const newType = getSchemaForScalar(encodeData.type);
+      newTarget.type = newType.type;
+      // If the target already has a format it takes priority. (e.g. int32)
+      newTarget.format = mergeFormatAndEncoding(
+        newTarget.format,
+        encodeData.encoding,
+        newType.format
+      );
+      return newTarget;
+    }
+    return target;
+  }
+  function mergeFormatAndEncoding(
+    format: string | undefined,
+    encoding: string,
+    encodeAsFormat: string | undefined
+  ): string {
     switch (format) {
       case undefined:
-        return encoding;
+        return encodeAsFormat ?? encoding;
       case "date-time":
         switch (encoding) {
           case "rfc3339":
             return "date-time";
           case "unixTimestamp":
-            return "unix-timestamp";
+            return "unixtime";
           default:
             return `date-time-${encoding}`;
         }
+      case "duration":
+        switch (encoding) {
+          case "ISO8601":
+            return "duration";
+          default:
+            return encodeAsFormat ?? encoding;
+        }
       default:
-        return encoding;
+        return encodeAsFormat ?? encoding;
     }
   }
 
@@ -1718,7 +1779,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   // Map an TypeSpec type to an OA schema. Returns undefined when the resulting
   // OA schema is just a regular object schema.
-  function mapTypeSpecTypeToOpenAPI(typespecType: Type, visibility: Visibility): any {
+  function getSchemaForLiterals(
+    typespecType: NumericLiteral | StringLiteral | BooleanLiteral
+  ): OpenAPI3Schema;
+  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined;
+  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined {
     switch (typespecType.kind) {
       case "Number":
         return { type: "number", enum: [typespecType.value] };
@@ -1726,8 +1791,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", enum: [typespecType.value] };
       case "Boolean":
         return { type: "boolean", enum: [typespecType.value] };
-      case "Model":
-        return mapTypeSpecIntrinsicModelToOpenAPI(typespecType, visibility);
+      default:
+        return undefined;
     }
   }
 
@@ -1782,7 +1847,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function mapTypeSpecIntrinsicModelToOpenAPI(
     typespecType: Model,
     visibility: Visibility
-  ): any | undefined {
+  ): OpenAPI3Schema | undefined {
     if (typespecType.indexer) {
       if (isNeverType(typespecType.indexer.key)) {
       } else {
@@ -1800,6 +1865,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
     }
+    return undefined;
   }
 
   function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
@@ -1810,7 +1876,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     } else if (scalar.baseScalar) {
       result = getSchemaForScalar(scalar.baseScalar);
     }
-    const withDecorators = applyIntrinsicDecorators(scalar, result);
+    const withDecorators = applyEncoding(scalar, applyIntrinsicDecorators(scalar, result));
     if (isStd) {
       // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
       delete withDecorators.description;
@@ -1822,6 +1888,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
+      case "numeric":
+        return { type: "number" };
+      case "integer":
+        return { type: "integer" };
       case "int8":
         return { type: "integer", format: "int8" };
       case "int16":
@@ -1840,10 +1910,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "integer", format: "uint32" };
       case "uint64":
         return { type: "integer", format: "uint64" };
+      case "float":
+        return { type: "number" };
       case "float64":
         return { type: "number", format: "double" };
       case "float32":
         return { type: "number", format: "float" };
+      case "decimal":
+        return { type: "number", format: "decimal" };
+      case "decimal128":
+        return { type: "number", format: "decimal128" };
       case "string":
         return { type: "string" };
       case "boolean":
@@ -1859,10 +1935,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "duration" };
       case "url":
         return { type: "string", format: "uri" };
-      case "integer":
-      case "numeric":
-      case "float":
-        return {}; // Waiting on design for more precise type https://github.com/microsoft/typespec/issues/1260
       default:
         const _assertNever: never = scalar.name;
         return {};

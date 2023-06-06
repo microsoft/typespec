@@ -168,10 +168,15 @@
       "reviewCategory": "production",
       "shouldPublish": false
     },
-
     {
       "packageName": "@typespec/playground",
       "projectFolder": "packages/playground",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/playground-website",
+      "projectFolder": "packages/playground-website",
       "reviewCategory": "production",
       "shouldPublish": false
     },
@@ -198,6 +203,12 @@
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/json-schema",
+      "projectFolder": "packages/json-schema",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
     }
   ]
 }

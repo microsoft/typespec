@@ -94,6 +94,33 @@ describe("compiler: server: signature help", () => {
         );
         assertHelp(help, 0);
       });
+
+      it("trailing space and no close paren", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple("abc", ┆
+          `
+        );
+        assertHelp(help, 1);
+      });
+
+      it("leading trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple( ┆ /* first arg */ "hello", "world")
+          `
+        );
+        assertHelp(help, 0);
+      });
+
+      it("trailing trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @multiple("hello" /* ┆ test */, "world")
+          `
+        );
+        assertHelp(help, 0);
+      });
     });
 
     describe("decorator with rest parameter", () => {
@@ -305,6 +332,33 @@ describe("compiler: server: signature help", () => {
         );
         assertHelp(help, 1);
       });
+
+      it("trailing space and no close paren", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, "abc", ┆
+          `
+        );
+        assertHelp(help, 2);
+      });
+
+      it("leading trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, ┆ /* first arg */ "hello", "world")
+          `
+        );
+        assertHelp(help, 1);
+      });
+
+      it("trailing trivia", async () => {
+        const help = await getSignatureHelpAtCursor(
+          `
+          @@multiple(target, "hello" /* ┆ test */, "world" )
+          `
+        );
+        assertHelp(help, 1);
+      });
     });
 
     describe("decorator with rest parameter", () => {
@@ -405,6 +459,164 @@ describe("compiler: server: signature help", () => {
         $multiple: () => {},
         $rest: () => {},
       });
+      const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
+      return await testHost.server.getSignatureHelp({
+        textDocument,
+        position: textDocument.positionAt(pos),
+      });
+    }
+  });
+
+  describe("template", () => {
+    for (const type of ["Model", "Alias"]) {
+      describe(type.toLowerCase(), () => {
+        it("get signature for a template with a single parameter", async () => {
+          const help = await getSignatureHelpAtCursor(
+            `
+            alias A = ${type}1<┆
+            `
+          );
+          deepStrictEqual(help, {
+            activeParameter: 0,
+            activeSignature: 0,
+            signatures: [
+              {
+                activeParameter: 0,
+                documentation: {
+                  kind: MarkupKind.Markdown,
+                  value: `${type} with a single template param`,
+                },
+                label: `${type}1<T>`,
+                parameters: [
+                  {
+                    label: "T",
+                    documentation: {
+                      kind: MarkupKind.Markdown,
+                      value: "The template arg",
+                    },
+                  },
+                ],
+              },
+            ],
+          });
+        });
+
+        describe("template with multiple parameters", () => {
+          function assertHelp(help: SignatureHelp | undefined, activeParameter: number) {
+            deepStrictEqual(help, {
+              activeParameter: 0,
+              activeSignature: 0,
+              signatures: [
+                {
+                  activeParameter,
+                  documentation: {
+                    kind: MarkupKind.Markdown,
+                    value: `${type} with two template params`,
+                  },
+                  label: `${type}2<TFirst, TSecond>`,
+                  parameters: [
+                    {
+                      label: "TFirst",
+                      documentation: {
+                        kind: MarkupKind.Markdown,
+                        value: "The first template arg",
+                      },
+                    },
+                    {
+                      label: "TSecond",
+                      documentation: {
+                        kind: MarkupKind.Markdown,
+                        value: "The second template arg",
+                      },
+                    },
+                  ],
+                },
+              ],
+            });
+          }
+
+          it("highlight 2nd parameter when first arg is present", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<string, ┆>
+              `
+            );
+            assertHelp(help, 1);
+          });
+
+          it("highlight 1st parameter when cursor points back to 1st argument", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<string┆, int32>
+              `
+            );
+            assertHelp(help, 0);
+          });
+
+          it("trailing space and no close paren", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<"abc", ┆
+              `
+            );
+            assertHelp(help, 1);
+          });
+
+          it("leading trivia", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2< ┆ /* first arg */ "hello", "world">
+              `
+            );
+            assertHelp(help, 0);
+          });
+
+          it("trailing trivia", async () => {
+            const help = await getSignatureHelpAtCursor(
+              `
+              alias A = ${type}2<"hello" /* ┆ test */, "world" >
+              `
+            );
+            assertHelp(help, 0);
+          });
+        });
+      });
+    }
+    async function getSignatureHelpAtCursor(
+      sourceWithCursor: string
+    ): Promise<SignatureHelp | undefined> {
+      const wholeFile = `
+      /** 
+       * Model with a single template param
+       * @template T The template arg
+       */
+      model Model1<T> {}
+      
+      /** 
+       * Model with two template params
+       * @template TFirst The first template arg
+       * @template TSecond The second template arg
+       */
+      model Model2<TFirst, TSecond> {}
+
+      /**
+       * Alias with a single template param
+       * @template T The template arg
+       */
+      alias Alias1<T> = {}
+      
+
+      /**
+       * Alias with two template params
+       * @template TFirst The first template arg
+       * @template TSecond The second template arg
+       */
+      alias Alias2<TFirst, TSecond> = {}
+      ${sourceWithCursor}
+      `;
+
+      const { source, pos } = extractCursor(wholeFile);
+      const testHost = await createTestServerHost();
       const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
       return await testHost.server.getSignatureHelp({
         textDocument,
