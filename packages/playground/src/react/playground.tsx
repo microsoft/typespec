@@ -15,6 +15,7 @@ import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import { CompilationState, EmitterOptions } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
+import { PlaygroundSample } from "../types.js";
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -38,6 +39,8 @@ export interface PlaygroundProps {
   defaultEmitterOptions?: EmitterOptions;
   /** Callback when emitter options change */
   onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
+
+  samples?: Record<string, PlaygroundSample>;
 
   /** Sample to use */
   sampleName?: string;
@@ -109,8 +112,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [content, updateTypeSpec]);
   useEffect(() => {
-    if (selectedSampleName) {
-      const config = PlaygroundManifest.samples[selectedSampleName];
+    if (selectedSampleName && props.samples) {
+      const config = props.samples[selectedSampleName];
       if (config.content) {
         updateTypeSpec(config.content);
         if (config.preferredEmitter) {
@@ -174,6 +177,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           onSelectedEmitterChange={onSelectedEmitterChange}
           emitterOptions={emitterOptions}
           onEmitterOptionsChange={onEmitterOptionsChange}
+          samples={props.samples}
           selectedSampleName={selectedSampleName}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
           saveCode={saveCode}

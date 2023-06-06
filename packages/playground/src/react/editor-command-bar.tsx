@@ -15,6 +15,7 @@ import { EmitterDropdown } from "./emitter-dropdown.js";
 import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 import { EmitterOptions } from "./types.js";
+import { PlaygroundSample } from "../types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
@@ -25,6 +26,8 @@ export interface EditorCommandBarProps {
   onSelectedEmitterChange: (emitter: string) => void;
   emitterOptions: EmitterOptions;
   onEmitterOptionsChange: (options: EmitterOptions) => void;
+
+  samples?: Record<string, PlaygroundSample>;
   selectedSampleName: string;
   onSelectedSampleNameChange: (sampleName: string) => void;
 }
@@ -37,6 +40,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   onSelectedEmitterChange,
   emitterOptions,
   onEmitterOptionsChange,
+  samples,
   selectedSampleName,
   onSelectedSampleNameChange,
 }) => {
@@ -59,10 +63,13 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
             onClick={saveCode as any}
           />
         </Tooltip>
-        <SamplesDropdown
-          selectedSampleName={selectedSampleName}
-          onSelectedSampleNameChange={onSelectedSampleNameChange}
-        />
+        {samples && (
+          <SamplesDropdown
+            samples={samples}
+            selectedSampleName={selectedSampleName}
+            onSelectedSampleNameChange={onSelectedSampleNameChange}
+          />
+        )}
         <EmitterDropdown
           emitters={emitters}
           onSelectedEmitterChange={onSelectedEmitterChange}

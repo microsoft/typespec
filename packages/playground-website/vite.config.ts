@@ -14,17 +14,17 @@ const config = definePlaygroundViteConfig({
   ],
   samples: {
     "API versioning": {
-      fileName: "samples/versioning.tsp",
+      filename: "samples/versioning.tsp",
       preferredEmitter: "@typespec/openapi3",
     },
     "Discriminated unions": {
-      fileName: "samples/unions.tsp",
+      filename: "samples/unions.tsp",
       preferredEmitter: "@typespec/openapi3",
     },
-    "HTTP service": { fileName: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
-    "REST framework": { fileName: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
+    "HTTP service": { filename: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
+    "REST framework": { filename: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
     "Protobuf Kiosk": {
-      fileName: "samples/kiosk.tsp",
+      filename: "samples/kiosk.tsp",
       preferredEmitter: "@typespec/protobuf",
     },
   },

@@ -28,6 +28,7 @@ const App: FunctionComponent = () => {
       host={host}
       emitters={emitters}
       defaultContent={initialState.content}
+      samples={PlaygroundManifest.samples}
       defaultSampleName={initialState.sampleName}
       onSave={save}
       defaultEmitter={PlaygroundManifest.defaultEmitter}
