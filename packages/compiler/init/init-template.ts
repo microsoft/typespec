@@ -3,7 +3,7 @@ import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
 import { TypeSpecRawConfig } from "../config/types.js";
 
 export interface InitTemplateFile {
-  path: string;
+  path: string | boolean;
   destination: string;
 }
 
@@ -80,7 +80,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
       items: {
         type: "object",
         properties: {
-          path: { type: "string" },
+          path: { type: ["string", "boolean"] },
           destination: { type: "string" },
         },
         required: ["path", "destination"],

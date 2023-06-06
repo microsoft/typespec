@@ -339,13 +339,20 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
     return;
   }
   for (const file of config.files) {
-    await writeFile(host, config, file);
+    if (file.path === false) {
+      await host.rm(file.destination);
+    } else {
+      await writeFile(host, config, file);
+    }
   }
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
   const baseDir = getDirectoryPath(config.templateUri) + "/";
-  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
+  const template = await readUrlOrPath(
+    host,
+    resolveRelativeUrlOrPath(baseDir, file.path as string)
+  );
   const content = Mustache.render(template.text, config);
   const destinationFilePath = joinPaths(config.directory, file.destination);
   // create folders in case they don't exist
@@ -368,7 +375,7 @@ function validateTemplateDefinitions(
   templates: unknown,
   file: SourceFile
 ): asserts templates is Record<string, InitTemplate> {
-  const validator = createJSONSchemaValidator(InitTemplateDefinitionsSchema);
+  const validator = createJSONSchemaValidator(InitTemplateDefinitionsSchema, { strict: false });
   const diagnostics = validator.validate(templates, file);
   if (diagnostics.length > 0) {
     throw new InitTemplateError(diagnostics);
