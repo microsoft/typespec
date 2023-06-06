@@ -52,7 +52,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
     </label>
   ) : undefined;
 
-  const bugButton = newIssue ? <FileBugButton onClick={newIssue}/> : undefined;
+  const bugButton = newIssue ? <FileBugButton onClick={newIssue} /> : undefined;
 
   return (
     <div css={{ borderBottom: "1px solid #f5f5f5" }}>
@@ -102,15 +102,17 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
 interface FileBugButtonProps {
   onClick: () => Promise<void> | void;
 }
-const FileBugButton: FunctionComponent<FileBugButtonProps> = ({onClick}) => {
-  return <Tooltip content="File Bug Report" relationship="description" withArrow>
-    <ToolbarButton
-      appearance="subtle"
-      aria-label="File Bug Report"
-      icon={<Bug16Regular />}
-      onClick={onClick as any}
-    >
-      File bug
-    </ToolbarButton>
-  </Tooltip>;
+const FileBugButton: FunctionComponent<FileBugButtonProps> = ({ onClick }) => {
+  return (
+    <Tooltip content="File Bug Report" relationship="description" withArrow>
+      <ToolbarButton
+        appearance="subtle"
+        aria-label="File Bug Report"
+        icon={<Bug16Regular />}
+        onClick={onClick as any}
+      >
+        File bug
+      </ToolbarButton>
+    </Tooltip>
+  );
 };

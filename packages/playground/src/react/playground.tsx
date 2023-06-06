@@ -7,6 +7,7 @@ import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
 import { getMarkerLocation } from "../services.js";
+import { PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
@@ -14,7 +15,6 @@ import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
-import { PlaygroundSample } from "../types.js";
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -208,7 +208,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           borderLeft: "1px solid #c5c5c5",
         }}
       >
-        <OutputView compilationState={compilationState} viewers={props.emitterViewers?.[selectedEmitter]}/>
+        <OutputView
+          compilationState={compilationState}
+          viewers={props.emitterViewers?.[selectedEmitter]}
+        />
       </div>
       <Footer />
     </div>
