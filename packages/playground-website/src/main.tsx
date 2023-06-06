@@ -7,6 +7,7 @@ import {
   saveTypeSpecContentInQueryParameter,
 } from "@typespec/playground";
 import { StyledPlayground } from "@typespec/playground/react";
+import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import { FunctionComponent, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -14,9 +15,13 @@ import { PlaygroundManifest } from "@typespec/playground/manifest";
 import "./style.css";
 
 const host = await createBrowserHost(PlaygroundManifest.libraries);
-const emitters = await filterEmitters(PlaygroundManifest.libraries)
+const emitters = await filterEmitters(PlaygroundManifest.libraries);
 await registerMonacoLanguage(host);
 registerMonacoDefaultWorkers();
+
+const emitterViewers = {
+  "@typespec/openapi3": [SwaggerUIViewer],
+};
 
 const initialState = getStateFromUrl();
 const App: FunctionComponent = () => {
@@ -33,6 +38,7 @@ const App: FunctionComponent = () => {
       onSave={save}
       defaultEmitter={PlaygroundManifest.defaultEmitter}
       links={PlaygroundManifest.links}
+      emitterViewers={emitterViewers}
     />
   );
 };

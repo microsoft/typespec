@@ -23,7 +23,8 @@
     ".": "./dist/src/index.js",
     "./vite": "./dist/src/vite/index.js",
     "./manifest": "./dist/src/manifest.js",
-    "./react": "./dist/src/react/index.js"
+    "./react": "./dist/src/react/index.js",
+    "./react/viewers": "./dist/src/react/viewers.js"
   },
   "engines": {
     "node": ">=16.0.0"

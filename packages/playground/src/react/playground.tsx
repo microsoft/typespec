@@ -12,7 +12,7 @@ import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
-import { CompilationState, EmitterOptions } from "./types.js";
+import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 import { PlaygroundSample } from "../types.js";
 
@@ -49,7 +49,11 @@ export interface PlaygroundProps {
   /** Callback when sample change */
   onSampleNameChange?: (sampleName: string) => void;
 
+  /** Playground links */
   links?: PlaygroundLinks;
+
+  /** Custom viewers that enabled for certain emitters. Key of the map is emitter name */
+  emitterViewers?: Record<string, FileOutputViewer[]>;
 
   onSave?: (value: string) => void;
 }
@@ -204,7 +208,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           borderLeft: "1px solid #c5c5c5",
         }}
       >
-        <OutputView compilationState={compilationState} />
+        <OutputView compilationState={compilationState} viewers={props.emitterViewers?.[selectedEmitter]}/>
       </div>
       <Footer />
     </div>
