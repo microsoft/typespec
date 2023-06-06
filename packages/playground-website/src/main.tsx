@@ -1,47 +1,11 @@
-import {
-  createBrowserHost,
-  filterEmitters,
-  getStateFromUrl,
-  registerMonacoDefaultWorkers,
-  registerMonacoLanguage,
-  saveTypeSpecContentInQueryParameter,
-} from "@typespec/playground";
-import { StyledPlayground } from "@typespec/playground/react";
-import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import { FunctionComponent, useCallback } from "react";
-import { createRoot } from "react-dom/client";
-
 import { PlaygroundManifest } from "@typespec/playground/manifest";
+import { renderReactPlayground } from "@typespec/playground/react";
+import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import "./style.css";
 
-const host = await createBrowserHost(PlaygroundManifest.libraries);
-const emitters = await filterEmitters(PlaygroundManifest.libraries);
-await registerMonacoLanguage(host);
-registerMonacoDefaultWorkers();
-
-const emitterViewers = {
-  "@typespec/openapi3": [SwaggerUIViewer],
-};
-
-const initialState = getStateFromUrl();
-const App: FunctionComponent = () => {
-  const save = useCallback((content: string) => {
-    void saveTypeSpecContentInQueryParameter(content);
-  }, []);
-  return (
-    <StyledPlayground
-      host={host}
-      emitters={emitters}
-      defaultContent={initialState.content}
-      samples={PlaygroundManifest.samples}
-      defaultSampleName={initialState.sampleName}
-      onSave={save}
-      defaultEmitter={PlaygroundManifest.defaultEmitter}
-      links={PlaygroundManifest.links}
-      emitterViewers={emitterViewers}
-    />
-  );
-};
-
-const root = createRoot(document.getElementById("root")!);
-root.render(<App />);
+await renderReactPlayground({
+  ...PlaygroundManifest,
+  emitterViewers: {
+    "@typespec/openapi3": [SwaggerUIViewer],
+  },
+});
