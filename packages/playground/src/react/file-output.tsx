@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
-import { FunctionComponent,  useCallback, useMemo, useState } from "react";
+import { Select, SelectOnChangeData } from "@fluentui/react-components";
+import { FunctionComponent, useCallback, useMemo, useState } from "react";
 import { FileOutputViewer } from "./types.js";
-
 
 export interface FileOutputProps {
   filename: string;
@@ -12,11 +12,7 @@ export interface FileOutputProps {
 /**
  * Display a file output using different viewers.
  */
-export const FileOutput: FunctionComponent<FileOutputProps> = ({
-  filename,
-  content,
-  viewers,
-}) => {
+export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, content, viewers }) => {
   if (viewers.length === 0) {
     return <>No viewers</>;
   } else if (viewers.length === 1) {
@@ -26,8 +22,8 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({
   const [selected, setSelected] = useState<string>(viewers[0].key);
 
   const handleSelected = useCallback(
-    (event: any) => {
-      setSelected(event.target.value);
+    (_: unknown, data: SelectOnChangeData) => {
+      setSelected(data.value);
     },
     [selected]
   );
@@ -37,15 +33,14 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({
   }, [selected, viewers]);
   return (
     <div css={{ width: "100%", height: "100%", overflow: "hidden" }}>
-      <select css={DropdownStyle} onChange={handleSelected} value={selected}>
-        {viewers.map(({ key, label }) => {
-          return (
-            <option key={key} value={key}>
-              {label}
-            </option>
-          );
-        })}
-      </select>
+      <Select value={selected} onChange={handleSelected} css={DropdownStyle}>
+        {viewers.map(({ key, label }) => (
+          <option key={key} value={key}>
+            {label}
+          </option>
+        ))}
+      </Select>
+
       {selectedRender && selectedRender({ filename, content })}
     </div>
   );
