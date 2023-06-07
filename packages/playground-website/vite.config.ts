@@ -10,6 +10,7 @@ const config = definePlaygroundViteConfig({
     "@typespec/openapi",
     "@typespec/versioning",
     "@typespec/openapi3",
+    "@typespec/json-schema",
     "@typespec/protobuf",
   ],
   samples: {
