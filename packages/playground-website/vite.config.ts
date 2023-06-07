@@ -28,6 +28,10 @@ const config = definePlaygroundViteConfig({
       fileName: "samples/kiosk.tsp",
       preferredEmitter: "@typespec/protobuf",
     },
+    "Json Schema": {
+      fileName: "samples/json-schema.tsp",
+      preferredEmitter: "@typespec/json-schema",
+    },
   },
   enableSwaggerUI: true,
   links: {
