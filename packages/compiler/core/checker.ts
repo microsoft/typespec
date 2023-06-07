@@ -1,4 +1,4 @@
-import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getDeprecated, getIndexer, listServices } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -5227,20 +5227,48 @@ export function getEffectiveModelType(
   if (model.properties.size === 0) {
     // empty model
     switch (model.node?.kind) {
-      // workaround where we have an intersection with no resulting properties. Take the name of the canonical thing,
-      // which we assume to be the first type reference in the intersection.
       case SyntaxKind.IntersectionExpression:
         for (const opt of model.node.options) {
           if (opt.kind === SyntaxKind.TypeReference && opt.target.kind === SyntaxKind.Identifier) {
             model.name = opt.target.sv;
-            break;
+          } else if (
+            opt.kind === SyntaxKind.TypeReference &&
+            opt.target.kind === SyntaxKind.MemberExpression
+          ) {
+            const name = expandMemberExpression(opt.target);
+            const services = listServices(program);
+            for (const service of services) {
+              const ns = getNamespaceFullName(service.type);
+              if (ns !== "" && name.startsWith(ns)) {
+                // split on dot and take the last part
+                model.name = name.split(".").pop()!;
+                break;
+              }
+            }
           }
         }
+        break;
+      case SyntaxKind.ModelExpression:
+        // TODO: Handle spread?
         break;
       default:
         return model;
     }
     return model;
+  }
+
+  function expandMemberExpression(exp: MemberExpressionNode, curr?: string[]): string {
+    if (curr === undefined) {
+      curr = [exp.id.sv];
+    } else {
+      curr.push(exp.id.sv);
+    }
+    if (exp.base.kind === SyntaxKind.MemberExpression) {
+      return expandMemberExpression(exp.base, curr);
+    } else if (exp.base.kind === SyntaxKind.Identifier) {
+      return `${exp.base.sv}.${curr.reverse().join(".")}`;
+    }
+    return curr.reverse().join(".");
   }
 
   // Find the candidate set of named model types that could have been the

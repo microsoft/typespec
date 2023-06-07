@@ -350,11 +350,54 @@ describe("compiler: effective type", () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-      model Extra {}
+      namespace OutsideNamespace {
+        namespace A {
+          namespace B {
+            model Extra {}
+          }
+        }
+      }
 
-      model Test {}
+      namespace Azure {
+        @service({title: "TestService"})
+        namespace Main {
+          model Test {}
+  
+          @test op test(): OutsideNamespace.A.B.Extra & Azure.Main.Test;
+        }  
+      }
+      `
+    );
+    const { test } = await testHost.compile("./");
+    strictEqual(test.kind, "Operation" as const);
 
-      @test op test(): Test & Extra;
+    const returnType = test.returnType;
+    strictEqual(returnType?.kind, "Model" as const);
+
+    const effective = getEffectiveModelType(testHost.program, returnType);
+    strictEqual(effective.name, "Test");
+  });
+
+  it("empty model and spread", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      namespace OutsideNamespace {
+        namespace A {
+          namespace B {
+            model Extra {}
+          }
+        }
+      }
+
+      namespace Azure {
+        @service({title: "TestService"})
+        namespace Main {
+          model Test {}
+  
+          @test op test(): {...OutsideNamespace.A.B.Extra, ...Azure.Main.Test};
+        }  
+      }
       `
     );
     const { test } = await testHost.compile("./");
