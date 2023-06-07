@@ -7,7 +7,7 @@ Represent a decorator declaration
 **`Example`**
 
 ```typespec
-extern dec doc(target: Type, value: StringLiteral);
+extern dec doc(target: Type, value: valueof string);
 ```
 
 ## Hierarchy

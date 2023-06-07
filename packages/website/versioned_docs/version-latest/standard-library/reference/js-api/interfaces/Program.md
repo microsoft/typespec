@@ -20,6 +20,7 @@
 - [jsSourceFiles](Program.md#jssourcefiles)
 - [literalTypes](Program.md#literaltypes)
 - [mainFile](Program.md#mainfile)
+- [projectRoot](Program.md#projectroot)
 - [sourceFiles](Program.md#sourcefiles)
 - [stateMaps](Program.md#statemaps)
 - [stateSets](Program.md#statesets)
@@ -87,6 +88,14 @@ ___
 ### mainFile
 
 • `Optional` **mainFile**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
+
+___
+
+### projectRoot
+
+• `Readonly` **projectRoot**: `string`
+
+Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
 
 ___
 

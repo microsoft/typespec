@@ -64,7 +64,7 @@ two
 
 ## Numeric literal
 
-Numeric literals can be declare by using the raw number (`interger` or `float`)
+Numeric literals can be declared by using the raw number
 
 ```typespec
 alias Kilo = 1000;

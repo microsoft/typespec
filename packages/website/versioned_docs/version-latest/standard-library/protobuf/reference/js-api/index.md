@@ -6,54 +6,137 @@ JS Api
 
 ### Interfaces
 
-- [ProtobufEmitterOptions](interfaces/ProtobufEmitterOptions.md)
+- [PackageDetails](interfaces/PackageDetails.md)
 
 ### Type Aliases
 
-- [TypeSpecProtobufLibrary](index.md#typespecprotobuflibrary)
+- [Reservation](index.md#reservation)
 
 ### Variables
 
-- [TypeSpecProtobufLibrary](index.md#typespecprotobuflibrary-1)
-- [state](index.md#state)
+- [$lib](index.md#$lib)
+- [PROTO\_FULL\_IDENT](index.md#proto_full_ident)
+- [namespace](index.md#namespace)
 
 ### Functions
 
+- [$\_map](index.md#$_map)
+- [$externRef](index.md#$externref)
+- [$field](index.md#$field)
+- [$message](index.md#$message)
 - [$onEmit](index.md#$onemit)
-- [reportDiagnostic](index.md#reportdiagnostic)
+- [$onValidate](index.md#$onvalidate)
+- [$package](index.md#$package)
+- [$reserve](index.md#$reserve)
+- [$service](index.md#$service)
+- [$stream](index.md#$stream)
+- [isMap](index.md#ismap)
 
 ## Type Aliases
 
-### TypeSpecProtobufLibrary
+### Reservation
 
-Ƭ **TypeSpecProtobufLibrary**: typeof [`TypeSpecProtobufLibrary`](index.md#typespecprotobuflibrary-1)
+Ƭ **Reservation**: `string` \| `number` \| [`number`, `number`] & { `type`: `Type`  }
 
 ## Variables
 
-### TypeSpecProtobufLibrary
+### $lib
 
-• `Const` **TypeSpecProtobufLibrary**: `TypeSpecLibrary`<`Object`, [`ProtobufEmitterOptions`](interfaces/ProtobufEmitterOptions.md)\>
+• `Const` **$lib**: `TypeSpecLibrary`<`Object`, `ProtobufEmitterOptions`\> = `TypeSpecProtobufLibrary`
 
 ___
 
-### state
+### PROTO\_FULL\_IDENT
 
-• `Const` **state**: `Object`
+• `Const` **PROTO\_FULL\_IDENT**: `RegExp`
 
-#### Type declaration
+Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
+
+ident = letter { letter | decimalDigit | "_" }
+fullIdent = ident { "." ident }
+
+___
+
+### namespace
+
+• `Const` **namespace**: ``"TypeSpec.Protobuf"``
+
+## Functions
+
+### $\_map
+
+▸ **$_map**(`ctx`, `target`): `void`
+
+Binds the internal representation of a Protobuf map.
+
+#### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `_map` | `symbol` |
-| `externRef` | `symbol` |
-| `fieldIndex` | `symbol` |
-| `message` | `symbol` |
-| `package` | `symbol` |
-| `reserve` | `symbol` |
-| `service` | `symbol` |
-| `stream` | `symbol` |
+| `ctx` | `DecoratorContext` |
+| `target` | `Model` |
 
-## Functions
+#### Returns
+
+`void`
+
+___
+
+### $externRef
+
+▸ **$externRef**(`ctx`, `target`, `path`, `name`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `ctx` | `DecoratorContext` |
+| `target` | `Model` |
+| `path` | `StringLiteral` |
+| `name` | `StringLiteral` |
+
+#### Returns
+
+`void`
+
+___
+
+### $field
+
+▸ **$field**(`ctx`, `target`, `fieldIndex`): `void`
+
+Decorate a model property with a field index. Field indices are required for all fields of emitted messages.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `ctx` | `DecoratorContext` |
+| `target` | `ModelProperty` |
+| `fieldIndex` | `number` |
+
+#### Returns
+
+`void`
+
+___
+
+### $message
+
+▸ **$message**(`ctx`, `target`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `ctx` | `DecoratorContext` |
+| `target` | `Model` |
+
+#### Returns
+
+`void`
+
+___
 
 ### $onEmit
 
@@ -65,7 +148,7 @@ Emitter main function.
 
 | Name | Type |
 | :------ | :------ |
-| `ctx` | `EmitContext`<[`ProtobufEmitterOptions`](interfaces/ProtobufEmitterOptions.md)\> |
+| `ctx` | `EmitContext`<`ProtobufEmitterOptions`\> |
 
 #### Returns
 
@@ -73,24 +156,114 @@ Emitter main function.
 
 ___
 
-### reportDiagnostic
+### $onValidate
 
-▸ **reportDiagnostic**<`C`, `M`\>(`program`, `diag`): `void`
+▸ **$onValidate**(`program`): `Promise`<`void`\>
 
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `C` | extends ``"package"`` \| ``"field-index"`` \| ``"field-name"`` \| ``"root-operation"`` \| ``"unsupported-intrinsic"`` \| ``"unsupported-return-type"`` \| ``"unsupported-input-type"`` \| ``"unsupported-field-type"`` \| ``"namespace-collision"`` \| ``"unconvertible-enum"`` \| ``"nested-array"`` \| ``"invalid-package-name"`` \| ``"illegal-reservation"`` \| ``"model-not-in-package"`` \| ``"anonymous-model"`` |
-| `M` | extends `string` \| `number` \| `symbol` |
+Validation function
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `diag` | `DiagnosticReport`<`Object`, `C`, `M`\> |
+
+#### Returns
+
+`Promise`<`void`\>
+
+___
+
+### $package
+
+▸ **$package**(`ctx`, `target`, `details?`): `void`
+
+Declare a Protobuf package.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `ctx` | `DecoratorContext` | decorator context |
+| `target` | `Namespace` | target decorator namespace |
+| `details?` | `Model` | - |
 
 #### Returns
 
 `void`
+
+___
+
+### $reserve
+
+▸ **$reserve**(`ctx`, `target`, `...reservations`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `ctx` | `DecoratorContext` |
+| `target` | `Model` |
+| `...reservations` | readonly (`string` \| `number` \| `Type`)[] |
+
+#### Returns
+
+`void`
+
+___
+
+### $service
+
+▸ **$service**(`ctx`, `target`): `void`
+
+Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `ctx` | `DecoratorContext` | decorator context |
+| `target` | `Interface` | the decorated interface |
+
+#### Returns
+
+`void`
+
+___
+
+### $stream
+
+▸ **$stream**(`ctx`, `target`, `mode`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `ctx` | `DecoratorContext` |
+| `target` | `Operation` |
+| `mode` | `EnumMember` |
+
+#### Returns
+
+`void`
+
+___
+
+### isMap
+
+▸ **isMap**(`program`, `m`): `boolean`
+
+Determines whether a type represents a Protobuf map.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `program` | `Program` | the program context |
+| `m` | `Type` | the type to test |
+
+#### Returns
+
+`boolean`
+
+true if the internal representation of a Protobuf map is bound to this type.

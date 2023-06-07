@@ -34,7 +34,7 @@ ___
 
 ### callKind
 
-• `Readonly` **callKind**: ``"template"`` \| ``"method"``
+• `Readonly` **callKind**: ``"method"`` \| ``"template"``
 
 ___
 

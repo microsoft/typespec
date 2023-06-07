@@ -1,6 +1,37 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+
+## 0.45.0
+Tue, 06 Jun 2023 22:44:16 GMT
+
+### Updates
+
+- Fix: `tspconfig.yaml` should always get resolved relative to the entrypoint
+- Add decimal and decimal128 built-in scalar types.
+- **Feature** Doc comment will be applied as the doc for types unless an explicit @doc is provided.
+- Added new keyword `valueof` designed to request for a value type in a decorator parameter.
+- **BREAKING** Decorator API will not be marshalling values unless the parameter type is using `valueof`. `extern dec foo(target, value: string)` should be changed to `extern dec foo(target, value: valueof string)`.
+- **DEPRECATION** To make transition to valueof smoother if using a template parameter inside a decorator that is now using valueof the existing parmater constraint will still be compatible but emit a warning.
+- **BREAKING CHANGE** Fix: Array shouldn't be assignable to an empty model(and `object`)
+- **DEPRECATION** `object` is deprecated. Alternative is to use `{}` for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
+- Mark `Array` and `Record` doc comment as for dev only
+- Fix: formatting of comment between decorator and `op` statement
+- Fix: Operation can self reference or circular reference other operation via decorators
+- **BREAKING CHANGE** Remove `@format("url") from url scalar`
+- Fix `unixTimestamp` validation was incorrect
+- **Fix** diagnostic validating type is intrinsic always showing `string` as expected
+- Fix error message for @encode errors.
+- Improve error handling when tsp init template is invalid or fails to download.
+- Emitter framework: uppercase type argument type names when constructing a declaration name from a template instantiation.
+- Add signature for missing decorators
+- Remove dependency on `node-fetch`
+- Remove misleading output dir from compilation success message
+- Fix relative path resolution when init template is behind HTTP redirect
+- Emitter option validation will only validate emitters selected with `emit`/`--emit`. Options for other emitter will be ignored. This allows defining options for an emitter that is not installed.
+- Fix signature help with trailing space in unterminated arg list
+- Add template argument signature help
+- Show alias doc comments in IDE
 
 ## 0.44.0
 Wed, 10 May 2023 21:24:00 GMT

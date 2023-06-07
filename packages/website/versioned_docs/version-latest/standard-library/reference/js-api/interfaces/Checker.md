@@ -123,23 +123,23 @@ ___
 
 ### createAndFinishType
 
-▸ **createAndFinishType**<`U`\>(`typeDef`): `U` & `TypePrototype`
+▸ **createAndFinishType**<`T`\>(`typeDef`): `T` & `TypePrototype`
 
 #### Type parameters
 
 | Name | Type |
 | :------ | :------ |
-| `U` | extends `Omit`<[`Type`](../index.md#type), keyof `TypePrototype`\> |
+| `T` | extends [`CreateTypeProps`](../index.md#createtypeprops) |
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `typeDef` | `U` |
+| `typeDef` | `T` |
 
 #### Returns
 
-`U` & `TypePrototype`
+`T` & `TypePrototype`
 
 ___
 
@@ -230,13 +230,13 @@ ___
 
 ### createType
 
-▸ **createType**<`T`\>(`typeDef`): `T` & `TypePrototype`
+▸ **createType**<`T`\>(`typeDef`): `T` & `TypePrototype` & { `isFinished`: `boolean`  }
 
 #### Type parameters
 
-| Name |
-| :------ |
-| `T` |
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`CreateTypeProps`](../index.md#createtypeprops) |
 
 #### Parameters
 
@@ -246,7 +246,7 @@ ___
 
 #### Returns
 
-`T` & `TypePrototype`
+`T` & `TypePrototype` & { `isFinished`: `boolean`  }
 
 ___
 
@@ -401,7 +401,7 @@ ___
 
 ### getStdType
 
-▸ **getStdType**<`T`\>(`name`): `StdTypes`[`T`]
+▸ **getStdType**<`T`\>(`name`): [`StdTypes`](../index.md#stdtypes)[`T`]
 
 Std type
 
@@ -419,7 +419,7 @@ Std type
 
 #### Returns
 
-`StdTypes`[`T`]
+[`StdTypes`](../index.md#stdtypes)[`T`]
 
 ___
 
@@ -484,7 +484,7 @@ type is Scalar & Object
 | Name | Type |
 | :------ | :------ |
 | `type` | [`Type`](../index.md#type) |
-| `stdType?` | `StdTypeName` |
+| `stdType?` | [`IntrinsicScalarName`](../index.md#intrinsicscalarname) \| ``"Array"`` \| ``"Record"`` |
 
 #### Returns
 
@@ -494,7 +494,7 @@ ___
 
 ### isTypeAssignableTo
 
-▸ **isTypeAssignableTo**(`source`, `target`, `diagnosticTarget`): [`boolean`, [`Diagnostic`](Diagnostic.md)[]]
+▸ **isTypeAssignableTo**(`source`, `target`, `diagnosticTarget`): [`boolean`, readonly [`Diagnostic`](Diagnostic.md)[]]
 
 Check if the source type can be assigned to the target type.
 
@@ -502,13 +502,13 @@ Check if the source type can be assigned to the target type.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `source` | [`Type`](../index.md#type) | Source type, should be assignable to the target. |
-| `target` | [`Type`](../index.md#type) | Target type |
+| `source` | [`Type`](../index.md#type) \| [`ValueType`](ValueType.md) | Source type, should be assignable to the target. |
+| `target` | [`Type`](../index.md#type) \| [`ValueType`](ValueType.md) | Target type |
 | `diagnosticTarget` | [`DiagnosticTarget`](../index.md#diagnostictarget) | Target for the diagnostic, unless something better can be inferred. |
 
 #### Returns
 
-[`boolean`, [`Diagnostic`](Diagnostic.md)[]]
+[`boolean`, readonly [`Diagnostic`](Diagnostic.md)[]]
 
 [related, list of diagnostics]
 

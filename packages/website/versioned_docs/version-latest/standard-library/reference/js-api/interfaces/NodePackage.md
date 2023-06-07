@@ -10,6 +10,7 @@ Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
 
 - [bugs](NodePackage.md#bugs)
 - [dependencies](NodePackage.md#dependencies)
+- [description](NodePackage.md#description)
 - [devDependencies](NodePackage.md#devdependencies)
 - [homepage](NodePackage.md#homepage)
 - [main](NodePackage.md#main)
@@ -38,6 +39,12 @@ ___
 ### dependencies
 
 • `Optional` **dependencies**: `Record`<`string`, `string`\>
+
+___
+
+### description
+
+• `Optional` **description**: `string`
 
 ___
 

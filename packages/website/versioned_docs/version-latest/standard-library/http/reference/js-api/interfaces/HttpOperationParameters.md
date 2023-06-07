@@ -26,11 +26,7 @@ ___
 
 **`Deprecated`**
 
-use
-
-**`See`**
-
-body.property
+use body.parameter
 
 ___
 
@@ -40,11 +36,7 @@ ___
 
 **`Deprecated`**
 
-use
-
-**`See`**
-
-body.type
+use body.type
 
 ___
 

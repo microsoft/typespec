@@ -90,6 +90,7 @@ AST types
 - [UnionVariant](SyntaxKind.md#unionvariant)
 - [UnknownKeyword](SyntaxKind.md#unknownkeyword)
 - [UsingStatement](SyntaxKind.md#usingstatement)
+- [ValueOfExpression](SyntaxKind.md#valueofexpression)
 - [VoidKeyword](SyntaxKind.md#voidkeyword)
 
 ## Enumeration Members
@@ -114,7 +115,7 @@ ___
 
 ### BlockComment
 
-• **BlockComment** = ``45``
+• **BlockComment** = ``46``
 
 ___
 
@@ -154,43 +155,43 @@ ___
 
 ### Doc
 
-• **Doc** = ``46``
+• **Doc** = ``47``
 
 ___
 
 ### DocParamTag
 
-• **DocParamTag** = ``48``
+• **DocParamTag** = ``49``
 
 ___
 
 ### DocReturnsTag
 
-• **DocReturnsTag** = ``49``
+• **DocReturnsTag** = ``50``
 
 ___
 
 ### DocTemplateTag
 
-• **DocTemplateTag** = ``50``
+• **DocTemplateTag** = ``51``
 
 ___
 
 ### DocText
 
-• **DocText** = ``47``
+• **DocText** = ``48``
 
 ___
 
 ### DocUnknownTag
 
-• **DocUnknownTag** = ``51``
+• **DocUnknownTag** = ``52``
 
 ___
 
 ### EmptyStatement
 
-• **EmptyStatement** = ``42``
+• **EmptyStatement** = ``43``
 
 ___
 
@@ -256,7 +257,7 @@ ___
 
 ### InvalidStatement
 
-• **InvalidStatement** = ``43``
+• **InvalidStatement** = ``44``
 
 ___
 
@@ -268,7 +269,7 @@ ___
 
 ### LineComment
 
-• **LineComment** = ``44``
+• **LineComment** = ``45``
 
 ___
 
@@ -340,187 +341,187 @@ ___
 
 ### Projection
 
-• **Projection** = ``52``
+• **Projection** = ``53``
 
 ___
 
 ### ProjectionArithmeticExpression
 
-• **ProjectionArithmeticExpression** = ``70``
+• **ProjectionArithmeticExpression** = ``71``
 
 ___
 
 ### ProjectionBlockExpression
 
-• **ProjectionBlockExpression** = ``64``
+• **ProjectionBlockExpression** = ``65``
 
 ___
 
 ### ProjectionCallExpression
 
-• **ProjectionCallExpression** = ``71``
+• **ProjectionCallExpression** = ``72``
 
 ___
 
 ### ProjectionDecoratorReferenceExpression
 
-• **ProjectionDecoratorReferenceExpression** = ``80``
+• **ProjectionDecoratorReferenceExpression** = ``81``
 
 ___
 
 ### ProjectionEnumMemberSelector
 
-• **ProjectionEnumMemberSelector** = ``61``
+• **ProjectionEnumMemberSelector** = ``62``
 
 ___
 
 ### ProjectionEnumSelector
 
-• **ProjectionEnumSelector** = ``60``
+• **ProjectionEnumSelector** = ``61``
 
 ___
 
 ### ProjectionEqualityExpression
 
-• **ProjectionEqualityExpression** = ``67``
+• **ProjectionEqualityExpression** = ``68``
 
 ___
 
 ### ProjectionExpressionStatement
 
-• **ProjectionExpressionStatement** = ``62``
+• **ProjectionExpressionStatement** = ``63``
 
 ___
 
 ### ProjectionIfExpression
 
-• **ProjectionIfExpression** = ``63``
+• **ProjectionIfExpression** = ``64``
 
 ___
 
 ### ProjectionInterfaceSelector
 
-• **ProjectionInterfaceSelector** = ``59``
+• **ProjectionInterfaceSelector** = ``60``
 
 ___
 
 ### ProjectionLambdaExpression
 
-• **ProjectionLambdaExpression** = ``72``
+• **ProjectionLambdaExpression** = ``73``
 
 ___
 
 ### ProjectionLambdaParameterDeclaration
 
-• **ProjectionLambdaParameterDeclaration** = ``73``
+• **ProjectionLambdaParameterDeclaration** = ``74``
 
 ___
 
 ### ProjectionLogicalExpression
 
-• **ProjectionLogicalExpression** = ``66``
+• **ProjectionLogicalExpression** = ``67``
 
 ___
 
 ### ProjectionMemberExpression
 
-• **ProjectionMemberExpression** = ``65``
+• **ProjectionMemberExpression** = ``66``
 
 ___
 
 ### ProjectionModelExpression
 
-• **ProjectionModelExpression** = ``74``
+• **ProjectionModelExpression** = ``75``
 
 ___
 
 ### ProjectionModelProperty
 
-• **ProjectionModelProperty** = ``75``
+• **ProjectionModelProperty** = ``76``
 
 ___
 
 ### ProjectionModelPropertySelector
 
-• **ProjectionModelPropertySelector** = ``55``
+• **ProjectionModelPropertySelector** = ``56``
 
 ___
 
 ### ProjectionModelSelector
 
-• **ProjectionModelSelector** = ``54``
+• **ProjectionModelSelector** = ``55``
 
 ___
 
 ### ProjectionModelSpreadProperty
 
-• **ProjectionModelSpreadProperty** = ``76``
+• **ProjectionModelSpreadProperty** = ``77``
 
 ___
 
 ### ProjectionOperationSelector
 
-• **ProjectionOperationSelector** = ``56``
+• **ProjectionOperationSelector** = ``57``
 
 ___
 
 ### ProjectionParameterDeclaration
 
-• **ProjectionParameterDeclaration** = ``53``
+• **ProjectionParameterDeclaration** = ``54``
 
 ___
 
 ### ProjectionReference
 
-• **ProjectionReference** = ``40``
+• **ProjectionReference** = ``41``
 
 ___
 
 ### ProjectionRelationalExpression
 
-• **ProjectionRelationalExpression** = ``69``
+• **ProjectionRelationalExpression** = ``70``
 
 ___
 
 ### ProjectionSpreadProperty
 
-• **ProjectionSpreadProperty** = ``77``
+• **ProjectionSpreadProperty** = ``78``
 
 ___
 
 ### ProjectionStatement
 
-• **ProjectionStatement** = ``79``
+• **ProjectionStatement** = ``80``
 
 ___
 
 ### ProjectionTupleExpression
 
-• **ProjectionTupleExpression** = ``78``
+• **ProjectionTupleExpression** = ``79``
 
 ___
 
 ### ProjectionUnaryExpression
 
-• **ProjectionUnaryExpression** = ``68``
+• **ProjectionUnaryExpression** = ``69``
 
 ___
 
 ### ProjectionUnionSelector
 
-• **ProjectionUnionSelector** = ``57``
+• **ProjectionUnionSelector** = ``58``
 
 ___
 
 ### ProjectionUnionVariantSelector
 
-• **ProjectionUnionVariantSelector** = ``58``
+• **ProjectionUnionVariantSelector** = ``59``
 
 ___
 
 ### Return
 
-• **Return** = ``81``
+• **Return** = ``82``
 
 ___
 
@@ -538,7 +539,7 @@ ___
 
 ### TemplateParameterDeclaration
 
-• **TemplateParameterDeclaration** = ``41``
+• **TemplateParameterDeclaration** = ``42``
 
 ___
 
@@ -550,7 +551,7 @@ ___
 
 ### TypeReference
 
-• **TypeReference** = ``39``
+• **TypeReference** = ``40``
 
 ___
 
@@ -587,6 +588,12 @@ ___
 ### UsingStatement
 
 • **UsingStatement** = ``9``
+
+___
+
+### ValueOfExpression
+
+• **ValueOfExpression** = ``39``
 
 ___
 

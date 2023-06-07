@@ -2,6 +2,39 @@
   "name": "@typespec/protobuf",
   "entries": [
     {
+      "version": "0.44.0",
+      "tag": "@typespec/protobuf_v0.44.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake doc comment changes"
+          },
+          {
+            "comment": "Update decorators to use `valueof`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Update decorators signature to use `{}` instead of object"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Fixed a test harness issue requiring unnecessary re-recording of protobuf tests."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Dependency @typespec/compiler version bump from ~0.44.0 to ~0.45.0."
+          },
+          {
+            "comment": "Dependency @typespec/eslint-plugin version bump from ~0.44.0 to ~0.45.0."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.43.1",
       "tag": "@typespec/protobuf_v0.43.1",
       "date": "Wed, 10 May 2023 21:24:00 GMT",

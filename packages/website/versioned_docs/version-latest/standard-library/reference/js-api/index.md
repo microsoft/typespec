@@ -9,6 +9,8 @@ JS Api
 - [$deprecated](index.md#$deprecated)
 - [$discriminator](index.md#$discriminator)
 - [$doc](index.md#$doc)
+- [$docFromComment](index.md#$docfromcomment)
+- [$encode](index.md#$encode)
 - [$error](index.md#$error)
 - [$format](index.md#$format)
 - [$friendlyName](index.md#$friendlyname)
@@ -40,7 +42,12 @@ JS Api
 - [$withVisibility](index.md#$withvisibility)
 - [$withoutDefaultValues](index.md#$withoutdefaultvalues)
 - [$withoutOmittedProperties](index.md#$withoutomittedproperties)
+- [BytesKnownEncoding](index.md#bytesknownencoding)
+- [DateTimeKnownEncoding](index.md#datetimeknownencoding)
 - [Discriminator](index.md#discriminator)
+- [DocData](index.md#docdata)
+- [DurationKnownEncoding](index.md#durationknownencoding)
+- [EncodeData](index.md#encodedata)
 - [Service](index.md#service)
 - [ServiceDetails](index.md#servicedetails)
 - [addService](index.md#addservice)
@@ -49,6 +56,8 @@ JS Api
 - [getDiscriminatedTypes](index.md#getdiscriminatedtypes)
 - [getDiscriminator](index.md#getdiscriminator)
 - [getDoc](index.md#getdoc)
+- [getDocData](index.md#getdocdata)
+- [getEncode](index.md#getencode)
 - [getFormat](index.md#getformat)
 - [getFriendlyName](index.md#getfriendlyname)
 - [getIndexer](index.md#getindexer)
@@ -298,6 +307,8 @@ JS Api
 - [UnknownType](interfaces/UnknownType.md)
 - [UsageTracker](interfaces/UsageTracker.md)
 - [UsingStatementNode](interfaces/UsingStatementNode.md)
+- [ValueOfExpressionNode](interfaces/ValueOfExpressionNode.md)
+- [ValueType](interfaces/ValueType.md)
 - [VoidKeywordNode](interfaces/VoidKeywordNode.md)
 - [VoidType](interfaces/VoidType.md)
 
@@ -310,6 +321,7 @@ JS Api
 - [CadlScriptNode](index.md#cadlscriptnode)
 - [CadlValue](index.md#cadlvalue)
 - [Comment](index.md#comment)
+- [CreateTypeProps](index.md#createtypeprops)
 - [Declaration](index.md#declaration)
 - [DecoratorArgumentValue](index.md#decoratorargumentvalue)
 - [DiagnosticFormat](index.md#diagnosticformat)
@@ -356,6 +368,8 @@ JS Api
 - [SemanticNodeListener](index.md#semanticnodelistener)
 - [SourceFileKind](index.md#sourcefilekind)
 - [Statement](index.md#statement)
+- [StdTypeName](index.md#stdtypename)
+- [StdTypes](index.md#stdtypes)
 - [TemplateableNode](index.md#templateablenode)
 - [TemplatedType](index.md#templatedtype)
 - [TrackableType](index.md#trackabletype)
@@ -416,6 +430,7 @@ JS Api
 - [getDiscriminatedUnion](index.md#getdiscriminatedunion)
 - [getEffectiveModelType](index.md#geteffectivemodeltype)
 - [getFirstAncestor](index.md#getfirstancestor)
+- [getFullyQualifiedSymbolName](index.md#getfullyqualifiedsymbolname)
 - [getIdentifierContext](index.md#getidentifiercontext)
 - [getNamespaceFullName](index.md#getnamespacefullname)
 - [getNodeAtPosition](index.md#getnodeatposition)
@@ -440,9 +455,11 @@ JS Api
 - [isCadlValueTypeOf](index.md#iscadlvaluetypeof)
 - [isComment](index.md#iscomment)
 - [isDeclaredInNamespace](index.md#isdeclaredinnamespace)
+- [isDeclaredType](index.md#isdeclaredtype)
 - [isErrorType](index.md#iserrortype)
 - [isGlobalNamespace](index.md#isglobalnamespace)
 - [isImportStatement](index.md#isimportstatement)
+- [isIntrinsicType](index.md#isintrinsictype)
 - [isKeyword](index.md#iskeyword)
 - [isModifier](index.md#ismodifier)
 - [isNeverType](index.md#isnevertype)
@@ -512,6 +529,18 @@ ___
 ### $doc
 
 Re-exports [$doc](modules/decorators.md#$doc)
+
+___
+
+### $docFromComment
+
+Re-exports [$docFromComment](modules/decorators.md#$docfromcomment)
+
+___
+
+### $encode
+
+Re-exports [$encode](modules/decorators.md#$encode)
 
 ___
 
@@ -701,9 +730,39 @@ Re-exports [$withoutOmittedProperties](modules/decorators.md#$withoutomittedprop
 
 ___
 
+### BytesKnownEncoding
+
+Re-exports [BytesKnownEncoding](modules/decorators.md#bytesknownencoding)
+
+___
+
+### DateTimeKnownEncoding
+
+Re-exports [DateTimeKnownEncoding](modules/decorators.md#datetimeknownencoding)
+
+___
+
 ### Discriminator
 
 Re-exports [Discriminator](interfaces/decorators.Discriminator.md)
+
+___
+
+### DocData
+
+Re-exports [DocData](interfaces/decorators.DocData.md)
+
+___
+
+### DurationKnownEncoding
+
+Re-exports [DurationKnownEncoding](modules/decorators.md#durationknownencoding)
+
+___
+
+### EncodeData
+
+Re-exports [EncodeData](interfaces/decorators.EncodeData.md)
 
 ___
 
@@ -752,6 +811,18 @@ ___
 ### getDoc
 
 Re-exports [getDoc](modules/decorators.md#getdoc)
+
+___
+
+### getDocData
+
+Re-exports [getDocData](modules/decorators.md#getdocdata)
+
+___
+
+### getEncode
+
+Re-exports [getEncode](modules/decorators.md#getencode)
 
 ___
 
@@ -1063,6 +1134,12 @@ ___
 
 ___
 
+### CreateTypeProps
+
+Ƭ **CreateTypeProps**: `Omit`<[`Type`](index.md#type), ``"isFinished"`` \| keyof `TypePrototype`\>
+
+___
+
 ### Declaration
 
 Ƭ **Declaration**: [`ModelStatementNode`](interfaces/ModelStatementNode.md) \| [`ScalarStatementNode`](interfaces/ScalarStatementNode.md) \| [`InterfaceStatementNode`](interfaces/InterfaceStatementNode.md) \| [`UnionStatementNode`](interfaces/UnionStatementNode.md) \| [`NamespaceStatementNode`](interfaces/NamespaceStatementNode.md) \| [`OperationStatementNode`](interfaces/OperationStatementNode.md) \| [`TemplateParameterDeclarationNode`](interfaces/TemplateParameterDeclarationNode.md) \| [`ProjectionStatementNode`](interfaces/ProjectionStatementNode.md) \| [`ProjectionParameterDeclarationNode`](interfaces/ProjectionParameterDeclarationNode.md) \| [`ProjectionLambdaParameterDeclarationNode`](interfaces/ProjectionLambdaParameterDeclarationNode.md) \| [`EnumStatementNode`](interfaces/EnumStatementNode.md) \| [`AliasStatementNode`](interfaces/AliasStatementNode.md) \| [`DecoratorDeclarationStatementNode`](interfaces/DecoratorDeclarationStatementNode.md) \| [`FunctionDeclarationStatementNode`](interfaces/FunctionDeclarationStatementNode.md)
@@ -1246,7 +1323,7 @@ ___
 
 ### Expression
 
-Ƭ **Expression**: [`ArrayExpressionNode`](interfaces/ArrayExpressionNode.md) \| [`MemberExpressionNode`](interfaces/MemberExpressionNode.md) \| [`ModelExpressionNode`](interfaces/ModelExpressionNode.md) \| [`TupleExpressionNode`](interfaces/TupleExpressionNode.md) \| [`UnionExpressionNode`](interfaces/UnionExpressionNode.md) \| [`IntersectionExpressionNode`](interfaces/IntersectionExpressionNode.md) \| [`TypeReferenceNode`](interfaces/TypeReferenceNode.md) \| [`IdentifierNode`](interfaces/IdentifierNode.md) \| [`StringLiteralNode`](interfaces/StringLiteralNode.md) \| [`NumericLiteralNode`](interfaces/NumericLiteralNode.md) \| [`BooleanLiteralNode`](interfaces/BooleanLiteralNode.md) \| [`VoidKeywordNode`](interfaces/VoidKeywordNode.md) \| [`NeverKeywordNode`](interfaces/NeverKeywordNode.md) \| [`AnyKeywordNode`](interfaces/AnyKeywordNode.md)
+Ƭ **Expression**: [`ArrayExpressionNode`](interfaces/ArrayExpressionNode.md) \| [`MemberExpressionNode`](interfaces/MemberExpressionNode.md) \| [`ModelExpressionNode`](interfaces/ModelExpressionNode.md) \| [`TupleExpressionNode`](interfaces/TupleExpressionNode.md) \| [`UnionExpressionNode`](interfaces/UnionExpressionNode.md) \| [`IntersectionExpressionNode`](interfaces/IntersectionExpressionNode.md) \| [`TypeReferenceNode`](interfaces/TypeReferenceNode.md) \| [`ValueOfExpressionNode`](interfaces/ValueOfExpressionNode.md) \| [`IdentifierNode`](interfaces/IdentifierNode.md) \| [`StringLiteralNode`](interfaces/StringLiteralNode.md) \| [`NumericLiteralNode`](interfaces/NumericLiteralNode.md) \| [`BooleanLiteralNode`](interfaces/BooleanLiteralNode.md) \| [`VoidKeywordNode`](interfaces/VoidKeywordNode.md) \| [`NeverKeywordNode`](interfaces/NeverKeywordNode.md) \| [`AnyKeywordNode`](interfaces/AnyKeywordNode.md)
 
 ___
 
@@ -1280,7 +1357,7 @@ ___
 
 ### IntrinsicScalarName
 
-Ƭ **IntrinsicScalarName**: ``"bytes"`` \| ``"numeric"`` \| ``"integer"`` \| ``"float"`` \| ``"int64"`` \| ``"int32"`` \| ``"int16"`` \| ``"int8"`` \| ``"uint64"`` \| ``"uint32"`` \| ``"uint16"`` \| ``"uint8"`` \| ``"safeint"`` \| ``"float32"`` \| ``"float64"`` \| ``"string"`` \| ``"plainDate"`` \| ``"plainTime"`` \| ``"utcDateTime"`` \| ``"offsetDateTime"`` \| ``"duration"`` \| ``"boolean"`` \| ``"url"``
+Ƭ **IntrinsicScalarName**: ``"bytes"`` \| ``"numeric"`` \| ``"integer"`` \| ``"float"`` \| ``"int64"`` \| ``"int32"`` \| ``"int16"`` \| ``"int8"`` \| ``"uint64"`` \| ``"uint32"`` \| ``"uint16"`` \| ``"uint8"`` \| ``"safeint"`` \| ``"float32"`` \| ``"float64"`` \| ``"decimal"`` \| ``"decimal128"`` \| ``"string"`` \| ``"plainDate"`` \| ``"plainTime"`` \| ``"utcDateTime"`` \| ``"offsetDateTime"`` \| ``"duration"`` \| ``"boolean"`` \| ``"url"``
 
 ___
 
@@ -1483,6 +1560,18 @@ ___
 ### Statement
 
 Ƭ **Statement**: [`ImportStatementNode`](interfaces/ImportStatementNode.md) \| [`ModelStatementNode`](interfaces/ModelStatementNode.md) \| [`ScalarStatementNode`](interfaces/ScalarStatementNode.md) \| [`NamespaceStatementNode`](interfaces/NamespaceStatementNode.md) \| [`InterfaceStatementNode`](interfaces/InterfaceStatementNode.md) \| [`UnionStatementNode`](interfaces/UnionStatementNode.md) \| [`UsingStatementNode`](interfaces/UsingStatementNode.md) \| [`EnumStatementNode`](interfaces/EnumStatementNode.md) \| [`AliasStatementNode`](interfaces/AliasStatementNode.md) \| [`OperationStatementNode`](interfaces/OperationStatementNode.md) \| [`DecoratorDeclarationStatementNode`](interfaces/DecoratorDeclarationStatementNode.md) \| [`FunctionDeclarationStatementNode`](interfaces/FunctionDeclarationStatementNode.md) \| [`AugmentDecoratorStatementNode`](interfaces/AugmentDecoratorStatementNode.md) \| [`EmptyStatementNode`](interfaces/EmptyStatementNode.md) \| [`InvalidStatementNode`](interfaces/InvalidStatementNode.md) \| [`ProjectionStatementNode`](interfaces/ProjectionStatementNode.md)
+
+___
+
+### StdTypeName
+
+Ƭ **StdTypeName**: keyof [`StdTypes`](index.md#stdtypes)
+
+___
+
+### StdTypes
+
+Ƭ **StdTypes**: { `Array`: [`Model`](interfaces/Model.md) ; `Record`: [`Model`](interfaces/Model.md)  } & `Record`<[`IntrinsicScalarName`](index.md#intrinsicscalarname), [`Scalar`](interfaces/Scalar.md)\>
 
 ___
 
@@ -2152,7 +2241,7 @@ ___
 
 ### finishTypeForProgram
 
-▸ **finishTypeForProgram**<`T`\>(`program`, `typeDef`, `mapper?`): `T`
+▸ **finishTypeForProgram**<`T`\>(`program`, `typeDef`): `T`
 
 #### Type parameters
 
@@ -2166,7 +2255,6 @@ ___
 | :------ | :------ |
 | `program` | [`Program`](interfaces/Program.md) |
 | `typeDef` | `T` |
-| `mapper?` | [`TypeMapper`](interfaces/TypeMapper.md) |
 
 #### Returns
 
@@ -2393,6 +2481,24 @@ ___
 
 ___
 
+### getFullyQualifiedSymbolName
+
+▸ **getFullyQualifiedSymbolName**(`sym`, `options?`): `string`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `sym` | `undefined` \| [`Sym`](interfaces/Sym.md) |
+| `options?` | `Object` |
+| `options.useGlobalPrefixAtTopLevel?` | `boolean` |
+
+#### Returns
+
+`string`
+
+___
+
 ### getIdentifierContext
 
 ▸ **getIdentifierContext**(`id`): [`IdentifierContext`](interfaces/IdentifierContext.md)
@@ -2440,11 +2546,31 @@ Resolve the node in the syntax tree that that is at the given position.
 | :------ | :------ | :------ |
 | `script` | [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md) | TypeSpec Script node |
 | `position` | `number` | Position |
-| `filter` | (`node`: [`Node`](index.md#node)) => `boolean` | Filter if wanting to return a parent containing node early. |
+| `filter?` | (`node`: [`Node`](index.md#node)) => `boolean` | Filter if wanting to return a parent containing node early. |
 
 #### Returns
 
 [`Node`](index.md#node) \| `undefined`
+
+▸ **getNodeAtPosition**<`T`\>(`script`, `position`, `filter`): `T` \| `undefined`
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`Node`](index.md#node) |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `script` | [`TypeSpecScriptNode`](interfaces/TypeSpecScriptNode.md) |
+| `position` | `number` |
+| `filter` | (`node`: [`Node`](index.md#node)) => node is T |
+
+#### Returns
+
+`T` \| `undefined`
 
 ___
 
@@ -2774,7 +2900,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `type` | [`Type`](index.md#type) |
+| `type` | [`Type`](index.md#type) \| [`ValueType`](interfaces/ValueType.md) |
 | `options?` | [`TypeNameOptions`](interfaces/TypeNameOptions.md) |
 
 #### Returns
@@ -2944,6 +3070,26 @@ Check if the given type is declared in the specified namespace or, optionally, i
 
 ___
 
+### isDeclaredType
+
+▸ **isDeclaredType**(`type`): `boolean`
+
+Check if the type is a declared type. This include:
+- non templated type
+- template declaration
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `type` | [`Type`](index.md#type) |
+
+#### Returns
+
+`boolean`
+
+___
+
 ### isErrorType
 
 ▸ **isErrorType**(`type`): type is ErrorType
@@ -2992,6 +3138,24 @@ ___
 #### Returns
 
 node is ImportStatementNode
+
+___
+
+### isIntrinsicType
+
+▸ **isIntrinsicType**(`program`, `type`, `kind`): `boolean`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `program` | [`Program`](interfaces/Program.md) |
+| `type` | [`Scalar`](interfaces/Scalar.md) |
+| `kind` | [`IntrinsicScalarName`](index.md#intrinsicscalarname) |
+
+#### Returns
+
+`boolean`
 
 ___
 
@@ -3179,7 +3343,7 @@ ___
 
 ▸ **isTemplateInstance**(`type`): type is Object
 
-Check if the given type has template arguments.
+Check the given type is a finished template instance.
 
 #### Parameters
 
