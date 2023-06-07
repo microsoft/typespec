@@ -924,7 +924,7 @@ export type CadlScriptNode = TypeSpecScriptNode;
 export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
   readonly statements: readonly Statement[];
-  readonly file: SourceFile;
+  readonly file: SourceFile | ScopedSourceFile;
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   readonly namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   readonly usings: readonly UsingStatementNode[];
@@ -1600,7 +1600,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.JsSourceFile;
 
   /* A source file with empty contents to represent the file on disk. */
-  readonly file: SourceFile;
+  readonly file: SourceFile | ScopedSourceFile;
 
   /* The exports object as comes from `import()` */
   readonly esmExports: any;
@@ -1636,6 +1636,39 @@ export interface SourceFile {
    * code units) to line number and offset from line start.
    */
   getLineAndCharacterOfPosition(position: number): LineAndCharacter;
+}
+
+export interface ScopedSourceFile extends SourceFile {
+  scope: SourceFileScope;
+}
+
+export type SourceFileScope = ProjectScope | CompilerScope | LibraryScope;
+export interface ProjectScope {
+  type: "project";
+}
+/** Built-in */
+export interface CompilerScope {
+  type: "compiler";
+}
+
+export interface LibraryScope {
+  type: "library";
+  /**
+   * Library name as specified in the package.json or in exported $lib.
+   */
+  name: string;
+
+  /**
+   * Library homepage.
+   */
+  homepage?: string;
+
+  bugs?: {
+    /**
+     * Url where to file bugs for this library.
+     */
+    url?: string;
+  };
 }
 
 export interface TextRange {
