@@ -51,7 +51,7 @@ import {
   loadTypeSpecConfigFile,
 } from "../config/config-loader.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { CharCode, codePointBefore, isIdentifierContinue, isWhiteSpace } from "../core/charcode.js";
+import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
   compilerAssert,
   createSourceFile,
@@ -100,6 +100,7 @@ import {
   resolveTspMain,
 } from "../core/util.js";
 import { resolveCompletion } from "./completion.js";
+import { getPositionBeforeTrivia } from "./server-utils.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
   getParameterDocumentation,
@@ -1392,12 +1393,10 @@ function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number
 ): { node: SignatureHelpNode; argumentIndex: number } | undefined {
-  // Move back over any trailing whitespace. Otherwise, if there is no
+  // Move back over any trailing trivia. Otherwise, if there is no
   // closing paren/angle bracket, we can find ourselves outside the desired
   // node altogether in cases like `@dec(test, |`.
-  while (position > 0 && isWhiteSpace(script.file.text.charCodeAt(position - 1))) {
-    position--;
-  }
+  position = getPositionBeforeTrivia(script, position);
 
   const node = getNodeAtPosition<SignatureHelpNode>(
     script,

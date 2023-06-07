@@ -6,10 +6,19 @@
 
 ### Properties
 
+- [jsValue](DecoratorArgument.md#jsvalue)
 - [node](DecoratorArgument.md#node)
 - [value](DecoratorArgument.md#value)
 
 ## Properties
+
+### jsValue
+
+• **jsValue**: `string` \| `number` \| `boolean` \| [`Type`](../index.md#type)
+
+Marshalled value for use in Javascript.
+
+___
 
 ### node
 

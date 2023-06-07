@@ -53,6 +53,7 @@
 ### Properties
 
 - [instantiationParameters](BaseType.md#instantiationparameters)
+- [isFinished](BaseType.md#isfinished)
 - [kind](BaseType.md#kind)
 - [node](BaseType.md#node)
 - [projectionBase](BaseType.md#projectionbase)
@@ -72,6 +73,18 @@
 ### instantiationParameters
 
 • `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
 
 ___
 

@@ -13,9 +13,9 @@ import {
   Union,
 } from "@typespec/compiler";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
-import "./lib.js";
 import { JSONSchemaEmitterOptions, createStateSymbol } from "./lib.js";
 
+export { $lib } from "./lib.js";
 export const namespace = "JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 

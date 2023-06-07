@@ -20,7 +20,7 @@ The command `npm ci` can also be used in the CI to ensure that the `package.json
 
 TypeSpec provides a library `@typespec/versioning` that can be used to describe changes to a service or library over time. Using this will ensure that a service can evolve while keeping track of the changes and allowing emitters to see the service representation at different versions.
 
-[See versioning docs](../standard-library/versioning/overview.md)
+[See versioning docs](../standard-library/versioning/reference/index.md)
 
 ## 3. Change to the TypeSpec spec
 
@@ -30,5 +30,5 @@ Using version control and pinning to a specific commit SHA will ensure that the 
 ## Summary
 
 1. Use `package-lock.json`
-2. Use [versioning library](../standard-library/versioning/overview.md)
+2. Use [versioning library](../standard-library/versioning/reference/index.md)
 3. Keep track of commit IDs

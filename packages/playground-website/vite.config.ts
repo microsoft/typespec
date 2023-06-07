@@ -10,6 +10,7 @@ const config = definePlaygroundViteConfig({
     "@typespec/openapi",
     "@typespec/versioning",
     "@typespec/openapi3",
+    "@typespec/json-schema",
     "@typespec/protobuf",
   ],
   samples: {
@@ -26,6 +27,10 @@ const config = definePlaygroundViteConfig({
     "Protobuf Kiosk": {
       filename: "samples/kiosk.tsp",
       preferredEmitter: "@typespec/protobuf",
+    },
+    "Json Schema": {
+      fileName: "samples/json-schema.tsp",
+      preferredEmitter: "@typespec/json-schema",
     },
   },
   enableSwaggerUI: true,
