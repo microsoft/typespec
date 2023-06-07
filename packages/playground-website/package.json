@@ -47,6 +47,7 @@
     "@typespec/http": "~0.45.0",
     "@typespec/rest": "~0.45.0",
     "@typespec/openapi3": "~0.45.0",
+    "@typespec/json-schema": "~0.45.0",
     "@typespec/openapi": "~0.45.0",
     "@typespec/protobuf": "~0.44.0",
     "@typespec/html-program-viewer": "~0.45.0",
