@@ -29,7 +29,7 @@ const config = definePlaygroundViteConfig({
       preferredEmitter: "@typespec/protobuf",
     },
     "Json Schema": {
-      fileName: "samples/json-schema.tsp",
+      filename: "samples/json-schema.tsp",
       preferredEmitter: "@typespec/json-schema",
     },
   },
