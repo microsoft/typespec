@@ -1379,7 +1379,6 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ) {
     const properties = createRekeyableMap<string, ModelProperty>();
-
     const intersection: Model = createType({
       kind: "Model",
       node,
@@ -1388,6 +1387,7 @@ export function createChecker(program: Program): Checker {
       properties: properties,
       decorators: [],
       derivedModels: [],
+      sourceModels: options.map(([, option]) => option as Model),
     });
 
     const indexers: ModelIndexer[] = [];

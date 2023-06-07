@@ -261,6 +261,11 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   sourceModel?: Model;
 
   /**
+   * The models that this model is composed of via spread or intersection.
+   */
+  sourceModels?: Model[];
+
+  /**
    * Late-bound symbol of this model type.
    * @internal
    */
