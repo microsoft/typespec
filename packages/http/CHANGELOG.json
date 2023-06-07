@@ -2,6 +2,27 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.45.0",
+      "tag": "@typespec/http_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Uptake doc comment changes"
+          },
+          {
+            "comment": "Update decorators to use `valueof`"
+          },
+          {
+            "comment": "Update decorators signature to use `{}` instead of `object`"
+          },
+          {
+            "comment": "Add signature for missing decorators"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.44.0",
       "tag": "@typespec/http_v0.44.0",
       "date": "Wed, 10 May 2023 21:24:00 GMT",

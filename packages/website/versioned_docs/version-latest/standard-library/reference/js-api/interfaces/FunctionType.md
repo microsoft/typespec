@@ -14,6 +14,7 @@
 
 - [implementation](FunctionType.md#implementation)
 - [instantiationParameters](FunctionType.md#instantiationparameters)
+- [isFinished](FunctionType.md#isfinished)
 - [kind](FunctionType.md#kind)
 - [name](FunctionType.md#name)
 - [namespace](FunctionType.md#namespace)
@@ -61,6 +62,22 @@ ___
 #### Inherited from
 
 [BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+
+#### Inherited from
+
+[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
 
 ___
 
