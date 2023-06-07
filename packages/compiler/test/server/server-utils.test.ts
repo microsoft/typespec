@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual, throws } from "assert";
 import { Comment } from "../../core/index.js";
 import { parse } from "../../core/parser.js";
 import { TypeSpecScriptNode } from "../../core/types.js";
@@ -8,12 +8,15 @@ import { dumpAST } from "../parser.test.js";
 
 describe("compiler: server: utils", () => {
   describe("getCommentAtPosition", () => {
-    function getCommentAtCursor(sourceWithCursor: string): {
+    function getCommentAtCursor(
+      sourceWithCursor: string,
+      comments = true
+    ): {
       root: TypeSpecScriptNode;
       comment: Comment | undefined;
     } {
       const { source, pos } = extractCursor(sourceWithCursor);
-      const root = parse(source, { comments: true });
+      const root = parse(source, { comments });
       dumpAST(root);
       return { comment: getCommentAtPosition(root, pos), root };
     }
@@ -49,15 +52,22 @@ describe("compiler: server: utils", () => {
       ok(comment);
       deepStrictEqual(comment, root.comments[1]);
     });
+
+    it("throws if comments are not enabled", () => {
+      throws(() => getCommentAtCursor(`┆`, false));
+    });
   });
 
   describe("getPositionBeforeTrivia", () => {
-    function getPositionBeforeTriviaAtCursor(sourceWithCursor: string): {
+    function getPositionBeforeTriviaAtCursor(
+      sourceWithCursor: string,
+      comments = true
+    ): {
       pos: number;
       root: TypeSpecScriptNode;
     } {
       const { source, pos } = extractCursor(sourceWithCursor);
-      const root = parse(source, { comments: true });
+      const root = parse(source, { comments });
       dumpAST(root);
       return { pos: getPositionBeforeTrivia(root, pos), root };
     }
@@ -93,6 +103,10 @@ describe("compiler: server: utils", () => {
          */`
       );
       strictEqual(pos, testSourceWithoutTrailingTrivia.length);
+    });
+
+    it("throws if comments are not enabled", () => {
+      throws(() => getPositionBeforeTriviaAtCursor(`┆`, false));
     });
   });
 });

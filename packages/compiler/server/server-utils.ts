@@ -12,6 +12,11 @@ import { Comment, TypeSpecScriptNode } from "../core/index.js";
  * @internal
  */
 export function getCommentAtPosition(script: TypeSpecScriptNode, pos: number): Comment | undefined {
+  if (!script.parseOptions.comments) {
+    // Not an assert since we might make this public and it would be external caller's responsibility.
+    throw new Error("ParseOptions.comments must be enabled to use getCommentAtPosition.");
+  }
+
   // Comments are ordered by increasing position, use binary search
   let low = 0;
   let high = script.comments.length - 1;
@@ -35,6 +40,11 @@ export function getCommentAtPosition(script: TypeSpecScriptNode, pos: number): C
  * @internal
  */
 export function getPositionBeforeTrivia(script: TypeSpecScriptNode, pos: number): number {
+  if (!script.parseOptions.comments) {
+    // Not an assert since we might make this public and it would be external caller's responsibility.
+    throw new Error("ParseOptions.comments must be enabled to use getPositionBeforeTrivia.");
+  }
+
   let comment: Comment | undefined;
 
   while (pos > 0) {
