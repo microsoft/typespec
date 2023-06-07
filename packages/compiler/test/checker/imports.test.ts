@@ -1,9 +1,9 @@
-import { ok } from "assert";
+import { deepStrictEqual, ok } from "assert";
 import {
+  TestHost,
   createTestHost,
   expectDiagnostics,
   resolveVirtualPath,
-  TestHost,
 } from "../../testing/index.js";
 
 describe("compiler: imports", () => {
@@ -117,6 +117,7 @@ describe("compiler: imports", () => {
     host.addTypeSpecFile(
       "node_modules/my-lib/package.json",
       JSON.stringify({
+        name: "my-test-lib",
         tspMain: "./main.tsp",
       })
     );
@@ -129,6 +130,10 @@ describe("compiler: imports", () => {
 
     await host.compile("main.tsp");
     expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/main.tsp"] });
+    const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/main.tsp"));
+    ok(file, "File exists");
+    ok("scope" in file.file, "File should have a scope");
+    deepStrictEqual(file.file.scope, { type: "library", name: "my-test-lib" });
   });
 
   it("emit diagnostic when trying to load invalid relative file", async () => {

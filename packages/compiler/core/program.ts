@@ -495,7 +495,8 @@ export async function compile(
     });
 
     if (file) {
-      await loadTypeSpecScript(file);
+      const scopedFile = { ...file, scope };
+      await loadTypeSpecScript(scopedFile);
     }
   }
 
