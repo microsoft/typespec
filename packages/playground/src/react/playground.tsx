@@ -6,14 +6,14 @@ import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
-import { PlaygroundManifest } from "../manifest.js";
 import { getMarkerLocation } from "../services.js";
+import { PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
-import { CompilationState, EmitterOptions } from "./types.js";
+import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
 export interface PlaygroundProps {
@@ -21,6 +21,9 @@ export interface PlaygroundProps {
 
   /** Default emitter if leaving this unmanaged. */
   defaultContent?: string;
+
+  /** List of available emitters */
+  emitters: string[];
 
   /** Emitter to use */
   emitter?: string;
@@ -36,6 +39,9 @@ export interface PlaygroundProps {
   /** Callback when emitter options change */
   onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
 
+  /** Samples available */
+  samples?: Record<string, PlaygroundSample>;
+
   /** Sample to use */
   sampleName?: string;
   /** Default sample if leaving this unmanaged. */
@@ -43,7 +49,20 @@ export interface PlaygroundProps {
   /** Callback when sample change */
   onSampleNameChange?: (sampleName: string) => void;
 
+  /** Playground links */
+  links?: PlaygroundLinks;
+
+  /** Custom viewers that enabled for certain emitters. Key of the map is emitter name */
+  emitterViewers?: Record<string, FileOutputViewer[]>;
+
   onSave?: (value: string) => void;
+}
+
+export interface PlaygroundLinks {
+  /** Link to documentation */
+  documentationUrl?: string;
+  /** Issue to github issue to open a new issue. */
+  githubIssueUrl?: string;
 }
 
 export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
@@ -106,8 +125,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [content, updateTypeSpec]);
   useEffect(() => {
-    if (selectedSampleName) {
-      const config = PlaygroundManifest.samples[selectedSampleName];
+    if (selectedSampleName && props.samples) {
+      const config = props.samples[selectedSampleName];
       if (config.content) {
         updateTypeSpec(config.content);
         if (config.preferredEmitter) {
@@ -139,7 +158,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const newIssue = useCallback(async () => {
     await saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
-    const url = `${PlaygroundManifest.links.newIssue}?body=${bodyPayload}`;
+    const url = `${props?.links?.githubIssueUrl}?body=${bodyPayload}`;
     window.open(url, "_blank");
   }, [saveCode, typespecModel]);
 
@@ -166,15 +185,17 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     >
       <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
         <EditorCommandBar
-          onSelectedEmitterChange={onSelectedEmitterChange}
+          emitters={props.emitters}
           selectedEmitter={selectedEmitter}
+          onSelectedEmitterChange={onSelectedEmitterChange}
           emitterOptions={emitterOptions}
           onEmitterOptionsChange={onEmitterOptionsChange}
+          samples={props.samples}
           selectedSampleName={selectedSampleName}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
           saveCode={saveCode}
-          newIssue={newIssue}
-          documentationUrl={PlaygroundManifest.links.documentation}
+          newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+          documentationUrl={props.links?.documentationUrl}
         />
         <TypeSpecEditor model={typespecModel} commands={typespecEditorCommands} />
       </div>
@@ -187,7 +208,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           borderLeft: "1px solid #c5c5c5",
         }}
       >
-        <OutputView compilationState={compilationState} />
+        <OutputView
+          compilationState={compilationState}
+          viewers={props.emitterViewers?.[selectedEmitter]}
+        />
       </div>
       <Footer />
     </div>
