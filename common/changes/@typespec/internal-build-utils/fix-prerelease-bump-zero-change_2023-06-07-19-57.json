@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/internal-build-utils",
+      "comment": "Fix bumping dev version if there is zero changes",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/internal-build-utils"
+}

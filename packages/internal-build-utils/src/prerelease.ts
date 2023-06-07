@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { lstat, readdir, readFile, writeFile } from "fs/promises";
+import { lstat, readdir, readFile, stat, writeFile } from "fs/promises";
 import { join } from "path";
 import stripJsonComments from "strip-json-comments";
 
@@ -185,6 +185,10 @@ export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
 
 async function findAllFiles(dir: string): Promise<string[]> {
   const files = [];
+  if (!(await isDirectory(dir))) {
+    return [];
+  }
+
   for (const file of await readdir(dir)) {
     const path = join(dir, file);
     const stat = await lstat(path);
@@ -200,4 +204,16 @@ async function findAllFiles(dir: string): Promise<string[]> {
 async function readJsonFile<T>(filename: string): Promise<T> {
   const content = await readFile(filename);
   return JSON.parse(stripJsonComments(content.toString()));
+}
+
+async function isDirectory(path: string) {
+  try {
+    const stats = await stat(path);
+    return stats.isDirectory();
+  } catch (e: any) {
+    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+      return false;
+    }
+    throw e;
+  }
 }
