@@ -84,6 +84,8 @@
 
   ↳↳ [`IntersectionExpressionNode`](IntersectionExpressionNode.md)
 
+  ↳↳ [`ValueOfExpressionNode`](ValueOfExpressionNode.md)
+
   ↳↳ [`TypeReferenceNode`](TypeReferenceNode.md)
 
   ↳↳ [`ProjectionReferenceNode`](ProjectionReferenceNode.md)

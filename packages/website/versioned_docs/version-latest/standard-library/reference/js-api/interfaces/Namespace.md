@@ -20,6 +20,7 @@
 - [functionDeclarations](Namespace.md#functiondeclarations)
 - [instantiationParameters](Namespace.md#instantiationparameters)
 - [interfaces](Namespace.md#interfaces)
+- [isFinished](Namespace.md#isfinished)
 - [kind](Namespace.md#kind)
 - [models](Namespace.md#models)
 - [name](Namespace.md#name)
@@ -97,9 +98,25 @@ ___
 
 • **interfaces**: `Map`<`string`, [`Interface`](Interface.md)\>
 
-The scalars in the namespace.
+The interfaces in the namespace.
 
 Order is implementation-defined and may change.
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+
+#### Inherited from
+
+[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
 
 ___
 
@@ -139,7 +156,7 @@ ___
 
 • **namespaces**: `Map`<`string`, [`Namespace`](Namespace.md)\>
 
-The scalars in the namespace.
+The sub-namespaces in the namespace.
 
 Order is implementation-defined and may change.
 

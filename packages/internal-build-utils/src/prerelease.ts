@@ -125,9 +125,11 @@ function getDevVersionRange(manifest: BumpManifest) {
 }
 
 function getDevVersion(version: string, changeCount: number) {
+  const [_, _1, patch] = version.split(".").map((x) => parseInt(x, 10));
   const nextVersion = getNextVersion(version);
-  console.log(`Bumping version ${version} to ${nextVersion}-dev.${changeCount}`);
-  return `${nextVersion}-dev.${changeCount}`;
+  const devVersion = `${nextVersion}-dev.${changeCount + patch}`;
+  console.log(`Bumping version ${version} to ${devVersion}`);
+  return devVersion;
 }
 
 function getNextVersion(version: string) {

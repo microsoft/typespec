@@ -75,6 +75,7 @@
 - [UnionKeyword](Token.md#unionkeyword)
 - [UnknownKeyword](Token.md#unknownkeyword)
 - [UsingKeyword](Token.md#usingkeyword)
+- [ValueOfKeyword](Token.md#valueofkeyword)
 - [VoidKeyword](Token.md#voidkeyword)
 - [Whitespace](Token.md#whitespace)
 - [\_\_Count](Token.md#__count)
@@ -263,19 +264,19 @@ ___
 
 ### ExtendsKeyword
 
-• **ExtendsKeyword** = ``64``
+• **ExtendsKeyword** = ``65``
 
 ___
 
 ### ExternKeyword
 
-• **ExternKeyword** = ``63``
+• **ExternKeyword** = ``64``
 
 ___
 
 ### FalseKeyword
 
-• **FalseKeyword** = ``66``
+• **FalseKeyword** = ``67``
 
 ___
 
@@ -383,7 +384,7 @@ ___
 
 ### NeverKeyword
 
-• **NeverKeyword** = ``69``
+• **NeverKeyword** = ``70``
 
 ___
 
@@ -449,7 +450,7 @@ ___
 
 ### ReturnKeyword
 
-• **ReturnKeyword** = ``67``
+• **ReturnKeyword** = ``68``
 
 ___
 
@@ -485,7 +486,7 @@ ___
 
 ### TrueKeyword
 
-• **TrueKeyword** = ``65``
+• **TrueKeyword** = ``66``
 
 ___
 
@@ -497,7 +498,7 @@ ___
 
 ### UnknownKeyword
 
-• **UnknownKeyword** = ``70``
+• **UnknownKeyword** = ``71``
 
 ___
 
@@ -507,9 +508,15 @@ ___
 
 ___
 
+### ValueOfKeyword
+
+• **ValueOfKeyword** = ``63``
+
+___
+
 ### VoidKeyword
 
-• **VoidKeyword** = ``68``
+• **VoidKeyword** = ``69``
 
 ___
 
@@ -521,7 +528,7 @@ ___
 
 ### \_\_Count
 
-• **\_\_Count** = ``71``
+• **\_\_Count** = ``72``
 
 ___
 
@@ -533,13 +540,13 @@ ___
 
 ### \_\_EndKeyword
 
-• **\_\_EndKeyword** = ``71``
+• **\_\_EndKeyword** = ``72``
 
 ___
 
 ### \_\_EndModifierKeyword
 
-• **\_\_EndModifierKeyword** = ``64``
+• **\_\_EndModifierKeyword** = ``65``
 
 ___
 
@@ -551,7 +558,7 @@ ___
 
 ### \_\_EndStatementKeyword
 
-• **\_\_EndStatementKeyword** = ``63``
+• **\_\_EndStatementKeyword** = ``64``
 
 ___
 
@@ -575,7 +582,7 @@ ___
 
 ### \_\_StartModifierKeyword
 
-• **\_\_StartModifierKeyword** = ``63``
+• **\_\_StartModifierKeyword** = ``64``
 
 ___
 

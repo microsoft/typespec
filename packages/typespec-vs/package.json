@@ -1,7 +1,7 @@
 {
   "name": "typespec-vs",
   "author": "Microsoft Corporation",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "TypeSpec Language Support for Visual Studio",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
@@ -28,7 +28,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "typespec-vscode": "~0.44.0",
-    "@typespec/internal-build-utils": "~0.4.1"
+    "typespec-vscode": "~0.45.0",
+    "@typespec/internal-build-utils": "~0.4.2"
   }
 }

@@ -34,6 +34,12 @@ model TypeSpec.Protobuf.Extern<Path, Name>
 | Path | the relative path to a `.proto` file to import                                           |
 | Name | the fully-qualified reference to the type this model represents within the `.proto` file |
 
+#### Examples
+
+```typespec
+model Widget is Extern<"path/to/test.proto", "test.Widget">;
+```
+
 ### `Map` {#TypeSpec.Protobuf.Map}
 
 A type representing a Protobuf `map`. Instances of this type in models will be converted to the built-in `map` type
