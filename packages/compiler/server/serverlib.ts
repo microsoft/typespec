@@ -1211,7 +1211,7 @@ export function createServer(host: ServerHost): Server {
       const pkgPath = joinPaths(dir, "package.json");
       const cached = await fileSystemCache.get(pkgPath);
 
-      if (cached) {
+      if (cached?.data) {
         pkg = cached.data;
       } else {
         [pkg] = await loadFile(
