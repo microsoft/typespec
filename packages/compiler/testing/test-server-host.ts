@@ -19,6 +19,7 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
   logMessages: readonly string[];
   getOpenDocument(path: string): TextDocument | undefined;
   addOrUpdateDocument(path: string, content: string): TextDocument;
+  openDocument(path: string): TextDocument;
   getDiagnostics(path: string): readonly Diagnostic[];
   getURL(path: string): string;
 }
@@ -57,6 +58,10 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       documents.set(url, document);
       fileSystem.addTypeSpecFile(path, ""); // force virtual file system to create directory where document lives.
       return document;
+    },
+    openDocument(path) {
+      const content = fileSystem.fs.get(resolveVirtualPath(path)) ?? "";
+      return this.addOrUpdateDocument(path, content);
     },
     getDiagnostics(path) {
       return diagnostics.get(this.getURL(path)) ?? [];
