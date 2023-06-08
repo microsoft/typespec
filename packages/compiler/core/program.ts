@@ -39,7 +39,6 @@ import {
   NodeFlags,
   ProjectionApplication,
   Projector,
-  ScopedSourceFile,
   SourceFile,
   SourceFileScope,
   Sym,
@@ -99,6 +98,9 @@ export interface Program {
 
   getGlobalNamespaceType(): Namespace;
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+
+  /** Return declaration scope of the given source file. */
+  getSourceFileScope(sourceFile: SourceFile): SourceFileScope;
 
   /**
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
@@ -282,6 +284,7 @@ export async function compile(
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
+  const sourceFileScopes = new WeakMap<SourceFile, SourceFileScope>();
   let error = false;
 
   const logger = createLogger({ sink: host.logSink });
@@ -315,6 +318,7 @@ export async function compile(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    getSourceFileScope,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
 
@@ -495,8 +499,8 @@ export async function compile(
     });
 
     if (file) {
-      const scopedFile = { ...file, scope };
-      await loadTypeSpecScript(scopedFile);
+      sourceFileScopes.set(file, scope);
+      await loadTypeSpecScript(file);
     }
   }
 
@@ -510,7 +514,8 @@ export async function compile(
       return sourceFile;
     }
 
-    const file: ScopedSourceFile = { ...createSourceFile("", path), scope };
+    const file = createSourceFile("", path);
+    sourceFileScopes.set(file, scope);
     const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
       diagnosticTarget,
       jsDiagnosticTarget: { file, pos: 0, end: 0 },
@@ -586,8 +591,12 @@ export async function compile(
     await loadImports(
       file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
       basedir,
-      "scope" in file.file ? file.file.scope : { type: "project" }
+      getSourceFileScope(file.file)
     );
+  }
+
+  function getSourceFileScope(sourcefile: SourceFile): SourceFileScope {
+    return sourceFileScopes.get(sourcefile) ?? { type: "project" };
   }
 
   async function loadImports(

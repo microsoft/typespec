@@ -133,8 +133,6 @@ describe("compiler: imports", () => {
     expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/main.tsp"] });
     const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/main.tsp"));
     ok(file, "File exists");
-    ok("scope" in file.file, "File should have a scope");
-    deepStrictEqual(file.file.scope, { type: "library", name: "my-test-lib" });
   });
 
   it("emit diagnostic when trying to load invalid relative file", async () => {
@@ -203,8 +201,7 @@ describe("compiler: imports", () => {
           for (const [filename, expectedScope] of Object.entries(scopes)) {
             const file = host.program.sourceFiles.get(resolveVirtualPath(filename));
             ok(file, `Expected to have file "${filename}"`);
-            ok("scope" in file.file, `Expected file ${filename} to have a scope attached.`);
-            deepStrictEqual(file.file.scope, expectedScope);
+            deepStrictEqual(host.program.getSourceFileScope(file.file), expectedScope);
           }
         },
       };
