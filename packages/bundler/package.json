@@ -4,14 +4,14 @@
   "author": "Microsoft Corporation",
   "description": "Package to bundle a typespec library.",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Azure/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec"

@@ -3,15 +3,15 @@
   "version": "0.45.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
-  "homepage": "https://github.com/Microsoft/TypeSpec",
-  "readme": "https://github.com/Microsoft/TypeSpec/blob/master/README.md",
+  "homepage": "https://github.com/microsoft/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/TypeSpec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/TypeSpec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "TypeSpec",
