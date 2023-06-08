@@ -22,7 +22,7 @@ export async function runScript(relativePath: string, backupPath: string): Promi
     await import(scriptUrl);
   } else {
     throw new Error(
-      "Couldn't resolve TypeSpec compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/typespec."
+      "Couldn't resolve TypeSpec compiler root. This is unexpected. Please file an issue at https://github.com/microsoft/typespec."
     );
   }
 }

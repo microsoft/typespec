@@ -5,14 +5,14 @@
   "author": "Microsoft Corporation",
   "description": "Samples for TypeSpec",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/readme.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/readme.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec",
