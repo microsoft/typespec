@@ -581,7 +581,7 @@ export function createServer(host: ServerHost): Server {
       if (location?.file) {
         document = (location.file as ServerSourceFile).document;
       } else {
-        // https://github.com/Microsoft/language-server-protocol/issues/256
+        // https://github.com/microsoft/language-server-protocol/issues/256
         //
         // LSP does not currently allow sending a diagnostic with no location so
         // we report diagnostics with no location on the document that changed to
