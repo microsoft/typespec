@@ -154,13 +154,13 @@
       "packageName": "@typespec/eslint-config-typespec",
       "projectFolder": "packages/eslint-config-typespec",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/internal-build-utils",
       "projectFolder": "packages/internal-build-utils",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/spec",
@@ -196,7 +196,7 @@
       "packageName": "@typespec/protobuf",
       "projectFolder": "packages/protobuf",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/ref-doc",
