@@ -394,7 +394,7 @@ describe("compiler: parser", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Microsoft/typespec/issues/506
+      // Some questions remain here: https://github.com/microsoft/typespec/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],

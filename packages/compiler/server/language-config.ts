@@ -26,7 +26,7 @@ export const TypeSpecLanguageConfiguration = {
     { open: "(", close: ")" },
     { open: '"', close: '"' },
   ],
-  // From https://github.com/Microsoft/vscode/blob/main/extensions/javascript/javascript-language-configuration.json
+  // From https://github.com/microsoft/vscode/blob/main/extensions/javascript/javascript-language-configuration.json
   indentationRules: {
     decreaseIndentPattern: {
       pattern: "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$",
