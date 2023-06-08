@@ -3,15 +3,15 @@
   "version": "0.44.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
-  "homepage": "https://github.com/Microsoft/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/main/packages/protobuf/README.md",
+  "homepage": "https://github.com/microsoft/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/main/packages/protobuf/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec",

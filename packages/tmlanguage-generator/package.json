@@ -3,15 +3,15 @@
   "version": "0.4.1",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
-  "homepage": "https://github.com/Microsoft/typespec/tree/master/packages/tmlanguage-generator",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/packages/tmlanguage-generator/README.md",
+  "homepage": "https://github.com/microsoft/typespec/tree/master/packages/tmlanguage-generator",
+  "readme": "https://github.com/microsoft/typespec/blob/master/packages/tmlanguage-generator/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "textmate",

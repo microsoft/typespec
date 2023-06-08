@@ -11,7 +11,7 @@ Using TypeSpec, you can create reusable patterns for all aspects of an API, alon
 
 You can try a work-in-progress build of the compiler by following the steps in
 the Getting Started section below. Please feel free to [file
-issues](https://github.com/Microsoft/typespec/issues) for any issues you encounter while
+issues](https://github.com/microsoft/typespec/issues) for any issues you encounter while
 using the preview.
 
 ## Try TypeSpec without installing anything

@@ -108,7 +108,7 @@ const config = {
             position: "right",
           },
           {
-            href: "https://github.com/Microsoft/typespec",
+            href: "https://github.com/microsoft/typespec",
             position: "right",
             className: "header-github-link",
             "aria-label": "Github repository",
