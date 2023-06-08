@@ -166,7 +166,7 @@
       "packageName": "@typespec/spec",
       "projectFolder": "packages/spec",
       "reviewCategory": "production",
-      "versionPolicyName": "typespec"
+      "shouldPublish": false
     },
     {
       "packageName": "@typespec/playground",
