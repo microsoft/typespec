@@ -4,14 +4,14 @@
   "author": "Microsoft Corporation",
   "description": "Helper ",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Azure/typespec/blob/main/README.md",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/typespec.git"
+    "url": "git+https://github.com/Microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/typespec/issues"
+    "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
     "typespec"
