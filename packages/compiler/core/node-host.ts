@@ -1,5 +1,4 @@
-import { readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
-import mkdirp from "mkdirp";
+import { mkdir, readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
 import { fetch } from "./fetch.js";
@@ -35,8 +34,8 @@ export const NodeHost: CompilerHost = {
     return realpath(path);
   },
   getSourceFileKind: getSourceFileKindFromExt,
+  mkdirp: (path: string) => mkdir(path, { recursive: true }),
   logSink: createConsoleSink(),
-  mkdirp: (path: string) => mkdirp(path) as any,
   fileURLToPath,
   pathToFileURL(path: string) {
     return pathToFileURL(path).href;

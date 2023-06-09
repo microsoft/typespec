@@ -77,7 +77,6 @@
     "picocolors": "~1.0.0",
     "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
-    "mkdirp": "~2.1.6",
     "mustache": "~4.2.0",
     "prettier": "~2.8.7",
     "prompts": "~2.4.1",

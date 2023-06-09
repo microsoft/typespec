@@ -2,7 +2,7 @@
 // @ts-check
 import { run } from "@typespec/internal-build-utils";
 import { readdirSync, rmSync } from "fs";
-import mkdirp from "mkdirp";
+import { mkdir } from "fs/promises";
 import { dirname, join, normalize, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -37,7 +37,7 @@ async function main() {
   for (const folderName of getSampleFolders()) {
     const inputPath = join(rootInputPath, folderName);
     const outputPath = join(rootOutputPath, folderName);
-    mkdirp(outputPath);
+    await mkdir(outputPath, { recursive: true });
 
     let emitter = "@typespec/openapi3";
     if (inputPath === restEmitterSamplePath) {
