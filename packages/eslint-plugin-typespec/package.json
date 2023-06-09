@@ -52,6 +52,6 @@
     "typescript": "~5.1.3"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "~5.26.0"
+    "@typescript-eslint/utils": "~5.59.9"
   }
 }

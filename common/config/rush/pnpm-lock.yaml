@@ -67,7 +67,7 @@ specifiers:
   '@types/yargs': ~17.0.24
   '@typescript-eslint/eslint-plugin': ^5.30.7
   '@typescript-eslint/parser': ^5.30.7
-  '@typescript-eslint/utils': ~5.26.0
+  '@typescript-eslint/utils': ~5.59.9
   '@typespec/compiler-v0.37': npm:@cadl-lang/compiler@0.37.0
   '@typespec/compiler-v0.38': npm:@cadl-lang/compiler@0.38.5
   '@typespec/compiler-v0.40': npm:@cadl-lang/compiler@0.40.0
@@ -107,7 +107,7 @@ specifiers:
   node-watch: ~0.7.1
   onigasm: ~2.2.5
   picocolors: ~1.0.0
-  playwright: ~1.35.0
+  playwright: ~1.32.2
   plist: ~3.0.2
   prettier: ~2.8.7
   prettier-plugin-organize-imports: ~3.2.0
@@ -131,7 +131,7 @@ specifiers:
   typedoc-plugin-markdown: ~3.15.1
   typescript: ~5.1.3
   vite: ^4.2.1
-  vscode-languageclient: ~8.0.0
+  vscode-languageclient: ~8.1.0
   vscode-languageserver: ~8.1.0
   vscode-languageserver-textdocument: ~1.0.1
   vscode-oniguruma: ~1.7.0
@@ -205,7 +205,7 @@ dependencies:
   '@types/yargs': 17.0.24
   '@typescript-eslint/eslint-plugin': 5.59.9_d888c096bcab948c37c6e2d386a45d1f
   '@typescript-eslint/parser': 5.59.9_eslint@8.42.0+typescript@5.1.3
-  '@typescript-eslint/utils': 5.26.0_eslint@8.42.0+typescript@5.1.3
+  '@typescript-eslint/utils': 5.59.9_eslint@8.42.0+typescript@5.1.3
   '@typespec/compiler-v0.37': /@cadl-lang/compiler/0.37.0
   '@typespec/compiler-v0.38': /@cadl-lang/compiler/0.38.5
   '@typespec/compiler-v0.40': /@cadl-lang/compiler/0.40.0
@@ -245,7 +245,7 @@ dependencies:
   node-watch: 0.7.3
   onigasm: 2.2.5
   picocolors: 1.0.0
-  playwright: 1.35.0
+  playwright: 1.32.3
   plist: 3.0.6
   prettier: 2.8.8
   prettier-plugin-organize-imports: 3.2.2_prettier@2.8.8+typescript@5.1.3
@@ -269,7 +269,7 @@ dependencies:
   typedoc-plugin-markdown: 3.15.3_typedoc@0.24.8
   typescript: 5.1.3
   vite: 4.3.9_@types+node@18.11.19
-  vscode-languageclient: 8.0.2
+  vscode-languageclient: 8.1.0
   vscode-languageserver: 8.1.0
   vscode-languageserver-textdocument: 1.0.8
   vscode-oniguruma: 1.7.0
@@ -6246,14 +6246,6 @@ packages:
       - supports-color
     dev: false
 
-  /@typescript-eslint/scope-manager/5.26.0:
-    resolution: {integrity: sha512-gVzTJUESuTwiju/7NiTb4c5oqod8xt5GhMbExKsCTp6adU3mya6AGJ4Pl9xC7x2DX9UYFsjImC0mA62BCY22Iw==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dependencies:
-      '@typescript-eslint/types': 5.26.0
-      '@typescript-eslint/visitor-keys': 5.26.0
-    dev: false
-
   /@typescript-eslint/scope-manager/5.59.9:
     resolution: {integrity: sha512-8RA+E+w78z1+2dzvK/tGZ2cpGigBZ58VMEHDZtpE1v+LLjzrYGc8mMaTONSxKyEkz3IuXFM0IqYiGHlCsmlZxQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -6282,35 +6274,9 @@ packages:
       - supports-color
     dev: false
 
-  /@typescript-eslint/types/5.26.0:
-    resolution: {integrity: sha512-8794JZFE1RN4XaExLWLI2oSXsVImNkl79PzTOOWt9h0UHROwJedNOD2IJyfL0NbddFllcktGIO2aOu10avQQyA==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dev: false
-
   /@typescript-eslint/types/5.59.9:
     resolution: {integrity: sha512-uW8H5NRgTVneSVTfiCVffBb8AbwWSKg7qcA4Ot3JI3MPCJGsB4Db4BhvAODIIYE5mNj7Q+VJkK7JxmRhk2Lyjw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dev: false
-
-  /@typescript-eslint/typescript-estree/5.26.0_typescript@5.1.3:
-    resolution: {integrity: sha512-EyGpw6eQDsfD6jIqmXP3rU5oHScZ51tL/cZgFbFBvWuCwrIptl+oueUZzSmLtxFuSOQ9vDcJIs+279gnJkfd1w==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@typescript-eslint/types': 5.26.0
-      '@typescript-eslint/visitor-keys': 5.26.0
-      debug: 4.3.4
-      globby: 11.1.0
-      is-glob: 4.0.3
-      semver: 7.5.1
-      tsutils: 3.21.0_typescript@5.1.3
-      typescript: 5.1.3
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /@typescript-eslint/typescript-estree/5.59.9_typescript@5.1.3:
@@ -6334,24 +6300,6 @@ packages:
       - supports-color
     dev: false
 
-  /@typescript-eslint/utils/5.26.0_eslint@8.42.0+typescript@5.1.3:
-    resolution: {integrity: sha512-PJFwcTq2Pt4AMOKfe3zQOdez6InIDOjUJJD3v3LyEtxHGVVRK3Vo7Dd923t/4M9hSH2q2CLvcTdxlLPjcIk3eg==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-    dependencies:
-      '@types/json-schema': 7.0.12
-      '@typescript-eslint/scope-manager': 5.26.0
-      '@typescript-eslint/types': 5.26.0
-      '@typescript-eslint/typescript-estree': 5.26.0_typescript@5.1.3
-      eslint: 8.42.0
-      eslint-scope: 5.1.1
-      eslint-utils: 3.0.0_eslint@8.42.0
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-    dev: false
-
   /@typescript-eslint/utils/5.59.9_eslint@8.42.0+typescript@5.1.3:
     resolution: {integrity: sha512-1PuMYsju/38I5Ggblaeb98TOoUvjhRvLpLa1DoTOFaLWqaXl/1iQ1eGurTXgBY58NUdtfTXKP5xBq7q9NDaLKg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -6370,14 +6318,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
-    dev: false
-
-  /@typescript-eslint/visitor-keys/5.26.0:
-    resolution: {integrity: sha512-wei+ffqHanYDOQgg/fS6Hcar6wAWv0CUPQ3TZzOWd2BLfgP539rb49bwua8WRAs7R6kOSLn82rfEu2ro6Llt8Q==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dependencies:
-      '@typescript-eslint/types': 5.26.0
-      eslint-visitor-keys: 3.4.1
     dev: false
 
   /@typescript-eslint/visitor-keys/5.59.9:
@@ -12193,19 +12133,13 @@ packages:
     hasBin: true
     dev: false
 
-  /playwright-core/1.35.0:
-    resolution: {integrity: sha512-muMXyPmIx/2DPrCHOD1H1ePT01o7OdKxKj2ebmCAYvqhUy+Y1bpal7B0rdoxros7YrXI294JT/DWw2LqyiqTPA==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: false
-
-  /playwright/1.35.0:
-    resolution: {integrity: sha512-xhFhsoBmKPQfj3dM+HbIiFVlqRCZp2rwdJd/QFd9YBuidabo3TkVv0iuxPQ4vZoMwtSI7qzjY93f5ohdC97hww==}
-    engines: {node: '>=16'}
+  /playwright/1.32.3:
+    resolution: {integrity: sha512-h/ylpgoj6l/EjkfUDyx8cdOlfzC96itPpPe8BXacFkqpw/YsuxkpPyVbzEq4jw+bAJh5FLgh31Ljg2cR6HV3uw==}
+    engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.35.0
+      playwright-core: 1.32.3
     dev: false
 
   /plist/3.0.6:
@@ -15330,13 +15264,13 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: false
 
-  /vscode-languageclient/8.0.2:
-    resolution: {integrity: sha512-lHlthJtphG9gibGb/y72CKqQUxwPsMXijJVpHEC2bvbFqxmkj9LwQ3aGU9dwjBLqsX1S4KjShYppLvg1UJDF/Q==}
+  /vscode-languageclient/8.1.0:
+    resolution: {integrity: sha512-GL4QdbYUF/XxQlAsvYWZRV3V34kOkpRlvV60/72ghHfsYFnS/v2MANZ9P6sHmxFcZKOse8O+L9G7Czg0NUWing==}
     engines: {vscode: ^1.67.0}
     dependencies:
-      minimatch: 3.1.2
+      minimatch: 5.1.6
       semver: 7.5.1
-      vscode-languageserver-protocol: 3.17.2
+      vscode-languageserver-protocol: 3.17.3
     dev: false
 
   /vscode-languageserver-protocol/3.16.0:
@@ -16066,14 +16000,14 @@ packages:
     dev: false
 
   file:projects/eslint-plugin.tgz:
-    resolution: {integrity: sha512-K+ZTBFXAnkwBFU0kqaKjMIIou0Rwu/aElZ9m2Lq9qEitWaF9GzRAcBIqktRt7WnfPCVPIwAWQS5vQVRj0dzegw==, tarball: file:projects/eslint-plugin.tgz}
+    resolution: {integrity: sha512-bcwLes4WXlJfv1PShAFOj4Cpl3aKxQki66eg+9Yv6zxS5f0dEOSOY0rVU7VK2OFhUQrDBBFpY10k0xGzXSZgzA==, tarball: file:projects/eslint-plugin.tgz}
     name: '@rush-temp/eslint-plugin'
     version: 0.0.0
     dependencies:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       '@typescript-eslint/parser': 5.59.9_eslint@8.42.0+typescript@5.1.3
-      '@typescript-eslint/utils': 5.26.0_eslint@8.42.0+typescript@5.1.3
+      '@typescript-eslint/utils': 5.59.9_eslint@8.42.0+typescript@5.1.3
       c8: 7.14.0
       eslint: 8.42.0
       mocha: 10.2.0
@@ -16499,7 +16433,7 @@ packages:
     dev: false
 
   file:projects/typespec-vscode.tgz:
-    resolution: {integrity: sha512-S2ApDnX7FTnqUEZ5WZGNU+P3ApIKICs4Y9S470rL1CZ00CqYsW/jHjLzZnaiAIZR/GgoWPYNBj3Rk7/Etp+NOQ==, tarball: file:projects/typespec-vscode.tgz}
+    resolution: {integrity: sha512-fNIYCSYN9OjaKdIXt+jDouzedkBugKOWrLQFuZERbucFHaC1FKzRU5u94ii5+EhMqADyLqZI/oe0cgKj5/Y+WA==, tarball: file:projects/typespec-vscode.tgz}
     name: '@rush-temp/typespec-vscode'
     version: 0.0.0
     dependencies:
@@ -16517,7 +16451,7 @@ packages:
       rimraf: 5.0.1
       rollup: 3.24.0
       typescript: 5.1.3
-      vscode-languageclient: 8.0.2
+      vscode-languageclient: 8.1.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -16541,7 +16475,7 @@ packages:
     dev: false
 
   file:projects/website.tgz_@types+react@18.2.9:
-    resolution: {integrity: sha512-ufi3X3ZXOUIb8yv0mpOi5zE/RDr8nleGM7WvX8Jli6CbU6ZxgLcSXLlXUNPc9hkcPo0lSnkXKVsE5ZEGHo4n4Q==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-iEBYpeUWyzxyaQbcyBqtACnxgtuOlJCnxTS+jwh0U1d5jBEhXdJ944kOXyVV/EgdtMMmAa/vdyiocN5vZV5grA==, tarball: file:projects/website.tgz}
     id: file:projects/website.tgz
     name: '@rush-temp/website'
     version: 0.0.0
@@ -16558,7 +16492,7 @@ packages:
       eslint: 8.42.0
       mdx-mermaid: 1.3.2_mermaid@9.1.7+react@17.0.2
       mermaid: 9.1.7
-      playwright: 1.35.0
+      playwright: 1.32.3
       prism-react-renderer: 1.3.5_react@17.0.2
       prism-themes: 1.9.0
       react: 17.0.2
