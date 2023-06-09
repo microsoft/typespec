@@ -1,19 +1,18 @@
 import { Console } from "console";
-import { writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
-import mkdirp from "mkdirp";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
-  createConnection,
   ProposedFeatures,
   PublishDiagnosticsParams,
   TextDocuments,
+  createConnection,
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../core/util.js";
-import { createServer, Server, ServerHost } from "./serverlib.js";
+import { Server, ServerHost, createServer } from "./serverlib.js";
 
 let server: Server | undefined = undefined;
 
@@ -130,7 +129,7 @@ function profile<T extends (...args: any) => any>(func: T): T {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         profileSession!.post("Profiler.stop", async (err, args) => {
           if (!err && args.profile) {
-            await mkdirp(profileDir!);
+            await mkdir(profileDir!, { recursive: true });
             await writeFile(join(profileDir!, name + ".cpuprofile"), JSON.stringify(args.profile));
           }
         });

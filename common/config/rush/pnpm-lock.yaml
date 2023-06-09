@@ -99,7 +99,6 @@ specifiers:
   mdx-mermaid: 1.3.2
   mermaid: ~9.1.6
   micromatch: ^4.0.5
-  mkdirp: ~2.1.6
   mocha: ~10.2.0
   mocha-junit-reporter: ~2.2.0
   mocha-multi-reporters: ~1.5.1
@@ -238,7 +237,6 @@ dependencies:
   mdx-mermaid: 1.3.2_mermaid@9.1.7+react@18.2.0
   mermaid: 9.1.7
   micromatch: 4.0.5
-  mkdirp: 2.1.6
   mocha: 10.2.0
   mocha-junit-reporter: 2.2.0_mocha@10.2.0
   mocha-multi-reporters: 1.5.1_mocha@10.2.0
@@ -11544,12 +11542,6 @@ packages:
     hasBin: true
     dev: false
 
-  /mkdirp/2.1.6:
-    resolution: {integrity: sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dev: false
-
   /mocha-junit-reporter/2.2.0_mocha@10.2.0:
     resolution: {integrity: sha512-W83Ddf94nfLiTBl24aS8IVyFvO8aRDLlCvb+cKb/VEaN5dEbcqu3CXiTe8MQK2DvzS7oKE1RsFTxzN302GGbDQ==}
     peerDependencies:
@@ -15996,7 +15988,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-EJ9Dg3mZVsF02pwK77sz4Cpb2IGNvU5aX1/XN9wLAjzt5a/N+CfooLuE6kN+Qe09KlirEV7yvb/pSncJ3ZAutw==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-VOeX47lbesSgZqNvR6PWQCYttmmbAIThzCAShvxRF5hAH3xIEdV1XtcFy+xexfMKIH/oqfLP2vIQv4K6bMvz/A==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -16017,7 +16009,6 @@ packages:
       globby: 13.1.4
       grammarkdown: 3.2.0
       js-yaml: 4.1.0
-      mkdirp: 2.1.6
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
@@ -16451,12 +16442,11 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-hFgPInmKwOrnYlbFjcxQkcHL+WiBmUMUVFGZv6heSJwvBnk1HH71RLQY2UVrLJz8tkJxZv/73MotPs/mauOwfw==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-O6sP8I1Yz+aApXjm69T5mxV7PqXN6FdacQe3IJs+5BMIgbG++77WPZD0OQRSzhQAnTDaCZTJoccrh8xf0ET3FA==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
       autorest: 3.3.2
-      mkdirp: 2.1.6
       rimraf: 5.0.1
       typescript: 5.0.4
     dev: false
@@ -16498,7 +16488,7 @@ packages:
     dev: false
 
   file:projects/typespec-vscode.tgz:
-    resolution: {integrity: sha512-fZRL8zqLH278LsCgwodyH5Q0lYz378HAjHoboC7+uwmQH+IkMRR9LRtmIfl3uK5oyjLu7sBvQz6OPyC2w8jYfw==, tarball: file:projects/typespec-vscode.tgz}
+    resolution: {integrity: sha512-0UD8VeeOt/eILg73jG2IkRufJ8+Zt5dC9RzpO4xQ4749iCapjl/jHxkg5ln4zwElFI6yY1hgfXhFuq4JVmxoWw==, tarball: file:projects/typespec-vscode.tgz}
     name: '@rush-temp/typespec-vscode'
     version: 0.0.0
     dependencies:
@@ -16510,7 +16500,6 @@ packages:
       '@vscode/vsce': 2.15.0
       c8: 7.13.0
       eslint: 8.42.0
-      mkdirp: 2.1.6
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
