@@ -12,11 +12,11 @@ specifiers:
   '@fluentui/react-components': ~9.21.0
   '@fluentui/react-icons': ~2.0.190
   '@mdx-js/react': ^1.6.22
-  '@playwright/test': ~1.35.0
-  '@rollup/plugin-commonjs': ~23.0.2
-  '@rollup/plugin-json': ~5.0.1
+  '@playwright/test': ~1.32.2
+  '@rollup/plugin-commonjs': ~25.0.0
+  '@rollup/plugin-json': ~6.0.0
   '@rollup/plugin-multi-entry': ~6.0.0
-  '@rollup/plugin-node-resolve': ~15.0.1
+  '@rollup/plugin-node-resolve': ~15.1.0
   '@rollup/plugin-replace': ~4.0.0
   '@rollup/plugin-virtual': ~3.0.1
   '@rush-temp/bundler': file:./projects/bundler.tgz
@@ -118,7 +118,7 @@ specifiers:
   react-dom: ~18.2.0
   react-is: ~18.1.0
   rimraf: ~5.0.0
-  rollup: ~3.4.0
+  rollup: ~3.24.0
   rollup-plugin-visualizer: ~5.9.0
   semver: ^7.3.8
   sinon: ~15.1.0
@@ -150,13 +150,13 @@ dependencies:
   '@fluentui/react-components': 9.21.0_d1123449c10fe1c1b7a6ab44f1011cb5
   '@fluentui/react-icons': 2.0.203_react@18.2.0
   '@mdx-js/react': 1.6.22_react@18.2.0
-  '@playwright/test': 1.35.0
-  '@rollup/plugin-commonjs': 23.0.7_rollup@3.4.0
-  '@rollup/plugin-json': 5.0.2_rollup@3.4.0
-  '@rollup/plugin-multi-entry': 6.0.0_rollup@3.4.0
-  '@rollup/plugin-node-resolve': 15.0.2_rollup@3.4.0
-  '@rollup/plugin-replace': 4.0.0_rollup@3.4.0
-  '@rollup/plugin-virtual': 3.0.1_rollup@3.4.0
+  '@playwright/test': 1.32.3
+  '@rollup/plugin-commonjs': 25.0.0_rollup@3.24.0
+  '@rollup/plugin-json': 6.0.0_rollup@3.24.0
+  '@rollup/plugin-multi-entry': 6.0.0_rollup@3.24.0
+  '@rollup/plugin-node-resolve': 15.1.0_rollup@3.24.0
+  '@rollup/plugin-replace': 4.0.0_rollup@3.24.0
+  '@rollup/plugin-virtual': 3.0.1_rollup@3.24.0
   '@rush-temp/bundler': file:projects/bundler.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
   '@rush-temp/eslint-config-typespec': file:projects/eslint-config-typespec.tgz_prettier@2.8.8
@@ -170,8 +170,8 @@ dependencies:
   '@rush-temp/migrate': file:projects/migrate.tgz
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
-  '@rush-temp/playground': file:projects/playground.tgz_rollup@3.4.0
-  '@rush-temp/playground-website': file:projects/playground-website.tgz_rollup@3.4.0
+  '@rush-temp/playground': file:projects/playground.tgz_rollup@3.24.0
+  '@rush-temp/playground-website': file:projects/playground-website.tgz_rollup@3.24.0
   '@rush-temp/prettier-plugin-typespec': file:projects/prettier-plugin-typespec.tgz
   '@rush-temp/protobuf': file:projects/protobuf.tgz
   '@rush-temp/ref-doc': file:projects/ref-doc.tgz
@@ -256,8 +256,8 @@ dependencies:
   react-dom: 18.2.0_react@18.2.0
   react-is: 18.1.0
   rimraf: 5.0.1
-  rollup: 3.4.0
-  rollup-plugin-visualizer: 5.9.0_rollup@3.4.0
+  rollup: 3.24.0
+  rollup-plugin-visualizer: 5.9.0_rollup@3.24.0
   semver: 7.5.1
   sinon: 15.1.0
   source-map-support: 0.5.21
@@ -5480,13 +5480,13 @@ packages:
     dev: false
     optional: true
 
-  /@playwright/test/1.35.0:
-    resolution: {integrity: sha512-6qXdd5edCBynOwsz1YcNfgX8tNWeuS9fxy5o59D0rvHXxRtjXRebB4gE4vFVfEMXl/z8zTnAzfOs7aQDEs8G4Q==}
-    engines: {node: '>=16'}
+  /@playwright/test/1.32.3:
+    resolution: {integrity: sha512-BvWNvK0RfBriindxhLVabi8BRe3X0J9EVjKlcmhxjg4giWBD/xleLcg2dz7Tx0agu28rczjNIPQWznwzDwVsZQ==}
+    engines: {node: '>=14'}
     hasBin: true
     dependencies:
       '@types/node': 18.11.19
-      playwright-core: 1.35.0
+      playwright-core: 1.32.3
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
@@ -5495,8 +5495,8 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: false
 
-  /@rollup/plugin-commonjs/23.0.7_rollup@3.4.0:
-    resolution: {integrity: sha512-hsSD5Qzyuat/swzrExGG5l7EuIlPhwTsT7KwKbSCQzIcJWjRxiimi/0tyMYY2bByitNb3i1p+6JWEDGa0NvT0Q==}
+  /@rollup/plugin-commonjs/25.0.0_rollup@3.24.0:
+    resolution: {integrity: sha512-hoho2Kay9TZrLu0bnDsTTCaj4Npa+THk9snajP/XDNb9a9mmjTjh52EQM9sKl3HD1LsnihX7js+eA2sd2uKAhw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0
@@ -5504,17 +5504,17 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.4.0
+      '@rollup/pluginutils': 5.0.2_rollup@3.24.0
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
       is-reference: 1.2.1
       magic-string: 0.27.0
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/plugin-json/5.0.2_rollup@3.4.0:
-    resolution: {integrity: sha512-D1CoOT2wPvadWLhVcmpkDnesTzjhNIQRWLsc3fA49IFOP2Y84cFOOJ+nKGYedvXHKUsPeq07HR4hXpBBr+CHlA==}
+  /@rollup/plugin-json/6.0.0_rollup@3.24.0:
+    resolution: {integrity: sha512-i/4C5Jrdr1XUarRhVu27EEwjt4GObltD7c+MkCIpO2QIbojw8MUs+CCTqOphQi3Qtg1FLmYt+l+6YeoIf51J7w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0||^3.0.0
@@ -5522,11 +5522,11 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.4.0
-      rollup: 3.4.0
+      '@rollup/pluginutils': 5.0.2_rollup@3.24.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/plugin-multi-entry/6.0.0_rollup@3.4.0:
+  /@rollup/plugin-multi-entry/6.0.0_rollup@3.24.0:
     resolution: {integrity: sha512-msBgVncGQwh/ahxeP/rc8MXVZNBOjoVCsBuDk6uqyFzDv/SZN7jksfAsu6DJ2w4r5PaBX3/OXOjVPeCxya2waA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -5535,13 +5535,13 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/plugin-virtual': 3.0.1_rollup@3.4.0
+      '@rollup/plugin-virtual': 3.0.1_rollup@3.24.0
       matched: 5.0.1
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/plugin-node-resolve/15.0.2_rollup@3.4.0:
-    resolution: {integrity: sha512-Y35fRGUjC3FaurG722uhUuG8YHOJRJQbI6/CkbRkdPotSpDj9NtIN85z1zrcyDcCQIW4qp5mgG72U+gJ0TAFEg==}
+  /@rollup/plugin-node-resolve/15.1.0_rollup@3.24.0:
+    resolution: {integrity: sha512-xeZHCgsiZ9pzYVgAo9580eCGqwh/XCEUM9q6iQfGNocjgkufHAqC3exA+45URvhiYV8sBF9RlBai650eNs7AsA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0
@@ -5549,26 +5549,26 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.4.0
+      '@rollup/pluginutils': 5.0.2_rollup@3.24.0
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
       is-module: 1.0.0
       resolve: 1.22.2
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/plugin-replace/4.0.0_rollup@3.4.0:
+  /@rollup/plugin-replace/4.0.0_rollup@3.24.0:
     resolution: {integrity: sha512-+rumQFiaNac9y64OHtkHGmdjm7us9bo1PlbgQfdihQtuNxzjpaB064HbRnewUOggLQxVCCyINfStkgmBeQpv1g==}
     peerDependencies:
       rollup: ^1.20.0 || ^2.0.0
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@3.4.0
+      '@rollup/pluginutils': 3.1.0_rollup@3.24.0
       magic-string: 0.25.9
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/plugin-virtual/3.0.1_rollup@3.4.0:
+  /@rollup/plugin-virtual/3.0.1_rollup@3.24.0:
     resolution: {integrity: sha512-fK8O0IL5+q+GrsMLuACVNk2x21g3yaw+sG2qn16SnUd3IlBsQyvWxLMGHmCmXRMecPjGRSZ/1LmZB4rjQm68og==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -5577,10 +5577,10 @@ packages:
       rollup:
         optional: true
     dependencies:
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/pluginutils/3.1.0_rollup@3.4.0:
+  /@rollup/pluginutils/3.1.0_rollup@3.24.0:
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -5589,10 +5589,10 @@ packages:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.3.1
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
-  /@rollup/pluginutils/5.0.2_rollup@3.4.0:
+  /@rollup/pluginutils/5.0.2_rollup@3.24.0:
     resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -5604,7 +5604,7 @@ packages:
       '@types/estree': 1.0.1
       estree-walker: 2.0.2
       picomatch: 2.3.1
-      rollup: 3.4.0
+      rollup: 3.24.0
     dev: false
 
   /@rushstack/eslint-patch/1.3.1:
@@ -12187,6 +12187,12 @@ packages:
       find-up: 3.0.0
     dev: false
 
+  /playwright-core/1.32.3:
+    resolution: {integrity: sha512-SB+cdrnu74ZIn5Ogh/8278ngEh9NEEV0vR4sJFmK04h2iZpybfbqBY0bX6+BLYWVdV12JLLI+JEFtSnYgR+mWg==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: false
+
   /playwright-core/1.35.0:
     resolution: {integrity: sha512-muMXyPmIx/2DPrCHOD1H1ePT01o7OdKxKj2ebmCAYvqhUy+Y1bpal7B0rdoxros7YrXI294JT/DWw2LqyiqTPA==}
     engines: {node: '>=16'}
@@ -13725,7 +13731,7 @@ packages:
     resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
     dev: false
 
-  /rollup-plugin-visualizer/5.9.0_rollup@3.4.0:
+  /rollup-plugin-visualizer/5.9.0_rollup@3.24.0:
     resolution: {integrity: sha512-bbDOv47+Bw4C/cgs0czZqfm8L82xOZssk4ayZjG40y9zbXclNk7YikrZTDao6p7+HDiGxrN0b65SgZiVm9k1Cg==}
     engines: {node: '>=14'}
     hasBin: true
@@ -13737,21 +13743,13 @@ packages:
     dependencies:
       open: 8.4.2
       picomatch: 2.3.1
-      rollup: 3.4.0
+      rollup: 3.24.0
       source-map: 0.7.4
       yargs: 17.7.2
     dev: false
 
   /rollup/3.24.0:
     resolution: {integrity: sha512-OgraHOIg2YpHQTjl0/ymWfFNBEyPucB7lmhXrQUh38qNOegxLapSPFs9sNr0qKR75awW41D93XafoR2QfhBdUQ==}
-    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
-
-  /rollup/3.4.0:
-    resolution: {integrity: sha512-4g8ZrEFK7UbDvy3JF+d5bLiC8UKkS3n/27/cnVeESwB1LVPl6MoPL32/6+SCQ1vHTp6Mvp2veIHtwELhi+uXEw==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -15971,15 +15969,15 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-yIyDZuw6Xs3XGcHUtf1I/JRvM0PKqbXH7xbPD9jj9otfjUKIRNxdgW4oeoCu2Yj1AxaTdq0CiMs3N/l1xfJI4Q==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-MjB7N1tKDeJ2roL5YJb/vpED/uTiB438w+vpD0CV1Y23m5nNCcrtSrtI8KosAO9DAv4cD3tIIaSW/mzlLXH/lA==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
-      '@rollup/plugin-commonjs': 23.0.7_rollup@3.4.0
-      '@rollup/plugin-json': 5.0.2_rollup@3.4.0
-      '@rollup/plugin-multi-entry': 6.0.0_rollup@3.4.0
-      '@rollup/plugin-node-resolve': 15.0.2_rollup@3.4.0
-      '@rollup/plugin-virtual': 3.0.1_rollup@3.4.0
+      '@rollup/plugin-commonjs': 25.0.0_rollup@3.24.0
+      '@rollup/plugin-json': 6.0.0_rollup@3.24.0
+      '@rollup/plugin-multi-entry': 6.0.0_rollup@3.24.0
+      '@rollup/plugin-node-resolve': 15.1.0_rollup@3.24.0
+      '@rollup/plugin-virtual': 3.0.1_rollup@3.24.0
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       c8: 7.14.0
@@ -15988,7 +15986,7 @@ packages:
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
       rimraf: 5.0.1
-      rollup: 3.4.0
+      rollup: 3.24.0
       typescript: 5.1.3
       vite: 4.3.9_@types+node@18.11.19
     transitivePeerDependencies:
@@ -16284,15 +16282,15 @@ packages:
       - supports-color
     dev: false
 
-  file:projects/playground-website.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-WmZ8hih1EYyH5d1dnLrRfzvKo5bsdHnLEpRVWEywihj+xZ1+kjYRL4hDWay7gTzwlqblOpQHMQ28IdMxIlWBwg==, tarball: file:projects/playground-website.tgz}
+  file:projects/playground-website.tgz_rollup@3.24.0:
+    resolution: {integrity: sha512-dUJ6EIngCHcGURCxJWx3zlXpgGFyNJgEZr/ow6RfZdn0+z6k7ALojRiTwj6yRROnuLgPEwLYQE5vOVHn04oKtg==, tarball: file:projects/playground-website.tgz}
     id: file:projects/playground-website.tgz
     name: '@rush-temp/playground-website'
     version: 0.0.0
     dependencies:
       '@babel/core': 7.22.5
       '@emotion/react': 11.11.1_@types+react@18.2.9+react@18.2.0
-      '@playwright/test': 1.35.0
+      '@playwright/test': 1.32.3
       '@types/debounce': 1.2.1
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
@@ -16311,7 +16309,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       rimraf: 5.0.1
-      rollup-plugin-visualizer: 5.9.0_rollup@3.4.0
+      rollup-plugin-visualizer: 5.9.0_rollup@3.24.0
       typescript: 5.1.3
       vite: 4.3.9_@types+node@18.11.19
     transitivePeerDependencies:
@@ -16324,8 +16322,8 @@ packages:
       - terser
     dev: false
 
-  file:projects/playground.tgz_rollup@3.4.0:
-    resolution: {integrity: sha512-Swcw5mzBfLK1xm+Srmvv92Y8Em4egwDkNRDWp7mjAmYvSs40AiPZUzMJb+wRvGzXY3xGnBScPMuvPwSv7gnWfg==, tarball: file:projects/playground.tgz}
+  file:projects/playground.tgz_rollup@3.24.0:
+    resolution: {integrity: sha512-PWA+7hvORUzZoAh2IlPKixK7g9vwJoZ/wcDWA3wFgJGFUJnA2K1VjSvmDbG7YcUsBIJOQqU9vZKpAlYU+W2njQ==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -16334,7 +16332,7 @@ packages:
       '@emotion/react': 11.11.1_@types+react@18.2.9+react@18.2.0
       '@fluentui/react-components': 9.21.0_d1123449c10fe1c1b7a6ab44f1011cb5
       '@fluentui/react-icons': 2.0.203_react@18.2.0
-      '@playwright/test': 1.35.0
+      '@playwright/test': 1.32.3
       '@types/debounce': 1.2.1
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
@@ -16357,7 +16355,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       rimraf: 5.0.1
-      rollup-plugin-visualizer: 5.9.0_rollup@3.4.0
+      rollup-plugin-visualizer: 5.9.0_rollup@3.24.0
       swagger-client: 3.18.5
       swagger-ui: 4.15.5
       swagger-ui-react: 4.15.5_react-dom@18.2.0+react@18.2.0
@@ -16379,19 +16377,19 @@ packages:
     dev: false
 
   file:projects/prettier-plugin-typespec.tgz:
-    resolution: {integrity: sha512-rqnFVz/uqKkYM5NLR9uF/TyFPEcg6ahYAf6LTRORlvCipQ6+Mpw2cEFArcUI/3PlP+j2PlUOCC9ptmukAlbQqg==, tarball: file:projects/prettier-plugin-typespec.tgz}
+    resolution: {integrity: sha512-FA/98nS1E6skd6v0j2KkekTnzO9/LUZV3B6njlGtIXbTvrm7wmdoXA3i9NNdNOhgnTwSO6jl/SFE14ZS5M9pRQ==, tarball: file:projects/prettier-plugin-typespec.tgz}
     name: '@rush-temp/prettier-plugin-typespec'
     version: 0.0.0
     dependencies:
-      '@rollup/plugin-commonjs': 23.0.7_rollup@3.4.0
-      '@rollup/plugin-json': 5.0.2_rollup@3.4.0
-      '@rollup/plugin-node-resolve': 15.0.2_rollup@3.4.0
-      '@rollup/plugin-replace': 4.0.0_rollup@3.4.0
+      '@rollup/plugin-commonjs': 25.0.0_rollup@3.24.0
+      '@rollup/plugin-json': 6.0.0_rollup@3.24.0
+      '@rollup/plugin-node-resolve': 15.1.0_rollup@3.24.0
+      '@rollup/plugin-replace': 4.0.0_rollup@3.24.0
       mocha: 10.2.0
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
       prettier: 2.8.8
-      rollup: 3.4.0
+      rollup: 3.24.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -16501,12 +16499,12 @@ packages:
     dev: false
 
   file:projects/typespec-vscode.tgz:
-    resolution: {integrity: sha512-E7JSioJ0dX9o7P7zOhkJVOP63mzF2+SAIYhWYNFKOGOsZlaZoQiw+lmeVakBqmpi8K+eKg4MyvalvkjcrcB8+Q==, tarball: file:projects/typespec-vscode.tgz}
+    resolution: {integrity: sha512-S2ApDnX7FTnqUEZ5WZGNU+P3ApIKICs4Y9S470rL1CZ00CqYsW/jHjLzZnaiAIZR/GgoWPYNBj3Rk7/Etp+NOQ==, tarball: file:projects/typespec-vscode.tgz}
     name: '@rush-temp/typespec-vscode'
     version: 0.0.0
     dependencies:
-      '@rollup/plugin-commonjs': 23.0.7_rollup@3.4.0
-      '@rollup/plugin-node-resolve': 15.0.2_rollup@3.4.0
+      '@rollup/plugin-commonjs': 25.0.0_rollup@3.24.0
+      '@rollup/plugin-node-resolve': 15.1.0_rollup@3.24.0
       '@types/mocha': 10.0.1
       '@types/node': 18.11.19
       '@types/vscode': 1.53.0
@@ -16517,7 +16515,7 @@ packages:
       mocha-junit-reporter: 2.2.0_mocha@10.2.0
       mocha-multi-reporters: 1.5.1_mocha@10.2.0
       rimraf: 5.0.1
-      rollup: 3.4.0
+      rollup: 3.24.0
       typescript: 5.1.3
       vscode-languageclient: 8.0.2
     transitivePeerDependencies:
