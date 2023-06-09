@@ -7,6 +7,7 @@ import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 
 export function registerMonacoDefaultWorkers() {
   self.MonacoEnvironment = {
+    createTrustedTypesPolicy: () => undefined,
     getWorker(_: any, label: string) {
       if (label === "json") {
         return new jsonWorker();
