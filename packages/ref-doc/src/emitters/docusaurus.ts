@@ -3,6 +3,7 @@ import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
   EnumRefDoc,
+  ExampleRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
@@ -158,7 +159,7 @@ export function renderDecoratorFile(
       if (namespace.decorators.length === 0) {
         return undefined;
       }
-      const content = [];
+      const content: string[] = [];
       for (const dec of namespace.decorators) {
         content.push(renderDecoratorMarkdown(dec), "");
       }
@@ -195,16 +196,24 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     content.push(headings.hx(headingLevel + 1, "Parameters"), "None", "");
   }
 
-  if (dec.examples.length > 0) {
-    content.push(headings.hx(headingLevel + 1, "Examples"));
-    for (const example of dec.examples) {
-      if (example.title) {
-        content.push(headings.hx(headingLevel + 2, example.title));
-      }
-      content.push("", example.content, "");
-    }
+  content.push(renderExamples(dec.examples, headingLevel + 1));
+
+  return content.join("\n");
+}
+
+function renderExamples(examples: ExampleRefDoc[], headingLevel: number) {
+  const content = [];
+  if (examples.length === 0) {
+    return "";
   }
 
+  content.push(headings.hx(headingLevel, "Examples"));
+  for (const example of examples) {
+    if (example.title) {
+      content.push(headings.hx(headingLevel + 1, example.title));
+    }
+    content.push("", example.content, "");
+  }
   return content.join("\n");
 }
 
@@ -255,6 +264,8 @@ function renderOperationMarkdown(op: OperationRefDoc, headingLevel: number = 3) 
     content.push(renderTemplateParametersTable(op.templateParameters, headingLevel + 1));
   }
 
+  content.push(renderExamples(op.examples, headingLevel + 1));
+
   return content.join("\n");
 }
 
@@ -288,6 +299,8 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
       content.push(renderOperationMarkdown(op, headingLevel + 1));
     }
   }
+
+  content.push(renderExamples(iface.examples, headingLevel + 1));
 
   return content.join("\n");
 }
@@ -348,6 +361,8 @@ function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
     content.push(renderTemplateParametersTable(model.templateParameters, headingLevel + 1));
   }
 
+  content.push(renderExamples(model.examples, headingLevel + 1));
+
   return content.join("\n");
 }
 
@@ -358,6 +373,7 @@ function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
     e.doc,
     codeblock(e.signature, "typespec"),
     "",
+    renderExamples(e.examples, headingLevel + 1),
   ];
 
   return content.join("\n");
@@ -376,6 +392,8 @@ function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
     content.push(renderTemplateParametersTable(union.templateParameters, headingLevel + 1));
   }
 
+  content.push(renderExamples(union.examples, headingLevel + 1));
+
   return content.join("\n");
 }
 
@@ -391,6 +409,8 @@ function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
   if (scalar.templateParameters) {
     content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
   }
+
+  content.push(renderExamples(scalar.examples, headingLevel + 1));
 
   return content.join("\n");
 }

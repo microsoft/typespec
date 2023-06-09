@@ -6,6 +6,7 @@ import {
 } from "../core/decorator-utils.js";
 import {
   StdTypeName,
+  StringLiteral,
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
@@ -576,7 +577,7 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
   return program.stateMap(secretTypesKey).get(target);
 }
 
-export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimeStamp";
+export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
 export type DurationKnownEncoding = "ISO8601" | "seconds";
 export type BytesKnownEncoding = "base64" | "base64url";
 export interface EncodeData {
@@ -641,6 +642,7 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
     });
 
     if (!isEncodingTypeValid) {
+      const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
         messageId: "wrongEncodingType",
@@ -648,6 +650,7 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
           encoding: encodeData.encoding,
           type: getTypeName(target),
           expected: validEncodeTypes.join(", "),
+          actual: typeName,
         },
         target: context.decoratorTarget,
       });
@@ -659,8 +662,8 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
       return check(["utcDateTime", "offsetDateTime"], ["string"]);
     case "rfc7231":
       return check(["utcDateTime", "offsetDateTime"], ["string"]);
-    case "unixTimeStamp":
-      return check(["utcDateTime"], ["string"]);
+    case "unixTimestamp":
+      return check(["utcDateTime"], ["integer"]);
     case "seconds":
       return check(["duration"], ["numeric"]);
     case "base64":
@@ -742,12 +745,12 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
 export function $withoutOmittedProperties(
   context: DecoratorContext,
   target: Model,
-  omitProperties: string | Union
+  omitProperties: StringLiteral | Union
 ) {
   // Get the property or properties to omit
   const omitNames = new Set<string>();
-  if (typeof omitProperties === "string") {
-    omitNames.add(omitProperties);
+  if (omitProperties.kind === "String") {
+    omitNames.add(omitProperties.value);
   } else {
     for (const variant of omitProperties.variants.values()) {
       if (variant.type.kind === "String") {
@@ -988,7 +991,9 @@ export function $withDefaultKeyVisibility(
           ...keyProp.decorators,
           {
             decorator: $visibility,
-            args: [{ value: context.program.checker.createLiteralType(visibility) }],
+            args: [
+              { value: context.program.checker.createLiteralType(visibility), jsValue: visibility },
+            ],
           },
         ],
       })

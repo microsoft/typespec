@@ -1,5 +1,5 @@
 import { deepEqual, strictEqual } from "assert";
-import { Model, Operation, Type } from "../../core/types.js";
+import { Model, Operation, StringLiteral, Type } from "../../core/types.js";
 import { TestHost, createTestHost, expectDiagnosticEmpty } from "../../testing/index.js";
 
 describe("compiler: checker: augment decorators", () => {
@@ -37,8 +37,8 @@ describe("compiler: checker: augment decorators", () => {
     let customName: string | undefined;
 
     testHost.addJsFile("test.js", {
-      $customName(_: any, t: Type, n: string) {
-        customName = n;
+      $customName(_: any, t: Type, n: StringLiteral) {
+        customName = n.value;
       },
     });
 
@@ -127,9 +127,9 @@ describe("compiler: checker: augment decorators", () => {
       let runOnTarget: Type | undefined;
 
       testHost.addJsFile("test.js", {
-        $customName(_: any, t: Type, n: string) {
+        $customName(_: any, t: Type, n: StringLiteral) {
           runOnTarget = t;
-          customName = n;
+          customName = n.value;
         },
       });
 
@@ -260,18 +260,18 @@ describe("compiler: checker: augment decorators", () => {
         let runOnTarget: Type | undefined;
 
         testHost.addJsFile("test.js", {
-          $customName(_: any, t: Type, n: string) {
+          $customName(_: any, t: Type, n: StringLiteral) {
             runOnTarget = t;
-            customName = n;
+            customName = n.value;
           },
         });
 
         testHost.addTypeSpecFile(
           "test.tsp",
           `
-      import "./test.js";
+            import "./test.js";
 
-      ${code}
+            ${code}
       `
         );
 
@@ -319,9 +319,9 @@ describe("compiler: checker: augment decorators", () => {
         let runOnTarget: Type | undefined;
 
         testHost.addJsFile("test.js", {
-          $customName(_: any, t: Type, n: string) {
+          $customName(_: any, t: Type, n: StringLiteral) {
             runOnTarget = t;
-            customName = n;
+            customName = n.value;
           },
         });
 

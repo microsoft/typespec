@@ -18,10 +18,16 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: Type;
+  /**
+   * Marshalled value for use in Javascript.
+   */
+  jsValue: Type | string | number | boolean;
   node?: Node;
 }
 
 export interface DecoratorApplication {
+  definition?: Decorator;
+  // TODO-TIM deprecate replace with `implementation`?
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
@@ -135,6 +141,11 @@ export interface Projector {
   projectType(type: Type): Type;
   projectedStartNode?: Type;
   projectedGlobalNamespace?: Namespace;
+}
+
+export interface ValueType {
+  kind: "Value"; // Todo remove?
+  target: Type;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -508,7 +519,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: Type;
+  constraint?: Type | ValueType;
   default?: Type;
 }
 
@@ -536,7 +547,7 @@ export interface FunctionParameter extends BaseType {
   kind: "FunctionParameter";
   node: FunctionParameterNode;
   name: string;
-  type: Type;
+  type: Type | ValueType;
   optional: boolean;
   rest: boolean;
 }
@@ -723,6 +734,7 @@ export enum SyntaxKind {
   VoidKeyword,
   NeverKeyword,
   UnknownKeyword,
+  ValueOfExpression,
   TypeReference,
   ProjectionReference,
   TemplateParameterDeclaration,
@@ -1012,6 +1024,7 @@ export type Expression =
   | UnionExpressionNode
   | IntersectionExpressionNode
   | TypeReferenceNode
+  | ValueOfExpressionNode
   | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
@@ -1246,6 +1259,11 @@ export interface IntersectionExpressionNode extends BaseNode {
   readonly options: readonly Expression[];
 }
 
+export interface ValueOfExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.ValueOfExpression;
+  readonly target: Expression;
+}
+
 export interface TypeReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.TypeReference;
   readonly target: MemberExpressionNode | IdentifierNode;
@@ -1276,7 +1294,7 @@ export type Modifier = ExternKeywordNode;
  * Represent a decorator declaration
  * @example
  * ```typespec
- * extern dec doc(target: Type, value: StringLiteral);
+ * extern dec doc(target: Type, value: valueof string);
  * ```
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {

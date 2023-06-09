@@ -431,7 +431,7 @@ export type OpenAPI3Schema = Extensions & {
    *
    * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.23
    */
-  enum?: string[];
+  enum?: (string | number | boolean)[];
 
   /** the JSON type for the schema */
   type?: JsonType;

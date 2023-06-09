@@ -5,14 +5,14 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Specification Source Code",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "type": "module",
   "scripts": {
@@ -22,6 +22,6 @@
   "devDependencies": {
     "@types/node": "~18.11.9",
     "ecmarkup": "~12.0.3",
-    "@typespec/internal-build-utils": "~0.4.1"
+    "@typespec/internal-build-utils": "~0.4.2"
   }
 }

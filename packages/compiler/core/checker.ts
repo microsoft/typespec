@@ -1,6 +1,6 @@
 import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
-import { ProjectionError, compilerAssert } from "./diagnostics.js";
+import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
@@ -8,6 +8,7 @@ import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js"
 import { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
 import {
+  getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isNeverType,
   isTemplateInstance,
@@ -123,6 +124,8 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  ValueOfExpressionNode,
+  ValueType,
   VoidType,
 } from "./types.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
@@ -191,10 +194,10 @@ export interface Checker {
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]];
+  ): [boolean, readonly Diagnostic[]];
 
   /**
    * Check if the given type is one of the built-in standard TypeSpec Types.
@@ -669,25 +672,6 @@ export function createChecker(program: Program): Checker {
     return errorType;
   }
 
-  function getFullyQualifiedSymbolName(
-    sym: Sym | undefined,
-    options?: { useGlobalPrefixAtTopLevel?: boolean }
-  ): string {
-    if (!sym) return "";
-    if (sym.symbolSource) sym = sym.symbolSource;
-    const parent =
-      sym.parent && !(sym.parent.flags & SymbolFlags.SourceFile) ? sym.parent : undefined;
-    const name = sym.flags & SymbolFlags.Decorator ? sym.name.slice(1) : sym.name;
-
-    if (parent?.name) {
-      return `${getFullyQualifiedSymbolName(parent)}.${name}`;
-    } else if (options?.useGlobalPrefixAtTopLevel) {
-      return `global.${name}`;
-    } else {
-      return name;
-    }
-  }
-
   /**
    * Return a fully qualified id of node
    */
@@ -752,7 +736,7 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
-        type.constraint = getTypeForNode(node.constraint);
+        type.constraint = getTypeOrValueTypeForNode(node.constraint);
       }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
@@ -786,7 +770,7 @@ export function createChecker(program: Program): Checker {
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
     index: number,
-    constraint: Type | undefined
+    constraint: Type | ValueType | undefined
   ) {
     function visit(node: Node) {
       const type = getTypeForNode(node);
@@ -913,7 +897,9 @@ export function createChecker(program: Program): Checker {
         let [valueNode, value] = args[i];
         if (declaredType.constraint) {
           if (!checkTypeAssignable(value, declaredType.constraint, valueNode)) {
-            value = declaredType.constraint;
+            // TODO-TIM check if we expose this below
+            value =
+              declaredType.constraint?.kind === "Value" ? unknownType : declaredType.constraint;
           }
         }
         values.push(value);
@@ -924,7 +910,12 @@ export function createChecker(program: Program): Checker {
           values.push(defaultValue);
         } else {
           tooFew = true;
-          values.push(declaredType.constraint ?? unknownType);
+          values.push(
+            // TODO-TIM check if we expose this below
+            declaredType.constraint?.kind === "Value"
+              ? unknownType
+              : declaredType.constraint ?? unknownType
+          );
         }
       }
     }
@@ -1223,6 +1214,17 @@ export function createChecker(program: Program): Checker {
     return unionType;
   }
 
+  function checkValueOfExpression(
+    node: ValueOfExpressionNode,
+    mapper: TypeMapper | undefined
+  ): ValueType {
+    const target = getTypeForNode(node.target, mapper);
+    return {
+      kind: "Value",
+      target,
+    };
+  }
+
   /**
    * Intersection produces a model type from the properties of its operands.
    * So this doesn't work if we don't have a known set of properties (e.g.
@@ -1331,12 +1333,20 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
     }
-    if (node.rest && node.type && node.type.kind !== SyntaxKind.ArrayExpression) {
+    if (
+      node.rest &&
+      node.type &&
+      !(
+        node.type.kind === SyntaxKind.ArrayExpression ||
+        (node.type.kind === SyntaxKind.ValueOfExpression &&
+          node.type.target.kind === SyntaxKind.ArrayExpression)
+      )
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
     }
-    const type = node.type ? getTypeForNode(node.type) : unknownType;
+    const type = node.type ? getTypeOrValueTypeForNode(node.type) : unknownType;
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
@@ -1350,6 +1360,13 @@ export function createChecker(program: Program): Checker {
     linkType(links, parameterType, mapper);
 
     return parameterType;
+  }
+
+  function getTypeOrValueTypeForNode(node: Node, mapper?: TypeMapper) {
+    if (node.kind === SyntaxKind.ValueOfExpression) {
+      return checkValueOfExpression(node, mapper);
+    }
+    return getTypeForNode(node, mapper);
   }
 
   function mergeModelTypes(
@@ -1633,6 +1650,9 @@ export function createChecker(program: Program): Checker {
       sourceOperation,
       interface: parentInterface,
     });
+    if (links) {
+      linkType(links, operationType, mapper);
+    }
 
     decorators.push(...checkDecorators(operationType, node, mapper));
 
@@ -1656,10 +1676,6 @@ export function createChecker(program: Program): Checker {
       if (mapper === undefined) {
         namespace?.operations.set(name, operationType);
       }
-    }
-
-    if (links) {
-      linkType(links, operationType, mapper);
     }
 
     return operationType;
@@ -2970,7 +2986,7 @@ export function createChecker(program: Program): Checker {
         if (doc) {
           type.decorators.unshift({
             decorator: $docFromComment,
-            args: [{ value: createLiteralType(doc) }],
+            args: [{ value: createLiteralType(doc), jsValue: doc }],
           });
         }
       }
@@ -3037,7 +3053,7 @@ export function createChecker(program: Program): Checker {
 
     const symbolLinks = getSymbolLinks(sym);
 
-    const args = checkDecoratorArguments(decNode, mapper);
+    let args = checkDecoratorArguments(decNode, mapper);
     let hasError = false;
     if (symbolLinks.declaredType === undefined) {
       const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
@@ -3055,12 +3071,13 @@ export function createChecker(program: Program): Checker {
         "Expected to find a decorator type."
       );
       // Means we have a decorator declaration.
-      hasError = checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
+      [hasError, args] = checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
     }
     if (hasError) {
       return undefined;
     }
     return {
+      definition: symbolLinks.declaredType,
       decorator: sym.value ?? ((...args: any[]) => {}),
       node: decNode,
       args,
@@ -3072,7 +3089,7 @@ export function createChecker(program: Program): Checker {
     declaration: Decorator,
     args: DecoratorArgument[],
     decoratorNode: Node
-  ): boolean {
+  ): [boolean, DecoratorArgument[]] {
     let hasError = false;
     const [targetValid] = isTypeAssignableTo(targetType, declaration.target.type, decoratorNode);
     if (!targetValid) {
@@ -3116,14 +3133,21 @@ export function createChecker(program: Program): Checker {
         );
       }
     }
+
+    const resolvedArgs: DecoratorArgument[] = [];
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType =
-          parameter.type.kind === "Model" ? parameter.type.indexer?.value : undefined;
+        const restType = getIndexType(
+          parameter.type.kind === "Value" ? parameter.type.target : parameter.type
+        );
         if (restType) {
           for (let i = index; i < args.length; i++) {
             const arg = args[i];
             if (arg && arg.value) {
+              resolvedArgs.push({
+                ...arg,
+                jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
+              });
               if (!checkArgumentAssignable(arg.value, restType, arg.node!)) {
                 hasError = true;
               }
@@ -3134,17 +3158,34 @@ export function createChecker(program: Program): Checker {
       }
       const arg = args[index];
       if (arg && arg.value) {
+        resolvedArgs.push({
+          ...arg,
+          jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
+        });
         if (!checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
           hasError = true;
         }
       }
     }
-    return hasError;
+    return [hasError, resolvedArgs];
+  }
+
+  function getIndexType(type: Type): Type | undefined {
+    return type.kind === "Model" ? type.indexer?.value : undefined;
+  }
+
+  function resolveDecoratorArgJsValue(value: Type, valueOf: boolean) {
+    if (valueOf) {
+      if (value.kind === "Boolean" || value.kind === "String" || value.kind === "Number") {
+        return literalTypeToValue(value);
+      }
+    }
+    return value;
   }
 
   function checkArgumentAssignable(
     argumentType: Type,
-    parameterType: Type,
+    parameterType: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [valid] = isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
@@ -3193,6 +3234,7 @@ export function createChecker(program: Program): Checker {
       const type = getTypeForNode(argNode, mapper);
       return {
         value: type,
+        jsValue: type,
         node: argNode,
       };
     });
@@ -3376,9 +3418,9 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
     });
 
-    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
-
     linkType(links, interfaceType, mapper);
+
+    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
 
     const ownMembers = checkInterfaceMembers(node, mapper, interfaceType);
 
@@ -3475,6 +3517,8 @@ export function createChecker(program: Program): Checker {
       },
       expression: false,
     });
+    linkType(links, unionType, mapper);
+
     unionType.decorators = checkDecorators(unionType, node, mapper);
 
     checkUnionVariants(unionType, node, variants, mapper);
@@ -3484,7 +3528,6 @@ export function createChecker(program: Program): Checker {
       finishType(unionType);
     }
 
-    linkType(links, unionType, mapper);
     if (mapper === undefined) {
       unionType.namespace?.unions.set(unionType.name!, unionType);
     }
@@ -4637,8 +4680,8 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [related, diagnostics] = isTypeAssignableTo(source, target, diagnosticTarget);
@@ -4655,17 +4698,38 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
+    // BACKCOMPAT: Added May 2023 sprint, to be removed by June 2023 sprint
+    if (source.kind === "TemplateParameter" && source.constraint && target.kind === "Value") {
+      const [assignable] = isTypeAssignableTo(source.constraint, target.target, diagnosticTarget);
+      if (assignable) {
+        const constraint = getTypeName(source.constraint);
+        reportDeprecated(
+          program,
+          `Template constrainted to '${constraint}' will not be assignable to '${getTypeName(
+            target
+          )}' in the future. Update the constraint to be 'valueof ${constraint}'`,
+          diagnosticTarget
+        );
+        return [true, []];
+      }
+    }
+
     if (source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
     if (source === target) return [true, []];
+    if (target.kind === "Value") {
+      return isAssignableToValueType(source, target, diagnosticTarget);
+    }
 
+    if (source.kind === "Value") {
+      return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+    }
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
-
     if (isSimpleTypeRelated === true) {
       return [true, []];
     } else if (isSimpleTypeRelated === false) {
@@ -4682,7 +4746,28 @@ export function createChecker(program: Program): Checker {
       return [true, []];
     }
 
-    if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
+    if (
+      target.kind === "Model" &&
+      source.kind === "Model" &&
+      target.name !== "object" &&
+      target.indexer === undefined &&
+      source.indexer &&
+      source.indexer.key.name === "integer"
+    ) {
+      return [
+        false,
+        [
+          createDiagnostic({
+            code: "missing-index",
+            format: {
+              indexType: getTypeName(source.indexer.key),
+              sourceType: getTypeName(target),
+            },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    } else if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
       return isIndexerValid(source, target as Model & { indexer: ModelIndexer }, diagnosticTarget);
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget);
@@ -4707,6 +4792,25 @@ export function createChecker(program: Program): Checker {
     }
 
     return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+  }
+
+  function isAssignableToValueType(
+    source: Type | ValueType,
+    target: ValueType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, readonly Diagnostic[]] {
+    if (source.kind === "Value") {
+      return isTypeAssignableTo(source.target, target.target, diagnosticTarget);
+    }
+    const [assignable, diagnostics] = isTypeAssignableTo(source, target.target, diagnosticTarget);
+    if (!assignable) {
+      return [assignable, diagnostics];
+    }
+
+    if (!isValueType(source)) {
+      return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+    }
+    return [true, []];
   }
 
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
@@ -4845,7 +4949,7 @@ export function createChecker(program: Program): Checker {
     source: Model,
     target: Model & { indexer: ModelIndexer },
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     // Model expressions should be able to be assigned.
     if (source.name === "" && target.indexer.key.name !== "integer") {
       return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget);
@@ -4877,7 +4981,7 @@ export function createChecker(program: Program): Checker {
     constraintType: Type,
     type: Model,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     for (const prop of type.properties.values()) {
       const [related, diagnostics] = isTypeAssignableTo(
         prop.type,
@@ -4906,7 +5010,7 @@ export function createChecker(program: Program): Checker {
     source: Tuple,
     target: Tuple,
     diagnosticTarget: DiagnosticTarget
-  ): [boolean, Diagnostic[]] {
+  ): [boolean, readonly Diagnostic[]] {
     if (source.values.length !== target.values.length) {
       return [
         false,
@@ -4972,8 +5076,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function createUnassignableDiagnostic(
-    source: Type,
-    target: Type,
+    source: Type | ValueType,
+    target: Type | ValueType,
     diagnosticTarget: DiagnosticTarget
   ) {
     return createDiagnostic({
@@ -5306,7 +5410,8 @@ function extractMainDoc(type: Type): string | undefined {
   for (const doc of type.node.docs) {
     mainDoc += getDocContent(doc.content);
   }
-  return mainDoc;
+  const trimmed = mainDoc.trim();
+  return trimmed === "" ? undefined : trimmed;
 }
 
 function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
@@ -5345,7 +5450,7 @@ function finishTypeForProgramAndChecker<T extends Type>(
     if (docComment) {
       typeDef.decorators.unshift({
         decorator: $docFromComment,
-        args: [{ value: program.checker.createLiteralType(docComment) }],
+        args: [{ value: program.checker.createLiteralType(docComment), jsValue: docComment }],
       });
     }
     for (const decApp of typeDef.decorators) {
@@ -5370,7 +5475,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
 
   // peel `fn` off to avoid setting `this`.
   try {
-    const args = marshalArgumentsForJS(decApp.args.map((x) => x.value));
+    const args = decApp.args.map((x) => x.jsValue);
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
     fn(context, target, ...args);

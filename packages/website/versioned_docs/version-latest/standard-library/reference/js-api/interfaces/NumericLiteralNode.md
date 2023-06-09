@@ -21,6 +21,7 @@
 - [pos](NumericLiteralNode.md#pos)
 - [symbol](NumericLiteralNode.md#symbol)
 - [value](NumericLiteralNode.md#value)
+- [valueAsString](NumericLiteralNode.md#valueasstring)
 
 ## Properties
 
@@ -116,3 +117,9 @@ ___
 ### value
 
 • `Readonly` **value**: `number`
+
+___
+
+### valueAsString
+
+• `Readonly` **valueAsString**: `string`

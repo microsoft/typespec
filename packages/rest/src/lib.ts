@@ -51,4 +51,4 @@ const libDefinition = {
 const restLib = createTypeSpecLibrary(libDefinition);
 const { reportDiagnostic, createDiagnostic, createStateSymbol } = restLib;
 
-export { restLib, reportDiagnostic, createDiagnostic, createStateSymbol };
+export { createDiagnostic, createStateSymbol, reportDiagnostic, restLib };

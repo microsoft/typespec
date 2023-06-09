@@ -13,6 +13,7 @@
 ### Properties
 
 - [instantiationParameters](UnknownType.md#instantiationparameters)
+- [isFinished](UnknownType.md#isfinished)
 - [kind](UnknownType.md#kind)
 - [name](UnknownType.md#name)
 - [node](UnknownType.md#node)
@@ -37,6 +38,22 @@
 #### Inherited from
 
 [IntrinsicType](IntrinsicType.md).[instantiationParameters](IntrinsicType.md#instantiationparameters)
+
+___
+
+### isFinished
+
+• **isFinished**: `boolean`
+
+Reflect if a type has been finished(Decorators have been called).
+There is multiple reasons a type might not be finished:
+- a template declaration will not
+- a template instance that argument that are still template parameters
+- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
+
+#### Inherited from
+
+[IntrinsicType](IntrinsicType.md).[isFinished](IntrinsicType.md#isfinished)
 
 ___
 

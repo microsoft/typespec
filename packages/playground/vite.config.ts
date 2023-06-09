@@ -1,44 +1,39 @@
-import { visualizer } from "rollup-plugin-visualizer";
-import { definePlaygroundViteConfig } from "./src/build-utils/index.js";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
-const config = definePlaygroundViteConfig({
-  defaultEmitter: "@typespec/openapi3",
-  libraries: [
-    "@typespec/compiler",
-    "@typespec/http",
-    "@typespec/rest",
-    "@typespec/openapi",
-    "@typespec/versioning",
-    "@typespec/openapi3",
-    "@typespec/protobuf",
-  ],
-  samples: {
-    "API versioning": {
-      fileName: "samples/versioning.tsp",
-      preferredEmitter: "@typespec/openapi3",
-    },
-    "Discriminated unions": {
-      fileName: "samples/unions.tsp",
-      preferredEmitter: "@typespec/openapi3",
-    },
-    "HTTP service": { fileName: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
-    "REST framework": { fileName: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
-    "Protobuf Kiosk": {
-      fileName: "samples/kiosk.tsp",
-      preferredEmitter: "@typespec/protobuf",
+const config = defineConfig({
+  base: "./",
+  build: {
+    target: "esnext",
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          monaco: ["monaco-editor"],
+        },
+      },
     },
   },
-  enableSwaggerUI: true,
-  links: {
-    newIssue: `https://github.com/microsoft/typespec/issues/new`,
-    documentation: "https://microsoft.github.io/typespec",
+  esbuild: {
+    logOverride: { "this-is-undefined-in-esm": "silent" },
+  },
+  assetsInclude: [/\.tsp$/],
+  optimizeDeps: {
+    exclude: ["swagger-ui"],
+  },
+  plugins: [
+    (react as any)({
+      jsxImportSource: "@emotion/react",
+      babel: {
+        plugins: ["@emotion/babel-plugin"],
+      },
+    }),
+  ],
+  server: {
+    fs: {
+      strict: false,
+    },
   },
 });
-
-config.plugins!.push(
-  visualizer({
-    filename: "temp/stats.html",
-  }) as any
-);
 
 export default config;

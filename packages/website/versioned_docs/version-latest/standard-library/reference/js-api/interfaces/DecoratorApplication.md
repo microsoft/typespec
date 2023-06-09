@@ -8,6 +8,7 @@
 
 - [args](DecoratorApplication.md#args)
 - [decorator](DecoratorApplication.md#decorator)
+- [definition](DecoratorApplication.md#definition)
 - [node](DecoratorApplication.md#node)
 
 ## Properties
@@ -21,6 +22,12 @@ ___
 ### decorator
 
 • **decorator**: [`DecoratorFunction`](DecoratorFunction.md)
+
+___
+
+### definition
+
+• `Optional` **definition**: [`Decorator`](Decorator.md)
 
 ___
 

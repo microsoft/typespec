@@ -33,7 +33,7 @@ namespace TypeSpec {
      * @param version The version that the target was renamed in.
      * @param oldName The previous name of the target.
      */
-    extern dec renamedFrom(target: unknown, version: EnumMember, oldName: string);
+    extern dec renamedFrom(target: unknown, version: EnumMember, oldName: valueof string);
 
     /**
      * Identifies when a target was made optional.
@@ -47,6 +47,13 @@ namespace TypeSpec {
      * @param oldType The previous type of the target.
      */
     extern dec typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown);
+
+    /**
+     * Identifies when the target type changed.
+     * @param version The version that the target type changed in.
+     * @param oldType The previous type of the target.
+     */
+    extern dec returnTypeChangedFrom(target: Operation, version: EnumMember, oldType: unknown);
 
     /**
      * Returns whether the target exists for the given version.

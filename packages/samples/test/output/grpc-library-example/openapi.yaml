@@ -355,8 +355,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Book'
-          x-typespec-name: Book[]
           description: The list of books.
+          x-typespec-name: Book[]
         next_page_token:
           type: string
           description: >-
@@ -396,8 +396,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Shelf'
-          x-typespec-name: Shelf[]
           description: The list of shelves.
+          x-typespec-name: Shelf[]
         next_page_token:
           type: string
           description: >-

@@ -670,7 +670,8 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
         case "Operation":
         case "Enum":
         case "Union":
-          return this.emitter.emitDeclarationName(t);
+          const declName = this.emitter.emitDeclarationName(t);
+          return declName[0].toUpperCase() + declName.slice(1);
         default:
           compilerAssert(
             false,

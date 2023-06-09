@@ -4,7 +4,7 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.90.0",
+  "rushVersion": "5.99.0",
   "pnpmVersion": "6.32.9",
   "ensureConsistentVersions": true,
   /**
@@ -154,13 +154,13 @@
       "packageName": "@typespec/eslint-config-typespec",
       "projectFolder": "packages/eslint-config-typespec",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/internal-build-utils",
       "projectFolder": "packages/internal-build-utils",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/spec",
@@ -168,10 +168,15 @@
       "reviewCategory": "production",
       "shouldPublish": false
     },
-
     {
       "packageName": "@typespec/playground",
       "projectFolder": "packages/playground",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/playground-website",
+      "projectFolder": "packages/playground-website",
       "reviewCategory": "production",
       "shouldPublish": false
     },
@@ -191,13 +196,19 @@
       "packageName": "@typespec/protobuf",
       "projectFolder": "packages/protobuf",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/ref-doc",
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/json-schema",
+      "projectFolder": "packages/json-schema",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
     }
   ]
 }

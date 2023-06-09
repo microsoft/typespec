@@ -396,15 +396,10 @@ export function createProjector(
   }
 
   function projectOperation(op: Operation): Type {
-    const parameters = projectType(op.parameters) as Model;
-    const returnType = projectType(op.returnType);
-    const decorators = projectDecorators(op.decorators);
-
-    const projectedOp = shallowClone(op, {
-      decorators,
-      parameters,
-      returnType,
-    });
+    const projectedOp = shallowClone(op, {});
+    projectedOp.parameters = projectType(op.parameters) as Model;
+    projectedOp.returnType = projectType(op.returnType);
+    projectedOp.decorators = projectDecorators(op.decorators);
 
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
@@ -430,12 +425,11 @@ export function createProjector(
   function projectInterface(iface: Interface): Type {
     const operations = createRekeyableMap<string, Operation>();
     const sourceInterfaces: Interface[] = [];
-    const decorators = projectDecorators(iface.decorators);
     const projectedIface = shallowClone(iface, {
-      decorators,
       operations,
       sourceInterfaces,
     });
+    projectedIface.decorators = projectDecorators(iface.decorators);
 
     if (iface.templateMapper) {
       projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
@@ -463,12 +457,10 @@ export function createProjector(
 
   function projectUnion(union: Union) {
     const variants = createRekeyableMap<string | symbol, UnionVariant>();
-    const decorators = projectDecorators(union.decorators);
-
     const projectedUnion = shallowClone(union, {
-      decorators,
       variants,
     });
+    projectedUnion.decorators = projectDecorators(union.decorators);
 
     if (union.templateMapper) {
       projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
@@ -519,11 +511,10 @@ export function createProjector(
 
   function projectEnum(e: Enum) {
     const members = createRekeyableMap<string, EnumMember>();
-    const decorators = projectDecorators(e.decorators);
     const projectedEnum = shallowClone(e, {
       members,
-      decorators,
     });
+    projectedEnum.decorators = projectDecorators(e.decorators);
 
     projectedTypes.set(e, projectedEnum);
 
@@ -553,14 +544,8 @@ export function createProjector(
     for (const dec of decs) {
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
-        // filter out primitive arguments
-        if (typeof arg.value !== "object") {
-          args.push(arg);
-          continue;
-        }
-
-        const projected = projectType(arg.value);
-        args.push({ ...arg, value: projected });
+        const jsValue = typeof arg.jsValue === "object" ? projectType(arg.jsValue) : arg.jsValue;
+        args.push({ ...arg, value: projectType(arg.value), jsValue });
       }
 
       decorators.push({ ...dec, args });

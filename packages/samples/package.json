@@ -5,14 +5,14 @@
   "author": "Microsoft Corporation",
   "description": "Samples for TypeSpec",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/readme.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/readme.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec",
@@ -34,19 +34,18 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/versioning": "~0.44.0",
-    "@typespec/compiler": "~0.44.0",
-    "@typespec/http": "~0.44.0",
-    "@typespec/rest": "~0.44.0",
-    "@typespec/openapi": "~0.44.0",
-    "@typespec/openapi3": "~0.44.0",
-    "@typespec/html-program-viewer": "~0.44.0"
+    "@typespec/versioning": "~0.45.0",
+    "@typespec/compiler": "~0.45.0",
+    "@typespec/http": "~0.45.0",
+    "@typespec/rest": "~0.45.0",
+    "@typespec/openapi": "~0.45.0",
+    "@typespec/openapi3": "~0.45.0",
+    "@typespec/html-program-viewer": "~0.45.0"
   },
   "devDependencies": {
-    "@typespec/internal-build-utils": "~0.4.1",
+    "@typespec/internal-build-utils": "~0.4.2",
     "autorest": "~3.3.2",
-    "mkdirp": "~2.1.6",
     "rimraf": "~5.0.0",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.3"
   }
 }

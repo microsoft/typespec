@@ -6,6 +6,8 @@ describe("openapi3: primitives", () => {
   describe("handle typespec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
+      ["numeric", { type: "number" }],
+      ["integer", { type: "integer" }],
       ["int8", { type: "integer", format: "int8" }],
       ["int16", { type: "integer", format: "int16" }],
       ["int32", { type: "integer", format: "int32" }],
@@ -15,6 +17,7 @@ describe("openapi3: primitives", () => {
       ["uint16", { type: "integer", format: "uint16" }],
       ["uint32", { type: "integer", format: "uint32" }],
       ["uint64", { type: "integer", format: "uint64" }],
+      ["float", { type: "number" }],
       ["float32", { type: "number", format: "float" }],
       ["float64", { type: "number", format: "double" }],
       ["string", { type: "string" }],
@@ -25,8 +28,8 @@ describe("openapi3: primitives", () => {
       ["plainTime", { type: "string", format: "time" }],
       ["duration", { type: "string", format: "duration" }],
       ["bytes", { type: "string", format: "byte" }],
-      ["decimal", { type: "string", format: "decimal" }],
-      ["decimal128", { type: "string", format: "decimal128" }],
+      ["decimal", { type: "number", format: "decimal" }],
+      ["decimal128", { type: "number", format: "decimal128" }],
     ];
 
     for (const [name, expectedSchema] of cases) {
@@ -221,8 +224,10 @@ describe("openapi3: primitives", () => {
     ) {
       const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
       const encodeDecorator = encoding ? `@encode("${encoding}"${encodeAsParam})` : "";
-      const res = await oapiForModel("s", `${encodeDecorator} scalar s extends ${scalar};`);
-      deepStrictEqual(res.schemas.s, expectedOpenApi);
+      const res1 = await oapiForModel("s", `${encodeDecorator} scalar s extends ${scalar};`);
+      deepStrictEqual(res1.schemas.s, expectedOpenApi);
+      const res2 = await oapiForModel("Test", `model Test {${encodeDecorator} prop: ${scalar}};`);
+      deepStrictEqual(res2.schemas.Test.properties.prop, expectedOpenApi);
     }
 
     describe("utcDateTime", () => {
@@ -231,10 +236,10 @@ describe("openapi3: primitives", () => {
       it("set format to 'date-time-rfc7231' when encoding is rfc7231", () =>
         testEncode("utcDateTime", { type: "string", format: "date-time-rfc7231" }, "rfc7231"));
 
-      it("set type to integer and format to 'unixTimeStamp' when encoding is unixTimestamp", () =>
+      it("set type to integer and format to 'int32' when encoding is unixTimestamp (unixTimestamp info is lost)", () =>
         testEncode(
           "utcDateTime",
-          { type: "integer", format: "unix-timestamp" },
+          { type: "integer", format: "unixtime" },
           "unixTimestamp",
           "int32"
         ));
@@ -250,14 +255,14 @@ describe("openapi3: primitives", () => {
     describe("duration", () => {
       it("set format to 'duration' by default", () =>
         testEncode("duration", { type: "string", format: "duration" }));
-      it("set interger with seconds format setting duration as seconds", () =>
-        testEncode("duration", { type: "integer", format: "seconds" }, "seconds", "int32"));
+      it("set integer with int32 format setting duration as seconds", () =>
+        testEncode("duration", { type: "integer", format: "int32" }, "seconds", "int32"));
     });
 
     describe("bytes", () => {
       it("set format to 'base64' by default", () =>
         testEncode("bytes", { type: "string", format: "byte" }));
-      it("set interger with seconds format setting duration as seconds", () =>
+      it("set format to base64url when encoding bytes as base64url", () =>
         testEncode("bytes", { type: "string", format: "base64url" }, "base64url"));
     });
   });

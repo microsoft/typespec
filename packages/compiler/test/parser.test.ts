@@ -218,6 +218,15 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("valueof expressions", () => {
+    parseEach([
+      "alias A = valueof string;",
+      "alias A = valueof int32;",
+      "alias A = valueof {a: string, b: int32};",
+      "alias A = valueof int8[];",
+    ]);
+  });
+
   describe("template instantiations", () => {
     parseEach(["model A { x: Foo<number, string>; }", "model B { x: Foo<number, string>[]; }"]);
   });
@@ -385,7 +394,7 @@ describe("compiler: parser", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Microsoft/typespec/issues/506
+      // Some questions remain here: https://github.com/microsoft/typespec/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],
