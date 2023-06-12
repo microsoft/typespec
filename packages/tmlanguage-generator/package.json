@@ -42,6 +42,6 @@
     "@typespec/eslint-config-typespec": "~0.7.0",
     "eslint": "^8.36.0",
     "rimraf": "~5.0.0",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.3"
   }
 }

@@ -60,7 +60,7 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
-    "c8": "~7.13.0",
+    "c8": "~7.14.0",
     "eslint": "^8.36.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
@@ -68,6 +68,6 @@
     "rimraf": "~5.0.0",
     "typedoc-plugin-markdown": "~3.15.1",
     "typedoc": "~0.24.1",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.3"
   }
 }

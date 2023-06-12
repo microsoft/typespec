@@ -46,6 +46,6 @@
     "@typespec/internal-build-utils": "~0.4.2",
     "autorest": "~3.3.2",
     "rimraf": "~5.0.0",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.3"
   }
 }
