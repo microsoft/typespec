@@ -112,7 +112,7 @@ interface LibraryMetadata {
   /**
    * Library name as specified in the package.json or in exported $lib.
    */
-  name: string;
+  name?: string;
 
   /**
    * Library homepage.
@@ -629,10 +629,9 @@ export async function compile(
 
       // TODO resolve $lib
       const metadata = computeLibraryMetadata(library, undefined);
-
       scope = {
         type: "library",
-        ...metadata,
+        ...(metadata as any),
       };
     }
     const importFilePath = library.type === "module" ? library.mainFile : library.path;
@@ -766,7 +765,7 @@ export async function compile(
   ): LibraryMetadata {
     if (module.type === "file") {
       return {
-        name: libDefinition?.name ?? module.path,
+        name: libDefinition?.name,
       };
     }
 
