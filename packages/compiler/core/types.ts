@@ -1638,16 +1638,19 @@ export interface SourceFile {
   getLineAndCharacterOfPosition(position: number): LineAndCharacter;
 }
 
-export type SourceFileScope = ProjectScope | CompilerScope | LibraryScope;
-export interface ProjectScope {
+export type DeclarationContext =
+  | ProjectDeclarationContext
+  | CompilerDeclarationContext
+  | LibraryDeclarationContext;
+export interface ProjectDeclarationContext {
   type: "project";
 }
 /** Built-in */
-export interface CompilerScope {
+export interface CompilerDeclarationContext {
   type: "compiler";
 }
 
-export interface LibraryScope {
+export interface LibraryDeclarationContext {
   type: "library";
   metadata: ModuleLibraryMetadata;
 }

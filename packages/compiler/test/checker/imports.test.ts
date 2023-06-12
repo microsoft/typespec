@@ -1,10 +1,10 @@
 import { deepStrictEqual, ok } from "assert";
 import {
-  LibraryScope,
+  DeclarationContext,
+  LibraryDeclarationContext,
   ModuleLibraryMetadata,
   NodePackage,
-  ProjectScope,
-  SourceFileScope,
+  ProjectDeclarationContext,
 } from "../../core/index.js";
 import {
   TestHost,
@@ -186,12 +186,12 @@ describe("compiler: imports", () => {
     }
 
     interface ScopeExpectation<T extends Structure> {
-      expectScopes(scopes: Record<keyof T & TspFile, SourceFileScope>): Promise<void>;
+      expectScopes(scopes: Record<keyof T & TspFile, DeclarationContext>): Promise<void>;
     }
 
     function givenStructure<T extends Structure>(config: ScopeTest<T>): ScopeExpectation<T> {
       return {
-        expectScopes: async (scopes: Record<keyof T, SourceFileScope>) => {
+        expectScopes: async (scopes: Record<keyof T, DeclarationContext>) => {
           for (const [filename, fileConfig] of Object.entries(config.structure)) {
             if (filename.endsWith(".tsp")) {
               host.addTypeSpecFile(
@@ -207,20 +207,20 @@ describe("compiler: imports", () => {
           for (const [filename, expectedScope] of Object.entries(scopes)) {
             const file = host.program.sourceFiles.get(resolveVirtualPath(filename));
             ok(file, `Expected to have file "${filename}"`);
-            deepStrictEqual(host.program.getSourceFileScope(file.file), expectedScope);
+            deepStrictEqual(host.program.getSourceFileDeclarationContext(file.file), expectedScope);
           }
         },
       };
     }
 
-    function libraryScope(data: Omit<ModuleLibraryMetadata, "type">): LibraryScope {
+    function libraryScope(data: Omit<ModuleLibraryMetadata, "type">): LibraryDeclarationContext {
       return {
         type: "library",
         metadata: { type: "module", ...data },
       };
     }
 
-    const projectScope: ProjectScope = { type: "project" };
+    const projectScope: ProjectDeclarationContext = { type: "project" };
     it("relative files are stays in project", async () => {
       await givenStructure({
         entrypoint: "my-project/main.tsp",
