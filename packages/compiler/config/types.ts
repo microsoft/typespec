@@ -81,6 +81,8 @@ export interface TypeSpecRawConfig {
   emit?: string[];
   options?: Record<string, EmitterOptions>;
   emitters?: Record<string, boolean | EmitterOptions>;
+
+  linter?: LinterConfig;
 }
 
 export interface ConfigEnvironmentVariable {
@@ -94,3 +96,9 @@ export interface ConfigParameter {
 export type EmitterOptions = Record<string, unknown> & {
   "emitter-output-dir"?: string;
 };
+
+export interface LinterConfig {
+  extends?: string[];
+  enable?: Record<string, boolean>;
+  disable?: Record<string, string>;
+}

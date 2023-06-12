@@ -84,5 +84,30 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
         oneOf: [{ type: "boolean" }, emitterOptionsSchema],
       },
     },
+
+    linter: {
+      type: "object",
+      nullable: true,
+      required: [],
+      properties: {
+        extends: {
+          type: "array",
+          nullable: true,
+          items: { type: "string" },
+        },
+        enable: {
+          type: "object",
+          required: [],
+          nullable: true,
+          additionalProperties: { type: "boolean" },
+        },
+        disable: {
+          type: "object",
+          required: [],
+          nullable: true,
+          additionalProperties: { type: "string" },
+        },
+      },
+    },
   },
 };
