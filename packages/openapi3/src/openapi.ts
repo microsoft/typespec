@@ -1307,7 +1307,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const values = [];
     if (e.members.size === 0) {
       reportUnsupportedUnion("empty");
-      return undefined;
+      return {};
     }
     const type = enumMemberType(e.members.values().next().value);
     for (const option of e.members.values()) {
