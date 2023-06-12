@@ -1641,15 +1641,25 @@ export interface SourceFile {
 export type DeclarationContext =
   | ProjectDeclarationContext
   | CompilerDeclarationContext
+  | SyntheticDeclarationContext
   | LibraryDeclarationContext;
+
+/** Defined in the user project. */
 export interface ProjectDeclarationContext {
   type: "project";
 }
+
 /** Built-in */
 export interface CompilerDeclarationContext {
   type: "compiler";
 }
 
+/** Refer to a type that was not declared in a file */
+export interface SyntheticDeclarationContext {
+  type: "synthetic";
+}
+
+/** Defined in a library. */
 export interface LibraryDeclarationContext {
   type: "library";
   metadata: ModuleLibraryMetadata;
