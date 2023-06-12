@@ -1649,22 +1649,34 @@ export interface CompilerScope {
 
 export interface LibraryScope {
   type: "library";
-  /**
-   * Library name as specified in the package.json or in exported $lib.
-   */
-  name: string;
+  metadata: ModuleLibraryMetadata;
+}
 
-  /**
-   * Library homepage.
-   */
+export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
+
+interface LibraryMetadataBase {
+  /** Library homepage. */
   homepage?: string;
 
   bugs?: {
-    /**
-     * Url where to file bugs for this library.
-     */
+    /** Url where to file bugs for this library. */
     url?: string;
   };
+}
+
+export interface FileLibraryMetadata extends LibraryMetadataBase {
+  type: "file";
+
+  /** Library name as specified in the package.json or in exported $lib. */
+  name?: string;
+}
+
+/** Data for a library. Either loaded via a node_modules package or a standalone js file  */
+export interface ModuleLibraryMetadata extends LibraryMetadataBase {
+  type: "module";
+
+  /** Library name as specified in the package.json or in exported $lib. */
+  name: string;
 }
 
 export interface TextRange {

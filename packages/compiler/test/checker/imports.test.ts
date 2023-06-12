@@ -1,5 +1,11 @@
 import { deepStrictEqual, ok } from "assert";
-import { NodePackage, ProjectScope, SourceFileScope } from "../../core/index.js";
+import {
+  LibraryScope,
+  ModuleLibraryMetadata,
+  NodePackage,
+  ProjectScope,
+  SourceFileScope,
+} from "../../core/index.js";
 import {
   TestHost,
   createTestHost,
@@ -207,6 +213,13 @@ describe("compiler: imports", () => {
       };
     }
 
+    function libraryScope(data: Omit<ModuleLibraryMetadata, "type">): LibraryScope {
+      return {
+        type: "library",
+        metadata: { type: "module", ...data },
+      };
+    }
+
     const projectScope: ProjectScope = { type: "project" };
     it("relative files are stays in project", async () => {
       await givenStructure({
@@ -241,8 +254,8 @@ describe("compiler: imports", () => {
         },
       }).expectScopes({
         "my-project/main.tsp": projectScope,
-        "node_modules/my-lib1/main.tsp": { type: "library", name: "my-lib1" },
-        "node_modules/my-lib2/main.tsp": { type: "library", name: "my-lib2" },
+        "node_modules/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+        "node_modules/my-lib2/main.tsp": libraryScope({ name: "my-lib2" }),
       });
     });
 
@@ -264,8 +277,8 @@ describe("compiler: imports", () => {
         },
       }).expectScopes({
         "my-project/main.tsp": projectScope,
-        "node_modules/my-lib1/main.tsp": { type: "library", name: "my-lib1" },
-        "node_modules/my-lib2/main.tsp": { type: "library", name: "my-lib2" },
+        "node_modules/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+        "node_modules/my-lib2/main.tsp": libraryScope({ name: "my-lib2" }),
       });
     });
 
@@ -284,8 +297,8 @@ describe("compiler: imports", () => {
           },
         }).expectScopes({
           "my-project/main.tsp": projectScope,
-          "my-project/my-lib1/main.tsp": { type: "library", name: "my-lib1" },
-          "my-project/common.tsp": { type: "library", name: "my-lib1" },
+          "my-project/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+          "my-project/common.tsp": libraryScope({ name: "my-lib1" }),
         });
       });
 
@@ -303,7 +316,7 @@ describe("compiler: imports", () => {
           },
         }).expectScopes({
           "my-project/main.tsp": projectScope,
-          "my-project/my-lib1/main.tsp": { type: "library", name: "my-lib1" },
+          "my-project/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
           "my-project/common.tsp": projectScope,
         });
       });

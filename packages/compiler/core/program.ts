@@ -32,7 +32,9 @@ import {
   EmitContext,
   EmitterFunc,
   JsSourceFileNode,
+  LibraryMetadata,
   LiteralType,
+  ModuleLibraryMetadata,
   Namespace,
   NoTarget,
   Node,
@@ -106,25 +108,6 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
-}
-
-interface LibraryMetadata {
-  /**
-   * Library name as specified in the package.json or in exported $lib.
-   */
-  name?: string;
-
-  /**
-   * Library homepage.
-   */
-  homepage?: string;
-
-  bugs?: {
-    /**
-     * Url where to file bugs for this library.
-     */
-    url?: string;
-  };
 }
 
 interface EmitterRef {
@@ -627,11 +610,10 @@ export async function compile(
       });
       trace("import-resolution.library", `Loading library "${path}" from "${library.mainFile}"`);
 
-      // TODO resolve $lib
-      const metadata = computeLibraryMetadata(library, undefined);
+      const metadata = computeModuleMetadata(library);
       scope = {
         type: "library",
-        ...(metadata as any),
+        metadata,
       };
     }
     const importFilePath = library.type === "module" ? library.mainFile : library.path;
@@ -765,12 +747,18 @@ export async function compile(
   ): LibraryMetadata {
     if (module.type === "file") {
       return {
+        type: "file",
         name: libDefinition?.name,
       };
     }
 
-    const metadata: LibraryMetadata = {
-      name: libDefinition?.name ?? module.manifest.name,
+    return computeModuleMetadata(module);
+  }
+
+  function computeModuleMetadata(module: ResolvedModule): ModuleLibraryMetadata {
+    const metadata: ModuleLibraryMetadata = {
+      type: "module",
+      name: module.manifest.name,
     };
 
     if (module.manifest.homepage) {
