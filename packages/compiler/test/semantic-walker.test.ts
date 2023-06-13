@@ -10,9 +10,13 @@ import {
   Union,
   UnionVariant,
   getNamespaceFullName,
-} from "../core/index.js";
-import { getProperty, navigateProgram, navigateTypesInNamespace } from "../core/semantic-walker.js";
-import { TestHost, createTestHost } from "../testing/index.js";
+} from "../src/core/index.js";
+import {
+  getProperty,
+  navigateProgram,
+  navigateTypesInNamespace,
+} from "../src/core/semantic-walker.js";
+import { TestHost, createTestHost } from "../src/testing/index.js";
 
 describe("compiler: semantic walker", () => {
   let host: TestHost;

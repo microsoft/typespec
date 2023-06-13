@@ -1,12 +1,12 @@
 import { ok, strictEqual } from "assert";
-import { Model, Type } from "../../core/types.js";
+import { Model, Type } from "../../src/core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
   extractSquiggles,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: spread", () => {
   const blues = new WeakSet();

@@ -74,5 +74,5 @@ ${formatPairs(map)}
 ];
 `;
 
-const file = resolve(fileURLToPath(import.meta.url), "../../core/nonascii.ts");
+const file = resolve(fileURLToPath(import.meta.url), "../../src/core/nonascii.ts");
 writeFileSync(file, src);

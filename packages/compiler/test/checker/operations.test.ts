@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { DecoratorContext, IntrinsicType, Operation, Type } from "../../core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
+import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: operations", () => {
   let testHost: TestHost;

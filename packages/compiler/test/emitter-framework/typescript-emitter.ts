@@ -16,7 +16,7 @@ import {
   Type,
   Union,
   UnionVariant,
-} from "../../core/index.js";
+} from "../../src/index.js";
 
 import {
   code,
@@ -28,7 +28,7 @@ import {
   SourceFile,
   SourceFileScope,
   StringBuilder,
-} from "../../emitter-framework/index.js";
+} from "../../src/emitter-framework/index.js";
 
 export function isArrayType(m: Model) {
   return m.name === "Array";

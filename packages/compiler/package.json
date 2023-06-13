@@ -18,28 +18,28 @@
     "cli"
   ],
   "type": "module",
-  "main": "dist/core/index.js",
+  "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
   "exports": {
-    ".": "./dist/core/index.js",
-    "./testing": "./dist/testing/index.js",
-    "./module-resolver": "./dist/core/module-resolver.js",
-    "./emitter-framework": "./dist/emitter-framework/index.js"
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js",
+    "./module-resolver": "./dist/src/core/module-resolver.js",
+    "./emitter-framework": "./dist/src/emitter-framework/index.js"
   },
   "browser": {
-    "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
-    "./dist/core/logger/console-sink.js": "./dist/core/logger/console-sink.browser.js"
+    "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
+    "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/core/index.d.ts"
+        "./dist/src/core/index.d.ts"
       ],
       "testing": [
-        "./dist/testing/index.d.ts"
+        "./dist/src/testing/index.d.ts"
       ],
       "module-resolver": [
-        "./dist/core/module-resolver.d.ts"
+        "./dist/src/core/module-resolver.d.ts"
       ]
     }
   },

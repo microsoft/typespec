@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
-import { createProjectedNameProgram, ModelProperty, projectProgram } from "../core/index.js";
-import { BasicTestRunner, createTestRunner } from "../testing/index.js";
+import { createProjectedNameProgram, ModelProperty, projectProgram } from "../src/core/index.js";
+import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 
 describe("compiler: projected-names", () => {
   let runner: BasicTestRunner;

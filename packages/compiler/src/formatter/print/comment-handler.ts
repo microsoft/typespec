@@ -1,5 +1,5 @@
 import prettier, { Printer } from "prettier";
-import { Node, SyntaxKind } from "../../core/types.js";
+import { Node, SyntaxKind } from "../../core/index.js";
 
 const { util } = prettier;
 

@@ -1,6 +1,6 @@
 import assert, { strictEqual } from "assert";
-import { Model, Type } from "../../core/types.js";
-import { TestHost, createTestHost } from "../../testing/index.js";
+import { Model, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 function assertModel(type?: Type): asserts type is Model {
   assert(type?.kind === "Model");

@@ -9,8 +9,8 @@ import {
   Model,
   Namespace,
   Operation,
-} from "../core/index.js";
-import { BasicTestRunner, createTestRunner } from "../testing/index.js";
+} from "../src/core/index.js";
+import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 
 describe("compiler: type-utils", () => {
   let runner: BasicTestRunner;

@@ -10,7 +10,7 @@ import {
   Scalar,
   Type,
   Union,
-} from "../../core/index.js";
+} from "../../src/core/index.js";
 import {
   ArrayBuilder,
   AssetEmitter,
@@ -29,7 +29,7 @@ import {
   TypeSpecDeclaration,
   code,
   createAssetEmitter,
-} from "../../emitter-framework/index.js";
+} from "../../src/emitter-framework/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
 

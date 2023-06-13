@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { logVerboseTestOutput } from "../../core/diagnostics.js";
-import { parse } from "../../core/parser.js";
+import { logVerboseTestOutput } from "../../src/core/diagnostics.js";
+import { parse } from "../../src/core/parser.js";
 
 interface FuzzedFile extends FuzzedScope {
   name: string;

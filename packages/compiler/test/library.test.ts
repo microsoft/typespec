@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { paramMessage } from "../core/library.js";
+import { paramMessage } from "../src/core/library.js";
 
 describe("compiler: library", () => {
   describe("paramMessage", () => {

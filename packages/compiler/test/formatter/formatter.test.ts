@@ -1,6 +1,6 @@
 import { strictEqual, throws } from "assert";
 import prettier from "prettier";
-import * as plugin from "../../formatter/index.js";
+import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
 function format(code: string, parser: TestParser = "typespec"): string {
