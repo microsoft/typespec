@@ -5,7 +5,7 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "re
 import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
-import { importTypeSpecCompiler } from "../core.js";
+import { importTypeSpecCompiler } from "../src/core.js";
 import { getMarkerLocation } from "../services.js";
 import { PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";

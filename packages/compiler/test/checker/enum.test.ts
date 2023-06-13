@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { DecoratorContext, Enum, EnumMember, Model, Type } from "../../core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
+import { DecoratorContext, Enum, EnumMember, Model, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: enums", () => {
   let testHost: TestHost;

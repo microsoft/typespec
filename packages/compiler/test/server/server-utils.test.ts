@@ -1,9 +1,9 @@
 import { deepStrictEqual, ok, strictEqual, throws } from "assert";
-import { Comment } from "../../core/index.js";
-import { parse } from "../../core/parser.js";
-import { TypeSpecScriptNode } from "../../core/types.js";
-import { getCommentAtPosition, getPositionBeforeTrivia } from "../../server/server-utils.js";
-import { extractCursor } from "../../testing/test-server-host.js";
+import { Comment } from "../../src/core/index.js";
+import { parse } from "../../src/core/parser.js";
+import { TypeSpecScriptNode } from "../../src/core/types.js";
+import { getCommentAtPosition, getPositionBeforeTrivia } from "../../src/server/server-utils.js";
+import { extractCursor } from "../../src/testing/test-server-host.js";
 import { dumpAST } from "../parser.test.js";
 
 describe("compiler: server: utils", () => {

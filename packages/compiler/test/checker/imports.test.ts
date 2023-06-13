@@ -4,7 +4,7 @@ import {
   expectDiagnostics,
   resolveVirtualPath,
   TestHost,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: imports", () => {
   let host: TestHost;

@@ -1,13 +1,13 @@
 import { ok, strictEqual } from "assert";
-import { getTypeName } from "../../core/index.js";
-import { Program } from "../../core/program.js";
-import { Model, Namespace, Type } from "../../core/types.js";
+import { getTypeName } from "../../src/core/index.js";
+import { Program } from "../../src/core/program.js";
+import { Model, Namespace, Type } from "../../src/core/types.js";
 import {
   TestHost,
   createTestHost,
   expectDiagnostics,
   expectIdenticalTypes,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
   const blues = new WeakSet();

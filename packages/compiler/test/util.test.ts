@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { RekeyableMap } from "../core/index.js";
-import { createRekeyableMap } from "../core/util.js";
+import { RekeyableMap } from "../src/core/index.js";
+import { createRekeyableMap } from "../src/core/util.js";
 
 describe("compiler: util", () => {
   describe("RekeyableMap", () => {

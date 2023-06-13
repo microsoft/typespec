@@ -1,6 +1,3 @@
-export * from "../lib/decorators.js";
-export * as decorators from "../lib/decorators.js";
-export * from "../server/index.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./diagnostics.js";
@@ -33,8 +30,3 @@ export {
   createRekeyableMap,
   getSourceFileKindFromExt,
 } from "./util.js";
-import * as formatter from "../formatter/index.js";
-export const TypeSpecPrettierPlugin = formatter;
-
-/** @deprecated Use TypeSpecPrettierPlugin */
-export const CadlPrettierPlugin = TypeSpecPrettierPlugin;

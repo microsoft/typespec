@@ -5,15 +5,15 @@ import {
   typespecTypeToJson,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
-} from "../core/index.js";
-import { Type } from "../core/types.js";
+} from "../src/core/index.js";
+import { Type } from "../src/core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "../testing/index.js";
+} from "../src/testing/index.js";
 
 describe("compiler: decorator utils", () => {
   describe("typespecTypeToJson", () => {

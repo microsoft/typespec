@@ -10,7 +10,7 @@ import {
   createTestServerHost,
   extractCursor,
   extractSquiggles,
-} from "../../testing/test-server-host.js";
+} from "../../src/testing/test-server-host.js";
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
