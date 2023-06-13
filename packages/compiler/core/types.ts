@@ -1858,6 +1858,19 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
   ? D
   : never;
 
+export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
+
+export interface JSONSchemaValidator {
+  /**
+   * Validate the configuration against its JSON Schema.
+   *
+   * @param config Configuration to validate.
+   * @param target Source file target to use for diagnostics.
+   * @returns Diagnostics produced by schema validation of the configuration.
+   */
+  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+}
+
 /** @deprecated Use TypeSpecLibraryDef */
 export type CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
@@ -1893,20 +1906,60 @@ export interface TypeSpecLibraryDef<
   readonly emitter?: {
     options?: JSONSchemaType<E>;
   };
-}
 
-export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
-
-export interface JSONSchemaValidator {
   /**
-   * Validate the configuration against its JSON Schema.
-   *
-   * @param config Configuration to validate.
-   * @param target Source file target to use for diagnostics.
-   * @returns Diagnostics produced by schema validation of the configuration.
+   * Configuration if library is providing linting rules/rulesets.
    */
-  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+  readonly linter?: LinterDef;
 }
+
+export interface LinterDef {
+  rules: LinterRuleDefinition<string, DiagnosticMessages>[];
+  ruleSets?: Record<string, LinterRuleSet>;
+}
+
+export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+  name: N;
+  severity: "warning";
+  description: string;
+  messages: DM;
+  create(context: LinterRuleContext<DM>): SemanticNodeListener;
+}
+
+export interface LinterRuleSet {
+  /** Other ruleset this ruleset extends */
+  extends?: string[];
+
+  /** Rules to enable/configure */
+  enable?: Record<string, boolean>;
+
+  /** Rules to disable. A rule CANNOT be in enable and disable map. */
+  disable?: Record<string, string>;
+}
+
+export interface LinterRuleContext<DM extends DiagnosticMessages> {
+  readonly program: Program;
+  reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void;
+}
+
+export type LinterRuleDiagnosticFormat<
+  T extends DiagnosticMessages,
+  M extends keyof T = "default"
+> = T[M] extends CallableMessage<infer A>
+  ? { format: Record<A[number], string> }
+  : Record<string, unknown>;
+
+export type LinterRuleDiagnosticReportWithoutTarget<
+  T extends DiagnosticMessages,
+  M extends keyof T = "default"
+> = {
+  messageId?: M;
+} & LinterRuleDiagnosticFormat<T, M>;
+
+export type LinterRuleDiagnosticReport<
+  T extends DiagnosticMessages,
+  M extends keyof T = "default"
+> = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 /** @deprecated Use TypeSpecLibrary */
 export type CadlLibrary<

@@ -10,6 +10,7 @@ export * from "./helpers/index.js";
 export {
   // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,
+  createRule,
   createTypeSpecLibrary,
   paramMessage,
   // eslint-disable-next-line deprecation/deprecation

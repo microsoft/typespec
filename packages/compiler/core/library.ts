@@ -5,6 +5,7 @@ import {
   CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
+  LinterRuleDefinition,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
@@ -97,6 +98,13 @@ export function paramMessage<T extends string[]>(
   };
   template.keys = keys;
   return template;
+}
+
+/** Create a new linter rule. */
+export function createRule<const N extends string, const T extends DiagnosticMessages>(
+  definition: LinterRuleDefinition<N, T>
+) {
+  return definition;
 }
 
 /** @deprecated use setTypeSpecNamespace */
