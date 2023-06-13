@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from "url";
-import { MANIFEST } from "../../src/core/manifest.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { compile } from "../../src/core/program.js";
+import { MANIFEST } from "../../src/manifest.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,

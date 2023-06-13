@@ -21,7 +21,7 @@ import {
   SymbolTable,
 } from "./types.js";
 
-export { typespecVersion } from "./manifest.js";
+export { typespecVersion } from "../manifest.js";
 export { NodeHost } from "./node-host.js";
 
 export class ExternalError extends Error {}

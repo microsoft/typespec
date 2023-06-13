@@ -1,3 +1,4 @@
+export * from "../manifest.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./diagnostics.js";
@@ -13,7 +14,6 @@ export {
   setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";
-export * from "./manifest.js";
 export * from "./module-resolver.js";
 export * from "./node-host.js";
 export * from "./parser.js";
