@@ -5,13 +5,13 @@ import {
   ModuleLibraryMetadata,
   NodePackage,
   ProjectLocationContext,
-} from "../../core/index.js";
+} from "../../src/core/index.js";
 import {
   TestHost,
   createTestHost,
   expectDiagnostics,
   resolveVirtualPath,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: imports", () => {
   let host: TestHost;

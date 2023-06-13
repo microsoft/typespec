@@ -1,14 +1,14 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { Operation, isArrayModelType } from "../../core/index.js";
-import { isTemplateDeclaration } from "../../core/type-utils.js";
-import { Model, ModelProperty, Type } from "../../core/types.js";
+import { isTemplateDeclaration } from "../../src/core/type-utils.js";
+import { Model, ModelProperty, Type } from "../../src/core/types.js";
+import { Operation, isArrayModelType } from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;

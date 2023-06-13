@@ -1,6 +1,6 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
-import { getSourceLocation } from "../../core/diagnostics.js";
-import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
+import { getSourceLocation } from "../../src/core/diagnostics.js";
+import { Diagnostic, Model, StringLiteral } from "../../src/core/types.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -9,7 +9,7 @@ import {
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;

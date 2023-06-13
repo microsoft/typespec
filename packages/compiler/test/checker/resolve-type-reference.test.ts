@@ -5,7 +5,7 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: resolveTypeReference", () => {
   let runner: BasicTestRunner;

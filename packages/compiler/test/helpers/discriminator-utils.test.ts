@@ -1,12 +1,12 @@
 import { strictEqual } from "assert";
-import { getDiscriminatedUnion, getDiscriminator, Model } from "../../core/index.js";
+import { getDiscriminatedUnion, getDiscriminator, Model } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: discriminator", () => {
   let runner: BasicTestRunner;

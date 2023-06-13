@@ -1,10 +1,10 @@
-import { navigateProgram } from "../core/semantic-walker.js";
+import { navigateProgram } from "../src/core/semantic-walker.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
   TestHost,
-} from "../testing/index.js";
+} from "../src/testing/index.js";
 
 describe("compiler: suppress", () => {
   let host: TestHost;

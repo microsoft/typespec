@@ -1,9 +1,9 @@
 import { rejects } from "assert";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { NodeHost, Program, compile, resolvePath } from "../../../core/index.js";
-import { CompilerOptions } from "../../../core/options.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../../testing/expect.js";
+import { NodeHost, Program, compile, resolvePath } from "../../../src/core/index.js";
+import { CompilerOptions } from "../../../src/core/options.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const scenarioRoot = resolvePath(__dirname, "../../../../test/e2e/scenarios");

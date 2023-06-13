@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Model, Operation, Scalar, getVisibility, isSecret } from "../../core/index.js";
+import { Model, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -9,13 +9,13 @@ import {
   getOverloadedOperation,
   getOverloads,
   isErrorModel,
-} from "../../lib/decorators.js";
+} from "../../src/lib/decorators.js";
 import {
   BasicTestRunner,
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;

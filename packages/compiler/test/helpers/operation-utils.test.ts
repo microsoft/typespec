@@ -1,6 +1,11 @@
 import { deepStrictEqual } from "assert";
-import { Interface, ListOperationOptions, listOperationsIn, Namespace } from "../../core/index.js";
-import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
+import {
+  Interface,
+  ListOperationOptions,
+  listOperationsIn,
+  Namespace,
+} from "../../src/core/index.js";
+import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("compiler: operation-utils", () => {
   let runner: BasicTestRunner;

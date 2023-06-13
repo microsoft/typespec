@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
-import { Model, Operation } from "../../core/index.js";
-import { getDoc } from "../../lib/decorators.js";
-import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
+import { Model, Operation } from "../../src/core/index.js";
+import { getDoc } from "../../src/lib/decorators.js";
+import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("compiler: checker: doc comments", () => {
   let runner: BasicTestRunner;

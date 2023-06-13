@@ -1,13 +1,13 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { dump } from "js-yaml";
-import { CompileCliArgs, getCompilerOptions } from "../core/cli/args.js";
+import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/args.js";
 import {
   TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
   resolveVirtualPath,
-} from "../testing/index.js";
+} from "../src/testing/index.js";
 
 describe("compiler: cli", () => {
   let host: TestHost;

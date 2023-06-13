@@ -1,7 +1,7 @@
 import assert, { deepStrictEqual, strictEqual } from "assert";
-import { CharCode } from "../core/charcode.js";
-import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
-import { hasParseError, parse, visitChildren } from "../core/parser.js";
+import { CharCode } from "../src/core/charcode.js";
+import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
+import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   Node,
   NodeFlags,
@@ -9,8 +9,8 @@ import {
   SourceFile,
   SyntaxKind,
   TypeSpecScriptNode,
-} from "../core/types.js";
-import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
+} from "../src/core/types.js";
+import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
 
 describe("compiler: parser", () => {
   describe("import statements", () => {

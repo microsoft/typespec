@@ -1,6 +1,6 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
-import { Program, projectProgram } from "../../core/program.js";
-import { createProjector } from "../../core/projector.js";
+import { Program, projectProgram } from "../../src/core/program.js";
+import { createProjector } from "../../src/core/projector.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
@@ -15,9 +15,9 @@ import {
   StringLiteral,
   Type,
   Union,
-} from "../../core/types.js";
-import { getDoc } from "../../lib/decorators.js";
-import { TestHost, createTestHost } from "../../testing/index.js";
+} from "../../src/core/types.js";
+import { getDoc } from "../../src/lib/decorators.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: projections: logic", () => {
   let testHost: TestHost;

@@ -1,7 +1,6 @@
 import {
   compilerAssert,
   DocContent,
-  getDocData,
   Node,
   Program,
   Sym,
@@ -9,6 +8,7 @@ import {
   TemplateDeclarationNode,
   Type,
 } from "../core/index.js";
+import { getDocData } from "../lib/decorators.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 /**

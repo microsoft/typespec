@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add support for new identifier characters from Unicode 15.0",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

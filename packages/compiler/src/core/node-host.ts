@@ -21,7 +21,7 @@ export const NodeHost: CompilerHost = {
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   readDir: (path: string) => readdir(path),
   rm: (path: string, options: RmOptions) => rm(path, options),
-  getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../"),
+  getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../../"),
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
     const rootDir = this.getExecutionRoot();
