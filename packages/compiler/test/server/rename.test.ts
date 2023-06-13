@@ -4,7 +4,7 @@ import {
   createTestServerHost,
   extractCursor,
   getTestIdentifiers,
-} from "../../testing/test-server-host.js";
+} from "../../src/testing/test-server-host.js";
 
 describe("compiler: server: rename and find references", () => {
   // `┆` marks where the cursor is positioned

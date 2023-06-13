@@ -3,10 +3,10 @@ import {
   ExpandConfigOptions,
   expandConfigVariables,
   resolveValues,
-} from "../../config/config-interpolation.js";
-import { defaultConfig, validateConfigPathsAbsolute } from "../../config/config-loader.js";
-import { TypeSpecConfig } from "../../config/types.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
+} from "../../src/config/config-interpolation.js";
+import { defaultConfig, validateConfigPathsAbsolute } from "../../src/config/config-loader.js";
+import { TypeSpecConfig } from "../../src/config/types.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: config interpolation", () => {
   describe("resolveValues", () => {

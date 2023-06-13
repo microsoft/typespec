@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { Logger, LogInfo, Tracer } from "../../core/index.js";
-import { createTracer } from "../../core/logger/tracer.js";
+import { Logger, LogInfo, Tracer } from "../../src/core/index.js";
+import { createTracer } from "../../src/core/logger/tracer.js";
 
 describe("compiler: tracer", () => {
   let logger: Logger;

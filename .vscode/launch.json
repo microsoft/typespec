@@ -66,7 +66,7 @@
       "type": "node",
       "request": "launch",
       "name": "Compile Scratch",
-      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": [
         "compile",
         "../samples/scratch",
@@ -89,7 +89,7 @@
       "type": "node",
       "request": "launch",
       "name": "Compile Scratch (nostdlib)",
-      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": ["compile", "../samples/scratch", "--output-dir=temp/scratch-output", "--nostdlib"],
       "smartStep": true,
       "sourceMaps": true,

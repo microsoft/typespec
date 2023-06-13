@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import prettier from "prettier";
 import { fileURLToPath } from "url";
-import * as plugin from "../../../formatter/index.js";
+import * as plugin from "../../../src/formatter/index.js";
 
 function format(code: string): string {
   const output = prettier.format(code, {

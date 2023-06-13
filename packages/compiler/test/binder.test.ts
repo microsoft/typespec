@@ -1,10 +1,10 @@
 import { ok, strictEqual } from "assert";
-import { Binder, createBinder } from "../core/binder.js";
-import { createSourceFile } from "../core/diagnostics.js";
-import { createLogger } from "../core/logger/logger.js";
-import { createTracer } from "../core/logger/tracer.js";
-import { parse } from "../core/parser.js";
-import { Program } from "../core/program.js";
+import { Binder, createBinder } from "../src/core/binder.js";
+import { createSourceFile } from "../src/core/diagnostics.js";
+import { createLogger } from "../src/core/logger/logger.js";
+import { createTracer } from "../src/core/logger/tracer.js";
+import { parse } from "../src/core/parser.js";
+import { Program } from "../src/core/program.js";
 import {
   AliasStatementNode,
   InterfaceStatementNode,
@@ -19,8 +19,8 @@ import {
   SymbolTable,
   SyntaxKind,
   UnionStatementNode,
-} from "../core/types.js";
-import { expectDiagnosticEmpty } from "../testing/expect.js";
+} from "../src/core/types.js";
+import { expectDiagnosticEmpty } from "../src/testing/expect.js";
 
 describe("compiler: binder", () => {
   let binder: Binder;

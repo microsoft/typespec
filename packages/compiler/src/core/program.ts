@@ -1,5 +1,6 @@
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
+import { MANIFEST } from "../manifest.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
@@ -10,7 +11,6 @@ import {
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
-import { MANIFEST } from "./manifest.js";
 import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,

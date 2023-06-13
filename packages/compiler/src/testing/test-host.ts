@@ -220,9 +220,9 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
 export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../"),
+  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
   files: [
-    { virtualPath: "./.tsp/dist/lib", realDir: "./dist/lib", pattern: "*" },
+    { virtualPath: "./.tsp/dist/src/lib", realDir: "./dist/src/lib", pattern: "*" },
     { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "*" },
   ],
 };

@@ -10,7 +10,7 @@ import {
   normalizeSlashes,
   reducePathComponents,
   resolvePath,
-} from "../core/path-utils.js";
+} from "../src/core/path-utils.js";
 
 describe("compiler: path utils", () => {
   it("normalizeSlashes", () => {
