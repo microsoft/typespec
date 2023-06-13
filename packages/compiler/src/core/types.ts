@@ -1910,10 +1910,10 @@ export interface TypeSpecLibraryDef<
   /**
    * Configuration if library is providing linting rules/rulesets.
    */
-  readonly linter?: LinterDef;
+  readonly linter?: LinterDefinition;
 }
 
-export interface LinterDef {
+export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
   ruleSets?: Record<string, LinterRuleSet>;
 }
@@ -1926,15 +1926,17 @@ export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMes
   create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 
+/** Reference to a rule. In this format <library name>:<rule/ruleset name> */
+export type RuleRef = `${string}:${string}`;
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
-  extends?: string[];
+  extends?: RuleRef[];
 
   /** Rules to enable/configure */
-  enable?: Record<string, boolean>;
+  enable?: Record<RuleRef, boolean>;
 
   /** Rules to disable. A rule CANNOT be in enable and disable map. */
-  disable?: Record<string, string>;
+  disable?: Record<RuleRef, string>;
 }
 
 export interface LinterRuleContext<DM extends DiagnosticMessages> {

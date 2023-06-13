@@ -19,6 +19,7 @@ specifiers:
   '@rollup/plugin-node-resolve': ~15.1.0
   '@rollup/plugin-replace': ~4.0.0
   '@rollup/plugin-virtual': ~3.0.1
+  '@rush-temp/best-practices': file:./projects/best-practices.tgz
   '@rush-temp/bundler': file:./projects/bundler.tgz
   '@rush-temp/compiler': file:./projects/compiler.tgz
   '@rush-temp/eslint-config-typespec': file:./projects/eslint-config-typespec.tgz
@@ -157,6 +158,7 @@ dependencies:
   '@rollup/plugin-node-resolve': 15.1.0_rollup@3.24.0
   '@rollup/plugin-replace': 4.0.0_rollup@3.24.0
   '@rollup/plugin-virtual': 3.0.1_rollup@3.24.0
+  '@rush-temp/best-practices': file:projects/best-practices.tgz
   '@rush-temp/bundler': file:projects/bundler.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
   '@rush-temp/eslint-config-typespec': file:projects/eslint-config-typespec.tgz_prettier@2.8.8
@@ -15900,6 +15902,24 @@ packages:
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
+    dev: false
+
+  file:projects/best-practices.tgz:
+    resolution: {integrity: sha512-SjrUZs8MAtjYMHf652t5AP1Uu6tfcWPAgthumDV28wFaP+jD3/uMXfOIqUbKKErjPyVaPVRfOYbjuiQSogw6Qw==, tarball: file:projects/best-practices.tgz}
+    name: '@rush-temp/best-practices'
+    version: 0.0.0
+    dependencies:
+      '@types/mocha': 10.0.1
+      '@types/node': 18.11.19
+      c8: 7.14.0
+      eslint: 8.42.0
+      mocha: 10.2.0
+      mocha-junit-reporter: 2.2.0_mocha@10.2.0
+      mocha-multi-reporters: 1.5.1_mocha@10.2.0
+      rimraf: 5.0.1
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   file:projects/bundler.tgz:

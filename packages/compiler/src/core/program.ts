@@ -9,6 +9,7 @@ import {
   resolveTypeSpecEntrypointForDir,
 } from "./entrypoint-resolution.js";
 import { getLibraryUrlsLoaded } from "./library.js";
+import { createLinter } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
@@ -121,6 +122,15 @@ interface LibraryMetadata {
      */
     url?: string;
   };
+}
+
+// TODO better name?
+// TODO move to types
+export interface Library {
+  module: ModuleResolutionResult;
+  entrypoint: JsSourceFileNode | undefined;
+  metadata: LibraryMetadata;
+  definition?: TypeSpecLibrary<any>;
 }
 
 interface EmitterRef {
@@ -365,6 +375,7 @@ export async function compile(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
+  createLinter(program, (name) => loadLibrary(mainFile, name));
   program.checker = createChecker(program);
   program.checker.checkProgram();
 
@@ -658,14 +669,14 @@ export async function compile(
 
     return [{ module, entrypoint: file }, []];
   }
-  async function loadEmitter(
+
+  async function loadLibrary(
     mainFile: string,
-    emitterNameOrPath: string,
-    emittersOptions: Record<string, EmitterOptions>
-  ): Promise<EmitterRef | undefined> {
+    libraryNameOrPath: string
+  ): Promise<Library | undefined> {
     const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
       mainFile,
-      emitterNameOrPath
+      libraryNameOrPath
     );
 
     if (resolution === undefined) {
@@ -674,6 +685,28 @@ export async function compile(
     }
     const { module, entrypoint } = resolution;
 
+    const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
+    const metadata = computeLibraryMetadata(module, libDefinition);
+
+    return {
+      ...resolution,
+      metadata,
+      definition: libDefinition,
+    };
+  }
+
+  async function loadEmitter(
+    mainFile: string,
+    emitterNameOrPath: string,
+    emittersOptions: Record<string, EmitterOptions>
+  ): Promise<EmitterRef | undefined> {
+    const library = await loadLibrary(mainFile, emitterNameOrPath);
+
+    if (library === undefined) {
+      return undefined;
+    }
+
+    const { entrypoint, metadata } = library;
     if (entrypoint === undefined) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -686,8 +719,7 @@ export async function compile(
     }
 
     const emitFunction = entrypoint.esmExports.$onEmit;
-    const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint.esmExports.$lib;
-    const metadata = computeLibraryMetadata(module, libDefinition);
+    const libDefinition = library.definition;
 
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
