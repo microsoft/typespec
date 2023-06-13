@@ -25,7 +25,6 @@ import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   CompilerHost,
-  DeclarationContext,
   Diagnostic,
   DiagnosticTarget,
   Directive,
@@ -35,6 +34,7 @@ import {
   JsSourceFileNode,
   LibraryMetadata,
   LiteralType,
+  LocationContext,
   ModuleLibraryMetadata,
   Namespace,
   NoTarget,
@@ -102,7 +102,7 @@ export interface Program {
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
   /** Return declaration context of the given source file. */
-  getSourceFileDeclarationContext(sourceFile: SourceFile): DeclarationContext;
+  getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
 
   /**
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
@@ -267,7 +267,7 @@ export async function compile(
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
-  const sourceFileDeclarationContexts = new WeakMap<SourceFile, DeclarationContext>();
+  const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
   let error = false;
 
   const logger = createLogger({ sink: host.logSink });
@@ -301,7 +301,7 @@ export async function compile(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
-    getSourceFileDeclarationContext,
+    getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
 
@@ -323,7 +323,7 @@ export async function compile(
       importScript,
       joinPaths(getDirectoryPath(resolvedMain), `__additional_imports`)
     );
-    sourceFileDeclarationContexts.set(sourceFile, { type: "project" });
+    sourceFileLocationContexts.set(sourceFile, { type: "project" });
     await loadTypeSpecScript(sourceFile);
   }
 
@@ -452,25 +452,25 @@ export async function compile(
   }
 
   async function loadStandardLibrary(program: Program) {
-    const declarationContext: DeclarationContext = { type: "compiler" };
+    const locationContext: LocationContext = { type: "compiler" };
     for (const dir of host.getLibDirs()) {
-      await loadDirectory(dir, declarationContext, NoTarget);
+      await loadDirectory(dir, locationContext, NoTarget);
     }
   }
 
   async function loadDirectory(
     dir: string,
-    declarationContext: DeclarationContext,
+    locationContext: LocationContext,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
     const mainFile = await resolveTypeSpecEntrypointForDir(host, dir, reportDiagnostic);
-    await loadTypeSpecFile(mainFile, declarationContext, diagnosticTarget);
+    await loadTypeSpecFile(mainFile, locationContext, diagnosticTarget);
     return mainFile;
   }
 
   async function loadTypeSpecFile(
     path: string,
-    declarationContext: DeclarationContext,
+    locationContext: LocationContext,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ) {
     if (seenSourceFiles.has(path)) {
@@ -483,14 +483,14 @@ export async function compile(
     });
 
     if (file) {
-      sourceFileDeclarationContexts.set(file, declarationContext);
+      sourceFileLocationContexts.set(file, locationContext);
       await loadTypeSpecScript(file);
     }
   }
 
   async function loadJsFile(
     path: string,
-    declarationContext: DeclarationContext,
+    locationContext: LocationContext,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<JsSourceFileNode | undefined> {
     const sourceFile = program.jsSourceFiles.get(path);
@@ -499,7 +499,7 @@ export async function compile(
     }
 
     const file = createSourceFile("", path);
-    sourceFileDeclarationContexts.set(file, declarationContext);
+    sourceFileLocationContexts.set(file, locationContext);
     const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
       diagnosticTarget,
       jsDiagnosticTarget: { file, pos: 0, end: 0 },
@@ -534,10 +534,10 @@ export async function compile(
    */
   async function importJsFile(
     path: string,
-    declarationContext: DeclarationContext,
+    locationContext: LocationContext,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ) {
-    const file = await loadJsFile(path, declarationContext, diagnosticTarget);
+    const file = await loadJsFile(path, locationContext, diagnosticTarget);
     if (file !== undefined) {
       program.jsSourceFiles.set(path, file);
       binder.bindJsSourceFile(file);
@@ -575,24 +575,24 @@ export async function compile(
     await loadImports(
       file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
       basedir,
-      getSourceFileDeclarationContext(file.file)
+      getSourceFileLocationContext(file.file)
     );
   }
 
-  function getSourceFileDeclarationContext(sourcefile: SourceFile): DeclarationContext {
-    const declarationContext = sourceFileDeclarationContexts.get(sourcefile);
-    compilerAssert(declarationContext, "SourceFile should have a declaration declarationContext.");
-    return declarationContext;
+  function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
+    const locationContext = sourceFileLocationContexts.get(sourcefile);
+    compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
+    return locationContext;
   }
 
   async function loadImports(
     imports: Array<{ path: string; target: DiagnosticTarget | typeof NoTarget }>,
     relativeTo: string,
-    declarationContext: DeclarationContext
+    locationContext: LocationContext
   ) {
     // collect imports
     for (const { path, target } of imports) {
-      await loadImport(path, target, relativeTo, declarationContext);
+      await loadImport(path, target, relativeTo, locationContext);
     }
   }
 
@@ -600,7 +600,7 @@ export async function compile(
     path: string,
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string,
-    declarationContext: DeclarationContext
+    locationContext: LocationContext
   ) {
     const library = await resolveTypeSpecLibrary(path, relativeTo, target);
     if (library === undefined) {
@@ -614,7 +614,7 @@ export async function compile(
       trace("import-resolution.library", `Loading library "${path}" from "${library.mainFile}"`);
 
       const metadata = computeModuleMetadata(library);
-      declarationContext = {
+      locationContext = {
         type: "library",
         metadata,
       };
@@ -623,16 +623,16 @@ export async function compile(
 
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
     if (isDirectory) {
-      return await loadDirectory(importFilePath, declarationContext, target);
+      return await loadDirectory(importFilePath, locationContext, target);
     }
 
     const sourceFileKind = host.getSourceFileKind(importFilePath);
 
     switch (sourceFileKind) {
       case "js":
-        return await importJsFile(importFilePath, declarationContext, target);
+        return await importJsFile(importFilePath, locationContext, target);
       case "typespec":
-        return await loadTypeSpecFile(importFilePath, declarationContext, target);
+        return await loadTypeSpecFile(importFilePath, locationContext, target);
       default:
         program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
     }
@@ -661,19 +661,19 @@ export async function compile(
     ]
   > {
     const basedir = getDirectoryPath(mainFile);
-    const declarationContext: DeclarationContext = { type: "project" };
+    const locationContext: LocationContext = { type: "project" };
     // attempt to resolve a node module with this name
     const [module, diagnostics] = await resolveJSLibrary(
       emitterNameOrPath,
       basedir,
-      declarationContext
+      locationContext
     );
     if (!module) {
       return [undefined, diagnostics];
     }
 
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
-    const file = await loadJsFile(entrypoint, declarationContext, NoTarget);
+    const file = await loadJsFile(entrypoint, locationContext, NoTarget);
 
     return [{ module, entrypoint: file }, []];
   }
@@ -863,7 +863,7 @@ export async function compile(
   async function resolveJSLibrary(
     specifier: string,
     baseDir: string,
-    declarationContext: DeclarationContext
+    locationContext: LocationContext
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [await resolveModule(getResolveModuleHost(), specifier, { baseDir }), []];
@@ -916,12 +916,12 @@ export async function compile(
 
     const sourceFileKind = host.getSourceFileKind(mainPath);
 
-    const declarationContext: DeclarationContext = { type: "project" };
+    const locationContext: LocationContext = { type: "project" };
     switch (sourceFileKind) {
       case "js":
-        return await importJsFile(mainPath, declarationContext, NoTarget);
+        return await importJsFile(mainPath, locationContext, NoTarget);
       case "typespec":
-        return await loadTypeSpecFile(mainPath, declarationContext, NoTarget);
+        return await loadTypeSpecFile(mainPath, locationContext, NoTarget);
       default:
         program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
     }

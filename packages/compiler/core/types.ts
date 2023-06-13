@@ -1638,29 +1638,29 @@ export interface SourceFile {
   getLineAndCharacterOfPosition(position: number): LineAndCharacter;
 }
 
-export type DeclarationContext =
-  | ProjectDeclarationContext
-  | CompilerDeclarationContext
-  | SyntheticDeclarationContext
-  | LibraryDeclarationContext;
+export type LocationContext =
+  | ProjectLocationContext
+  | CompilerLocationContext
+  | SyntheticLocationContext
+  | LibraryLocationContext;
 
 /** Defined in the user project. */
-export interface ProjectDeclarationContext {
+export interface ProjectLocationContext {
   type: "project";
 }
 
 /** Built-in */
-export interface CompilerDeclarationContext {
+export interface CompilerLocationContext {
   type: "compiler";
 }
 
 /** Refer to a type that was not declared in a file */
-export interface SyntheticDeclarationContext {
+export interface SyntheticLocationContext {
   type: "synthetic";
 }
 
 /** Defined in a library. */
-export interface LibraryDeclarationContext {
+export interface LibraryLocationContext {
   type: "library";
   metadata: ModuleLibraryMetadata;
 }
