@@ -1,4 +1,4 @@
-import { Diagnostic } from "../core/index.js";
+import { Diagnostic, RuleRef } from "../core/index.js";
 
 /**
  * Represent the normalized user configuration.
@@ -63,6 +63,8 @@ export interface TypeSpecConfig {
    * Name of emitters or path to emitters that should be used.
    */
   options?: Record<string, EmitterOptions>;
+
+  linter?: LinterConfig;
 }
 
 /**
@@ -98,7 +100,7 @@ export type EmitterOptions = Record<string, unknown> & {
 };
 
 export interface LinterConfig {
-  extends?: string[];
-  enable?: Record<string, boolean>;
-  disable?: Record<string, string>;
+  extends?: RuleRef[];
+  enable?: Record<RuleRef, boolean>;
+  disable?: Record<RuleRef, string>;
 }

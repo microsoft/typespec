@@ -23,17 +23,30 @@ export function createLinter(
   };
 
   async function resolveLibrary(name: string): Promise<Library | undefined> {
-    let loadedLibrary = linterLibraries.get(name);
+    const loadedLibrary = linterLibraries.get(name);
     if (loadedLibrary === undefined) {
-      loadedLibrary = await loadLibrary(name);
-      if (loadedLibrary?.definition?.linter?.rules) {
-        for (const rule of loadedLibrary.definition.linter.rules) {
-          ruleMap.set(`${name}:${rule.name}`, rule);
-        }
-      }
-      linterLibraries.set(name, loadedLibrary);
+      return registerLinterLibrary(name);
     }
     return loadedLibrary;
+  }
+
+  async function registerLinterLibrary(name: string): Promise<Library | undefined> {
+    tracer.trace("register-library", name);
+
+    const library = await loadLibrary(name);
+    if (library?.definition?.linter?.rules) {
+      for (const rule of library.definition.linter.rules) {
+        const ruleId = `${name}:${rule.name}`;
+        tracer.trace(
+          "register-library.rule",
+          `Registering rule "${ruleId}" for library "${name}".`
+        );
+        ruleMap.set(ruleId, rule);
+      }
+    }
+    linterLibraries.set(name, library);
+
+    return library;
   }
 
   async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {

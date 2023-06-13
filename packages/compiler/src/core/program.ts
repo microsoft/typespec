@@ -375,7 +375,10 @@ export async function compile(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  createLinter(program, (name) => loadLibrary(mainFile, name));
+  const linter = createLinter(program, (name) => loadLibrary(mainFile, name));
+  if (options.linterRuleSet) {
+    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
+  }
   program.checker = createChecker(program);
   program.checker.checkProgram();
 

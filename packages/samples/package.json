@@ -35,6 +35,7 @@
   ],
   "dependencies": {
     "@typespec/versioning": "~0.45.0",
+    "@typespec/best-practices": "~0.45.0",
     "@typespec/compiler": "~0.45.0",
     "@typespec/http": "~0.45.0",
     "@typespec/rest": "~0.45.0",

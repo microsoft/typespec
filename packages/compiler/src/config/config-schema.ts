@@ -108,6 +108,6 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           additionalProperties: { type: "string" },
         },
       },
-    },
+    } as any, // ajv type system doesn't like the string templates
   },
 };
