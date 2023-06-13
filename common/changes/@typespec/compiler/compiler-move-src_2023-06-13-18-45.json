@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Internal: Reoganize sources inside `src/` folder",
+      "comment": "Internal: Reorganize sources inside `src/` folder",
       "type": "none"
     }
   ],
