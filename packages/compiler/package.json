@@ -28,7 +28,7 @@
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
-    "./dist/src/core/logger/console-sink.js": "./dist/src/ore/logger/console-sink.browser.js"
+    "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "typesVersions": {
     "*": {
