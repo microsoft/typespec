@@ -1,5 +1,5 @@
 import { Parser, SupportLanguage } from "prettier";
-import { Node, SyntaxKind } from "../core/types.js";
+import { Node } from "../core/types.js";
 import { parse } from "./parser.js";
 import { typespecPrinter } from "./print/index.js";
 
@@ -18,15 +18,7 @@ const TypeSpecParser: Parser = {
   parse,
   astFormat: "typespec-format",
   locStart(node: Node) {
-    if (
-      node.kind === SyntaxKind.NamespaceStatement &&
-      node.parent?.kind === SyntaxKind.NamespaceStatement &&
-      node.parent.statements === node
-    ) {
-      return node.id.pos;
-    } else {
-      return node.pos;
-    }
+    return node.pos;
   },
   locEnd(node: Node) {
     return node.end;

@@ -559,6 +559,39 @@ namespace Bar;
       });
     });
 
+    it("format comment between decorator and flattened blockless namespace statement", () => {
+      assertFormat({
+        code: `
+@foo
+   // comment
+namespace Foo.Bar;
+`,
+        expected: `
+@foo
+// comment
+namespace Foo.Bar;
+`,
+      });
+    });
+
+    it("format comment between decorator and flattened block namespace statement", () => {
+      assertFormat({
+        code: `
+@foo
+   // comment
+namespace Foo.Bar {
+}
+`,
+        expected: `
+@foo
+// comment
+namespace Foo.Bar {
+
+}
+`,
+      });
+    });
+
     it("format comment between decorator and model statement", () => {
       assertFormat({
         code: `
@@ -680,7 +713,7 @@ enum Bar {
       });
     });
 
-    it("keeps comment between statements of a flatten namespace", () => {
+    it("keeps comment between statements of a flattened namespace", () => {
       assertFormat({
         code: `
         namespace Foo.Bar {
