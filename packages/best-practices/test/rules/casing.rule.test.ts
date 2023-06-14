@@ -14,15 +14,15 @@ describe("casing rule", () => {
   });
 
   describe("models", () => {
-    it("emit diagnostics if model is camelCase", () => {
-      ruleTester.expect(`model fooBar {}`).toEmitDiagnostics({
+    it("emit diagnostics if model is camelCase", async () => {
+      await ruleTester.expect(`model fooBar {}`).toEmitDiagnostics({
         code: "@typespec/best-practices:no-foo-model",
         message: "Cannot name a model with 'Foo'",
       });
     });
 
-    it("should be valid if model is pascal case", () => {
-      ruleTester.expect(`model FooBar {}`).toBeValid();
+    it("should be valid if model is pascal case", async () => {
+      await ruleTester.expect(`model FooBar {}`).toBeValid();
     });
   });
 });

@@ -74,8 +74,8 @@ export function createLinter(
           } else {
             diagnostics.add(
               createDiagnostic({
-                code: "unknown-rule-set",
-                format: { libraryName: ref.libraryName, ruleSetName: ref.name },
+                code: "unknown-rule",
+                format: { libraryName: ref.libraryName, ruleName: ref.name },
                 target: NoTarget,
               })
             );

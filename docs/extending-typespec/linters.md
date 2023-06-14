@@ -145,15 +145,15 @@ describe("required-doc rule", () => {
     ruleTester = createLinterRuleTester(runner, requiredDocRule, "@typespec/my-linter");
   });
 
-  it("emit diagnostics when using model named foo", () => {
-    ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
+  it("emit diagnostics when using model named foo", async () => {
+    await ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
       code: "@typespec/my-linter:no-foo-model",
       message: "Cannot name a model with 'Foo'",
     });
   });
 
-  it("should be valid to use other names", () => {
-    ruleTester.expect(`model Bar {}`).toBeValid();
+  it("should be valid to use other names", async () => {
+    await ruleTester.expect(`model Bar {}`).toBeValid();
   });
 });
 ```
