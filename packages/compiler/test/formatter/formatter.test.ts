@@ -679,6 +679,47 @@ enum Bar {
 `,
       });
     });
+
+    it("keeps comment between statements of a", () => {
+      assertFormat({
+        code: `
+        namespace Foo.Bar {
+// one
+op one(): void;
+
+// two
+op two(foo: string): void;
+
+// three
+model Bar {}
+
+// four
+interface IFace {}
+
+// five
+interface MyEnum {}
+        }
+`,
+        expected: `
+namespace Foo.Bar {
+  // one
+  op one(): void;
+
+  // two
+  op two(foo: string): void;
+
+  // three
+  model Bar {}
+
+  // four
+  interface IFace {}
+
+  // five
+  interface MyEnum {}
+}
+`,
+      });
+    });
   });
 
   describe("alias union", () => {
