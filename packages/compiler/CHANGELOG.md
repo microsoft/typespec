@@ -1,6 +1,13 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+This log was last generated on Wed, 14 Jun 2023 17:05:12 GMT and should not be manually modified.
+
+## 0.45.1
+Wed, 14 Jun 2023 17:05:12 GMT
+
+### Patches
+
+- Fix: Formatter moves all comments in flattened namespace to the top
 
 ## 0.45.0
 Tue, 06 Jun 2023 22:44:16 GMT
