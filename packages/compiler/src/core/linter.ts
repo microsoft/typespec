@@ -1,10 +1,22 @@
-import { createDiagnosticCollector } from "./diagnostics.js";
+import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
 import { Library, Program } from "./program.js";
-import { Diagnostic, LinterRuleDefinition, LinterRuleSet, NoTarget, RuleRef } from "./types.js";
+import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
+import {
+  Diagnostic,
+  DiagnosticMessages,
+  LinterRule,
+  LinterRuleContext,
+  LinterRuleDiagnosticReport,
+  LinterRuleSet,
+  NoTarget,
+  RuleRef,
+  SemanticNodeListener,
+} from "./types.js";
 
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
+  lint(): readonly Diagnostic[];
 }
 
 export function createLinter(
@@ -14,40 +26,14 @@ export function createLinter(
   // TODO document tracing options
   const tracer = program.tracer.sub("linter");
 
-  const ruleMap = new Map<string, LinterRuleDefinition<string, any>>();
-  const enabledRules = new Map<string, LinterRuleDefinition<string, any>>();
+  const ruleMap = new Map<string, LinterRule<string, any>>();
+  const enabledRules = new Map<string, LinterRule<string, any>>();
   const linterLibraries = new Map<string, Library | undefined>();
 
   return {
     extendRuleSet,
+    lint,
   };
-
-  async function resolveLibrary(name: string): Promise<Library | undefined> {
-    const loadedLibrary = linterLibraries.get(name);
-    if (loadedLibrary === undefined) {
-      return registerLinterLibrary(name);
-    }
-    return loadedLibrary;
-  }
-
-  async function registerLinterLibrary(name: string): Promise<Library | undefined> {
-    tracer.trace("register-library", name);
-
-    const library = await loadLibrary(name);
-    if (library?.definition?.linter?.rules) {
-      for (const rule of library.definition.linter.rules) {
-        const ruleId = `${name}:${rule.name}`;
-        tracer.trace(
-          "register-library.rule",
-          `Registering rule "${ruleId}" for library "${name}".`
-        );
-        ruleMap.set(ruleId, rule);
-      }
-    }
-    linterLibraries.set(name, library);
-
-    return library;
-  }
 
   async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
@@ -121,6 +107,57 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
+  function lint(): readonly Diagnostic[] {
+    const diagnostics = createDiagnosticCollector();
+    const eventEmitter = new EventEmitter<SemanticNodeListener>();
+    tracer.trace(
+      "lint",
+      `Running linter with following rules:\n` +
+        [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n")
+    );
+
+    for (const rule of enabledRules.values()) {
+      const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
+      for (const [name, cb] of Object.entries(listener)) {
+        eventEmitter.on(name as any, cb as any);
+      }
+    }
+    navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
+    return diagnostics.diagnostics;
+  }
+
+  async function resolveLibrary(name: string): Promise<Library | undefined> {
+    const loadedLibrary = linterLibraries.get(name);
+    if (loadedLibrary === undefined) {
+      return registerLinterLibrary(name);
+    }
+    return loadedLibrary;
+  }
+
+  async function registerLinterLibrary(name: string): Promise<Library | undefined> {
+    tracer.trace("register-library", name);
+
+    const library = await loadLibrary(name);
+    if (library?.definition?.linter?.rules) {
+      for (const ruleDef of library.definition.linter.rules) {
+        const ruleId = `${name}:${ruleDef.name}`;
+        tracer.trace(
+          "register-library.rule",
+          `Registering rule "${ruleId}" for library "${name}".`
+        );
+        const rule: LinterRule<string, any> = { ...ruleDef, id: ruleId };
+        if (ruleMap.has(ruleId)) {
+          compilerAssert(false, `Unexpected duplicate linter rule: "${ruleId}"`);
+        } else {
+          ruleMap.set(ruleId, rule);
+        }
+      }
+    }
+    linterLibraries.set(name, library);
+
+    return library;
+  }
+
   function parseRuleReference(
     ref: RuleRef
   ): [{ libraryName: string; name: string } | undefined, readonly Diagnostic[]] {
@@ -132,5 +169,45 @@ export function createLinter(
       ];
     }
     return [{ libraryName, name }, []];
+  }
+}
+
+function createLinterRuleContext<N extends string, DM extends DiagnosticMessages>(
+  program: Program,
+  rule: LinterRule<N, DM>,
+  diagnosticCollector: DiagnosticCollector
+): LinterRuleContext<DM> {
+  return {
+    program,
+    reportDiagnostic,
+  };
+
+  function createDiagnostic<M extends keyof DM>(
+    diag: LinterRuleDiagnosticReport<DM, M>
+  ): Diagnostic {
+    const message = rule.messages[diag.messageId ?? "default"];
+    if (!message) {
+      const messageString = Object.keys(rule.messages)
+        .map((x) => ` - ${x}`)
+        .join("\n");
+      const messageId = String(diag.messageId);
+      throw new Error(
+        `Unexpected message id '${messageId}' for rule '${rule.name}'. Defined messages:\n${messageString}`
+      );
+    }
+
+    const messageStr = typeof message === "string" ? message : message((diag as any).format);
+
+    return {
+      code: rule.id,
+      severity: rule.severity,
+      message: messageStr,
+      target: diag.target,
+    };
+  }
+
+  function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
+    const diagnostic = createDiagnostic(diag);
+    diagnosticCollector.add(diagnostic);
   }
 }

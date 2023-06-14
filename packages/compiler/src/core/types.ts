@@ -1926,6 +1926,13 @@ export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMes
   create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 
+/** Resolved instance of a linter rule that will run. */
+export interface LinterRule<N extends string, DM extends DiagnosticMessages>
+  extends LinterRuleDefinition<N, DM> {
+  /** Expanded rule id in format `<library-name>:<rule-name>` */
+  id: string;
+}
+
 /** Reference to a rule. In this format <library name>:<rule/ruleset name> */
 export type RuleRef = `${string}:${string}`;
 export interface LinterRuleSet {

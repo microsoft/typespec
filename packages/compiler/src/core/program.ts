@@ -385,6 +385,7 @@ export async function compile(
   if (program.hasError()) {
     return program;
   }
+  // onValidate stage
   for (const cb of validateCbs) {
     try {
       await cb(program);
@@ -420,6 +421,10 @@ export async function compile(
     return program;
   }
 
+  // Linter stage
+  program.reportDiagnostics(linter.lint());
+
+  // Emitter stage
   for (const instance of emitters) {
     await runEmitter(instance);
   }
