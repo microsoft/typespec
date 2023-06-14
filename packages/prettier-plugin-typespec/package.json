@@ -15,7 +15,7 @@
     "prettier": "~2.8.7"
   },
   "devDependencies": {
-    "@typespec/compiler": "~0.45.0",
+    "@typespec/compiler": "~0.45.1",
     "@typespec/internal-build-utils": "~0.4.2",
     "@rollup/plugin-commonjs": "~25.0.0",
     "@rollup/plugin-json": "~6.0.0",

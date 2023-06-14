@@ -51,7 +51,7 @@
     "@emotion/react": "^11.10.4",
     "@fluentui/react-components": "~9.21.0",
     "@fluentui/react-icons": "~2.0.190",
-    "@typespec/compiler": "~0.45.0",
+    "@typespec/compiler": "~0.45.1",
     "@typespec/html-program-viewer": "~0.45.0",
     "@typespec/http": "~0.45.0",
     "@typespec/openapi": "~0.45.0",
