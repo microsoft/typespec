@@ -109,6 +109,12 @@ extern dec contentMediaType(target: string | Reflection.ModelProperty, value: va
  */
 extern dec contentSchema(target: string | Reflection.ModelProperty, value: unknown);
 
+/**
+ * Specify a custom property to add to the emitted schema. Useful for adding custom keywords
+ * and other extensions.
+ */
+extern dec extension(target: unknown, key: valueof string, value: unknown);
+
 enum Format {
   dateTime: "date-time",
   date: "date",
@@ -128,4 +134,20 @@ enum Format {
   jsonPointer: "json-pointer",
   relativeJsonPointer: "relative-json-pointer",
   regex: "regex",
+}
+
+/**
+ * Specify that the provided template argument should be emitted as raw JSON or YAML
+ * as opposed to a schema. Use in combination with the @extension decorator. For example,
+ * `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
+ * whereas `@extension("x-schema", Json<{x: "value"}>)` will emit the raw JSON code
+ * `{x: "value"}`.
+ */
+@Private.validatesRawJson(T)
+model Json<T> {
+  value: T
+}
+
+namespace Private {
+  extern dec validatesRawJson(target: Reflection.Model, value: unknown);
 }
