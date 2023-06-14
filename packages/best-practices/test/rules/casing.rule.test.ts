@@ -1,12 +1,16 @@
-import { RuleTester, createRuleTester, createTestRunner } from "@typespec/compiler/testing";
+import {
+  LinterRuleTester,
+  createLinterRuleTester,
+  createTestRunner,
+} from "@typespec/compiler/testing";
 import { casingRule } from "../../src/rules/casing.rule.js";
 
 describe("casing rule", () => {
-  let ruleTester: RuleTester;
+  let ruleTester: LinterRuleTester;
 
   beforeEach(async () => {
     const runner = await createTestRunner();
-    ruleTester = createRuleTester(runner, casingRule, "@typespec/best-practices");
+    ruleTester = createLinterRuleTester(runner, casingRule, "@typespec/best-practices");
   });
 
   describe("models", () => {

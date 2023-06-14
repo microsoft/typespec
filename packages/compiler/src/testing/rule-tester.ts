@@ -1,36 +1,33 @@
 import {
   Diagnostic,
+  DiagnosticMessages,
   LinterRuleDefinition,
   createDiagnosticCollector,
   navigateProgram,
-} from "@typespec/compiler";
-import {
-  BasicTestRunner,
-  DiagnosticMatch,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "@typespec/compiler/testing";
+} from "../core/index.js";
 import { createLinterRuleContext } from "../core/linter.js";
+import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
+import { BasicTestRunner } from "./types.js";
 
-export interface RuleTester {
-  expect(code: string): RuleTestExpect;
+export interface LinterRuleTester {
+  expect(code: string): LinterRuleTestExpect;
 }
 
-export interface RuleTestExpect {
+export interface LinterRuleTestExpect {
   toBeValid(): Promise<void>;
   toEmitDiagnostics(diagnostics: DiagnosticMatch | DiagnosticMatch[]): Promise<void>;
 }
 
-export function createRuleTester(
+export function createLinterRuleTester(
   runner: BasicTestRunner,
-  ruleDef: LinterRuleDefinition<string, any>,
+  ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
   libraryName: string
-): RuleTester {
+): LinterRuleTester {
   return {
     expect,
   };
 
-  function expect(code: string): RuleTestExpect {
+  function expect(code: string): LinterRuleTestExpect {
     return {
       toBeValid,
       toEmitDiagnostics,

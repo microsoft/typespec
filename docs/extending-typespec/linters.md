@@ -130,11 +130,11 @@ When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule o
 
 To test linter rule an rule tester is provided letting you test a specific rule without enabling the others.
 
-First you'll want to create an instance of the rule tester using `createRuleTester` passing it the rule that is being tested.
+First you'll want to create an instance of the rule tester using `createLinterRuleTester` passing it the rule that is being tested.
 You can then provide different test checking the rule pass or fails.
 
 ```ts
-import { createRuleTester } from "@typespec/compiler/testing";
+import { createLinterRuleTester } from "@typespec/compiler/testing";
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
 describe("required-doc rule", () => {
@@ -142,7 +142,7 @@ describe("required-doc rule", () => {
 
   beforeEach(() => {
     const runner = createTestRunner();
-    ruleTester = createRuleTester(runner, requiredDocRule, "@typespec/my-linter");
+    ruleTester = createLinterRuleTester(runner, requiredDocRule, "@typespec/my-linter");
   });
 
   it("emit diagnostics when using model named foo", () => {
