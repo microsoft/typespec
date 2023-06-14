@@ -680,7 +680,7 @@ enum Bar {
       });
     });
 
-    it("keeps comment between statements of a", () => {
+    it("keeps comment between statements of a flatten namespace", () => {
       assertFormat({
         code: `
         namespace Foo.Bar {

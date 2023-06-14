@@ -553,9 +553,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseExpected(Token.CloseBrace);
     }
 
-    const getSegmentPos = (segmentNumber: number) => {
-      return segmentNumber + 1 === nsSegments.length ? pos : nsSegments[segmentNumber].pos;
-    };
     let outerNs: NamespaceStatementNode = {
       kind: SyntaxKind.NamespaceStatement,
       decorators,
@@ -563,7 +560,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       locals: undefined!,
       statements,
 
-      ...finishNode(getSegmentPos(0)),
+      ...finishNode(pos),
     };
 
     for (let i = 1; i < nsSegments.length; i++) {
@@ -573,7 +570,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         id: nsSegments[i],
         statements: outerNs,
         locals: undefined!,
-        ...finishNode(getSegmentPos(i)),
+        ...finishNode(pos),
       };
     }
 
