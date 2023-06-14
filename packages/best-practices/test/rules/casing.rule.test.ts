@@ -6,17 +6,19 @@ describe("casing rule", () => {
 
   beforeEach(async () => {
     const runner = await createTestRunner();
-    ruleTester = createRuleTester(runner, casingRule, "@typespec/my-linter");
+    ruleTester = createRuleTester(runner, casingRule, "@typespec/best-practices");
   });
 
-  it("emit diagnostics when using model named foo", () => {
-    ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
-      code: "@typespec/my-linter:no-foo-model",
-      message: "Cannot name a model with 'Foo'",
+  describe("models", () => {
+    it("emit diagnostics if model is camelCase", () => {
+      ruleTester.expect(`model fooBar {}`).toEmitDiagnostics({
+        code: "@typespec/best-practices:no-foo-model",
+        message: "Cannot name a model with 'Foo'",
+      });
     });
-  });
 
-  it("should be valid to use other names", () => {
-    ruleTester.expect(`model Bar {}`).toBeValid();
+    it("should be valid if model is pascal case", () => {
+      ruleTester.expect(`model FooBar {}`).toBeValid();
+    });
   });
 });
