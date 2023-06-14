@@ -27,6 +27,6 @@ export const casingRule = createRule({
  * @returns true if the name is in PascalCase
  */
 function isPascalCaseNoAcronyms(name: string): boolean {
-  if (name === undefined || name === null || name === "") return true;
+  if (name === "") return true;
   return /^([A-Z][a-z0-9]+)*[A-Z]?$/.test(name);
 }

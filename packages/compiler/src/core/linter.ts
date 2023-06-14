@@ -172,7 +172,7 @@ export function createLinter(
   }
 }
 
-function createLinterRuleContext<N extends string, DM extends DiagnosticMessages>(
+export function createLinterRuleContext<N extends string, DM extends DiagnosticMessages>(
   program: Program,
   rule: LinterRule<N, DM>,
   diagnosticCollector: DiagnosticCollector
