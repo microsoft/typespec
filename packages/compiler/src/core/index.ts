@@ -8,7 +8,7 @@ export * from "./helpers/index.js";
 export {
   // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,
-  createRule,
+  createLinterRule as createRule,
   createTypeSpecLibrary,
   paramMessage,
   // eslint-disable-next-line deprecation/deprecation

@@ -19,10 +19,10 @@ See examples in `packages/best-practices`.
 ### 1. Define a rules
 
 ```ts
-import { RuleTester, createRule, createTestRunner } from "@typespec/compiler";
+import {  createLinterRule } from "@typespec/compiler";
 import { reportDiagnostic } from "../lib.js";
 
-export const requiredDocRule = createRule({
+export const requiredDocRule = createLinterRule({
   name: "no-model-doc",
   severity: "warning",
   // Short description of what this linter rule does. To be used for generated summary of a linter.
@@ -134,7 +134,7 @@ First you'll want to create an instance of the rule tester using `createLinterRu
 You can then provide different test checking the rule pass or fails.
 
 ```ts
-import { createLinterRuleTester } from "@typespec/compiler/testing";
+import { createLinterRuleTester, RuleTester, createTestRunner } from "@typespec/compiler/testing";
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
 describe("required-doc rule", () => {

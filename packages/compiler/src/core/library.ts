@@ -101,7 +101,7 @@ export function paramMessage<T extends string[]>(
 }
 
 /** Create a new linter rule. */
-export function createRule<const N extends string, const T extends DiagnosticMessages>(
+export function createLinterRule<const N extends string, const T extends DiagnosticMessages>(
   definition: LinterRuleDefinition<N, T>
 ) {
   return definition;

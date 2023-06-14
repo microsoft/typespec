@@ -2,7 +2,7 @@
   "name": "@typespec/lint",
   "version": "0.45.0",
   "author": "Microsoft Corporation",
-  "description": "Helper ",
+  "description": "**DEPRECATED** Use typespec built-in linter.",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
