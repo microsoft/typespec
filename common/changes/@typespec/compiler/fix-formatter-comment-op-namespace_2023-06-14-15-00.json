@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Formatter moves all comments in flattened namespace to the top",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
