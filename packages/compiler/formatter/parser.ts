@@ -10,22 +10,6 @@ export function parse(
 ): TypeSpecScriptNode {
   const result = typespecParse(text, { comments: true, docs: false });
 
-  function flattenNamespaces(base: Node) {
-    visitChildren(base, (node) => {
-      if (node.kind === SyntaxKind.NamespaceStatement) {
-        let current = node;
-        const ids = [node.id];
-        while (current.statements && "kind" in current.statements) {
-          current = current.statements;
-          ids.push(current.id);
-        }
-        Object.assign(node, current, {
-          ids,
-        });
-        flattenNamespaces(current);
-      }
-    });
-  }
   flattenNamespaces(result);
 
   const errors = result.parseDiagnostics.filter((x) => x.severity === "error");
@@ -33,6 +17,28 @@ export function parse(
     throw new PrettierParserError(errors[0]);
   }
   return result;
+}
+
+/**
+ * We are patching the syntax tree to flatten the namespace nodes that are created from namespace Foo.Bar; which have hte same pos, end
+ * This cause prettier to not know where comments belong.
+ * https://github.com/microsoft/typespec/pull/2061
+ */
+function flattenNamespaces(base: Node) {
+  visitChildren(base, (node) => {
+    if (node.kind === SyntaxKind.NamespaceStatement) {
+      let current = node;
+      const ids = [node.id];
+      while (current.statements && "kind" in current.statements) {
+        current = current.statements;
+        ids.push(current.id);
+      }
+      Object.assign(node, current, {
+        ids,
+      });
+      flattenNamespaces(current);
+    }
+  });
 }
 
 export class PrettierParserError extends Error {
