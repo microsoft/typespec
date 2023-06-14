@@ -5,41 +5,41 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec",
     "cli"
   ],
   "type": "module",
-  "main": "dist/core/index.js",
+  "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
   "exports": {
-    ".": "./dist/core/index.js",
-    "./testing": "./dist/testing/index.js",
-    "./module-resolver": "./dist/core/module-resolver.js",
-    "./emitter-framework": "./dist/emitter-framework/index.js"
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js",
+    "./module-resolver": "./dist/src/core/module-resolver.js",
+    "./emitter-framework": "./dist/src/emitter-framework/index.js"
   },
   "browser": {
-    "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
-    "./dist/core/logger/console-sink.js": "./dist/core/logger/console-sink.browser.js"
+    "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
+    "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/core/index.d.ts"
+        "./dist/src/core/index.d.ts"
       ],
       "testing": [
-        "./dist/testing/index.d.ts"
+        "./dist/src/testing/index.d.ts"
       ],
       "module-resolver": [
-        "./dist/core/module-resolver.d.ts"
+        "./dist/src/core/module-resolver.d.ts"
       ]
     }
   },
@@ -72,12 +72,11 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.21.4",
+    "@babel/code-frame": "~7.22.5",
     "ajv": "~8.12.0",
     "picocolors": "~1.0.0",
     "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
-    "mkdirp": "~2.1.6",
     "mustache": "~4.2.0",
     "prettier": "~2.8.7",
     "prompts": "~2.4.1",
@@ -103,15 +102,15 @@
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.13.0",
+    "c8": "~7.14.0",
     "prettier-plugin-organize-imports": "~3.2.0",
     "source-map-support": "~0.5.19",
     "rimraf": "~5.0.0",
     "tmlanguage-generator": "~0.4.1",
-    "typescript": "~5.0.2",
+    "typescript": "~5.1.3",
     "vscode-oniguruma": "~1.7.0",
     "vscode-textmate": "~9.0.0",
-    "sinon": "~15.0.3",
+    "sinon": "~15.1.0",
     "@types/sinon": "~10.0.13"
   }
 }

@@ -1,6 +1,6 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
-import { Program, projectProgram } from "../../core/program.js";
-import { createProjector } from "../../core/projector.js";
+import { Program, projectProgram } from "../../src/core/program.js";
+import { createProjector } from "../../src/core/projector.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
@@ -15,9 +15,9 @@ import {
   StringLiteral,
   Type,
   Union,
-} from "../../core/types.js";
-import { getDoc } from "../../lib/decorators.js";
-import { TestHost, createTestHost } from "../../testing/index.js";
+} from "../../src/core/types.js";
+import { getDoc } from "../../src/lib/decorators.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: projections: logic", () => {
   let testHost: TestHost;
@@ -958,6 +958,43 @@ describe("compiler: projections: logic", () => {
         );
       });
     });
+  });
+  describe("project decorator referencing target in argument", () => {
+    async function checkSelfRefInDecorator(code: string) {
+      testHost.addJsFile("self-ref.js", {
+        $selfRef: () => {},
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./self-ref.js";
+  
+        ${code}
+  
+        #suppress "projections-are-experimental"
+        projection model#test {
+            to {
+              
+            }
+          }
+       `
+      );
+      await testHost.compile("main.tsp");
+      createProjector(testHost.program, [
+        {
+          arguments: [],
+          projectionName: "test",
+        },
+      ]);
+    }
+
+    it("on model", () => checkSelfRefInDecorator(`@selfRef(Foo) model Foo {}`));
+    it("on scalar", () => checkSelfRefInDecorator(`@selfRef(foo) scalar foo;`));
+    it("on operation", () => checkSelfRefInDecorator(`@selfRef(foo) op foo(): void;`));
+    it("on interface", () => checkSelfRefInDecorator(`@selfRef(Foo) interface Foo {} `));
+    it("on enum", () => checkSelfRefInDecorator(`@selfRef(Foo) enum Foo {} `));
+    it("on union", () => checkSelfRefInDecorator(`@selfRef(Foo) union Foo {} `));
   });
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"

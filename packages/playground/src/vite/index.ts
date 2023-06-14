@@ -1,9 +1,9 @@
 import { typespecBundlePlugin } from "@typespec/bundler";
 import react from "@vitejs/plugin-react";
 import { Plugin, ResolvedConfig, UserConfig } from "vite";
-import { PlaygroundConfig } from "../index.js";
+import { PlaygroundUserConfig } from "./types.js";
 
-export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig {
+export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserConfig {
   return {
     base: "./",
     build: {
@@ -48,7 +48,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
   };
 }
 
-function playgroundManifestPlugin(config: PlaygroundConfig): Plugin {
+function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
   const { samples, ...manifest } = config;
   let viteConfig: ResolvedConfig;
 
@@ -68,7 +68,7 @@ function playgroundManifestPlugin(config: PlaygroundConfig): Plugin {
         const sampleImport = Object.values(samples)
           .map(
             (sampleValue, index) =>
-              `import s${index} from "${viteConfig.root}/${sampleValue.fileName}?raw"`
+              `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`
           )
           .join("\n");
         const sampleObj = [
@@ -76,7 +76,7 @@ function playgroundManifestPlugin(config: PlaygroundConfig): Plugin {
           ...Object.entries(samples).map(
             ([label, config], index) =>
               `${JSON.stringify(label)}: {
-                fileName: ${JSON.stringify(config.fileName)},
+                fileName: ${JSON.stringify(config.filename)},
                 preferredEmitter: ${
                   config.preferredEmitter ? JSON.stringify(config.preferredEmitter) : "undefined"
                 },
