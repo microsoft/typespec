@@ -20,7 +20,7 @@ export function parse(
 }
 
 /**
- * We are patching the syntax tree to flatten the namespace nodes that are created from namespace Foo.Bar; which have hte same pos, end
+ * We are patching the syntax tree to flatten the namespace nodes that are created from namespace Foo.Bar; which have the same pos, end
  * This cause prettier to not know where comments belong.
  * https://github.com/microsoft/typespec/pull/2061
  */
