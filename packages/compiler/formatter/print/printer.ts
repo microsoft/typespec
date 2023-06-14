@@ -26,7 +26,6 @@ import {
   ModelPropertyNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
-  NamespaceStatementNode,
   Node,
   NodeFlags,
   NumericLiteralNode,
@@ -67,7 +66,7 @@ import {
   UnionVariantNode,
   ValueOfExpressionNode,
 } from "../../core/types.js";
-import { isArray } from "../../core/util.js";
+import { FlattenedNamespaceStatementNode } from "../types.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
@@ -144,7 +143,11 @@ export function printNode(
         print
       );
     case SyntaxKind.NamespaceStatement:
-      return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
+      return printNamespaceStatement(
+        path as AstPath<FlattenedNamespaceStatementNode>,
+        options,
+        print
+      );
     case SyntaxKind.ModelStatement:
       return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
     case SyntaxKind.ScalarStatement:
@@ -1080,36 +1083,25 @@ export function printScalarStatement(
 }
 
 export function printNamespaceStatement(
-  path: AstPath<NamespaceStatementNode>,
+  path: AstPath<FlattenedNamespaceStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const printNested = (currentPath: AstPath<NamespaceStatementNode>, parentNames: Doc[]): Doc => {
-    const names = [...parentNames, currentPath.call(print, "id")];
-    const currentNode = currentPath.getNode();
+  const names = path.map(print, "ids");
+  const currentNode = path.getNode();
 
-    if (
-      !isArray(currentNode?.statements) &&
-      currentNode?.statements?.kind === SyntaxKind.NamespaceStatement
-    ) {
-      return path.call((x) => printNested(x, names), "statements");
-    }
+  const suffix =
+    currentNode?.statements === undefined
+      ? ";"
+      : [
+          " {",
+          indent([hardline, printStatementSequence(path, options, print, "statements")]),
+          hardline,
+          "}",
+        ];
 
-    const suffix =
-      currentNode?.statements === undefined
-        ? ";"
-        : [
-            " {",
-            indent([hardline, printStatementSequence(path, options, print, "statements")]),
-            hardline,
-            "}",
-          ];
-
-    const { decorators } = printDecorators(path, options, print, { tryInline: false });
-    return [decorators, `namespace `, join(".", names), suffix];
-  };
-
-  return printNested(path, []);
+  const { decorators } = printDecorators(path, options, print, { tryInline: false });
+  return [decorators, `namespace `, join(".", names), suffix];
 }
 
 export function printOperationSignatureDeclaration(
