@@ -23,7 +23,6 @@ export function createLinter(
   program: Program,
   loadLibrary: (name: string) => Promise<Library | undefined>
 ): Linter {
-  // TODO document tracing options
   const tracer = program.tracer.sub("linter");
 
   const ruleMap = new Map<string, LinterRule<string, any>>();
