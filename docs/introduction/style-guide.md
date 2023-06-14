@@ -98,7 +98,7 @@ model Pet {
 model Cat extends Pet {}
 ```
 
-- Place no space between an operation/decorator/function name and the parmaeter list
+- Place no space between an operation/decorator/function name and the parameter list
 
 <!-- prettier-ignore -->
 ```typespec
