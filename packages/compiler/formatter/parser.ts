@@ -10,13 +10,13 @@ export function parse(
   opts: ParserOptions & { parentParser?: string }
 ): TypeSpecScriptNode {
   const result = typespecParse(text, { comments: true, docs: false });
-  function visit(node: Node) {
+  function linkParents(node: Node) {
     visitChildren(node, (child) => {
       mutate(child).parent = node;
-      visit(child);
+      linkParents(child);
     });
   }
-  visit(result);
+  linkParents(result);
   const errors = result.parseDiagnostics.filter((x) => x.severity === "error");
   if (errors.length > 0 && !result.printable) {
     throw new PrettierParserError(errors[0]);
