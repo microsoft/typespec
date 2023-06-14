@@ -89,4 +89,17 @@ describe("emitting models", () => {
     assert.strictEqual(Foo.properties.b.title, "b");
     assert.strictEqual(Foo.properties.b.deprecated, true);
   });
+
+  it("handles extensions", async () => {
+    const { "Foo.json": Foo } = await emitSchema(`
+      @extension("x-hi", "bye")
+      model Foo {
+        @extension("x-hi", Json<"hello">)
+        b: string;
+      }
+    `);
+
+    assert.deepStrictEqual(Foo["x-hi"], { type: "string", const: "bye" });
+    assert.deepStrictEqual(Foo.properties.b["x-hi"], "hello");
+  });
 });
