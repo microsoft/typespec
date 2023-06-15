@@ -1725,7 +1725,7 @@ alias Foo = [
 
   describe("empty statements", () => {
     it("remove empty statements", () => {
-      const foo = 123; /** abc def ghi */ /** abc def ghi */
+      const _foo = 123; /** abc def ghi */ /** abc def ghi */
       assertFormat({
         code: `
   alias foo = "";;;;
