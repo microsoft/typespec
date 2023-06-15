@@ -452,6 +452,31 @@ model Foo {}
       });
     });
 
+    it("keeps block comment on same line", () => {
+      assertFormat({
+        code: `
+  alias foo = ""; /* one */ /* two */    /* three */ 
+  `,
+        expected: `
+alias foo = ""; /* one */ /* two */ /* three */
+  `,
+      });
+    });
+
+    it("format empty file with comment inside", () => {
+      assertFormat({
+        code: `
+
+
+  // empty file
+
+`,
+        expected: `
+// empty file
+`,
+      });
+    });
+
     it("format empty model with comment inside", () => {
       assertFormat({
         code: `
@@ -750,6 +775,17 @@ namespace Foo.Bar {
   // five
   interface MyEnum {}
 }
+`,
+      });
+    });
+
+    it("keeps comment after augment decorator", () => {
+      assertFormat({
+        code: `
+  @@doc(Foo.bar, "This");   // comment
+`,
+        expected: `
+@@doc(Foo.bar, "This"); // comment
 `,
       });
     });
@@ -1683,6 +1719,31 @@ alias Foo = [
   "very long text that will overflow 3"
 ];
 `,
+      });
+    });
+  });
+
+  describe("empty statements", () => {
+    it("remove empty statements", () => {
+      const foo = 123; /** abc def ghi */ /** abc def ghi */
+      assertFormat({
+        code: `
+  alias foo = "";;;;
+  `,
+        expected: `
+alias foo = "";
+  `,
+      });
+    });
+
+    it("keeps comments inside empty statements", () => {
+      assertFormat({
+        code: `
+  alias foo = "";; /* one */ ;; /* two */ ;;; /* three */ ;;
+  `,
+        expected: `
+alias foo = ""; /* one */ /* two */ /* three */
+  `,
       });
     });
   });
