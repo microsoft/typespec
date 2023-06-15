@@ -1,34 +1,48 @@
-id: 
+id:
 name: GitOps.PullRequestIssueManagement
-description: GitOps.PullRequestIssueManagement primitive
-owner: 
+description: Assign labels to new issues
+owner:
 resource: repository
 disabled: false
-where: 
+where:
 configuration:
   resourceManagementConfiguration:
     scheduledSearches: []
     eventResponderTasks:
-    - if:
-      - payloadType: Issues
-      - isAction:
-          action: Opened
-      - and:
-        - not:
-            activitySenderHasPermission:
-              permission: Write
-        - not:
-            activitySenderHasAssociation:
-              association: Member
-        - not:
-            activitySenderHasAssociation:
-              association: Collaborator
-        - not:
-            activitySenderHasPermission:
-              permission: Admin
-      then:
-      - addLabel:
-          label: customer-reported
-      description: 
-onFailure: 
-onSuccess: 
+      - description: Adds `needs-triage` label for new unassigned issues
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - and:
+              - not:
+                  and:
+                    - isAssignedToSomeone
+        then:
+          - addLabel:
+              label: needs-triage
+
+      - description: Adds `needs-triage` label for new issues reported by non contributors
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - and:
+              - not:
+                  activitySenderHasPermission:
+                    permission: Write
+              - not:
+                  activitySenderHasAssociation:
+                    association: Member
+              - not:
+                  activitySenderHasAssociation:
+                    association: Collaborator
+              - not:
+                  activitySenderHasPermission:
+                    permission: Admin
+        then:
+          - addLabel:
+              label: customer-reported
+
+onFailure:
+onSuccess:
