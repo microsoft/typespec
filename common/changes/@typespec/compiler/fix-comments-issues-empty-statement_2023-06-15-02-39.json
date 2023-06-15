@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
