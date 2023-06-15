@@ -51,6 +51,8 @@ export function getTypeSignature(type: Type | ValueType): string {
       return getFunctionParameterSignature(type);
     case "ModelProperty":
       return `(model property) ${`${type.name}: ${getTypeName(type.type)}`}`;
+    case "ModelValidate":
+      return `(model validate) ${`${type.name}`}`;
     case "EnumMember":
       return `(enum member) ${getEnumMemberSignature(type)}`;
     case "TemplateParameter":

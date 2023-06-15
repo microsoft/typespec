@@ -63,6 +63,8 @@ import {
   ModelPropertyNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
+  ModelValidate,
+  ModelValidateNode,
   ModifierFlags,
   Namespace,
   NamespaceStatementNode,
@@ -598,6 +600,8 @@ export function createChecker(program: Program): Checker {
     switch (node.kind) {
       case SyntaxKind.ModelProperty:
         return checkModelProperty(node, mapper);
+      case SyntaxKind.ModelValidate:
+        return checkModelValidate(node, mapper);
       case SyntaxKind.EnumMember:
         return checkEnumMember(node, mapper, containerType as Enum);
       case SyntaxKind.OperationStatement:
@@ -615,6 +619,8 @@ export function createChecker(program: Program): Checker {
         return checkModel(node, mapper);
       case SyntaxKind.ModelProperty:
         return checkModelProperty(node, mapper);
+      case SyntaxKind.ModelValidate:
+        return checkModelValidate(node, mapper);
       case SyntaxKind.ScalarStatement:
         return checkScalar(node, mapper);
       case SyntaxKind.AliasStatement:
@@ -1386,6 +1392,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       namespace: getParentNamespaceType(node),
       properties: properties,
+      validates: createRekeyableMap<string, ModelValidate>(),
       decorators: [],
       derivedModels: [],
     });
@@ -2341,6 +2348,7 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
       node: node,
       properties: createRekeyableMap<string, ModelProperty>(),
+      validates: createRekeyableMap<string, ModelValidate>(),
       namespace: getParentNamespaceType(node),
       decorators,
       derivedModels: [],
@@ -2392,6 +2400,9 @@ export function createChecker(program: Program): Checker {
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper);
 
+    //Evaluate the validates after
+    checkModelValidates(node, type.validates, type, mapper);
+
     for (const prop of walkPropertiesInherited(type)) {
       const table = getOrCreateAugmentedSymbolTable(node.symbol.members!);
       const sym = table.get(prop.name);
@@ -2437,11 +2448,13 @@ export function createChecker(program: Program): Checker {
 
   function checkModelExpression(node: ModelExpressionNode, mapper: TypeMapper | undefined) {
     const properties = createRekeyableMap<string, ModelProperty>();
+    const validates = createRekeyableMap<string, ModelValidate>();
     const type: Model = createType({
       kind: "Model",
       name: "",
       node: node,
       properties,
+      validates,
       indexer: undefined,
       namespace: getParentNamespaceType(node),
       decorators: [],
@@ -2493,6 +2506,38 @@ export function createChecker(program: Program): Checker {
         }
       }
     }
+  }
+
+  function checkModelValidates(
+    node: ModelStatementNode | ScalarStatementNode,
+    validates: Map<string, ModelValidate>,
+    parentModel: Model | Scalar,
+    mapper: TypeMapper | undefined
+  ) {
+    for (const vv of node.validates) {
+      const newV = checkModelValidate(vv, mapper);
+      newV.model = parentModel;
+      defineValidator(validates, newV);
+    }
+  }
+
+  function defineValidator(
+    validates: Map<string, ModelValidate>,
+    newV: ModelValidate,
+    diagnosticTarget?: DiagnosticTarget
+  ) {
+    if (validates.has(newV.name)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "duplicate-validate",
+          format: { propName: newV.name },
+          target: diagnosticTarget ?? newV,
+        })
+      );
+      return;
+    }
+
+    validates.set(newV.name, newV);
   }
 
   function defineProperty(
@@ -2563,6 +2608,10 @@ export function createChecker(program: Program): Checker {
               const name = prop.id.sv;
               bindMember(name, prop, SymbolFlags.ModelProperty);
             }
+          }
+          for (const vv of node.validates) {
+            const name = vv.id.sv;
+            bindMember(name, vv, SymbolFlags.ModelValidate);
           }
           break;
         case SyntaxKind.ModelExpression:
@@ -2662,6 +2711,14 @@ export function createChecker(program: Program): Checker {
         }
         break;
       }
+      case SyntaxKind.ModelValidate: {
+        const sym = getSymbolForMember(node);
+        if (sym) {
+          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+          table.set("validate", node.value.symbol);
+        }
+        break;
+      }
       case SyntaxKind.OperationStatement: {
         const sym = node.symbol ?? getSymbolForMember(node);
         const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
@@ -2718,6 +2775,9 @@ export function createChecker(program: Program): Checker {
       case "Model":
         for (const prop of walkPropertiesInherited(type)) {
           lateBindMember(prop, SymbolFlags.ModelProperty);
+        }
+        for (const vv of walkValidatesInherited(type)) {
+          lateBindMember(vv, SymbolFlags.ModelValidate);
         }
         break;
       case "Enum":
@@ -2996,6 +3056,43 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  function checkModelValidate(
+    vv: ModelValidateNode,
+    mapper: TypeMapper | undefined
+  ): ModelValidate {
+    const links = getSymbolLinksForMember(vv);
+    if (links && links.declaredType && mapper === undefined) {
+      return links.declaredType as ModelValidate;
+    }
+
+    const name = vv.id.sv;
+
+    //
+    //TODO: typecheck the projection expression here or leave that problem for the emitter?
+    //
+
+    const type: ModelValidate = createType({
+      kind: "ModelValidate",
+      name,
+      node: vv,
+      decorators: [],
+      model: undefined,
+    });
+    if (links) {
+      linkType(links, type, mapper);
+    }
+
+    type.decorators = checkDecorators(type, vv, mapper);
+    const parentTemplate = getParentTemplateNode(vv);
+    linkMapper(type, mapper);
+
+    if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
+      finishType(type);
+    }
+
+    return type;
+  }
+
   function isValueType(type: Type): boolean {
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
@@ -3253,6 +3350,7 @@ export function createChecker(program: Program): Checker {
       kind: "Scalar",
       name: node.id.sv,
       node: node,
+      validates: createRekeyableMap<string, ModelValidate>(),
       namespace: getParentNamespaceType(node),
       decorators,
       derivedScalars: [],
@@ -3271,6 +3369,10 @@ export function createChecker(program: Program): Checker {
     if (mapper === undefined) {
       type.namespace?.scalars.set(type.name, type);
     }
+
+    //Evaluate the validates after
+    checkModelValidates(node, type.validates, type, mapper);
+
     linkMapper(type, mapper);
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(type);
@@ -3307,6 +3409,7 @@ export function createChecker(program: Program): Checker {
       }
       return undefined;
     }
+
     const extendsType = checkTypeReferenceSymbol(target, extendsRef, mapper);
     pendingResolutions.delete(symId);
     if (isErrorType(extendsType)) {
@@ -3594,6 +3697,7 @@ export function createChecker(program: Program): Checker {
   function isMemberNode(node: Node): node is MemberNode {
     return (
       node.kind === SyntaxKind.ModelProperty ||
+      node.kind === SyntaxKind.ModelValidate ||
       node.kind === SyntaxKind.EnumMember ||
       node.kind === SyntaxKind.OperationStatement ||
       node.kind === SyntaxKind.UnionVariant
@@ -4107,6 +4211,7 @@ export function createChecker(program: Program): Checker {
       node: node,
       decorators: [],
       properties: createRekeyableMap(),
+      validates: createRekeyableMap(),
       derivedModels: [],
     });
 
@@ -5311,12 +5416,14 @@ export function filterModelProperties(
   }
 
   const properties = createRekeyableMap<string, ModelProperty>();
+  const validates = createRekeyableMap<string, ModelValidate>();
   const newModel: Model = program.checker.createType({
     kind: "Model",
     node: undefined,
     name: "",
     indexer: undefined,
     properties,
+    validates,
     decorators: [],
     derivedModels: [],
   });
@@ -5373,6 +5480,21 @@ export function* walkPropertiesInherited(model: Model) {
       }
       returned.add(property.name);
       yield property;
+    }
+  }
+}
+
+export function* walkValidatesInherited(model: Model) {
+  const returned = new Set<string>();
+
+  for (let current: Model | undefined = model; current; current = current.baseModel) {
+    for (const vv of current.validates.values()) {
+      if (returned.has(vv.name)) {
+        // skip properties that have been overridden
+        continue;
+      }
+      returned.add(vv.name);
+      yield vv;
     }
   }
 }

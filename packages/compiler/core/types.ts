@@ -86,6 +86,7 @@ export interface TemplatedTypeBase {
 export type Type =
   | Model
   | ModelProperty
+  | ModelValidate
   | Scalar
   | Interface
   | Enum
@@ -246,6 +247,11 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   properties: RekeyableMap<string, ModelProperty>;
 
   /**
+   * Map of validators for this model.
+   */
+  validates: RekeyableMap<string, ModelValidate>;
+
+  /**
    * Model this model extends. This represent inheritance.
    */
   baseModel?: Model;
@@ -284,6 +290,14 @@ export interface ModelProperty extends BaseType, DecoratedType {
   model?: Model;
 }
 
+export interface ModelValidate extends BaseType, DecoratedType {
+  kind: "ModelValidate";
+  node: ModelValidateNode;
+  name: string;
+
+  model?: Model | Scalar;
+}
+
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Scalar";
   name: string;
@@ -297,6 +311,11 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
    * Scalar this scalar extends.
    */
   baseScalar?: Scalar;
+
+  /**
+   * Map of validators for this scalar.
+   */
+  validates: RekeyableMap<string, ModelValidate>;
 
   /**
    * Direct children. This is the reverse relation of @see baseScalar
@@ -652,19 +671,20 @@ export const enum SymbolFlags {
   SourceFile            = 1 << 21,
   Declaration           = 1 << 22,
   Implementation        = 1 << 23,
+  ModelValidate         = 1 << 24,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 24,
+  LateBound = 1 << 25,
 
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
    */
   MemberContainer = Model | Enum | Union | Interface,
-  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
+  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember | ModelValidate,
 }
 
 /**
@@ -712,6 +732,7 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   ModelSpreadProperty,
+  ModelValidate,
   ScalarStatement,
   InterfaceStatement,
   UnionStatement,
@@ -837,6 +858,7 @@ export type Node =
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
   | ModelPropertyNode
+  | ModelValidateNode
   | UnionVariantNode
   | OperationStatementNode
   | OperationSignatureDeclarationNode
@@ -891,6 +913,7 @@ export type MemberContainerNode =
 
 export type MemberNode =
   | ModelPropertyNode
+  | ModelValidateNode
   | EnumMemberNode
   | OperationStatementNode
   | UnionVariantNode;
@@ -1109,6 +1132,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly validates: ModelValidateNode[];
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -1117,6 +1141,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
+  readonly validates: ModelValidateNode[];
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
@@ -1208,6 +1233,14 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
   readonly parent?: ModelStatementNode | ModelExpressionNode;
+}
+
+export interface ModelValidateNode extends BaseNode {
+  readonly kind: SyntaxKind.ModelValidate;
+  readonly id: IdentifierNode;
+  readonly value: ProjectionExpression;
+  readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: ModelStatementNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;

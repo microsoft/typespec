@@ -66,6 +66,7 @@ function addStatementDecoratorComment(comment: CommentNode) {
       enclosingNode.kind === SyntaxKind.EnumStatement ||
       enclosingNode.kind === SyntaxKind.OperationStatement ||
       enclosingNode.kind === SyntaxKind.ModelProperty ||
+      enclosingNode.kind === SyntaxKind.ModelValidate ||
       enclosingNode.kind === SyntaxKind.EnumMember ||
       enclosingNode.kind === SyntaxKind.UnionStatement)
   ) {

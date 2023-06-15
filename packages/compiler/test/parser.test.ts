@@ -156,7 +156,7 @@ describe("compiler: parser", () => {
     ]);
 
     parseErrorEach([
-      ["scalar uuid extends string { }", [/Statement expected./]],
+      ["scalar uuid extends string { }", [/Property expected./]],
       ["scalar uuid is string;", [/Statement expected./]],
     ]);
   });

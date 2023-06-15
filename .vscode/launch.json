@@ -67,12 +67,7 @@
       "request": "launch",
       "name": "Compile Scratch",
       "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
-      "args": [
-        "compile",
-        "../samples/scratch",
-        "--output-dir=temp/scratch-output",
-        "--emit=@typespec/openapi3"
-      ],
+      "args": ["compile", "C:\\Users\\marro\\Code\\Scratch\\tspsample\\validate1.tsp"],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
