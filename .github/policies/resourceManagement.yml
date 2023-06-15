@@ -1,0 +1,34 @@
+id: 
+name: GitOps.PullRequestIssueManagement
+description: GitOps.PullRequestIssueManagement primitive
+owner: 
+resource: repository
+disabled: false
+where: 
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches: []
+    eventResponderTasks:
+    - if:
+      - payloadType: Issues
+      - isAction:
+          action: Opened
+      - and:
+        - not:
+            activitySenderHasPermission:
+              permission: Write
+        - not:
+            activitySenderHasAssociation:
+              association: Member
+        - not:
+            activitySenderHasAssociation:
+              association: Collaborator
+        - not:
+            activitySenderHasPermission:
+              permission: Admin
+      then:
+      - addLabel:
+          label: customer-reported
+      description: 
+onFailure: 
+onSuccess: 
