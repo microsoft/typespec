@@ -46,8 +46,8 @@ jobs:
 
       - template: pull-request-common.yml
         parameters:
-          nodeVersion: $(nodeVersion)
-          poolName: $(pool)
+          nodeVersion: ${{ variables.nodeVersion }}
+          poolName: ${{ variables.pool }}
 
   - job: docker_build
     pool:
