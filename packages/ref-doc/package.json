@@ -4,14 +4,14 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating typespec docs",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec"
@@ -51,16 +51,16 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "~0.45.0",
+    "@typespec/compiler": "~0.45.1",
     "prettier": "~2.8.7"
   },
   "devDependencies": {
-    "@typespec/compiler": "~0.45.0",
+    "@typespec/compiler": "~0.45.1",
     "@typespec/eslint-config-typespec": "~0.7.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
-    "c8": "~7.13.0",
+    "c8": "~7.14.0",
     "eslint": "^8.36.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
@@ -68,6 +68,6 @@
     "rimraf": "~5.0.0",
     "typedoc-plugin-markdown": "~3.15.1",
     "typedoc": "~0.24.1",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.3"
   }
 }

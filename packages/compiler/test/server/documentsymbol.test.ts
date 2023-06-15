@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { DocumentSymbol, SymbolKind } from "vscode-languageserver/node.js";
-import { createTestServerHost } from "../../testing/test-server-host.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 type SimplifiedSymbol = {
   kind: SymbolKind;

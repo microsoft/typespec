@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { Enum, Interface, Model, Operation, Type } from "../../core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
+import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: references", () => {
   let testHost: TestHost;

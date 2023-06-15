@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { getService, listServices, Namespace } from "../../core/index.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../testing/index.js";
+import { getService, listServices, Namespace } from "../../src/index.js";
+import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: service", () => {
   let runner: BasicTestRunner;

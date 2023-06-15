@@ -3,15 +3,15 @@
   "version": "0.45.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
-  "homepage": "https://github.com/Microsoft/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
+  "homepage": "https://github.com/microsoft/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec"
@@ -52,12 +52,12 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "~0.45.0"
+    "@typespec/compiler": "~0.45.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "~0.45.0",
+    "@typespec/compiler": "~0.45.1",
     "@typespec/eslint-config-typespec": "~0.7.0",
     "@typespec/library-linter": "~0.45.0",
     "@typespec/eslint-plugin": "~0.45.0",
@@ -65,8 +65,8 @@
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~7.13.0",
+    "c8": "~7.14.0",
     "rimraf": "~5.0.0",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.3"
   }
 }

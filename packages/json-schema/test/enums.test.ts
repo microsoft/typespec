@@ -50,4 +50,16 @@ describe("emitting enums", () => {
     assert.deepStrictEqual(Foo.type, ["string", "number"]);
     assert.deepStrictEqual(Foo.enum, ["hi", 2]);
   });
+
+  it("handles extensions", async () => {
+    const schemas = await emitSchema(`
+      @extension("x-foo", Json<"foo">)
+      enum Foo {
+        a: "hi";
+        b: 2;
+      }
+    `);
+    const Foo = schemas["Foo.json"];
+    assert.strictEqual(Foo["x-foo"], "foo");
+  });
 });
