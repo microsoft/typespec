@@ -138,13 +138,17 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
 /**
  * Walks the given type and collects all applicable metadata and `@body`
  * properties recursively.
+ *
+ * @param rootMapOut If provided, the map will be populated to link
+ * nested metadata properties to their root properties.
  */
 export function gatherMetadata(
   program: Program,
   diagnostics: DiagnosticCollector, // currently unused, but reserved for future diagnostics
   type: Type,
   visibility: Visibility,
-  isMetadataCallback = isMetadata
+  isMetadataCallback = isMetadata,
+  rootMapOut?: Map<ModelProperty, ModelProperty>
 ): Set<ModelProperty> {
   const metadata = new Map<string, ModelProperty>();
   if (type.kind !== "Model" || type.indexer || type.properties.size === 0) {
@@ -152,13 +156,15 @@ export function gatherMetadata(
   }
 
   const visited = new Set();
-  const queue = new Queue([type]);
+  const queue = new Queue<[Model, ModelProperty | undefined]>([[type, undefined]]);
 
   while (!queue.isEmpty()) {
-    const model = queue.dequeue();
+    const [model, rootOpt] = queue.dequeue();
     visited.add(model);
 
     for (const property of walkPropertiesInherited(model)) {
+      const root = rootOpt ?? property;
+
       if (!isVisible(program, property, visibility)) {
         continue;
       }
@@ -175,6 +181,7 @@ export function gatherMetadata(
 
       if (isApplicableMetadataOrBody(program, property, visibility, isMetadataCallback)) {
         metadata.set(property.name, property);
+        rootMapOut?.set(property, root);
       }
 
       if (
@@ -183,7 +190,7 @@ export function gatherMetadata(
         type.properties.size > 0 &&
         !visited.has(property.type)
       ) {
-        queue.enqueue(property.type);
+        queue.enqueue([property.type, root]);
       }
     }
   }
