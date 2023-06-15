@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Support nested `@body`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
