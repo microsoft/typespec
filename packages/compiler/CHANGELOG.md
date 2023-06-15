@@ -1,6 +1,13 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Wed, 14 Jun 2023 17:05:12 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Jun 2023 17:00:33 GMT and should not be manually modified.
+
+## 0.45.2
+Thu, 15 Jun 2023 17:00:33 GMT
+
+### Patches
+
+- Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file
 
 ## 0.45.1
 Wed, 14 Jun 2023 17:05:12 GMT
