@@ -16,8 +16,8 @@ describe("casing rule", () => {
   describe("models", () => {
     it("emit diagnostics if model is camelCase", async () => {
       await ruleTester.expect(`model fooBar {}`).toEmitDiagnostics({
-        code: "@typespec/best-practices:no-foo-model",
-        message: "Cannot name a model with 'Foo'",
+        code: "@typespec/best-practices:casing",
+        message: "Must match expected casing 'PascalCase'",
       });
     });
 
