@@ -53,7 +53,6 @@
   "files": [
     "lib/*.tsp",
     "dist/**",
-    "entrypoints",
     "!dist/test/**"
   ],
   "scripts": {
