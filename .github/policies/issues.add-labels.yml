@@ -1,5 +1,5 @@
 id:
-name: GitOps.PullRequestIssueManagement
+name: New Issue Assign labels
 description: Assign labels to new issues
 owner:
 resource: repository
