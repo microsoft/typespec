@@ -60,7 +60,7 @@ steps:
     displayName: E2E Tests
     # Skipping the e2e test on node 16.x as there is a bug in the npm version installed on node 16
     # causing npx to try to download the unpublished version of the cli.
-    condition: ne('$(nodeVersion)', '16.x')
+    condition: ne(variables.nodeVersion, '16.x')
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
