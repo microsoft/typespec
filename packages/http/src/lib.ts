@@ -130,4 +130,4 @@ const libDefinition = {
 const httpLib = createTypeSpecLibrary(libDefinition);
 const { reportDiagnostic, createDiagnostic, createStateSymbol } = httpLib;
 
-export { httpLib, reportDiagnostic, createDiagnostic, createStateSymbol };
+export { createDiagnostic, createStateSymbol, httpLib, reportDiagnostic };

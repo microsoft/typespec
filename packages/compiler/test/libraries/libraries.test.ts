@@ -1,8 +1,12 @@
 import { fileURLToPath, URL } from "url";
-import { MANIFEST } from "../../core/manifest.js";
-import { NodeHost } from "../../core/node-host.js";
-import { compile } from "../../core/program.js";
-import { createTestHost, expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
+import { NodeHost } from "../../src/core/node-host.js";
+import { compile } from "../../src/core/program.js";
+import { MANIFEST } from "../../src/manifest.js";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../../src/testing/index.js";
 
 const libs = [
   "simple", // Load a library in `node_modules`

@@ -45,4 +45,19 @@ describe("emitting unions", () => {
       { type: "string", const: "hello" },
     ]);
   });
+
+  it("handles extensions", async () => {
+    const schemas = await emitSchema(`
+      @extension("x-foo", Json<true>)
+      union Foo {
+        x: Bar;
+        y: Baz;
+      }
+
+      model Bar { };
+      model Baz { };
+    `);
+    const Foo = schemas["Foo.json"];
+    assert.strictEqual(Foo["x-foo"], true);
+  });
 });

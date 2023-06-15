@@ -5,10 +5,10 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
-import { createSourceFile } from "../../core/diagnostics.js";
-import { SemanticToken, SemanticTokenKind } from "../../server/serverlib.js";
-import { TypeSpecScope } from "../../server/tmlanguage.js";
-import { createTestServerHost } from "../../testing/test-server-host.js";
+import { createSourceFile } from "../../src/core/diagnostics.js";
+import { SemanticToken, SemanticTokenKind } from "../../src/server/serverlib.js";
+import { TypeSpecScope } from "../../src/server/tmlanguage.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 // vscode-oniguruma depends on those type from the DOM library.
 // As we are only using this in this test it is better to not add the whole DOM library just for this.

@@ -1,12 +1,12 @@
 import { ok, strictEqual } from "assert";
-import { setTypeSpecNamespace } from "../../core/index.js";
+import { setTypeSpecNamespace } from "../../src/core/index.js";
 import {
   BasicTestRunner,
   TestHost,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: checker: decorators", () => {
   let testHost: TestHost;

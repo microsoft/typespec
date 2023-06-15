@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Diagnostic, FunctionParameterNode, Model, Type } from "../../core/index.js";
+import { Diagnostic, FunctionParameterNode, Model, Type } from "../../src/core/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,
@@ -8,7 +8,7 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 interface RelatedTypeOptions {
   source: string;

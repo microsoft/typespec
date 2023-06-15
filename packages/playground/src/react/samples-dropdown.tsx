@@ -1,23 +1,25 @@
 import { Select } from "@fluentui/react-components";
 import { FunctionComponent, useCallback } from "react";
-import { PlaygroundManifest } from "../manifest.js";
+import { PlaygroundSample } from "../types.js";
 
 export interface SamplesDropdownProps {
+  samples: Record<string, PlaygroundSample>;
   selectedSampleName: string;
   onSelectedSampleNameChange: (sampleName: string) => void;
 }
 
 export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({
+  samples,
   selectedSampleName,
   onSelectedSampleNameChange,
 }) => {
-  const options = Object.keys(PlaygroundManifest.samples).map((sample) => {
+  const options = Object.keys(samples).map((sample) => {
     return <option key={sample}>{sample}</option>;
   });
 
   const handleSelected = useCallback(
     (evt: any) => {
-      if (PlaygroundManifest.samples[evt.target.value]) {
+      if (samples[evt.target.value]) {
         onSelectedSampleNameChange(evt.target.value);
       }
     },

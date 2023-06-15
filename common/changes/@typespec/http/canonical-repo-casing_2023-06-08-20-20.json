@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

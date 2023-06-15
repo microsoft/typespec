@@ -1,13 +1,13 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
-import { isTemplateDeclaration } from "../../core/type-utils.js";
-import { Interface, Model, Operation, Type } from "../../core/types.js";
+import { isTemplateDeclaration } from "../../src/core/type-utils.js";
+import { Interface, Model, Operation, Type } from "../../src/core/types.js";
 import {
   BasicTestRunner,
   TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;

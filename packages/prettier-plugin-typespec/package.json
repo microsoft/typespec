@@ -15,16 +15,16 @@
     "prettier": "~2.8.7"
   },
   "devDependencies": {
-    "@typespec/compiler": "~0.45.2",
+    "@typespec/compiler": "~0.45.1",
     "@typespec/internal-build-utils": "~0.4.2",
-    "@rollup/plugin-commonjs": "~23.0.2",
-    "@rollup/plugin-json": "~5.0.1",
-    "@rollup/plugin-node-resolve": "~15.0.1",
+    "@rollup/plugin-commonjs": "~25.0.0",
+    "@rollup/plugin-json": "~6.0.0",
+    "@rollup/plugin-node-resolve": "~15.1.0",
     "@rollup/plugin-replace": "~4.0.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "rollup": "~3.4.0"
+    "rollup": "~3.24.0"
   },
   "files": [
     "dist/**/*",

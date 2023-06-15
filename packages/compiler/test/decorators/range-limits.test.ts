@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { Model } from "../../core/types.js";
+import { Model } from "../../src/core/types.js";
 import {
   getMaxItems,
   getMaxLength,
@@ -7,8 +7,8 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
-} from "../../lib/decorators.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../testing/index.js";
+} from "../../src/lib/decorators.js";
+import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: range limiting decorators", () => {
   let runner: BasicTestRunner;
