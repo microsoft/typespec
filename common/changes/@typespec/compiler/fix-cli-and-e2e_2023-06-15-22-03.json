@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: `entrypoints` folder wasn't included in package causing failure to resolve cli.js",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
