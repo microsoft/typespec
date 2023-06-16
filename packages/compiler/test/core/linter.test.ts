@@ -34,7 +34,7 @@ describe("compiler: linter", () => {
 
     const library: Library = {
       entrypoint: undefined,
-      metadata: {},
+      metadata: { type: "module", name: "@typespec/test" },
       module: { type: "module", path: "", mainFile: "", manifest: { name: "", version: "" } },
       definition: createTypeSpecLibrary({
         name: "@typespec/test",

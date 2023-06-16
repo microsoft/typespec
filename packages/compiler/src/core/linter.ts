@@ -1,10 +1,11 @@
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { Library, Program } from "./program.js";
+import { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
 import {
   Diagnostic,
   DiagnosticMessages,
+  Library,
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,

@@ -1,6 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
+import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
 
 // prettier-ignore
@@ -1636,6 +1637,75 @@ export interface SourceFile {
    * code units) to line number and offset from line start.
    */
   getLineAndCharacterOfPosition(position: number): LineAndCharacter;
+}
+
+/**
+ * Represent a location context in the mind of the compiler. This can be:
+ * - the user project
+ * - a library
+ * - the compiler(standard library)
+ * - virtual
+ */
+export type LocationContext =
+  | ProjectLocationContext
+  | CompilerLocationContext
+  | SyntheticLocationContext
+  | LibraryLocationContext;
+
+/** Defined in the user project. */
+export interface ProjectLocationContext {
+  type: "project";
+}
+
+/** Built-in */
+export interface CompilerLocationContext {
+  type: "compiler";
+}
+
+/** Refer to a type that was not declared in a file */
+export interface SyntheticLocationContext {
+  type: "synthetic";
+}
+
+/** Defined in a library. */
+export interface LibraryLocationContext {
+  type: "library";
+  metadata: ModuleLibraryMetadata;
+}
+
+// TODO better name?
+export interface Library {
+  module: ModuleResolutionResult;
+  entrypoint: JsSourceFileNode | undefined;
+  metadata: LibraryMetadata;
+  definition?: TypeSpecLibrary<any>;
+}
+
+export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
+
+interface LibraryMetadataBase {
+  /** Library homepage. */
+  homepage?: string;
+
+  bugs?: {
+    /** Url where to file bugs for this library. */
+    url?: string;
+  };
+}
+
+export interface FileLibraryMetadata extends LibraryMetadataBase {
+  type: "file";
+
+  /** Library name as specified in the package.json or in exported $lib. */
+  name?: string;
+}
+
+/** Data for a library. Either loaded via a node_modules package or a standalone js file  */
+export interface ModuleLibraryMetadata extends LibraryMetadataBase {
+  type: "module";
+
+  /** Library name as specified in the package.json or in exported $lib. */
+  name: string;
 }
 
 export interface TextRange {
