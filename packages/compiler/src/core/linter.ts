@@ -1,4 +1,5 @@
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import { getLocationContext } from "./index.js";
 import { createDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
@@ -208,6 +209,13 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    diagnosticCollector.add(diagnostic);
+    if (diagnostic.target !== NoTarget) {
+      const context = getLocationContext(program, diagnostic.target);
+      // Only report diagnostic in the user project.
+      // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
+      if (context.type === "project") {
+        diagnosticCollector.add(diagnostic);
+      }
+    }
   }
 }
