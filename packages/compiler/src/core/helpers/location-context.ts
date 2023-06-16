@@ -1,8 +1,8 @@
 import { getSourceLocation } from "../index.js";
 import { Program } from "../program.js";
-import { LocationContext, Type } from "../types.js";
+import { DiagnosticTarget, LocationContext } from "../types.js";
 
-export function getTypeLocationContext(program: Program, type: Type): LocationContext {
+export function getLocationContext(program: Program, type: DiagnosticTarget): LocationContext {
   const sourceLocation = getSourceLocation(type);
 
   if (sourceLocation.isSynthetic) {

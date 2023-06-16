@@ -1638,6 +1638,13 @@ export interface SourceFile {
   getLineAndCharacterOfPosition(position: number): LineAndCharacter;
 }
 
+/**
+ * Represent a location context in the mind of the compiler. This can be:
+ * - the user project
+ * - a library
+ * - the compiler(standard library)
+ * - virtual
+ */
 export type LocationContext =
   | ProjectLocationContext
   | CompilerLocationContext
