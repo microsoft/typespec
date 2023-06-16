@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Wrong path for typescript types for main entrypoint",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
