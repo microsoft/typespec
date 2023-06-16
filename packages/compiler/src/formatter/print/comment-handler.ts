@@ -1,23 +1,34 @@
 import prettier, { Printer } from "prettier";
-import { Node, SyntaxKind } from "../../core/index.js";
+import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
 
 const { util } = prettier;
 
 interface CommentNode {
   precedingNode?: Node;
   enclosingNode?: Node;
+  followingNode?: Node;
 }
 
 /**
  * Override the default behavior to attach comments to syntax node.
  */
 export const commentHandler: Printer<Node>["handleComments"] = {
-  ownLine: (comment) =>
-    [addEmptyInterfaceComment, addEmptyModelComment, addStatementDecoratorComment].some((x) =>
-      x(comment)
-    ),
+  ownLine: (comment, text, options, ast, isLastComment) =>
+    [
+      addEmptyInterfaceComment,
+      addEmptyModelComment,
+      addStatementDecoratorComment,
+      handleOnlyComments,
+    ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
 };
 
+interface CommentContext {
+  comment: CommentNode;
+  text: string;
+  options: any;
+  ast: TypeSpecScriptNode;
+  isLastComment: boolean;
+}
 /**
  * When a comment is on an empty interface make sure it gets added as a dangling comment on it and not on the identifier.
  *
@@ -27,7 +38,7 @@ export const commentHandler: Printer<Node>["handleComments"] = {
  *   // My comment
  * }
  */
-function addEmptyInterfaceComment(comment: CommentNode) {
+function addEmptyInterfaceComment({ comment }: CommentContext) {
   const { precedingNode, enclosingNode } = comment;
 
   if (
@@ -54,7 +65,7 @@ function addEmptyInterfaceComment(comment: CommentNode) {
  * model Foo {
  * }
  */
-function addStatementDecoratorComment(comment: CommentNode) {
+function addStatementDecoratorComment({ comment }: CommentContext) {
   const { enclosingNode, precedingNode } = comment;
 
   if (
@@ -84,7 +95,7 @@ function addStatementDecoratorComment(comment: CommentNode) {
  *   // My comment
  * }
  */
-function addEmptyModelComment(comment: CommentNode) {
+function addEmptyModelComment({ comment }: CommentContext) {
   const { precedingNode, enclosingNode } = comment;
 
   if (
@@ -99,5 +110,32 @@ function addEmptyModelComment(comment: CommentNode) {
     util.addDanglingComment(enclosingNode, comment, undefined);
     return true;
   }
+  return false;
+}
+
+function handleOnlyComments({ comment, ast, isLastComment }: CommentContext) {
+  const { enclosingNode } = comment;
+  if (ast?.statements?.length === 0) {
+    if (isLastComment) {
+      util.addDanglingComment(ast, comment, undefined);
+    } else {
+      util.addLeadingComment(ast, comment);
+    }
+    return true;
+  }
+
+  if (
+    enclosingNode?.kind === SyntaxKind.TypeSpecScript &&
+    enclosingNode.statements.length === 0 &&
+    enclosingNode.directives?.length === 0
+  ) {
+    if (isLastComment) {
+      util.addDanglingComment(enclosingNode, comment, undefined);
+    } else {
+      util.addLeadingComment(enclosingNode, comment);
+    }
+    return true;
+  }
+
   return false;
 }
