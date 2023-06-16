@@ -21,7 +21,8 @@ describe("bundling", () => {
       `
       @jsonSchema
       model test { b: Bar }
-      model Bar { }
+      model Bar { b: Baz }
+      model Baz { }
     `,
       {},
       { emitNamespace: false }
@@ -29,6 +30,7 @@ describe("bundling", () => {
 
     assert.strictEqual(schemas["test.json"].$id, "test.json");
     assert.strictEqual(schemas["test.json"].$defs.Bar.$id, "Bar.json");
+    assert.strictEqual(schemas["test.json"].$defs.Baz.$id, "Baz.json");
   });
 
   it("doesn't bundle non-schema dependencies when passing emitAllRefs", async () => {

@@ -544,9 +544,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       content = decls[0].value;
 
       if (sourceFile.meta.bundledRefs.length > 0) {
+        // bundle any refs, including refs of refs
         content.$defs = {};
-        for (const decl of sourceFile.meta.bundledRefs as Declaration<object>[]) {
+        const refsToBundle: Declaration<object>[] = [...sourceFile.meta.bundledRefs];
+        while (refsToBundle.length > 0) {
+          const decl = refsToBundle.shift()!;
           content.$defs[decl.name] = decl.value;
+
+          // all scopes are source file scopes in this emitter
+          const refSf = (decl.scope as SourceFileScope<any>).sourceFile;
+          refsToBundle.push(...refSf.meta.bundledRefs);
         }
       }
     }
