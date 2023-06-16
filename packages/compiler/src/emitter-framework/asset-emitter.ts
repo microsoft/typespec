@@ -1,7 +1,6 @@
 import {
   compilerAssert,
   EmitContext,
-  emitFile,
   IntrinsicType,
   isTemplateDeclaration,
   joinPaths,
@@ -19,6 +18,7 @@ import {
   ContextState,
   Declaration,
   EmitEntity,
+  EmittedSourceFile,
   EmitterResult,
   EmitterState,
   NamespaceScope,
@@ -107,6 +107,9 @@ export function createAssetEmitter<T, TOptions extends object>(
   let programContext: ContextState | null = null;
   let incomingReferenceContext: Record<string, string> | null = null;
   const interner = createInterner();
+
+  const emittedSourceFiles = new Map<SourceFile<T>, EmittedSourceFile>();
+
   const assetEmitter: AssetEmitter<T, TOptions> = {
     getContext() {
       return {
@@ -172,6 +175,7 @@ export function createAssetEmitter<T, TOptions extends object>(
         globalScope: undefined as any,
         path: joinPaths(basePath, path),
         imports: new Map(),
+        meta: {},
       };
       sourceFile.globalScope = this.createScope(sourceFile, "");
       sourceFiles.push(sourceFile);
@@ -292,13 +296,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     },
 
     async writeOutput() {
-      for (const file of sourceFiles) {
-        const outputFile = typeEmitter.sourceFile(file);
-        await emitFile(program, {
-          path: outputFile.path,
-          content: outputFile.contents,
-        });
-      }
+      return typeEmitter.writeOutput(sourceFiles);
     },
 
     emitType(type) {
@@ -425,6 +423,15 @@ export function createAssetEmitter<T, TOptions extends object>(
     emitTupleLiteralValues(tuple) {
       return invokeTypeEmitter("tupleLiteralValues", tuple);
     },
+
+    emitSourceFile(sourceFile) {
+      if (emittedSourceFiles.has(sourceFile)) {
+        return emittedSourceFiles.get(sourceFile)!;
+      }
+      const emittedSf = typeEmitter.sourceFile(sourceFile);
+      emittedSourceFiles.set(sourceFile, emittedSf);
+      return emittedSf;
+    },
   };
 
   const typeEmitter = new TypeEmitterClass(assetEmitter);
@@ -445,6 +452,7 @@ export function createAssetEmitter<T, TOptions extends object>(
       | "declarationName"
       | "reference"
       | "emitValue"
+      | "writeOutput"
       | EndingWith<keyof TypeEmitter<T, TOptions>, "Context">
     >
   >(method: TMethod, ...args: Parameters<TypeEmitter<T, TOptions>[TMethod]>): EmitEntity<T> {
