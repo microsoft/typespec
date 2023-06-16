@@ -594,7 +594,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return {};
       }
 
-      return this.#newFileScope(model.name);
+      return this.#newFileScope(model);
     }
   }
 
@@ -602,7 +602,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(this.declarationName(model));
+      return this.#newFileScope(model);
     }
   }
 
@@ -610,7 +610,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(array.name);
+      return this.#newFileScope(array);
     }
   }
 
@@ -618,7 +618,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(en.name);
+      return this.#newFileScope(en);
     }
   }
 
@@ -626,7 +626,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(union.name!);
+      return this.#newFileScope(union);
     }
   }
 
@@ -636,12 +636,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     } else if (this.#isStdType(scalar)) {
       return {};
     } else {
-      return this.#newFileScope(scalar.name);
+      return this.#newFileScope(scalar);
     }
   }
 
-  #newFileScope(name: string) {
-    const sourceFile = this.emitter.createSourceFile(`${name}.${this.#fileExtension()}`);
+  #newFileScope(type: JsonSchemaDeclaration) {
+    const sourceFile = this.emitter.createSourceFile(
+      `${this.declarationName(type)}.${this.#fileExtension()}`
+    );
     return {
       scope: sourceFile.globalScope,
     };
