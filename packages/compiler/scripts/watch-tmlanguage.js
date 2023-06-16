@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { pathToFileURL } from "url";
 
 let count = 0;
-const scriptPath = resolve("dist/server/tmlanguage.js");
+const scriptPath = resolve("dist/src/server/tmlanguage.js");
 
 async function regenerate() {
   const script = await import(`${pathToFileURL(scriptPath)}?q=${count++}`);
@@ -13,4 +13,4 @@ async function regenerate() {
   await copyFile("dist/typespec.tmLanguage", "../typespec-vscode/dist/typespec.tmLanguage");
 }
 
-runWatch("dist/server/tmlanguage.js", regenerate, {});
+runWatch("dist/src/server/tmlanguage.js", regenerate, {});
