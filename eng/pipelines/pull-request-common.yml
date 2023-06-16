@@ -61,8 +61,8 @@ steps:
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
-  - script: node common/scripts/install-run-rush.js unlink
-    displayName: "Unlink dependencies"
+  - script: node common/scripts/install-run-rush.js purge
+    displayName: "Purge dependencies"
     condition: always()
 
   # It's important for performance to pass "packages" as "searchFolder" to avoid looking under root "node_modules".
