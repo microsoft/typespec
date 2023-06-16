@@ -41,24 +41,24 @@ function packPackages() {
   console.log("Built packages:", files);
 
   function resolvePackage(start) {
-    return join(
-      outputFolder,
-      // @ts-ignore
-      files.find((x) => x.startsWith(start))
-    );
+    const pkgName = files.find((x) => x.startsWith(start));
+    if (pkgName === undefined) {
+      throw new Error(`Cannot resolve package starting with "${start}"`);
+    }
+    return join(outputFolder, pkgName);
   }
 
   return {
-    "@typespec/compiler": resolvePackage("typespec-lang-compiler-"),
-    "@typespec/openapi": resolvePackage("typespec-lang-openapi-"),
-    "@typespec/openapi3": resolvePackage("typespec-lang-openapi3-"),
-    "@typespec/rest": resolvePackage("typespec-lang-rest-"),
-    "@typespec/versioning": resolvePackage("typespec-lang-versioning-"),
+    "@typespec/compiler": resolvePackage("typespec-compiler-"),
+    "@typespec/openapi": resolvePackage("typespec-openapi-"),
+    "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
+    "@typespec/rest": resolvePackage("typespec-rest-"),
+    "@typespec/versioning": resolvePackage("typespec-versioning-"),
   };
 }
 
 function runTypeSpec(compilerTgz, args, options) {
-  run(npxCmd, ["-p", compilerTgz, "typespec", ...args], { ...options });
+  run(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }
 
 function testBasicLatest(packages) {
@@ -78,11 +78,7 @@ function testBasicLatest(packages) {
   });
   console.log("Completed tsp compile .");
 
-  if (existsSync(join(outputDir, "openapi.json"))) {
-    console.log("Output created successfully.");
-  } else {
-    throw new Error("Test basic latest failed to produce output openapi.json");
-  }
+  expectOpenApiOutput(outputDir);
 }
 
 function testBasicCurrentTgz(packages) {
@@ -117,9 +113,14 @@ function testBasicCurrentTgz(packages) {
   });
   console.log("Completed tsp compile .");
 
-  if (existsSync(join(outputDir, "openapi.json"))) {
+  expectOpenApiOutput(outputDir);
+}
+
+function expectOpenApiOutput(outputDir) {
+  const expectedOutputFile = join(outputDir, "@typespec/openapi3/openapi.yaml");
+  if (existsSync(expectedOutputFile)) {
     console.log("Output created successfully.");
   } else {
-    throw new Error("Test basic latest failed to produce output openapi.json");
+    throw new Error(`Test failed to produce openapi output at "${expectedOutputFile}"`);
   }
 }

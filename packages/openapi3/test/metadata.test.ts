@@ -809,4 +809,38 @@ describe("openapi3: metadata", () => {
       },
     });
   });
+
+  it("supports nested bodies", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        @body body: bytes;
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+
+  it("supports deeply nested bodies", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        moreNesting: { @body body: bytes };
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
 });

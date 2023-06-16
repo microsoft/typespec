@@ -120,7 +120,7 @@
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.53.0",
-    "@typespec/compiler": "~0.45.1",
+    "@typespec/compiler": "~0.45.2",
     "@typespec/eslint-config-typespec": "~0.7.0",
     "@typespec/internal-build-utils": "~0.4.2",
     "eslint": "^8.36.0",
