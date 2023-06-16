@@ -34,8 +34,7 @@
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
-    "compile-samples": "tsp compile "
+    "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
     "lib/*.tsp",
