@@ -48,7 +48,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@emotion/react": "^11.10.4",
+    "@emotion/react": "^11.11.1",
     "@fluentui/react-components": "~9.21.0",
     "@fluentui/react-icons": "~2.0.190",
     "@typespec/compiler": "workspace:~0.45.2",
