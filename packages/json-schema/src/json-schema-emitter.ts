@@ -79,6 +79,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       schema.set("allOf", allOf);
     }
 
+    if (model.indexer) {
+      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+    }
+
     this.#applyConstraints(model, schema);
 
     return this.emitter.result.declaration(name, schema);
