@@ -101,7 +101,7 @@ export interface Program {
   getGlobalNamespaceType(): Namespace;
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
-  /** Return declaration context of the given source file. */
+  /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
 
   /**
