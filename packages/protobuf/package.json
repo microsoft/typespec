@@ -34,9 +34,9 @@
     "@typespec/compiler": "~0.45.2"
   },
   "devDependencies": {
-    "@typespec/compiler": "~0.45.2",
-    "@typespec/eslint-config-typespec": "~0.7.0",
-    "@typespec/eslint-plugin": "~0.45.0",
+    "@typespec/compiler": "workspace:~0.45.2",
+    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
+    "@typespec/eslint-plugin": "workspace:~0.45.0",
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
     "c8": "~7.14.0",

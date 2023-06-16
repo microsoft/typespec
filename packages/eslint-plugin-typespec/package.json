@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/mocha": "~10.0.0",
     "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "~0.7.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
     "@typescript-eslint/parser": "^5.30.7",
     "eslint": "^8.36.0",
     "mocha": "~10.2.0",

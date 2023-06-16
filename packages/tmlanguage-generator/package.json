@@ -39,7 +39,7 @@
   "devDependencies": {
     "@types/node": "~18.11.9",
     "@types/plist": "~3.0.2",
-    "@typespec/eslint-config-typespec": "~0.7.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
     "eslint": "^8.36.0",
     "rimraf": "~5.0.0",
     "typescript": "~5.1.3"
