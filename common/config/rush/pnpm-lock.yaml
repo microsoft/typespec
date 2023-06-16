@@ -3063,9 +3063,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.7.1
-      prompts: 2.4.2
+      prompts: 2.4.1
       vscode-languageserver: 7.0.0
-      vscode-languageserver-textdocument: 1.0.8
+      vscode-languageserver-textdocument: 1.0.1
       yargs: 17.3.1
     dev: false
 
@@ -3085,9 +3085,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.7.1
-      prompts: 2.4.2
+      prompts: 2.4.1
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.8
+      vscode-languageserver-textdocument: 1.0.1
       yargs: 17.6.2
     dev: false
 
@@ -3107,9 +3107,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.2
+      prompts: 2.4.1
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.8
+      vscode-languageserver-textdocument: 1.0.1
       yargs: 17.6.2
     dev: false
 
@@ -3900,7 +3900,7 @@ packages:
     peerDependencies:
       react: '*'
     dependencies:
-      '@types/react': 18.2.12
+      '@types/react': 18.2.9
       prop-types: 15.8.1
       react: 17.0.2
 
@@ -6321,7 +6321,7 @@ packages:
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 18.2.12
+      '@types/react': 18.2.9
       hoist-non-react-statics: 3.3.2
     dev: false
 
@@ -6442,7 +6442,7 @@ packages:
     resolution: {integrity: sha512-bAGh4e+w5D8dajd6InASVIyCo4pZLJ66oLb80F9OBLO1gKESbZcRCJpTT6uLXX+HAB57zw1WTdwJdAsewuTweg==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 18.2.12
+      '@types/react': 18.2.9
       hoist-non-react-statics: 3.3.2
       redux: 4.2.1
     dev: false
@@ -6465,7 +6465,7 @@ packages:
     resolution: {integrity: sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.2.12
+      '@types/react': 18.2.9
 
   /@types/react@18.2.12:
     resolution: {integrity: sha512-ndmBMLCgn38v3SntMeoJaIrO6tGHYKMEBohCUmw8HoLLQdRMOIGXfeYaBTLe2lsFaSB3MOK1VXscYFnmLtTSmw==}
@@ -6473,6 +6473,7 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
       csstype: 3.1.2
+    dev: false
 
   /@types/react@18.2.9:
     resolution: {integrity: sha512-pL3JAesUkF7PEQGxh5XOwdXGV907te6m1/Qe1ERJLgomojS6Ne790QiA7GUl434JEkFA2aAaB6qJ5z4e1zJn/w==}
@@ -6766,9 +6767,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.2
+      prompts: 2.4.1
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.8
+      vscode-languageserver-textdocument: 1.0.1
       yargs: 17.6.2
     dev: false
 
@@ -6788,9 +6789,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.2
+      prompts: 2.4.1
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.8
+      vscode-languageserver-textdocument: 1.0.1
       yargs: 17.6.2
     dev: false
 
@@ -15587,7 +15588,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.9
+      yargs-parser: 20.2.4
     dev: true
 
   /yargs@17.3.1:

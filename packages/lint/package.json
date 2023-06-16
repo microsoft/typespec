@@ -50,7 +50,7 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "~0.45.2"
+    "@typespec/compiler": "workspace:~0.45.2"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",

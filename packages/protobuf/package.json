@@ -31,7 +31,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "peerDependencies": {
-    "@typespec/compiler": "~0.45.2"
+    "@typespec/compiler": "workspace:~0.45.2"
   },
   "devDependencies": {
     "@typespec/compiler": "workspace:~0.45.2",

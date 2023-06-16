@@ -55,11 +55,11 @@
     "js-yaml": "~4.1.0"
   },
   "peerDependencies": {
-    "@typespec/versioning": "~0.45.0",
-    "@typespec/compiler": "~0.45.2",
-    "@typespec/http": "~0.45.0",
-    "@typespec/rest": "~0.45.0",
-    "@typespec/openapi": "~0.45.0"
+    "@typespec/versioning": "workspace:~0.45.0",
+    "@typespec/compiler": "workspace:~0.45.2",
+    "@typespec/http": "workspace:~0.45.0",
+    "@typespec/rest": "workspace:~0.45.0",
+    "@typespec/openapi": "workspace:~0.45.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
