@@ -45,7 +45,7 @@
   "devDependencies": {
     "@typespec/internal-build-utils": "workspace:~0.4.2",
     "autorest": "~3.3.2",
-    "rimraf": "~5.0.0",
+    "rimraf": "~5.0.1",
     "typescript": "~5.1.3"
   }
 }
