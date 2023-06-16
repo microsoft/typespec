@@ -2,6 +2,18 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.45.2",
+      "tag": "@typespec/compiler_v0.45.2",
+      "date": "Thu, 15 Jun 2023 17:00:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.1",
       "tag": "@typespec/compiler_v0.45.1",
       "date": "Wed, 14 Jun 2023 17:05:12 GMT",

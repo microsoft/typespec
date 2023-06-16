@@ -119,10 +119,7 @@ export function printNode(
   switch (node.kind) {
     // Root
     case SyntaxKind.TypeSpecScript:
-      return [
-        printStatementSequence(path as AstPath<TypeSpecScriptNode>, options, print, "statements"),
-      ];
-
+      return printTypeSpecScript(path as AstPath<TypeSpecScriptNode>, options, print);
     // Statements
     case SyntaxKind.ImportStatement:
       return [`import "${node.path.value}";`];
@@ -340,8 +337,9 @@ export function printNode(
         "Currently, doc comments are only handled as regular comments and we do not opt in to parsing them so we shouldn't reach here."
       );
       return "";
-    case SyntaxKind.JsSourceFile:
     case SyntaxKind.EmptyStatement:
+      return "";
+    case SyntaxKind.JsSourceFile:
     case SyntaxKind.InvalidStatement:
       return getRawText(node, options);
     default:
@@ -353,6 +351,20 @@ export function printNode(
   }
 }
 
+export function printTypeSpecScript(
+  path: AstPath<TypeSpecScriptNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+): Doc {
+  const node = path.getValue();
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  const body = [];
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
+  body.push(printStatementSequence(path, options, print, "statements"));
+  return body;
+}
 export function printAliasStatement(
   path: AstPath<AliasStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -390,6 +402,7 @@ export function canAttachComment(node: Node): boolean {
     kind &&
       kind !== SyntaxKind.LineComment &&
       kind !== SyntaxKind.BlockComment &&
+      kind !== SyntaxKind.EmptyStatement &&
       !(node.flags & NodeFlags.Synthetic)
   );
 }
