@@ -1,4 +1,3 @@
-import { normalizePath } from "@typespec/compiler";
 import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost } from "@typespec/compiler/testing";
 import yaml from "js-yaml";
@@ -35,7 +34,7 @@ export async function emitSchema(
     : `import "@typespec/json-schema"; using JsonSchema; ${code}`;
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, JsonSchemaEmitter, {
-    emitterOutputDir: normalizePath("/test/cadl-output"),
+    emitterOutputDir: "cadl-output",
     options,
   } as any);
   emitter.emitType(host.program.resolveTypeReference("test")[0]!);
