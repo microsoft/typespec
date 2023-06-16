@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Emitter Framework: TypeEmitter can now implement `writeOutput` to customize how to write source files to disk.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
