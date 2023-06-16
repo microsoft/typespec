@@ -33,7 +33,7 @@
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/src/core/index.d.ts"
+        "./dist/src/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"
