@@ -333,6 +333,163 @@ enum \`2Colors\` {
 `,
       });
     });
+
+    describe.only("in between property spacing", () => {
+      it("hug properties with no line decorators or comments ", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+
+  two: string;
+
+
+
+  three: string
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+  two: string;
+  three: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with line decorators", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  @bar
+  two: string;
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  @bar
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap only in single line when 2 properties have decorators next to each other", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  two: string;
+  @foo
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  two: string;
+
+  @foo
+  three: string;
+
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with line comments", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  // comment
+  two: string;
+  three: string
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  // comment
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("hug properties if the comment is trailing the property end of line", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+
+  two: string; // comment
+  three: string
+
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+  two: string; // comment
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with block comments", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  /** 
+   * comment
+   */
+  two: string;
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  /**
+   * comment
+   */
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+    });
   });
 
   describe("scalar", () => {
