@@ -26,9 +26,8 @@
   "scripts": {
     "build": "node scripts/build.js"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typespec-vscode": "~0.45.0",
-    "@typespec/internal-build-utils": "~0.4.2"
+    "typespec-vscode": "workspace:~0.45.0",
+    "@typespec/internal-build-utils": "workspace:~0.4.2"
   }
 }
