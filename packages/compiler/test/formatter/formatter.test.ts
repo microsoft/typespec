@@ -438,6 +438,46 @@ model Foo {
         });
       });
 
+      it("first property with decorators or comment should not have extra blank space before", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  @foo
+  one: string;
+  two: string;
+}
+  `,
+          expected: `
+model Foo {
+  @foo
+  one: string;
+
+  two: string;
+}
+  `,
+        });
+      });
+
+      it("last property with decorators or comment should not have extra blank space after", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  two: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  two: string;
+}
+  `,
+        });
+      });
+
       it("hug properties if the comment is trailing the property end of line", () => {
         assertFormat({
           code: `

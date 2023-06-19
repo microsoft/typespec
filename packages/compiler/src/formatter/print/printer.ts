@@ -77,13 +77,14 @@ const { align, breakParent, group, hardline, ifBreak, indent, join, line, softli
 const { isNextLineEmpty } = prettier.util;
 
 /**
- * If the decortors for that node should try to be kept inline.
+ * If the decorators for that node should try to be kept inline.
  */
 const DecoratorsTryInline = {
   modelProperty: true,
   enumMember: true,
   unionVariant: true,
 };
+
 export const typespecPrinter: Printer<Node> = {
   print: printTypeSpec,
   canAttachComment: canAttachComment,
@@ -1017,10 +1018,11 @@ function joinPropertiesInBlock(
 
   let newLineBeforeNextProp = false;
   path.each((item, propertyIndex) => {
+    const isFirst = propertyIndex === 0;
     const isLast = propertyIndex === propertyContainerNode.properties.length - 1;
     const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
 
-    if (newLineBeforeNextProp || shouldWrapInNewLines) {
+    if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
       doc.push(hardline);
       newLineBeforeNextProp = false;
     }
