@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Add support for Record<T>",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}

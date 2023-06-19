@@ -18,7 +18,7 @@ namespace Operations {
     @minValue(0)
     @maxValue(10)
     @query
-    count: int32
+    count: int32,
   ): OkResponse & Thing;
 
   @route("{name}")
