@@ -95,7 +95,7 @@ interface ResourceCreateOrReplace<TResource extends {}, TError> {
   @createsOrReplacesResource(TResource)
   createOrReplace(
     ...ResourceParameters<TResource>,
-    @body resource: ResourceCreateModel<TResource>
+    @body resource: ResourceCreateModel<TResource>,
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
@@ -123,7 +123,7 @@ interface ResourceCreateOrUpdate<TResource extends {}, TError> {
   @createsOrUpdatesResource(TResource)
   createOrUpdate(
     ...ResourceParameters<TResource>,
-    @body resource: ResourceCreateOrUpdateModel<TResource>
+    @body resource: ResourceCreateOrUpdateModel<TResource>,
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
@@ -151,7 +151,7 @@ interface ResourceCreate<TResource extends {}, TError> {
   @createsResource(TResource)
   create(
     ...ResourceCollectionParameters<TResource>,
-    @body resource: ResourceCreateModel<TResource>
+    @body resource: ResourceCreateModel<TResource>,
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
@@ -173,7 +173,7 @@ interface ResourceUpdate<TResource extends {}, TError> {
   @updatesResource(TResource)
   update(
     ...ResourceParameters<TResource>,
-    @body properties: ResourceCreateOrUpdateModel<TResource>
+    @body properties: ResourceCreateOrUpdateModel<TResource>,
   ): TResource | TError;
 }
 
@@ -313,7 +313,7 @@ interface SingletonResourceUpdate<TSingleton extends {}, TResource extends {}, T
     ...ResourceParameters<TResource>,
 
     @body
-    properties: ResourceCreateOrUpdateModel<TSingleton>
+    properties: ResourceCreateOrUpdateModel<TSingleton>,
   ): TSingleton | TError;
 }
 
@@ -365,7 +365,7 @@ interface ExtensionResourceCreateOrUpdate<TExtension extends {}, TResource exten
   createOrUpdate(
     ...ResourceParameters<TResource>,
     ...ResourceParameters<TExtension>,
-    @body resource: ResourceCreateOrUpdateModel<TExtension>
+    @body resource: ResourceCreateOrUpdateModel<TExtension>,
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
 }
 
@@ -386,7 +386,7 @@ interface ExtensionResourceCreate<TExtension extends {}, TResource extends {}, T
   @createsResource(TExtension)
   create(
     ...ResourceParameters<TResource>,
-    @body resource: ResourceCreateModel<TExtension>
+    @body resource: ResourceCreateModel<TExtension>,
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
 }
 
@@ -410,7 +410,7 @@ interface ExtensionResourceUpdate<TExtension extends {}, TResource extends {}, T
     ...ResourceParameters<TExtension>,
 
     @body
-    properties: ResourceCreateOrUpdateModel<TExtension>
+    properties: ResourceCreateOrUpdateModel<TExtension>,
   ): TExtension | TError;
 }
 
@@ -431,7 +431,7 @@ interface ExtensionResourceDelete<TExtension extends {}, TResource extends {}, T
   @deletesResource(TExtension)
   delete(
     ...ResourceParameters<TResource>,
-    ...ResourceParameters<TExtension>
+    ...ResourceParameters<TExtension>,
   ): ResourceDeletedResponse | TError;
 }
 
@@ -452,7 +452,7 @@ interface ExtensionResourceList<TExtension extends {}, TResource extends {}, TEr
   @listsResource(TExtension)
   list(
     ...ResourceParameters<TResource>,
-    ...ResourceCollectionParameters<TExtension>
+    ...ResourceCollectionParameters<TExtension>,
   ): CollectionWithNextLink<TExtension> | TError;
 }
 

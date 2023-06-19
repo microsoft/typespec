@@ -75,6 +75,7 @@ model CertificateAttributes {
 
   @projectedName("client", "createdAt")
   created: int32;
+
   updated: int32;
 }
 ```

@@ -20,6 +20,7 @@ model Basic {
 
   @doc("Name property with a very long description that does not fit on a single line and a line break.")
   name: string;
+
   color: CMYKColors;
 }
 
