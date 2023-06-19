@@ -334,7 +334,7 @@ enum \`2Colors\` {
       });
     });
 
-    describe.only("in between property spacing", () => {
+    describe("in between property spacing", () => {
       it("hug properties with no line decorators or comments ", () => {
         assertFormat({
           code: `
