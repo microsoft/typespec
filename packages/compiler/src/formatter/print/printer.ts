@@ -922,19 +922,15 @@ export function printModelExpression(
   print: PrettierChildPrint
 ) {
   const inBlock = isModelExpressionInBlock(path);
-
+  const node = path.getValue();
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    return group([
-      indent(
-        join(
-          ", ",
-          path.map((arg) => [softline, print(arg)], "properties")
-        )
-      ),
-      softline,
-    ]);
+    const properties =
+      node.properties.length === 0
+        ? ""
+        : indent(joinPropertiesInBlock(path as any, options, print, ifBreak(",", ", "), softline));
+    return group([properties, softline]);
   }
 }
 
@@ -987,10 +983,7 @@ function printModelPropertiesBlock(
   const lineDoc = tryInline ? softline : hardline;
   const seperator = isModelAValue(path) ? "," : ";";
 
-  const body: prettier.Doc = [
-    lineDoc,
-    joinPropertiesInBlock(path as any, options, print, seperator, lineDoc),
-  ];
+  const body = [joinPropertiesInBlock(path as any, options, print, seperator, lineDoc)];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
@@ -1010,10 +1003,10 @@ function joinPropertiesInBlock(
   >,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
-  separator: string,
+  separator: Doc,
   regularLine: Doc
 ): Doc {
-  const doc: Doc[] = [];
+  const doc: Doc[] = [regularLine];
   const propertyContainerNode = path.getValue();
 
   let newLineBeforeNextProp = false;

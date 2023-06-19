@@ -24,7 +24,7 @@ model HasNullables {
 namespace NullableMethods {
   @get op read(
     @query someParam: string | null,
-    @body modelOrNull: AnotherModel | null
+    @body modelOrNull: AnotherModel | null,
   ): HasNullables;
 }
 

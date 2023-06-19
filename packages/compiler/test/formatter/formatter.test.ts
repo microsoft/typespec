@@ -532,6 +532,241 @@ model Foo {
     });
   });
 
+  describe("op", () => {
+    it("keeps operation inline if it can", () => {
+      assertFormat({
+        code: `
+op foo(
+one: string;
+
+two: string;
+
+
+
+three: string,
+      ): void;
+`,
+        expected: `
+op foo(one: string, two: string, three: string): void;
+`,
+      });
+    });
+
+    it("doesn't add extra blank space in parameters list if operation split in new lines", () => {
+      assertFormat({
+        code: `
+op foo(
+
+      ): "very very very long text that will force this operation to split line"
+`,
+        expected: `
+op foo(
+): "very very very long text that will force this operation to split line";
+`,
+      });
+    });
+
+    describe("in between parameter spacing", () => {
+      it("hug parameters with no line decorators or comments ", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string;
+
+  two: string;
+
+
+
+  three: string,   four: string,
+  five: string,
+        ): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+  two: string,
+  three: string,
+  four: string,
+  five: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with line decorators", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  @bar
+  two: string,
+  three: string,
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  @bar
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap only in single line when 2 parameters have decorators next to each other", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  two: string,
+  @foo
+  three: string,
+  four: string
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  two: string,
+
+  @foo
+  three: string,
+
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with line comments", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  // comment
+  two: string,
+  three: string
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  // comment
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("first property with decorators or comment should not have extra blank space before", () => {
+        assertFormat({
+          code: `
+op foo(
+  @foo
+  one: string,
+  two: string,
+): void;
+  `,
+          expected: `
+op foo(
+  @foo
+  one: string,
+
+  two: string,
+): void;
+  `,
+        });
+      });
+
+      it("last property with decorators or comment should not have extra blank space after", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  two: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  two: string,
+): void;
+  `,
+        });
+      });
+
+      it("hug parameters if the comment is trailing the property end of line", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+
+  two: string, // comment
+  three: string
+
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+  two: string, // comment
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with block comments", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  /** 
+   * comment
+   */
+  two: string,
+  three: string,
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  /**
+   * comment
+   */
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+    });
+  });
+
   describe("scalar", () => {
     it("format on single line", () => {
       assertFormat({

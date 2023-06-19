@@ -72,10 +72,13 @@ interface Display {
 model Kiosk {
   // Output only.
   @field(1) id?: int32;
+
   // Required.
   @field(2) name: string;
+
   @field(3) size: ScreenSize;
   @field(4) location: WellKnown.LatLng;
+
   // Output only.
   @field(5) create_time?: WellKnown.Timestamp;
 }
@@ -83,10 +86,13 @@ model Kiosk {
 model Sign {
   // Output only.
   @field(1) id?: int32;
+
   // Required.
   @field(2) name: string;
+
   @field(3) text: string;
   @field(4) image: bytes;
+
   // Output only.
   @field(5) create_time?: WellKnown.Timestamp;
 }

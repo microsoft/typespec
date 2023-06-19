@@ -21,12 +21,14 @@ model PetStoreError {
 model Pet {
   @key("petId")
   id: int32;
+
   name: string;
   tag?: string;
 
   @minValue(0)
   @maxValue(20)
   age: int32;
+
   ownerId: int64;
 }
 
@@ -35,6 +37,7 @@ model Pet {
 model Toy {
   @key("toyId")
   id: int64;
+
   petId: int64;
   name: string;
 }
@@ -43,6 +46,7 @@ model Toy {
 model Owner {
   @key("ownerId")
   id: int64;
+
   name: string;
   age: int32;
 }
@@ -51,6 +55,7 @@ model Owner {
 model Checkup {
   @key("checkupId")
   id: int32;
+
   vetName: string;
   notes: string;
 }
@@ -75,7 +80,7 @@ interface Toys extends ResourceRead<Toy, PetStoreError> {
   @listsResource(Toy)
   list(
     ...ParentKeysOf<Toy>,
-    @query nameFilter: string
+    @query nameFilter: string,
   ): CollectionWithNextLink<Toy> | PetStoreError;
 }
 

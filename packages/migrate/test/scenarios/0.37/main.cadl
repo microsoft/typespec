@@ -72,6 +72,7 @@ model Capacity {
 
   @doc("The maximum number of vCores that the index can consume. Represented with discrete values: 0.2, 0.5. 1, 2, 3, … to 16.")
   maxVCores: float32;
+
   autoPause: Pause;
 }
 
