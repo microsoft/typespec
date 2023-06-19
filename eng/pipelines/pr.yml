@@ -30,7 +30,7 @@ jobs:
           pool: azsdk-pool-mms-win-2022-general
           imageName: windows-2022
           nodeVersion: "18.x"
-          
+
         # Node 20
         "Linux - Node 20.x":
           pool: azsdk-pool-mms-ubuntu-2004-general
@@ -41,7 +41,7 @@ jobs:
           pool: azsdk-pool-mms-win-2022-general
           imageName: windows-2022
           nodeVersion: "20.x"
-          
+
     pool:
       name: $(pool)
       vmImage: $(imageName)
