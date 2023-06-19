@@ -21,27 +21,27 @@ op test(
   @header({
     format: "csv",
   })
-  foo: string[]
+  foo: string[],
 ): void;
 op test2(
   @Cadl.Http.header({
     format: "csv",
   })
-  foo: string[]
+  foo: string[],
 ): void;
 op test3(
   @header({
     name: "x-foo",
     format: "csv",
   })
-  foo: string[]
+  foo: string[],
 ): void;
 op test4(
   @header({
     name: "x-foo",
     format: "csv",
   })
-  foo: string[]
+  foo: string[],
 ): void;
     `.trim()
     );
