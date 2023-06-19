@@ -65,27 +65,27 @@ op test(
   @query({
     format: "multi",
   })
-  foo: string[]
+  foo: string[],
 ): void;
 op test2(
   @Cadl.Http.query({
     format: "multi",
   })
-  foo: string[]
+  foo: string[],
 ): void;
 op test3(
   @query({
     name: "x-foo",
     format: "multi",
   })
-  foo: string[]
+  foo: string[],
 ): void;
 op test4(
   @query({
     name: "x-foo",
     format: "multi",
   })
-  foo: string[]
+  foo: string[],
 ): void;
     `.trim()
     );
