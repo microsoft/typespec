@@ -264,6 +264,17 @@ namespace ListKind {
     open: Token.OpenParen,
     close: Token.CloseParen,
   } as const;
+
+  export const MemberSet = {
+    allowEmpty: true,
+    delimiter: Token.Comma,
+    toleratedDelimiter: Token.Comma,
+    toleratedDelimiterIsValid: false,
+    trailingDelimiterIsValid: true,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    allowedStatementKeyword: Token.None,
+  } as const;
 }
 
 const enum ParseMode {
@@ -1707,7 +1718,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       };
     }
 
-    return parseProjectionLogicalOrExpressionOrHigher();
+    return parseProjectionLogicalImpliesExpressionOrHigher();
+  }
+
+  function parseProjectionLogicalImpliesExpressionOrHigher(): ProjectionExpression {
+    let expr = parseProjectionLogicalOrExpressionOrHigher();
+    while (token() !== Token.EndOfFile) {
+      const pos = expr.pos;
+      if (parseOptional(Token.BigArrow)) {
+        expr = {
+          kind: SyntaxKind.ProjectionLogicalExpression,
+          op: "==>",
+          left: expr,
+          right: parseProjectionLogicalOrExpressionOrHigher(),
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
+    }
+
+    return expr;
   }
 
   function parseProjectionLogicalOrExpressionOrHigher(): ProjectionExpression {
@@ -1731,7 +1762,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseProjectionLogicalAndExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
+    let expr: ProjectionExpression = parseProjectionMembershipExpressionOrHigher();
 
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
@@ -1740,7 +1771,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "&&",
           left: expr,
-          right: parseProjectionEqualityExpressionOrHigher(),
+          right: parseProjectionMembershipExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {
@@ -1748,6 +1779,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
     }
 
+    return expr;
+  }
+
+  function parseProjectionMembershipExpressionOrHigher(): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
+
+    if (token() === Token.Identifier && tokenValue() === "in") {
+      const pos = expr.pos;
+      nextToken();
+      const args = parseList(ListKind.MemberSet, parseProjectionLogicalImpliesExpressionOrHigher);
+      expr = {
+        kind: SyntaxKind.ProjectionMembershipExpression,
+        left: expr,
+        arguments: args,
+        ...finishNode(pos),
+      };
+    }
     return expr;
   }
 
@@ -2998,6 +3046,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionArithmeticExpression:
     case SyntaxKind.ProjectionEqualityExpression:
       return visitNode(cb, node.left) || visitNode(cb, node.right);
+    case SyntaxKind.ProjectionMembershipExpression:
+      return visitNode(cb, node.left) || visitEach(cb, node.arguments);
     case SyntaxKind.ProjectionUnaryExpression:
       return visitNode(cb, node.target);
     case SyntaxKind.ProjectionModelExpression:

@@ -43,6 +43,7 @@ import {
   ProjectionLambdaParameterDeclarationNode,
   ProjectionLogicalExpressionNode,
   ProjectionMemberExpressionNode,
+  ProjectionMembershipExpressionNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -286,6 +287,12 @@ export function printNode(
     case SyntaxKind.ProjectionArithmeticExpression:
       return printProjectionLeftRightExpression(
         path as AstPath<ProjectionLogicalExpressionNode>,
+        options,
+        print
+      );
+    case SyntaxKind.ProjectionMembershipExpression:
+      return printProjectionMembershipExpression(
+        path as AstPath<ProjectionMembershipExpressionNode>,
         options,
         print
       );
@@ -1514,6 +1521,17 @@ export function printProjectionLeftRightExpression(
 ) {
   const node = path.getValue();
   return [path.call(print, "left"), " ", node.op, " ", path.call(print, "right")];
+}
+
+export function printProjectionMembershipExpression(
+  path: AstPath<ProjectionMembershipExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const target = path.call(print, "left");
+  const params = printItemList(path, options, print, "arguments");
+
+  return [target, " ", "in", " ", "{", params, "}"];
 }
 
 export function printProjectionUnaryExpression(

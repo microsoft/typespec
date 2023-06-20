@@ -83,7 +83,9 @@ import {
   ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionLambdaExpressionNode,
+  ProjectionLogicalExpressionNode,
   ProjectionMemberExpressionNode,
+  ProjectionMembershipExpressionNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -4061,6 +4063,10 @@ export function createChecker(program: Program): Checker {
         return evalProjectionArithmeticExpression(node);
       case SyntaxKind.ProjectionIfExpression:
         return evalProjectionIfExpression(node);
+      case SyntaxKind.ProjectionLogicalExpression:
+        return evalProjectionLogicalExpression(node);
+      case SyntaxKind.ProjectionMembershipExpression:
+        return evalProjectionMembershipExpression(node);
       case SyntaxKind.ProjectionEqualityExpression:
         return evalProjectionEqualityExpression(node);
       case SyntaxKind.ProjectionUnaryExpression:
@@ -4281,6 +4287,79 @@ export function createChecker(program: Program): Checker {
       default:
         return true;
     }
+  }
+
+  function evalProjectionLogicalExpression(
+    node: ProjectionLogicalExpressionNode
+  ): BooleanLiteral | ReturnRecord {
+    const lhsv = evalProjectionNode(node.left);
+    if (lhsv.kind === "Return") {
+      return lhsv;
+    }
+
+    switch (node.op) {
+      case "&&": {
+        if (!typeIsTruthy(lhsv)) {
+          return createLiteralType(false);
+        } else {
+          const rhsv = evalProjectionNode(node.right);
+          if (rhsv.kind === "Return") {
+            return rhsv;
+          }
+
+          return createLiteralType(typeIsTruthy(rhsv));
+        }
+      }
+      case "||": {
+        if (typeIsTruthy(lhsv)) {
+          return createLiteralType(true);
+        } else {
+          const rhsv = evalProjectionNode(node.right);
+          if (rhsv.kind === "Return") {
+            return rhsv;
+          }
+
+          return createLiteralType(typeIsTruthy(rhsv));
+        }
+      }
+      case "==>": {
+        if (!typeIsTruthy(lhsv)) {
+          return createLiteralType(true);
+        } else {
+          const rhsv = evalProjectionNode(node.right);
+          if (rhsv.kind === "Return") {
+            return rhsv;
+          }
+
+          return createLiteralType(typeIsTruthy(rhsv));
+        }
+      }
+    }
+  }
+
+  function evalProjectionMembershipExpression(
+    node: ProjectionMembershipExpressionNode
+  ): BooleanLiteral | ReturnRecord {
+    const lhsv = evalProjectionNode(node.left);
+    if (lhsv.kind === "Return") {
+      return lhsv;
+    }
+
+    const args = [];
+    for (const arg of node.arguments) {
+      args.push(evalProjectionNode(arg));
+    }
+
+    if (args.some((a) => a.kind === "Return")) {
+      return args.find((a) => a.kind === "Return") as ReturnRecord;
+    }
+
+    const member = args.some(
+      (a) =>
+        (a as BooleanLiteral | NumericLiteral | StringLiteral).value ===
+        (lhsv as BooleanLiteral | NumericLiteral | StringLiteral).value
+    );
+    return createLiteralType(member);
   }
 
   function createEvalContext(node: Node, parent?: EvalContext): EvalContext {

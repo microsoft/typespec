@@ -763,6 +763,7 @@ export enum SyntaxKind {
   ProjectionBlockExpression,
   ProjectionMemberExpression,
   ProjectionLogicalExpression,
+  ProjectionMembershipExpression,
   ProjectionEqualityExpression,
   ProjectionUnaryExpression,
   ProjectionRelationalExpression,
@@ -1036,6 +1037,7 @@ export type Expression =
 export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
   | ProjectionRelationalExpressionNode
+  | ProjectionMembershipExpressionNode
   | ProjectionEqualityExpressionNode
   | ProjectionUnaryExpressionNode
   | ProjectionArithmeticExpressionNode
@@ -1392,9 +1394,15 @@ export interface ProjectionExpressionStatementNode extends BaseNode {
 
 export interface ProjectionLogicalExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionLogicalExpression;
-  readonly op: "||" | "&&";
+  readonly op: "||" | "&&" | "==>";
   readonly left: ProjectionExpression;
   readonly right: ProjectionExpression;
+}
+
+export interface ProjectionMembershipExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionMembershipExpression;
+  readonly left: ProjectionExpression;
+  readonly arguments: ProjectionExpression[];
 }
 
 export interface ProjectionRelationalExpressionNode extends BaseNode {

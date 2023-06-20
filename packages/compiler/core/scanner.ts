@@ -88,6 +88,7 @@ export enum Token {
   LessThanEquals,
   GreaterThanEquals,
   AmpsersandAmpersand,
+  BigArrow,
   BarBar,
   EqualsEquals,
   ExclamationEquals,
@@ -209,6 +210,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.GreaterThanEquals, "'>='"],
   [Token.AmpsersandAmpersand, "'&&'"],
   [Token.BarBar, "'||'"],
+  [Token.BigArrow, "'==>'"],
   [Token.EqualsEquals, "'=='"],
   [Token.ExclamationEquals, "'!='"],
   [Token.EqualsGreaterThan, "'=>'"],
@@ -536,7 +538,9 @@ export function createScanner(
           if (atConflictMarker()) return scanConflictMarker();
           switch (lookAhead(1)) {
             case CharCode.Equals:
-              return next(Token.EqualsEquals, 2);
+              return lookAhead(2) === CharCode.GreaterThan
+                ? next(Token.BigArrow, 3)
+                : next(Token.EqualsEquals, 2);
             case CharCode.GreaterThan:
               return next(Token.EqualsGreaterThan, 2);
           }
