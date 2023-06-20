@@ -67,7 +67,7 @@ namespace Hello {
     @query({
       format: "multi",
     })
-    fieldMask: string[]
+    fieldMask: string[],
   ): ReadablePerson;
   @post op create(@body person: WritablePerson): ReadablePerson;
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;

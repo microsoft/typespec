@@ -10,6 +10,7 @@ model HeaderOptions {
    * Name of the header when sent over http.
    */
   name?: string;
+
   /**
    * Determines the format of the array if type array is used.
    */
@@ -38,6 +39,7 @@ model QueryOptions {
    * Name of the query when included in the url.
    */
   name?: string;
+
   /**
    * Determines the format of the array if type array is used.
    */

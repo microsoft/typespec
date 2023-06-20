@@ -147,6 +147,7 @@ model GetShelfRequest {
 model ListShelvesResponse {
   @doc("The list of shelves.")
   shelves: Shelf[];
+
   ...ListResponseBase;
 }
 
@@ -194,6 +195,7 @@ model ListBooksRequest {
   @doc("The name of the shelf whose books we'd like to list.")
   @path
   name: shelf_name;
+
   ...ListRequestBase;
 
   // TODO[JC]: This is a specialized comment on `page_size`. How would we handle this?
@@ -206,6 +208,7 @@ model ListBooksRequest {
 model ListBooksResponse {
   @doc("The list of books.")
   books: Book[];
+
   ...ListResponseBase;
 }
 

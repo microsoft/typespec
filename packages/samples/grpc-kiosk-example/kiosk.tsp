@@ -75,6 +75,7 @@ model Kiosk {
 
   @doc("kiosk location")
   location: LatLng;
+
   create_time?: Timestamp; // Output only.
 }
 

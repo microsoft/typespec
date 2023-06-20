@@ -50,6 +50,7 @@ model ServiceOptions {
    * Title of the service.
    */
   title?: string;
+
   /**
    * Version of the service.
    */

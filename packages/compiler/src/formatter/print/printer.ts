@@ -76,6 +76,15 @@ const { align, breakParent, group, hardline, ifBreak, indent, join, line, softli
 
 const { isNextLineEmpty } = prettier.util;
 
+/**
+ * If the decorators for that node should try to be kept inline.
+ */
+const DecoratorsTryInline = {
+  modelProperty: true,
+  enumMember: true,
+  unionVariant: true,
+};
+
 export const typespecPrinter: Printer<Node> = {
   print: printTypeSpec,
   canAttachComment: canAttachComment,
@@ -119,10 +128,7 @@ export function printNode(
   switch (node.kind) {
     // Root
     case SyntaxKind.TypeSpecScript:
-      return [
-        printStatementSequence(path as AstPath<TypeSpecScriptNode>, options, print, "statements"),
-      ];
-
+      return printTypeSpecScript(path as AstPath<TypeSpecScriptNode>, options, print);
     // Statements
     case SyntaxKind.ImportStatement:
       return [`import "${node.path.value}";`];
@@ -340,8 +346,9 @@ export function printNode(
         "Currently, doc comments are only handled as regular comments and we do not opt in to parsing them so we shouldn't reach here."
       );
       return "";
-    case SyntaxKind.JsSourceFile:
     case SyntaxKind.EmptyStatement:
+      return "";
+    case SyntaxKind.JsSourceFile:
     case SyntaxKind.InvalidStatement:
       return getRawText(node, options);
     default:
@@ -353,6 +360,20 @@ export function printNode(
   }
 }
 
+export function printTypeSpecScript(
+  path: AstPath<TypeSpecScriptNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+): Doc {
+  const node = path.getValue();
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  const body = [];
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
+  body.push(printStatementSequence(path, options, print, "statements"));
+  return body;
+}
 export function printAliasStatement(
   path: AstPath<AliasStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -390,6 +411,7 @@ export function canAttachComment(node: Node): boolean {
     kind &&
       kind !== SyntaxKind.LineComment &&
       kind !== SyntaxKind.BlockComment &&
+      kind !== SyntaxKind.EmptyStatement &&
       !(node.flags & NodeFlags.Synthetic)
   );
 }
@@ -460,14 +482,26 @@ export function printDecorators(
     return { decorators: "", multiline: false };
   }
 
-  const shouldBreak =
-    !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options);
+  const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline });
   const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
   return {
     decorators: group([shouldBreak ? breakParent : "", decorators]),
     multiline: shouldBreak,
   };
+}
+
+/** Check if the decorators of the given node should be broken in sparate line */
+function shouldDecoratorBreakLine(
+  path: AstPath<DecorableNode>,
+  options: object,
+  { tryInline }: { tryInline: boolean }
+) {
+  const node = path.getValue();
+
+  return (
+    !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options)
+  );
 }
 
 /**
@@ -641,7 +675,9 @@ export function printEnumMember(
   const node = path.getValue();
   const id = path.call(print, "id");
   const value = node.value ? [": ", path.call(print, "value")] : "";
-  const { decorators, multiline } = printDecorators(path, options, print, { tryInline: true });
+  const { decorators, multiline } = printDecorators(path, options, print, {
+    tryInline: DecoratorsTryInline.enumMember,
+  });
   const propertyIndex = path.stack[path.stack.length - 2];
   const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
   return [multiline && isNotFirst ? hardline : "", decorators, id, value];
@@ -697,7 +733,9 @@ export function printUnionVariant(
 ) {
   const id = path.call(print, "id");
   const value = [": ", path.call(print, "value")];
-  const { decorators } = printDecorators(path, options, print, { tryInline: true });
+  const { decorators } = printDecorators(path, options, print, {
+    tryInline: DecoratorsTryInline.unionVariant,
+  });
   return [decorators, id, value];
 }
 
@@ -884,19 +922,15 @@ export function printModelExpression(
   print: PrettierChildPrint
 ) {
   const inBlock = isModelExpressionInBlock(path);
-
+  const node = path.getValue();
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    return group([
-      indent(
-        join(
-          ", ",
-          path.map((arg) => [softline, print(arg)], "properties")
-        )
-      ),
-      softline,
-    ]);
+    const properties =
+      node.properties.length === 0
+        ? ""
+        : indent(joinPropertiesInBlock(path as any, options, print, ifBreak(",", ", "), softline));
+    return group([properties, softline]);
   }
 }
 
@@ -949,18 +983,79 @@ function printModelPropertiesBlock(
   const lineDoc = tryInline ? softline : hardline;
   const seperator = isModelAValue(path) ? "," : ";";
 
-  const body: prettier.Doc = [
-    lineDoc,
-    join(
-      [seperator, lineDoc],
-      path.map((x) => [print(x as any)], "properties")
-    ),
-    hasProperties ? ifBreak(seperator) : "",
-  ];
+  const body = [joinPropertiesInBlock(path as any, options, print, seperator, lineDoc)];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
   return group(["{", indent(body), lineDoc, "}"]);
+}
+
+function joinPropertiesInBlock(
+  path: AstPath<
+    Node & {
+      properties: readonly (
+        | ModelPropertyNode
+        | ModelSpreadPropertyNode
+        | ProjectionModelPropertyNode
+        | ProjectionModelSpreadPropertyNode
+      )[];
+    }
+  >,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+  separator: Doc,
+  regularLine: Doc
+): Doc {
+  const doc: Doc[] = [regularLine];
+  const propertyContainerNode = path.getValue();
+
+  let newLineBeforeNextProp = false;
+  path.each((item, propertyIndex) => {
+    const isFirst = propertyIndex === 0;
+    const isLast = propertyIndex === propertyContainerNode.properties.length - 1;
+    const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
+
+    if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
+      doc.push(hardline);
+      newLineBeforeNextProp = false;
+    }
+    doc.push(print(item));
+    if (isLast) {
+      doc.push(ifBreak(separator));
+    } else {
+      doc.push(separator);
+      doc.push(regularLine);
+      if (shouldWrapInNewLines) {
+        newLineBeforeNextProp = true;
+      }
+    }
+  }, "properties");
+  return doc;
+}
+
+/**
+ * Check if property item (PropertyNode, SpreadProperty) should be wrapped in new lines.
+ * It can be wrapped for the following reasons:
+ * - has decorators on lines above
+ * - has leading comments
+ */
+function shouldWrapPropertyInNewLines(
+  path: AstPath<
+    | ModelPropertyNode
+    | ModelSpreadPropertyNode
+    | ProjectionModelPropertyNode
+    | ProjectionModelSpreadPropertyNode
+  >,
+  options: any
+): boolean {
+  const node = path.getValue();
+  return (
+    ((node.kind === SyntaxKind.ModelProperty || node.kind === SyntaxKind.ProjectionModelProperty) &&
+      shouldDecoratorBreakLine(path as any, options, {
+        tryInline: DecoratorsTryInline.modelProperty,
+      })) ||
+    hasComments(node, CommentCheckFlags.Leading)
+  );
 }
 
 /**
@@ -989,19 +1084,11 @@ export function printModelProperty(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
-  const propertyIndex = path.stack[path.stack.length - 2];
-  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
-  const { decorators, multiline } = printDecorators(
-    path as AstPath<DecorableNode>,
-    options,
-    print,
-    {
-      tryInline: true,
-    }
-  );
+  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
+    tryInline: DecoratorsTryInline.modelProperty,
+  });
   const id = printIdentifier(node.id, options);
   return [
-    multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
     decorators,
     id,
