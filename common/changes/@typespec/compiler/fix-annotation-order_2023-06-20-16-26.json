@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Allow annotations(Decorators, directives and doc comments) to be specified in any order",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
