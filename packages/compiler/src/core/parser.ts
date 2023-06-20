@@ -335,15 +335,43 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  interface Annotations {
+    pos: number;
+    docs: DocNode[];
+    directives: DirectiveExpressionNode[];
+    decorators: DecoratorExpressionNode[];
+  }
+
+  /** Try to parse doc comments, directives and decorators in any order. */
+  function parseAnnotations(): Annotations {
+    const directives: DirectiveExpressionNode[] = [];
+    const decorators: DecoratorExpressionNode[] = [];
+
+    const [pos, docs] = parseDocList();
+
+    while (token() === Token.Hash || token() === Token.At) {
+      if (token() === Token.Hash) {
+        directives.push(parseDirectiveExpression());
+      } else if (token() === Token.At) {
+        decorators.push(parseDecoratorExpression());
+      }
+
+      const [_, addedDocs] = parseDocList();
+      for (const doc of addedDocs) {
+        docs.push(doc);
+      }
+    }
+
+    return { pos, docs, directives, decorators };
+  }
+
   function parseTypeSpecScriptItemList(): Statement[] {
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
     let seenUsing = false;
     while (token() !== Token.EndOfFile) {
-      const [pos, docs] = parseDocList();
-      const directives = parseDirectiveList();
-      const decorators = parseDecoratorList();
+      const { pos, docs, directives, decorators } = parseAnnotations();
       const tok = token();
       let item: Statement;
       switch (tok) {
@@ -434,9 +462,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const stmts: Statement[] = [];
 
     while (token() !== Token.CloseBrace) {
-      const [pos, docs] = parseDocList();
-      const directives = parseDirectiveList();
-      const decorators = parseDecoratorList();
+      const { pos, docs, directives, decorators } = parseAnnotations();
       const tok = token();
 
       let item: Statement;
@@ -2513,13 +2539,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const items: T[] = [];
     while (true) {
       let pos = tokenPos();
-      let docs: DocNode[] | undefined;
 
-      if (!kind.invalidAnnotationTarget) {
-        [pos, docs] = parseDocList();
-      }
-      const directives = parseDirectiveList();
-      const decorators = parseDecoratorList();
+      // todo need to disable doc parsing? if kind.invalidAnnotationTarget
+      const { pos: docPos, docs, directives, decorators } = parseAnnotations();
+      pos = docPos;
       if (kind.invalidAnnotationTarget) {
         reportInvalidDecorators(decorators, kind.invalidAnnotationTarget);
         reportInvalidDirective(directives, kind.invalidAnnotationTarget);
