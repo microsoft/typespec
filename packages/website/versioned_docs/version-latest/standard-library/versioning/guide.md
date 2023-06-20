@@ -102,6 +102,7 @@ model Error {
 model Widget {
   @key
   id: string;
+
   name: string;
 }
 
@@ -119,6 +120,7 @@ enum Versions {
 model Widget {
   @key
   id: string;
+
   name: string;
 }
 

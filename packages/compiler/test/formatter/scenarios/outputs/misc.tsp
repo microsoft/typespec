@@ -33,10 +33,12 @@ alias Generic<A, B> = A | B;
 model Foo {
   id: number;
   type: Bar;
+
   /*
    * Name is special and comment is unaligned.
    */
   name?: string = "foo";
+
   isArray: string[];
   address: {
     street: string;
