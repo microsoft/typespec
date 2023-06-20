@@ -335,6 +335,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  interface ParseAnnotationsOptions {
+    /** If we shouldn't try to parse doc nodes when parsing annotations. */
+    skipParsingDocNodes?: boolean;
+  }
+
   interface Annotations {
     pos: number;
     docs: DocNode[];
@@ -343,11 +348,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   /** Try to parse doc comments, directives and decorators in any order. */
-  function parseAnnotations(): Annotations {
+  function parseAnnotations({ skipParsingDocNodes }: ParseAnnotationsOptions = {}): Annotations {
     const directives: DirectiveExpressionNode[] = [];
     const decorators: DecoratorExpressionNode[] = [];
-
-    const [pos, docs] = parseDocList();
+    const docs: DocNode[] = [];
+    let pos = tokenPos();
+    if (!skipParsingDocNodes) {
+      const [firstPos, addedDocs] = parseDocList();
+      pos = firstPos;
+      for (const doc of addedDocs) {
+        docs.push(doc);
+      }
+    }
 
     while (token() === Token.Hash || token() === Token.At) {
       if (token() === Token.Hash) {
@@ -356,9 +368,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         decorators.push(parseDecoratorExpression());
       }
 
-      const [_, addedDocs] = parseDocList();
-      for (const doc of addedDocs) {
-        docs.push(doc);
+      if (!skipParsingDocNodes) {
+        const [_, addedDocs] = parseDocList();
+
+        for (const doc of addedDocs) {
+          docs.push(doc);
+        }
       }
     }
 
@@ -2538,11 +2553,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     const items: T[] = [];
     while (true) {
-      let pos = tokenPos();
-
-      // todo need to disable doc parsing? if kind.invalidAnnotationTarget
-      const { pos: docPos, docs, directives, decorators } = parseAnnotations();
-      pos = docPos;
+      const { pos, docs, directives, decorators } = parseAnnotations({
+        skipParsingDocNodes: Boolean(kind.invalidAnnotationTarget),
+      });
       if (kind.invalidAnnotationTarget) {
         reportInvalidDecorators(decorators, kind.invalidAnnotationTarget);
         reportInvalidDirective(directives, kind.invalidAnnotationTarget);
