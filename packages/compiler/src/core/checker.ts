@@ -2090,6 +2090,21 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
 
+      if (base.flags & SymbolFlags.TemplateParameter) {
+        const constraint = (base.declarations[0] as TemplateParameterDeclarationNode).constraint;
+        if (
+          constraint &&
+          (constraint.kind === SyntaxKind.MemberExpression ||
+            constraint.kind === SyntaxKind.TypeReference ||
+            constraint.kind === SyntaxKind.Identifier)
+        ) {
+          base = resolveTypeReferenceSym(constraint, mapper, resolveDecorator);
+          if (!base) {
+            return undefined;
+          }
+        }
+      }
+
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
         base = getAliasedSymbol(base, mapper);
