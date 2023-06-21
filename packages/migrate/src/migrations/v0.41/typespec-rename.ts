@@ -1,20 +1,20 @@
 import type { Node, TypeSpecScriptNode } from "@typespec/compiler";
-import { getAnyExtensionFromPath, NodePackage } from "@typespec/compiler";
+import { NodePackage, getAnyExtensionFromPath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import * as yaml from "js-yaml";
 import * as path from "path";
 import type { TypeSpecCompilerV0_40 } from "../../migration-config.js";
 import {
   AstContentMigrateAction,
-  createContentMigration,
-  createFileContentMigration,
-  createFileRenameMigration,
-  createPackageVersionMigration,
   FileContentMigrationAction,
   FileRenameAction,
   MigrationContext,
   MigrationKind,
   PackageVersionUpdateAction,
+  createContentMigration,
+  createFileContentMigration,
+  createFileRenameMigration,
+  createPackageVersionMigration,
 } from "../../migration-types.js";
 
 export const updatePackageVersion = createPackageVersionMigration({
@@ -109,8 +109,8 @@ export const updatePackageVersion = createPackageVersionMigration({
 export const migrateCadlNameToTypeSpec = createContentMigration({
   name: "Migrate Model To scalar",
   kind: MigrationKind.AstContentMigration,
-  from: "0.40.0",
-  to: "0.41.0",
+  from: "0.40",
+  to: "0.41",
   migrate: (
     { printNode, printNodes }: MigrationContext,
     compilerV40: TypeSpecCompilerV0_40,

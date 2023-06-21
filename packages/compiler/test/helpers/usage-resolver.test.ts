@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
-import { resolveUsages, UsageFlags } from "../../core/helpers/usage-resolver.js";
-import { getTypeName } from "../../core/index.js";
-import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
+import { resolveUsages, UsageFlags } from "../../src/core/helpers/usage-resolver.js";
+import { getTypeName } from "../../src/core/index.js";
+import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("compiler: helpers: usage resolver", () => {
   let runner: BasicTestRunner;
@@ -137,7 +137,7 @@ describe("compiler: helpers: usage resolver", () => {
       op test(): Record<Bar>;
     `);
 
-    deepStrictEqual(usages, { inputs: [], outputs: ["TypeSpec.Record<Bar>", "Bar"] });
+    deepStrictEqual(usages, { inputs: [], outputs: ["Record<Bar>", "Bar"] });
   });
 
   it("track enum referenced in returnType", async () => {

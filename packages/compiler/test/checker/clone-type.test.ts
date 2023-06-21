@@ -1,7 +1,8 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Program } from "../../core/program.js";
-import { DecoratorContext, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { Program } from "../../src/core/program.js";
+import { DecoratorContext, Type } from "../../src/core/types.js";
+import { createRekeyableMap } from "../../src/core/util.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: type cloning", () => {
   let testHost: TestHost;
@@ -82,22 +83,30 @@ describe("compiler: type cloning", () => {
       // Ensure that you can set your own member list
       switch (test.kind) {
         case "Model":
-          const newModel = testHost.program.checker.cloneType(test, { properties: new Map() });
+          const newModel = testHost.program.checker.cloneType(test, {
+            properties: createRekeyableMap(),
+          });
           ok(test.properties.size > 0, "no properties to change");
           strictEqual(newModel.properties.size, 0, "properties not set.");
           break;
         case "Enum":
-          const newEnum = testHost.program.checker.cloneType(test, { members: new Map() });
+          const newEnum = testHost.program.checker.cloneType(test, {
+            members: createRekeyableMap(),
+          });
           ok(test.members.size > 0, "no members to change");
           strictEqual(newEnum.members.size, 0, "members not set");
           break;
         case "Interface":
-          const newInterface = testHost.program.checker.cloneType(test, { operations: new Map() });
+          const newInterface = testHost.program.checker.cloneType(test, {
+            operations: createRekeyableMap(),
+          });
           ok(test.operations.size > 0, "no operations to change");
           strictEqual(newInterface.operations.size, 0, "operations not set");
           break;
         case "Union":
-          const newUnion = testHost.program.checker.cloneType(test, { variants: new Map() });
+          const newUnion = testHost.program.checker.cloneType(test, {
+            variants: createRekeyableMap(),
+          });
           ok(test.variants.size > 0, "no variants to change");
           strictEqual(newUnion.variants.size, 0, "variants not set");
           break;
@@ -120,7 +129,9 @@ describe("compiler: type cloning", () => {
     strictEqual(test.kind, "ModelProperty" as const);
     strictEqual(test.type.kind, "Model" as const);
     const clone = testHost.program.checker.cloneType(test.type);
+    // eslint-disable-next-line deprecation/deprecation
     strictEqual(clone.templateArguments?.length, 2);
+    // eslint-disable-next-line deprecation/deprecation
     deepStrictEqual(test.type.templateArguments, clone.templateArguments);
     deepStrictEqual(test.type.templateMapper, clone.templateMapper);
   });

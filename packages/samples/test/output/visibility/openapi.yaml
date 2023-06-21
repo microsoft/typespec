@@ -16,6 +16,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ReadablePerson'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -31,6 +32,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ReadablePerson'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -65,6 +67,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ReadablePerson'
       requestBody:
+        required: true
         content:
           application/json:
             schema:

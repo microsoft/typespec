@@ -7,16 +7,15 @@ import {
   ModelProperty,
   Operation,
   Program,
+  Scalar,
   Type,
   Union,
-} from "../../core/index.js";
+} from "../../src/core/index.js";
 import {
   ArrayBuilder,
   AssetEmitter,
-  code,
   CodeTypeEmitter,
   Context,
-  createAssetEmitter,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
@@ -28,7 +27,9 @@ import {
   StringBuilder,
   TypeEmitter,
   TypeSpecDeclaration,
-} from "../../emitter-framework/index.js";
+  code,
+  createAssetEmitter,
+} from "../../src/emitter-framework/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
 
@@ -92,7 +93,7 @@ async function emitTypeSpecToTs(code: string) {
   return sf.text;
 }
 
-describe("typescript emitter", () => {
+describe("emitter-framework: typescript emitter", () => {
   it("emits models", async () => {
     const contents = await emitTypeSpecToTs(`
       model A {
@@ -119,9 +120,9 @@ describe("typescript emitter", () => {
     `);
 
     assert.match(contents, /interface Test1/);
-    assert.match(contents, /interface Templateint32/);
+    assert.match(contents, /interface TemplateInt32/);
     assert.match(contents, /interface Test2/);
-    assert.match(contents, /prop: Templateint32/);
+    assert.match(contents, /prop: TemplateInt32/);
   });
 
   it("emits literal types", async () => {
@@ -136,6 +137,16 @@ describe("typescript emitter", () => {
     assert.match(contents, /x: true/);
     assert.match(contents, /y: "hi"/);
     assert.match(contents, /z: 12/);
+  });
+
+  it("emits unknown", async () => {
+    const contents = await emitTypeSpecToTs(`
+      model A {
+        x: unknown
+      }
+    `);
+
+    assert.match(contents, /x: unknown/);
   });
 
   it("emits array literals", async () => {
@@ -154,6 +165,15 @@ describe("typescript emitter", () => {
     assert.match(contents, /y: string\[\]/);
     assert.match(contents, /z: \(string \| number\)\[\]/);
   });
+
+  it("emits arrays of unknown", async () => {
+    const contents = await emitTypeSpecToTs(`
+      model MyArray2 is Array<unknown>;
+    `);
+
+    assert.match(contents, /MyArray2 extends Array<unknown>/);
+  });
+
   // todo: what to do with optionals not at the end??
   it("emits operations", async () => {
     const contents = await emitTypeSpecToTs(`
@@ -240,9 +260,9 @@ describe("typescript emitter", () => {
     `);
 
     assert.match(contents, /a: 1 \| 2 \| SomeModel/);
-    assert.match(contents, /b: TUstring/);
+    assert.match(contents, /b: TUString/);
     assert.match(contents, /export type U = 1 \| "hello" \| SomeModel/);
-    assert.match(contents, /export type TUstring = string \| null/);
+    assert.match(contents, /export type TUString = string \| null/);
   });
 
   it("emits tuple types", async () => {
@@ -253,6 +273,24 @@ describe("typescript emitter", () => {
     `);
 
     assert.match(contents, /x: \[string, number\]/);
+  });
+
+  it("emits scalars", async () => {
+    class TestEmitter extends CodeTypeEmitter {
+      scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<string> {
+        return super.scalarDeclaration(scalar, name);
+      }
+    }
+    await emitTypeSpec(
+      TestEmitter,
+      `
+      scalar X extends string;
+      scalar Y extends numeric;
+    `,
+      {
+        scalarDeclaration: 4,
+      }
+    );
   });
 
   it("emits models to a single file", async () => {
@@ -580,7 +618,7 @@ it("can get options", async () => {
   assert(called, "program context should be called");
 });
 
-describe("Object emitter", () => {
+describe("emitter-framework: object emitter", () => {
   class TestEmitter extends TypeEmitter<object> {
     programContext(program: Program): Context {
       const sourceFile = this.emitter.createSourceFile("test.json");

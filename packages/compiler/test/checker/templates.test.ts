@@ -1,15 +1,15 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
-import { getSourceLocation } from "../../core/diagnostics.js";
-import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
+import { getSourceLocation } from "../../src/core/diagnostics.js";
+import { Diagnostic, Model, StringLiteral } from "../../src/core/types.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestRunner,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
-  TestHost,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;
@@ -124,7 +124,7 @@ describe("compiler: templates", () => {
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
     const a = A.properties.get("a")!;
     strictEqual(a.type.kind, "Scalar");
-    strictEqual((a.type as Model).name, "string");
+    strictEqual(a.type.name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
@@ -227,9 +227,9 @@ describe("compiler: templates", () => {
   describe("instantiating a template with invalid args", () => {
     it("shouldn't pass thru the invalid args", async () => {
       const { pos, source } = extractCursor(`
-    model AnObject<T extends object> { t: T }
+    model AnObject<T extends {}> { t: T }
     
-    alias Bar<T extends object>  = AnObject<T>;
+    alias Bar<T extends {}>  = AnObject<T>;
     
     alias NoConstaint<T> = Bar<┆T>;
   `);
@@ -238,14 +238,14 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'TypeSpec.object'",
+        message: "Type 'unknown' is not assignable to type '{}'",
         pos,
       });
     });
 
     it("operation should still be able to be used(no extra diagnostic)", async () => {
       const { pos, source } = extractCursor(`
-    op Action<T extends object>(): T;
+    op Action<T extends {}>(): T;
 
     op foo is Action<┆"abc">;
   `);
@@ -254,7 +254,7 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'abc' is not assignable to type 'TypeSpec.object'",
+        message: "Type 'abc' is not assignable to type '{}'",
         pos,
       });
     });
@@ -409,7 +409,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type '123' is not assignable to type 'TypeSpec.string'",
+        message: "Type '123' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -426,7 +426,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type '456' is not assignable to type 'TypeSpec.string'",
+        message: "Type '456' is not assignable to type 'string'",
         pos,
         end,
       });
@@ -453,7 +453,7 @@ describe("compiler: templates", () => {
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'TypeSpec.string'",
+        message: "Type 'unknown' is not assignable to type 'string'",
         pos,
         end,
       });

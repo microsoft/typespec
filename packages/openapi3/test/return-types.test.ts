@@ -22,13 +22,16 @@ describe("openapi3: return types", () => {
   it("defines responses with status codes", async () => {
     const res = await openApiFor(
       `
-      model CreatedResponse {
-        @statusCode code: "201";
+      @service({ name:"Test" })
+      namespace Test {
+        model CreatedResponse {
+          @statusCode code: "201";
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedResponse & Key;  
       }
-      model Key {
-        key: string;
-      }
-      @put op create(): CreatedResponse & Key;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -38,13 +41,16 @@ describe("openapi3: return types", () => {
   it("defines responses with numeric status codes", async () => {
     const res = await openApiFor(
       `
-      model CreatedResponse {
-        @statusCode code: 201;
+      @service({ name:"Test" })
+      namespace Test {
+        model CreatedResponse {
+          @statusCode code: 201;
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedResponse & Key;
       }
-      model Key {
-        key: string;
-      }
-      @put op create(): CreatedResponse & Key;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -54,16 +60,19 @@ describe("openapi3: return types", () => {
   it("defines responses with headers and status codes", async () => {
     const res = await openApiFor(
       `
-      model ETagHeader {
-        @header eTag: string;
+      @service({ name:"Test" })
+      namespace Test {
+        model ETagHeader {
+          @header eTag: string;
+        }
+        model CreatedResponse {
+          @statusCode code: "201";
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       }
-      model CreatedResponse {
-        @statusCode code: "201";
-      }
-      model Key {
-        key: string;
-      }
-      @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -98,18 +107,21 @@ describe("openapi3: return types", () => {
   it("defines responses with headers and status codes in base model", async () => {
     const res = await openApiFor(
       `
-      model CreatedResponse {
-        @statusCode code: "201";
-        @header contentType: "text/html";
-        @header location: string;
+      @service({ name:"Test" })
+      namespace Test {
+        model CreatedResponse {
+          @statusCode code: "201";
+          @header contentType: "text/html";
+          @header location: string;
+        }
+        model Page {
+          content: string;
+        }
+        model CreatePageResponse extends CreatedResponse {
+          @body body: Page;
+        }
+        @put op create(): CreatePageResponse;
       }
-      model Page {
-        content: string;
-      }
-      model CreatePageResponse extends CreatedResponse {
-        @body body: Page;
-      }
-      @put op create(): CreatePageResponse;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -126,7 +138,7 @@ describe("openapi3: return types", () => {
         @statusCode code: "200" | "201";
       }
       model DateHeader {
-        @header date: zonedDateTime;
+        @header date: utcDateTime;
       }
       model Key {
         key: string;
@@ -155,7 +167,7 @@ describe("openapi3: return types", () => {
         @statusCode created: "201";
       }
       model DateHeader {
-        @header date: zonedDateTime;
+        @header date: utcDateTime;
       }
       model Key {
         key: string;
@@ -326,10 +338,10 @@ describe("openapi3: return types", () => {
     });
   });
 
-  it("object return type should produce 200 ", async () => {
+  it("{} return type should produce 200 ", async () => {
     const res = await openApiFor(
       `
-      @get op test(): object;
+      @get op test(): {};
       `
     );
 
@@ -338,13 +350,11 @@ describe("openapi3: return types", () => {
     deepStrictEqual(responses["200"].content, {
       "application/json": {
         schema: {
-          $ref: "#/components/schemas/object",
+          type: "object",
+          properties: {},
+          "x-typespec-name": "{}",
         },
       },
-    });
-    deepStrictEqual(res.components.schemas.object, {
-      type: "object",
-      properties: {},
     });
   });
 
@@ -603,6 +613,114 @@ describe("openapi3: return types", () => {
       ok(response.content);
       strictEqual(response.content["image/png"].schema.type, "string");
       strictEqual(response.content["image/png"].schema.format, "binary");
+    });
+  });
+
+  describe("multiple responses", () => {
+    it("handles multiple response types for the same status code", async () => {
+      const res = await openApiFor(`
+        model A { x: 1 }
+        model B { y: 1 }
+        @route("/foo1") op foo1(): A | B ;
+        `);
+      const responses = res.paths["/foo1"].get.responses;
+      deepStrictEqual(responses, {
+        "200": {
+          content: {
+            "application/json": {
+              schema: {
+                oneOf: [
+                  {
+                    $ref: "#/components/schemas/A",
+                  },
+                  {
+                    $ref: "#/components/schemas/B",
+                  },
+                ],
+              },
+            },
+          },
+          description: "The request has succeeded.",
+        },
+      });
+    });
+
+    it("only merges responses with the same status code", async () => {
+      const res = await openApiFor(`
+        model A { x: 1 }
+        model B { y: 1 }
+        model C { @statusCode code: 201; z: 1 }
+        @route("/foo") op foo(): A | B | C ;
+        `);
+      const responses = res.paths["/foo"].get.responses;
+      deepStrictEqual(responses, {
+        "200": {
+          content: {
+            "application/json": {
+              schema: {
+                oneOf: [
+                  {
+                    $ref: "#/components/schemas/A",
+                  },
+                  {
+                    $ref: "#/components/schemas/B",
+                  },
+                ],
+              },
+            },
+          },
+          description: "The request has succeeded.",
+        },
+        "201": {
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/C",
+              },
+            },
+          },
+          description: "The request has succeeded and a new resource has been created as a result.",
+        },
+      });
+    });
+
+    it("does not merge error responses", async () => {
+      const res = await openApiFor(`
+        model A { x: 1 }
+        model B { y: 1 }
+        @error model E { z: 1 }
+        @route("/foo") op foo(): A | B | E;
+        `);
+      const responses = res.paths["/foo"].get.responses;
+      deepStrictEqual(responses, {
+        "200": {
+          content: {
+            "application/json": {
+              schema: {
+                oneOf: [
+                  {
+                    $ref: "#/components/schemas/A",
+                  },
+                  {
+                    $ref: "#/components/schemas/B",
+                  },
+                ],
+              },
+            },
+          },
+          description: "The request has succeeded.",
+        },
+        default: {
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/E",
+              },
+            },
+          },
+          description: "An unexpected error response.",
+        },
+      });
     });
   });
 });

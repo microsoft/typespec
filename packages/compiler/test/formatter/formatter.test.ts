@@ -1,6 +1,6 @@
 import { strictEqual, throws } from "assert";
 import prettier from "prettier";
-import * as plugin from "../../formatter/index.js";
+import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
 function format(code: string, parser: TestParser = "typespec"): string {
@@ -333,6 +333,438 @@ enum \`2Colors\` {
 `,
       });
     });
+
+    describe("in between property spacing", () => {
+      it("hug properties with no line decorators or comments ", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+
+  two: string;
+
+
+
+  three: string
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+  two: string;
+  three: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with line decorators", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  @bar
+  two: string;
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  @bar
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap only in single line when 2 properties have decorators next to each other", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  two: string;
+  @foo
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  two: string;
+
+  @foo
+  three: string;
+
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with line comments", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  // comment
+  two: string;
+  three: string
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  // comment
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("first property with decorators or comment should not have extra blank space before", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  @foo
+  one: string;
+  two: string;
+}
+  `,
+          expected: `
+model Foo {
+  @foo
+  one: string;
+
+  two: string;
+}
+  `,
+        });
+      });
+
+      it("last property with decorators or comment should not have extra blank space after", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  two: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  two: string;
+}
+  `,
+        });
+      });
+
+      it("hug properties if the comment is trailing the property end of line", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+
+  two: string; // comment
+  three: string
+
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+  two: string; // comment
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with block comments", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  /** 
+   * comment
+   */
+  two: string;
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  /**
+   * comment
+   */
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+    });
+  });
+
+  describe("op", () => {
+    it("keeps operation inline if it can", () => {
+      assertFormat({
+        code: `
+op foo(
+one: string;
+
+two: string;
+
+
+
+three: string,
+      ): void;
+`,
+        expected: `
+op foo(one: string, two: string, three: string): void;
+`,
+      });
+    });
+
+    it("doesn't add extra blank space in parameters list if operation split in new lines", () => {
+      assertFormat({
+        code: `
+op foo(
+
+      ): "very very very long text that will force this operation to split line"
+`,
+        expected: `
+op foo(
+): "very very very long text that will force this operation to split line";
+`,
+      });
+    });
+
+    describe("in between parameter spacing", () => {
+      it("hug parameters with no line decorators or comments ", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string;
+
+  two: string;
+
+
+
+  three: string,   four: string,
+  five: string,
+        ): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+  two: string,
+  three: string,
+  four: string,
+  five: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with line decorators", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  @bar
+  two: string,
+  three: string,
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  @bar
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap only in single line when 2 parameters have decorators next to each other", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  two: string,
+  @foo
+  three: string,
+  four: string
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  two: string,
+
+  @foo
+  three: string,
+
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with line comments", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  // comment
+  two: string,
+  three: string
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  // comment
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("first property with decorators or comment should not have extra blank space before", () => {
+        assertFormat({
+          code: `
+op foo(
+  @foo
+  one: string,
+  two: string,
+): void;
+  `,
+          expected: `
+op foo(
+  @foo
+  one: string,
+
+  two: string,
+): void;
+  `,
+        });
+      });
+
+      it("last property with decorators or comment should not have extra blank space after", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  two: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  two: string,
+): void;
+  `,
+        });
+      });
+
+      it("hug parameters if the comment is trailing the property end of line", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+
+  two: string, // comment
+  three: string
+
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+  two: string, // comment
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with block comments", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  /** 
+   * comment
+   */
+  two: string,
+  three: string,
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  /**
+   * comment
+   */
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+    });
   });
 
   describe("scalar", () => {
@@ -452,6 +884,31 @@ model Foo {}
       });
     });
 
+    it("keeps block comment on same line", () => {
+      assertFormat({
+        code: `
+  alias foo = ""; /* one */ /* two */    /* three */ 
+  `,
+        expected: `
+alias foo = ""; /* one */ /* two */ /* three */
+  `,
+      });
+    });
+
+    it("format empty file with comment inside", () => {
+      assertFormat({
+        code: `
+
+
+  // empty file
+
+`,
+        expected: `
+// empty file
+`,
+      });
+    });
+
     it("format empty model with comment inside", () => {
       assertFormat({
         code: `
@@ -559,6 +1016,39 @@ namespace Bar;
       });
     });
 
+    it("format comment between decorator and flattened blockless namespace statement", () => {
+      assertFormat({
+        code: `
+@foo
+   // comment
+namespace Foo.Bar;
+`,
+        expected: `
+@foo
+// comment
+namespace Foo.Bar;
+`,
+      });
+    });
+
+    it("format comment between decorator and flattened block namespace statement", () => {
+      assertFormat({
+        code: `
+@foo
+   // comment
+namespace Foo.Bar {
+}
+`,
+        expected: `
+@foo
+// comment
+namespace Foo.Bar {
+
+}
+`,
+      });
+    });
+
     it("format comment between decorator and model statement", () => {
       assertFormat({
         code: `
@@ -570,6 +1060,21 @@ model Bar {}
 @foo
 // comment
 model Bar {}
+`,
+      });
+    });
+
+    it("format comment between decorator and op statement", () => {
+      assertFormat({
+        code: `
+@foo
+  // comment
+op test(foo: string): void;
+`,
+        expected: `
+@foo
+// comment
+op test(foo: string): void;
 `,
       });
     });
@@ -661,6 +1166,58 @@ enum Bar {
   @bar
   foo: "foo",
 }
+`,
+      });
+    });
+
+    it("keeps comment between statements of a flattened namespace", () => {
+      assertFormat({
+        code: `
+        namespace Foo.Bar {
+// one
+op one(): void;
+
+// two
+op two(foo: string): void;
+
+// three
+model Bar {}
+
+// four
+interface IFace {}
+
+// five
+interface MyEnum {}
+        }
+`,
+        expected: `
+namespace Foo.Bar {
+  // one
+  op one(): void;
+
+  // two
+  op two(foo: string): void;
+
+  // three
+  model Bar {}
+
+  // four
+  interface IFace {}
+
+  // five
+  interface MyEnum {}
+}
+`,
+      });
+    });
+
+    it("keeps comment after augment decorator", () => {
+      assertFormat({
+        code: `
+  @@doc(Foo.bar, "This");   // comment
+`,
+        expected: `
+@@doc(Foo.bar, "This"); // comment
 `,
       });
     });
@@ -1598,6 +2155,30 @@ alias Foo = [
     });
   });
 
+  describe("empty statements", () => {
+    it("remove empty statements", () => {
+      assertFormat({
+        code: `
+  alias foo = "";;;;
+  `,
+        expected: `
+alias foo = "";
+  `,
+      });
+    });
+
+    it("keeps comments inside empty statements", () => {
+      assertFormat({
+        code: `
+  alias foo = "";; /* one */ ;; /* two */ ;;; /* three */ ;;
+  `,
+        expected: `
+alias foo = ""; /* one */ /* two */ /* three */
+  `,
+      });
+    });
+  });
+
   describe("member expression", () => {
     it("a simple member expression", () => {
       assertFormat({
@@ -1631,15 +2212,21 @@ model Foo {
   });
 
   describe("projections", () => {
-    it("format to and from", () => {
+    it("format projections", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to{} from {}}
+  {pre to{} to{} pre from {} from {}}
 `,
         expected: `
 projection model#proj {
+  pre to {
+
+  }
   to {
+
+  }
+  pre from {
 
   }
   from {
@@ -1650,17 +2237,34 @@ projection model#proj {
       });
     });
 
-    it("format to and from with args", () => {
+    it("format empty projection on single line", () => {
+      assertFormat({
+        code: `
+projection    model#proj    {
+
+}`,
+        expected: `
+projection model#proj {}`,
+      });
+    });
+
+    it("format projections with args", () => {
       assertFormat({
         code: `
 projection         model#proj 
-  {to(   val) {} from(  
+  {pre to ( val ) {} to(   val) {} pre from(  
     
-    val) {}}
+    val) {} from (val  ){}
 `,
         expected: `
 projection model#proj {
+  pre to(val) {
+
+  }
   to(val) {
+
+  }
+  pre from(val) {
 
   }
   from(val) {

@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
-import { createProjectedNameProgram, ModelProperty, projectProgram } from "../core/index.js";
-import { BasicTestRunner, createTestRunner } from "../testing/index.js";
+import { createProjectedNameProgram, ModelProperty, projectProgram } from "../src/core/index.js";
+import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 
 describe("compiler: projected-names", () => {
   let runner: BasicTestRunner;
@@ -87,5 +87,36 @@ describe("compiler: projected-names", () => {
     strictEqual(expireAtProjected?.kind, "ModelProperty" as const);
     strictEqual(expireAtProjected?.name, "actualNameAtThisVersion");
     strictEqual(jsonView.getProjectedName(expireAtProjected), "actualNameAtThisVersion");
+  });
+
+  it("projectedName overrides a previous renaming", async () => {
+    const { expireAt, renamedProperty } = (await runner.compile(`
+      model Foo {
+        @projectedName("json", "jsonExpireAt") @test expireAt: int32;
+        @projectedName("json", "jsonRenamedProperty") @test renamedProperty: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#v {
+        to {
+            self::renameProperty("expireAt", "actualNameAtThisVersion");
+        }
+      }
+    `)) as { expireAt: ModelProperty; renamedProperty: ModelProperty };
+    const updatedProgram = projectProgram(runner.program, [
+      {
+        projectionName: "v",
+        arguments: [],
+      },
+    ]);
+    const jsonView = createProjectedNameProgram(updatedProgram, "json");
+    const expireAtProjected = updatedProgram.projector.projectedTypes.get(expireAt);
+    const renamedProjected = updatedProgram.projector.projectedTypes.get(renamedProperty);
+    strictEqual(expireAtProjected?.kind, "ModelProperty" as const);
+    strictEqual(expireAtProjected?.name, "actualNameAtThisVersion");
+    strictEqual(renamedProjected?.kind, "ModelProperty" as const);
+    strictEqual(renamedProjected?.name, "renamedProperty");
+    strictEqual(jsonView.getProjectedName(expireAtProjected), "jsonExpireAt");
+    strictEqual(jsonView.getProjectedName(renamedProjected), "jsonRenamedProperty");
   });
 });

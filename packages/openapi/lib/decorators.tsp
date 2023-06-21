@@ -14,7 +14,7 @@ namespace OpenAPI;
  * op read(): string;
  * ```
  */
-extern dec operationId(target: Operation, operationId: string);
+extern dec operationId(target: Operation, operationId: valueof string);
 
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
@@ -30,7 +30,7 @@ extern dec operationId(target: Operation, operationId: string);
  * op read(): string;
  * ```
  */
-extern dec extension(target: unknown, key: string, value: unknown);
+extern dec extension(target: unknown, key: valueof string, value: unknown);
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
@@ -45,7 +45,7 @@ extern dec extension(target: unknown, key: string, value: unknown);
  * op listPets(): Pet[] | PetStoreResponse;
  * ```
  */
-extern dec defaultResponse(target: object);
+extern dec defaultResponse(target: Model);
 
 /**
  * Specify the OpenAPI `externalDocs` property for this type.
@@ -59,4 +59,4 @@ extern dec defaultResponse(target: object);
  * op listPets(): Pet[];
  * ```
  */
-extern dec externalDocs(target: unknown, url: string, description?: string);
+extern dec externalDocs(target: unknown, url: valueof string, description?: valueof string);

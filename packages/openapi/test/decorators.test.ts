@@ -20,7 +20,7 @@ describe("openapi: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @operationId decorator to Foo since it is not assignable to TypeSpec.Reflection.Operation",
+          "Cannot apply @operationId decorator to Foo since it is not assignable to Operation",
       });
     });
 
@@ -32,7 +32,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
   });
@@ -77,7 +77,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -106,7 +106,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -119,7 +119,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 

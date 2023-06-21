@@ -33,10 +33,22 @@ const libDefinition = {
         default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which conflicts with the key name of a parent or child resource.`,
       },
     },
+    "invalid-action-name": {
+      severity: "error",
+      messages: {
+        default: "Action name cannot be empty string.",
+      },
+    },
+    "shared-route-unspecified-action-name": {
+      severity: "error",
+      messages: {
+        default: paramMessage`An operation marked as '@sharedRoute' must have an explicit collection action name passed to '${"decoratorName"}'.`,
+      },
+    },
   },
 } as const;
 
 const restLib = createTypeSpecLibrary(libDefinition);
 const { reportDiagnostic, createDiagnostic, createStateSymbol } = restLib;
 
-export { restLib, reportDiagnostic, createDiagnostic, createStateSymbol };
+export { createDiagnostic, createStateSymbol, reportDiagnostic, restLib };

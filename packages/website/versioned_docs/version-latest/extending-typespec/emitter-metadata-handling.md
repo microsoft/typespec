@@ -5,7 +5,7 @@ title: Handling metadata and visibility in emitters for REST API
 
 # Handling metadata and visibility in emitters for REST API
 
-It's important that all emitters for REST API handle [automatic visibility](../standard-library/rest/operations.md#automatic-visibility) and [metadata](../standard-library/rest/operations.md#metadata) consistently. Make sure to read through the TypeSpec-author documentation of these features to understand how they work. This document will cover how to incorporate them correctly into your own emitter.
+It's important that all emitters for REST API handle [automatic visibility](../standard-library/http/operations.md#automatic-visibility) and [metadata](../standard-library/http/operations.md#metadata) consistently. Make sure to read through the TypeSpec-author documentation of these features to understand how they work. This document will cover how to incorporate them correctly into your own emitter.
 
 The standard `@typespec/rest` library provides JavaScript API for emitters to interpret API written using its decorators. We'll look at the API that are particularly relevant to these features.
 
@@ -23,7 +23,7 @@ However, if your emitter does want to split types as OpenAPI does, then it will 
 
 These are the main API involved in handling these features. See the linked API reference documentation for more details.
 
-- [`getRequestVisibility(HttpVerb): Visibility`](../standard-library/http/reference/js-api/index.md#getrequestvisibility) - Use this to determine the visibility implied for data in the request parameters or body. Also note that [`Visibility.Read`](../standard-library/rest/reference/js-api/enums/http.Visibility#item) is always applied for response data and therefore there is no corresponding API for the response.
+- [`getRequestVisibility(HttpVerb): Visibility`](../standard-library/http/reference/js-api/index.md#getrequestvisibility) - Use this to determine the visibility implied for data in the request parameters or body. Also note that [`Visibility.Read`](../standard-library/http/reference/js-api/enums/Visibility#item) is always applied for response data and therefore there is no corresponding API for the response.
 
 - [`MetadataInfo`](../standard-library/http/reference/js-api/interfaces/MetadataInfo.md) - Create this once for each program using [`createMetadataInfo(Program, MetadataInfoOptions)`](../standard-library/http/reference/js-api/index.md#createmetadatainfo) then use it to reason about metadata and visibility implications with the API below.
 
@@ -35,4 +35,4 @@ These are the main API involved in handling these features. See the linked API r
 
 - [`MetadataInfo.isOptional(ModelProperty, Visibility): boolean`](../standard-library/http/reference/js-api/interfaces/MetadataInfo.md#isoptional) - Use this to determine if a property is optional for the given visibility. This will differ from `ModelProperty.isOptional` when the Visibility is Update in which case the property is always considered optional.
 
-- [`Visibility.Item`](../standard-library/rest/reference/js-api/enums/http.Visibility#item) - Add this flag when recursing into an array. This moves all metadata into the payload, which can be useful in scenarios like batching API calls.
+- [`Visibility.Item`](../standard-library/http/reference/js-api/enums/Visibility#item) - Add this flag when recursing into an array. This moves all metadata into the payload, which can be useful in scenarios like batching API calls.

@@ -3,20 +3,97 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  TestHost,
 } from "@typespec/compiler/testing";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
-describe("versioning: validate incompatible references", () => {
+describe("versioning: incompatible use of decorators", () => {
   let runner: BasicTestRunner;
+  let host: TestHost;
+  const imports: string[] = [];
 
   beforeEach(async () => {
-    const host = await createVersioningTestHost();
+    host = await createVersioningTestHost();
     runner = createTestWrapper(host, {
       wrapper: (code) => `
       import "@typespec/versioning";
-
+      ${imports.map((i) => `import "${i}";`).join("\n")}
       using TypeSpec.Versioning;
-      
+      ${code}`,
+    });
+  });
+
+  it("emit diagnostic when @service({version: 'X'}) is used with @versioned", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    @service({
+      title: "Widget Service",
+      version: "v3"
+    })
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2,
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/no-service-fixed-version",
+      severity: "error",
+    });
+  });
+
+  it("emit diagnostic when version enum has duplicate values", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    namespace DemoService;
+
+    enum Versions {
+      v1: "v1",
+      v2: "v2",
+      latest: "v2",
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/version-duplicate",
+      message:
+        "Multiple versions from 'Versions' resolve to the same value. Version enums must resolve to unique values.",
+      severity: "error",
+    });
+  });
+
+  it("emit diagnostic when version enum has duplicate implicit values", async () => {
+    const diagnostics = await runner.diagnose(`
+    @versioned(Versions)
+    namespace DemoService;
+
+    enum Versions {
+      v1,
+      v2: "v1",
+    }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/versioning/version-duplicate",
+      message:
+        "Multiple versions from 'Versions' resolve to the same value. Version enums must resolve to unique values.",
+      severity: "error",
+    });
+  });
+});
+
+describe("versioning: validate incompatible references", () => {
+  let runner: BasicTestRunner;
+  let host: TestHost;
+  const imports: string[] = [];
+
+  beforeEach(async () => {
+    host = await createVersioningTestHost();
+    runner = createTestWrapper(host, {
+      wrapper: (code) => `
+      import "@typespec/versioning";
+      ${imports.map((i) => `import "${i}";`).join("\n")}
+      using TypeSpec.Versioning;
+
       @versioned(Versions)
       namespace TestService {
         enum Versions {v1, v2, v3, v4}
@@ -262,7 +339,7 @@ describe("versioning: validate incompatible references", () => {
     });
   });
 
-  describe("model template arguments", () => {
+  describe("complex type references", () => {
     it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
@@ -280,17 +357,55 @@ describe("versioning: validate incompatible references", () => {
           "'TestService.Bar.foo' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
       });
     });
-  });
-
-  describe("interface operations", () => {
-    it("succeed when unversioned interface has versioned operation", async () => {
+    it("emit diagnostic when using versioned union variant in non versioned operation return type", async () => {
       const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned array element in non versioned operation return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned[];
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned tuple element in non versioned operation return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): [Versioned, string]; 
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    describe("interface operations", () => {
+      it("succeed when unversioned interface has versioned operation", async () => {
+        const diagnostics = await runner.diagnose(`
         interface Bar {
           @added(Versions.v2)
           foo(): string;
         }
       `);
-      expectDiagnosticEmpty(diagnostics);
+        expectDiagnosticEmpty(diagnostics);
+      });
     });
 
     it("emit diagnostic when operation was added before interface itself", async () => {
@@ -333,6 +448,71 @@ describe("versioning: validate incompatible references", () => {
           foo(): string;
         }
       `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("interface templates", () => {
+    beforeEach(() => {
+      imports.push("./lib.tsp");
+      host.addTypeSpecFile(
+        "lib.tsp",
+        `
+        namespace Lib;
+        interface Ops<T extends {}> {
+          get(): T[];
+        }
+        `
+      );
+    });
+    it("emit diagnostic when extending interface with versioned type argument from unversioned interface", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v2)
+        model Widget {
+          id: string;
+        }
+        interface WidgetService extends Lib.Ops<Widget> {}
+        `
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.WidgetService' is referencing versioned type 'TestService.Widget' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when extending interface with versioned type argument added after interface", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v2)
+        model Widget {
+          id: string;
+        }
+      
+        @added(Versions.v1)
+        interface WidgetService extends Lib.Ops<Widget> {}
+      `
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.WidgetService' was added on version 'v1' but referencing type 'TestService.Widget' added in version 'v2'.",
+      });
+    });
+
+    it("succeed when extending interface with versioned type argument added before interface", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v2)
+        model Widget {
+          id: string;
+        }
+      
+        @added(Versions.v2)
+        interface WidgetService extends Lib.Ops<Widget> {}
+      `
+      );
       expectDiagnosticEmpty(diagnostics);
     });
   });
@@ -439,120 +619,6 @@ describe("versioning: validate incompatible references", () => {
         }
 
         @useDependency(VersionedLib.Versions.l2)
-        namespace TestService {
-          op test(): VersionedLib.Foo;
-        }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is l2.",
-      });
-    });
-  });
-});
-
-describe("versioning (deprecated): validate incompatible references (@versionedDependency)", () => {
-  describe("with @versionedDependency", () => {
-    let runner: BasicTestRunner;
-
-    beforeEach(async () => {
-      runner = await createVersioningTestRunner();
-    });
-
-    it("emit diagnostic when referencing incompatible version via version dependency", async () => {
-      // Here Foo was added in v2 which makes it only available in 1 & 2.
-      const diagnostics = await runner.diagnose(`
-        @versioned(Versions)
-        namespace VersionedLib {
-          enum Versions {l1, l2}
-          @added(Versions.l2)
-          model Foo {}
-        }
-
-        #suppress "deprecated"
-        @versioned(Versions)
-        @versionedDependency([
-          [Versions.v1, VersionedLib.Versions.l1],
-          [Versions.v2, VersionedLib.Versions.l1],
-          [Versions.v3, VersionedLib.Versions.l2],
-          [Versions.v4, VersionedLib.Versions.l2]
-        ])
-        namespace TestService {
-          enum Versions {v1, v2, v3, v4}
-
-          @added(Versions.v1)
-          op test(): VersionedLib.Foo;
-        }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added on version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
-      });
-    });
-
-    it("doesn't emit diagnostic if all version use the same one", async () => {
-      // Here Foo was added in v2 which makes it only available in 1 & 2.
-      const diagnostics = await runner.diagnose(`
-        @versioned(Versions)
-        namespace VersionedLib {
-          enum Versions {l1, l2}
-          @added(Versions.l2)
-          model Foo {}
-        }
-
-        #suppress "deprecated"
-        @versioned(Versions)
-        @versionedDependency([
-          [Versions.v1, VersionedLib.Versions.l2],
-          [Versions.v2, VersionedLib.Versions.l2],
-          [Versions.v3, VersionedLib.Versions.l2],
-          [Versions.v4, VersionedLib.Versions.l2]
-        ])
-        namespace TestService {
-          enum Versions {v1, v2, v3, v4}
-          op test(): VersionedLib.Foo;
-        }
-      `);
-      expectDiagnosticEmpty(diagnostics);
-    });
-
-    it("emit diagnostic when using item that was added in a later version of library", async () => {
-      // Here Foo was added in v2 but version 1 was selected.
-      const diagnostics = await runner.diagnose(`
-        @versioned(Versions)
-        namespace VersionedLib {
-          enum Versions {l1, l2}
-          @added(Versions.l2)
-          model Foo {}
-        }
-
-        #suppress "deprecated"
-        @versionedDependency(VersionedLib.Versions.l1)
-        namespace TestService {
-          op test(): VersionedLib.Foo;
-        }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
-      });
-    });
-
-    it("emit diagnostic when using item that was removed in an earlier version of library", async () => {
-      // Here Foo was removed in v2 but version 2 was selected.
-      const diagnostics = await runner.diagnose(`
-        @versioned(Versions)
-        namespace VersionedLib {
-          enum Versions {l1, l2}
-          @removed(Versions.l2)
-          model Foo {}
-        }
-
-        #suppress "deprecated"
-        @versionedDependency(VersionedLib.Versions.l2)
         namespace TestService {
           op test(): VersionedLib.Foo;
         }

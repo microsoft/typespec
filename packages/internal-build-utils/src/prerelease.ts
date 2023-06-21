@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { lstat, readdir, readFile, writeFile } from "fs/promises";
+import { lstat, readdir, readFile, stat, writeFile } from "fs/promises";
 import { join } from "path";
 import stripJsonComments from "strip-json-comments";
 
@@ -28,7 +28,18 @@ interface PackageJson {
 
 interface BumpManifest {
   packageJsonPath: string;
+  /**
+   * Old version
+   */
   oldVersion: string;
+  /**
+   * Next stable version
+   */
+  nextVersion: string;
+
+  /**
+   * Current dev version
+   */
   newVersion: string;
   manifest: PackageJson;
 }
@@ -80,7 +91,10 @@ async function getPackages(
  * @param {*} packageManifest
  * @param {*} updatedPackages
  */
-function updateDependencyVersions(packageManifest: PackageJson, updatedPackages: any) {
+function updateDependencyVersions(
+  packageManifest: PackageJson,
+  updatedPackages: Record<string, BumpManifest>
+) {
   const clone: PackageJson = {
     ...packageManifest,
   };
@@ -92,7 +106,7 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
         const updatedPackage = updatedPackages[name];
         if (updatedPackage) {
           // Loose dependency accept anything above the last release. This make sure that preview release of only one package need to be bumped without needing all the other as well.
-          dependencies[name] = `>=${updatedPackage.oldVersion}`;
+          dependencies[name] = getDevVersionRange(updatedPackage);
           // change to this line to have strict dependency for preview versions
           // dependencies[name] = `~${updatedPackage.newVersion}`;
         } else {
@@ -106,13 +120,21 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
   return clone;
 }
 
-function bumpVersion(version: string, changeCount: number) {
-  if (changeCount === 0) {
-    return version;
-  }
+function getDevVersionRange(manifest: BumpManifest) {
+  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-dev <${manifest.nextVersion}`;
+}
+
+function getDevVersion(version: string, changeCount: number) {
+  const [_, _1, patch] = version.split(".").map((x) => parseInt(x, 10));
+  const nextVersion = getNextVersion(version);
+  const devVersion = `${nextVersion}-dev.${changeCount + patch}`;
+  console.log(`Bumping version ${version} to ${devVersion}`);
+  return devVersion;
+}
+
+function getNextVersion(version: string) {
   const [major, minor] = version.split(".").map((x) => parseInt(x, 10));
-  console.log(`Bumping version ${version} to ${major}.${minor + 1}.0-dev.${changeCount}`);
-  return `${major}.${minor + 1}.0-dev.${changeCount}`;
+  return `${major}.${minor + 1}.0`;
 }
 
 async function addPrereleaseNumber(
@@ -124,13 +146,14 @@ async function addPrereleaseNumber(
     const changeCount = changeCounts[packageName] ?? 0;
     const packageJsonPath = join(packageInfo.path, "package.json");
     const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
-    const newVersion = bumpVersion(packageInfo.version, changeCount);
+    const newVersion = getDevVersion(packageInfo.version, changeCount);
 
     console.log(`Setting version for ${packageName} to '${newVersion}'`);
     updatedManifests[packageName] = {
       packageJsonPath,
       oldVersion: packageJsonContent.version,
-      newVersion: newVersion,
+      nextVersion: getNextVersion(packageInfo.version),
+      newVersion,
       manifest: {
         ...packageJsonContent,
         version: newVersion,
@@ -162,6 +185,10 @@ export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
 
 async function findAllFiles(dir: string): Promise<string[]> {
   const files = [];
+  if (!(await isDirectory(dir))) {
+    return [];
+  }
+
   for (const file of await readdir(dir)) {
     const path = join(dir, file);
     const stat = await lstat(path);
@@ -177,4 +204,16 @@ async function findAllFiles(dir: string): Promise<string[]> {
 async function readJsonFile<T>(filename: string): Promise<T> {
   const content = await readFile(filename);
   return JSON.parse(stripJsonComments(content.toString()));
+}
+
+async function isDirectory(path: string) {
+  try {
+    const stats = await stat(path);
+    return stats.isDirectory();
+  } catch (e: any) {
+    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+      return false;
+    }
+    throw e;
+  }
 }

@@ -1,6 +1,6 @@
-import { fail, ok, strictEqual } from "assert";
-import { Program, projectProgram } from "../../core/program.js";
-import { createProjector } from "../../core/projector.js";
+import { deepStrictEqual, fail, ok, strictEqual } from "assert";
+import { Program, projectProgram } from "../../src/core/program.js";
+import { createProjector } from "../../src/core/projector.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
@@ -15,9 +15,9 @@ import {
   StringLiteral,
   Type,
   Union,
-} from "../../core/types.js";
-import { getDoc } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+} from "../../src/core/types.js";
+import { getDoc } from "../../src/lib/decorators.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: projections: logic", () => {
   let testHost: TestHost;
@@ -444,6 +444,11 @@ describe("compiler: projections: logic", () => {
         const bar = projected.properties.get("barProp");
         ok(bar);
         strictEqual(bar.name, "barProp");
+
+        deepStrictEqual(
+          Array.from(projected.properties.values()).map((o) => o.name),
+          ["fooProp", "barProp"] // ensure not re-ordered by rename
+        );
       });
 
       it("can pascal case", async () => {
@@ -456,6 +461,11 @@ describe("compiler: projections: logic", () => {
         const bar = projected.properties.get("BarProp");
         ok(bar);
         strictEqual(bar.name, "BarProp");
+
+        deepStrictEqual(
+          Array.from(projected.properties.values()).map((o) => o.name),
+          ["FooProp", "BarProp"] // ensure not re-ordered by rename
+        );
       });
 
       it("can snake case", async () => {
@@ -471,6 +481,11 @@ describe("compiler: projections: logic", () => {
         const bar = projected.properties.get("bar_prop");
         ok(bar);
         strictEqual(bar.name, "bar_prop");
+
+        deepStrictEqual(
+          Array.from(projected.properties.values()).map((o) => o.name),
+          ["foo_prop", "bar_prop"] // ensure not re-ordered by rename
+        );
       });
 
       it("can kebab case", async () => {
@@ -483,6 +498,11 @@ describe("compiler: projections: logic", () => {
         const bar = projected.properties.get("bar-prop");
         ok(bar);
         strictEqual(bar.name, "bar-prop");
+
+        deepStrictEqual(
+          Array.from(projected.properties.values()).map((o) => o.name),
+          ["foo-prop", "bar-prop"] // ensure not re-ordered by rename
+        );
       });
     });
   });
@@ -539,6 +559,11 @@ describe("compiler: projections: logic", () => {
       const result = (await testProjection(code)) as Union;
       assertHasVariant(result, "barProp");
       assertHasVariant(result, "bazProp");
+
+      deepStrictEqual(
+        Array.from(result.variants.values()).map((o) => o.name),
+        ["barProp", "bazProp"] // ensure not re-ordered by rename
+      );
     });
 
     it("can set variant types", async () => {
@@ -631,6 +656,7 @@ describe("compiler: projections: logic", () => {
     const interfaceCode = `
       @test interface Foo {
         op1(): void;
+        op2(): void;
       }
     `;
 
@@ -669,14 +695,17 @@ describe("compiler: projections: logic", () => {
       const code = defaultCode(`self::deleteOperation("op1");`);
       const FooProj = (await testProjection(code)) as Interface;
 
-      strictEqual(FooProj.operations.size, 0);
+      strictEqual(FooProj.operations.size, 1);
     });
 
     it("can rename members", async () => {
-      const code = defaultCode(`self::renameOperation("op1", "op2");`);
+      const code = defaultCode(`self::renameOperation("op1", "op1_renamed");`);
       const FooProj = (await testProjection(code)) as Interface;
 
-      ok(FooProj.operations.get("op2"));
+      deepStrictEqual(
+        Array.from(FooProj.operations.values()).map((o) => o.name),
+        ["op1_renamed", "op2"] // ensure not re-ordered by rename
+      );
     });
   });
 
@@ -725,10 +754,14 @@ describe("compiler: projections: logic", () => {
     });
 
     it("can rename members", async () => {
-      const code = defaultCode(`self::renameMember("two", "mewtwo");`);
+      const code = defaultCode(`self::renameMember("one", "mewone");`);
       const result = (await testProjection(code)) as Enum;
-      const newMember = result.members.get("mewtwo")!;
-      strictEqual(newMember.name, "mewtwo");
+      const newMember = result.members.get("mewone")!;
+      strictEqual(newMember.name, "mewone");
+      deepStrictEqual(
+        Array.from(result.members.values()).map((o) => o.name),
+        ["mewone", "two"] // ensure not re-ordered by rename
+      );
     });
 
     // Issue here happens when an enum member gets referenced before the enum and so gets projected before the enum creating a different projected type as the projected enum.
@@ -925,6 +958,43 @@ describe("compiler: projections: logic", () => {
         );
       });
     });
+  });
+  describe("project decorator referencing target in argument", () => {
+    async function checkSelfRefInDecorator(code: string) {
+      testHost.addJsFile("self-ref.js", {
+        $selfRef: () => {},
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./self-ref.js";
+  
+        ${code}
+  
+        #suppress "projections-are-experimental"
+        projection model#test {
+            to {
+              
+            }
+          }
+       `
+      );
+      await testHost.compile("main.tsp");
+      createProjector(testHost.program, [
+        {
+          arguments: [],
+          projectionName: "test",
+        },
+      ]);
+    }
+
+    it("on model", () => checkSelfRefInDecorator(`@selfRef(Foo) model Foo {}`));
+    it("on scalar", () => checkSelfRefInDecorator(`@selfRef(foo) scalar foo;`));
+    it("on operation", () => checkSelfRefInDecorator(`@selfRef(foo) op foo(): void;`));
+    it("on interface", () => checkSelfRefInDecorator(`@selfRef(Foo) interface Foo {} `));
+    it("on enum", () => checkSelfRefInDecorator(`@selfRef(Foo) enum Foo {} `));
+    it("on union", () => checkSelfRefInDecorator(`@selfRef(Foo) union Foo {} `));
   });
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"

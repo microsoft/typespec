@@ -1,6 +1,106 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Jun 2023 17:00:33 GMT and should not be manually modified.
+
+## 0.45.2
+Thu, 15 Jun 2023 17:00:33 GMT
+
+### Patches
+
+- Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file
+
+## 0.45.1
+Wed, 14 Jun 2023 17:05:12 GMT
+
+### Patches
+
+- Fix: Formatter moves all comments in flattened namespace to the top
+
+## 0.45.0
+Tue, 06 Jun 2023 22:44:16 GMT
+
+### Updates
+
+- Fix: `tspconfig.yaml` should always get resolved relative to the entrypoint
+- Add decimal and decimal128 built-in scalar types.
+- **Feature** Doc comment will be applied as the doc for types unless an explicit @doc is provided.
+- Added new keyword `valueof` designed to request for a value type in a decorator parameter.
+- **BREAKING** Decorator API will not be marshalling values unless the parameter type is using `valueof`. `extern dec foo(target, value: string)` should be changed to `extern dec foo(target, value: valueof string)`.
+- **DEPRECATION** To make transition to valueof smoother if using a template parameter inside a decorator that is now using valueof the existing parmater constraint will still be compatible but emit a warning.
+- **BREAKING CHANGE** Fix: Array shouldn't be assignable to an empty model(and `object`)
+- **DEPRECATION** `object` is deprecated. Alternative is to use `{}` for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
+- Mark `Array` and `Record` doc comment as for dev only
+- Fix: formatting of comment between decorator and `op` statement
+- Fix: Operation can self reference or circular reference other operation via decorators
+- **BREAKING CHANGE** Remove `@format("url") from url scalar`
+- Fix `unixTimestamp` validation was incorrect
+- **Fix** diagnostic validating type is intrinsic always showing `string` as expected
+- Fix error message for @encode errors.
+- Improve error handling when tsp init template is invalid or fails to download.
+- Emitter framework: uppercase type argument type names when constructing a declaration name from a template instantiation.
+- Add signature for missing decorators
+- Remove dependency on `node-fetch`
+- Remove misleading output dir from compilation success message
+- Fix relative path resolution when init template is behind HTTP redirect
+- Emitter option validation will only validate emitters selected with `emit`/`--emit`. Options for other emitter will be ignored. This allows defining options for an emitter that is not installed.
+- Fix signature help with trailing space in unterminated arg list
+- Add template argument signature help
+- Show alias doc comments in IDE
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Patches
+
+- Normalizing cwd before first use in getCompilerOptions()
+
+### Updates
+
+- Allow use of defaults on non-optional properties.
+- Cleanup deprecated use
+- **Added** `@encode` decorator used to specify encoding of types
+- Add `projectRoot` to program
+- Api: Added `sourceModel` and `sourceOperation` on `Model` and `Operation` respectively.
+- Add relative file path utils, and allow emitter framework's ObjectBuilder to be initialized with a placeholder object.
+- Better error recovery when error thrown from emitter is not an object
+- Fix compiler mismatch error recommendation
+- Fix: Interface with templated operation causing crash if defined after use
+- Fix: Issue with templated operations in templated interface would get cached only by keying on the operation template args.
+- Fix: `missing-index` diagnostic showing at the wrong location
+- Fix `--emit` pointing to emitter js entrypoint resolve correct options
+- Fix: `scalar` template parameter name conflict with each other
+- Added a new `isFinished` property to types to differentiate template instance that are not finalized (Still have template arguments to be resolved)
+- **Breaking** `isTemplateDeclaration` will only return true for the original declaration and not partially instantiated templates.
+- **Fix** `unsupported-default` diagnostic showing at the wrong location
+- Fix `url` doc to not mention "URI"
+- Minor reorganization of standard library docs
+- Language server: Allow main file to be outside workspace.
+- Added `Model` and `Scalar` to Reflection namespace
+- Fix `@format` decorator doc.
+- Update dependencies
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Bug: Emitter framework will now visit scalar declarations
+- Emit diagnostic when ambiguous symbol exists between global and usings.
+- Feature: Add support for referencing metatypes ModelProperty `::type` and Operation `::returnType` and `::parameters`
+- Relax constraint on derived type overrides
+- Fix: Alias unknown ref crash
+- Fix: Empty model expression assignable to array
+- Fix `tsp code uninstall` not finding extension to uninstall.
+- Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation.
+- Prevent use of augment decorators on instantiated templates.
+- Allow projectedNames helpers to work with previous projections
+- Add helper `interpolatePath` for emitter to do additional interpolation on config properties
+- Api: Update `getTypeName` to omit standard library namespace
+- Allow overloads in interfaces to work under projection
+- Add pre-projection support.
+- Provide access to extended interfaces in type graph.
+- Document member ordering and fix projection rename reordering.
+- Replaced zonedDateTime with utcDateTime and offsetDateTime
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT

@@ -6,6 +6,7 @@ JS Api
 
 ### Interfaces
 
+- [ActionDetails](interfaces/ActionDetails.md)
 - [AutoRouteOptions](interfaces/AutoRouteOptions.md)
 - [FilteredRouteParam](interfaces/FilteredRouteParam.md)
 - [ResourceKey](interfaces/ResourceKey.md)
@@ -42,9 +43,11 @@ JS Api
 - [$segmentOf](index.md#$segmentof)
 - [$updatesResource](index.md#$updatesresource)
 - [getAction](index.md#getaction)
+- [getActionDetails](index.md#getactiondetails)
 - [getActionSegment](index.md#getactionsegment)
 - [getActionSeparator](index.md#getactionseparator)
 - [getCollectionAction](index.md#getcollectionaction)
+- [getCollectionActionDetails](index.md#getcollectionactiondetails)
 - [getParentResource](index.md#getparentresource)
 - [getResourceLocationType](index.md#getresourcelocationtype)
 - [getResourceOperation](index.md#getresourceoperation)
@@ -179,7 +182,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
+| `entity` | `Model` |
 | `filter?` | `string` |
 
 #### Returns
@@ -312,7 +315,7 @@ the target type to show up in operations of the `Resource*<T>` interfaces define
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
-| `parentType` | `Type` |
+| `parentType` | `Model` |
 
 #### Returns
 
@@ -465,6 +468,10 @@ ___
 
 ▸ **getAction**(`program`, `operation`): `string` \| ``null`` \| `undefined`
 
+**`Deprecated`**
+
+Use getActionDetails instead.
+
 #### Parameters
 
 | Name | Type |
@@ -475,6 +482,25 @@ ___
 #### Returns
 
 `string` \| ``null`` \| `undefined`
+
+___
+
+### getActionDetails
+
+▸ **getActionDetails**(`program`, `operation`): [`ActionDetails`](interfaces/ActionDetails.md) \| `undefined`
+
+Gets the ActionDetails for the specified operation if it has previously been marked with @action.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `operation` | `Operation` |
+
+#### Returns
+
+[`ActionDetails`](interfaces/ActionDetails.md) \| `undefined`
 
 ___
 
@@ -518,6 +544,10 @@ ___
 
 ▸ **getCollectionAction**(`program`, `operation`): `string` \| ``null`` \| `undefined`
 
+**`Deprecated`**
+
+Use getCollectionActionDetails instead.
+
 #### Parameters
 
 | Name | Type |
@@ -528,6 +558,25 @@ ___
 #### Returns
 
 `string` \| ``null`` \| `undefined`
+
+___
+
+### getCollectionActionDetails
+
+▸ **getCollectionActionDetails**(`program`, `operation`): [`ActionDetails`](interfaces/ActionDetails.md) \| `undefined`
+
+Gets the ActionDetails for the specified operation if it has previously been marked with @collectionAction.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `operation` | `Operation` |
+
+#### Returns
+
+[`ActionDetails`](interfaces/ActionDetails.md) \| `undefined`
 
 ___
 

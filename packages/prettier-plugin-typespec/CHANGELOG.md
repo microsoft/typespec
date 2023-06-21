@@ -1,6 +1,23 @@
 # Change Log - @typespec/prettier-plugin-typespec
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+
+## 0.45.0
+Tue, 06 Jun 2023 22:44:16 GMT
+
+_Version update only_
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- Update dependencies
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+_Version update only_
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT

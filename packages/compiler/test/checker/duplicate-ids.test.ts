@@ -1,5 +1,5 @@
-import { Diagnostic } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { Diagnostic } from "../../src/core/types.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../src/testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;

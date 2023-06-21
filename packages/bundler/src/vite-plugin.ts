@@ -2,9 +2,9 @@ import { resolvePath } from "@typespec/compiler";
 import { resolve } from "path";
 import type { IndexHtmlTransformContext, Plugin, ResolvedConfig } from "vite";
 import {
-  createTypeSpecBundle,
   TypeSpecBundle,
   TypeSpecBundleDefinition,
+  createTypeSpecBundle,
   watchTypeSpecBundle,
 } from "./bundler.js";
 
@@ -122,7 +122,8 @@ function createImportMap(
   for (const [library, definition] of Object.entries(definitions)) {
     imports[library] = `./${folderName}/${library}/index.js`;
     for (const name of Object.keys(definition.exports)) {
-      imports[library + "/http"] = "./" + resolvePath(`./${folderName}/${library}`, name) + ".js";
+      imports[resolvePath(library, name)] =
+        "./" + resolvePath(`./${folderName}/${library}`, name) + ".js";
     }
   }
   const importMap = {

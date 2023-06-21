@@ -2,6 +2,98 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.45.0",
+      "tag": "@typespec/openapi3_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Support decimal and decimal128 scalar types."
+          },
+          {
+            "comment": "Uptake doc comment changes. Standard built-in scalar will not have the description included as they are inlined."
+          },
+          {
+            "comment": "Add description to emitter options"
+          },
+          {
+            "comment": "Update decorators signature to use `{}` instead of `object`"
+          },
+          {
+            "comment": "Fix: Documentation on `model is x[]` was not included in schema description"
+          },
+          {
+            "comment": "Fix: `@encode` encoding doesn't override target type format"
+          },
+          {
+            "comment": "Fix: Encoding resolution for model properties and add back `unixtime`"
+          },
+          {
+            "comment": "Fix: derived scalar doc ignored"
+          },
+          {
+            "comment": "Add signature for missing decorators"
+          },
+          {
+            "comment": "Add handling of `integer`, `float` and `numeric`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.44.0",
+      "tag": "@typespec/openapi3_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**Added** support for `@encode` decorator"
+          },
+          {
+            "comment": "Fix openapi3 emitter to mark request body required"
+          },
+          {
+            "comment": "Support multiple responses for the same status code and content type."
+          },
+          {
+            "comment": "Fix issue where shared request bodies did not emit correctly."
+          },
+          {
+            "comment": "Update decorator declaration to use `Model` instead of `object`"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.43.0",
+      "tag": "@typespec/openapi3_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Support shared routes."
+          },
+          {
+            "comment": "Update to use new `interpolatePath` logic to resolve the `output-file`"
+          },
+          {
+            "comment": "Add tests for overloads within interfaces"
+          },
+          {
+            "comment": "Support new datetime types"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/openapi3_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",

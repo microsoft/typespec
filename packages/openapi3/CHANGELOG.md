@@ -1,6 +1,44 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+
+## 0.45.0
+Tue, 06 Jun 2023 22:44:16 GMT
+
+### Updates
+
+- Support decimal and decimal128 scalar types.
+- Uptake doc comment changes. Standard built-in scalar will not have the description included as they are inlined.
+- Add description to emitter options
+- Update decorators signature to use `{}` instead of `object`
+- Fix: Documentation on `model is x[]` was not included in schema description
+- Fix: `@encode` encoding doesn't override target type format
+- Fix: Encoding resolution for model properties and add back `unixtime`
+- Fix: derived scalar doc ignored
+- Add signature for missing decorators
+- Add handling of `integer`, `float` and `numeric`
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- **Added** support for `@encode` decorator
+- Fix openapi3 emitter to mark request body required
+- Support multiple responses for the same status code and content type.
+- Fix issue where shared request bodies did not emit correctly.
+- Update decorator declaration to use `Model` instead of `object`
+- Update dependencies
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Support shared routes.
+- Update to use new `interpolatePath` logic to resolve the `output-file`
+- Add tests for overloads within interfaces
+- Support new datetime types
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT

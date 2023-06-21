@@ -1,16 +1,18 @@
-import assert, { deepStrictEqual, strictEqual } from "assert";
-import { CharCode } from "../core/charcode.js";
-import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
-import { hasParseError, parse, visitChildren } from "../core/parser.js";
+import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { CharCode } from "../src/core/charcode.js";
+import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
+import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
+  IdentifierNode,
   Node,
   NodeFlags,
   ParseOptions,
   SourceFile,
   SyntaxKind,
   TypeSpecScriptNode,
-} from "../core/types.js";
-import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
+} from "../src/core/types.js";
+import { DecorableNode } from "../src/formatter/print/types.js";
+import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
 
 describe("compiler: parser", () => {
   describe("import statements", () => {
@@ -37,6 +39,10 @@ describe("compiler: parser", () => {
          prop1: number,
          prop2: string
        };`,
+
+      `model Car {
+         withDefaultButNotOptional: string = "foo"
+       }`,
 
       `model Car {
          optional?: number;
@@ -110,10 +116,6 @@ describe("compiler: parser", () => {
       ["model Car is Foo extends Bar { }", [/'{' expected/]],
       ["model Car extends Bar is Foo { }", [/'{' expected/]],
       ["model Car { withDefaultMissing?: string =  }", [/Expression expected/]],
-      [
-        `model Car { withDefaultButNotOptional: string = "foo" }`,
-        [/Cannot use default with non optional properties/],
-      ],
       ["model", [/Identifier expected/]],
       ["model Car is Vehicle", [/';', or '{' expected/]],
       ["model Car;", [/'{', '=', 'extends', or 'is' expected/]],
@@ -215,6 +217,15 @@ describe("compiler: parser", () => {
         [/':' expected/],
         (n) => assert(!n.printable, "should not be printable"),
       ],
+    ]);
+  });
+
+  describe("valueof expressions", () => {
+    parseEach([
+      "alias A = valueof string;",
+      "alias A = valueof int32;",
+      "alias A = valueof {a: string, b: int32};",
+      "alias A = valueof int8[];",
     ]);
   });
 
@@ -385,7 +396,7 @@ describe("compiler: parser", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Microsoft/typespec/issues/506
+      // Some questions remain here: https://github.com/microsoft/typespec/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],
@@ -686,6 +697,8 @@ describe("compiler: parser", () => {
       parseEach([
         `projection model#v { to(version) { } }`,
         `projection model#foo{ from(bar, baz) { } }`,
+        `projection model#v { pre to(version) { } }`,
+        `projection model#foo{ pre from(bar, baz) { } }`,
       ]);
     });
     describe("projection expressions", () => {
@@ -745,10 +758,15 @@ describe("compiler: parser", () => {
         [`projection x#f`, [/'{' expected/]],
         [`projection x#f {`, [/'}' expected/]],
         [`projection x#f { asdf`, [/from or to expected/]],
+        [`projection x#f { pre asdf`, [/from or to expected/]],
         [`projection x#f { to (`, [/'\)' expected/]],
         [`projection x#f { to @`, [/'{' expected/]],
         [`projection x#f { to {`, [/} expected/]],
         [`projection x#f { to {}`, [/'}' expected/]],
+        [`projection x#f { pre to (`, [/'\)' expected/]],
+        [`projection x#f { pre to @`, [/'{' expected/]],
+        [`projection x#f { pre to {`, [/} expected/]],
+        [`projection x#f { pre to {}`, [/'}' expected/]],
       ]);
     });
   });
@@ -894,6 +912,133 @@ describe("compiler: parser", () => {
     );
   });
 
+  describe("annotations order", () => {
+    function expectHasDocComment(script: TypeSpecScriptNode, content: string, index: number = 0) {
+      const docs = script.statements[0].docs;
+      strictEqual(docs?.[index].content[0].text, content);
+    }
+
+    function expectHasDirective(script: TypeSpecScriptNode, id: string) {
+      const directives = script.statements[0].directives;
+      ok(
+        directives?.some((x) => x.target.sv === id),
+        `Should have found a directive with id ${id} but only has ${directives?.map(
+          (x) => x.target.sv
+        )}`
+      );
+    }
+
+    function expectHasDecorator(script: TypeSpecScriptNode, id: string) {
+      const decorators = (script.statements[0] as DecorableNode).decorators;
+      ok(
+        decorators?.some((x) => (x.target as IdentifierNode).sv === id),
+        `Should have found a directive with id ${id} but only has ${decorators?.map(
+          (x) => (x.target as IdentifierNode).sv
+        )}`
+      );
+    }
+
+    parseEach([
+      [
+        `
+        /** doc, directive, decorator */
+        #suppress "a" "a"
+        @foo
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "doc, directive, decorator");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+
+      [
+        `
+        #suppress "a" "a"
+        /** directive, doc, decorator */
+        @foo
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "directive, doc, decorator");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+
+      [
+        `
+        #suppress "a" "a"
+        @foo
+        /** directive, decorator, doc */
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "directive, decorator, doc");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+
+      [
+        `
+        /** doc, decorator, directive */
+        @foo
+        #suppress "a" "a"
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "doc, decorator, directive");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+      [
+        `
+        @foo
+        /** decorator, doc, directive */
+        #suppress "a" "a"
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "decorator, doc, directive");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+      [
+        `
+        @foo
+        #suppress "a" "a"
+        /** decorator, directive, doc */
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "decorator, directive, doc");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+      [
+        `
+        /** first: doc, directive, doc, decorator, doc */
+        #suppress "a" "a"
+        /** second */
+        @foo
+        /** third */
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "first: doc, directive, doc, decorator, doc", 0);
+          expectHasDocComment(script, "second", 1);
+          expectHasDocComment(script, "third", 2);
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+    ]);
+  });
   describe("conflict marker", () => {
     // NOTE: Use of ${} to obfuscate conflict markers so that they're not
     // flagged while working on these tests.

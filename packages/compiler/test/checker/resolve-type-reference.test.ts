@@ -5,7 +5,7 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: resolveTypeReference", () => {
   let runner: BasicTestRunner;
@@ -88,8 +88,7 @@ describe("compiler: resolveTypeReference", () => {
     );
   });
 
-  // Remove skip when this is added https://github.com/microsoft/typespec/issues/1092
-  it.skip("resolve metainfo", async () => {
+  it("resolve metatype", async () => {
     await expectResolve(
       "Pet.home::type.street",
       `

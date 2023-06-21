@@ -2,6 +2,41 @@
   "name": "@typespec/prettier-plugin-typespec",
   "entries": [
     {
+      "version": "0.45.0",
+      "tag": "@typespec/prettier-plugin-typespec_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.1` to `~0.4.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.44.0",
+      "tag": "@typespec/prettier-plugin-typespec_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.43.0",
+      "tag": "@typespec/prettier-plugin-typespec_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {}
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/prettier-plugin-typespec_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",

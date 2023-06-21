@@ -47,7 +47,7 @@ export function getOperationParameters(
   // strangely such that there is no body if the verb is POST and there is a
   // body if the verb is GET. In that rare case, GET is chosen arbitrarily.
   const post = getOperationParametersForVerb(program, operation, "post", knownPathParamNames);
-  return post[0].bodyType
+  return post[0].body
     ? post
     : getOperationParametersForVerb(program, operation, "get", knownPathParamNames);
 }
@@ -60,12 +60,14 @@ function getOperationParametersForVerb(
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = getRequestVisibility(verb);
+  const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
   const metadata = gatherMetadata(
     program,
     diagnostics,
     operation.parameters,
     visibility,
-    (_, param) => isMetadata(program, param) || isImplicitPathParam(param)
+    (_, param) => isMetadata(program, param) || isImplicitPathParam(param),
+    rootPropertyMap
   );
 
   function isImplicitPathParam(param: ModelProperty) {
@@ -138,10 +140,11 @@ function getOperationParametersForVerb(
     }
   }
 
+  const bodyRoot = bodyParameter ? rootPropertyMap.get(bodyParameter) : undefined;
   const unannotatedProperties = filterModelProperties(
     program,
     operation.parameters,
-    (p) => !metadata.has(p)
+    (p) => !metadata.has(p) && p !== bodyRoot
   );
 
   if (unannotatedProperties.properties.size > 0) {

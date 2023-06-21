@@ -17,6 +17,7 @@ words:
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
+  - debouncer
   - dogfood
   - eastus
   - ecmarkup
@@ -25,8 +26,10 @@ words:
   - globby
   - inmemory
   - instanceid
+  - interner
   - intrinsics
   - jsyaml
+  - keyer
   - lzutf
   - msbuild
   - MSRC
@@ -49,6 +52,8 @@ words:
   - rushx
   - safeint
   - segmentof
+  - sfixed
+  - sint
   - strs
   - TRYIT
   - TSES
@@ -57,6 +62,7 @@ words:
   - Uncapitalize
   - uninstantiated
   - unioned
+  - unprefixed
   - unprojected
   - unsourced
   - unversioned
@@ -64,8 +70,6 @@ words:
   - vswhere
   - westus
   - xplat
-  - keyer
-  - interner
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

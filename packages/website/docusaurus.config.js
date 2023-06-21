@@ -40,7 +40,7 @@ const config = {
   tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
   baseUrl: process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/",
-  onBrokenLinks: "log",
+  onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
 
@@ -108,7 +108,7 @@ const config = {
             position: "right",
           },
           {
-            href: "https://github.com/Microsoft/typespec",
+            href: "https://github.com/microsoft/typespec",
             position: "right",
             className: "header-github-link",
             "aria-label": "Github repository",
@@ -155,8 +155,8 @@ const config = {
       mermaid: {},
       algolia: {
         // cspell:disable-next-line
-        appId: "WQXW45O51C",
-        apiKey: "9bfd71f94d516117e3022e788f2cc83c",
+        appId: "V3T9EUVLJR",
+        apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
         indexName: "typespec",
       },
     }),

@@ -1,6 +1,32 @@
 # Change Log - @typespec/rest
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+
+## 0.45.0
+Tue, 06 Jun 2023 22:44:16 GMT
+
+### Updates
+
+- Update decorators to use `valueof`
+- Update decorators signature to use `{}` instead of `object`
+- Add signature for missing decorators
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- Cleanup deprecated use
+- Update decorator declaration to use `Model` instead of `object`
+- Add validation to ensure that @action or @collectionAction operations have a specified name when used with @sharedRoute
+- Update dependencies
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Fix issue where `@action("")` was treated the same as `@action`. Now this emits an error.
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT

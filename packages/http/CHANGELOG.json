@@ -2,6 +2,80 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.45.0",
+      "tag": "@typespec/http_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Uptake doc comment changes"
+          },
+          {
+            "comment": "Update decorators to use `valueof`"
+          },
+          {
+            "comment": "Update decorators signature to use `{}` instead of `object`"
+          },
+          {
+            "comment": "Add signature for missing decorators"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.44.0",
+      "tag": "@typespec/http_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Cleanup deprecated use"
+          },
+          {
+            "comment": "No longer issues an error for multiple different responses for the same status code."
+          },
+          {
+            "comment": "Add `@sharedRoute` decorator for marking operations as sharing a route with other operations"
+          },
+          {
+            "comment": "Deprecate the `shared` option in the `@route` decorator.  `@sharedRoute` is the new way to accomplish the same behavior."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.43.1",
+      "tag": "@typespec/http_v0.43.1",
+      "date": "Fri, 14 Apr 2023 15:09:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix** query format not accepting anything other than `csv` and `multi`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.43.0",
+      "tag": "@typespec/http_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**Breaking change** `@header` and `@query` no longer default the `format` to `csv` and `multi` respectively. A value must now be provided when the type is an array."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/http_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",

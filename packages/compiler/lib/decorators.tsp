@@ -1,4 +1,4 @@
-import "../dist/lib/decorators.js";
+import "../dist/src/lib/decorators.js";
 
 using TypeSpec.Reflection;
 
@@ -14,7 +14,7 @@ namespace TypeSpec;
  * model Pet {}
  * ```
  */
-extern dec summary(target: unknown, summary: string);
+extern dec summary(target: unknown, summary: valueof string);
 
 /**
  * Attach a documentation string.
@@ -27,7 +27,7 @@ extern dec summary(target: unknown, summary: string);
  * model Pet {}
  * ```
  */
-extern dec doc(target: unknown, doc: string, formatArgs?: object);
+extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
  * Mark this type as deprecated
@@ -40,7 +40,7 @@ extern dec doc(target: unknown, doc: string, formatArgs?: object);
  * op Action<T>(): T;
  * ```
  */
-extern dec deprecated(target: unknown, message: string);
+extern dec deprecated(target: unknown, message: valueof string);
 
 /**
  * Service options.
@@ -50,6 +50,7 @@ model ServiceOptions {
    * Title of the service.
    */
   title?: string;
+
   /**
    * Version of the service.
    */
@@ -92,11 +93,11 @@ extern dec service(target: Namespace, options?: ServiceOptions);
  * }
  * ```
  */
-extern dec error(target: object);
+extern dec error(target: Model);
 
 /**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
- * This differ from the @pattern decorator that is meant to specify a regular expression while @format takes in a known format name.
+ * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
  * The format names are open ended and are left to emitter to interpret.
  *
  * @param format format name.
@@ -107,7 +108,7 @@ extern dec error(target: object);
  * scalar uuid extends string;
  * ```
  */
-extern dec format(target: string | bytes | ModelProperty, format: string);
+extern dec format(target: string | bytes | ModelProperty, format: valueof string);
 
 /**
  * Specify the the pattern this string should respect using simple regular expression syntax.
@@ -122,7 +123,7 @@ extern dec format(target: string | bytes | ModelProperty, format: string);
  * scalar LowerAlpha extends string;
  * ```
  */
-extern dec pattern(target: string | bytes | ModelProperty, pattern: string);
+extern dec pattern(target: string | bytes | ModelProperty, pattern: valueof string);
 
 /**
  * Specify the minimum length this string type should be.
@@ -134,7 +135,7 @@ extern dec pattern(target: string | bytes | ModelProperty, pattern: string);
  * scalar Username extends string;
  * ```
  */
-extern dec minLength(target: string | ModelProperty, value: integer);
+extern dec minLength(target: string | ModelProperty, value: valueof integer);
 
 /**
  * Specify the maximum length this string type should be.
@@ -146,7 +147,7 @@ extern dec minLength(target: string | ModelProperty, value: integer);
  * scalar Username extends string;
  * ```
  */
-extern dec maxLength(target: string | ModelProperty, value: integer);
+extern dec maxLength(target: string | ModelProperty, value: valueof integer);
 
 /**
  * Specify the minimum number of items this array should have.
@@ -158,7 +159,7 @@ extern dec maxLength(target: string | ModelProperty, value: integer);
  * model Endpoints is string[];
  * ```
  */
-extern dec minItems(target: unknown[] | ModelProperty, value: integer);
+extern dec minItems(target: unknown[] | ModelProperty, value: valueof integer);
 
 /**
  * Specify the maximum number of items this array should have.
@@ -170,7 +171,7 @@ extern dec minItems(target: unknown[] | ModelProperty, value: integer);
  * model Endpoints is string[];
  * ```
  */
-extern dec maxItems(target: unknown[] | ModelProperty, value: integer);
+extern dec maxItems(target: unknown[] | ModelProperty, value: valueof integer);
 
 /**
  * Specify the minimum value this numeric type should be.
@@ -182,7 +183,7 @@ extern dec maxItems(target: unknown[] | ModelProperty, value: integer);
  * scalar Age is int32;
  * ```
  */
-extern dec minValue(target: numeric | ModelProperty, value: numeric);
+extern dec minValue(target: numeric | ModelProperty, value: valueof numeric);
 
 /**
  * Specify the maximum value this numeric type should be.
@@ -194,7 +195,7 @@ extern dec minValue(target: numeric | ModelProperty, value: numeric);
  * scalar Age is int32;
  * ```
  */
-extern dec maxValue(target: numeric | ModelProperty, value: numeric);
+extern dec maxValue(target: numeric | ModelProperty, value: valueof numeric);
 
 /**
  * Specify the minimum value this numeric type should be, exclusive of the given
@@ -207,7 +208,7 @@ extern dec maxValue(target: numeric | ModelProperty, value: numeric);
  * scalar distance is float64;
  * ```
  */
-extern dec minValueExclusive(target: numeric | ModelProperty, value: numeric);
+extern dec minValueExclusive(target: numeric | ModelProperty, value: valueof numeric);
 
 /**
  * Specify the maximum value this numeric type should be, exclusive of the given
@@ -220,7 +221,7 @@ extern dec minValueExclusive(target: numeric | ModelProperty, value: numeric);
  * scalar distance is float64;
  * ```
  */
-extern dec maxValueExclusive(target: numeric | ModelProperty, value: numeric);
+extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof numeric);
 
 /**
  * Mark this string as a secret value that should be treated carefully to avoid exposure
@@ -237,12 +238,12 @@ extern dec secret(target: string | ModelProperty);
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  * @param tag Tag value
  */
-extern dec tag(target: Namespace | Interface | Operation, tag: string);
+extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
 
 /**
  * Specifies how a templated type should name their instances.
  * @param name name the template instance should take
- * @formatArgs Model with key value used to interpolate the name
+ * @param formatArgs Model with key value used to interpolate the name
  *
  * @example
  * ```typespec
@@ -253,7 +254,7 @@ extern dec tag(target: Namespace | Interface | Operation, tag: string);
  * }
  * ```
  */
-extern dec friendlyName(target: unknown, name: string, formatArgs?: unknown);
+extern dec friendlyName(target: unknown, name: valueof string, formatArgs?: unknown);
 
 /**
  * Provide a set of known values to a string type.
@@ -274,6 +275,7 @@ extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
 
 /**
  * Mark a model property as the key to identify instances of that type
+ * @param altName Name of the property. If not specified, the decorated property name is used.
  *
  * @example
  * ```typespec
@@ -282,7 +284,7 @@ extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
  * }
  * ```
  */
-extern dec key(target: ModelProperty, altName?: string);
+extern dec key(target: ModelProperty, altName?: valueof string);
 
 /**
  * Specify this operation is an overload of the given operation.
@@ -312,10 +314,15 @@ extern dec overload(target: Operation, overloadbase: Operation);
  * }
  * ```
  */
-extern dec projectedName(target: unknown, targetName: string, projectedName: string);
+extern dec projectedName(
+  target: unknown,
+  targetName: valueof string,
+  projectedName: valueof string
+);
 
 /**
  * Specify the property to be used to discriminate this type.
+ * @param propertyName The property name to use for discrimination
  *
  * @example
  *
@@ -335,7 +342,80 @@ extern dec projectedName(target: unknown, targetName: string, projectedName: str
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: object | Union, propertyName: string);
+extern dec discriminator(target: Model | Union, propertyName: valueof string);
+
+/**
+ * Known encoding to use on utcDateTime or offsetDateTime
+ */
+enum DateTimeKnownEncoding {
+  /**
+   * RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt
+   * Encode to string.
+   */
+  rfc3339: "rfc3339",
+  /**
+   * RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt
+   * Encode to string.
+   */
+  rfc7231: "rfc7231",
+  /**
+   * Encode to integer
+   */
+  unixTimestamp: "unixTimestamp",
+}
+
+/**
+ * Known encoding to use on duration
+ */
+enum DurationKnownEncoding {
+  /**
+   * ISO8601 duration
+   */
+  ISO8601: "ISO8601",
+  /**
+   * Encode to integer or float
+   */
+  seconds: "seconds",
+}
+
+/**
+ * Known encoding to use on bytes
+ */
+enum BytesKnownEncoding {
+  /**
+   * Encode to Base64
+   */
+  base64: "base64",
+  /**
+   * Encode to Base64 Url
+   */
+  base64url: "base64url",
+}
+
+/**
+ * Specify how to encode the target type.
+ * @param encoding Known name of an encoding.
+ * @param encodedAs What target type is this being encoded as. Default to string.
+ *
+ * @example offsetDateTime encoded with rfc7231
+ *
+ * ```tsp
+ * @encode("rfc7231")
+ * scalar myDateTime extends offsetDateTime;
+ * ```
+ *
+ * @example utcDateTime encoded with unixTimestamp
+ *
+ * ```tsp
+ * @encode("unixTimestamp", int32)
+ * scalar myDateTime extends unixTimestamp;
+ * ```
+ */
+extern dec encode(
+  target: Scalar | ModelProperty,
+  encoding: string | EnumMember,
+  encodedAs?: Scalar
+);
 
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
@@ -352,7 +432,9 @@ extern dec discriminator(target: object | Union, propertyName: string);
  * - "update": input to operations that update data.
  * - "delete": input to operations that delete data.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
+ *
+ * @param visibilities List of visibilities which apply to this property.
  *
  * @example
  *
@@ -367,7 +449,7 @@ extern dec discriminator(target: object | Union, propertyName: string);
  * }
  * ```
  */
-extern dec visibility(target: ModelProperty, ...visibilities: string[]);
+extern dec visibility(target: ModelProperty, ...visibilities: valueof string[]);
 
 /**
  * Removes properties that are not considered to be present or applicable
@@ -375,10 +457,12 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * together with spread to effectively spread only visible properties into
  * a new model.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/rest/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
  *
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.
+ *
+ * @param visibilities List of visibilities which apply to this property.
  *
  * @example
  * ```typespec
@@ -407,14 +491,48 @@ extern dec visibility(target: ModelProperty, ...visibilities: string[]);
  * }
  * ```
  */
-extern dec withVisibility(target: object, ...visibilities: string[]);
-extern dec withDefaultKeyVisibility(target: object, visibility: unknown);
-extern dec withUpdateableProperties(target: object);
-extern dec withoutDefaultValues(target: object);
-extern dec withoutOmittedProperties(target: object, omit: string | Union);
+extern dec withVisibility(target: Model, ...visibilities: valueof string[]);
+
+/**
+ * Set the visibility of key properties in a model if not already set.
+ *
+ * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
+ */
+extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string);
+
+/**
+ * Returns the model with non-updateable properties removed.
+ */
+extern dec withUpdateableProperties(target: Model);
+
+/**
+ * Returns the model with required properties removed.
+ */
+extern dec withOptionalProperties(target: Model);
+
+/**
+ * Returns the model with any default values removed.
+ */
+extern dec withoutDefaultValues(target: Model);
+
+/**
+ * Returns the model with the given properties omitted.
+ * @param omit List of properties to omit
+ */
+extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 
 //---------------------------------------------------------------------------
 // Debugging
 //---------------------------------------------------------------------------
-extern dec inspectType(target: unknown, text: string);
-extern dec inspectTypeName(target: unknown, text: string);
+
+/**
+ * A debugging decorator used to inspect a type.
+ * @param text Custom text to log
+ */
+extern dec inspectType(target: unknown, text: valueof string);
+
+/**
+ * A debugging decorator used to inspect a type name.
+ * @param text Custom text to log
+ */
+extern dec inspectTypeName(target: unknown, text: valueof string);

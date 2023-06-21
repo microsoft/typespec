@@ -413,6 +413,7 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
+            required: true,
             content: {
               "application/json": {
                 schema: {
@@ -447,6 +448,125 @@ describe("openapi3: metadata", () => {
           schema: { type: "string" },
         },
       },
+      schemas: {
+        Parameters: {
+          properties: {
+            h: {
+              type: "string",
+            },
+            p: {
+              type: "string",
+            },
+            q: {
+              type: "string",
+            },
+          },
+          required: ["q", "p", "h"],
+          type: "object",
+        },
+      },
+    });
+  });
+
+  it("Constructs an implicit body from non-metadata parameters", async () => {
+    const res = await openApiFor(
+      `
+      @route("/test") @post op test(
+        @query q: string;
+        @header h: string;
+        foo: string;
+        bar: int32;
+      ): string;
+      `
+    );
+    deepStrictEqual(res.paths, {
+      "/test": {
+        post: {
+          operationId: "test",
+          parameters: [
+            {
+              name: "q",
+              in: "query",
+              required: true,
+              schema: { type: "string" },
+            },
+            {
+              name: "h",
+              in: "header",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "The request has succeeded.",
+              content: { "application/json": { schema: { type: "string" } } },
+            },
+          },
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  properties: {
+                    bar: {
+                      format: "int32",
+                      type: "integer",
+                    },
+                    foo: {
+                      type: "string",
+                    },
+                  },
+                  required: ["foo", "bar"],
+                  type: "object",
+                  "x-typespec-name": "(anonymous model)",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it("Supports optional request bodies", async () => {
+    const res = await openApiFor(
+      `
+      model Parameters {
+        @query q: string;
+        @path p: string;
+        @header h: string;
+      }
+      @route("/batch") @post op batch(@body body?: Parameters[]): string;
+      `
+    );
+    deepStrictEqual(res.paths, {
+      "/batch": {
+        post: {
+          operationId: "batch",
+          parameters: [],
+          responses: {
+            "200": {
+              description: "The request has succeeded.",
+              content: { "application/json": { schema: { type: "string" } } },
+            },
+          },
+          requestBody: {
+            required: false,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Parameters" },
+                  "x-typespec-name": "Parameters[]",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    deepStrictEqual(res.components, {
       schemas: {
         Parameters: {
           properties: {
@@ -652,6 +772,7 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
+            required: true,
             content: {
               "application/json": {
                 schema: {
@@ -687,5 +808,39 @@ describe("openapi3: metadata", () => {
         required: ["id", "name"],
       },
     });
+  });
+
+  it("supports nested bodies", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        @body body: bytes;
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+
+  it("supports deeply nested bodies", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        moreNesting: { @body body: bytes };
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
   });
 });

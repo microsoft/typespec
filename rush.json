@@ -4,14 +4,15 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.90.0",
-  "pnpmVersion": "6.32.9",
+  "rushVersion": "5.100.1",
+  "pnpmVersion": "8.6.2",
   "ensureConsistentVersions": true,
   /**
    * Options that are only used when the PNPM package manager is selected
    */
   "pnpmOptions": {
-    "strictPeerDependencies": false
+    "strictPeerDependencies": false,
+    "useWorkspaces": true
   },
   "nodeSupportedVersionRange": ">=16.0.0",
   "suppressNodeLtsWarning": true,
@@ -154,13 +155,13 @@
       "packageName": "@typespec/eslint-config-typespec",
       "projectFolder": "packages/eslint-config-typespec",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/internal-build-utils",
       "projectFolder": "packages/internal-build-utils",
       "reviewCategory": "production",
-      "shouldPublish": true
+      "versionPolicyName": "typespec"
     },
     {
       "packageName": "@typespec/spec",
@@ -168,10 +169,15 @@
       "reviewCategory": "production",
       "shouldPublish": false
     },
-
     {
       "packageName": "@typespec/playground",
       "projectFolder": "packages/playground",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/playground-website",
+      "projectFolder": "packages/playground-website",
       "reviewCategory": "production",
       "shouldPublish": false
     },
@@ -188,10 +194,22 @@
       "shouldPublish": false
     },
     {
+      "packageName": "@typespec/protobuf",
+      "projectFolder": "packages/protobuf",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
+    },
+    {
       "packageName": "@typespec/ref-doc",
       "projectFolder": "packages/ref-doc",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/json-schema",
+      "projectFolder": "packages/json-schema",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
     }
   ]
 }

@@ -1,6 +1,37 @@
 # Change Log - @typespec/versioning
 
-This log was last generated on Mon, 13 Mar 2023 21:30:44 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+
+## 0.45.0
+Tue, 06 Jun 2023 22:44:16 GMT
+
+### Updates
+
+- Update decorators to use `valueof`
+- Update decorators signature to use `{}` instead of `object`
+- Add signature for missing decorators
+
+## 0.44.0
+Wed, 10 May 2023 21:24:00 GMT
+
+### Updates
+
+- Fix: Crash during validation when using certain templated models from versioned library
+- Update compiler to be a peer dependency
+- Update dependencies
+- Added validation preventing version enums from having duplicate values.
+- Fix issue where "is" dependencies were not detected.
+- Raise error if versioned spec specifies a single service version.
+
+## 0.43.0
+Tue, 11 Apr 2023 18:49:17 GMT
+
+### Updates
+
+- Fix: Issue with using version as a template parameter across different namespace. Include a significant change in the versioning library internals.
+- Use pre-projections to fix issues with versioned resources.
+- support new datetime types
+- Removed deprecated decorator @versionedDependency and deprecated versioning helper methods: getRenamedFromVersion, getRenamedFromOldName, getAddedOn, getRemovedOn, addedAfter, removedOnOrBefore, and renamedAfter.
 
 ## 0.42.0
 Mon, 13 Mar 2023 21:30:44 GMT

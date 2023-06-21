@@ -26,7 +26,7 @@ describe("rest: rest decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @resourceLocation decorator to test since it is not assignable to TypeSpec.string",
+            "Cannot apply @resourceLocation decorator to test since it is not assignable to string",
         },
       ]);
     });

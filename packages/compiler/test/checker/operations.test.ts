@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { DecoratorContext, IntrinsicType, Operation, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: operations", () => {
   let testHost: TestHost;
@@ -20,6 +20,18 @@ describe("compiler: operations", () => {
     const { foo } = (await testHost.compile("./main.tsp")) as { foo: Operation };
     strictEqual(foo.returnType.kind, "Intrinsic");
     strictEqual((foo.returnType as IntrinsicType).name, "void");
+  });
+
+  it("keeps reference to source operation", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op a(): void;
+      @test op b is a;
+      `
+    );
+    const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
+    strictEqual(b.sourceOperation, a);
   });
 
   it("can be templated and referenced to define other operations", async () => {
@@ -227,5 +239,51 @@ describe("compiler: operations", () => {
         message: "Operation 'bar' recursively references itself.",
       },
     ]);
+  });
+
+  describe("circular ref in decorators", () => {
+    let tracked: any[];
+    beforeEach(() => {
+      tracked = [];
+      testHost.addJsFile("track.js", {
+        $track: (context: DecoratorContext, ...args: any[]) => {
+          tracked.push(args);
+        },
+      });
+    });
+
+    it("operation can reference itself in a decorator", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          import "./track.js";
+          @test @track(foo)
+          op foo(): void;
+        `
+      );
+      const { foo } = await testHost.compile("main.tsp");
+
+      deepStrictEqual(tracked, [[foo, foo]]);
+    });
+
+    it("operation can reference another operation which reference back to this one", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          import "./track.js";
+          @test @track(foo)
+          op bar(): void;
+
+          @test @track(bar)
+          op foo(): void;
+        `
+      );
+      const { foo, bar } = await testHost.compile("main.tsp");
+
+      deepStrictEqual(tracked, [
+        [foo, bar],
+        [bar, foo],
+      ]);
+    });
   });
 });

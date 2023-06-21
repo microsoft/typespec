@@ -1,18 +1,18 @@
 import assert from "assert";
 import { readFile } from "fs/promises";
 import { URL } from "url";
-import { isIdentifierContinue, isIdentifierStart } from "../core/charcode.js";
-import { DiagnosticHandler, formatDiagnostic } from "../core/diagnostics.js";
+import { isIdentifierContinue, isIdentifierStart } from "../src/core/charcode.js";
+import { DiagnosticHandler, formatDiagnostic } from "../src/core/diagnostics.js";
 import {
-  createScanner,
-  isKeyword,
-  isPunctuation,
-  isStatementKeyword,
   KeywordLimit,
   Keywords,
   Token,
   TokenDisplay,
-} from "../core/scanner.js";
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  isStatementKeyword,
+} from "../src/core/scanner.js";
 
 type TokenEntry = [
   Token,

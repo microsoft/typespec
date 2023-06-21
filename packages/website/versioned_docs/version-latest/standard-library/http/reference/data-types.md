@@ -8,136 +8,61 @@ toc_max_heading_level: 3
 
 ## TypeSpec.Http
 
-### `Response` {#TypeSpec.Http.Response}
-
-```typespec
-model Response<Status>
-```
-
-#### Template Parameters
-
-| Name   | Description |
-| ------ | ----------- |
-| Status |             |
-
-### `Body` {#TypeSpec.Http.Body}
-
-Defines a model with a single property of the given type, marked with `@body`.
-
-This can be useful in situations where you cannot use a bare T as the body
-and it is awkward to add a property.
-
-```typespec
-model Body<T>
-```
-
-#### Template Parameters
-
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
-
-### `LocationHeader` {#TypeSpec.Http.LocationHeader}
-
-```typespec
-model TypeSpec.Http.LocationHeader
-```
-
-### `HeaderOptions` {#TypeSpec.Http.HeaderOptions}
-
-Header options.
-
-```typespec
-model TypeSpec.Http.HeaderOptions
-```
-
-### `OkResponse` {#TypeSpec.Http.OkResponse}
-
-```typespec
-model TypeSpec.Http.OkResponse
-```
-
-### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
-
-```typespec
-model TypeSpec.Http.CreatedResponse
-```
-
 ### `AcceptedResponse` {#TypeSpec.Http.AcceptedResponse}
+
+The request has been accepted for processing, but processing has not yet completed.
 
 ```typespec
 model TypeSpec.Http.AcceptedResponse
 ```
 
-### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
+### `ApiKeyAuth` {#TypeSpec.Http.ApiKeyAuth}
 
-```typespec
-model TypeSpec.Http.NoContentResponse
+An API key is a token that a client provides when making API calls. The key can be sent in the query string:
+
+```
+GET /something?api_key=abcdef12345
 ```
 
-### `MovedResponse` {#TypeSpec.Http.MovedResponse}
+or as a request header
 
-```typespec
-model TypeSpec.Http.MovedResponse
+```
+GET /something HTTP/1.1
+X-API-Key: abcdef12345
 ```
 
-### `NotModifiedResponse` {#TypeSpec.Http.NotModifiedResponse}
+or as a cookie
 
-```typespec
-model TypeSpec.Http.NotModifiedResponse
+```
+GET /something HTTP/1.1
+Cookie: X-API-KEY=abcdef12345
 ```
 
-### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
-
 ```typespec
-model TypeSpec.Http.BadRequestResponse
-```
-
-### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
-
-```typespec
-model TypeSpec.Http.UnauthorizedResponse
-```
-
-### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
-
-```typespec
-model TypeSpec.Http.ForbiddenResponse
-```
-
-### `NotFoundResponse` {#TypeSpec.Http.NotFoundResponse}
-
-```typespec
-model TypeSpec.Http.NotFoundResponse
-```
-
-### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
-
-```typespec
-model TypeSpec.Http.ConflictResponse
-```
-
-### `PlainData` {#TypeSpec.Http.PlainData}
-
-Produces a new model with the same properties as T, but with `@query`,
-`@header`, `@body`, and `@path` decorators removed from all properties.
-
-```typespec
-model PlainData<T>
+model TypeSpec.Http.ApiKeyAuth<TLocation, TName>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| T    |             |
+| Name      | Description                 |
+| --------- | --------------------------- |
+| TLocation | The location of the API key |
+| TName     | The name of the API key     |
 
-### `QueryOptions` {#TypeSpec.Http.QueryOptions}
+### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
 
-Query parameter options.
+Authorization Code flow
 
 ```typespec
-model TypeSpec.Http.QueryOptions
+model TypeSpec.Http.AuthorizationCodeFlow
+```
+
+### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
+
+The server could not understand the request due to invalid syntax.
+
+```typespec
+model TypeSpec.Http.BadRequestResponse
 ```
 
 ### `BasicAuth` {#TypeSpec.Http.BasicAuth}
@@ -168,62 +93,61 @@ Authorization: Bearer <token>
 model TypeSpec.Http.BearerAuth
 ```
 
-### `ApiKeyAuth` {#TypeSpec.Http.ApiKeyAuth}
+### `Body` {#TypeSpec.Http.Body}
 
-An API key is a token that a client provides when making API calls. The key can be sent in the query string:
+Defines a model with a single property of the given type, marked with `@body`.
 
-```
-GET /something?api_key=abcdef12345
-```
-
-or as a request header
-
-```
-GET /something HTTP/1.1
-X-API-Key: abcdef12345
-```
-
-or as a cookie
-
-```
-GET /something HTTP/1.1
-Cookie: X-API-KEY=abcdef12345
-```
+This can be useful in situations where you cannot use a bare T as the body
+and it is awkward to add a property.
 
 ```typespec
-model ApiKeyAuth<TLocation, TName>
+model TypeSpec.Http.Body<T>
 ```
 
 #### Template Parameters
 
-| Name      | Description |
-| --------- | ----------- |
-| TLocation |             |
-| TName     |             |
+| Name | Description                              |
+| ---- | ---------------------------------------- |
+| T    | The type of the model's `body` property. |
 
-### `OAuth2Auth` {#TypeSpec.Http.OAuth2Auth}
+### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
 
-OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
-OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
-For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
-For more information about OAuth 2.0, see oauth.net and RFC 6749.
+Client credentials flow
 
 ```typespec
-model OAuth2Auth<TFlows>
+model TypeSpec.Http.ClientCredentialsFlow
 ```
 
-#### Template Parameters
+### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
 
-| Name   | Description |
-| ------ | ----------- |
-| TFlows |             |
-
-### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
-
-Authorization Code flow
+The request conflicts with the current state of the server.
 
 ```typespec
-model TypeSpec.Http.AuthorizationCodeFlow
+model TypeSpec.Http.ConflictResponse
+```
+
+### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
+
+The request has succeeded and a new resource has been created as a result.
+
+```typespec
+model TypeSpec.Http.CreatedResponse
+```
+
+### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
+
+Access is forbidden.
+
+```typespec
+model TypeSpec.Http.ForbiddenResponse
+```
+
+### `HeaderOptions` {#TypeSpec.Http.HeaderOptions}
+
+Header options.
+
+```typespec
+model TypeSpec.Http.HeaderOptions
 ```
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
@@ -234,6 +158,71 @@ Implicit flow
 model TypeSpec.Http.ImplicitFlow
 ```
 
+### `LocationHeader` {#TypeSpec.Http.LocationHeader}
+
+The Location header contains the URL where the status of the long running operation can be checked.
+
+```typespec
+model TypeSpec.Http.LocationHeader
+```
+
+### `MovedResponse` {#TypeSpec.Http.MovedResponse}
+
+The URL of the requested resource has been changed permanently. The new URL is given in the response.
+
+```typespec
+model TypeSpec.Http.MovedResponse
+```
+
+### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
+
+There is no content to send for this request, but the headers may be useful.
+
+```typespec
+model TypeSpec.Http.NoContentResponse
+```
+
+### `NotFoundResponse` {#TypeSpec.Http.NotFoundResponse}
+
+The server cannot find the requested resource.
+
+```typespec
+model TypeSpec.Http.NotFoundResponse
+```
+
+### `NotModifiedResponse` {#TypeSpec.Http.NotModifiedResponse}
+
+The client has made a conditional request and the resource has not been modified.
+
+```typespec
+model TypeSpec.Http.NotModifiedResponse
+```
+
+### `OAuth2Auth` {#TypeSpec.Http.OAuth2Auth}
+
+OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
+OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
+For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
+For more information about OAuth 2.0, see oauth.net and RFC 6749.
+
+```typespec
+model TypeSpec.Http.OAuth2Auth<TFlows>
+```
+
+#### Template Parameters
+
+| Name   | Description                        |
+| ------ | ---------------------------------- |
+| TFlows | The list of supported OAuth2 flows |
+
+### `OkResponse` {#TypeSpec.Http.OkResponse}
+
+The request has succeeded.
+
+```typespec
+model TypeSpec.Http.OkResponse
+```
+
 ### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 
 Resource Owner Password flow
@@ -242,20 +231,49 @@ Resource Owner Password flow
 model TypeSpec.Http.PasswordFlow
 ```
 
-### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
+### `PlainData` {#TypeSpec.Http.PlainData}
 
-Client credentials flow
+Produces a new model with the same properties as T, but with `@query`,
+`@header`, `@body`, and `@path` decorators removed from all properties.
 
 ```typespec
-model TypeSpec.Http.ClientCredentialsFlow
+model TypeSpec.Http.PlainData<T>
 ```
 
-### `AuthType` {#TypeSpec.Http.AuthType}
+#### Template Parameters
 
-Authentication type
+| Name | Description                            |
+| ---- | -------------------------------------- |
+| T    | The model to spread as the plain data. |
+
+### `QueryOptions` {#TypeSpec.Http.QueryOptions}
+
+Query parameter options.
 
 ```typespec
-enum TypeSpec.Http.AuthType
+model TypeSpec.Http.QueryOptions
+```
+
+### `Response` {#TypeSpec.Http.Response}
+
+Describes an HTTP response.
+
+```typespec
+model TypeSpec.Http.Response<Status>
+```
+
+#### Template Parameters
+
+| Name   | Description                      |
+| ------ | -------------------------------- |
+| Status | The status code of the response. |
+
+### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
+
+Access is unauthorized.
+
+```typespec
+model TypeSpec.Http.UnauthorizedResponse
 ```
 
 ### `ApiKeyLocation` {#TypeSpec.Http.ApiKeyLocation}
@@ -264,6 +282,14 @@ Describes the location of the API key
 
 ```typespec
 enum TypeSpec.Http.ApiKeyLocation
+```
+
+### `AuthType` {#TypeSpec.Http.AuthType}
+
+Authentication type
+
+```typespec
+enum TypeSpec.Http.AuthType
 ```
 
 ### `OAuth2FlowType` {#TypeSpec.Http.OAuth2FlowType}

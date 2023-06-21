@@ -36,7 +36,7 @@ namespace MediaTypes {
       | "application/json"
       | "image/jpeg"
       | "image/png"
-      | "image/tiff"
+      | "image/tiff",
   ): string;
 
   @doc("Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter")

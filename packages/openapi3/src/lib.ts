@@ -11,7 +11,28 @@ export interface OpenAPI3EmitterOptions {
 
   /**
    * Name of the output file.
-   * @default `openapi.yaml` or `openapi.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * Output file will interpolate the following values:
+   *  - service-name: Name of the service if multiple
+   *  - version: Version of the service if multiple
+   *
+   * @default `{service-name}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   *
+   * @example Single service no versioning
+   *  - `openapi.yaml`
+   *
+   * @example Multiple services no versioning
+   *  - `openapi.Org1.Service1.yaml`
+   *  - `openapi.Org1.Service2.yaml`
+   *
+   * @example Single service with versioning
+   *  - `openapi.v1.yaml`
+   *  - `openapi.v2.yaml`
+   *
+   * @example Multiple service with versioning
+   *  - `openapi.Org1.Service1.v1.yaml`
+   *  - `openapi.Org1.Service1.v2.yaml`
+   *  - `openapi.Org1.Service2.v1.0.yaml`
+   *  - `openapi.Org1.Service2.v1.1.yaml`
    */
   "output-file"?: string;
 
@@ -32,10 +53,55 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    "file-type": { type: "string", enum: ["yaml", "json"], nullable: true },
-    "output-file": { type: "string", nullable: true },
-    "new-line": { type: "string", enum: ["crlf", "lf"], default: "lf", nullable: true },
-    "omit-unreachable-types": { type: "boolean", nullable: true },
+    "file-type": {
+      type: "string",
+      enum: ["yaml", "json"],
+      nullable: true,
+      description:
+        "If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension",
+    },
+    "output-file": {
+      type: "string",
+      nullable: true,
+      description: [
+        "Name of the output file.",
+        " Output file will interpolate the following values:",
+        "  - service-name: Name of the service if multiple",
+        "  - version: Version of the service if multiple",
+        "",
+        ' Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
+        "",
+        " Example Single service no versioning",
+        "  - `openapi.yaml`",
+        "",
+        " Example Multiple services no versioning",
+        "  - `openapi.Org1.Service1.yaml`",
+        "  - `openapi.Org1.Service2.yaml`",
+        "",
+        " Example Single service with versioning",
+        "  - `openapi.v1.yaml`",
+        "  - `openapi.v2.yaml`",
+        "",
+        " Example Multiple service with versioning",
+        "  - `openapi.Org1.Service1.v1.yaml`",
+        "  - `openapi.Org1.Service1.v2.yaml`",
+        "  - `openapi.Org1.Service2.v1.0.yaml`",
+        "  - `openapi.Org1.Service2.v1.1.yaml`    ",
+      ].join("\n"),
+    },
+    "new-line": {
+      type: "string",
+      enum: ["crlf", "lf"],
+      default: "lf",
+      nullable: true,
+      description: "Set the newline character for emitting files.",
+    },
+    "omit-unreachable-types": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Omit unreachable types.\nBy default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.",
+    },
   },
   required: [],
 };
@@ -98,7 +164,7 @@ export const libDef = {
         type: paramMessage`Type "${"kind"}" cannot be used in unions`,
         empty:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
-        null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
+        null: "Unions containing multiple model types cannot be emitted to OpenAPI v3 unless the union is between one model type and 'null'.",
       },
     },
     "invalid-default": {

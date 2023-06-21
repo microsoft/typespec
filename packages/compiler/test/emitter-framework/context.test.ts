@@ -1,9 +1,9 @@
 import assert from "assert";
-import { Model, ModelProperty, Namespace, Program } from "../../core/index.js";
-import { CodeTypeEmitter, Context, EmitterOutput } from "../../emitter-framework/index.js";
+import { Model, ModelProperty, Namespace, Program } from "../../src/core/index.js";
+import { CodeTypeEmitter, Context, EmitterOutput } from "../../src/emitter-framework/index.js";
 import { emitTypeSpec } from "./host.js";
 
-describe("emitter context", () => {
+describe("emitter-framework: emitter context", () => {
   describe("program context", () => {
     it("should be initialized to empty state", async () => {
       class Emitter extends CodeTypeEmitter {

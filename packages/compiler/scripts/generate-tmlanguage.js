@@ -1,2 +1,2 @@
-import { main } from "../dist/server/tmlanguage.js";
+import { main } from "../dist/src/server/tmlanguage.js";
 await main();

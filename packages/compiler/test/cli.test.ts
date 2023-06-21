@@ -1,13 +1,13 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { dump } from "js-yaml";
-import { CompileCliArgs, getCompilerOptions } from "../core/cli/args.js";
+import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/args.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
   resolveVirtualPath,
-  TestHost,
-} from "../testing/index.js";
+} from "../src/testing/index.js";
 
 describe("compiler: cli", () => {
   let host: TestHost;
@@ -21,7 +21,13 @@ describe("compiler: cli", () => {
 
   describe("resolving compiler options", () => {
     async function resolveCompilerOptions(args: CompileCliArgs, env: Record<string, string> = {}) {
-      const [options, diagnostics] = await getCompilerOptions(host.compilerHost, cwd, args, env);
+      const [options, diagnostics] = await getCompilerOptions(
+        host.compilerHost,
+        "ws/main.cadl",
+        cwd,
+        args,
+        env
+      );
       expectDiagnosticEmpty(diagnostics);
       return options;
     }
@@ -131,6 +137,7 @@ describe("compiler: cli", () => {
       it("emit diagnostic if passing unknown parameter", async () => {
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
+          "ws/main.cadl",
           cwd,
           {
             args: ["not-defined-arg=my-value"],
@@ -151,7 +158,13 @@ describe("compiler: cli", () => {
             "output-dir": "./my-output",
           })
         );
-        const [_, diagnostics] = await getCompilerOptions(host.compilerHost, cwd, {}, {});
+        const [_, diagnostics] = await getCompilerOptions(
+          host.compilerHost,
+          "ws/main.cadl",
+          cwd,
+          {},
+          {}
+        );
 
         expectDiagnostics(diagnostics, {
           code: "config-path-absolute",

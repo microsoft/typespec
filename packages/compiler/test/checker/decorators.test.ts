@@ -1,12 +1,12 @@
 import { ok, strictEqual } from "assert";
-import { setTypeSpecNamespace } from "../../core/index.js";
+import { setTypeSpecNamespace } from "../../src/core/index.js";
 import {
   BasicTestRunner,
+  TestHost,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-  TestHost,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: checker: decorators", () => {
   let testHost: TestHost;
@@ -136,7 +136,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: unknown, arg1: string, arg2: string);
+        extern dec testDec(target: unknown, arg1: valueof string, arg2: valueof string);
 
         @testDec("one", "two")
         @test
@@ -148,7 +148,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with optional arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: unknown, arg1: string, arg2?: string);
+        extern dec testDec(target: unknown, arg1: valueof string, arg2?: valueof string);
 
         @testDec("one")
         @test
@@ -160,7 +160,7 @@ describe("compiler: checker: decorators", () => {
 
     it("calls a decorator with rest arguments", async () => {
       const { Foo } = await runner.compile(`
-        extern dec testDec(target: unknown, arg1: string, ...args: string[]);
+        extern dec testDec(target: unknown, arg1: valueof string, ...args: valueof string[]);
 
         @testDec("one", "two", "three", "four")
         @test
@@ -236,8 +236,7 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message:
-          "Cannot apply @testDec decorator to Foo since it is not assignable to TypeSpec.Reflection.Union",
+        message: "Cannot apply @testDec decorator to Foo since it is not assignable to Union",
       });
     });
 
@@ -251,7 +250,7 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
@@ -266,11 +265,11 @@ describe("compiler: checker: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'TypeSpec.string'",
+          message: "Argument '123' is not assignable to parameter of type 'string'",
         },
         {
           code: "invalid-argument",
-          message: "Argument '456' is not assignable to parameter of type 'TypeSpec.string'",
+          message: "Argument '456' is not assignable to parameter of type 'string'",
         },
       ]);
     });

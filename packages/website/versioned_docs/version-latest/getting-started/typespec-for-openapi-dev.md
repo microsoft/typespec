@@ -18,7 +18,7 @@ to the section of this document for that feature.
 
 In OpenAPI [v2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types)/[v3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes), data types are specified using the `type` and `format` fields in a schema.
 
-The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://microsoft.github.io/typespec/docs/standard-library/built-in-types).
+The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://microsoft.github.io/typespec/docs/language-basics/built-in-types).
 
 The following table shows how common OpenAPI types map to TypeSpec types:
 
@@ -33,7 +33,8 @@ The following table shows how common OpenAPI types map to TypeSpec types:
 | `type: string, format: binary`    | `bytes`          | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
 | `type: boolean`                   | `boolean`        |                                                                           |
 | `type: string, format: date`      | `plainDate`      |                                                                           |
-| `type: string, format: date-time` | `zonedDateTime`  | RFC 3339 date                                                             |
+| `type: string, format: date-time` | `utcDateTime`    | RFC 3339 date in coordinated universal time (UTC)                         |
+| `type: string, format: date-time` | `offsetDateTime` | RFC 3339 date with offset                                                 |
 | `type: string, format: password`  | `@secret string` |                                                                           |
 
 OpenAPI supports a variety of "assertions" that can be used further restrict the values allowed for a data type.

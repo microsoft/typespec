@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
-import { Node, parse, SyntaxKind, TypeSpecScriptNode } from "../../core/index.js";
-import { getCompletionNodeAtPosition } from "../../server/serverlib.js";
-import { extractCursor } from "../../testing/test-server-host.js";
+import { Node, SyntaxKind, TypeSpecScriptNode, parse } from "../../src/core/index.js";
+import { getCompletionNodeAtPosition } from "../../src/server/serverlib.js";
+import { extractCursor } from "../../src/testing/test-server-host.js";
 import { dumpAST } from "../parser.test.js";
 
 describe("compiler: server: misc", () => {

@@ -1,13 +1,14 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { isArrayModelType, Operation } from "../../core/index.js";
-import { isTemplateDeclaration } from "../../core/type-utils.js";
-import { Model, ModelProperty, Type } from "../../core/types.js";
+import { isTemplateDeclaration } from "../../src/core/type-utils.js";
+import { Model, ModelProperty, Type } from "../../src/core/types.js";
+import { Operation, isArrayModelType } from "../../src/index.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
-} from "../../testing/index.js";
+  extractCursor,
+} from "../../src/testing/index.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;
@@ -103,10 +104,10 @@ describe("compiler: models", () => {
 
   describe("assign default values", () => {
     const testCases: [string, string, any][] = [
-      ["boolean", `false`, { kind: "Boolean", value: false }],
-      ["boolean", `true`, { kind: "Boolean", value: true }],
-      ["string", `"foo"`, { kind: "String", value: "foo" }],
-      ["int32", `123`, { kind: "Number", value: 123 }],
+      ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
+      ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
+      ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
+      ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
     ];
 
     for (const [type, defaultValue, expectedValue] of testCases) {
@@ -125,10 +126,10 @@ describe("compiler: models", () => {
 
   describe("doesn't allow a default of different type than the property type", () => {
     const testCases: [string, string, string][] = [
-      ["string", "123", "Type '123' is not assignable to type 'TypeSpec.string'"],
-      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'TypeSpec.int32'"],
-      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'TypeSpec.boolean'"],
-      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'TypeSpec.string'`],
+      ["string", "123", "Type '123' is not assignable to type 'string'"],
+      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'int32'"],
+      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'boolean'"],
+      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'string'`],
       [`"foo" | "bar"`, `"foo1"`, "Type 'foo1' is not assignable to type 'foo | bar'"],
     ];
 
@@ -147,6 +148,21 @@ describe("compiler: models", () => {
         });
       });
     }
+  });
+
+  it(`emit diagnostic when using non value type as default value`, async () => {
+    const { source, pos } = extractCursor(`
+    model Foo<D> {
+      prop?: string = ┆D;
+    }
+    `);
+    testHost.addTypeSpecFile("main.tsp", source);
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "unsupported-default",
+      message: "Default must be have a value type but has type 'TemplateParameter'.",
+      pos,
+    });
   });
 
   it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
@@ -254,6 +270,37 @@ describe("compiler: models", () => {
       await testHost.compile("main.tsp");
     });
 
+    it("alllow subtype overriding of union", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { x: 1 | 2 | 3 }
+        model B extends A { x: 2 };
+
+        model Car { kind: "Ford" | "Toyota" };
+        model Ford extends Car { kind: "Ford" };
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("alllow subtype overriding of Record", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Named {
+          name: string;
+        }
+
+        model A { x: Named }
+        model B extends A { x: {name: "B"} };
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("disallow subtype overriding parent property if subtype is not assignable to parent type", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
@@ -270,42 +317,12 @@ describe("compiler: models", () => {
         {
           code: "override-property-mismatch",
           message:
-            "Model has an inherited property named x of type TypeSpec.int32 which cannot override type TypeSpec.int16",
+            "Model has an inherited property named x of type int32 which cannot override type int16",
         },
         {
           code: "override-property-mismatch",
           message:
-            "Model has an inherited property named kind of type TypeSpec.int32 which cannot override type TypeSpec.string",
-        },
-      ]);
-    });
-
-    it("disallow subtype overriding parent property if parent property type is not intrinsic", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        model Named {
-          name: string;
-        }
-
-        model A { x: Named }
-        model B extends A { x: {name: "B"} };
-
-        model C { kind: "C" }
-        model D extends C { kind: "D"}
-        `
-      );
-      const diagnostics = await testHost.diagnose("main.tsp");
-      expectDiagnostics(diagnostics, [
-        {
-          code: "override-property-intrinsic",
-          message:
-            "Model has an inherited property named x of type (anonymous model) which can only override an intrinsic type on the parent property, not Named",
-        },
-        {
-          code: "override-property-intrinsic",
-          message:
-            "Model has an inherited property named kind of type D which can only override an intrinsic type on the parent property, not C",
+            "Model has an inherited property named kind of type int32 which cannot override type string",
         },
       ]);
     });
@@ -336,7 +353,7 @@ describe("compiler: models", () => {
         {
           code: "override-property-mismatch",
           message:
-            "Model has an inherited property named x of type TypeSpec.int32 which cannot override type TypeSpec.int16",
+            "Model has an inherited property named x of type int32 which cannot override type int16",
         },
       ]);
     });
@@ -441,7 +458,7 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateMapper?.args);
       strictEqual(Pet.derivedModels[1].templateMapper?.args[0].kind, "Scalar");
-      strictEqual((Pet.derivedModels[1].templateMapper?.args[0] as Model).name, "string");
+      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
       strictEqual(Pet.derivedModels[3], Dog);
@@ -544,6 +561,19 @@ describe("compiler: models", () => {
           reds.add(t);
         },
       });
+    });
+
+    it("keeps reference to source model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+        @test model A { }
+        @test  model B is A { };
+        `
+      );
+      const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
+      strictEqual(B.sourceModel, A);
     });
 
     it("copies decorators", async () => {

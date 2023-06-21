@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
-import { filterModelProperties, getEffectiveModelType } from "../../core/checker.js";
-import { DecoratorContext, Model, ModelProperty, Type } from "../../core/types.js";
-import { createTestHost, expectIdenticalTypes, TestHost } from "../../testing/index.js";
+import { filterModelProperties, getEffectiveModelType } from "../../src/core/checker.js";
+import { DecoratorContext, Model, ModelProperty, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost, expectIdenticalTypes } from "../../src/testing/index.js";
 
 describe("compiler: effective type", () => {
   let testHost: TestHost;

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Referencing decorator target in argument cause stack overflow for enum and union in checker and interface and operations in projection.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

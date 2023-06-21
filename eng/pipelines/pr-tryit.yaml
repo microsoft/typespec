@@ -1,14 +1,16 @@
 trigger: none
 pr:
   - main
+  - release/*
 
 jobs:
   - job: publish_playground
     displayName: Publish playground
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
     variables:
-      CADL_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
+      TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
     steps:
       - checkout: self
         persistCredentials: true
@@ -18,10 +20,10 @@ jobs:
           versionSpec: 16.x
         displayName: Install Node.js
 
-      - script: npx @microsoft/rush install
+      - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
-      - script: npx @microsoft/rush rebuild --verbose
+      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
         displayName: Build
 
       - task: AzureCLI@1
@@ -33,8 +35,8 @@ jobs:
             az storage blob upload-batch \
               --destination \$web \
               --account-name "cadlplayground" \
-              --destination-path $(CADL_WEBSITE_BASE_PATH) \
-              --source "./packages/playground/dist/" \
+              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+              --source "./packages/playground-website/dist/" \
               --overwrite
 
       - task: AzureCLI@1
@@ -46,7 +48,7 @@ jobs:
             az storage blob upload-batch \
               --destination \$web \
               --account-name "cadlwebsite" \
-              --destination-path $(CADL_WEBSITE_BASE_PATH) \
+              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/website/build/" \
               --overwrite
 

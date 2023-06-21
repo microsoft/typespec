@@ -1,8 +1,16 @@
-import { compile, joinPaths, NodeHost, NodePackage } from "@typespec/compiler";
+import {
+  compile,
+  createDiagnosticCollector,
+  Diagnostic,
+  joinPaths,
+  NodeHost,
+  NodePackage,
+} from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
-import { extractRefDocs } from "./extractor.js";
+import { extractLibraryRefDocs, extractRefDocs } from "./extractor.js";
+import { TypeSpecRefDocBase } from "./types.js";
 
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
@@ -10,8 +18,28 @@ import { extractRefDocs } from "./extractor.js";
 export async function generateLibraryDocs(
   libraryPath: string,
   namespaces: string[],
-  outputDir: string
-) {
+  outputDir: string,
+  skipJSApi: boolean = false
+): Promise<readonly Diagnostic[]> {
+  const diagnostics = createDiagnosticCollector();
+  const pkgJson = await readPackageJson(libraryPath);
+  const refDoc = diagnostics.pipe(await extractLibraryRefDocs(libraryPath, namespaces));
+  const files = renderToDocusaurusMarkdown(refDoc);
+  await mkdir(outputDir, { recursive: true });
+  for (const [name, content] of Object.entries(files)) {
+    await writeFile(joinPaths(outputDir, name), content);
+  }
+  if (pkgJson.main && !skipJSApi) {
+    await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+  }
+  return diagnostics.diagnostics;
+}
+
+export async function resolveLibraryRefDocsBase(
+  libraryPath: string,
+  namespaces: string[]
+): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]] | undefined> {
+  const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   if (pkgJson.tspMain) {
     const main = joinPaths(libraryPath, pkgJson.tspMain);
@@ -19,15 +47,12 @@ export async function generateLibraryDocs(
       parseOptions: { comments: true, docs: true },
     });
     const refDoc = extractRefDocs(program, namespaces);
-    const files = renderToDocusaurusMarkdown(refDoc);
-    await mkdir(outputDir, { recursive: true });
-    for (const [name, content] of Object.entries(files)) {
-      await writeFile(joinPaths(outputDir, name), content);
+    for (const diag of program.diagnostics ?? []) {
+      diagnostics.add(diag);
     }
+    return diagnostics.wrap(refDoc);
   }
-  if (pkgJson.main) {
-    await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
-  }
+  return undefined;
 }
 
 async function readPackageJson(libraryPath: string): Promise<NodePackage> {

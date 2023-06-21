@@ -16,7 +16,7 @@ import {
   Type,
   Union,
   UnionVariant,
-} from "../../core/index.js";
+} from "../../src/index.js";
 
 import {
   code,
@@ -28,13 +28,14 @@ import {
   SourceFile,
   SourceFileScope,
   StringBuilder,
-} from "../../emitter-framework/index.js";
+} from "../../src/emitter-framework/index.js";
 
 export function isArrayType(m: Model) {
   return m.name === "Array";
 }
 
 export const intrinsicNameToTSType = new Map<string, string>([
+  ["unknown", "unknown"],
   ["string", "string"],
   ["int32", "number"],
   ["int16", "number"],
@@ -109,6 +110,10 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
   }
 
   modelInstantiation(model: Model, name: string): EmitterOutput<string> {
+    if (this.emitter.getProgram().checker.isStdType(model, "Record")) {
+      const indexerValue = model.indexer!.value;
+      return code`Record<string, ${this.emitter.emitTypeReference(indexerValue)}>`;
+    }
     return this.modelDeclaration(model, name);
   }
 

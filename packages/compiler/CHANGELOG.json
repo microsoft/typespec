@@ -2,6 +2,270 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.45.2",
+      "tag": "@typespec/compiler_v0.45.2",
+      "date": "Thu, 15 Jun 2023 17:00:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.45.1",
+      "tag": "@typespec/compiler_v0.45.1",
+      "date": "Wed, 14 Jun 2023 17:05:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Formatter moves all comments in flattened namespace to the top"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.45.0",
+      "tag": "@typespec/compiler_v0.45.0",
+      "date": "Tue, 06 Jun 2023 22:44:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: `tspconfig.yaml` should always get resolved relative to the entrypoint"
+          },
+          {
+            "comment": "Add decimal and decimal128 built-in scalar types."
+          },
+          {
+            "comment": "**Feature** Doc comment will be applied as the doc for types unless an explicit @doc is provided."
+          },
+          {
+            "comment": "Added new keyword `valueof` designed to request for a value type in a decorator parameter."
+          },
+          {
+            "comment": "**BREAKING** Decorator API will not be marshalling values unless the parameter type is using `valueof`. `extern dec foo(target, value: string)` should be changed to `extern dec foo(target, value: valueof string)`."
+          },
+          {
+            "comment": "**DEPRECATION** To make transition to valueof smoother if using a template parameter inside a decorator that is now using valueof the existing parmater constraint will still be compatible but emit a warning."
+          },
+          {
+            "comment": "**BREAKING CHANGE** Fix: Array shouldn't be assignable to an empty model(and `object`)"
+          },
+          {
+            "comment": "**DEPRECATION** `object` is deprecated. Alternative is to use `{}` for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array."
+          },
+          {
+            "comment": "Mark `Array` and `Record` doc comment as for dev only"
+          },
+          {
+            "comment": "Fix: formatting of comment between decorator and `op` statement"
+          },
+          {
+            "comment": "Fix: Operation can self reference or circular reference other operation via decorators"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Remove `@format(\"url\") from url scalar`"
+          },
+          {
+            "comment": "Fix `unixTimestamp` validation was incorrect"
+          },
+          {
+            "comment": "**Fix** diagnostic validating type is intrinsic always showing `string` as expected"
+          },
+          {
+            "comment": "Fix error message for @encode errors."
+          },
+          {
+            "comment": "Improve error handling when tsp init template is invalid or fails to download."
+          },
+          {
+            "comment": "Emitter framework: uppercase type argument type names when constructing a declaration name from a template instantiation."
+          },
+          {
+            "comment": "Add signature for missing decorators"
+          },
+          {
+            "comment": "Remove dependency on `node-fetch`"
+          },
+          {
+            "comment": "Remove misleading output dir from compilation success message"
+          },
+          {
+            "comment": "Fix relative path resolution when init template is behind HTTP redirect"
+          },
+          {
+            "comment": "Emitter option validation will only validate emitters selected with `emit`/`--emit`. Options for other emitter will be ignored. This allows defining options for an emitter that is not installed."
+          },
+          {
+            "comment": "Fix signature help with trailing space in unterminated arg list"
+          },
+          {
+            "comment": "Add template argument signature help"
+          },
+          {
+            "comment": "Show alias doc comments in IDE"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.1` to `~0.4.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.44.0",
+      "tag": "@typespec/compiler_v0.44.0",
+      "date": "Wed, 10 May 2023 21:24:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Allow use of defaults on non-optional properties."
+          },
+          {
+            "comment": "Cleanup deprecated use"
+          },
+          {
+            "comment": "**Added** `@encode` decorator used to specify encoding of types"
+          },
+          {
+            "comment": "Add `projectRoot` to program"
+          },
+          {
+            "comment": "Api: Added `sourceModel` and `sourceOperation` on `Model` and `Operation` respectively."
+          },
+          {
+            "comment": "Add relative file path utils, and allow emitter framework's ObjectBuilder to be initialized with a placeholder object."
+          },
+          {
+            "comment": "Better error recovery when error thrown from emitter is not an object"
+          },
+          {
+            "comment": "Fix compiler mismatch error recommendation"
+          },
+          {
+            "comment": "Fix: Interface with templated operation causing crash if defined after use"
+          },
+          {
+            "comment": "Fix: Issue with templated operations in templated interface would get cached only by keying on the operation template args."
+          },
+          {
+            "comment": "Fix: `missing-index` diagnostic showing at the wrong location"
+          },
+          {
+            "comment": "Fix `--emit` pointing to emitter js entrypoint resolve correct options"
+          },
+          {
+            "comment": "Fix: `scalar` template parameter name conflict with each other"
+          },
+          {
+            "comment": "Added a new `isFinished` property to types to differentiate template instance that are not finalized (Still have template arguments to be resolved)"
+          },
+          {
+            "comment": "**Breaking** `isTemplateDeclaration` will only return true for the original declaration and not partially instantiated templates."
+          },
+          {
+            "comment": "**Fix** `unsupported-default` diagnostic showing at the wrong location"
+          },
+          {
+            "comment": "Fix `url` doc to not mention \"URI\""
+          },
+          {
+            "comment": "Minor reorganization of standard library docs"
+          },
+          {
+            "comment": "Language server: Allow main file to be outside workspace."
+          },
+          {
+            "comment": "Added `Model` and `Scalar` to Reflection namespace"
+          },
+          {
+            "comment": "Fix `@format` decorator doc."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Normalizing cwd before first use in getCompilerOptions()"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/eslint-config-typespec\" from `~0.6.0` to `~0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/internal-build-utils\" from `~0.4.0` to `~0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.43.0",
+      "tag": "@typespec/compiler_v0.43.0",
+      "date": "Tue, 11 Apr 2023 18:49:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bug: Emitter framework will now visit scalar declarations"
+          },
+          {
+            "comment": "Emit diagnostic when ambiguous symbol exists between global and usings."
+          },
+          {
+            "comment": "Feature: Add support for referencing metatypes ModelProperty `::type` and Operation `::returnType` and `::parameters`"
+          },
+          {
+            "comment": "Relax constraint on derived type overrides"
+          },
+          {
+            "comment": "Fix: Alias unknown ref crash"
+          },
+          {
+            "comment": "Fix: Empty model expression assignable to array"
+          },
+          {
+            "comment": "Fix `tsp code uninstall` not finding extension to uninstall."
+          },
+          {
+            "comment": "Fix Issue where template parameter type check wouldn't work if constraint is exact same type as next validation."
+          },
+          {
+            "comment": "Prevent use of augment decorators on instantiated templates."
+          },
+          {
+            "comment": "Allow projectedNames helpers to work with previous projections"
+          },
+          {
+            "comment": "Add helper `interpolatePath` for emitter to do additional interpolation on config properties"
+          },
+          {
+            "comment": "Api: Update `getTypeName` to omit standard library namespace"
+          },
+          {
+            "comment": "Allow overloads in interfaces to work under projection"
+          },
+          {
+            "comment": "Add pre-projection support."
+          },
+          {
+            "comment": "Provide access to extended interfaces in type graph."
+          },
+          {
+            "comment": "Document member ordering and fix projection rename reordering."
+          },
+          {
+            "comment": "Replaced zonedDateTime with utcDateTime and offsetDateTime"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.42.0",
       "tag": "@typespec/compiler_v0.42.0",
       "date": "Mon, 13 Mar 2023 21:30:44 GMT",

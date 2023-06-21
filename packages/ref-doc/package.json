@@ -4,14 +4,14 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating typespec docs",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/Microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/typespec.git"
+    "url": "git+https://github.com/microsoft/typespec.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/typespec/issues"
+    "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
     "typespec"
@@ -19,12 +19,16 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": "./dist/src/index.js",
+    "./emitters/docusaurus": "./dist/src/emitters/docusaurus.js"
   },
   "typesVersions": {
     "*": {
       "*": [
         "./dist/src/index.d.ts"
+      ],
+      "emitters/docusaurus": [
+        "./dist/src/emitters/docusaurus.d.ts"
       ]
     }
   },
@@ -47,23 +51,23 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "~0.42.0",
-    "prettier": "~2.8.1"
+    "@typespec/compiler": "workspace:~0.45.2",
+    "prettier": "~2.8.7"
   },
   "devDependencies": {
-    "@typespec/compiler": "~0.42.0",
-    "@typespec/eslint-config-typespec": "~0.6.0",
-    "@types/mocha": "~10.0.0",
+    "@typespec/compiler": "workspace:~0.45.2",
+    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
+    "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
-    "c8": "~7.12.0",
-    "eslint": "^8.12.0",
+    "c8": "~8.0.0",
+    "eslint": "^8.42.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
-    "mocha": "~10.1.0",
-    "rimraf": "~3.0.2",
-    "typedoc-plugin-markdown": "~3.14.0",
-    "typedoc": "~0.23.23",
-    "typescript": "~4.9.3"
+    "mocha": "~10.2.0",
+    "rimraf": "~5.0.1",
+    "typedoc-plugin-markdown": "~3.15.1",
+    "typedoc": "~0.24.8",
+    "typescript": "~5.1.3"
   }
 }

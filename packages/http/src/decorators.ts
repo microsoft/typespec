@@ -1,24 +1,27 @@
 import {
-  createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
-  getDoc,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
-  setTypeSpecNamespace,
+  StringLiteral,
   Tuple,
   Type,
-  typespecTypeToJson,
   Union,
+  createDiagnosticCollector,
+  getDoc,
+  isArrayModelType,
+  reportDeprecated,
+  setTypeSpecNamespace,
+  typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
-import { setRoute } from "./route.js";
+import { setRoute, setSharedRoute } from "./route.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
@@ -36,15 +39,15 @@ const headerFieldsKey = createStateSymbol("header");
 export function $header(
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: string | Model
+  headerNameOrOptions?: StringLiteral | Model
 ) {
   const options: HeaderFieldOptions = {
     type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
   };
   if (headerNameOrOptions) {
-    if (typeof headerNameOrOptions === "string") {
-      options.name = headerNameOrOptions;
+    if (headerNameOrOptions.kind === "String") {
+      options.name = headerNameOrOptions.value;
     } else {
       const name = headerNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {
@@ -60,10 +63,13 @@ export function $header(
   }
   if (
     entity.type.kind === "Model" &&
-    entity.type.name === "Array" &&
+    isArrayModelType(context.program, entity.type) &&
     options.format === undefined
   ) {
-    options.format = "csv";
+    reportDiagnostic(context.program, {
+      code: "header-format-required",
+      target: context.decoratorTarget,
+    });
   }
   context.program.stateMap(headerFieldsKey).set(entity, options);
 }
@@ -84,15 +90,15 @@ const queryFieldsKey = createStateSymbol("query");
 export function $query(
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: string | Model
+  queryNameOrOptions?: StringLiteral | Model
 ) {
   const options: QueryParameterOptions = {
     type: "query",
     name: entity.name,
   };
   if (queryNameOrOptions) {
-    if (typeof queryNameOrOptions === "string") {
-      options.name = queryNameOrOptions;
+    if (queryNameOrOptions.kind === "String") {
+      options.name = queryNameOrOptions.value;
     } else {
       const name = queryNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {
@@ -100,18 +106,19 @@ export function $query(
       }
       const format = queryNameOrOptions.properties.get("format")?.type;
       if (format?.kind === "String") {
-        if (format.value === "multi" || format.value === "csv") {
-          options.format = format.value;
-        }
+        options.format = format.value as any; // That value should have already been validated by the TypeSpec dec
       }
     }
   }
   if (
     entity.type.kind === "Model" &&
-    entity.type.name === "Array" &&
+    isArrayModelType(context.program, entity.type) &&
     options.format === undefined
   ) {
-    options.format = "multi";
+    reportDiagnostic(context.program, {
+      code: "query-format-required",
+      target: context.decoratorTarget,
+    });
   }
   context.program.stateMap(queryFieldsKey).set(entity, options);
 }
@@ -172,7 +179,8 @@ export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
       codes.push(String(entity.type.value));
     }
   } else if (entity.type.kind === "Union") {
-    for (const option of entity.type.options) {
+    for (const variant of entity.type.variants.values()) {
+      const option = variant.type;
       if (option.kind === "String") {
         if (validStatusCode(context.program, option.value, option)) {
           codes.push(option.value);
@@ -375,10 +383,7 @@ export function getServers(program: Program, type: Namespace): HttpServer[] | un
   return program.stateMap(serversKey).get(type);
 }
 
-export function $plainData(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@plainData", "Model")) {
-    return;
-  }
+export function $plainData(context: DecoratorContext, entity: Model) {
   const { program } = context;
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
@@ -455,7 +460,8 @@ function extractHttpAuthenticationOptions(
 ): [ServiceAuthentication, readonly Diagnostic[]] {
   const options: AuthenticationOption[] = [];
   const diagnostics = createDiagnosticCollector();
-  for (const value of tuple.options) {
+  for (const variant of tuple.variants.values()) {
+    const value = variant.type;
     switch (value.kind) {
       case "Model":
         const result = diagnostics.pipe(
@@ -554,23 +560,6 @@ export function getAuthentication(
   return program.stateMap(authenticationKey).get(namespace);
 }
 
-function extractSharedValue(context: DecoratorContext, parameters?: Model): boolean {
-  const sharedType = parameters?.properties.get("shared")?.type;
-  if (sharedType === undefined) {
-    return false;
-  }
-  switch (sharedType.kind) {
-    case "Boolean":
-      return sharedType.value;
-    default:
-      reportDiagnostic(context.program, {
-        code: "shared-boolean",
-        target: sharedType,
-      });
-      return false;
-  }
-}
-
 /**
  * `@route` defines the relative route URI for the target operation
  *
@@ -583,10 +572,38 @@ function extractSharedValue(context: DecoratorContext, parameters?: Model): bool
 export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
+  // Handle the deprecated `shared` option
+  let shared = false;
+  const sharedValue = parameters?.properties.get("shared")?.type;
+  if (sharedValue !== undefined) {
+    reportDeprecated(
+      context.program,
+      "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
+      entity
+    );
+
+    // The type checker should have raised a diagnostic if the value isn't boolean
+    if (sharedValue.kind === "Boolean") {
+      shared = sharedValue.value;
+    }
+  }
+
   setRoute(context, entity, {
     path,
-    shared: extractSharedValue(context, parameters),
+    shared,
   });
+}
+
+/**
+ * `@sharedRoute` marks the operation as sharing a route path with other operations.
+ *
+ * When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+ * route path as long as those operations are also marked with `@sharedRoute`.
+ *
+ * `@sharedRoute` can only be applied directly to operations.
+ */
+export function $sharedRoute(context: DecoratorContext, entity: Operation) {
+  setSharedRoute(context.program, entity);
 }
 
 const includeInapplicableMetadataInPayloadKey = createStateSymbol(

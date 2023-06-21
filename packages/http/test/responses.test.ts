@@ -23,28 +23,6 @@ describe("http: responses", () => {
     expectDiagnostics(diagnostics, [{ code: "@typespec/http/duplicate-body" }]);
   });
 
-  it("issues diagnostics for return type with duplicate status code", async () => {
-    const [_, diagnostics] = await compileOperations(
-      `
-    model Foo {
-      foo: string;
-    }
-    model Error {
-      code: string;
-    }
-    @route("/")
-    namespace root {
-      @get
-      op read(): Foo | Error;
-    }
-    `
-    );
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/http/duplicate-response",
-      message: "Multiple return types for content type application/json and status code 200",
-    });
-  });
-
   it("issues diagnostics for invalid content types", async () => {
     const [_, diagnostics] = await compileOperations(
       `

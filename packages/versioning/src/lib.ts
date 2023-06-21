@@ -39,6 +39,12 @@ const libDef = {
         default: paramMessage`The provided version '${"version"}' from '${"enumName"}' is not declared as a version enum. Use '@versioned(${"enumName"})' on the containing namespace.`,
       },
     },
+    "version-duplicate": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple versions from '${"name"}' resolve to the same value. Version enums must resolve to unique values.`,
+      },
+    },
     "using-versioned-library": {
       severity: "error",
       messages: {
@@ -49,6 +55,12 @@ const libDef = {
       severity: "error",
       messages: {
         default: "@renamedFrom.oldName cannot be empty string.",
+      },
+    },
+    "no-service-fixed-version": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Namespace '${"name"}' cannot specify a fixed service version with @service({version: ${"version"}}) while using @versioned. Remove the version argument from @service.`,
       },
     },
     "incompatible-versioned-reference": {

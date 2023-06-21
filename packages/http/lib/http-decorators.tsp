@@ -10,6 +10,7 @@ model HeaderOptions {
    * Name of the header when sent over http.
    */
   name?: string;
+
   /**
    * Determines the format of the array if type array is used.
    */
@@ -38,10 +39,11 @@ model QueryOptions {
    * Name of the query when included in the url.
    */
   name?: string;
+
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "multi" | "csv";
+  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes";
 }
 
 /**
@@ -70,7 +72,7 @@ extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptio
  * op read(@path explicit: string, implicit: string): void;
  * ```
  */
-extern dec path(target: ModelProperty, paramName?: string);
+extern dec path(target: ModelProperty, paramName?: valueof string);
 
 /**
  * Explicitly specify that this property is to be set as the body
@@ -164,7 +166,7 @@ extern dec head(target: Operation);
 /**
  * Specify the endpoint for this service.
  *  @param url Server endpoint
- *  @param url Description of the endpoint
+ *  @param description Description of the endpoint
  *  @param parameters Optional set of parameters used to interpolate the url.
  *
  * @example
@@ -184,7 +186,12 @@ extern dec head(target: Operation);
  * ```
  *
  */
-extern dec server(target: Namespace, url: string, description: string, parameters?: object);
+extern dec server(
+  target: Namespace,
+  url: valueof string,
+  description: valueof string,
+  parameters?: Record<unknown>
+);
 
 /**
  * Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
@@ -198,9 +205,60 @@ extern dec server(target: Namespace, url: string, description: string, parameter
  * namespace PetStore;
  * ```
  */
-extern dec useAuth(target: Namespace, auth: object | Union | object[]);
+extern dec useAuth(target: Namespace, auth: {} | Union | {}[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
+ * @param value If true, inapplicable metadata will be included in the payload.
  */
-extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);
+extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean);
+
+/**
+ * Defines the relative route URI for the target operation
+ *
+ * The first argument should be a URI fragment that may contain one or more path parameter fields.
+ * If the namespace or interface that contains the operation is also marked with a `@route` decorator,
+ * it will be used as a prefix to the route URI of the operation.
+ *
+ * `@route` can only be applied to operations, namespaces, and interfaces.
+ *
+ * @param path Relative route path. Cannot include query parameters.
+ * @param options Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ *
+ * @example
+ *
+ * ```typespec
+ * @route("/widgets")
+ * op getWidget(@path id: string): Widget;
+ * ```
+ */
+extern dec route(
+  target: Namespace | Interface | Operation,
+  path: valueof string,
+  options?: {
+    shared?: boolean,
+  }
+);
+
+/**
+ * `@sharedRoute` marks the operation as sharing a route path with other operations.
+ *
+ * When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+ * route path as long as those operations are also marked with `@sharedRoute`.
+ *
+ * `@sharedRoute` can only be applied directly to operations.
+ *
+ * ```typespec
+ * @sharedRoute
+ * @route("/widgets")
+ * op getWidget(@path id: string): Widget;
+ * ```
+ */
+extern dec sharedRoute(target: Operation);
+
+/**
+ * Private decorators. Those are meant for internal use inside Http types only.
+ */
+namespace Private {
+  extern dec plainData(target: TypeSpec.Reflection.Model);
+}

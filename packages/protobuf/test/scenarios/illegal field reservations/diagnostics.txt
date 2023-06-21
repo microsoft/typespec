@@ -1,0 +1,2 @@
+<in core> - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
+<in core> - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range

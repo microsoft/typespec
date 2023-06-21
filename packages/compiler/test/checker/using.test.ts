@@ -1,11 +1,11 @@
 import { rejects, strictEqual } from "assert";
-import { Model } from "../../core/types.js";
+import { Model } from "../../src/core/types.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: using statements", () => {
   let testHost: TestHost;
@@ -241,6 +241,43 @@ describe("compiler: using statements", () => {
     ]);
   });
 
+  it("report ambiguous diagnostics when symbol exists in using namespace and global namespace", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      `
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
+      `
+      model M {}
+
+      using B;
+      
+      model Q extends M {}
+      `
+    );
+    testHost.addTypeSpecFile(
+      "b.tsp",
+      `
+      namespace B {
+        model M { }
+      }
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "ambiguous-symbol",
+        message:
+          '"M" is an ambiguous name between global.M, B.M. Try using fully qualified name instead: global.M, B.M',
+      },
+    ]);
+  });
+
   it("reports ambiguous symbol for decorator", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -367,8 +404,10 @@ describe("compiler: using statements", () => {
       "b.tsp",
       `
       using N;
-      model A { a: int32 | string }
-      @test model B { ... A }
+      namespace B {
+        model A { a: int32 | string }
+        @test model B { ... A }
+      }
       `
     );
 

@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
-import { Interface, Namespace, Operation } from "../../core/types.js";
-import { getAllTags } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { Interface, Namespace, Operation } from "../../src/core/types.js";
+import { getAllTags } from "../../src/lib/decorators.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: tag decorator", () => {
   let testHost: TestHost;

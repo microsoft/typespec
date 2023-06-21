@@ -66,7 +66,7 @@
       "type": "node",
       "request": "launch",
       "name": "Compile Scratch",
-      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": [
         "compile",
         "../samples/scratch",
@@ -89,7 +89,7 @@
       "type": "node",
       "request": "launch",
       "name": "Compile Scratch (nostdlib)",
-      "program": "${workspaceFolder}/packages/compiler/dist/core/cli/cli.js",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": ["compile", "../samples/scratch", "--output-dir=temp/scratch-output", "--nostdlib"],
       "smartStep": true,
       "sourceMaps": true,
@@ -145,6 +145,15 @@
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
       "cwd": "C:/Github/Sandbox/playground/cadl/migrate/0.37"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Docs Generation",
+      "program": "${workspaceFolder}/packages/website/.scripts/regen-ref-docs.mjs",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"]
     }
   ],
   "compounds": [

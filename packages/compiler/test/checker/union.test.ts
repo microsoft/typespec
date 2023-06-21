@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { Model, Union, UnionVariant } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { Model, Union, UnionVariant } from "../../src/core/types.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: union declarations", () => {
   let testHost: TestHost;
@@ -71,7 +71,7 @@ describe("compiler: union declarations", () => {
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
     const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.options.length, 4);
+    strictEqual(type.variants.size, 4);
     for (const key of type.variants.keys()) {
       strictEqual(typeof key, "symbol");
     }
@@ -89,7 +89,7 @@ describe("compiler: union declarations", () => {
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
     const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.options.length, 3);
+    strictEqual(type.variants.size, 3);
     for (const key of type.variants.keys()) {
       strictEqual(typeof key, "symbol");
     }
@@ -105,6 +105,6 @@ describe("compiler: union declarations", () => {
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
     const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.options.length, 1);
+    strictEqual(type.variants.size, 1);
   });
 });

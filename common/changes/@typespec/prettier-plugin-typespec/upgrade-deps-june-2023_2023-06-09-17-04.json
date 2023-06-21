@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/prettier-plugin-typespec",
+      "comment": "Update dependencies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/prettier-plugin-typespec"
+}

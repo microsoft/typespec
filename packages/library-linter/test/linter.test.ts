@@ -1,3 +1,4 @@
+import { setTypeSpecNamespace } from "@typespec/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
@@ -67,12 +68,29 @@ describe("library-linter", () => {
       });
       const diagnostics = await runner.diagnose(`
         import "./mylib.js";
+        extern dec myDec(target: unknown);
         namespace Foo { model Bar {}}
       `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/library-linter/missing-namespace",
         message:
           "Decorator '@myDec' is not in a namespace. This is bad practice for a published library.",
+        severity: "warning",
+      });
+    });
+  });
+
+  describe("missing extern dec", () => {
+    it("emit diagnostics when decorator is missing extern dec", async () => {
+      const decorators = {
+        $foo: (...args: unknown[]) => null,
+      };
+      setTypeSpecNamespace("Testing", decorators.$foo);
+      host.addJsFile("dec.js", decorators);
+      const diagnostics = await runner.diagnose(`import "./dec.js";`);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/library-linter/missing-signature",
+        message: `Decorator function $foo is missing a decorator declaration. Add "extern dec foo(...args);" to the library tsp.`,
         severity: "warning",
       });
     });

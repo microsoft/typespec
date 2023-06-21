@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { getService, listServices, Namespace } from "../../core/index.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../testing/index.js";
+import { getService, listServices, Namespace } from "../../src/index.js";
+import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: service", () => {
   let runner: BasicTestRunner;
@@ -64,7 +64,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message:
-        "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.ServiceOptions'",
+        "Argument '(anonymous model)' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 
@@ -84,8 +84,7 @@ describe("compiler: service", () => {
 
     expectDiagnostics(diagnostics, {
       code: "decorator-wrong-target",
-      message:
-        "Cannot apply @service decorator to S since it is not assignable to TypeSpec.Reflection.Namespace",
+      message: "Cannot apply @service decorator to S since it is not assignable to Namespace",
     });
   });
 
@@ -97,7 +96,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message:
-        "Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.ServiceOptions'",
+        "Argument '(anonymous model)' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 });

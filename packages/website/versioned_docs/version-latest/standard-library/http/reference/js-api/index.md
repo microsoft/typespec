@@ -75,6 +75,7 @@ JS Api
 - [$query](index.md#$query)
 - [$route](index.md#$route)
 - [$server](index.md#$server)
+- [$sharedRoute](index.md#$sharedroute)
 - [$statusCode](index.md#$statuscode)
 - [$useAuth](index.md#$useauth)
 - [DefaultRouteProducer](index.md#defaultrouteproducer)
@@ -124,6 +125,7 @@ JS Api
 - [setRoute](index.md#setroute)
 - [setRouteOptionsForNamespace](index.md#setrouteoptionsfornamespace)
 - [setRouteProducer](index.md#setrouteproducer)
+- [setSharedRoute](index.md#setsharedroute)
 - [setStatusCode](index.md#setstatuscode)
 - [validateRouteUnique](index.md#validaterouteunique)
 
@@ -310,7 +312,7 @@ ___
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
-| `headerNameOrOptions?` | `string` \| `Model` |
+| `headerNameOrOptions?` | `Model` \| `StringLiteral` |
 
 #### Returns
 
@@ -404,7 +406,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
+| `entity` | `Model` |
 
 #### Returns
 
@@ -456,7 +458,7 @@ ___
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
-| `queryNameOrOptions?` | `string` \| `Model` |
+| `queryNameOrOptions?` | `Model` \| `StringLiteral` |
 
 #### Returns
 
@@ -510,6 +512,30 @@ Parameters to interpolate in the server url.
 | `url` | `string` | - |
 | `description` | `string` | Description for this server. |
 | `parameters?` | `Model` |  |
+
+#### Returns
+
+`void`
+
+___
+
+### $sharedRoute
+
+▸ **$sharedRoute**(`context`, `entity`): `void`
+
+`@sharedRoute` marks the operation as sharing a route path with other operations.
+
+When an operation is marked with `@sharedRoute`, it enables other operations to share the same
+route path as long as those operations are also marked with `@sharedRoute`.
+
+`@sharedRoute` can only be applied directly to operations.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `context` | `DecoratorContext` |
+| `entity` | `Operation` |
 
 #### Returns
 
@@ -675,15 +701,11 @@ ___
 
 Resolve the content types from a model property by looking at the value.
 
-**`Property`**
-
-Model property
-
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `property` | `ModelProperty` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `property` | `ModelProperty` | Model property |
 
 #### Returns
 
@@ -1441,6 +1463,23 @@ ___
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `routeProducer` | [`RouteProducer`](index.md#routeproducer) |
+
+#### Returns
+
+`void`
+
+___
+
+### setSharedRoute
+
+▸ **setSharedRoute**(`program`, `operation`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `operation` | `Operation` |
 
 #### Returns
 

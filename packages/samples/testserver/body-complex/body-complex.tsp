@@ -20,6 +20,7 @@ model Basic {
 
   @doc("Name property with a very long description that does not fit on a single line and a line break.")
   name: string;
+
   color: CMYKColors;
 }
 
@@ -72,8 +73,8 @@ model PlainDateWrapper {
 }
 
 model DateTimeWrapper {
-  field: zonedDateTime;
-  now: zonedDateTime;
+  field: utcDateTime;
+  now: utcDateTime;
 }
 
 model DurationWrapper {

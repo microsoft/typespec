@@ -1,33 +1,39 @@
-import { visualizer } from "rollup-plugin-visualizer";
-import { definePlaygroundViteConfig } from "./src/build-utils/index.js";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
-const config = definePlaygroundViteConfig({
-  defaultEmitter: "@typespec/openapi3",
-  libraries: [
-    "@typespec/compiler",
-    "@typespec/http",
-    "@typespec/rest",
-    "@typespec/openapi",
-    "@typespec/versioning",
-    "@typespec/openapi3",
-  ],
-  samples: {
-    "API versioning": "samples/versioning.tsp",
-    "Discriminated unions": "samples/unions.tsp",
-    "HTTP service": "samples/http.tsp",
-    "REST framework": "samples/rest.tsp",
+const config = defineConfig({
+  base: "./",
+  build: {
+    target: "esnext",
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          monaco: ["monaco-editor"],
+        },
+      },
+    },
   },
-  enableSwaggerUI: true,
-  links: {
-    newIssue: `https://github.com/microsoft/typespec/issues/new`,
-    documentation: "https://microsoft.github.io/typespec",
+  esbuild: {
+    logOverride: { "this-is-undefined-in-esm": "silent" },
+  },
+  assetsInclude: [/\.tsp$/],
+  optimizeDeps: {
+    exclude: ["swagger-ui"],
+  },
+  plugins: [
+    (react as any)({
+      jsxImportSource: "@emotion/react",
+      babel: {
+        plugins: ["@emotion/babel-plugin"],
+      },
+    }),
+  ],
+  server: {
+    fs: {
+      strict: false,
+    },
   },
 });
-
-config.plugins!.push(
-  visualizer({
-    filename: "temp/stats.html",
-  }) as any
-);
 
 export default config;

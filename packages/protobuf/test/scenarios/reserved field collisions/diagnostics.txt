@@ -1,0 +1,5 @@
+/test/main.tsp:15:13 - error @typespec/protobuf/field-name: field name 'foo' was reserved by a call to @reserve on this model
+/test/main.tsp:16:10 - error @typespec/protobuf/field-index: field index 2 was reserved by a call to @reserve on this model
+/test/main.tsp:17:10 - error @typespec/protobuf/field-index: field index 9 falls within a range reserved by a call to @reserve on this model
+/test/main.tsp:18:10 - error @typespec/protobuf/field-index: field index 11 falls within a range reserved by a call to @reserve on this model
+/test/main.tsp:18:14 - error @typespec/protobuf/field-name: field name 'bar' was reserved by a call to @reserve on this model

@@ -1,19 +1,19 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import {
   DecoratorContext,
-  typespecTypeToJson,
   TypeSpecValue,
+  typespecTypeToJson,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
-} from "../core/index.js";
-import { Type } from "../core/types.js";
+} from "../src/core/index.js";
+import { Type } from "../src/core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "../testing/index.js";
+} from "../src/testing/index.js";
 
 describe("compiler: decorator utils", () => {
   describe("typespecTypeToJson", () => {
@@ -143,37 +143,37 @@ describe("compiler: decorator utils", () => {
       const host = await createTestHost();
       runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
 
-      function $tag(context: DecoratorContext, target: Type) {
-        validateDecoratorUniqueOnNode(context, target, $tag);
+      function $bar(context: DecoratorContext, target: Type) {
+        validateDecoratorUniqueOnNode(context, target, $bar);
       }
       // add test decorators
       host.addJsFile("lib.js", {
-        $tag,
+        $bar,
       });
     });
 
     it("emit diagnostics if using the same decorator on the same node", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
-        @tag
+        @bar
+        @bar
         model Foo {}
       `);
 
       expectDiagnostics(diagnostics, [
         {
           code: "duplicate-decorator",
-          message: "Decorator @tag cannot be used twice on the same declaration.",
+          message: "Decorator @bar cannot be used twice on the same declaration.",
         },
         {
           code: "duplicate-decorator",
-          message: "Decorator @tag cannot be used twice on the same declaration.",
+          message: "Decorator @bar cannot be used twice on the same declaration.",
         },
       ]);
     });
 
     it("shouldn't emit diagnostic if decorator is used once only", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @bar
         model Foo {}
       `);
 
@@ -182,9 +182,9 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is defined twice via `model is`", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @bar
         model Bar {}
-        @tag
+        @bar
         model Foo is Bar;
       `);
 
@@ -193,10 +193,10 @@ describe("compiler: decorator utils", () => {
 
     it("shouldn't emit diagnostic if decorator is used again as augment decorator", async () => {
       const diagnostics = await runner.diagnose(`
-        @tag
+        @bar
         model Foo {}
 
-        @@tag(Foo)
+        @@bar(Foo)
       `);
 
       expectDiagnosticEmpty(diagnostics);

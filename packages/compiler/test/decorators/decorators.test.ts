@@ -1,20 +1,21 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, Model, Operation, Scalar } from "../../core/index.js";
+import { Model, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
 import {
   getDoc,
+  getEncode,
   getFriendlyName,
   getKeyName,
   getKnownValues,
   getOverloadedOperation,
   getOverloads,
   isErrorModel,
-} from "../../lib/decorators.js";
+} from "../../src/lib/decorators.js";
 import {
   BasicTestRunner,
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;
@@ -40,7 +41,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T extends object>  {
+        model Template<T extends {}>  {
         }
 
         @test
@@ -138,7 +139,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'TypeSpec.string'`,
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
     });
   });
@@ -188,7 +189,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
       strictEqual(
         diagnostics[0].message,
-        `Cannot apply @error decorator to A since it is not assignable to TypeSpec.object`
+        `Cannot apply @error decorator to A since it is not assignable to Model`
       );
     });
   });
@@ -235,7 +236,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection.ModelProperty",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
       });
     });
 
@@ -265,7 +266,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to TypeSpec.string | TypeSpec.numeric | TypeSpec.Reflection.ModelProperty",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
       });
     });
 
@@ -278,7 +279,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' is not assignable to parameter of type 'TypeSpec.Reflection.Enum'",
+        message: "Argument 'Foo' is not assignable to parameter of type 'Enum'",
       });
     });
   });
@@ -295,7 +296,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'TypeSpec.string'",
+          message: "Argument '4' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
@@ -309,8 +310,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message:
-            "Cannot apply @key decorator to M since it is not assignable to TypeSpec.Reflection.ModelProperty",
+          message: "Cannot apply @key decorator to M since it is not assignable to ModelProperty",
         },
       ]);
     });
@@ -355,6 +355,150 @@ describe("compiler: built-in decorators", () => {
           message: "Property 'prop' marked as key cannot be optional.",
         },
       ]);
+    });
+  });
+
+  describe("@encode", () => {
+    it(`set encoding on scalar`, async () => {
+      const { s } = (await runner.compile(`
+        @encode("rfc3339")
+        @test
+        scalar s extends utcDateTime;
+      `)) as { s: Scalar };
+
+      strictEqual(getEncode(runner.program, s)?.encoding, "rfc3339");
+    });
+
+    it(`encode type default to string`, async () => {
+      const { s } = (await runner.compile(`
+        @encode("rfc3339")
+        @test
+        scalar s extends utcDateTime;
+      `)) as { s: Scalar };
+
+      strictEqual(getEncode(runner.program, s)?.type.name, "string");
+    });
+
+    it(`change encode type`, async () => {
+      const { s } = (await runner.compile(`
+        @encode("unixTimestamp", int32)
+        @test
+        scalar s extends utcDateTime;
+      `)) as { s: Scalar };
+
+      strictEqual(getEncode(runner.program, s)?.type.name, "int32");
+    });
+
+    describe("known encoding validation", () => {
+      const validCases = [
+        ["utcDateTime", "rfc3339", undefined],
+        ["utcDateTime", "rfc7231", undefined],
+        ["offsetDateTime", "rfc3339", undefined],
+        ["offsetDateTime", "rfc7231", undefined],
+        ["utcDateTime", "unixTimestamp", "int32"],
+        ["duration", "ISO8601", undefined],
+        ["duration", "seconds", "int32"],
+        ["bytes", "base64", undefined],
+        ["bytes", "base64url", undefined],
+        // Do not block unknown encoding
+        ["utcDateTime", "custom-encoding", undefined],
+        ["duration", "custom-encoding", "int32"],
+      ];
+      const invalidCases = [
+        [
+          "utcDateTime",
+          "rfc3339",
+          "int32",
+          "invalid-encode",
+          `Encoding 'rfc3339' on type 's' is expected to be serialized as 'string' but got 'int32'.`,
+        ],
+        [
+          "offsetDateTime",
+          "rfc7231",
+          "int64",
+          "invalid-encode",
+          `Encoding 'rfc7231' on type 's' is expected to be serialized as 'string' but got 'int64'.`,
+        ],
+        [
+          "offsetDateTime",
+          "unixTimestamp",
+          "int32",
+          "invalid-encode",
+          `Encoding 'unixTimestamp' cannot be used on type 's'. Expected: utcDateTime.`,
+        ],
+        [
+          "utcDateTime",
+          "unixTimestamp",
+          "string",
+          "invalid-encode",
+          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          undefined,
+          "invalid-encode",
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
+        ],
+        [
+          "duration",
+          "rfc3339",
+          undefined,
+          "invalid-encode",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "bytes",
+          "rfc3339",
+          undefined,
+          "invalid-encode",
+          `Encoding 'rfc3339' cannot be used on type 's'. Expected: utcDateTime, offsetDateTime.`,
+        ],
+        [
+          "duration",
+          "seconds",
+          '"int32"',
+          // TODO: Arguably this should be improved.
+          "invalid-argument",
+          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+        ],
+      ];
+      describe("valid", () => {
+        validCases.forEach(([target, encoding, encodeAs]) => {
+          it(`encoding '${encoding}' on ${target} encoded as ${encodeAs ?? "string"}`, async () => {
+            const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
+            const { s } = (await runner.compile(`
+          @encode("${encoding}"${encodeAsParam})
+          @test
+          scalar s extends ${target};
+        `)) as { s: Scalar };
+
+            const encodeData = getEncode(runner.program, s);
+            ok(encodeData);
+            strictEqual(encodeData.encoding, encoding);
+            strictEqual(encodeData.type.name, encodeAs ?? "string");
+          });
+        });
+      });
+      describe("invalid", () => {
+        invalidCases.forEach(([target, encoding, encodeAs, expectedCode, expectedMessage]) => {
+          it(`encoding '${encoding}' on ${target}  encoded as ${
+            encodeAs ?? "string"
+          }`, async () => {
+            const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
+            const diagnostics = await runner.diagnose(`
+          @encode("${encoding}"${encodeAsParam})
+          @test
+          scalar s extends ${target};
+        `);
+            expectDiagnostics(diagnostics, {
+              code: expectedCode,
+              severity: "error",
+              message: expectedMessage,
+            });
+          });
+        });
+      });
     });
   });
 
@@ -509,8 +653,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument 'foo' is not assignable to parameter of type 'TypeSpec.Reflection.Operation'",
+        message: "Argument 'foo' is not assignable to parameter of type 'Operation'",
         severity: "error",
       });
     });
@@ -538,8 +681,7 @@ describe("compiler: built-in decorators", () => {
         },
         {
           code: "unassignable",
-          message:
-            "Type 'TypeSpec.boolean' is not assignable to type 'TypeSpec.string | TypeSpec.int32'",
+          message: "Type 'boolean' is not assignable to type 'string | int32'",
           severity: "error",
         },
       ]);
@@ -778,7 +920,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @secret decorator to A since it is not assignable to TypeSpec.string | TypeSpec.Reflection.ModelProperty",
+          "Cannot apply @secret decorator to A since it is not assignable to string | ModelProperty",
       });
     });
 
@@ -794,7 +936,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @secret decorator to A since it is not assignable to TypeSpec.string | TypeSpec.Reflection.ModelProperty",
+          "Cannot apply @secret decorator to A since it is not assignable to string | ModelProperty",
       });
     });
 

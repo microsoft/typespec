@@ -1,8 +1,8 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { DecoratorContext, getTypeName, Namespace, Type } from "../../core/index.js";
-import { createProjector } from "../../core/projector.js";
-import { createTestHost, createTestRunner } from "../../testing/test-host.js";
-import { BasicTestRunner, TestHost } from "../../testing/types.js";
+import { DecoratorContext, Namespace, Type, getTypeName } from "../../src/core/index.js";
+import { createProjector } from "../../src/core/projector.js";
+import { createTestHost, createTestRunner } from "../../src/testing/test-host.js";
+import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
 
 /**
  * This test suite checks that projected types are reconstructed just fine.
@@ -362,7 +362,9 @@ describe("compiler: projector: Identity", () => {
     ok(projected.templateMapper !== original.templateMapper);
     ok(projected.templateMapper.args !== original.templateMapper.args);
     ok(projected.templateMapper.map !== original.templateMapper.map);
+    // eslint-disable-next-line deprecation/deprecation
     ok(projected.templateArguments !== original.templateArguments);
+    // eslint-disable-next-line deprecation/deprecation
     ok(projected.templateArguments === projected.templateMapper.args);
     strictEqual(projected.templateMapper.args.length, original.templateMapper.args.length);
     strictEqual(projected.templateMapper.map.size, original.templateMapper.map.size);

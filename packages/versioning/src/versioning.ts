@@ -10,11 +10,11 @@ import {
   Operation,
   Program,
   ProjectionApplication,
-  reportDeprecated,
-  Tuple,
   Type,
 } from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { Version, VersionResolution } from "./types.js";
+import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 const addedOnKey = createStateSymbol("addedOn");
 const removedOnKey = createStateSymbol("removedOn");
@@ -35,6 +35,7 @@ function checkIsVersion(
   diagnosticTarget: DiagnosticTarget
 ): Version | undefined {
   const version = getVersionForEnumMember(program, enumMember);
+
   if (!version) {
     reportDiagnostic(program, {
       code: "version-not-found",
@@ -178,33 +179,8 @@ export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: En
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
-function toVersion(p: Program, t: Type, v: ObjectType): Version | undefined {
-  const [namespace] = getVersions(p, t);
-  if (namespace === undefined) {
-    return undefined;
-  }
-  return getVersionForNamespace(
-    p,
-    v,
-    (namespace.projectionBase as Namespace) ?? namespace
-  ) as Version;
-}
-
 function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
   return p.stateMap(renamedFromKey).get(t) as Array<RenamedFrom>;
-}
-
-/**
- * @deprecated since version 0.39.0. Use getRenamedFromVersions
- * @returns version when the given type was added if applicable.
- */
-export function getRenamedFromVersion(p: Program, t: Type): Version | undefined {
-  reportDeprecated(
-    p,
-    "Deprecated: getRenamedFromVersion is deprecated. Use getRenamedFromVersions instead.",
-    t
-  );
-  return p.stateMap(renamedFromKey).get(t)?.[0].version;
 }
 
 /**
@@ -215,31 +191,16 @@ export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefin
 }
 
 /**
- * @deprecated since version 0.39.0. Use getNameAtVersion instead.
- * @returns get old renamed name if applicable.
- */
-export function getRenamedFromOldName(p: Program, t: Type, v: ObjectType): string {
-  reportDeprecated(
-    p,
-    "Deprecated: getRenamedFromOldName is deprecated. Use getNameAtVersion instead.",
-    t
-  );
-  return p.stateMap(renamedFromKey).get(t)?.[0].oldName ?? "";
-}
-
-/**
  * @returns get old name if applicable.
  */
-export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
-  const version = toVersion(p, t, v);
-  const allValues = getRenamedFrom(p, t);
-  if (!allValues || !version) return "";
+export function getNameAtVersion(p: Program, t: Type, versionKey: ObjectType): string {
+  const versioningState = getVersioningState(p, versionKey);
 
-  const targetIndex = version.index;
+  const allValues = getRenamedFrom(p, t);
+  if (!allValues) return "";
 
   for (const val of allValues) {
-    const index = val.version.index;
-    if (targetIndex < index) {
+    if (versioningState.timeline.isBefore(versioningState.projectingMoment, val.version)) {
       return val.oldName;
     }
   }
@@ -249,14 +210,19 @@ export function getNameAtVersion(p: Program, t: Type, v: ObjectType): string {
 /**
  * @returns get old type if applicable.
  */
-export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): Type | undefined {
-  const target = toVersion(p, t, v);
-  const map = getTypeChangedFrom(p, t);
-  if (!map || !target) return undefined;
+export function getTypeBeforeVersion(
+  p: Program,
+  t: Type,
+  versionKey: ObjectType
+): Type | undefined {
+  const versioningState = getVersioningState(p, versionKey);
 
-  for (const [key, val] of map) {
-    if (target.index < key.index) {
-      return val;
+  const map = getTypeChangedFrom(p, t);
+  if (!map) return undefined;
+
+  for (const [changedAtVersion, oldType] of map) {
+    if (versioningState.timeline.isBefore(versioningState.projectingMoment, changedAtVersion)) {
+      return oldType;
     }
   }
   return undefined;
@@ -265,35 +231,18 @@ export function getTypeBeforeVersion(p: Program, t: Type, v: ObjectType): Type |
 /**
  * @returns get old type if applicable.
  */
-export function getReturnTypeBeforeVersion(p: Program, t: Type, v: ObjectType): any {
-  const target = toVersion(p, t, v);
-  const map = getReturnTypeChangedFrom(p, t);
-  if (!map || !target) return "";
+export function getReturnTypeBeforeVersion(p: Program, t: Type, versionKey: ObjectType): any {
+  const versioningState = getVersioningState(p, versionKey);
 
-  for (const [key, val] of map) {
-    if (target.index < key.index) {
+  const map = getReturnTypeChangedFrom(p, t);
+  if (!map) return "";
+
+  for (const [changedAtVersion, val] of map) {
+    if (versioningState.timeline.isBefore(versioningState.projectingMoment, changedAtVersion)) {
       return val;
     }
   }
   return "";
-}
-
-/**
- * @deprecated since version 0.39.0.
- * @returns version when the given type was added if applicable.
- */
-export function getAddedOn(p: Program, t: Type): Version | undefined {
-  reportDeprecated(p, "Deprecated: getAddedOn is deprecated. Use getAddedOnVersions.", t);
-  return p.stateMap(addedOnKey).get(t)?.[0];
-}
-
-/**
- * @deprecated since version 0.39.0.
- * @returns version when the given type was removed if applicable.
- */
-export function getRemovedOn(p: Program, t: Type): Version | undefined {
-  reportDeprecated(p, "Deprecated: getRemovedOn is deprecated. Use getRemovedOnVersions.", t);
-  return p.stateMap(removedOnKey).get(t)?.[0];
 }
 
 export function getAddedOnVersions(p: Program, t: Type): Version[] | undefined {
@@ -469,86 +418,6 @@ export function getUseDependencies(
   return result;
 }
 
-export function $versionedDependency(
-  context: DecoratorContext,
-  referenceNamespace: Namespace,
-  versionRecord: Tuple | EnumMember
-) {
-  const { program } = context;
-
-  reportDeprecated(
-    program,
-    "@versionedDependency is deprecated. Use @useDependency instead.",
-    context.decoratorTarget
-  );
-
-  let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
-    Namespace,
-    Version | Map<EnumMember, Version>
-  >;
-
-  if (!state) {
-    state = new Map();
-    context.program.stateMap(versionDependencyKey).set(referenceNamespace, state);
-  }
-
-  if (versionRecord.kind === "EnumMember") {
-    const v = checkIsVersion(program, versionRecord, context.getArgumentTarget(0)!);
-    if (v) {
-      state.set(v.namespace, v);
-    }
-  } else {
-    let targetNamespace: Namespace | undefined;
-    const versionMap = new Map<EnumMember, Version>();
-
-    for (const entry of versionRecord.values) {
-      if (entry.kind !== "Tuple") {
-        reportDiagnostic(context.program, { code: "versioned-dependency-tuple", target: entry });
-        continue;
-      }
-      const [sourceMember, targetMember] = entry.values;
-
-      if (sourceMember === undefined || sourceMember.kind !== "EnumMember") {
-        reportDiagnostic(context.program, {
-          code: "versioned-dependency-tuple-enum-member",
-          target: sourceMember ?? entry,
-        });
-        continue;
-      }
-      if (targetMember === undefined || targetMember.kind !== "EnumMember") {
-        reportDiagnostic(context.program, {
-          code: "versioned-dependency-tuple-enum-member",
-          target: targetMember ?? entry,
-        });
-        continue;
-      }
-
-      const targetVersion = checkIsVersion(program, targetMember, targetMember);
-      if (!targetVersion) {
-        continue;
-      }
-      if (targetNamespace === undefined) {
-        targetNamespace = targetVersion.namespace;
-      } else if (targetNamespace !== targetVersion.namespace) {
-        reportDiagnostic(context.program, {
-          code: "versioned-dependency-same-namespace",
-          format: {
-            namespace1: getNamespaceFullName(targetNamespace),
-            namespace2: getNamespaceFullName(targetVersion.namespace),
-          },
-          target: targetMember,
-        });
-        return;
-      }
-
-      versionMap.set(sourceMember, targetVersion);
-    }
-    if (targetNamespace) {
-      state.set(targetNamespace, versionMap);
-    }
-  }
-}
-
 function findVersionDependencyForNamespace(program: Program, namespace: Namespace) {
   let current: Namespace | undefined = namespace;
   while (current) {
@@ -598,18 +467,39 @@ function resolveVersionDependency(
   return mapping;
 }
 
-export interface VersionResolution {
-  /**
-   * Version for the root namespace. `undefined` if not versioned.
-   */
-  rootVersion: Version | undefined;
+/**
+ * Resolve the version of dependencies
+ * @param initialResolutions
+ */
+function resolveDependencyVersions(
+  program: Program,
+  initialResolutions: Map<Namespace, Version>
+): Map<Namespace, Version> {
+  const resolutions = new Map(initialResolutions);
+  const namespacesToCheck = [...initialResolutions.entries()];
+  while (namespacesToCheck.length > 0) {
+    const [current, currentVersion] = namespacesToCheck.pop()!;
+    const dependencies = getVersionDependencies(program, current);
+    for (const [dependencyNs, versionMap] of dependencies ?? new Map()) {
+      if (resolutions.has(dependencyNs)) {
+        continue; // Already resolved.
+      }
 
-  /**
-   * Resolved version for all the referenced namespaces.
-   */
-  versions: Map<Namespace, Version>;
+      if (!(versionMap instanceof Map)) {
+        const rootNsName = getNamespaceFullName(current);
+        const dependencyNsName = getNamespaceFullName(dependencyNs);
+        throw new Error(
+          `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
+        );
+      }
+      const dependencyVersion = versionMap.get(currentVersion);
+      namespacesToCheck.push([dependencyNs, dependencyVersion]);
+      resolutions.set(dependencyNs, dependencyVersion);
+    }
+  }
+
+  return resolutions;
 }
-
 /**
  * Resolve the version to use for all namespace for each of the root namespace versions.
  * @param program
@@ -635,28 +525,15 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
         }
         map.set(dependencyNs, version);
       }
-      return [{ rootVersion: undefined, versions: map }];
+      return [{ rootVersion: undefined, versions: resolveDependencyVersions(program, map) }];
     }
   } else {
     return versions.getVersions().map((version) => {
-      const resolution: VersionResolution = {
+      const resolutions = resolveDependencyVersions(program, new Map([[rootNs, version]]));
+      return {
         rootVersion: version,
-        versions: new Map<Namespace, Version>(),
+        versions: resolutions,
       };
-      resolution.versions.set(rootNs, version);
-
-      for (const [dependencyNs, versionMap] of dependencies) {
-        if (!(versionMap instanceof Map)) {
-          const rootNsName = getNamespaceFullName(rootNs);
-          const dependencyNsName = getNamespaceFullName(dependencyNs);
-          throw new Error(
-            `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
-          );
-        }
-        resolution.versions.set(dependencyNs, versionMap.get(version)!);
-      }
-
-      return resolution;
     });
   }
 }
@@ -672,31 +549,45 @@ interface VersionProjections {
 /**
  * @internal
  */
-export function indexVersions(program: Program, versions: Map<Namespace, Version>) {
+export function indexTimeline(
+  program: Program,
+  timeline: VersioningTimeline,
+  projectingMoment: TimelineMoment
+) {
   const versionKey = program.checker.createType<ObjectType>({
     kind: "Object",
     properties: {},
   } as any);
-  program.stateMap(key).set(versionKey, versions);
+  program.stateMap(versionIndexKey).set(versionKey, { timeline, projectingMoment });
   return versionKey;
 }
 
-function getVersionForNamespace(
+function getVersioningState(
   program: Program,
-  versionKey: ObjectType,
-  namespaceType: Namespace
-) {
-  return program.stateMap(key).get(versionKey)?.get(namespaceType);
+  versionKey: ObjectType
+): {
+  timeline: VersioningTimeline;
+  projectingMoment: TimelineMoment;
+} {
+  return program.stateMap(versionIndexKey).get(versionKey);
 }
 
-const key = createStateSymbol("version-index");
+const versionIndexKey = createStateSymbol("version-index");
 export function buildVersionProjections(program: Program, rootNs: Namespace): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
+  const timeline = new VersioningTimeline(
+    program,
+    resolutions.map((x) => x.versions)
+  );
   return resolutions.map((resolution) => {
     if (resolution.versions.size === 0) {
       return { version: undefined, projections: [] };
     } else {
-      const versionKey = indexVersions(program, resolution.versions);
+      const versionKey = indexTimeline(
+        program,
+        timeline,
+        timeline.get(resolution.versions.values().next().value)
+      );
       return {
         version: resolution.rootVersion?.value,
         projections: [
@@ -740,6 +631,8 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
 
     if (nsVersion !== undefined) {
       return cacheVersion(t, [t, nsVersion]);
+    } else if (getUseDependencies(p, t) !== undefined) {
+      return cacheVersion(t, [t, undefined!]);
     } else if (t.namespace) {
       return cacheVersion(t, getVersions(p, t.namespace));
     } else {
@@ -776,38 +669,6 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
   }
 }
 
-// these decorators take a `versionSource` parameter because not all types can walk up to
-// the containing namespace. Model properties, for example.
-/**
- * @deprecated since version 0.39.0. Use existsAtVersion instead.
- * @param p
- * @param type
- * @param version
- * @returns
- */
-export function addedAfter(p: Program, type: Type, version: ObjectType): boolean {
-  reportDeprecated(p, "Deprecated: addedAfter is deprecated. Use existsAtVersion instead.", type);
-  const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
-  return appliesAt === null ? false : !appliesAt;
-}
-
-/**
- * @deprecated since version 0.39.0. Use existsAtVersion instead.
- * @param p
- * @param type
- * @param version
- * @returns
- */
-export function removedOnOrBefore(p: Program, type: Type, version: ObjectType): boolean {
-  reportDeprecated(
-    p,
-    "Deprecated: removedOnOrBefore is deprecated. Use existsAtVersion instead.",
-    type
-  );
-  const appliesAt = appliesAtVersion(getRemovedOn, p, type, version);
-  return appliesAt === null ? false : appliesAt;
-}
-
 function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
@@ -822,12 +683,6 @@ export enum Availability {
   Removed = "Removed",
 }
 
-/**
- * Returns a map of version names and whether a given type is available in that version
- * @param program TypeSpec program
- * @param type Type to get the availability map for
- * @returns the availability map for the type, if applicable
- */
 export function getAvailabilityMap(
   program: Program,
   type: Type
@@ -840,7 +695,6 @@ export function getAvailabilityMap(
 
   const added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
-
   // if there's absolutely no versioning information, return undefined
   // contextually, this might mean it inherits its versioning info from a parent
   // or that it is treated as unversioned
@@ -872,42 +726,68 @@ export function getAvailabilityMap(
   return avail;
 }
 
-export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
-  const version = toVersion(p, type, versionKey);
-  // if unversioned then everything exists
-  if (version === undefined) return true;
+export function getAvailabilityMapInTimeline(
+  program: Program,
+  type: Type,
+  timeline: VersioningTimeline
+): Map<TimelineMoment, Availability> | undefined {
+  const avail = new Map<TimelineMoment, Availability>();
 
-  const availability = getAvailabilityMap(p, type);
-  if (!availability) return true;
+  const added = getAddedOnVersions(program, type) ?? [];
+  const removed = getRemovedOnVersions(program, type) ?? [];
+  // if there's absolutely no versioning information, return undefined
+  // contextually, this might mean it inherits its versioning info from a parent
+  // or that it is treated as unversioned
+  if (!added.length && !removed.length) return undefined;
 
-  const isAvail = availability.get(version.name)!;
-  return [Availability.Added, Availability.Available].includes(isAvail);
+  // implicitly, all versioned things are assumed to have been added at
+  // v1 if not specified
+  if (!added.length) {
+    added.push(timeline.first().versions().next().value);
+  }
+
+  // something isn't available by default
+  let isAvail = false;
+  for (const [index, moment] of timeline.entries()) {
+    const add = added.find((x) => timeline.getIndex(x) === index);
+    const rem = removed.find((x) => timeline.getIndex(x) === index);
+    if (rem) {
+      isAvail = false;
+      avail.set(moment, Availability.Removed);
+    } else if (add) {
+      isAvail = true;
+      avail.set(moment, Availability.Added);
+    } else if (isAvail) {
+      avail.set(moment, Availability.Available);
+    } else {
+      avail.set(moment, Availability.Unavailable);
+    }
+  }
+  return avail;
 }
 
-/**
- * @deprecated since version 0.39.0. Use hasDifferentNameAtVersion instead.
- * @param p
- * @param type
- * @param version
- * @returns
- */
-export function renamedAfter(p: Program, type: Type, version: ObjectType): boolean {
-  reportDeprecated(
-    p,
-    "Deprecated: renamedAfter is deprecated. Use hasDifferentNameAtVersion instead.",
-    type
-  );
-  const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
-  return appliesAt === null ? false : !appliesAt;
+export function existsAtVersion(p: Program, type: Type, versionKey: ObjectType): boolean {
+  const versioningState = getVersioningState(p, versionKey);
+  // if unversioned then everything exists
+
+  const availability = getAvailabilityMapInTimeline(p, type, versioningState.timeline);
+  if (!availability) return true;
+  const isAvail = availability.get(versioningState.projectingMoment)!;
+  return isAvail === Availability.Added || isAvail === Availability.Available;
 }
 
 export function hasDifferentNameAtVersion(p: Program, type: Type, version: ObjectType): boolean {
   return getNameAtVersion(p, type, version) !== "";
 }
 
-export function madeOptionalAfter(p: Program, type: Type, version: ObjectType): boolean {
-  const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version);
-  return appliesAt === null ? false : !appliesAt;
+export function madeOptionalAfter(program: Program, type: Type, versionKey: ObjectType): boolean {
+  const versioningState = getVersioningState(program, versionKey);
+
+  const madeOptionalAtVersion = getMadeOptionalOn(program, type);
+  if (madeOptionalAtVersion === undefined) {
+    return false;
+  }
+  return versioningState.timeline.isBefore(versioningState.projectingMoment, madeOptionalAtVersion);
 }
 
 export function hasDifferentTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {
@@ -923,46 +803,9 @@ export function hasDifferentReturnTypeAtVersion(
 }
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
+  // Always lookup for the original type. This ensure reference equality when comparing versions.
+  member = (member.projectionBase as EnumMember) ?? member;
   const parentEnum = member.enum;
-  if (!parentEnum) {
-    return undefined;
-  }
   const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);
-}
-
-/**
- * returns either null, which means unversioned, or true or false depending
- * on whether the change is active or not at that particular version
- */
-function appliesAtVersion(
-  getMetadataFn: (p: Program, t: Type) => Version | undefined,
-  p: Program,
-  type: Type,
-  versionKey: ObjectType
-): boolean | null {
-  const version = toVersion(p, type, versionKey);
-  if (version === undefined) {
-    return null;
-  }
-
-  const appliedOnVersion = getMetadataFn(p, type);
-  if (appliedOnVersion === undefined) {
-    return null;
-  }
-
-  const appliedOnVersionIndex = appliedOnVersion.index;
-  if (appliedOnVersionIndex === -1) return null;
-
-  const testVersionIndex = version.index;
-  if (testVersionIndex === -1) return null;
-  return testVersionIndex >= appliedOnVersionIndex;
-}
-
-export interface Version {
-  name: string;
-  value: string;
-  namespace: Namespace;
-  enumMember: EnumMember;
-  index: number;
 }
