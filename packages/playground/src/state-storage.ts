@@ -1,6 +1,6 @@
 import lzutf8 from "lzutf8";
 
-export interface StateStorage<T extends {}> {
+export interface StateStorage<T extends object> {
   load(): Partial<T>;
   save(t: Partial<T>): void;
 }
@@ -22,7 +22,7 @@ export interface UrlStorageItem {
  * @param schema Schema of the data to be serialized in the query
  * @returns
  */
-export function createUrlStateStorate<const T extends {}>(
+export function createUrlStateStorate<const T extends object>(
   schema: UrlStorageSchema<T>
 ): StateStorage<T> {
   return { load, save };
@@ -38,6 +38,7 @@ export function createUrlStateStorate<const T extends {}>(
           try {
             result[key] = lzutf8.decompress(value, { inputEncoding: "Base64" });
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.error(
               `Error decompressing query parameter ${query.queryParam} with content:`,
               value
