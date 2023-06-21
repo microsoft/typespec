@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
 import { registerMonacoDefaultWorkers } from "../monaco-worker.js";
 import { registerMonacoLanguage } from "../services.js";
-import { getStateFromUrl, saveTypeSpecContentInQueryParameter } from "../state-storage.js";
+import { StateStorage, createUrlStateStorate } from "../state-storage.js";
 import { filterEmitters } from "../utils.js";
-import { PlaygroundProps, StyledPlayground } from "./playground.js";
+import { PlaygroundProps, PlaygroundSaveData, StyledPlayground } from "./playground.js";
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   libraries: string[];
@@ -17,14 +17,15 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
   await registerMonacoLanguage(host);
   registerMonacoDefaultWorkers();
 
-  const initialState = getStateFromUrl();
+  const stateStorage = createStandalonePlaygroundStateStorage();
+  const initialState = stateStorage.load();
   const options: PlaygroundProps = {
     ...config,
     host,
     emitters,
     defaultContent: initialState.content,
     defaultSampleName: initialState.sampleName,
-    onSave: saveTypeSpecContentInQueryParameter as any,
+    onSave: (value) => stateStorage.save(value),
   };
   const App: FunctionComponent = () => {
     return <StyledPlayground {...options} />;
@@ -38,4 +39,23 @@ export async function renderReactPlayground(config: ReactPlaygroundConfig) {
 
   const root = createRoot(document.getElementById("root")!);
   root.render(app);
+}
+
+export function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveData> {
+  const stateStorage = createUrlStateStorate<PlaygroundSaveData>({
+    content: {
+      queryParam: "c",
+      compress: "lz-base64",
+    },
+    sampleName: {
+      queryParam: "sample",
+    },
+  });
+
+  return {
+    load: stateStorage.load,
+    save(data: PlaygroundSaveData) {
+      stateStorage.save(data.sampleName ? { sampleName: data.sampleName } : data);
+    },
+  };
 }

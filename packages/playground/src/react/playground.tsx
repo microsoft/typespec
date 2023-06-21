@@ -55,7 +55,15 @@ export interface PlaygroundProps {
   /** Custom viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
-  onSave?: (value: string) => void;
+  onSave?: (value: PlaygroundSaveData) => void;
+}
+
+export interface PlaygroundSaveData {
+  /** Current content of the playground.   */
+  content: string;
+
+  /** If a sample is selected and the content hasn't changed since. */
+  sampleName?: string;
 }
 
 export interface PlaygroundLinks {
@@ -88,12 +96,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultSampleName,
     props.onSampleNameChange
   );
-  const [content] = useControllableValue(undefined, props.defaultContent);
+  const [content, setContent] = useControllableValue(undefined, props.defaultContent);
+  const isSampleUntouched = useMemo(() => {
+    return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
+  }, [content, selectedSampleName, props.samples]);
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
+    setContent(content);
     const typespecCompiler = await importTypeSpecCompiler();
 
     const state = await compile(host, content, selectedEmitter, emitterOptions);
@@ -110,7 +122,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, emitterOptions, typespecModel]);
+  }, [host, selectedEmitter, emitterOptions, typespecModel, setContent]);
 
   const updateTypeSpec = useCallback(
     (value: string) => {
@@ -151,9 +163,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const saveCode = useCallback(async () => {
     if (onSave) {
-      onSave(typespecModel.getValue());
+      onSave({
+        content: typespecModel.getValue(),
+        sampleName: isSampleUntouched ? selectedSampleName : undefined,
+      });
     }
-  }, [typespecModel, onSave]);
+  }, [typespecModel, onSave, isSampleUntouched]);
 
   const newIssue = useCallback(async () => {
     await saveCode();
