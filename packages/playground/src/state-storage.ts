@@ -22,7 +22,7 @@ export interface UrlStorageItem {
  * @param schema Schema of the data to be serialized in the query
  * @returns
  */
-export function createUrlStateStorate<const T extends object>(
+export function createUrlStateStorage<const T extends object>(
   schema: UrlStorageSchema<T>
 ): StateStorage<T> {
   return { load, save };
