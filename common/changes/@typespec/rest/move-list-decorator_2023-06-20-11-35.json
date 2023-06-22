@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Add `isListOperation` function migrated from `@typespec/compiler`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}
