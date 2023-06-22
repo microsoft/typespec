@@ -774,6 +774,9 @@ export function $withoutDefaultValues(context: DecoratorContext, target: Model) 
 
 const listPropertiesKey = createStateSymbol("listProperties");
 
+/**
+ * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
+ */
 export function $list(context: DecoratorContext, target: Operation, listedType?: Type) {
   if (listedType && listedType.kind === "TemplateParameter") {
     // Silently return because this is probably being used in a templated interface
@@ -790,10 +793,16 @@ export function $list(context: DecoratorContext, target: Operation, listedType?:
   context.program.stateMap(listPropertiesKey).set(target, listedType);
 }
 
+/**
+ * @deprecated This function is unused and will be removed in a future release.
+ */
 export function getListOperationType(program: Program, target: Type): Model | undefined {
   return program.stateMap(listPropertiesKey).get(target);
 }
 
+/**
+ * @deprecated Use `isListOperation` in `@typespec/rest` instead.
+ */
 export function isListOperation(program: Program, target: Operation): boolean {
   // The type stored for the operation
   return program.stateMap(listPropertiesKey).has(target);
