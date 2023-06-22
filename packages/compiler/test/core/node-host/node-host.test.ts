@@ -1,5 +1,5 @@
 import { rejects, strictEqual } from "assert";
-import { mkdir, readFile, rmdir } from "fs/promises";
+import { mkdir, readFile, rm } from "fs/promises";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { InvalidEncodingError, NodeHost } from "../../../src/core/node-host.js";
@@ -16,7 +16,7 @@ describe("compiler: node host", () => {
 
   before(async () => {
     try {
-      await rmdir(tempDir, { recursive: true });
+      await rm(tempDir, { recursive: true });
     } catch {}
     await mkdir(tempDir, { recursive: true });
   });
