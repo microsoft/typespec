@@ -30,7 +30,7 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
       void navigator.clipboard.writeText(window.location.toString());
     },
   };
-  
+
   const App: FunctionComponent = () => {
     return <StyledPlayground {...options} />;
   };
