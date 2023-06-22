@@ -106,6 +106,20 @@ export function $doc(context: DecoratorContext, target: Type, text: string, sour
   setDocData(context.program, target, { value: text, source: "@doc" });
 }
 
+const ideDocsKey = createStateSymbol("ideDocs");
+export function $ideDoc(context: DecoratorContext, target: Type, text: string) {
+  const ideDocs: string[] = context.program.stateMap(ideDocsKey).get(target);
+  if (ideDocs) {
+    ideDocs.push(text);
+  } else {
+    context.program.stateMap(ideDocsKey).set(target, [text]);
+  }
+}
+
+export function getIdeDocs(program: Program, target: Type): string[] {
+  return program.stateMap(ideDocsKey).get(target) ?? [];
+}
+
 /**
  * @internal to be used to set the `@doc` from doc comment.
  */

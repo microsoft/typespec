@@ -8,7 +8,7 @@ import {
   TemplateDeclarationNode,
   Type,
 } from "../core/index.js";
-import { getDocData } from "../lib/decorators.js";
+import { getDocData, getIdeDocs } from "../lib/decorators.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 /**
@@ -68,6 +68,9 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   if (apiDocs && apiDocs.source === "@doc") {
     docs.push(apiDocs.value);
   }
+
+  // Add @ideDoc(...) docs
+  docs.push(...getIdeDocs(program, type));
 
   return docs.join("\n\n");
 }

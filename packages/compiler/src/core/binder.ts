@@ -136,12 +136,16 @@ export function createBinder(program: Program): Binder {
         if (isFunctionName(key)) {
           name = getFunctionName(key);
           kind = "decorator";
-          if (name === "onValidate") {
-            program.onValidate(member as any);
-            continue;
-          } else if (name === "onEmit") {
-            // nothing to do here this is loaded as emitter.
-            continue;
+          switch (name) {
+            case "onValidate":
+              program.onValidate(member as any);
+              continue;
+            case "onAugment":
+              program.onAugment(member as any);
+              continue;
+            case "onEmit":
+              // nothing to do here this is loaded as emitter.
+              continue;
           }
         } else {
           name = key;

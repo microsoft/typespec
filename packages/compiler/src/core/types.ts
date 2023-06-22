@@ -2016,7 +2016,7 @@ export interface DecoratorContext {
   /**
    * Point to the decorator target
    */
-  decoratorTarget: DiagnosticTarget;
+  decoratorTarget: DiagnosticTarget | typeof NoTarget;
 
   /**
    * Function that can be used to retrieve the target for a parameter at the given index.

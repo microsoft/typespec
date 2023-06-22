@@ -1,5 +1,6 @@
 export const namespace = "TypeSpec.Http";
 
+export * from "./augment.js";
 export * from "./content-types.js";
 export * from "./decorators.js";
 export * from "./metadata.js";

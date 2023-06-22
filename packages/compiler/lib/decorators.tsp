@@ -30,6 +30,12 @@ extern dec summary(target: unknown, summary: valueof string);
 extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
+ * Attach additional documentation to be shown in the IDE
+ * @param doc Documentation string
+ */
+extern dec ideDoc(target: unknown, doc: valueof string);
+
+/**
  * Mark this type as deprecated
  * @param message Deprecation message.
  *

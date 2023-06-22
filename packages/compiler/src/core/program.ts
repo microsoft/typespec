@@ -25,6 +25,7 @@ import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   CompilerHost,
+  DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
   Directive,
@@ -88,6 +89,7 @@ export interface Program {
   readonly diagnostics: readonly Diagnostic[];
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
   onValidate(cb: (program: Program) => void | Promise<void>): void;
+  onAugment(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
   stateSets: Map<symbol, StateSet>;
@@ -258,7 +260,8 @@ export async function compile(
   options: CompilerOptions = {},
   oldProgram?: Program // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ): Promise<Program> {
-  const validateCbs: any = [];
+  const validateCbs: any[] = [];
+  const augmentCbs: any[] = [];
   const stateMaps = new Map<symbol, StateMap>();
   const stateSets = new Map<symbol, StateSet>();
   const diagnostics: Diagnostic[] = [];
@@ -298,6 +301,9 @@ export async function compile(
     },
     onValidate(cb) {
       validateCbs.push(cb);
+    },
+    onAugment(cb) {
+      augmentCbs.push(cb);
     },
     getGlobalNamespaceType,
     resolveTypeReference,
@@ -361,23 +367,16 @@ export async function compile(
   if (program.hasError()) {
     return program;
   }
-  for (const cb of validateCbs) {
-    try {
-      await cb(program);
-    } catch (error: any) {
-      if (options.designTimeBuild) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "on-validate-fail",
-            format: { error: error.stack },
-            target: NoTarget,
-          })
-        );
-      } else {
-        throw error;
-      }
-    }
-  }
+
+  const onAugmentDecoratorContext: DecoratorContext = {
+    program,
+    decoratorTarget: NoTarget,
+    call: (decorator, target, ...args) => decorator(onAugmentDecoratorContext, target, ...args),
+    getArgumentTarget: () => undefined,
+  };
+
+  await runCallbacks(augmentCbs, program, options, onAugmentDecoratorContext);
+  await runCallbacks(validateCbs, program, options);
 
   for (const [requiredImport, emitterName] of requireImports) {
     if (!loadedLibraries.has(requiredImport)) {
@@ -1143,6 +1142,31 @@ export async function compile(
     mutate(node).parent = program.checker.getGlobalNamespaceNode();
 
     return program.checker.resolveTypeReference(node);
+  }
+}
+
+async function runCallbacks(
+  callbacks: any[],
+  program: Program,
+  options: CompilerOptions,
+  arg: Program | DecoratorContext = program
+) {
+  for (const cb of callbacks) {
+    try {
+      await cb(arg);
+    } catch (error: any) {
+      if (options.designTimeBuild) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "on-validate-fail",
+            format: { error: error.stack },
+            target: NoTarget,
+          })
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 }
 

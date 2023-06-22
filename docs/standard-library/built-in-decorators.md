@@ -211,6 +211,25 @@ nextLink: string;
 ```
 
 
+### `@ideDoc` {#@ideDoc}
+
+Attach additional documentation to be shown in the IDE
+
+```typespec
+@ideDoc(doc: valueof string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| doc | `valueof scalar string` | Documentation string |
+
+
+
 ### `@inspectType` {#@inspectType}
 
 A debugging decorator used to inspect a type.
