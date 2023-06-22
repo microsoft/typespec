@@ -1,9 +1,9 @@
-import { editor, Uri } from "monaco-editor";
+import { editor, IDisposable, Uri } from "monaco-editor";
 import { FunctionComponent, useEffect, useMemo, useRef } from "react";
 
 export interface EditorProps {
   model: editor.IModel;
-  commands?: EditorCommand[];
+  actions?: editor.IActionDescriptor[];
   options: editor.IStandaloneEditorConstructionOptions;
 }
 
@@ -12,21 +12,27 @@ export interface EditorCommand {
   handle: () => void;
 }
 
-export const Editor: FunctionComponent<EditorProps> = ({ model, options, commands }) => {
+export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions }) => {
   const editorContainerRef = useRef(null);
-  const editorRef = useRef<editor.IEditor | null>(null);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
-    const instance = (editorRef.current = editor.create(editorContainerRef.current!, {
+    editorRef.current = editor.create(editorContainerRef.current!, {
       model,
       automaticLayout: true,
       ...options,
-    }));
-
-    for (const command of commands ?? []) {
-      instance.addCommand(command.binding, command.handle);
-    }
+    });
   }, []);
+
+  useEffect(() => {
+    const disposables: IDisposable[] = [];
+    for (const command of actions ?? []) {
+      disposables.push(editorRef.current!.addAction(command));
+    }
+    return () => {
+      disposables.forEach((x) => x.dispose());
+    };
+  }, [actions]);
 
   useEffect(() => {
     if (editorRef.current) {

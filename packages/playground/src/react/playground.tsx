@@ -96,7 +96,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultSampleName,
     props.onSampleNameChange
   );
-  const [content, setContent] = useControllableValue(undefined, props.defaultContent);
+  const [content, setContent] = useState(props.defaultContent);
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
@@ -126,16 +126,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const updateTypeSpec = useCallback(
     (value: string) => {
-      typespecModel.setValue(value);
+      if (typespecModel.getValue() !== value) {
+        typespecModel.setValue(value);
+      }
     },
     [typespecModel]
   );
   useEffect(() => {
-    if (content !== undefined) {
-      const newContent = content ?? "";
-      updateTypeSpec(newContent);
-    }
-  }, [content, updateTypeSpec]);
+    updateTypeSpec(props.defaultContent ?? "");
+  }, []);
+
   useEffect(() => {
     if (selectedSampleName && props.samples) {
       const config = props.samples[selectedSampleName];
@@ -161,26 +161,26 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     void doCompile();
   }, [doCompile]);
 
-  const saveCode = useCallback(async () => {
+  const saveCode = useCallback(() => {
     if (onSave) {
       onSave({
         content: typespecModel.getValue(),
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
       });
     }
-  }, [typespecModel, onSave, isSampleUntouched]);
+  }, [typespecModel, onSave, selectedSampleName, isSampleUntouched]);
 
   const newIssue = useCallback(async () => {
-    await saveCode();
+    saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `${props?.links?.githubIssueUrl}?body=${bodyPayload}`;
     window.open(url, "_blank");
   }, [saveCode, typespecModel]);
 
-  const typespecEditorCommands = useMemo(
-    () => [
+  const typespecEditorActions = useMemo(
+    (): editor.IActionDescriptor[] => [
       // ctrl/cmd+S => save
-      { binding: KeyMod.CtrlCmd | KeyCode.KeyS, handle: saveCode },
+      { id: "save", label: "Save", keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS], run: saveCode },
     ],
     [saveCode]
   );
@@ -212,7 +212,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
           documentationUrl={props.links?.documentationUrl}
         />
-        <TypeSpecEditor model={typespecModel} commands={typespecEditorCommands} />
+        <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
       </div>
       <div
         css={{

@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
 import { registerMonacoDefaultWorkers } from "../monaco-worker.js";
 import { registerMonacoLanguage } from "../services.js";
-import { StateStorage, createUrlStateStorate } from "../state-storage.js";
+import { StateStorage, createUrlStateStorage } from "../state-storage.js";
 import { filterEmitters } from "../utils.js";
 import { PlaygroundProps, PlaygroundSaveData, StyledPlayground } from "./playground.js";
 
@@ -25,8 +25,12 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
     emitters,
     defaultContent: initialState.content,
     defaultSampleName: initialState.sampleName,
-    onSave: (value) => stateStorage.save(value),
+    onSave: (value) => {
+      stateStorage.save(value);
+      void navigator.clipboard.writeText(window.location.toString());
+    },
   };
+  
   const App: FunctionComponent = () => {
     return <StyledPlayground {...options} />;
   };
@@ -42,7 +46,7 @@ export async function renderReactPlayground(config: ReactPlaygroundConfig) {
 }
 
 export function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveData> {
-  const stateStorage = createUrlStateStorate<PlaygroundSaveData>({
+  const stateStorage = createUrlStateStorage<PlaygroundSaveData>({
     content: {
       queryParam: "c",
       compress: "lz-base64",
