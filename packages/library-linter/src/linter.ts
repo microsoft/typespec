@@ -41,12 +41,7 @@ function validateNoExportAtRoot(program: Program, root: Namespace) {
   }
 }
 
-const excludeDecoratorSignature = new Set([
-  "@docFromComment",
-  "@indexer",
-  "@test",
-  "@resourceTypeForKeyParam", // TODO check if we actually need this one https://github.com/microsoft/typespec/issues/1981
-]);
+const excludeDecoratorSignature = new Set(["@docFromComment", "@indexer", "@test"]);
 function validateDecoratorSignature(program: Program) {
   function navigate(sym: Sym) {
     if (sym.flags & SymbolFlags.Decorator) {
