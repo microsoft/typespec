@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Add documentation on `@header` auto header name resolution from property name.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
