@@ -19,7 +19,7 @@ export function parse(
   }
   // Remove doc comments as those are handled directly.
   mutate(result).comments = result.comments.filter(
-    (x) => !(text[x.pos] === "/" && text[x.pos + 1] === "*" && text[x.pos + 2] === "*")
+    (x) => !(x.kind === SyntaxKind.BlockComment && x.parsedAsDocs)
   );
   return result;
 }

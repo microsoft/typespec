@@ -483,11 +483,13 @@ function printDoc(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
-  const rawComment = getRawText(node, options);
+  const rawComment = options.originalText.slice(node.pos + 3, node.end - 2);
 
   const printed = isIndentableBlockComment(rawComment)
     ? printIndentableBlockCommentContent(rawComment)
-    : rawComment;
+    : rawComment.includes("\n")
+    ? rawComment
+    : ` ${rawComment.trim()} `;
   return ["/**", printed, "*/"];
 }
 

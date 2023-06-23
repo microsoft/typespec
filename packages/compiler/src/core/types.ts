@@ -909,6 +909,8 @@ export interface LineComment extends TextRange {
 }
 export interface BlockComment extends TextRange {
   readonly kind: SyntaxKind.BlockComment;
+  /** If that comment was parsed as a doc comment. If parserOptions.docs=false this will always be false. */
+  readonly parsedAsDocs?: boolean;
 }
 
 export interface ParseOptions {

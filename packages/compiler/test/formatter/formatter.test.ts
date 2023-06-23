@@ -904,6 +904,36 @@ model Foo {}
       });
     });
 
+    it("format single line doc comment", () => {
+      // Keep the indentation
+      assertFormat({
+        code: `
+  /**    This is a single line doc comment    */
+model Foo {}
+`,
+        expected: `
+/** This is a single line doc comment */
+model Foo {}
+`,
+      });
+    });
+
+    it("print standalone doc comment", () => {
+      // Keep the indentation
+      assertFormat({
+        code: `
+  /**    
+   * This is a multiline doc comment  
+     */
+`,
+        expected: `
+/**
+ * This is a multiline doc comment
+ */
+`,
+      });
+    });
+
     it("keeps block comment on same line", () => {
       assertFormat({
         code: `
