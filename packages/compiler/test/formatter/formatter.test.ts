@@ -868,14 +868,34 @@ model Foo {}
     it("format regular multi line comments", () => {
       assertFormat({
         code: `
-  /**
+  /*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
 `,
         expected: `
-/**
+/*
+  This is a multiline comment
+       that has bad formatting.
+    */
+model Foo {}
+`,
+      });
+    });
+
+    it("format doc comment comments without * indent", () => {
+      // Keep the indentation
+      assertFormat({
+        code: `
+  /*
+  This is a multiline comment
+       that has bad formatting.
+    */
+model Foo {}
+`,
+        expected: `
+/*
   This is a multiline comment
        that has bad formatting.
     */
@@ -1218,6 +1238,58 @@ namespace Foo.Bar {
 `,
         expected: `
 @@doc(Foo.bar, "This"); // comment
+`,
+      });
+    });
+
+    it("formats doc comment before decorators and directives", () => {
+      assertFormat({
+        code: `
+#suppress "foo"
+@dec1
+/**
+ * Doc comment
+ */
+@dec2
+model Foo {}
+`,
+        expected: `
+/**
+ * Doc comment
+ */
+#suppress "foo"
+@dec1
+@dec2
+model Foo {}
+`,
+      });
+    });
+
+    it("formats multiple doc comment before decorators and directives", () => {
+      assertFormat({
+        code: `
+#suppress "foo"
+@dec1
+/**
+ * Doc comment 1
+ */
+@dec2
+/**
+ * Doc comment 2
+ */
+model Foo {}
+`,
+        expected: `
+/**
+ * Doc comment 1
+ */
+/**
+ * Doc comment 2
+ */
+#suppress "foo"
+@dec1
+@dec2
+model Foo {}
 `,
       });
     });
