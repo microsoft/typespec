@@ -1001,81 +1001,33 @@ interface Foo {
       });
     });
 
-    it("format comment between decorator and namespace statement", () => {
-      assertFormat({
-        code: `
+    describe("format comment between decorator and statement", () => {
+      [
+        ["blockless namespace", "namespace Bar;"],
+        ["flattened blockless namespace", "namespace Foo.Bar;"],
+        ["block namespace", "namespace Bar {\n\n}"],
+        ["flattened block namespace", "namespace Foo.Bar {\n\n}"],
+        ["model", "model Bar {}"],
+        ["op", "op test(foo: string): void;"],
+        ["scalar", "scalar foo;"],
+        ["interface", "interface Foo {}"],
+        ["union", "union Foo {}"],
+        ["enum", "enum Foo {}"],
+      ].forEach(([name, code]) => {
+        it(name, () => {
+          assertFormat({
+            code: `
 @foo
-   // comment
-namespace Bar;
+    // comment
+${code}
 `,
-        expected: `
-@foo
-// comment
-namespace Bar;
-`,
-      });
-    });
-
-    it("format comment between decorator and flattened blockless namespace statement", () => {
-      assertFormat({
-        code: `
-@foo
-   // comment
-namespace Foo.Bar;
-`,
-        expected: `
+            expected: `
 @foo
 // comment
-namespace Foo.Bar;
+${code}
 `,
-      });
-    });
-
-    it("format comment between decorator and flattened block namespace statement", () => {
-      assertFormat({
-        code: `
-@foo
-   // comment
-namespace Foo.Bar {
-}
-`,
-        expected: `
-@foo
-// comment
-namespace Foo.Bar {
-
-}
-`,
-      });
-    });
-
-    it("format comment between decorator and model statement", () => {
-      assertFormat({
-        code: `
-@foo
-  // comment
-model Bar {}
-`,
-        expected: `
-@foo
-// comment
-model Bar {}
-`,
-      });
-    });
-
-    it("format comment between decorator and op statement", () => {
-      assertFormat({
-        code: `
-@foo
-  // comment
-op test(foo: string): void;
-`,
-        expected: `
-@foo
-// comment
-op test(foo: string): void;
-`,
+          });
+        });
       });
     });
 
