@@ -50,6 +50,7 @@ model ServiceOptions {
    * Title of the service.
    */
   title?: string;
+
   /**
    * Version of the service.
    */
@@ -232,6 +233,13 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof num
  * ```
  */
 extern dec secret(target: string | ModelProperty);
+
+/**
+ * Mark this operation as a `list` operation for resource types.
+ * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
+ * @param listedType Optional type of the items in the list.
+ */
+extern dec list(target: Operation, listedType?: Model);
 
 /**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.

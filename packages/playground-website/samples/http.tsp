@@ -11,6 +11,7 @@ model Widget {
   @visibility("read", "update")
   @path
   id: string;
+
   weight: int32;
   color: "red" | "blue";
 }

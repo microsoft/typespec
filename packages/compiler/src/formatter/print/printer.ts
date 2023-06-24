@@ -12,6 +12,7 @@ import {
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
+  DocNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
@@ -76,6 +77,15 @@ const { align, breakParent, group, hardline, ifBreak, indent, join, line, softli
 
 const { isNextLineEmpty } = prettier.util;
 
+/**
+ * If the decorators for that node should try to be kept inline.
+ */
+const DecoratorsTryInline = {
+  modelProperty: true,
+  enumMember: true,
+  unionVariant: true,
+};
+
 export const typespecPrinter: Printer<Node> = {
   print: printTypeSpec,
   canAttachComment: canAttachComment,
@@ -90,10 +100,11 @@ export function printTypeSpec(
   print: PrettierChildPrint
 ): prettier.Doc {
   const node = path.getValue();
+  const docs = printDocComments(path, options, print);
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
   const printedNode = printNode(path, options, print);
   const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
-  const parts: Doc[] = [directives, value];
+  const parts: Doc[] = [docs, directives, value];
   if (node.kind === SyntaxKind.TypeSpecScript) {
     // For TypeSpecScript(root of typespec document) we had a new line at the end.
     // This must be done here so the hardline entry can be the last item of the doc array returned by the printer
@@ -115,7 +126,7 @@ export function printNode(
   print: PrettierChildPrint
 ): prettier.Doc {
   const node: Node = path.getValue();
-  printDirectives(path, options, print);
+
   switch (node.kind) {
     // Root
     case SyntaxKind.TypeSpecScript:
@@ -326,6 +337,7 @@ export function printNode(
     case SyntaxKind.Return:
       return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
     case SyntaxKind.Doc:
+      return printDoc(path as AstPath<DocNode>, options, print);
     case SyntaxKind.DocText:
     case SyntaxKind.DocParamTag:
     case SyntaxKind.DocTemplateTag:
@@ -403,6 +415,12 @@ export function canAttachComment(node: Node): boolean {
       kind !== SyntaxKind.LineComment &&
       kind !== SyntaxKind.BlockComment &&
       kind !== SyntaxKind.EmptyStatement &&
+      kind !== SyntaxKind.Doc &&
+      kind !== SyntaxKind.DocParamTag &&
+      kind !== SyntaxKind.DocReturnsTag &&
+      kind !== SyntaxKind.DocTemplateTag &&
+      kind !== SyntaxKind.DocText &&
+      kind !== SyntaxKind.DocUnknownTag &&
       !(node.flags & NodeFlags.Synthetic)
   );
 }
@@ -428,12 +446,10 @@ function printBlockComment(commentPath: AstPath<BlockComment>, options: TypeSpec
   const comment = commentPath.getValue();
   const rawComment = options.originalText.slice(comment.pos + 2, comment.end - 2);
 
-  if (isIndentableBlockComment(rawComment)) {
-    const printed = printIndentableBlockComment(rawComment);
-    return printed;
-  }
-
-  return ["/*", rawComment, "*/"];
+  const printed = isIndentableBlockComment(rawComment)
+    ? printIndentableBlockCommentContent(rawComment)
+    : rawComment;
+  return ["/*", printed, "*/"];
 }
 
 function isIndentableBlockComment(rawComment: string): boolean {
@@ -445,11 +461,10 @@ function isIndentableBlockComment(rawComment: string): boolean {
   return lines.length > 1 && lines.every((line) => line.trim()[0] === "*");
 }
 
-function printIndentableBlockComment(rawComment: string): Doc {
+function printIndentableBlockCommentContent(rawComment: string): Doc {
   const lines = rawComment.split("\n");
 
   return [
-    "/*",
     join(
       hardline,
       lines.map((line, index) =>
@@ -458,8 +473,24 @@ function printIndentableBlockComment(rawComment: string): Doc {
           : " " + (index < lines.length - 1 ? line.trim() : line.trimStart())
       )
     ),
-    "*/",
   ];
+}
+
+/** Print a doc comment. */
+function printDoc(
+  path: AstPath<DocNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const rawComment = options.originalText.slice(node.pos + 3, node.end - 2);
+
+  const printed = isIndentableBlockComment(rawComment)
+    ? printIndentableBlockCommentContent(rawComment)
+    : rawComment.includes("\n")
+    ? rawComment
+    : ` ${rawComment.trim()} `;
+  return ["/**", printed, "*/"];
 }
 
 export function printDecorators(
@@ -473,14 +504,26 @@ export function printDecorators(
     return { decorators: "", multiline: false };
   }
 
-  const shouldBreak =
-    !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options);
+  const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline });
   const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
   return {
     decorators: group([shouldBreak ? breakParent : "", decorators]),
     multiline: shouldBreak,
   };
+}
+
+/** Check if the decorators of the given node should be broken in sparate line */
+function shouldDecoratorBreakLine(
+  path: AstPath<DecorableNode>,
+  options: object,
+  { tryInline }: { tryInline: boolean }
+) {
+  const node = path.getValue();
+
+  return (
+    !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options)
+  );
 }
 
 /**
@@ -528,6 +571,16 @@ function printAugmentDecoratorArgs(
     ]),
     ")",
   ];
+}
+
+export function printDocComments(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
+  const node = path.getValue();
+  if (node.docs === undefined || node.docs.length === 0) {
+    return "";
+  }
+
+  const docs = path.map((x) => [print(x as any), line], "docs");
+  return group([...docs, breakParent]);
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
@@ -654,7 +707,9 @@ export function printEnumMember(
   const node = path.getValue();
   const id = path.call(print, "id");
   const value = node.value ? [": ", path.call(print, "value")] : "";
-  const { decorators, multiline } = printDecorators(path, options, print, { tryInline: true });
+  const { decorators, multiline } = printDecorators(path, options, print, {
+    tryInline: DecoratorsTryInline.enumMember,
+  });
   const propertyIndex = path.stack[path.stack.length - 2];
   const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
   return [multiline && isNotFirst ? hardline : "", decorators, id, value];
@@ -710,7 +765,9 @@ export function printUnionVariant(
 ) {
   const id = path.call(print, "id");
   const value = [": ", path.call(print, "value")];
-  const { decorators } = printDecorators(path, options, print, { tryInline: true });
+  const { decorators } = printDecorators(path, options, print, {
+    tryInline: DecoratorsTryInline.unionVariant,
+  });
   return [decorators, id, value];
 }
 
@@ -897,19 +954,15 @@ export function printModelExpression(
   print: PrettierChildPrint
 ) {
   const inBlock = isModelExpressionInBlock(path);
-
+  const node = path.getValue();
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    return group([
-      indent(
-        join(
-          ", ",
-          path.map((arg) => [softline, print(arg)], "properties")
-        )
-      ),
-      softline,
-    ]);
+    const properties =
+      node.properties.length === 0
+        ? ""
+        : indent(joinPropertiesInBlock(path as any, options, print, ifBreak(",", ", "), softline));
+    return group([properties, softline]);
   }
 }
 
@@ -962,18 +1015,80 @@ function printModelPropertiesBlock(
   const lineDoc = tryInline ? softline : hardline;
   const seperator = isModelAValue(path) ? "," : ";";
 
-  const body: prettier.Doc = [
-    lineDoc,
-    join(
-      [seperator, lineDoc],
-      path.map((x) => [print(x as any)], "properties")
-    ),
-    hasProperties ? ifBreak(seperator) : "",
-  ];
+  const body = [joinPropertiesInBlock(path as any, options, print, seperator, lineDoc)];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
   return group(["{", indent(body), lineDoc, "}"]);
+}
+
+function joinPropertiesInBlock(
+  path: AstPath<
+    Node & {
+      properties: readonly (
+        | ModelPropertyNode
+        | ModelSpreadPropertyNode
+        | ProjectionModelPropertyNode
+        | ProjectionModelSpreadPropertyNode
+      )[];
+    }
+  >,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+  separator: Doc,
+  regularLine: Doc
+): Doc {
+  const doc: Doc[] = [regularLine];
+  const propertyContainerNode = path.getValue();
+
+  let newLineBeforeNextProp = false;
+  path.each((item, propertyIndex) => {
+    const isFirst = propertyIndex === 0;
+    const isLast = propertyIndex === propertyContainerNode.properties.length - 1;
+    const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
+
+    if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
+      doc.push(hardline);
+      newLineBeforeNextProp = false;
+    }
+    doc.push(print(item));
+    if (isLast) {
+      doc.push(ifBreak(separator));
+    } else {
+      doc.push(separator);
+      doc.push(regularLine);
+      if (shouldWrapInNewLines) {
+        newLineBeforeNextProp = true;
+      }
+    }
+  }, "properties");
+  return doc;
+}
+
+/**
+ * Check if property item (PropertyNode, SpreadProperty) should be wrapped in new lines.
+ * It can be wrapped for the following reasons:
+ * - has decorators on lines above
+ * - has leading comments
+ */
+function shouldWrapPropertyInNewLines(
+  path: AstPath<
+    | ModelPropertyNode
+    | ModelSpreadPropertyNode
+    | ProjectionModelPropertyNode
+    | ProjectionModelSpreadPropertyNode
+  >,
+  options: any
+): boolean {
+  const node = path.getValue();
+  return (
+    ((node.kind === SyntaxKind.ModelProperty || node.kind === SyntaxKind.ProjectionModelProperty) &&
+      shouldDecoratorBreakLine(path as any, options, {
+        tryInline: DecoratorsTryInline.modelProperty,
+      })) ||
+    hasComments(node, CommentCheckFlags.Leading) ||
+    (node.docs && node.docs?.length > 0)
+  );
 }
 
 /**
@@ -1002,19 +1117,11 @@ export function printModelProperty(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
-  const propertyIndex = path.stack[path.stack.length - 2];
-  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
-  const { decorators, multiline } = printDecorators(
-    path as AstPath<DecorableNode>,
-    options,
-    print,
-    {
-      tryInline: true,
-    }
-  );
+  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
+    tryInline: DecoratorsTryInline.modelProperty,
+  });
   const id = printIdentifier(node.id, options);
   return [
-    multiline && isNotFirst ? hardline : "",
     printDirectives(path, options, print),
     decorators,
     id,

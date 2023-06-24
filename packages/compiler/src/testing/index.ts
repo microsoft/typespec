@@ -1,4 +1,5 @@
 export * from "./expect.js";
+export * from "./rule-tester.js";
 export * from "./test-host.js";
 export * from "./test-server-host.js";
 export * from "./test-utils.js";

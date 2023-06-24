@@ -333,6 +333,438 @@ enum \`2Colors\` {
 `,
       });
     });
+
+    describe("in between property spacing", () => {
+      it("hug properties with no line decorators or comments ", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+
+  two: string;
+
+
+
+  three: string
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+  two: string;
+  three: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with line decorators", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  @bar
+  two: string;
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  @bar
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap only in single line when 2 properties have decorators next to each other", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  two: string;
+  @foo
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  two: string;
+
+  @foo
+  three: string;
+
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with line comments", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  // comment
+  two: string;
+  three: string
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  // comment
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("first property with decorators or comment should not have extra blank space before", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  @foo
+  one: string;
+  two: string;
+}
+  `,
+          expected: `
+model Foo {
+  @foo
+  one: string;
+
+  two: string;
+}
+  `,
+        });
+      });
+
+      it("last property with decorators or comment should not have extra blank space after", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  @foo
+  two: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  @foo
+  two: string;
+}
+  `,
+        });
+      });
+
+      it("hug properties if the comment is trailing the property end of line", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+
+  two: string; // comment
+  three: string
+
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+  two: string; // comment
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+
+      it("wrap in new lines properties with block comments", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: string;
+  /** 
+   * comment
+   */
+  two: string;
+  three: string;
+  four: string;
+}
+  `,
+          expected: `
+model Foo {
+  one: string;
+
+  /**
+   * comment
+   */
+  two: string;
+
+  three: string;
+  four: string;
+}
+  `,
+        });
+      });
+    });
+  });
+
+  describe("op", () => {
+    it("keeps operation inline if it can", () => {
+      assertFormat({
+        code: `
+op foo(
+one: string;
+
+two: string;
+
+
+
+three: string,
+      ): void;
+`,
+        expected: `
+op foo(one: string, two: string, three: string): void;
+`,
+      });
+    });
+
+    it("doesn't add extra blank space in parameters list if operation split in new lines", () => {
+      assertFormat({
+        code: `
+op foo(
+
+      ): "very very very long text that will force this operation to split line"
+`,
+        expected: `
+op foo(
+): "very very very long text that will force this operation to split line";
+`,
+      });
+    });
+
+    describe("in between parameter spacing", () => {
+      it("hug parameters with no line decorators or comments ", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string;
+
+  two: string;
+
+
+
+  three: string,   four: string,
+  five: string,
+        ): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+  two: string,
+  three: string,
+  four: string,
+  five: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with line decorators", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  @bar
+  two: string,
+  three: string,
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  @bar
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap only in single line when 2 parameters have decorators next to each other", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  two: string,
+  @foo
+  three: string,
+  four: string
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  two: string,
+
+  @foo
+  three: string,
+
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with line comments", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  // comment
+  two: string,
+  three: string
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  // comment
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("first property with decorators or comment should not have extra blank space before", () => {
+        assertFormat({
+          code: `
+op foo(
+  @foo
+  one: string,
+  two: string,
+): void;
+  `,
+          expected: `
+op foo(
+  @foo
+  one: string,
+
+  two: string,
+): void;
+  `,
+        });
+      });
+
+      it("last property with decorators or comment should not have extra blank space after", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  @foo
+  two: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  @foo
+  two: string,
+): void;
+  `,
+        });
+      });
+
+      it("hug parameters if the comment is trailing the property end of line", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+
+  two: string, // comment
+  three: string
+
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+  two: string, // comment
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+
+      it("wrap in new lines parameters with block comments", () => {
+        assertFormat({
+          code: `
+op foo(
+  one: string,
+  /** 
+   * comment
+   */
+  two: string,
+  three: string,
+  four: string,
+): void;
+  `,
+          expected: `
+op foo(
+  one: string,
+
+  /**
+   * comment
+   */
+  two: string,
+
+  three: string,
+  four: string,
+): void;
+  `,
+        });
+      });
+    });
   });
 
   describe("scalar", () => {
@@ -436,18 +868,68 @@ model Foo {}
     it("format regular multi line comments", () => {
       assertFormat({
         code: `
-  /**
+  /*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
 `,
         expected: `
-/**
+/*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
+`,
+      });
+    });
+
+    it("format doc comment comments without * indent", () => {
+      // Keep the indentation
+      assertFormat({
+        code: `
+  /*
+  This is a multiline comment
+       that has bad formatting.
+    */
+model Foo {}
+`,
+        expected: `
+/*
+  This is a multiline comment
+       that has bad formatting.
+    */
+model Foo {}
+`,
+      });
+    });
+
+    it("format single line doc comment", () => {
+      // Keep the indentation
+      assertFormat({
+        code: `
+  /**    This is a single line doc comment    */
+model Foo {}
+`,
+        expected: `
+/** This is a single line doc comment */
+model Foo {}
+`,
+      });
+    });
+
+    it("print standalone doc comment", () => {
+      // Keep the indentation
+      assertFormat({
+        code: `
+  /**    
+   * This is a multiline doc comment  
+     */
+`,
+        expected: `
+/**
+ * This is a multiline doc comment
+ */
 `,
       });
     });
@@ -569,81 +1051,33 @@ interface Foo {
       });
     });
 
-    it("format comment between decorator and namespace statement", () => {
-      assertFormat({
-        code: `
+    describe("format comment between decorator and statement", () => {
+      [
+        ["blockless namespace", "namespace Bar;"],
+        ["flattened blockless namespace", "namespace Foo.Bar;"],
+        ["block namespace", "namespace Bar {\n\n}"],
+        ["flattened block namespace", "namespace Foo.Bar {\n\n}"],
+        ["model", "model Bar {}"],
+        ["op", "op test(foo: string): void;"],
+        ["scalar", "scalar foo;"],
+        ["interface", "interface Foo {}"],
+        ["union", "union Foo {}"],
+        ["enum", "enum Foo {}"],
+      ].forEach(([name, code]) => {
+        it(name, () => {
+          assertFormat({
+            code: `
 @foo
-   // comment
-namespace Bar;
+    // comment
+${code}
 `,
-        expected: `
-@foo
-// comment
-namespace Bar;
-`,
-      });
-    });
-
-    it("format comment between decorator and flattened blockless namespace statement", () => {
-      assertFormat({
-        code: `
-@foo
-   // comment
-namespace Foo.Bar;
-`,
-        expected: `
+            expected: `
 @foo
 // comment
-namespace Foo.Bar;
+${code}
 `,
-      });
-    });
-
-    it("format comment between decorator and flattened block namespace statement", () => {
-      assertFormat({
-        code: `
-@foo
-   // comment
-namespace Foo.Bar {
-}
-`,
-        expected: `
-@foo
-// comment
-namespace Foo.Bar {
-
-}
-`,
-      });
-    });
-
-    it("format comment between decorator and model statement", () => {
-      assertFormat({
-        code: `
-@foo
-  // comment
-model Bar {}
-`,
-        expected: `
-@foo
-// comment
-model Bar {}
-`,
-      });
-    });
-
-    it("format comment between decorator and op statement", () => {
-      assertFormat({
-        code: `
-@foo
-  // comment
-op test(foo: string): void;
-`,
-        expected: `
-@foo
-// comment
-op test(foo: string): void;
-`,
+          });
+        });
       });
     });
 
@@ -786,6 +1220,58 @@ namespace Foo.Bar {
 `,
         expected: `
 @@doc(Foo.bar, "This"); // comment
+`,
+      });
+    });
+
+    it("formats doc comment before decorators and directives", () => {
+      assertFormat({
+        code: `
+#suppress "foo"
+@dec1
+/**
+ * Doc comment
+ */
+@dec2
+model Foo {}
+`,
+        expected: `
+/**
+ * Doc comment
+ */
+#suppress "foo"
+@dec1
+@dec2
+model Foo {}
+`,
+      });
+    });
+
+    it("formats multiple doc comment before decorators and directives", () => {
+      assertFormat({
+        code: `
+#suppress "foo"
+@dec1
+/**
+ * Doc comment 1
+ */
+@dec2
+/**
+ * Doc comment 2
+ */
+model Foo {}
+`,
+        expected: `
+/**
+ * Doc comment 1
+ */
+/**
+ * Doc comment 2
+ */
+#suppress "foo"
+@dec1
+@dec2
+model Foo {}
 `,
       });
     });

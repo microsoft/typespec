@@ -1,8 +1,9 @@
-import assert, { deepStrictEqual, strictEqual } from "assert";
+import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { CharCode } from "../src/core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
+  IdentifierNode,
   Node,
   NodeFlags,
   ParseOptions,
@@ -10,6 +11,7 @@ import {
   SyntaxKind,
   TypeSpecScriptNode,
 } from "../src/core/types.js";
+import { DecorableNode } from "../src/formatter/print/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
 
 describe("compiler: parser", () => {
@@ -840,6 +842,46 @@ describe("compiler: parser", () => {
       { docs: true }
     );
 
+    describe("relation with comments", () => {
+      it("mark used block comment with parsedAsDocs", () => {
+        const script = parse(
+          `
+        /** One-liner */
+        model M {}
+      `,
+          { docs: true, comments: true }
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        strictEqual(comments[0].parsedAsDocs, true);
+      });
+
+      it("other comments are not marked with parsedAsDocs", () => {
+        const script = parse(
+          `
+        /* One-liner */
+        model M {}
+      `,
+          { docs: true, comments: true }
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        ok(!comments[0].parsedAsDocs);
+      });
+
+      it("doc comment syntax not attached to any node are not marked with parsedAsDocs", () => {
+        const script = parse(
+          `
+        /** One-liner */
+      `,
+          { docs: true, comments: true }
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        ok(!comments[0].parsedAsDocs);
+      });
+    });
+
     parseErrorEach(
       [
         [
@@ -910,6 +952,133 @@ describe("compiler: parser", () => {
     );
   });
 
+  describe("annotations order", () => {
+    function expectHasDocComment(script: TypeSpecScriptNode, content: string, index: number = 0) {
+      const docs = script.statements[0].docs;
+      strictEqual(docs?.[index].content[0].text, content);
+    }
+
+    function expectHasDirective(script: TypeSpecScriptNode, id: string) {
+      const directives = script.statements[0].directives;
+      ok(
+        directives?.some((x) => x.target.sv === id),
+        `Should have found a directive with id ${id} but only has ${directives?.map(
+          (x) => x.target.sv
+        )}`
+      );
+    }
+
+    function expectHasDecorator(script: TypeSpecScriptNode, id: string) {
+      const decorators = (script.statements[0] as DecorableNode).decorators;
+      ok(
+        decorators?.some((x) => (x.target as IdentifierNode).sv === id),
+        `Should have found a directive with id ${id} but only has ${decorators?.map(
+          (x) => (x.target as IdentifierNode).sv
+        )}`
+      );
+    }
+
+    parseEach([
+      [
+        `
+        /** doc, directive, decorator */
+        #suppress "a" "a"
+        @foo
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "doc, directive, decorator");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+
+      [
+        `
+        #suppress "a" "a"
+        /** directive, doc, decorator */
+        @foo
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "directive, doc, decorator");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+
+      [
+        `
+        #suppress "a" "a"
+        @foo
+        /** directive, decorator, doc */
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "directive, decorator, doc");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+
+      [
+        `
+        /** doc, decorator, directive */
+        @foo
+        #suppress "a" "a"
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "doc, decorator, directive");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+      [
+        `
+        @foo
+        /** decorator, doc, directive */
+        #suppress "a" "a"
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "decorator, doc, directive");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+      [
+        `
+        @foo
+        #suppress "a" "a"
+        /** decorator, directive, doc */
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "decorator, directive, doc");
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+      [
+        `
+        /** first: doc, directive, doc, decorator, doc */
+        #suppress "a" "a"
+        /** second */
+        @foo
+        /** third */
+        model M {}
+        `,
+        (script) => {
+          expectHasDocComment(script, "first: doc, directive, doc, decorator, doc", 0);
+          expectHasDocComment(script, "second", 1);
+          expectHasDocComment(script, "third", 2);
+          expectHasDirective(script, "suppress");
+          expectHasDecorator(script, "foo");
+        },
+      ],
+    ]);
+  });
   describe("conflict marker", () => {
     // NOTE: Use of ${} to obfuscate conflict markers so that they're not
     // flagged while working on these tests.

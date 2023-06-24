@@ -1,10 +1,11 @@
-import { createDiagnosticCreator } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCreator } from "./diagnostics.js";
 import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
   CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
+  LinterRuleDefinition,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
@@ -97,6 +98,14 @@ export function paramMessage<T extends string[]>(
   };
   template.keys = keys;
   return template;
+}
+
+/** Create a new linter rule. */
+export function createLinterRule<const N extends string, const T extends DiagnosticMessages>(
+  definition: LinterRuleDefinition<N, T>
+) {
+  compilerAssert(!definition.name.includes("/"), "Rule name cannot contain a '/'.");
+  return definition;
 }
 
 /** @deprecated use setTypeSpecNamespace */
