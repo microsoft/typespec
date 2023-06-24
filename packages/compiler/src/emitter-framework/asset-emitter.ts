@@ -18,7 +18,6 @@ import {
   ContextState,
   Declaration,
   EmitEntity,
-  EmittedSourceFile,
   EmitterResult,
   EmitterState,
   NamespaceScope,
@@ -107,8 +106,6 @@ export function createAssetEmitter<T, TOptions extends object>(
   let programContext: ContextState | null = null;
   let incomingReferenceContext: Record<string, string> | null = null;
   const interner = createInterner();
-
-  const emittedSourceFiles = new Map<SourceFile<T>, EmittedSourceFile>();
 
   const assetEmitter: AssetEmitter<T, TOptions> = {
     getContext() {
@@ -425,12 +422,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     },
 
     emitSourceFile(sourceFile) {
-      if (emittedSourceFiles.has(sourceFile)) {
-        return emittedSourceFiles.get(sourceFile)!;
-      }
-      const emittedSf = typeEmitter.sourceFile(sourceFile);
-      emittedSourceFiles.set(sourceFile, emittedSf);
-      return emittedSf;
+      return typeEmitter.sourceFile(sourceFile);
     },
   };
 
