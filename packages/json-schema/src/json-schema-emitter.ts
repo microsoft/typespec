@@ -508,7 +508,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const toEmit: EmittedSourceFile[] = [];
 
     for (const sf of sourceFiles) {
-      console.log("Have sf", sf);
       const emittedSf = this.emitter.emitSourceFile(sf);
 
       if (sf.meta.shouldEmit) {
@@ -517,7 +516,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     for (const emittedSf of toEmit) {
-      console.log("emitting file", emittedSf);
       await emitFile(this.emitter.getProgram(), {
         path: emittedSf.path,
         content: emittedSf.contents,
