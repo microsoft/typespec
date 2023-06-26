@@ -20,11 +20,18 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
   return host;
 }
 
-export async function emitSchema(code: string, options: JSONSchemaEmitterOptions = {}) {
+export async function emitSchema(
+  code: string,
+  options: JSONSchemaEmitterOptions = {},
+  testOptions: { emitNamespace: boolean } = { emitNamespace: true }
+) {
   if (!options["file-type"]) {
     options["file-type"] = "json";
   }
-  code = `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test;` + code;
+
+  code = testOptions.emitNamespace
+    ? `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test; ${code}`
+    : `import "@typespec/json-schema"; using JsonSchema; ${code}`;
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, JsonSchemaEmitter, {
     emitterOutputDir: "cadl-output",

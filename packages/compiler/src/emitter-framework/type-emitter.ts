@@ -1,6 +1,7 @@
 import {
   BooleanLiteral,
   compilerAssert,
+  emitFile,
   Enum,
   EnumMember,
   Interface,
@@ -631,6 +632,16 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     }
 
     return emittedSourceFile;
+  }
+
+  async writeOutput(sourceFiles: SourceFile<T>[]) {
+    for (const file of sourceFiles) {
+      const outputFile = this.emitter.emitSourceFile(file);
+      await emitFile(this.emitter.getProgram(), {
+        path: outputFile.path,
+        content: outputFile.contents,
+      });
+    }
   }
 
   reference(
