@@ -2,6 +2,37 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("will expose create visibility properties on PATCH models", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+      @route("/") @patch op createOrUpdate(...M): M; 
+    `);
+
+    const response = res.paths["/"].patch.responses["200"].schema;
+    const request = res.paths["/"].patch.parameters[0].schema;
+
+    deepStrictEqual(response, { $ref: "#/definitions/M" });
+    deepStrictEqual(request, { $ref: "#/definitions/MUpdate" });
+    deepStrictEqual(res.definitions, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", "x-ms-mutability": ["read"] },
+          rc: { type: "string", "x-ms-mutability": ["read", "create"] },
+          ruc: { type: "string", "x-ms-mutability": ["read", "update", "create"] },
+        },
+      },
+      MUpdate: {
+        rc: { type: "string", "x-ms-mutability": ["read", "create"] },
+        ruc: { type: "string", "x-ms-mutability": ["read", "update", "create"] },
+      },
+    });
+  });
+
   it("can make properties optional", async () => {
     const res = await openApiFor(`
       model Widget { 

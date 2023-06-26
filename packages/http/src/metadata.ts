@@ -466,6 +466,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
 
   function isOptional(property: ModelProperty, visibility: Visibility): boolean {
     // Properties are only made optional for update visibility
+    // FIXME: What about create visibility with PATCH verb?
     return property.optional || visibility === Visibility.Update;
   }
 
