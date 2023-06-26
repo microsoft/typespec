@@ -1,6 +1,6 @@
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter } from "../../src/core/linter.js";
-import { Library, LinterDefinition } from "../../src/index.js";
+import { LibraryInstance, LinterDefinition } from "../../src/index.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -41,7 +41,7 @@ describe("compiler: linter", () => {
       }
     }
 
-    const library: Library = {
+    const library: LibraryInstance = {
       entrypoint: undefined,
       metadata: { type: "module", name: "@typespec/test" },
       module: { type: "module", path: "", mainFile: "", manifest: { name: "", version: "" } },
@@ -69,7 +69,7 @@ describe("compiler: linter", () => {
     expectDiagnosticEmpty(
       await linter.extendRuleSet({
         enable: Object.fromEntries(
-          linterDef.rules.map((x) => [`@typespec/test-linter:${x.name}`, true])
+          linterDef.rules.map((x) => [`@typespec/test-linter/${x.name}`, true])
         ),
       })
     );
@@ -88,7 +88,7 @@ describe("compiler: linter", () => {
       rules: [noModelFoo],
     });
     expectDiagnostics(
-      await linter.extendRuleSet({ enable: { "@typespec/test-linter:not-a-rule": true } }),
+      await linter.extendRuleSet({ enable: { "@typespec/test-linter/not-a-rule": true } }),
       {
         severity: "error",
         code: "unknown-rule",
@@ -103,7 +103,7 @@ describe("compiler: linter", () => {
     });
     expectDiagnostics(
       await linter.extendRuleSet({
-        enable: { [`@typespec/not-a-linter:${noModelFoo.name}`]: true },
+        enable: { [`@typespec/not-a-linter/${noModelFoo.name}`]: true },
       }),
       {
         severity: "error",
@@ -118,7 +118,7 @@ describe("compiler: linter", () => {
       rules: [noModelFoo],
     });
     expectDiagnostics(
-      await linter.extendRuleSet({ extends: ["@typespec/test-linter:not-a-rule"] }),
+      await linter.extendRuleSet({ extends: ["@typespec/test-linter/not-a-rule"] }),
       {
         severity: "error",
         code: "unknown-rule-set",
@@ -133,13 +133,13 @@ describe("compiler: linter", () => {
     });
     expectDiagnostics(
       await linter.extendRuleSet({
-        enable: { "@typespec/test-linter:no-model-foo": true },
-        disable: { "@typespec/test-linter:no-model-foo": "Reason" },
+        enable: { "@typespec/test-linter/no-model-foo": true },
+        disable: { "@typespec/test-linter/no-model-foo": "Reason" },
       }),
       {
         severity: "error",
         code: "rule-enabled-disabled",
-        message: `Rule "@typespec/test-linter:no-model-foo" has been enabled and disabled in the same ruleset.`,
+        message: `Rule "@typespec/test-linter/no-model-foo" has been enabled and disabled in the same ruleset.`,
       }
     );
   });
@@ -174,7 +174,7 @@ describe("compiler: linter", () => {
       });
       expectDiagnostics(linter.lint(), {
         severity: "warning",
-        code: "@typespec/test-linter:no-model-foo",
+        code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,
       });
     });
@@ -187,12 +187,12 @@ describe("compiler: linter", () => {
       });
       expectDiagnosticEmpty(
         await linter.extendRuleSet({
-          enable: { "@typespec/test-linter:no-model-foo": true },
+          enable: { "@typespec/test-linter/no-model-foo": true },
         })
       );
       expectDiagnostics(linter.lint(), {
         severity: "warning",
-        code: "@typespec/test-linter:no-model-foo",
+        code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,
       });
     });
@@ -203,7 +203,7 @@ describe("compiler: linter", () => {
       });
       expectDiagnosticEmpty(
         await linter.extendRuleSet({
-          enable: { "@typespec/test-linter:no-model-foo": true },
+          enable: { "@typespec/test-linter/no-model-foo": true },
         })
       );
       expectDiagnosticEmpty(linter.lint());

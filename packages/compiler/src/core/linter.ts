@@ -6,7 +6,7 @@ import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./
 import {
   Diagnostic,
   DiagnosticMessages,
-  Library,
+  LibraryInstance,
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,
@@ -23,13 +23,13 @@ export interface Linter {
 
 export function createLinter(
   program: Program,
-  loadLibrary: (name: string) => Promise<Library | undefined>
+  loadLibrary: (name: string) => Promise<LibraryInstance | undefined>
 ): Linter {
   const tracer = program.tracer.sub("linter");
 
   const ruleMap = new Map<string, LinterRule<string, any>>();
   const enabledRules = new Map<string, LinterRule<string, any>>();
-  const linterLibraries = new Map<string, Library | undefined>();
+  const linterLibraries = new Map<string, LibraryInstance | undefined>();
 
   return {
     extendRuleSet,
@@ -127,7 +127,7 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  async function resolveLibrary(name: string): Promise<Library | undefined> {
+  async function resolveLibrary(name: string): Promise<LibraryInstance | undefined> {
     const loadedLibrary = linterLibraries.get(name);
     if (loadedLibrary === undefined) {
       return registerLinterLibrary(name);
@@ -135,13 +135,13 @@ export function createLinter(
     return loadedLibrary;
   }
 
-  async function registerLinterLibrary(name: string): Promise<Library | undefined> {
+  async function registerLinterLibrary(name: string): Promise<LibraryInstance | undefined> {
     tracer.trace("register-library", name);
 
     const library = await loadLibrary(name);
     if (library?.definition?.linter?.rules) {
       for (const ruleDef of library.definition.linter.rules) {
-        const ruleId = `${name}:${ruleDef.name}`;
+        const ruleId = `${name}/${ruleDef.name}`;
         tracer.trace(
           "register-library.rule",
           `Registering rule "${ruleId}" for library "${name}".`
@@ -162,7 +162,9 @@ export function createLinter(
   function parseRuleReference(
     ref: RuleRef
   ): [{ libraryName: string; name: string } | undefined, readonly Diagnostic[]] {
-    const [libraryName, name] = ref.split(":");
+    const segments = ref.split("/");
+    const name = segments.pop();
+    const libraryName = segments.join("/");
     if (!libraryName || !name) {
       return [
         undefined,

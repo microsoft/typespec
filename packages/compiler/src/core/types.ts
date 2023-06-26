@@ -1673,8 +1673,7 @@ export interface LibraryLocationContext {
   metadata: ModuleLibraryMetadata;
 }
 
-// TODO better name?
-export interface Library {
+export interface LibraryInstance {
   module: ModuleResolutionResult;
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
@@ -2004,7 +2003,7 @@ export interface LinterRule<N extends string, DM extends DiagnosticMessages>
 }
 
 /** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
-export type RuleRef = `${string}:${string}`;
+export type RuleRef = `${string}/${string}`;
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
   extends?: RuleRef[];

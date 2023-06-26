@@ -33,7 +33,7 @@ import {
   EmitContext,
   EmitterFunc,
   JsSourceFileNode,
-  Library,
+  LibraryInstance,
   LibraryMetadata,
   LiteralType,
   LocationContext,
@@ -331,20 +331,22 @@ export async function compile(
 
   if (resolvedMain) {
     await loadMain(resolvedMain);
+  } else {
+    return program;
   }
 
-  if (resolvedMain) {
-    let emit = options.emit;
-    let emitterOptions = options.options;
-    /* eslint-disable deprecation/deprecation */
-    if (options.emitters) {
-      emit ??= Object.keys(options.emitters);
-      emitterOptions ??= options.emitters;
-    }
-    /* eslint-enable deprecation/deprecation */
+  const basedir = getDirectoryPath(resolvedMain);
 
-    await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
+  let emit = options.emit;
+  let emitterOptions = options.options;
+  /* eslint-disable deprecation/deprecation */
+  if (options.emitters) {
+    emit ??= Object.keys(options.emitters);
+    emitterOptions ??= options.emitters;
   }
+  /* eslint-enable deprecation/deprecation */
+
+  await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
 
   if (
     oldProgram &&
@@ -357,7 +359,7 @@ export async function compile(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  const linter = createLinter(program, (name) => loadLibrary(mainFile, name));
+  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
@@ -650,12 +652,12 @@ export async function compile(
   }
 
   async function loadEmitters(
-    mainFile: string,
+    basedir: string,
     emitterNameOrPaths: string[],
     emitterOptions: Record<string, EmitterOptions>
   ) {
     for (const emitterNameOrPath of emitterNameOrPaths) {
-      const emitter = await loadEmitter(mainFile, emitterNameOrPath, emitterOptions);
+      const emitter = await loadEmitter(basedir, emitterNameOrPath, emitterOptions);
       if (emitter) {
         emitters.push(emitter);
       }
@@ -663,7 +665,7 @@ export async function compile(
   }
 
   async function resolveEmitterModuleAndEntrypoint(
-    mainFile: string,
+    basedir: string,
     emitterNameOrPath: string
   ): Promise<
     [
@@ -671,7 +673,6 @@ export async function compile(
       readonly Diagnostic[]
     ]
   > {
-    const basedir = getDirectoryPath(mainFile);
     const locationContext: LocationContext = { type: "project" };
     // attempt to resolve a node module with this name
     const [module, diagnostics] = await resolveJSLibrary(
@@ -690,11 +691,11 @@ export async function compile(
   }
 
   async function loadLibrary(
-    mainFile: string,
+    basedir: string,
     libraryNameOrPath: string
-  ): Promise<Library | undefined> {
+  ): Promise<LibraryInstance | undefined> {
     const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
-      mainFile,
+      basedir,
       libraryNameOrPath
     );
 
@@ -715,11 +716,11 @@ export async function compile(
   }
 
   async function loadEmitter(
-    mainFile: string,
+    basedir: string,
     emitterNameOrPath: string,
     emittersOptions: Record<string, EmitterOptions>
   ): Promise<EmitterRef | undefined> {
-    const library = await loadLibrary(mainFile, emitterNameOrPath);
+    const library = await loadLibrary(basedir, emitterNameOrPath);
 
     if (library === undefined) {
       return undefined;

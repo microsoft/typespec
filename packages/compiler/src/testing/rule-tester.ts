@@ -48,7 +48,7 @@ export function createLinterRuleTester(
     await runner.diagnose(code);
 
     const diagnostics = createDiagnosticCollector();
-    const rule = { ...ruleDef, id: `${libraryName}:${ruleDef.name}` };
+    const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };
     const context = createLinterRuleContext(runner.program, rule, diagnostics);
     const listener = ruleDef.create(context);
     navigateProgram(runner.program, listener);
