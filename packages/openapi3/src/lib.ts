@@ -113,6 +113,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       type: "string",
       enum: ["inline-only", "never"],
       nullable: true,
+      default: "never",
       description:
         "If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.\nThis extension is meant for debugging and should not be depended on.",
     },
