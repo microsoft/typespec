@@ -1,10 +1,10 @@
 {
-  "name": "@typespec/lint",
+  "name": "@typespec/best-practices",
   "version": "0.45.0",
   "author": "Microsoft Corporation",
-  "description": "**DEPRECATED** Use typespec built-in linter.",
+  "description": "TypeSpec linter rules to enforce best practices.",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -18,20 +18,8 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "tspMain": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/src/index.d.ts"
-      ],
-      "testing": [
-        "./dist/src/testing/index.d.ts"
-      ]
-    }
+    ".": "./dist/src/index.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -46,6 +34,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
