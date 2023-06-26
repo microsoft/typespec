@@ -19,7 +19,6 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
 
   const stateStorage = createStandalonePlaygroundStateStorage();
   const initialState = stateStorage.load();
-  console.log("Initial state", initialState);
   const options: PlaygroundProps = {
     ...config,
     host,
