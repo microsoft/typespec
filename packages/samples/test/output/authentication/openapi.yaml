@@ -42,7 +42,6 @@ components:
         scopes:
           type: array
           items: {}
-          x-typespec-name: '[read, write]'
       required:
         - type
         - authorizationUrl

@@ -52,10 +52,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Person'
-                    x-typespec-name: Person[]
                 required:
                   - items
-                x-typespec-name: ListResult<Person>
     patch:
       operationId: Hello_updateRest
       parameters: []
@@ -115,7 +113,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-          x-typespec-name: PersonRelative[]
     Person:
       type: object
       properties:
@@ -132,7 +129,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-          x-typespec-name: PersonRelative[]
       required:
         - id
         - name
@@ -152,7 +148,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateItem'
-          x-typespec-name: PersonRelative[]
       required:
         - secret
         - name
@@ -173,7 +168,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
-          x-typespec-name: PersonRelative[]
       required:
         - secret
         - name
@@ -231,7 +225,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
-          x-typespec-name: PersonRelative[]
     PersonUpdateItem:
       type: object
       properties:
@@ -243,7 +236,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
-          x-typespec-name: PersonRelative[]
       required:
         - name
         - other
@@ -264,7 +256,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-          x-typespec-name: PersonRelative[]
       required:
         - id
         - name
@@ -284,7 +275,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateItem'
-          x-typespec-name: PersonRelative[]
       required:
         - secret
         - name
@@ -303,4 +293,3 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
-          x-typespec-name: PersonRelative[]
