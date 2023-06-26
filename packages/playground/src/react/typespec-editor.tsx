@@ -1,10 +1,10 @@
 import { editor } from "monaco-editor";
 import { FunctionComponent } from "react";
-import { Editor, EditorCommand, useMonacoModel } from "./editor.js";
+import { Editor, useMonacoModel } from "./editor.js";
 
 export interface TypeSpecEditorProps {
   model: editor.IModel;
-  commands?: EditorCommand[];
+  actions?: editor.IActionDescriptor[];
 }
 
 export const TypeSpecEditor: FunctionComponent<TypeSpecEditorProps> = (props) => {
@@ -17,7 +17,7 @@ export const TypeSpecEditor: FunctionComponent<TypeSpecEditorProps> = (props) =>
     },
   };
   // Add shortcuts
-  return <Editor model={props.model} commands={props.commands} options={options}></Editor>;
+  return <Editor model={props.model} actions={props.actions} options={options}></Editor>;
 };
 
 export const OutputEditor: FunctionComponent<{ filename: string; value: string }> = ({

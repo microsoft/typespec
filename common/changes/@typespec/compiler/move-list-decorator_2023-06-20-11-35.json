@@ -1,0 +1,20 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Deprecate** `@list` decorator in favor of `@listsResource` in `@typespec/rest`",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Deprecate** `isListOperation` function in favor of `isListOperation` in `@typespec/rest`",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Deprecate** `getListOperationType` function",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
