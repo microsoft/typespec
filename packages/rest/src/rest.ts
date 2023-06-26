@@ -1,5 +1,4 @@
 import {
-  $list,
   createDiagnosticCollector,
   DecoratorContext,
   DiagnosticResult,
@@ -412,13 +411,20 @@ export function $deletesResource(
 }
 
 export function $listsResource(context: DecoratorContext, entity: Operation, resourceType: Model) {
-  // Add the @list decorator too so that collection routes are generated correctly
-  context.call($list, entity, resourceType);
-
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
 
   setResourceOperation(context, entity, resourceType, "list");
+}
+
+/**
+ * Returns `true` if the given operation is marked as a list operation.
+ * @param program the TypeSpec program
+ * @param target the target operation
+ */
+export function isListOperation(program: Program, target: Operation): boolean {
+  // Is the given operation a `list` operation?
+  return getResourceOperation(program, target)?.operation === "list";
 }
 
 function lowerCaseFirstChar(str: string): string {
