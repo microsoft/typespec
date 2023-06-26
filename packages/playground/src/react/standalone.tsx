@@ -19,12 +19,13 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
 
   const stateStorage = createStandalonePlaygroundStateStorage();
   const initialState = stateStorage.load();
+  console.log("Initial state", initialState);
   const options: PlaygroundProps = {
     ...config,
     host,
     emitters,
     defaultContent: initialState.content,
-    defaultEmitter: initialState.emitter,
+    defaultEmitter: initialState.emitter ?? config.defaultEmitter,
     defaultEmitterOptions: initialState.options,
     defaultSampleName: initialState.sampleName,
     onSave: (value) => {
