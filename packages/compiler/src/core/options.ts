@@ -1,5 +1,5 @@
 import { EmitterOptions } from "../config/types.js";
-import { ParseOptions } from "./types.js";
+import { LinterRuleSet, ParseOptions } from "./types.js";
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;
@@ -56,4 +56,7 @@ export interface CompilerOptions {
   trace?: string[];
 
   parseOptions?: ParseOptions;
+
+  /** Ruleset to enable for linting. */
+  linterRuleSet?: LinterRuleSet;
 }

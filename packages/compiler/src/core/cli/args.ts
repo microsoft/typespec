@@ -84,6 +84,7 @@ export async function getCompilerOptions(
     trace: expandedConfig.trace,
     emit: expandedConfig.emit,
     options: expandedConfig.options,
+    linterRuleSet: expandedConfig.linter,
   });
   return diagnostics.wrap(options);
 }

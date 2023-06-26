@@ -194,6 +194,7 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emit,
     options,
+    linter: data.linter,
   });
 }
 
