@@ -51,9 +51,9 @@ export interface OpenAPI3EmitterOptions {
   /**
    * If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
    * This extension is meant for debugging and should not be depended on.
-   * @default "none"
+   * @default "never"
    */
-  "include-x-typespec-name"?: "inline-only" | "none";
+  "include-x-typespec-name"?: "inline-only" | "never";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -111,7 +111,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
     },
     "include-x-typespec-name": {
       type: "string",
-      enum: ["inline-only", "none"],
+      enum: ["inline-only", "never"],
       nullable: true,
       description:
         "If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.\nThis extension is meant for debugging and should not be depended on.",

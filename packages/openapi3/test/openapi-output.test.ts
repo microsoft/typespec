@@ -66,6 +66,16 @@ describe("openapi3: x-typespec-name", () => {
     ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
   });
 
+  it(`doesn't include x-typespec-name when option include-x-typespec-name: "never"`, async () => {
+    const output = await openapiWithOptions(
+      `
+      model Foo {names: string[]}
+    `,
+      { "include-x-typespec-name": "never" }
+    );
+    ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
+  });
+
   it(`include x-typespec-name when option include-x-typespec-name: "inline-only"`, async () => {
     const output = await openapiWithOptions(
       `

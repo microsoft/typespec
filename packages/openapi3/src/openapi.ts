@@ -118,7 +118,7 @@ const defaultFileType: FileType = "yaml";
 const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
-  "include-x-typespec-name": "none",
+  "include-x-typespec-name": "never",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -165,7 +165,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   outputFile: string;
   newLine: NewLine;
   omitUnreachableTypes: boolean;
-  includeXTypeSpecName: "inline-only" | "none";
+  includeXTypeSpecName: "inline-only" | "never";
 }
 
 /**
@@ -923,7 +923,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
 
       // helps to read output and correlate to TypeSpec
-      if (schema && options.includeXTypeSpecName !== "none") {
+      if (schema && options.includeXTypeSpecName !== "never") {
         schema["x-typespec-name"] = name;
       }
       return schema;
