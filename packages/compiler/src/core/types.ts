@@ -1777,10 +1777,10 @@ export interface RmOptions {
 }
 
 export interface CompilerHost {
-  // read a file at the given url.
+  /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
 
-  // read a utf-8 encoded file
+  /** read a utf-8 or utf-8 with bom encoded file */
   readFile(path: string): Promise<SourceFile>;
 
   /**

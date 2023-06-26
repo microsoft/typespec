@@ -17,7 +17,7 @@ export const NodeHost: CompilerHost = {
     const text = await response.text();
     return createSourceFile(text, response.url);
   },
-  readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
+  readFile: async (path: string) => createSourceFile(await readUtf8File(path), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   readDir: (path: string) => readdir(path),
   rm: (path: string, options: RmOptions) => rm(path, options),
@@ -41,3 +41,26 @@ export const NodeHost: CompilerHost = {
     return pathToFileURL(path).href;
   },
 };
+
+async function readUtf8File(path: string) {
+  const buffer = await readFile(path);
+  const len = buffer.length;
+  if (len >= 2 && buffer[0] === 0xfe && buffer[1] === 0xff) {
+    throw new InvalidEncodingError("UTF-16 BE");
+  }
+  if (len >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
+    throw new InvalidEncodingError("UTF-16 LE");
+  }
+  if (len >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
+    // UTF-8 byte order mark detected
+    return buffer.toString("utf8", 3);
+  }
+  // Default is UTF-8 with no byte order mark
+  return buffer.toString("utf8");
+}
+
+export class InvalidEncodingError extends Error {
+  constructor(encoding: string) {
+    super(`Invalid encoding ${encoding}. TypeSpec only supports UTF-8 and UTF-8 with bom`);
+  }
+}
