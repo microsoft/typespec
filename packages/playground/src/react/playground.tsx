@@ -62,6 +62,12 @@ export interface PlaygroundSaveData {
   /** Current content of the playground.   */
   content: string;
 
+  /** Emitter name. */
+  emitter: string;
+
+  /** Emitter options. */
+  options?: EmitterOptions;
+
   /** If a sample is selected and the content hasn't changed since. */
   sampleName?: string;
 }
@@ -165,10 +171,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     if (onSave) {
       onSave({
         content: typespecModel.getValue(),
+        emitter: selectedEmitter,
+        options: emitterOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
       });
     }
-  }, [typespecModel, onSave, selectedSampleName, isSampleUntouched]);
+  }, [typespecModel, onSave, selectedEmitter, emitterOptions, selectedSampleName, isSampleUntouched]);
 
   const newIssue = useCallback(async () => {
     saveCode();

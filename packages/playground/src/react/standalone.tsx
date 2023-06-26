@@ -24,6 +24,8 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
     host,
     emitters,
     defaultContent: initialState.content,
+    defaultEmitter: initialState.emitter,
+    defaultEmitterOptions: initialState.options,
     defaultSampleName: initialState.sampleName,
     onSave: (value) => {
       stateStorage.save(value);
@@ -51,6 +53,13 @@ export function createStandalonePlaygroundStateStorage(): StateStorage<Playgroun
       queryParam: "c",
       compress: "lz-base64",
     },
+    emitter: {
+      queryParam: "e",
+    },
+    options: {
+      type: 'object',
+      queryParam: "options",
+    },
     sampleName: {
       queryParam: "sample",
     },
@@ -59,7 +68,7 @@ export function createStandalonePlaygroundStateStorage(): StateStorage<Playgroun
   return {
     load: stateStorage.load,
     save(data: PlaygroundSaveData) {
-      stateStorage.save(data.sampleName ? { sampleName: data.sampleName } : data);
+      stateStorage.save(data.sampleName ? { sampleName: data.sampleName, options: data.options } : data);
     },
   };
 }

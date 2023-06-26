@@ -13,6 +13,8 @@ export interface UrlStorageItem {
   /** Name of the query parameter where the data will be serialized. */
   queryParam: string;
 
+  type?: "string" | "object";
+
   /** Encoding the data should be compressed with. If undefined param will not be compressed. */
   compress?: "lz-base64";
 }
@@ -30,42 +32,78 @@ export function createUrlStateStorage<const T extends object>(
   function load(): Partial<T> {
     const result: Record<string, string> = {};
     const parsed = new URLSearchParams(window.location.search);
-    for (const [key, query] of Object.entries<UrlStorageItem>(schema)) {
-      const value = parsed.get(query.queryParam);
-
-      if (value) {
-        if (query.compress) {
-          try {
-            result[key] = lzutf8.decompress(value, { inputEncoding: "Base64" });
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error(
-              `Error decompressing query parameter ${query.queryParam} with content:`,
-              value
-            );
-          }
-        } else {
-          result[key] = value;
-        }
+    for (const [key, item] of Object.entries<UrlStorageItem>(schema)) {
+      const value = parsed.get(item.queryParam);
+      const decompressed = value && decompress(item, value);
+      const deserialized = decompressed && deserialize(item, decompressed);
+      if (deserialized) {
+        result[key] = deserialized;
       }
     }
     return result as Partial<T>;
   }
 
+  function decompress(item: UrlStorageItem, value: string): string | undefined {
+    if (item.compress) {
+      try {
+        return lzutf8.decompress(value, { inputEncoding: "Base64" });
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `Error decompressing query parameter ${item.queryParam} with content:`,
+          value
+        );
+        return undefined;
+      }
+    } else {
+      return value;
+    }
+  }
+
+  function deserialize(item: UrlStorageItem, value: string): any {
+    if (item.type === "object") {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `Error decompressing query parameter ${item.queryParam} with content:`,
+          value
+        );
+        return undefined;
+      }
+    } else {
+      return value;
+    }
+  }
+
   function save(data: T) {
     const params = new URLSearchParams();
-    for (const [key, query] of Object.entries<UrlStorageItem>(schema)) {
+    for (const [key, item] of Object.entries<UrlStorageItem>(schema)) {
       const value = (data as any)[key];
 
       if (value) {
-        if (query.compress) {
-          const compressed = lzutf8.compress(value, { outputEncoding: "Base64" });
-          params.append(query.queryParam, compressed);
-        } else {
-          params.append(query.queryParam, value);
-        }
+        const serialized = serialize(item, value);
+        const compressed = compress(item, serialized);
+        params.append(item.queryParam, compressed);
       }
     }
     history.pushState(null, "", window.location.pathname + "?" + params.toString());
+  }
+
+  function compress(item: UrlStorageItem, value: string): string {
+    if (item.compress) {
+      return lzutf8.compress(value, { outputEncoding: "Base64" });
+    } else {
+      return value;
+    }
+  }
+
+  function serialize(item: UrlStorageItem, value: any): string {
+    if (item.type === "object") {
+      return JSON.stringify(value);
+    } else {
+      return value;
+    }
   }
 }
