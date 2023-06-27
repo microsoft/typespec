@@ -57,7 +57,7 @@ export function createStandalonePlaygroundStateStorage(): StateStorage<Playgroun
       queryParam: "e",
     },
     options: {
-      type: 'object',
+      type: "object",
       queryParam: "options",
     },
     sampleName: {
@@ -68,7 +68,9 @@ export function createStandalonePlaygroundStateStorage(): StateStorage<Playgroun
   return {
     load: stateStorage.load,
     save(data: PlaygroundSaveData) {
-      stateStorage.save(data.sampleName ? { sampleName: data.sampleName, options: data.options } : data);
+      stateStorage.save(
+        data.sampleName ? { sampleName: data.sampleName, options: data.options } : data
+      );
     },
   };
 }

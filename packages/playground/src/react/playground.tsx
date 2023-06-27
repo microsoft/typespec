@@ -176,7 +176,14 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
       });
     }
-  }, [typespecModel, onSave, selectedEmitter, emitterOptions, selectedSampleName, isSampleUntouched]);
+  }, [
+    typespecModel,
+    onSave,
+    selectedEmitter,
+    emitterOptions,
+    selectedSampleName,
+    isSampleUntouched,
+  ]);
 
   const newIssue = useCallback(async () => {
     saveCode();
