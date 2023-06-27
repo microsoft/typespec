@@ -332,7 +332,6 @@ describe("openapi3: return types", () => {
         schema: {
           type: "object",
           properties: {},
-          "x-typespec-name": "{}",
         },
       },
     });
@@ -352,7 +351,6 @@ describe("openapi3: return types", () => {
         schema: {
           type: "object",
           properties: {},
-          "x-typespec-name": "{}",
         },
       },
     });
@@ -374,7 +372,6 @@ describe("openapi3: return types", () => {
           additionalProperties: {
             type: "string",
           },
-          "x-typespec-name": "Record<string>",
         },
       },
     });

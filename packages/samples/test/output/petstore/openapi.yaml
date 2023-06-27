@@ -166,7 +166,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Pet'
-          x-typespec-name: Pet[]
         nextLink:
           type: string
       required:
@@ -193,7 +192,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Toy'
-          x-typespec-name: Toy[]
         nextLink:
           type: string
       required:
