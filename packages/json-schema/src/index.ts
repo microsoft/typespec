@@ -17,7 +17,7 @@ import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import { JSONSchemaEmitterOptions, createStateSymbol } from "./lib.js";
 
 export { $lib } from "./lib.js";
-export const namespace = "JsonSchema";
+export const namespace = "TypeSpec.JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 
 const jsonSchemaKey = createStateSymbol("JsonSchema");
@@ -74,8 +74,25 @@ export function findBaseUri(
   return baseUrl;
 }
 
+export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDeclaration) {
+  let current: JsonSchemaDeclaration | Namespace | undefined = target;
+  do {
+    if (getJsonSchema(program, current)) {
+      return true;
+    }
+
+    current = current.namespace;
+  } while (current);
+
+  return false;
+}
+
 export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
   return [...(program.stateSet(jsonSchemaKey) || [])] as (Namespace | Model)[];
+}
+
+export function getJsonSchema(program: Program, target: Type) {
+  return program.stateSet(jsonSchemaKey).has(target);
 }
 
 const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");

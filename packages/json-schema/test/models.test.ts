@@ -104,13 +104,16 @@ describe("emitting models", () => {
   });
 
   it("handles Record<T>", async () => {
-    const schemas = await emitSchema(`
+    const schemas = await emitSchema(
+      `
       model ExtendsRecord extends Record<string> {};
       model IsRecord is Record<{ x: int32, y: int32}>;
       model HasProp {
         x: Record<string>;
       }
-    `);
+    `,
+      { emitAllRefs: true }
+    );
 
     assert.deepStrictEqual(schemas["ExtendsRecord.json"].allOf[0], { $ref: "RecordString.json" });
     assert.deepStrictEqual(schemas["RecordString.json"].additionalProperties, { type: "string" });

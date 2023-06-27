@@ -39,7 +39,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   emitEnumMembers(en: Enum): EmitEntity<T>;
   emitUnionVariants(union: Union): EmitEntity<T>;
   emitTupleLiteralValues(tuple: Tuple): EmitEntity<T>;
-
+  emitSourceFile(sourceFile: SourceFile<T>): EmittedSourceFile;
   /**
    * Create a source file.
    *
@@ -86,6 +86,7 @@ export interface SourceFile<T> {
   path: string;
   globalScope: Scope<T>;
   imports: Map<string, string[]>;
+  meta: Record<string, any>;
 }
 
 export interface EmittedSourceFile {
@@ -98,6 +99,7 @@ export type EmitEntity<T> = Declaration<T> | RawCode<T> | NoEmit | CircularEmit;
 export class EmitterResult {}
 export class Declaration<T> extends EmitterResult {
   public kind = "declaration" as const;
+  public meta: Record<string, any> = {};
 
   constructor(public name: string, public scope: Scope<T>, public value: T | Placeholder<T>) {
     if (value instanceof Placeholder) {

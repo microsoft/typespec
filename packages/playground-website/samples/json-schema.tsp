@@ -1,6 +1,6 @@
 import "@typespec/json-schema";
 
-using JsonSchema;
+using TypeSpec.JsonSchema;
 
 @jsonSchema
 namespace Schemas;
