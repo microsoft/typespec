@@ -17,7 +17,7 @@ import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import { JSONSchemaEmitterOptions, createStateSymbol } from "./lib.js";
 
 export { $lib } from "./lib.js";
-export const namespace = "JsonSchema";
+export const namespace = "TypeSpec.JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 
 const jsonSchemaKey = createStateSymbol("JsonSchema");

@@ -30,8 +30,8 @@ export async function emitSchema(
   }
 
   code = testOptions.emitNamespace
-    ? `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test; ${code}`
-    : `import "@typespec/json-schema"; using JsonSchema; ${code}`;
+    ? `import "@typespec/json-schema"; using TypeSpec.JsonSchema; @jsonSchema namespace test; ${code}`
+    : `import "@typespec/json-schema"; using TypeSpec.JsonSchema; ${code}`;
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, JsonSchemaEmitter, {
     emitterOutputDir: "cadl-output",
