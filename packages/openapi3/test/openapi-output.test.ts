@@ -5,27 +5,27 @@ import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3Document } from "../src/types.js";
 import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
 
+async function openapiWithOptions(
+  code: string,
+  options: OpenAPI3EmitterOptions
+): Promise<OpenAPI3Document> {
+  const runner = await createOpenAPITestRunner();
+
+  const outPath = resolvePath("/openapi.json");
+
+  const diagnostics = await runner.diagnose(code, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
+  });
+
+  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+
+  const content = runner.fs.get(outPath)!;
+  return JSON.parse(content);
+}
+
 describe("openapi3: types included", () => {
-  async function openapiWithOptions(
-    code: string,
-    options: OpenAPI3EmitterOptions
-  ): Promise<OpenAPI3Document> {
-    const runner = await createOpenAPITestRunner();
-
-    const outPath = resolvePath("/openapi.json");
-
-    const diagnostics = await runner.diagnose(code, {
-      noEmit: false,
-      emit: ["@typespec/openapi3"],
-      options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
-    });
-
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
-
-    const content = runner.fs.get(outPath)!;
-    return JSON.parse(content);
-  }
-
   it("emit unreferenced types by default", async () => {
     const output = await openapiWithOptions(
       `
@@ -52,6 +52,39 @@ describe("openapi3: types included", () => {
       }
     );
     deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced"]);
+  });
+});
+
+describe("openapi3: x-typespec-name", () => {
+  it("doesn't include x-typespec-name by default", async () => {
+    const output = await openapiWithOptions(
+      `
+      model Foo {names: string[]}
+    `,
+      {}
+    );
+    ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
+  });
+
+  it(`doesn't include x-typespec-name when option include-x-typespec-name: "never"`, async () => {
+    const output = await openapiWithOptions(
+      `
+      model Foo {names: string[]}
+    `,
+      { "include-x-typespec-name": "never" }
+    );
+    ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
+  });
+
+  it(`include x-typespec-name when option include-x-typespec-name: "inline-only"`, async () => {
+    const output = await openapiWithOptions(
+      `
+      model Foo {names: string[]}
+    `,
+      { "include-x-typespec-name": "inline-only" }
+    );
+    const prop: any = output.components!.schemas!.Foo.properties!.names;
+    strictEqual(prop["x-typespec-name"], `string[]`);
   });
 });
 

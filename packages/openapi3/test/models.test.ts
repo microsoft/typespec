@@ -82,7 +82,6 @@ describe("openapi3: models", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-typespec-name": "(anonymous model)",
     });
   });
 
@@ -101,7 +100,6 @@ describe("openapi3: models", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-typespec-name": "Foo<int32>",
     });
   });
 
@@ -124,7 +122,6 @@ describe("openapi3: models", () => {
         x: { $ref: "#/components/schemas/Test.M" },
       },
       required: ["x"],
-      "x-typespec-name": "Foo<Test.M>",
     });
   });
 
@@ -362,7 +359,6 @@ describe("openapi3: models", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-typespec-name": "Bar<int32>",
       allOf: [
         {
           type: "object",
@@ -370,7 +366,6 @@ describe("openapi3: models", () => {
             y: { type: "integer", format: "int32" },
           },
           required: ["y"],
-          "x-typespec-name": "Foo<int32>",
         },
       ],
     });
@@ -502,7 +497,6 @@ describe("openapi3: models", () => {
         name: {
           type: "string",
           nullable: true,
-          "x-typespec-name": "string | null",
         },
       },
       required: ["name"],
@@ -529,7 +523,6 @@ describe("openapi3: models", () => {
             format: "int32",
           },
           nullable: true,
-          "x-typespec-name": "int32[] | null",
         },
       },
       required: ["name"],
@@ -566,7 +559,6 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -581,7 +573,6 @@ describe("openapi3: models", () => {
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-typespec-name": "Cat | string",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { type: "string" }],
     });
   });
@@ -600,7 +591,6 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -619,7 +609,6 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -634,7 +623,6 @@ describe("openapi3: models", () => {
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-typespec-name": "Cat | string",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { type: "string" }],
     });
   });
@@ -653,7 +641,6 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
@@ -671,7 +658,6 @@ describe("openapi3: models", () => {
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-typespec-name": "Cat | Dog",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
     });
   });
