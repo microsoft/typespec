@@ -1,6 +1,6 @@
 import "../dist/src/index.js";
 
-namespace JsonSchema;
+namespace TypeSpec.JsonSchema;
 
 /**
  * Add to namespaces to emit models within that namespace to JSON schema.
