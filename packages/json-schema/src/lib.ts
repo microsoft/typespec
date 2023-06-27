@@ -30,6 +30,13 @@ export interface JSONSchemaEmitterOptions {
    * the @jsonSchema decorator.
    */
   emitAllModels?: boolean;
+
+  /**
+   * When true, emit all references as json schema files, even if the referenced
+   * type does not have the `@jsonSchema` decorator or is not within a namespace
+   * with the `@jsonSchema` decorator.
+   */
+  emitAllRefs?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
@@ -62,6 +69,12 @@ const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
       nullable: true,
       description:
         "When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.",
+    },
+    emitAllRefs: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.",
     },
   },
   required: [],

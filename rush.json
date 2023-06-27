@@ -210,6 +210,12 @@
       "projectFolder": "packages/json-schema",
       "reviewCategory": "production",
       "versionPolicyName": "typespec"
+    },
+    {
+      "packageName": "@typespec/best-practices",
+      "projectFolder": "packages/best-practices",
+      "reviewCategory": "production",
+      "shouldPublish": false
     }
   ]
 }

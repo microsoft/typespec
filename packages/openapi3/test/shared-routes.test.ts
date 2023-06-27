@@ -317,7 +317,6 @@ describe("openapi3: shared routes", () => {
           schema: {
             oneOf: [
               {
-                "x-typespec-name": "(anonymous model)",
                 properties: {
                   a: { $ref: "#/components/schemas/A" },
                 },
@@ -325,7 +324,6 @@ describe("openapi3: shared routes", () => {
                 type: "object",
               },
               {
-                "x-typespec-name": "(anonymous model)",
                 properties: {
                   b: { $ref: "#/components/schemas/B" },
                 },

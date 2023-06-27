@@ -15,7 +15,6 @@ describe("openapi3: Array", () => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: { type: "string" },
-      "x-typespec-name": "string[]",
     });
   });
 
@@ -65,7 +64,6 @@ describe("openapi3: Array", () => {
       type: "array",
       minItems: 1,
       items: { type: "string" },
-      "x-typespec-name": "string[]",
     });
   });
 
@@ -85,7 +83,6 @@ describe("openapi3: Array", () => {
       type: "array",
       maxItems: 3,
       items: { type: "string" },
-      "x-typespec-name": "string[]",
     });
   });
 
@@ -104,21 +101,18 @@ describe("openapi3: Array", () => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: { type: "string" },
-      "x-typespec-name": "string[]",
       default: ["bismarck"],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
       items: { type: "number", format: "decimal" },
-      "x-typespec-name": "decimal[]",
       default: [123, 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       items: { type: "number", format: "decimal128" },
-      "x-typespec-name": "decimal128[]",
       default: [123, 456.7],
     });
   });
@@ -138,21 +132,18 @@ describe("openapi3: Array", () => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: {},
-      "x-typespec-name": "[string, int32]",
       default: ["bismarck", 12],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
       items: {},
-      "x-typespec-name": "[string, decimal]",
       default: ["hi", 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       items: {},
-      "x-typespec-name": "[string, decimal128]",
       default: ["hi", 456.7],
     });
   });

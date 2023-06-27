@@ -118,7 +118,7 @@ describe("rest: routes", () => {
         @autoRoute
         interface SubInterface {
           @get
-          @list(Subthing)
+          @listsResource(Subthing)
           @segmentOf(Subthing)
           GetSubthings(...KeysOf<Thing>): string;
 

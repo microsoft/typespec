@@ -29,7 +29,6 @@ describe("openapi3: Additional properties", () => {
     deepStrictEqual(res.schemas.Pet.properties.details, {
       type: "object",
       additionalProperties: {},
-      "x-typespec-name": "Record<unknown>",
     });
   });
 
