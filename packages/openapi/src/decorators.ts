@@ -8,6 +8,12 @@ import {
   TypeSpecValue,
 } from "@typespec/compiler";
 import { setStatusCode } from "@typespec/http";
+import {
+  DefaultResponseDecorator,
+  ExtensionDecorator,
+  ExternalDocsDecorator,
+  OperationIdDecorator,
+} from "../definitions/decorators.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
 
@@ -20,9 +26,13 @@ const operationIdsKey = createStateSymbol("operationIds");
  * @param entity Decorator target
  * @param opId Operation ID.
  */
-export function $operationId(context: DecoratorContext, entity: Operation, opId: string) {
+export const $operationId: OperationIdDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  opId: string
+) => {
   context.program.stateMap(operationIdsKey).set(entity, opId);
-}
+};
 
 /**
  * @returns operationId set via the @operationId decorator or `undefined`
@@ -33,12 +43,12 @@ export function getOperationId(program: Program, entity: Operation): string | un
 
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
-export function $extension(
+export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
   value: TypeSpecValue
-) {
+) => {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
@@ -52,7 +62,7 @@ export function $extension(
     context.program.reportDiagnostics(diagnostics);
   }
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
-}
+};
 
 export function setExtension(
   program: Program,
@@ -81,10 +91,13 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  *
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
-export function $defaultResponse(context: DecoratorContext, entity: Model) {
+export const $defaultResponse: DefaultResponseDecorator = (
+  context: DecoratorContext,
+  entity: Model
+) => {
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
-}
+};
 
 /**
  * Check if the given model has been mark as a default response.
@@ -107,18 +120,18 @@ const externalDocsKey = createStateSymbol("externalDocs");
  * @param url The URL for the target documentation. Value MUST be in the format of a URL.
  * @param @optional description A short description of the target documentation.
  */
-export function $externalDocs(
+export const $externalDocs: ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
   description?: string
-) {
+) => {
   const doc: ExternalDocs = { url };
   if (description) {
     doc.description = description;
   }
   context.program.stateMap(externalDocsKey).set(target, doc);
-}
+};
 
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
   return program.stateMap(externalDocsKey).get(entity);
