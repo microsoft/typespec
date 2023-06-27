@@ -4,11 +4,12 @@ import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile }
 
 export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;
+  strict?: boolean;
 }
 
 export function createJSONSchemaValidator<T>(
   schema: JSONSchemaType<T>,
-  options: JSONSchemaValidatorOptions = {}
+  options: JSONSchemaValidatorOptions = { strict: true }
 ): JSONSchemaValidator {
   const ajv = new (Ajv as any)({
     strict: true,
