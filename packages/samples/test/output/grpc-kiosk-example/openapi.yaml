@@ -241,7 +241,6 @@ paths:
               items:
                 type: integer
                 format: int32
-              x-typespec-name: int32[]
 components:
   parameters:
     SetSignIdForKioskIdsRequest.sign_id:
@@ -323,7 +322,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Kiosk'
-          x-typespec-name: Kiosk[]
       description: A successful response.
     ListSignsResponse:
       type: object
@@ -332,7 +330,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Sign'
-          x-typespec-name: Sign[]
       description: A successful response.
     ProtobufAny:
       type: object
@@ -353,7 +350,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
-          x-typespec-name: ProtobufAny[]
       description: An unexpected error response.
     ScreenSize:
       type: object

@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  emitFile,
   Enum,
   getDeprecated,
   getDirectoryPath,
@@ -24,6 +25,7 @@ import {
   Scalar,
   StringLiteral,
   Type,
+  typespecTypeToJson,
   Union,
   UnionVariant,
 } from "@typespec/compiler";
@@ -48,6 +50,7 @@ import {
   getContentEncoding,
   getContentMediaType,
   getContentSchema,
+  getExtensions,
   getId,
   getMaxContains,
   getMaxProperties,
@@ -56,11 +59,14 @@ import {
   getMultipleOf,
   getPrefixItems,
   getUniqueItems,
+  isJsonSchemaDeclaration,
   JsonSchemaDeclaration,
 } from "./index.js";
 import { JSONSchemaEmitterOptions } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #seenIds = new Set();
+  #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
+  #refToDecl = new Map<string, Declaration<Record<string, unknown>>>();
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = new ObjectBuilder({
@@ -77,9 +83,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       schema.set("allOf", allOf);
     }
 
+    if (model.indexer) {
+      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+    }
+
     this.#applyConstraints(model, schema);
 
-    return this.emitter.result.declaration(name, schema);
+    return this.#createDeclaration(model, name, schema);
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -106,7 +116,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     this.#applyConstraints(array, schema);
 
-    return this.emitter.result.declaration(name, schema);
+    return this.#createDeclaration(array, name, schema);
   }
 
   arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
@@ -175,26 +185,25 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const enumTypesArray = [...enumTypes];
 
-    return this.emitter.result.declaration(
-      name,
-      new ObjectBuilder({
-        $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(en),
-        type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
-        enum: [...enumValues],
-      })
-    );
+    const withConstraints = new ObjectBuilder({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(en),
+      type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
+      enum: [...enumValues],
+    });
+    this.#applyConstraints(en, withConstraints);
+    return this.#createDeclaration(en, name, withConstraints);
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
-    return this.emitter.result.declaration(
-      name,
-      new ObjectBuilder({
-        $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(union),
-        anyOf: this.emitter.emitUnionVariants(union),
-      })
-    );
+    const withConstraints = new ObjectBuilder({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(union),
+      anyOf: this.emitter.emitUnionVariants(union),
+    });
+
+    this.#applyConstraints(union, withConstraints);
+    return this.#createDeclaration(union, name, withConstraints);
   }
 
   unionLiteral(union: Union): EmitterOutput<object> {
@@ -241,16 +250,24 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       throw new Error("Can't form reference to declaration that hasn't been created yet");
     }
 
+    // these will be undefined when creating a self-reference
+    const currentSfScope = pathUp[pathUp.length - 1] as SourceFileScope<object> | undefined;
+    const targetSfScope = pathDown[0] as SourceFileScope<object> | undefined;
+
+    if (targetSfScope && currentSfScope && !targetSfScope.sourceFile.meta.shouldEmit) {
+      currentSfScope.sourceFile.meta.bundledRefs.push(targetDeclaration);
+    }
+
     if (targetDeclaration.value.$id) {
       return { $ref: targetDeclaration.value.$id };
     }
 
     if (!commonScope) {
-      const currentSfScope = pathUp[pathUp.length - 1] as SourceFileScope<object>;
-      const targetSfScope = pathDown[0] as SourceFileScope<object>;
+      // when either targetSfScope or currentSfScope are undefined, we have a common scope
+      // (i.e. we are doing a self-reference)
       const resolved = getRelativePathFromDirectory(
-        getDirectoryPath(currentSfScope.sourceFile.path),
-        targetSfScope.sourceFile.path,
+        getDirectoryPath(currentSfScope!.sourceFile.path),
+        targetSfScope!.sourceFile.path,
         false
       );
       return { $ref: resolved };
@@ -363,10 +380,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     builderSchema.$schema = "https://json-schema.org/draft/2020-12/schema";
     builderSchema.$id = this.#getDeclId(scalar);
     this.#applyConstraints(scalar, builderSchema);
-    return this.emitter.result.declaration(name, builderSchema);
+    return this.#createDeclaration(scalar, name, builderSchema);
   }
 
-  #applyConstraints(type: Scalar | Model | ModelProperty, schema: ObjectBuilder<unknown>) {
+  #applyConstraints(
+    type: Scalar | Model | ModelProperty | Union | Enum,
+    schema: ObjectBuilder<unknown>
+  ) {
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
       const value = fn(this.emitter.getProgram(), type);
       if (value !== undefined) {
@@ -426,6 +446,24 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
       schema.set("prefixItems", prefixItemsSchema);
     }
+
+    const extensions = getExtensions(this.emitter.getProgram(), type);
+    for (const extension of extensions) {
+      // todo: fix up when we have an authoritative way to ask "am I an instantiation of that template"
+      if (
+        extension.value.kind === "Model" &&
+        extension.value.name === "Json" &&
+        extension.value.namespace?.name === "JsonSchema"
+      ) {
+        // we check in a decorator
+        schema.set(
+          extension.key,
+          typespecTypeToJson(extension.value.properties.get("value")!.type, null as any)[0]
+        );
+      } else {
+        schema.set(extension.key, this.emitter.emitTypeReference(extension.value));
+      }
+    }
   }
 
   #scalarBuiltinBaseType(scalar: Scalar): Scalar | null {
@@ -439,6 +477,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     return null;
+  }
+
+  #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {
+    const decl = this.emitter.result.declaration(name, schema);
+    if (!this.emitter.getOptions().bundleId && !this.emitter.getOptions().emitAllRefs) {
+      const declSf = this.emitter.getContext().scope.sourceFile;
+      declSf.meta.shouldEmit = isJsonSchemaDeclaration(this.emitter.getProgram(), type);
+    }
+
+    return decl;
   }
 
   #isStdType(type: Type) {
@@ -456,11 +504,30 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     throw new Error("Unknown intrinsic type " + name);
   }
 
+  async writeOutput(sourceFiles: SourceFile<Record<string, any>>[]): Promise<void> {
+    const toEmit: EmittedSourceFile[] = [];
+
+    for (const sf of sourceFiles) {
+      const emittedSf = this.emitter.emitSourceFile(sf);
+
+      if (sf.meta.shouldEmit) {
+        toEmit.push(emittedSf);
+      }
+    }
+
+    for (const emittedSf of toEmit) {
+      await emitFile(this.emitter.getProgram(), {
+        path: emittedSf.path,
+        content: emittedSf.contents,
+      });
+    }
+  }
+
   sourceFile(sourceFile: SourceFile<object>): EmittedSourceFile {
     let serializedContent: string;
     const decls = sourceFile.globalScope.declarations;
 
-    let content: object;
+    let content: Record<string, any>;
     if (this.emitter.getOptions().bundleId) {
       const base = this.emitter.getOptions().emitterOutputDir;
       const file = sourceFile.path;
@@ -479,6 +546,20 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
 
       content = decls[0].value;
+
+      if (sourceFile.meta.bundledRefs.length > 0) {
+        // bundle any refs, including refs of refs
+        content.$defs = {};
+        const refsToBundle: Declaration<object>[] = [...sourceFile.meta.bundledRefs];
+        while (refsToBundle.length > 0) {
+          const decl = refsToBundle.shift()!;
+          content.$defs[decl.name] = decl.value;
+
+          // all scopes are source file scopes in this emitter
+          const refSf = (decl.scope as SourceFileScope<any>).sourceFile;
+          refsToBundle.push(...refSf.meta.bundledRefs);
+        }
+      }
     }
 
     if (this.emitter.getOptions()["file-type"] === "json") {
@@ -554,6 +635,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   programContext(program: Program): Context {
     if (this.emitter.getOptions().bundleId) {
       const sourceFile = this.emitter.createSourceFile(this.emitter.getOptions().bundleId!);
+      sourceFile.meta.shouldEmit = true;
       return { scope: sourceFile.globalScope };
     } else {
       return {};
@@ -567,7 +649,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return {};
       }
 
-      return this.#newFileScope(model.name);
+      return this.#newFileScope(model);
     }
   }
 
@@ -575,7 +657,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(this.declarationName(model));
+      return this.#newFileScope(model);
     }
   }
 
@@ -583,7 +665,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(array.name);
+      return this.#newFileScope(array);
     }
   }
 
@@ -591,7 +673,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(en.name);
+      return this.#newFileScope(en);
     }
   }
 
@@ -599,7 +681,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions().bundleId) {
       return {};
     } else {
-      return this.#newFileScope(union.name!);
+      return this.#newFileScope(union);
     }
   }
 
@@ -609,12 +691,19 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     } else if (this.#isStdType(scalar)) {
       return {};
     } else {
-      return this.#newFileScope(scalar.name);
+      return this.#newFileScope(scalar);
     }
   }
 
-  #newFileScope(name: string) {
-    const sourceFile = this.emitter.createSourceFile(`${name}.${this.#fileExtension()}`);
+  #newFileScope(type: JsonSchemaDeclaration) {
+    const sourceFile = this.emitter.createSourceFile(
+      `${this.declarationName(type)}.${this.#fileExtension()}`
+    );
+
+    sourceFile.meta.shouldEmit = true;
+    sourceFile.meta.bundledRefs = [];
+
+    this.#typeForSourceFile.set(sourceFile, type);
     return {
       scope: sourceFile.globalScope,
     };

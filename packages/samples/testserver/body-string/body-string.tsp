@@ -54,7 +54,7 @@ namespace String {
   @put
   op putMbCs(
     @body
-    value: "啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€"
+    value: "啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€",
   ): {
     ...Response<200>;
   } | Error;
@@ -69,7 +69,7 @@ namespace String {
   @route("whitespace")
   @put
   op putWhitespace(
-    @body value: "   Now is the time for all good men to come to the aid of their country    "
+    @body value: "   Now is the time for all good men to come to the aid of their country    ",
   ): {
     ...Response<200>;
   } | Error;

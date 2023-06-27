@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { interpolatePath } from "../../core/helpers/path-interpolation.js";
+import { interpolatePath } from "../../src/core/helpers/path-interpolation.js";
 
 describe("Path interpolation", () => {
   it("noop if there is nothing to interpolate", () => {

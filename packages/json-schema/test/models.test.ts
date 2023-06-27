@@ -89,4 +89,50 @@ describe("emitting models", () => {
     assert.strictEqual(Foo.properties.b.title, "b");
     assert.strictEqual(Foo.properties.b.deprecated, true);
   });
+
+  it("handles extensions", async () => {
+    const { "Foo.json": Foo } = await emitSchema(`
+      @extension("x-hi", "bye")
+      model Foo {
+        @extension("x-hi", Json<"hello">)
+        b: string;
+      }
+    `);
+
+    assert.deepStrictEqual(Foo["x-hi"], { type: "string", const: "bye" });
+    assert.deepStrictEqual(Foo.properties.b["x-hi"], "hello");
+  });
+
+  it("handles Record<T>", async () => {
+    const schemas = await emitSchema(
+      `
+      model ExtendsRecord extends Record<string> {};
+      model IsRecord is Record<{ x: int32, y: int32}>;
+      model HasProp {
+        x: Record<string>;
+      }
+    `,
+      { emitAllRefs: true }
+    );
+
+    assert.deepStrictEqual(schemas["ExtendsRecord.json"].allOf[0], { $ref: "RecordString.json" });
+    assert.deepStrictEqual(schemas["RecordString.json"].additionalProperties, { type: "string" });
+    assert.deepStrictEqual(schemas["IsRecord.json"].additionalProperties, {
+      type: "object",
+      properties: {
+        x: {
+          type: "integer",
+          minimum: -2147483648,
+          maximum: 2147483647,
+        },
+        y: {
+          type: "integer",
+          minimum: -2147483648,
+          maximum: 2147483647,
+        },
+      },
+      required: ["x", "y"],
+    });
+    assert.deepStrictEqual(schemas["HasProp.json"].properties.x, { $ref: "RecordString.json" });
+  });
 });

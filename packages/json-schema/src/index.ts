@@ -11,12 +11,13 @@ import {
   Tuple,
   Type,
   Union,
+  typespecTypeToJson,
 } from "@typespec/compiler";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import { JSONSchemaEmitterOptions, createStateSymbol } from "./lib.js";
 
 export { $lib } from "./lib.js";
-export const namespace = "JsonSchema";
+export const namespace = "TypeSpec.JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 
 const jsonSchemaKey = createStateSymbol("JsonSchema");
@@ -73,8 +74,25 @@ export function findBaseUri(
   return baseUrl;
 }
 
+export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDeclaration) {
+  let current: JsonSchemaDeclaration | Namespace | undefined = target;
+  do {
+    if (getJsonSchema(program, current)) {
+      return true;
+    }
+
+    current = current.namespace;
+  } while (current);
+
+  return false;
+}
+
 export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
   return [...(program.stateSet(jsonSchemaKey) || [])] as (Namespace | Model)[];
+}
+
+export function getJsonSchema(program: Program, target: Type) {
+  return program.stateSet(jsonSchemaKey).has(target);
 }
 
 const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");
@@ -220,3 +238,30 @@ export function $prefixItems(
 export function getPrefixItems(program: Program, target: Type): Tuple | undefined {
   return program.stateMap(prefixItemsKey).get(target);
 }
+
+export interface ExtensionRecord {
+  key: string;
+  value: Type;
+}
+
+const extensionsKey = createStateSymbol("JsonSchema.extension");
+export function $extension(context: DecoratorContext, target: Type, key: string, value: Type) {
+  const stateMap = context.program.stateMap(extensionsKey) as Map<Type, ExtensionRecord[]>;
+  const extensions = stateMap.has(target)
+    ? stateMap.get(target)!
+    : stateMap.set(target, []).get(target)!;
+
+  extensions.push({ key, value });
+}
+
+export function getExtensions(program: Program, target: Type): ExtensionRecord[] {
+  return program.stateMap(extensionsKey).get(target) ?? [];
+}
+
+export function $validatesRawJson(context: DecoratorContext, target: Model, value: Type) {
+  const [_, diagnostics] = typespecTypeToJson(value, target);
+  if (diagnostics.length > 0) {
+    context.program.reportDiagnostics(diagnostics);
+  }
+}
+$validatesRawJson.namespace = "Private";

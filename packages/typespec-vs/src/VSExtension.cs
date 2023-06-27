@@ -168,7 +168,7 @@ namespace Microsoft.TypeSpec.VisualStudio
             // the source tree.
             var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "cmd", "tsp-server.js"));
+            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "entrypoints", "server.js"));
         }
 #endif
 

@@ -230,6 +230,7 @@ model PackageDetails {
    * By default, the package's name is constructed from the namespace it is applied to.
    */
   name?: string;
+
   /**
    * The package's top-level options.
    *

@@ -23,4 +23,13 @@ describe("emitting scalars", () => {
       `);
     });
   });
+
+  it("handles extensions", async () => {
+    const schemas = await emitSchema(`
+      @extension("x-scalar", Json<true>)
+      scalar Test extends uint8;
+    `);
+
+    assert.strictEqual(schemas["Test.json"]["x-scalar"], true);
+  });
 });

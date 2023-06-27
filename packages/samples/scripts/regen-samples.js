@@ -45,7 +45,7 @@ async function main() {
     }
 
     await run(process.execPath, [
-      "../../packages/compiler/dist/core/cli/cli.js",
+      "../../packages/compiler/entrypoints/cli.js",
       "compile",
       inputPath,
       `--option="${emitter}.emitter-output-dir=${outputPath}"`,

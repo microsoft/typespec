@@ -1,4 +1,4 @@
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../src/testing/index.js";
 
 describe("compiler: semantic checks on source with parse errors", () => {
   let testHost: TestHost;

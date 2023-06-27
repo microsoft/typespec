@@ -1,12 +1,12 @@
 import { ok, strictEqual } from "assert";
-import { Model, NumericLiteral } from "../../core/index.js";
+import { Model, NumericLiteral } from "../../src/core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
   expectIdenticalTypes,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: scalars", () => {
   let runner: BasicTestRunner;

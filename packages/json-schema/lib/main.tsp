@@ -1,6 +1,6 @@
 import "../dist/src/index.js";
 
-namespace JsonSchema;
+namespace TypeSpec.JsonSchema;
 
 /**
  * Add to namespaces to emit models within that namespace to JSON schema.
@@ -96,7 +96,7 @@ extern dec prefixItems(target: unknown[] | Reflection.ModelProperty, value: unkn
 /**
  * Specify the content type of content stored in a string.
  *
- * @param the media type of the string contents
+ * @param value the media type of the string contents
  *
  */
 extern dec contentMediaType(target: string | Reflection.ModelProperty, value: valueof string);
@@ -109,6 +109,21 @@ extern dec contentMediaType(target: string | Reflection.ModelProperty, value: va
  */
 extern dec contentSchema(target: string | Reflection.ModelProperty, value: unknown);
 
+/**
+ * Specify a custom property to add to the emitted schema. Useful for adding custom keywords
+ * and other vendor-specific extensions. The value will be converted to a schema unless the parameter
+ * is wrapped in the `Json<T>` template. For example, `@extension("x-schema", { x: "value" })` will
+ * emit a JSON schema value for `x-schema`, whereas `@extension("x-schema", Json<{x: "value"}>)` will
+ * emit the raw JSON code `{x: "value"}`.
+ *
+ * @param key the name of the keyword of vendor extension, e.g. `x-custom`.
+ * @param value the value of the keyword. Will be converted to a schema unless wrapped in `Json<T>`.
+ */
+extern dec extension(target: unknown, key: valueof string, value: unknown);
+
+/**
+ * Well-known JSON Schema formats.
+ */
 enum Format {
   dateTime: "date-time",
   date: "date",
@@ -128,4 +143,22 @@ enum Format {
   jsonPointer: "json-pointer",
   relativeJsonPointer: "relative-json-pointer",
   regex: "regex",
+}
+
+/**
+ * Specify that the provided template argument should be emitted as raw JSON or YAML
+ * as opposed to a schema. Use in combination with the @extension decorator. For example,
+ * `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
+ * whereas `@extension("x-schema", Json<{x: "value"}>)` will emit the raw JSON code
+ * `{x: "value"}`.
+ *
+ * @template T the type to convert to raw JSON
+ */
+@Private.validatesRawJson(T)
+model Json<T> {
+  value: T;
+}
+
+namespace Private {
+  extern dec validatesRawJson(target: Reflection.Model, value: unknown);
 }

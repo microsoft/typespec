@@ -47,6 +47,13 @@ export interface OpenAPI3EmitterOptions {
    * By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
    */
   "omit-unreachable-types"?: boolean;
+
+  /**
+   * If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
+   * This extension is meant for debugging and should not be depended on.
+   * @default "never"
+   */
+  "include-x-typespec-name"?: "inline-only" | "never";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -101,6 +108,14 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       nullable: true,
       description:
         "Omit unreachable types.\nBy default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.",
+    },
+    "include-x-typespec-name": {
+      type: "string",
+      enum: ["inline-only", "never"],
+      nullable: true,
+      default: "never",
+      description:
+        "If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.\nThis extension is meant for debugging and should not be depended on.",
     },
   },
   required: [],
@@ -164,7 +179,7 @@ export const libDef = {
         type: paramMessage`Type "${"kind"}" cannot be used in unions`,
         empty:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
-        null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
+        null: "Unions containing multiple model types cannot be emitted to OpenAPI v3 unless the union is between one model type and 'null'.",
       },
     },
     "invalid-default": {

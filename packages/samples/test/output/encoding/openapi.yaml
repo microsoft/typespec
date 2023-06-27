@@ -52,7 +52,6 @@ components:
             - rfc7231ViaScalar
             - unixtime
             - unixtimeViaScalar
-          x-typespec-name: (anonymous model)
         duration:
           type: object
           properties:
@@ -73,7 +72,6 @@ components:
             - durationISO
             - durationSecondsInt32
             - durationSecondsFloat32
-          x-typespec-name: (anonymous model)
         bytes:
           type: object
           properties:
@@ -90,7 +88,6 @@ components:
             - default
             - base64
             - base64url
-          x-typespec-name: (anonymous model)
       required:
         - datetime
         - duration

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Breaking change: the namespace has been corrected to TypeSpec.JsonSchema.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}

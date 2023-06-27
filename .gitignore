@@ -190,7 +190,5 @@ obj/
 *.vsix
 *.zip
 
-.npmrc
-
 
 docs/**/js-api/

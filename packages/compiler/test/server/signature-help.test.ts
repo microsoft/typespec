@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { MarkupKind, SignatureHelp } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
+import { createTestServerHost, extractCursor } from "../../src/testing/test-server-host.js";
 
 describe("compiler: server: signature help", () => {
   describe("standard decorator", () => {

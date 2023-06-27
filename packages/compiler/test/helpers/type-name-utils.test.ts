@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
-import { getTypeName, TypeNameOptions } from "../../core/index.js";
-import { createTestRunner } from "../../testing/test-host.js";
+import { getTypeName, TypeNameOptions } from "../../src/core/index.js";
+import { createTestRunner } from "../../src/testing/test-host.js";
 
 describe("compiler: TypeNameUtils", () => {
   async function getNameFor(code: string, options: TypeNameOptions = {}) {

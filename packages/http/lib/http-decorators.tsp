@@ -10,6 +10,7 @@ model HeaderOptions {
    * Name of the header when sent over http.
    */
   name?: string;
+
   /**
    * Determines the format of the array if type array is used.
    */
@@ -20,12 +21,20 @@ model HeaderOptions {
  * Specify this property is to be sent or received as an http header.
  *
  * @param headerNameOrOptions Optional name of the header when sent over http or header options.
+ *  By default the header name will be the property name converted from camelCase to camel-case. (e.g. `eTag` -> `e-tag`)
  *
  * @example
  *
  * ```typespec
  * op read(@header accept: string): {@header("E-Tag") eTag: string};
  * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+ * ```
+ *
+ * @example Implicit header name
+ *
+ * ```typespec
+ * op read(): {@header eTag: string}; // headerName: e-tag
+ * op read(): {@header contentType: string}; // headerName: content-type
  * ```
  */
 extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
@@ -38,6 +47,7 @@ model QueryOptions {
    * Name of the query when included in the url.
    */
   name?: string;
+
   /**
    * Determines the format of the array if type array is used.
    */

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://microsoft.github.io/typespec/introduction/configuration#linter---configuring-linters) and [writing a linter](https://microsoft.github.io/typespec/extending-typespec/linters)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

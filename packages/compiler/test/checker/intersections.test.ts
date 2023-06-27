@@ -1,12 +1,12 @@
 import { ok, strictEqual } from "assert";
-import { Model } from "../../core/index.js";
+import { Model } from "../../src/core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
   extractSquiggles,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: intersections", () => {
   let runner: BasicTestRunner;

@@ -7,6 +7,7 @@ import {
   Model,
   ModelProperty,
   Program,
+  setTypeSpecNamespace,
   Type,
   validateDecoratorTarget,
 } from "@typespec/compiler";
@@ -76,6 +77,8 @@ export function $resourceTypeForKeyParam(
 
   context.program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
 }
+
+setTypeSpecNamespace("Private", $resourceTypeForKeyParam);
 
 export function getResourceTypeForKeyParam(
   program: Program,

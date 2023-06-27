@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { DecoratorContext, IntrinsicType, Operation, Type } from "../../core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../testing/index.js";
+import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: operations", () => {
   let testHost: TestHost;
@@ -220,12 +220,53 @@ describe("compiler: operations", () => {
     ]);
   });
 
+  it("emit diagnostic when operation(in interface) is referencing itself as signature", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      interface Group {
+        foo is Group.foo;
+      }
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "circular-op-signature",
+        message: "Operation 'foo' recursively references itself.",
+      },
+    ]);
+  });
+
   it("emit diagnostic when operations reference each other using signature", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
       op foo is bar;
       op bar is foo;
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "circular-op-signature",
+        message: "Operation 'foo' recursively references itself.",
+      },
+      {
+        code: "circular-op-signature",
+        message: "Operation 'bar' recursively references itself.",
+      },
+    ]);
+  });
+
+  it("emit diagnostic when operations(in same interface) reference each other using signature", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      interface Group {
+        foo is Group.bar;
+        bar is Group.foo;
+      }
       `
     );
     const diagnostics = await testHost.diagnose("main.tsp");

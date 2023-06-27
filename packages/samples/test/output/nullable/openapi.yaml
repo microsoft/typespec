@@ -30,7 +30,6 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/AnotherModel'
               nullable: true
-              x-typespec-name: AnotherModel | null
 components:
   schemas:
     AnotherModel:
@@ -52,36 +51,30 @@ components:
         strOrNull:
           type: string
           nullable: true
-          x-typespec-name: string | null
         modelOrNull:
           type: object
           allOf:
             - $ref: '#/components/schemas/AnotherModel'
           nullable: true
-          x-typespec-name: AnotherModel | null
         literalsOrNull:
           type: string
           enum:
             - one
             - two
           nullable: true
-          x-typespec-name: one | two | null
         manyNullsOneString:
           type: string
           nullable: true
-          x-typespec-name: null | null | string | null
         manyNullsSomeValues:
           type: number
           enum:
             - 42
             - 100
           nullable: true
-          x-typespec-name: null | 42 | null | 100 | null
         arr:
           type: array
           items:
             type: string
-          x-typespec-name: string[] | null
           nullable: true
       required:
         - str

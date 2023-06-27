@@ -1,11 +1,11 @@
 import { ok } from "assert";
-import { Program, SymbolTable, visitChildren } from "../../core/index.js";
-import { mutate } from "../../core/util.js";
+import { Program, SymbolTable, visitChildren } from "../../src/core/index.js";
+import { mutate } from "../../src/core/util.js";
 import {
   createTestServerHost,
   expectDiagnosticEmpty,
   resolveVirtualPath,
-} from "../../testing/index.js";
+} from "../../src/testing/index.js";
 
 describe("compiler: server: reuse", () => {
   it("reuses unchanged programs", async () => {
