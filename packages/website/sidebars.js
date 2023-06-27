@@ -88,7 +88,7 @@ const sidebars = {
           "standard-library/http/authentication",
           "standard-library/http/operations",
         ]),
-
+        createLibraryReferenceStructure("json-schema", "JSON Schema", []),
         createLibraryReferenceStructure("rest", "Rest", [
           "standard-library/rest/cheat-sheet",
           "standard-library/rest/resource-routing",

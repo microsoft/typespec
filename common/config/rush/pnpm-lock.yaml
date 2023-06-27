@@ -1429,6 +1429,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~0.45.0
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:~0.45.0
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.45.0
         version: link:../openapi
@@ -3105,9 +3108,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.7.1
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 7.0.0
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.3.1
     dev: false
 
@@ -3127,9 +3130,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.7.1
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -3149,9 +3152,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -6812,9 +6815,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -6834,9 +6837,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 

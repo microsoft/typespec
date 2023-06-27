@@ -73,7 +73,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Library.PetToy'
-          x-typespec-name: Library.PetToy[]
       discriminator:
         propertyName: type
         mapping:

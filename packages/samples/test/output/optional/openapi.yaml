@@ -49,7 +49,6 @@ components:
           type: array
           items:
             type: string
-          x-typespec-name: string[]
           default:
             - foo
             - bar
@@ -58,7 +57,6 @@ components:
           enum:
             - foo
             - bar
-          x-typespec-name: foo | bar
           default: foo
         optionalEnum:
           allOf:
