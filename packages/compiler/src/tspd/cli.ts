@@ -1,0 +1,91 @@
+/* eslint-disable no-console */
+import yargs from "yargs";
+import { logDiagnostics, resolvePath } from "../core/index.js";
+import { ExternalError, NodeHost, typespecVersion } from "../core/util.js";
+import { generateDecoratorTSSignatureForLibrary } from "./gen-extern-signature/decorator-gen.js";
+
+try {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await import("source-map-support/register.js");
+} catch {
+  // package only present in dev.
+}
+
+async function main() {
+  console.log(`TypeSpec compiler v${typespecVersion}\n`);
+
+  await yargs(process.argv.slice(2))
+    .scriptName("tspd")
+    .help()
+    .strict()
+    .parserConfiguration({
+      "greedy-arrays": false,
+      "boolean-negation": false,
+    })
+    .option("debug", {
+      type: "boolean",
+      description: "Output debug log messages.",
+      default: false,
+    })
+    .option("pretty", {
+      type: "boolean",
+      description:
+        "Enable color and formatting in TypeSpec's output to make compiler errors easier to read.",
+      default: true,
+    })
+    .command(
+      "gen-extern-signature <entrypoint>",
+      "Format given list of TypeSpec files.",
+      (cmd) => {
+        return cmd.positional("entrypoint", {
+          description: "Path to the library entrypoint.",
+          type: "string",
+          demandOption: true,
+        });
+      },
+      async (args) => {
+        const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
+
+        const host = NodeHost;
+        const [content, diagnostics] = await generateDecoratorTSSignatureForLibrary(
+          host,
+          resolvedRoot
+        );
+        if (diagnostics.length === 0) {
+          await host.mkdirp(resolvePath(resolvedRoot, "definitions"));
+          await host.writeFile(resolvePath(resolvedRoot, "definitions/decorators.ts"), content);
+        } else {
+          logDiagnostics(diagnostics, host.logSink);
+        }
+      }
+    )
+    .version(typespecVersion)
+    .demandCommand(1, "You must use one of the supported commands.").argv;
+}
+
+// TODO reuse with main command line
+function internalCompilerError(error: unknown): never {
+  // NOTE: An expected error, like one thrown for bad input, shouldn't reach
+  // here, but be handled somewhere else. If we reach here, it should be
+  // considered a bug and therefore we should not suppress the stack trace as
+  // that risks losing it in the case of a bug that does not repro easily.
+  if (error instanceof ExternalError) {
+    // ExternalError should already have all the relevant information needed when thrown.
+    console.error(error);
+  } else {
+    console.error("Internal compiler error!");
+    console.error("File issue at https://github.com/microsoft/typespec");
+    console.error();
+    console.error(error);
+  }
+
+  process.exit(1);
+}
+
+process.on("unhandledRejection", (error: unknown) => {
+  console.error("Unhandled promise rejection!");
+  internalCompilerError(error);
+});
+
+main().catch(internalCompilerError);
