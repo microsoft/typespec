@@ -86,6 +86,62 @@ describe("compiler: checker: doc comments", () => {
     strictEqual(getDoc(runner.program, Foo), "This is the actual doc.");
   });
 
+  describe("override model is comment", () => {
+    it("override another doc comment", async () => {
+      const { Foo } = (await runner.compile(`
+    
+    /** Base comment */
+    model Base {}
+
+    /** Override comment */
+    @test model Foo is Base {}
+    `)) as { Foo: Model };
+
+      strictEqual(getDoc(runner.program, Foo), "Override comment");
+    });
+
+    it("override @doc", async () => {
+      const { Foo } = (await runner.compile(`
+    
+    @doc("Base comment")
+    model Base {}
+
+    /** Override comment */
+    @test model Foo is Base {}
+    `)) as { Foo: Model };
+
+      strictEqual(getDoc(runner.program, Foo), "Override comment");
+    });
+  });
+
+  describe("override op is comment", () => {
+    it("override another doc comment", async () => {
+      const { foo } = (await runner.compile(`
+    
+    /** Base comment */
+    op base(): void;
+
+    /** Override comment */
+    @test op foo is base;
+    `)) as { foo: Operation };
+
+      strictEqual(getDoc(runner.program, foo), "Override comment");
+    });
+
+    it("override @doc", async () => {
+      const { foo } = (await runner.compile(`
+    
+    @doc("Base comment")
+    op base(): void;
+
+    /** Override comment */
+    @test op foo is base;
+    `)) as { foo: Operation };
+
+      strictEqual(getDoc(runner.program, foo), "Override comment");
+    });
+  });
+
   it("using @param in doc comment of operation applies doc on the parameters", async () => {
     const { addUser } = (await runner.compile(`
     
