@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi",
+      "comment": "Use generated typescript signature for decorators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Added** **Experimental** tool to generate typescript signatures for decorators defined by `extern dec` in typespec",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
