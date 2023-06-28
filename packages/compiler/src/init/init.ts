@@ -2,6 +2,7 @@ import { readdir } from "fs/promises";
 import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
+import * as semver from "semver";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { createDiagnostic } from "../core/messages.js";
@@ -286,7 +287,10 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
   const validationTarget = templatesUrl.file as SourceFile;
   let validationResult: ValidationResult;
   // 1. If current version > minimumCompilerVersion, proceed with strict validation
-  if (template.minimumCompilerVersion && currentCompilerVersion > template.minimumCompilerVersion) {
+  if (
+    template.minimumCompilerVersion &&
+    semver.gt(currentCompilerVersion, template.minimumCompilerVersion)
+  ) {
     validationResult = validateTemplateDefinitions(template, validationTarget, true);
 
     // 1.1 If strict validation fails, try relaxed validation
