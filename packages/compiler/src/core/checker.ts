@@ -3229,6 +3229,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    // Doc comment should always be the first decorator in case an explicit @doc must override it.
     const docComment = extractMainDoc(targetType);
     if (docComment) {
       decorators.unshift({
