@@ -1,6 +1,4 @@
-import prettier from "prettier";
 import {
-  Decorator,
   DocTag,
   FunctionParameter,
   IntrinsicScalarName,
@@ -9,47 +7,83 @@ import {
   Scalar,
   Type,
   ValueType,
-  getLocationContext,
   getSourceLocation,
   isUnknownType,
-  navigateProgram,
 } from "../../core/index.js";
+import { Doc, renderDoc } from "./doc-builder.js";
+import { DecoratorSignature } from "./types.js";
 
-export function generateDecoratorTSSignaturesFile(
-  program: Program,
-  prettierConfig?: prettier.Options
+const line = "\n";
+export function generateSignatureTests(
+  importName: string,
+  decoratorSignatureImport: string,
+  decorators: DecoratorSignature[]
 ): string {
+  const content: Doc[] = [];
+  content.push([
+    "/** An error here would mean that the decorator is not exported or doesn't have the right name. */",
+    line,
+    "import {",
+    decorators.map((x) => x.jsName).join(","),
+    `} from "`,
+    importName,
+    `";`,
+    line,
+  ]);
+
+  content.push([
+    "import {",
+    decorators.map((x) => x.typeName).join(","),
+    `} from "`,
+    decoratorSignatureImport,
+    `";`,
+    line,
+  ]);
+  content.push(line);
+
+  content.push([
+    "type Decorators = {",
+    line,
+    decorators.map((x) => renderDoc([x.jsName, ": ", x.typeName])).join(","),
+
+    "};",
+    line,
+  ]);
+
+  content.push(line);
+
+  content.push([
+    "/** An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ... */",
+    line,
+    "const _: Decorators = {",
+    line,
+    decorators.map((x) => x.jsName).join(","),
+
+    "};",
+    line,
+  ]);
+  return renderDoc(content);
+}
+
+export function generateSignatures(program: Program, decorators: DecoratorSignature[]): string {
   const compilerImports = new Set<string>();
-  const decoratorDeclarations: string[] = [];
+  const decoratorDeclarations: string[] = decorators.map((x) => getTSSignatureForDecorator(x));
 
-  navigateProgram(program, {
-    decorator(dec) {
-      if (getLocationContext(program, dec).type !== "project") {
-        return;
-      }
-      decoratorDeclarations.push(getTSSignatureForDecorator(dec));
-    },
-  });
-
-  const content = [
+  const content: Doc = [
     `import {${[...compilerImports].join(",")}} from "@typespec/compiler";`,
-    "",
+    line,
+    line,
     decoratorDeclarations.join("\n\n"),
-  ].join("\n");
+  ];
 
-  const formatted = prettier.format(content, {
-    ...prettierConfig,
-    parser: "typescript",
-  });
-  return formatted;
+  return renderDoc(content);
 
   function useCompilerType(name: string) {
     compilerImports.add(name);
     return name;
   }
 
-  function getTSSignatureForDecorator(decorator: Decorator): string {
-    const name = decorator.name[1].toUpperCase() + decorator.name.slice(2) + "Decorator";
+  function getTSSignatureForDecorator({ typeName, decorator }: DecoratorSignature): string {
     const args =
       decorator.parameters.length > 0
         ? `,${decorator.parameters.map((x) => getTSParameter(x)).join(",")}`
@@ -58,7 +92,7 @@ export function generateDecoratorTSSignaturesFile(
     return [
       getDocComment(decorator),
       "export type ",
-      name,
+      typeName,
       " = ",
       `(context: ${useCompilerType("DecoratorContext")}, ${getTSParameter(
         decorator.target,

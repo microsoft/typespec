@@ -38,9 +38,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run generate-ts-sig && tsc -p . && npm run lint-typespec-library",
+    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
-    "generate-ts-sig": "tspd --enable-experiemental gen-extern-signature .",
+    "gen-extern-signature": "tspd --enable-experiemental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
