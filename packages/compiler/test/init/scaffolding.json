@@ -58,8 +58,6 @@
         "destination": "package.json",
         "skipGeneration": true
       }
-    ],
-    "welcomeMessage": "This template will create a new TypeScript project.",
-    "postCreationMessage": "Please run `npx tsp compile .` to compile your project."
+    ]
   }
 }

@@ -53,12 +53,6 @@ export interface InitTemplate {
    * List of files to copy.
    */
   files?: InitTemplateFile[];
-
-  /** A welcome or pre-creation message for a given template  */
-  welcomeMessage?: string;
-
-  /** A post-creation message for a given template that will typically contain follow up steps */
-  postCreationMessage?: string;
 }
 
 export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
@@ -98,8 +92,6 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         required: ["path", "destination"],
       },
     },
-    welcomeMessage: { type: "string", nullable: true },
-    postCreationMessage: { type: "string", nullable: true },
   },
   required: ["title", "description", "minimumCompilerVersion"],
 };

@@ -116,8 +116,8 @@ export async function initTypeSpecProject(
   }
 
   const template = templates[templateName] as InitTemplate;
-  if (template.welcomeMessage) {
-    console.log(template.welcomeMessage);
+  if (template.description) {
+    console.log(template.description);
   }
   const { name } = await prompts([
     {
@@ -146,9 +146,6 @@ export async function initTypeSpecProject(
   await scaffoldNewProject(host, scaffoldingConfig);
 
   console.log("Project created successfully.");
-  if (template.welcomeMessage) {
-    console.log(template.welcomeMessage);
-  }
 }
 
 async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
