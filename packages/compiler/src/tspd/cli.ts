@@ -3,7 +3,7 @@ import pc from "picocolors";
 import yargs from "yargs";
 import { logDiagnostics, resolvePath } from "../core/index.js";
 import { ExternalError, NodeHost, typespecVersion } from "../core/util.js";
-import { generateDecoratorTSSignatureForLibrary } from "./gen-extern-signature/decorator-gen.js";
+import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
 
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -79,14 +79,8 @@ async function main() {
       async (args) => {
         const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
         const host = NodeHost;
-        const [content, diagnostics] = await generateDecoratorTSSignatureForLibrary(
-          host,
-          resolvedRoot
-        );
-        if (diagnostics.length === 0) {
-          await host.mkdirp(resolvePath(resolvedRoot, "definitions"));
-          await host.writeFile(resolvePath(resolvedRoot, "definitions/decorators.ts"), content);
-        } else {
+        const diagnostics = await generateExternSignatures(host, resolvedRoot);
+        if (diagnostics.length > 0) {
           logDiagnostics(diagnostics, host.logSink);
         }
       }

@@ -1,55 +1,21 @@
 import prettier from "prettier";
-
 import {
-  CompilerHost,
   Decorator,
-  DiagnosticResult,
   DocTag,
   FunctionParameter,
   IntrinsicScalarName,
   Model,
-  NodePackage,
   Program,
   Scalar,
   Type,
   ValueType,
-  compile,
-  createDiagnosticCollector,
   getLocationContext,
   getSourceLocation,
   isUnknownType,
-  joinPaths,
   navigateProgram,
-  resolvePath,
 } from "../../core/index.js";
 
-export async function generateDecoratorTSSignatureForLibrary(
-  host: CompilerHost,
-  libraryPath: string
-): Promise<DiagnosticResult<string>> {
-  const diagnostics = createDiagnosticCollector();
-  const pkgJson = await readPackageJson(host, libraryPath);
-  if (!pkgJson.tspMain) {
-    throw new Error("Must have a tspMain with decorator declaration.");
-  }
-
-  const main = resolvePath(libraryPath, pkgJson.tspMain);
-  const program = await compile(host, main, {
-    parseOptions: { comments: true, docs: true },
-  });
-  const prettierConfig = await prettier.resolveConfig(libraryPath);
-
-  const result = generateDecoratorTSSignature(program, prettierConfig ?? undefined);
-
-  return diagnostics.wrap(result);
-}
-
-async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<NodePackage> {
-  const file = await host.readFile(joinPaths(libraryPath, "package.json"));
-  return JSON.parse(file.text);
-}
-
-export function generateDecoratorTSSignature(
+export function generateDecoratorTSSignaturesFile(
   program: Program,
   prettierConfig?: prettier.Options
 ): string {
