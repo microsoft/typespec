@@ -191,12 +191,12 @@ const builtInTemplates: Record<string, InitTemplate> = {
     title: "Empty project",
     description: "Create an empty project.",
     libraries: [],
-    minimalCompilerVersion: MANIFEST.version,
+    minimumCompilerVersion: MANIFEST.version,
   },
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
-    minimalCompilerVersion: MANIFEST.version,
+    minimumCompilerVersion: MANIFEST.version,
     libraries: ["@typespec/rest", "@typespec/openapi3"],
     config: {
       emit: ["@typespec/openapi3"],
@@ -217,7 +217,7 @@ async function confirm(message: string): Promise<boolean> {
 async function downloadTemplates(
   host: CompilerHost,
   templatesUrl: TemplatesUrl
-): Promise<Record<string, any>> {
+): Promise<Record<string, unknown>> {
   let file: SourceFile;
   try {
     file = await readUrlOrPath(host, templatesUrl.url);
@@ -246,8 +246,7 @@ async function downloadTemplates(
     ]);
   }
 
-  //validateTemplateDefinitions(json, file);
-  return json as Record<string, any>;
+  return json as Record<string, unknown>;
 }
 
 async function promptTemplateSelection(
@@ -265,7 +264,7 @@ async function promptTemplateSelection(
         title:
           template.title +
           `\tmin compiler ver: ${
-            template.minimalCompilerVersion ? template.minimalCompilerVersion : "-not specified-"
+            template.minimumCompilerVersion ? template.minimumCompilerVersion : "-not specified-"
           }`,
       };
     }),
@@ -289,8 +288,8 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
   const currentCompilerVersion = MANIFEST.version;
   const validationTarget = templatesUrl.file as SourceFile;
   let validationResult: ValidationResult;
-  // 1. If current version > minimalCompilerVersion, proceed with strict validation
-  if (template.minimalCompilerVersion && currentCompilerVersion > template.minimalCompilerVersion) {
+  // 1. If current version > minimumCompilerVersion, proceed with strict validation
+  if (template.minimumCompilerVersion && currentCompilerVersion > template.minimumCompilerVersion) {
     validationResult = validateTemplateDefinitions(template, validationTarget, true);
 
     // 1.1 If strict validation fails, try relaxed validation
@@ -299,8 +298,8 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
     }
   } else {
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
-    const confirmationMessage = template.minimalCompilerVersion
-      ? `The template you selected is designed for tsp version ${template.minimalCompilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
+    const confirmationMessage = template.minimumCompilerVersion
+      ? `The template you selected is designed for tsp version ${template.minimumCompilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
       : `The template you selected did not specify minimal support compiler version. You are currently using tsp version ${currentCompilerVersion}.`;
     if (
       await confirm(
@@ -319,7 +318,7 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
     logDiagnostics(validationResult.diagnostics);
 
     return await confirm(
-      "JSON schema failed. The project created may not be correct. Do you want to continue?"
+      "Template schema failed. The project created may not be correct. Do you want to continue?"
     );
   }
   return true;

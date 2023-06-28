@@ -1,3 +1,3 @@
-model Foo {
-  id: int32;
+namespace MyTypeSpecLibrary {
+  model Test {}
 }

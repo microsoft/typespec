@@ -26,7 +26,7 @@ export interface InitTemplate {
   description: string;
 
   /** Minimal Compiler Support Version */
-  minimalCompilerVersion: string;
+  minimumCompilerVersion: string;
 
   /**
    * List of libraries to include
@@ -54,10 +54,10 @@ export interface InitTemplate {
    */
   files?: InitTemplateFile[];
 
-  /**  */
+  /** A welcome or pre-creation message for a given template  */
   welcomeMessage?: string;
 
-  /**  */
+  /** A post-creation message for a given template that will typically contain follow up steps */
   postCreationMessage?: string;
 }
 
@@ -67,7 +67,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   properties: {
     title: { type: "string" },
     description: { type: "string" },
-    minimalCompilerVersion: { type: "string" },
+    minimumCompilerVersion: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },
@@ -101,5 +101,5 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     welcomeMessage: { type: "string", nullable: true },
     postCreationMessage: { type: "string", nullable: true },
   },
-  required: ["title", "description", "minimalCompilerVersion"],
+  required: ["title", "description", "minimumCompilerVersion"],
 };
