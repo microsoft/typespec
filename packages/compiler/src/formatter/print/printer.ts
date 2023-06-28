@@ -945,7 +945,8 @@ export function printMemberExpression(
   print: PrettierChildPrint
 ): Doc {
   const node = path.getValue();
-  return [node.base ? [path.call(print, "base"), "."] : "", path.call(print, "id")];
+
+  return [node.base ? [path.call(print, "base"), node.selector] : "", path.call(print, "id")];
 }
 
 export function printModelExpression(
