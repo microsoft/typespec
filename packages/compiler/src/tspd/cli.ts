@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import pc from "picocolors";
 import yargs from "yargs";
 import { logDiagnostics, resolvePath } from "../core/index.js";
 import { ExternalError, NodeHost, typespecVersion } from "../core/util.js";
@@ -10,6 +11,23 @@ try {
   await import("source-map-support/register.js");
 } catch {
   // package only present in dev.
+}
+
+function logExperimentalWarning(type: "log" | "error") {
+  const log =
+    type === "error"
+      ? (message: string) => console.error(pc.red(message))
+      : (message: string) => console.log(pc.yellow(message));
+  log("-".repeat(100));
+  log(
+    `tspd (TypeSpec Library Developer Cli) is experimental and might be ${pc.bold(
+      "BREAKING"
+    )} between versions.`
+  );
+  if (type === "error") {
+    log(`Add "--enable-experimental" flag to acknowledge this and continue.`);
+  }
+  log("-".repeat(100));
 }
 
 async function main() {
@@ -34,6 +52,20 @@ async function main() {
         "Enable color and formatting in TypeSpec's output to make compiler errors easier to read.",
       default: true,
     })
+    .option("enable-experiemental", {
+      type: "boolean",
+      description: "Acknowledge that the tspd command line is experiemental.",
+      default: false,
+    })
+    .check((args) => {
+      if (args["enable-experiemental"]) {
+        logExperimentalWarning("log");
+        return true;
+      } else {
+        logExperimentalWarning("error");
+        process.exit(1);
+      }
+    })
     .command(
       "gen-extern-signature <entrypoint>",
       "Format given list of TypeSpec files.",
@@ -46,7 +78,6 @@ async function main() {
       },
       async (args) => {
         const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
-
         const host = NodeHost;
         const [content, diagnostics] = await generateDecoratorTSSignatureForLibrary(
           host,

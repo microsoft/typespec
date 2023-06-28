@@ -48,6 +48,7 @@
   },
   "bin": {
     "tsp": "cmd/tsp.js",
+    "tspd": "cmd/tspd.js",
     "tsp-server": "cmd/tsp-server.js"
   },
   "files": [

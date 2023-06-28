@@ -45,8 +45,8 @@ export async function generateDecoratorTSSignatureForLibrary(
 }
 
 async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<NodePackage> {
-  const buffer = await host.readFile(joinPaths(libraryPath, "package.json"));
-  return JSON.parse(buffer.toString());
+  const file = await host.readFile(joinPaths(libraryPath, "package.json"));
+  return JSON.parse(file.text);
 }
 
 export function generateDecoratorTSSignature(
