@@ -118,6 +118,7 @@ export async function initTypeSpecProject(
 
   const template = templates[templateName] as InitTemplate;
   if (template.description) {
+    // eslint-disable-next-line no-console
     console.log(template.description);
   }
   const { name } = await prompts([
@@ -146,6 +147,7 @@ export async function initTypeSpecProject(
   };
   await scaffoldNewProject(host, scaffoldingConfig);
 
+  // eslint-disable-next-line no-console
   console.log("Project created successfully.");
 }
 
@@ -189,12 +191,12 @@ const builtInTemplates: Record<string, InitTemplate> = {
     title: "Empty project",
     description: "Create an empty project.",
     libraries: [],
-    minimumCompilerVersion: MANIFEST.version,
+    compilerVersion: MANIFEST.version,
   },
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
-    minimumCompilerVersion: MANIFEST.version,
+    compilerVersion: MANIFEST.version,
     libraries: ["@typespec/rest", "@typespec/openapi3"],
     config: {
       emit: ["@typespec/openapi3"],
@@ -262,7 +264,7 @@ async function promptTemplateSelection(
         title:
           template.title +
           `\tmin compiler ver: ${
-            template.minimumCompilerVersion ? template.minimumCompilerVersion : "-not specified-"
+            template.compilerVersion ? template.compilerVersion : "-not specified-"
           }`,
       };
     }),
@@ -286,11 +288,8 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
   const currentCompilerVersion = MANIFEST.version;
   const validationTarget = templatesUrl.file as SourceFile;
   let validationResult: ValidationResult;
-  // 1. If current version > minimumCompilerVersion, proceed with strict validation
-  if (
-    template.minimumCompilerVersion &&
-    semver.gt(currentCompilerVersion, template.minimumCompilerVersion)
-  ) {
+  // 1. If current version > compilerVersion, proceed with strict validation
+  if (template.compilerVersion && semver.gt(currentCompilerVersion, template.compilerVersion)) {
     validationResult = validateTemplateDefinitions(template, validationTarget, true);
 
     // 1.1 If strict validation fails, try relaxed validation
@@ -299,8 +298,8 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
     }
   } else {
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
-    const confirmationMessage = template.minimumCompilerVersion
-      ? `The template you selected is designed for tsp version ${template.minimumCompilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
+    const confirmationMessage = template.compilerVersion
+      ? `The template you selected is designed for tsp version ${template.compilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
       : `The template you selected did not specify minimal support compiler version. You are currently using tsp version ${currentCompilerVersion}.`;
     if (
       await confirm(
@@ -470,6 +469,7 @@ function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): bool
 
 function logDiagnostics(diagnostics: readonly Diagnostic[]): void {
   diagnostics.forEach((diagnostic) => {
+    // eslint-disable-next-line no-console
     console.log(diagnostic.message);
   });
 }

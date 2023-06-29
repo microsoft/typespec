@@ -13,7 +13,7 @@
     ]
   },
   "version-not-met": {
-    "minimumCompilerVersion": "99.0.0",
+    "compilerVersion": "99.0.0",
     "title": "Test template version not met",
     "description": "This template has minimal version but not met",
     "libraries": [],
@@ -27,7 +27,7 @@
     ]
   },
   "version-met-invalid": {
-    "minimumCompilerVersion": "0.44.0",
+    "compilerVersion": "0.44.0",
     "title": "Test template version met but schema invalid",
     "description": "Test template version met but schema invalid",
     "libraries": [],
@@ -42,7 +42,7 @@
     "randomMessage": "random message"
   },
   "version-met-valid": {
-    "minimumCompilerVersion": "0.44.0",
+    "compilerVersion": "0.44.0",
     "title": "Test template version met and schema valid",
     "description": "Test template version met but schema invalid",
     "libraries": [],
