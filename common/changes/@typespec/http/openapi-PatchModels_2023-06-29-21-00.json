@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Add `@requestVisibility` decorator. Add `getOperationRequestVisibility` and `resolveRequestVisibility` methods.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

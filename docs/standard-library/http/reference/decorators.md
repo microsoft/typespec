@@ -263,6 +263,27 @@ op read(@query select: string, @query("order-by") orderBy: string): void;
 op list(@query({name: "id", format: "multi"}) ids: string[]): void;
 ```
 
+### `@requestVisibility` {#@TypeSpec.Http.requestVisibility}
+
+By default, the visibility applied to an operation is determined by the operation verb.
+This decorator allows you to override the default visibility for a given operation.
+
+See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
+
+```typespec
+@TypeSpec.Http.requestVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+
+| Name         | Type                     | Description                                         |
+| ------------ | ------------------------ | --------------------------------------------------- |
+| visibilities | `valueof model string[]` | List of visibilities which apply to this operation. |
+
 ### `@route` {#@TypeSpec.Http.route}
 
 Defines the relative route URI for the target operation

@@ -44,6 +44,7 @@ npm install --save-peer @typespec/http
 - [`@post`](./decorators.md#@TypeSpec.Http.post)
 - [`@put`](./decorators.md#@TypeSpec.Http.put)
 - [`@query`](./decorators.md#@TypeSpec.Http.query)
+- [`@requestVisibility`](./decorators.md#@TypeSpec.Http.requestVisibility)
 - [`@route`](./decorators.md#@TypeSpec.Http.route)
 - [`@server`](./decorators.md#@TypeSpec.Http.server)
 - [`@sharedRoute`](./decorators.md#@TypeSpec.Http.sharedRoute)

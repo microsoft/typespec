@@ -211,9 +211,6 @@ components:
           $ref: '#/components/schemas/PersonUpdateItem'
         relationship:
           type: string
-      required:
-        - person
-        - relationship
     PersonUpdate:
       type: object
       properties:
@@ -236,10 +233,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
-      required:
-        - name
-        - other
-        - relatives
     ReadablePerson:
       type: object
       properties:
