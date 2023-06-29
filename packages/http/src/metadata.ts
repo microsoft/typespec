@@ -41,6 +41,12 @@ export enum Visibility {
    * and therefore no metadata is applicable.
    */
   Item = 1 << 20,
+
+  /**
+   * Additional flag to indicate when the verb is patch and therefore
+   * must always be optional.
+   */
+  Patch = 1 << 21,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
@@ -466,8 +472,9 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
 
   function isOptional(property: ModelProperty, visibility: Visibility): boolean {
     // Properties are only made optional for update visibility
-    // FIXME: What about create visibility with PATCH verb?
-    return property.optional || visibility === Visibility.Update;
+    const hasUpdate = (visibility & Visibility.Update) !== 0;
+    const isPatch = (visibility & Visibility.Patch) !== 0;
+    return property.optional || (hasUpdate && isPatch);
   }
 
   function isPayloadProperty(

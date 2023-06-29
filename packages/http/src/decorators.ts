@@ -21,6 +21,7 @@ import {
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { Visibility } from "./metadata.js";
 import { setRoute, setSharedRoute } from "./route.js";
 import {
   AuthenticationOption,
@@ -662,4 +663,55 @@ export function includeInapplicableMetadataInPayload(
     }
   }
   return true;
+}
+
+const requestVisibilityKey = createStateSymbol("requestVisibility");
+
+export function $requestVisibility(
+  context: DecoratorContext,
+  target: Operation,
+  ...visibilities: string[]
+) {
+  validateDecoratorUniqueOnNode(context, target, $requestVisibility);
+  const state = context.program.stateMap(requestVisibilityKey);
+  state.set(target, visibilities);
+}
+
+/**
+ * Returns the visibility of the given operation, if provided with `@requestVisibility`.
+ *
+ * @see $requestVisibility
+ */
+export function getOperationRequestVisibility(
+  program: Program,
+  operation: Operation
+): Visibility | undefined {
+  const visibilities = program.stateMap(requestVisibilityKey).get(operation);
+  return visibilities !== undefined ? arrayToVisibility(visibilities) : undefined;
+}
+
+function arrayToVisibility(array: readonly string[]): Visibility | undefined {
+  let value = Visibility.None;
+  for (const item of array) {
+    switch (item) {
+      case "read":
+        value |= Visibility.Read;
+        break;
+      case "create":
+        value |= Visibility.Create;
+        break;
+      case "update":
+        value |= Visibility.Update;
+        break;
+      case "delete":
+        value |= Visibility.Delete;
+        break;
+      case "query":
+        value |= Visibility.Query;
+        break;
+      default:
+        return undefined;
+    }
+  }
+  return value;
 }

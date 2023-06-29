@@ -2,33 +2,68 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
-  it("will expose create visibility properties on PATCH models", async () => {
+  it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
     const res = await openApiFor(`
       model M {
         @visibility("read") r: string;
         @visibility("read", "create") rc?: string;
         @visibility("read", "update", "create") ruc?: string;
       }
+
+      @requestVisibility("create", "update")
       @route("/") @patch op createOrUpdate(...M): M; 
     `);
 
-    const response = res.paths["/"].patch.responses["200"].schema;
-    const request = res.paths["/"].patch.parameters[0].schema;
+    const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
+    const request = res.paths["/"].patch.requestBody.content["application/json"].schema;
 
-    deepStrictEqual(response, { $ref: "#/definitions/M" });
-    deepStrictEqual(request, { $ref: "#/definitions/MUpdate" });
-    deepStrictEqual(res.definitions, {
+    deepStrictEqual(response, { $ref: "#/components/schemas/M" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/MCreateOrUpdate" });
+    deepStrictEqual(res.components.schemas, {
       M: {
         type: "object",
         properties: {
-          r: { type: "string", "x-ms-mutability": ["read"] },
-          rc: { type: "string", "x-ms-mutability": ["read", "create"] },
-          ruc: { type: "string", "x-ms-mutability": ["read", "update", "create"] },
+          r: { type: "string", readOnly: true },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
+      },
+      MCreateOrUpdate: {
+        type: "object",
+        properties: {
+          rc: { type: "string" },
+          ruc: { type: "string" },
         },
       },
-      MUpdate: {
-        rc: { type: "string", "x-ms-mutability": ["read", "create"] },
-        ruc: { type: "string", "x-ms-mutability": ["read", "update", "create"] },
+    });
+  });
+
+  it("will expose create visibility properties on PUT model", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+
+      @route("/") @put op createOrUpdate(...M): M; 
+    `);
+
+    const response = res.paths["/"].put.responses["200"].content["application/json"].schema;
+    const request = res.paths["/"].put.requestBody.content["application/json"].schema;
+
+    deepStrictEqual(response, { $ref: "#/components/schemas/M" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/M" });
+    deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
       },
     });
   });

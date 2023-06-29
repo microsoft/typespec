@@ -265,6 +265,16 @@ extern dec route(
 extern dec sharedRoute(target: Operation);
 
 /**
+ * By default, the visibility applied to an operation is determined by the operation verb.
+ * This decorator allows you to override the default visibility for a given operation.
+ *
+ * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
+ *
+ * @param visibilities List of visibilities which apply to this operation.
+ */
+extern dec requestVisibility(target: Operation, ...visibilities: valueof string[]);
+
+/**
  * Private decorators. Those are meant for internal use inside Http types only.
  */
 namespace Private {

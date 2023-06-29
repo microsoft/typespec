@@ -729,7 +729,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.getRequestVisibility(verb);
+    let visibility =
+      http.getOperationRequestVisibility(program, operation.operation) ??
+      http.getRequestVisibility(verb);
+    if (verb === "patch") {
+      // special workaround to force optionality...
+      visibility |= http.Visibility.Patch;
+    }
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);

@@ -10,13 +10,14 @@ import {
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
+  getOperationRequestVisibility,
   getOperationVerb,
   getPathParamOptions,
   getQueryParamOptions,
   isBody,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
+import { gatherMetadata, getRequestVisibility, isMetadata, Visibility } from "./metadata.js";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -59,7 +60,11 @@ function getOperationParametersForVerb(
   knownPathParamNames: string[]
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = getRequestVisibility(verb);
+  let visibility = getOperationRequestVisibility(program, operation) ?? getRequestVisibility(verb);
+  // special workaround to force optionality...
+  if (verb === "patch") {
+    visibility |= Visibility.Patch;
+  }
   const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
   const metadata = gatherMetadata(
     program,
