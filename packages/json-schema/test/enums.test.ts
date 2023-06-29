@@ -62,4 +62,24 @@ describe("emitting enums", () => {
     const Foo = schemas["Foo.json"];
     assert.strictEqual(Foo["x-foo"], "foo");
   });
+
+  it("handles enum member refs", async () => {
+    const schemas = await emitSchema(`
+      enum Foo {
+        a: "hi";
+        b: 2;
+        c;
+      }
+
+      model Bar {
+        a: Foo.a;
+        b: Foo.b;
+        c: Foo.c;
+      }
+    `);
+    const Bar = schemas["Bar.json"];
+    assert.deepStrictEqual(Bar.properties.a, { type: "string", const: "hi" });
+    assert.deepStrictEqual(Bar.properties.b, { type: "number", const: 2 });
+    assert.deepStrictEqual(Bar.properties.c, { type: "string", const: "c" });
+  });
 });

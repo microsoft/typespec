@@ -182,6 +182,8 @@ export function createAssetEmitter<T, TOptions extends object>(
     emitTypeReference(target): EmitEntity<T> {
       if (target.kind === "ModelProperty") {
         return invokeTypeEmitter("modelPropertyReference", target);
+      } else if (target.kind === "EnumMember") {
+        return invokeTypeEmitter("enumMemberReference", target);
       }
 
       incomingReferenceContext = context.referenceContext ?? null;

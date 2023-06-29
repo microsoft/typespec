@@ -62,10 +62,6 @@ union UnionDecl {
   x: int32;
   y: string;
 }
-enum MyEnum {
-  a: "hi";
-  b: "bye";
-}
 `;
 
 class SingleFileEmitter extends TypeScriptInterfaceEmitter {
@@ -273,6 +269,23 @@ describe("emitter-framework: typescript emitter", () => {
     `);
 
     assert.match(contents, /x: \[string, number\]/);
+  });
+
+  it("emits enum member references", async () => {
+    const contents = await emitTypeSpecToTs(`
+      enum MyEnum {
+        a: "hi";
+        b: "bye";
+      }
+      
+      model EnumReference {
+        prop: MyEnum.a;
+        prop2: MyEnum.b;
+      }
+    `);
+    console.log(contents);
+    assert.match(contents, /prop: MyEnum.a/);
+    assert.match(contents, /prop2: MyEnum.b/);
   });
 
   it("emits scalars", async () => {

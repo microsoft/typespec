@@ -2,6 +2,7 @@ import {
   BooleanLiteral,
   emitFile,
   Enum,
+  EnumMember,
   getDeprecated,
   getDirectoryPath,
   getDoc,
@@ -193,6 +194,18 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     });
     this.#applyConstraints(en, withConstraints);
     return this.#createDeclaration(en, name, withConstraints);
+  }
+
+  enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
+    // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
+    switch (typeof member.value) {
+      case "undefined":
+        return { type: "string", const: member.name };
+      case "string":
+        return { type: "string", const: member.value };
+      case "number":
+        return { type: "number", const: member.value };
+    }
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
