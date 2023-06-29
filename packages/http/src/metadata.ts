@@ -5,6 +5,7 @@ import {
   isVisible as isVisibleCore,
   Model,
   ModelProperty,
+  Operation,
   Program,
   Queue,
   TwoLevelMap,
@@ -13,6 +14,7 @@ import {
   walkPropertiesInherited,
 } from "@typespec/compiler";
 import {
+  getOperationRequestVisibility,
   includeInapplicableMetadataInPayload,
   isBody,
   isHeader,
@@ -139,6 +141,26 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
       const _assertNever: never = verb;
       compilerAssert(false, "unreachable");
   }
+}
+
+/**
+ * Determines the visibility to use for a request with the given verb, either by evaluating
+ * the defaults or applying the results of `@requestVisibility`. This should probably be used
+ * in place of `getRequestVisibility` or `getOperationRequestVisibility` in most cases.
+ *
+ * @param operation The HTTP operation to evaluate.
+ * @param verb The HTTP verb for the operation.
+ */
+export function resolveRequestVisibility(
+  program: Program,
+  operation: Operation,
+  verb: HttpVerb
+): Visibility {
+  let visibility = getOperationRequestVisibility(program, operation) ?? getRequestVisibility(verb);
+  if (verb === "patch") {
+    visibility |= Visibility.Patch;
+  }
+  return visibility;
 }
 
 /**
