@@ -286,8 +286,8 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
     toleratedDelimiterIsValid: false,
     trailingDelimiterIsValid: true,
-    open: Token.OpenBrace,
-    close: Token.CloseBrace,
+    open: Token.OpenBracket,
+    close: Token.CloseBracket,
     allowedStatementKeyword: Token.None,
   } as const;
 }
@@ -961,19 +961,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode | ModelValidateNode {
     if (token() === Token.ValidateKeyword) {
-      parseExpected(Token.ValidateKeyword);
+      nextToken();
+
+      const value = parseProjectionExpression();
 
       let vid: IdentifierNode | undefined = undefined;
-      if (token() === Token.Identifier) {
+      if (token() === Token.AsKeyword) {
+        nextToken();
         vid = parseIdentifier({
           message: "property",
           allowStringLiteral: false,
         });
-
-        parseExpected(Token.Colon);
       }
-
-      const value = parseProjectionExpression();
 
       return {
         kind: SyntaxKind.ModelValidate,
@@ -1045,17 +1044,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): ModelValidateNode {
     parseExpected(Token.ValidateKeyword);
 
+    const value = parseProjectionExpression();
+
     let vid: IdentifierNode | undefined = undefined;
-    if (token() === Token.Identifier) {
+    if (token() === Token.AsKeyword) {
+      nextToken();
       vid = parseIdentifier({
         message: "property",
         allowStringLiteral: false,
       });
-
-      parseExpected(Token.Colon);
     }
-
-    const value = parseProjectionExpression();
 
     return {
       kind: SyntaxKind.ModelValidate,
@@ -1947,9 +1945,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseProjectionMembershipExpressionOrHigher(): ProjectionExpression {
     let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
 
-    if (token() === Token.Identifier && tokenValue() === "in") {
+    if (token() === Token.InKeyword) {
       const pos = expr.pos;
       nextToken();
+      parseExpected(Token.Hash);
       const args = parseList(ListKind.MemberSet, parseProjectionLogicalImpliesExpressionOrHigher);
       expr = {
         kind: SyntaxKind.ProjectionMembershipExpression,

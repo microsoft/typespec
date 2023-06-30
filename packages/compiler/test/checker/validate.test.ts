@@ -16,7 +16,7 @@ describe("compiler: validate", () => {
       @test model M {
         ii: int64;
 
-        validate chkii: ii >= 0;
+        validate ii >= 0 as chkii;
       }
       `
     );
@@ -35,8 +35,8 @@ describe("compiler: validate", () => {
       @test model M {
         ii: int64;
 
-        validate chkiil: ii >= 0;
-        validate chkiih: ii < 100;
+        validate ii >= 0 as chkiil;
+        validate ii < 100 as chkiih;
       }
       `
     );
@@ -48,6 +48,25 @@ describe("compiler: validate", () => {
     strictEqual(M.validates.size, 2);
   });
 
+  it("basic validate without id", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `  
+      @test model M {
+        ii: int64;
+
+        validate ii >= 0;
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    strictEqual(M.validates.size, 1);
+  });
+
   it("basic validate with doc", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -56,7 +75,7 @@ describe("compiler: validate", () => {
         ii: int64;
 
         @doc("Check that ii is greater than or equal to 0")
-        validate chkii: ii >= 0;
+        validate ii >= 0 as chkii;
       }
       `
     );
@@ -74,12 +93,13 @@ describe("compiler: validate", () => {
       "Check that ii is greater than or equal to 0"
     );
   });
+
   it("basic scalar validate", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `  
       @test scalar S extends int64 {
-        validate chkv: value >= 0;
+        validate value >= 0 as chkv;
       }
       `
     );

@@ -73,11 +73,11 @@ describe("compiler: projections: logic", () => {
       #suppress "projections-are-experimental"
       projection Foo#v {
         to(version) {
-          if version in {1, 2} {
+          if version in #[1, 2] {
             self::deleteProperty("a");
           };
 
-          if version >= 3 ==> !(version in {1, 2}) {
+          if version >= 3 ==> !(version in #[1, 2]) {
             self::deleteProperty("b");
           };
         }
@@ -102,7 +102,7 @@ describe("compiler: projections: logic", () => {
       #suppress "projections-are-experimental"
       projection Foo#v {
         to(version) {
-          if "bob" in {"sam", "bob"} {
+          if "bob" in #["sam", "bob"] {
             self::deleteProperty("a");
           };
         }

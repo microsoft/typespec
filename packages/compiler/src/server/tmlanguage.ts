@@ -327,6 +327,17 @@ const modelProperty: BeginEndRule = {
   patterns: [token, typeAnnotation, operatorAssignment, expression],
 };
 
+const modelValidate: BeginEndRule = {
+  key: "model-validate",
+  scope: meta,
+  begin: `validate`,
+  beginCaptures: {
+    "0": { scope: "keyword.other.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, expression],
+};
+
 const modelSpreadProperty: BeginEndRule = {
   key: "model-spread-property",
   scope: meta,
@@ -365,6 +376,7 @@ const modelExpression: BeginEndRule = {
     // considered an arbitrarily positioned string literal and not match as part
     // of modelProperty begin.
     modelProperty,
+    modelValidate,
     token,
     directive,
     decorator,
