@@ -62,6 +62,11 @@ union UnionDecl {
   x: int32;
   y: string;
 }
+
+enum MyEnum {
+  a: "hi";
+  b: "bye";
+}
 `;
 
 class SingleFileEmitter extends TypeScriptInterfaceEmitter {
@@ -283,7 +288,6 @@ describe("emitter-framework: typescript emitter", () => {
         prop2: MyEnum.b;
       }
     `);
-    console.log(contents);
     assert.match(contents, /prop: MyEnum.a/);
     assert.match(contents, /prop2: MyEnum.b/);
   });
@@ -394,7 +398,7 @@ describe("emitter-framework: typescript emitter", () => {
       "UnionDecl.ts",
       "MyInterface.ts",
     ].forEach((file) => {
-      assert(files.has(file));
+      assert(files.has(file), `emits ${file}`);
     });
   });
 
