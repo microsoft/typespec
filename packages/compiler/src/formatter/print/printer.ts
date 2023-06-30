@@ -1160,14 +1160,23 @@ export function printModelValidate(
       tryInline: true,
     }
   );
-  const id = printIdentifier(node.id, options);
-  return [
-    multiline && isNotFirst ? hardline : "",
-    printDirectives(path, options, print),
-    decorators,
-    id,
-    path.call(print, "value"),
-  ];
+  if (node.id === undefined) {
+    return [
+      multiline && isNotFirst ? hardline : "",
+      printDirectives(path, options, print),
+      decorators,
+      path.call(print, "value"),
+    ];
+  } else {
+    const id = printIdentifier(node.id, options);
+    return [
+      multiline && isNotFirst ? hardline : "",
+      printDirectives(path, options, print),
+      decorators,
+      id,
+      path.call(print, "value"),
+    ];
+  }
 }
 
 function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {

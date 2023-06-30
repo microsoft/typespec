@@ -2617,8 +2617,10 @@ export function createChecker(program: Program): Checker {
             }
           }
           for (const vv of node.validates) {
-            const name = vv.id.sv;
-            bindMember(name, vv, SymbolFlags.ModelValidate);
+            if (vv.id !== undefined) {
+              const name = vv.id.sv;
+              bindMember(name, vv, SymbolFlags.ModelValidate);
+            }
           }
           break;
         case SyntaxKind.ModelExpression:
@@ -3072,7 +3074,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as ModelValidate;
     }
 
-    const name = vv.id.sv;
+    const name = vv.id?.sv ?? "[Anonymous]";
 
     //
     //TODO: typecheck the projection expression here or leave that problem for the emitter?
@@ -3721,9 +3723,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function getSymbolForMember(node: MemberNode): Sym | undefined {
-    const name = node.id.sv;
-    const parentSym = node.parent?.symbol;
-    return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
+    if (node.id === undefined) {
+      return undefined;
+    } else {
+      const name = node.id.sv;
+      const parentSym = node.parent?.symbol;
+      return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
+    }
   }
 
   function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {

@@ -55,7 +55,9 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
       case SyntaxKind.ModelProperty:
         return createDocumentSymbol(node, getName(node.id), SymbolKind.Property);
       case SyntaxKind.ModelValidate:
-        return createDocumentSymbol(node, getName(node.id), SymbolKind.Validate);
+        return node.id !== undefined
+          ? createDocumentSymbol(node, getName(node.id), SymbolKind.Field)
+          : undefined;
       case SyntaxKind.ModelSpreadProperty:
         return getForModelSpread(node);
       case SyntaxKind.UnionStatement:

@@ -178,6 +178,7 @@ namespace ListKind {
     close: Token.CloseBrace,
     delimiter: Token.Semicolon,
     toleratedDelimiter: Token.Comma,
+    allowedStatementKeyword: Token.ValidateKeyword,
   } as const;
 
   export const ScalarValidates = {
@@ -188,6 +189,7 @@ namespace ListKind {
     delimiter: Token.Semicolon,
     toleratedDelimiter: Token.Semicolon,
     toleratedDelimiterIsValid: false,
+    allowedStatementKeyword: Token.ValidateKeyword,
   } as const;
 
   export const InterfaceMembers = {
@@ -958,18 +960,19 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode | ModelValidateNode {
-    const id = parseIdentifier({
-      message: "property",
-      allowStringLiteral: true,
-    });
+    if (token() === Token.ValidateKeyword) {
+      parseExpected(Token.ValidateKeyword);
 
-    if (id.sv === "validate" && token() === Token.Identifier) {
-      const vid = parseIdentifier({
-        message: "property",
-        allowStringLiteral: false,
-      });
+      let vid: IdentifierNode | undefined = undefined;
+      if (token() === Token.Identifier) {
+        vid = parseIdentifier({
+          message: "property",
+          allowStringLiteral: false,
+        });
 
-      parseExpected(Token.Colon);
+        parseExpected(Token.Colon);
+      }
+
       const value = parseProjectionExpression();
 
       return {
@@ -980,6 +983,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         ...finishNode(pos),
       };
     } else {
+      const id = parseIdentifier({
+        message: "property",
+        allowStringLiteral: true,
+      });
+
       const optional = parseOptional(Token.Question);
       parseExpected(Token.Colon);
       const value = parseExpression();
@@ -1035,21 +1043,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelValidateNode {
-    const id = parseIdentifier({
-      message: "property",
-      allowStringLiteral: true,
-    });
+    parseExpected(Token.ValidateKeyword);
 
-    if (id.sv !== "validate" || token() !== Token.Identifier) {
-      error({ code: "token-expected", format: { token: "'validate'" } });
+    let vid: IdentifierNode | undefined = undefined;
+    if (token() === Token.Identifier) {
+      vid = parseIdentifier({
+        message: "property",
+        allowStringLiteral: false,
+      });
+
+      parseExpected(Token.Colon);
     }
 
-    const vid = parseIdentifier({
-      message: "property",
-      allowStringLiteral: false,
-    });
-
-    parseExpected(Token.Colon);
     const value = parseProjectionExpression();
 
     return {

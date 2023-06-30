@@ -1242,7 +1242,7 @@ export interface ModelSpreadPropertyNode extends BaseNode {
 
 export interface ModelValidateNode extends BaseNode {
   readonly kind: SyntaxKind.ModelValidate;
-  readonly id: IdentifierNode;
+  readonly id: IdentifierNode | undefined;
   readonly value: ProjectionExpression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: ModelStatementNode;
