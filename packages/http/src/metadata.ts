@@ -53,8 +53,9 @@ export enum Visibility {
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
 function visibilityToArray(visibility: Visibility): readonly string[] {
-  // Item flag is not a real visibility.
+  // Item and Patch flags are not real visibilities.
   visibility &= ~Visibility.Item;
+  visibility &= ~Visibility.Patch;
 
   let result = visibilityToArrayMap.get(visibility);
   if (!result) {
@@ -104,7 +105,7 @@ export function getVisibilitySuffix(
 ) {
   let suffix = "";
 
-  if ((visibility & ~Visibility.Item) !== canonicalVisibility) {
+  if ((visibility & ~Visibility.Item & ~Visibility.Patch) !== canonicalVisibility) {
     const visibilities = visibilityToArray(visibility);
     suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
   }
@@ -496,7 +497,8 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     // Properties are only made optional for update visibility
     const hasUpdate = (visibility & Visibility.Update) !== 0;
     const isPatch = (visibility & Visibility.Patch) !== 0;
-    return property.optional || (hasUpdate && isPatch);
+    const isItem = (visibility & Visibility.Item) !== 0;
+    return property.optional || (hasUpdate && isPatch && !isItem);
   }
 
   function isPayloadProperty(

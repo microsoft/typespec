@@ -68,6 +68,58 @@ describe("openapi3: metadata", () => {
     });
   });
 
+  it("ensures properties are required for array updates", async () => {
+    const res = await openApiFor(`
+      model Person {
+        @visibility("read") id: string;
+        @visibility("create") secret: string;
+        name: string;
+      
+        @visibility("read", "create")
+        test: string;
+      
+        @visibility("other", "read", "update")
+        other: string;
+      
+        @visibility("read", "create", "update")
+        relatives: PersonRelative[];
+      }
+      
+      model PersonRelative {
+        person: Person;
+        relationship: string;
+      }
+
+      @route("/") @patch op update(...Person): Person; 
+    `);
+
+    const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
+    const request = res.paths["/"].patch.requestBody.content["application/json"].schema;
+
+    deepStrictEqual(response, { $ref: "#/components/schemas/Person" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/PersonUpdate" });
+    deepStrictEqual(res.components.schemas.PersonUpdateItem, {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        other: { type: "string" },
+        relatives: {
+          type: "array",
+          items: { $ref: "#/components/schemas/PersonRelativeUpdateItem" },
+        },
+      },
+      required: ["name", "other", "relatives"],
+    });
+    deepStrictEqual(res.components.schemas.PersonRelativeUpdateItem, {
+      type: "object",
+      properties: {
+        person: { $ref: "#/components/schemas/PersonUpdateItem" },
+        relationship: { type: "string" },
+      },
+      required: ["person", "relationship"],
+    });
+  });
+
   it("can make properties optional", async () => {
     const res = await openApiFor(`
       model Widget { 
