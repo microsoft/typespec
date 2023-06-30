@@ -653,13 +653,13 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  declarationName(declarationType: TypeSpecDeclaration): string {
+  declarationName(declarationType: TypeSpecDeclaration): string | undefined {
     compilerAssert(
       declarationType.name !== undefined,
       "Can't emit a declaration that doesn't have a name."
     );
 
-    if (declarationType.kind === "Enum") {
+    if (declarationType.kind === "Enum" || declarationType.kind === "Intrinsic") {
       return declarationType.name;
     }
 
@@ -681,6 +681,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
         case "Operation":
         case "Enum":
         case "Union":
+        case "Intrinsic":
           const declName = this.emitter.emitDeclarationName(t);
           return declName[0].toUpperCase() + declName.slice(1);
         default:

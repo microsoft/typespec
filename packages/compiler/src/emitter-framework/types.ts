@@ -1,6 +1,7 @@
 import {
   Enum,
   Interface,
+  IntrinsicType,
   Model,
   ModelProperty,
   Operation,
@@ -144,7 +145,7 @@ export type AssetTagFactory = {
   (value: string): AssetTagInstance;
 };
 
-export type TypeSpecDeclaration = Model | Interface | Union | Operation | Enum | Scalar;
+export type TypeSpecDeclaration = Model | Interface | Union | Operation | Enum | Scalar | IntrinsicType;
 
 export interface ContextState {
   lexicalContext: Record<string, any>;

@@ -499,6 +499,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return { type: "null" };
       case "unknown":
         return {};
+      case "never":
+      case "void":
+        return { not: {} };
     }
 
     throw new Error("Unknown intrinsic type " + name);

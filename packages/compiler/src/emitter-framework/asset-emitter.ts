@@ -695,7 +695,9 @@ export function createAssetEmitter<T, TOptions extends object>(
   }
 }
 
-function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespace {
+function isDeclaration(
+  type: Type
+): type is Exclude<TypeSpecDeclaration, IntrinsicType> | Namespace {
   switch (type.kind) {
     case "Namespace":
     case "Interface":

@@ -135,4 +135,40 @@ describe("emitting models", () => {
     });
     assert.deepStrictEqual(schemas["HasProp.json"].properties.x, { $ref: "RecordString.json" });
   });
+
+  it("handles instantiations of intrinsics", async () => {
+    const schemas = await emitSchema(
+      `
+        model Test {
+          "never": Record<never>;
+          "unknown": Record<unknown>;
+          "void": Record<void>;
+          "null": Record<null>;
+        }
+      `,
+      { emitAllRefs: true }
+    );
+
+    assert.deepStrictEqual(schemas["RecordNever.json"].additionalProperties, { not: {} });
+    assert.deepStrictEqual(schemas["RecordUnknown.json"].additionalProperties, {});
+    assert.deepStrictEqual(schemas["RecordVoid.json"].additionalProperties, { not: {} });
+    assert.deepStrictEqual(schemas["RecordNull.json"].additionalProperties, { type: "null" });
+  });
+
+  it.only("handles instantiations of type expressions", async () => {
+    const schemas = await emitSchema(
+      `
+        model A { x: int32 }
+        model B { y: int32 }
+        model Test {
+          "union": Record<int32 | int16>;
+          "intersection": Record<A & B>;
+          "instantiation": Record<Record<int32>>;
+        }
+      `,
+      { emitAllRefs: true }
+    );
+
+    console.log(JSON.stringify(schemas, null, 4));
+  });
 });
