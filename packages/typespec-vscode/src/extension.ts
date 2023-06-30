@@ -84,7 +84,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
 
   // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.TYPESPEC_DEVELOPMENT_MODE) {
-    const script = context.asAbsolutePath("../compiler/dist/server/server.js");
+    const script = context.asAbsolutePath("../compiler/entrypoints/server.js");
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
     const options = nodeOptions?.split(" ").filter((o) => o) ?? [];

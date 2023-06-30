@@ -14,6 +14,7 @@ model WithProjectedNames {
 
   @projectedName("json", "exp")
   expires: int32;
+
   created: int32;
   updated: int32;
 }

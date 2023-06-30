@@ -9,6 +9,7 @@ model Encodings {
   datetime: {
     // RFC3339 for json (default)
     default: utcDateTime;
+
     // Rfc7231 when in header (default)
     @header inHeader: utcDateTime;
 
@@ -17,10 +18,12 @@ model Encodings {
 
     @encode(DateTimeKnownEncoding.rfc7231)
     rfc7231: utcDateTime;
+
     rfc7231ViaScalar: myRfc7231DateTime;
 
     @encode(DateTimeKnownEncoding.unixTimestamp, int32)
     unixtime: utcDateTime;
+
     unixtimeViaScalar: myUnixTimestamp;
   };
   duration: {

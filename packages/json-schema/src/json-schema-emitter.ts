@@ -24,6 +24,7 @@ import {
   Scalar,
   StringLiteral,
   Type,
+  typespecTypeToJson,
   Union,
   UnionVariant,
 } from "@typespec/compiler";
@@ -48,6 +49,7 @@ import {
   getContentEncoding,
   getContentMediaType,
   getContentSchema,
+  getExtensions,
   getId,
   getMaxContains,
   getMaxProperties,
@@ -75,6 +77,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       const allOf = new ArrayBuilder();
       allOf.push(this.emitter.emitTypeReference(model.baseModel));
       schema.set("allOf", allOf);
+    }
+
+    if (model.indexer) {
+      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
     }
 
     this.#applyConstraints(model, schema);
@@ -175,26 +181,30 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const enumTypesArray = [...enumTypes];
 
+    const withConstraints = new ObjectBuilder({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(en),
+      type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
+      enum: [...enumValues],
+    });
+    this.#applyConstraints(en, withConstraints);
     return this.emitter.result.declaration(
       name,
-      new ObjectBuilder({
-        $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(en),
-        type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
-        enum: [...enumValues],
-      })
+
+      withConstraints
     );
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
-    return this.emitter.result.declaration(
-      name,
-      new ObjectBuilder({
-        $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: this.#getDeclId(union),
-        anyOf: this.emitter.emitUnionVariants(union),
-      })
-    );
+    const withConstraints = new ObjectBuilder({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(union),
+      anyOf: this.emitter.emitUnionVariants(union),
+    });
+
+    this.#applyConstraints(union, withConstraints);
+
+    return this.emitter.result.declaration(name, withConstraints);
   }
 
   unionLiteral(union: Union): EmitterOutput<object> {
@@ -366,7 +376,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return this.emitter.result.declaration(name, builderSchema);
   }
 
-  #applyConstraints(type: Scalar | Model | ModelProperty, schema: ObjectBuilder<unknown>) {
+  #applyConstraints(
+    type: Scalar | Model | ModelProperty | Union | Enum,
+    schema: ObjectBuilder<unknown>
+  ) {
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
       const value = fn(this.emitter.getProgram(), type);
       if (value !== undefined) {
@@ -425,6 +438,24 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         prefixItemsSchema.push(this.emitter.emitTypeReference(item));
       }
       schema.set("prefixItems", prefixItemsSchema);
+    }
+
+    const extensions = getExtensions(this.emitter.getProgram(), type);
+    for (const extension of extensions) {
+      // todo: fix up when we have an authoritative way to ask "am I an instantiation of that template"
+      if (
+        extension.value.kind === "Model" &&
+        extension.value.name === "Json" &&
+        extension.value.namespace?.name === "JsonSchema"
+      ) {
+        // we check in a decorator
+        schema.set(
+          extension.key,
+          typespecTypeToJson(extension.value.properties.get("value")!.type, null as any)[0]
+        );
+      } else {
+        schema.set(extension.key, this.emitter.emitTypeReference(extension.value));
+      }
     }
   }
 

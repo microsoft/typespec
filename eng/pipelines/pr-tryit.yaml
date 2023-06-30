@@ -1,6 +1,7 @@
 trigger: none
 pr:
   - main
+  - release/*
 
 jobs:
   - job: publish_playground

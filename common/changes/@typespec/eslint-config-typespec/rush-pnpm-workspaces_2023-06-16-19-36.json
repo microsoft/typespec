@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-config-typespec",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/eslint-config-typespec"
+}

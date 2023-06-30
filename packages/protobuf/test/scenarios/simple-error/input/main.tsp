@@ -13,7 +13,7 @@ interface Service {
     @field(536870912) testInputField2: string,
     @field(19000) testInputField3: string,
     @field(19123) testInputField4: string,
-    @field(19999) testInputField5: string
+    @field(19999) testInputField5: string,
   ): {};
 }
 

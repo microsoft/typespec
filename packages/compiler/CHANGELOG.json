@@ -2,6 +2,30 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.45.2",
+      "tag": "@typespec/compiler_v0.45.2",
+      "date": "Thu, 15 Jun 2023 17:00:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.45.1",
+      "tag": "@typespec/compiler_v0.45.1",
+      "date": "Wed, 14 Jun 2023 17:05:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Formatter moves all comments in flattened namespace to the top"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "@typespec/compiler_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",
