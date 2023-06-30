@@ -26,6 +26,7 @@ import {
   ModelPropertyNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
+  ModelValidateNode,
   NamespaceStatementNode,
   Node,
   NodeFlags,
@@ -43,6 +44,7 @@ import {
   ProjectionLambdaParameterDeclarationNode,
   ProjectionLogicalExpressionNode,
   ProjectionMemberExpressionNode,
+  ProjectionMembershipExpressionNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -170,6 +172,8 @@ export function printNode(
       return printModelExpression(path as AstPath<ModelExpressionNode>, options, print);
     case SyntaxKind.ModelProperty:
       return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
+    case SyntaxKind.ModelValidate:
+      return printModelValidate(path as AstPath<ModelValidateNode>, options, print);
     case SyntaxKind.DecoratorExpression:
       return printDecorator(path as AstPath<DecoratorExpressionNode>, options, print);
     case SyntaxKind.AugmentDecoratorStatement:
@@ -286,6 +290,12 @@ export function printNode(
     case SyntaxKind.ProjectionArithmeticExpression:
       return printProjectionLeftRightExpression(
         path as AstPath<ProjectionLogicalExpressionNode>,
+        options,
+        print
+      );
+    case SyntaxKind.ProjectionMembershipExpression:
+      return printProjectionMembershipExpression(
+        path as AstPath<ProjectionMembershipExpressionNode>,
         options,
         print
       );
@@ -931,6 +941,7 @@ function printModelPropertiesBlock(
         | ProjectionModelPropertyNode
         | ProjectionModelSpreadPropertyNode
       )[];
+      validates?: readonly ModelValidateNode[];
     }
   >,
   options: TypeSpecPrettierOptions,
@@ -938,8 +949,9 @@ function printModelPropertiesBlock(
 ) {
   const node = path.getValue();
   const hasProperties = node.properties && node.properties.length > 0;
+  const hasValidates = node.validates && node.validates.length > 0;
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
-  if (!hasProperties && !nodeHasComments) {
+  if (!hasProperties && !nodeHasComments && !hasValidates) {
     return "{}";
   }
   const tryInline = path.getParentNode()?.kind === SyntaxKind.TemplateParameterDeclaration;
@@ -952,6 +964,11 @@ function printModelPropertiesBlock(
       [seperator, lineDoc],
       path.map((x) => [print(x as any)], "properties")
     ),
+    /*
+    join(
+      [seperator, lineDoc],
+      path.map((x) => [print(x as any)], "validates")
+    ),*/
     hasProperties ? ifBreak(seperator) : "",
   ];
   if (nodeHasComments) {
@@ -1005,6 +1022,32 @@ export function printModelProperty(
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
+  ];
+}
+
+export function printModelValidate(
+  path: AstPath<ModelValidateNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const propertyIndex = path.stack[path.stack.length - 2];
+  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
+  const { decorators, multiline } = printDecorators(
+    path as AstPath<DecorableNode>,
+    options,
+    print,
+    {
+      tryInline: true,
+    }
+  );
+  const id = printIdentifier(node.id, options);
+  return [
+    multiline && isNotFirst ? hardline : "",
+    printDirectives(path, options, print),
+    decorators,
+    id,
+    path.call(print, "value"),
   ];
 }
 
@@ -1069,14 +1112,44 @@ export function printScalarStatement(
   const heritage = node.extends
     ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
     : "";
+  const body = ""; //[" ", printScalarValidatesBlock(path, options, print)];
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     "scalar ",
     id,
     template,
     group(indent(["", heritage])),
+    body,
     ";",
   ];
+}
+
+function printScalarValidatesBlock(
+  path: AstPath<
+    Node & {
+      validates?: readonly ModelValidateNode[];
+    }
+  >,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const hasValidates = node.validates && node.validates.length > 0;
+  if (!hasValidates) {
+    return "";
+  }
+  const tryInline = path.getParentNode()?.kind === SyntaxKind.TemplateParameterDeclaration;
+  const lineDoc = tryInline ? softline : hardline;
+  const seperator = isModelAValue(path) ? "," : ";";
+
+  const body: prettier.Doc = [
+    lineDoc,
+    join(
+      [seperator, lineDoc],
+      path.map((x) => [print(x as any)], "validates")
+    ),
+  ];
+  return group(["{", indent(body), lineDoc, "}"]);
 }
 
 export function printNamespaceStatement(
@@ -1514,6 +1587,17 @@ export function printProjectionLeftRightExpression(
 ) {
   const node = path.getValue();
   return [path.call(print, "left"), " ", node.op, " ", path.call(print, "right")];
+}
+
+export function printProjectionMembershipExpression(
+  path: AstPath<ProjectionMembershipExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const target = path.call(print, "left");
+  const params = printItemList(path, options, print, "arguments");
+
+  return [target, " ", "in", " ", "{", params, "}"];
 }
 
 export function printProjectionUnaryExpression(

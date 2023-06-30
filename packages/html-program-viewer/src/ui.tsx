@@ -7,6 +7,7 @@ import {
   Interface,
   Model,
   ModelProperty,
+  ModelValidate,
   Namespace,
   Operation,
   Program,
@@ -175,6 +176,8 @@ const TypeUI: FunctionComponent<TypeUIProps> = ({ type }) => {
       return <ScalarUI type={type} />;
     case "ModelProperty":
       return <ModelPropertyUI type={type} />;
+    case "ModelValidate":
+      return <ModelValidateUI type={type} />;
     case "Union":
       return <UnionUI type={type} />;
     case "UnionVariant":
@@ -253,6 +256,7 @@ const ModelUI: FunctionComponent<{ type: Model }> = ({ type }) => {
         baseModel: "ref",
         derivedModels: "ref",
         properties: "nested",
+        validates: "nested",
         sourceModel: "ref",
       }}
     />
@@ -266,6 +270,7 @@ const ScalarUI: FunctionComponent<{ type: Scalar }> = ({ type }) => {
       properties={{
         baseScalar: "ref",
         derivedScalars: "ref",
+        validates: "nested",
       }}
     />
   );
@@ -281,6 +286,17 @@ const ModelPropertyUI: FunctionComponent<{ type: ModelProperty }> = ({ type }) =
         optional: "value",
         sourceProperty: "ref",
         default: "value",
+      }}
+    />
+  );
+};
+
+const ModelValidateUI: FunctionComponent<{ type: ModelValidate }> = ({ type }) => {
+  return (
+    <NamedTypeUI
+      type={type}
+      properties={{
+        model: "ref"
       }}
     />
   );
@@ -368,6 +384,7 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
     case "Interface":
     case "Enum":
     case "ModelProperty":
+    case "ModelValidate":
     case "Scalar":
       return <NamedTypeRef type={type} />;
     case "Model":

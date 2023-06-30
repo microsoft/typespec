@@ -51,6 +51,7 @@ import {
   ModelPropertyNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
+  ModelValidateNode,
   Modifier,
   ModifierFlags,
   NamespaceStatementNode,
@@ -177,6 +178,16 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
   } as const;
 
+  export const ScalarValidates = {
+    ...PropertiesBase,
+    allowEmpty: false,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Semicolon,
+    toleratedDelimiterIsValid: false,
+  } as const;
+
   export const InterfaceMembers = {
     ...PropertiesBase,
     open: Token.OpenBrace,
@@ -263,6 +274,17 @@ namespace ListKind {
     allowEmpty: true,
     open: Token.OpenParen,
     close: Token.CloseParen,
+  } as const;
+
+  export const MemberSet = {
+    allowEmpty: true,
+    delimiter: Token.Comma,
+    toleratedDelimiter: Token.Comma,
+    toleratedDelimiterIsValid: false,
+    trailingDelimiterIsValid: true,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    allowedStatementKeyword: Token.None,
   } as const;
 }
 
@@ -758,17 +780,25 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optionalExtends = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
 
-    let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
+    let entries: (ModelPropertyNode | ModelSpreadPropertyNode | ModelValidateNode)[] = [];
     if (optionalIs) {
       const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
       if (tok === Token.Semicolon) {
         nextToken();
       } else {
-        properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+        entries = parseList(ListKind.ModelProperties, parseModelPropertyOrSpreadOrValidate);
       }
     } else {
-      properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+      entries = parseList(ListKind.ModelProperties, parseModelPropertyOrSpreadOrValidate);
     }
+
+    const properties = entries.filter(
+      (e) => e.kind === SyntaxKind.ModelProperty || e.kind === SyntaxKind.ModelSpreadProperty
+    ) as (ModelPropertyNode | ModelSpreadPropertyNode)[];
+
+    const validates = entries.filter(
+      (e) => e.kind === SyntaxKind.ModelValidate
+    ) as ModelValidateNode[];
 
     return {
       kind: SyntaxKind.ModelStatement,
@@ -778,6 +808,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParameters,
       decorators,
       properties,
+      validates,
       ...finishNode(pos),
     };
   }
@@ -820,6 +851,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return token() === Token.Ellipsis
       ? parseModelSpreadProperty(pos, decorators)
       : parseModelProperty(pos, decorators);
+  }
+
+  function parseModelPropertyOrSpreadOrValidate(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ) {
+    return token() === Token.Ellipsis
+      ? parseModelSpreadProperty(pos, decorators)
+      : parseModelPropertyOrValidate(pos, decorators);
   }
 
   function parseModelSpreadProperty(
@@ -866,6 +906,50 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseModelPropertyOrValidate(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ModelPropertyNode | ModelValidateNode {
+    const id = parseIdentifier({
+      message: "property",
+      allowStringLiteral: true,
+    });
+
+    if (id.sv === "validate" && token() === Token.Identifier) {
+      const vid = parseIdentifier({
+        message: "property",
+        allowStringLiteral: false,
+      });
+
+      parseExpected(Token.Colon);
+      const value = parseProjectionExpression();
+
+      return {
+        kind: SyntaxKind.ModelValidate,
+        id: vid,
+        decorators,
+        value,
+        ...finishNode(pos),
+      };
+    } else {
+      const optional = parseOptional(Token.Question);
+      parseExpected(Token.Colon);
+      const value = parseExpression();
+
+      const hasDefault = parseOptional(Token.Equals);
+      const defaultValue = hasDefault ? parseExpression() : undefined;
+      return {
+        kind: SyntaxKind.ModelProperty,
+        id,
+        decorators,
+        value,
+        optional,
+        default: defaultValue,
+        ...finishNode(pos),
+      };
+    }
+  }
+
   function parseScalarStatement(
     pos: number,
     decorators: DecoratorExpressionNode[]
@@ -876,9 +960,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     const optionalExtends = parseOptionalScalarExtends();
 
+    let validates: ModelValidateNode[] = [];
+    if (token() === Token.OpenBrace) {
+      validates = parseList(ListKind.ScalarValidates, parseScalarValidate);
+    }
+
     return {
       kind: SyntaxKind.ScalarStatement,
       id,
+      validates,
       templateParameters,
       extends: optionalExtends,
       decorators,
@@ -891,6 +981,36 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       return parseReferenceExpression();
     }
     return undefined;
+  }
+
+  function parseScalarValidate(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ModelValidateNode {
+    const id = parseIdentifier({
+      message: "property",
+      allowStringLiteral: true,
+    });
+
+    if (id.sv !== "validate" || token() !== Token.Identifier) {
+      error({ code: "token-expected", format: { token: "'validate'" } });
+    }
+
+    const vid = parseIdentifier({
+      message: "property",
+      allowStringLiteral: false,
+    });
+
+    parseExpected(Token.Colon);
+    const value = parseProjectionExpression();
+
+    return {
+      kind: SyntaxKind.ModelValidate,
+      id: vid,
+      decorators,
+      value,
+      ...finishNode(pos),
+    };
   }
 
   function parseEnumStatement(
@@ -1707,7 +1827,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       };
     }
 
-    return parseProjectionLogicalOrExpressionOrHigher();
+    return parseProjectionLogicalImpliesExpressionOrHigher();
+  }
+
+  function parseProjectionLogicalImpliesExpressionOrHigher(): ProjectionExpression {
+    let expr = parseProjectionLogicalOrExpressionOrHigher();
+    while (token() !== Token.EndOfFile) {
+      const pos = expr.pos;
+      if (parseOptional(Token.BigArrow)) {
+        expr = {
+          kind: SyntaxKind.ProjectionLogicalExpression,
+          op: "==>",
+          left: expr,
+          right: parseProjectionLogicalOrExpressionOrHigher(),
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
+    }
+
+    return expr;
   }
 
   function parseProjectionLogicalOrExpressionOrHigher(): ProjectionExpression {
@@ -1731,7 +1871,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseProjectionLogicalAndExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
+    let expr: ProjectionExpression = parseProjectionMembershipExpressionOrHigher();
 
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
@@ -1740,7 +1880,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "&&",
           left: expr,
-          right: parseProjectionEqualityExpressionOrHigher(),
+          right: parseProjectionMembershipExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {
@@ -1748,6 +1888,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
     }
 
+    return expr;
+  }
+
+  function parseProjectionMembershipExpressionOrHigher(): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
+
+    if (token() === Token.Identifier && tokenValue() === "in") {
+      const pos = expr.pos;
+      nextToken();
+      const args = parseList(ListKind.MemberSet, parseProjectionLogicalImpliesExpressionOrHigher);
+      expr = {
+        kind: SyntaxKind.ProjectionMembershipExpression,
+        left: expr,
+        arguments: args,
+        ...finishNode(pos),
+      };
+    }
     return expr;
   }
 
@@ -2922,14 +3079,18 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.extends) ||
         visitNode(cb, node.is) ||
-        visitEach(cb, node.properties)
+        visitEach(cb, node.properties) ||
+        visitEach(cb, node.validates)
       );
+    case SyntaxKind.ModelValidate:
+      return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.ScalarStatement:
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
-        visitNode(cb, node.extends)
+        visitNode(cb, node.extends) ||
+        visitEach(cb, node.validates)
       );
     case SyntaxKind.UnionStatement:
       return (
@@ -2998,6 +3159,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionArithmeticExpression:
     case SyntaxKind.ProjectionEqualityExpression:
       return visitNode(cb, node.left) || visitNode(cb, node.right);
+    case SyntaxKind.ProjectionMembershipExpression:
+      return visitNode(cb, node.left) || visitEach(cb, node.arguments);
     case SyntaxKind.ProjectionUnaryExpression:
       return visitNode(cb, node.target);
     case SyntaxKind.ProjectionModelExpression:
