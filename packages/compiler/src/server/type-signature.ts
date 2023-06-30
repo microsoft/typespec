@@ -60,6 +60,8 @@ function getTypeSignature(type: Type | ValueType): string {
       return `(function parameter)\n${fence(getFunctionParameterSignature(type))}`;
     case "ModelProperty":
       return `(model property)\n${fence(getModelPropertySignature(type))}`;
+    case "ModelValidate":
+      return `(model validate)`;
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":

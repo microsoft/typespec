@@ -88,6 +88,7 @@ export enum Token {
   LessThanEquals,
   GreaterThanEquals,
   AmpsersandAmpersand,
+  BigArrow,
   BarBar,
   EqualsEquals,
   ExclamationEquals,
@@ -111,6 +112,8 @@ export enum Token {
   EnumKeyword,
   AliasKeyword,
   IsKeyword,
+  AsKeyword,
+  InKeyword,
   InterfaceKeyword,
   UnionKeyword,
   ProjectionKeyword,
@@ -119,6 +122,7 @@ export enum Token {
   DecKeyword,
   FnKeyword,
   ValueOfKeyword,
+  ValidateKeyword,
   // Add new statement keyword above
 
   /** @internal */ __EndStatementKeyword,
@@ -209,6 +213,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.GreaterThanEquals, "'>='"],
   [Token.AmpsersandAmpersand, "'&&'"],
   [Token.BarBar, "'||'"],
+  [Token.BigArrow, "'==>'"],
   [Token.EqualsEquals, "'=='"],
   [Token.ExclamationEquals, "'!='"],
   [Token.EqualsGreaterThan, "'=>'"],
@@ -222,6 +227,8 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.EnumKeyword, "'enum'"],
   [Token.AliasKeyword, "'alias'"],
   [Token.IsKeyword, "'is'"],
+  [Token.AsKeyword, "'as'"],
+  [Token.InKeyword, "'in'"],
   [Token.InterfaceKeyword, "'interface'"],
   [Token.UnionKeyword, "'union'"],
   [Token.ProjectionKeyword, "'projection'"],
@@ -230,6 +237,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.DecKeyword, "'dec'"],
   [Token.FnKeyword, "'fn'"],
   [Token.ValueOfKeyword, "'valueof'"],
+  [Token.ValidateKeyword, "'validate'"],
   [Token.ExtendsKeyword, "'extends'"],
   [Token.TrueKeyword, "'true'"],
   [Token.FalseKeyword, "'false'"],
@@ -255,11 +263,14 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["op", Token.OpKeyword],
   ["extends", Token.ExtendsKeyword],
   ["is", Token.IsKeyword],
+  ["as", Token.AsKeyword],
+  ["in", Token.InKeyword],
   ["enum", Token.EnumKeyword],
   ["alias", Token.AliasKeyword],
   ["dec", Token.DecKeyword],
   ["fn", Token.FnKeyword],
   ["valueof", Token.ValueOfKeyword],
+  ["validate", Token.ValidateKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
   ["return", Token.ReturnKeyword],
@@ -536,7 +547,9 @@ export function createScanner(
           if (atConflictMarker()) return scanConflictMarker();
           switch (lookAhead(1)) {
             case CharCode.Equals:
-              return next(Token.EqualsEquals, 2);
+              return lookAhead(2) === CharCode.GreaterThan
+                ? next(Token.BigArrow, 3)
+                : next(Token.EqualsEquals, 2);
             case CharCode.GreaterThan:
               return next(Token.EqualsGreaterThan, 2);
           }

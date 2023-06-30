@@ -332,6 +332,12 @@ const diagnostics = {
       default: paramMessage`Model already has a property named ${"propName"}`,
     },
   },
+  "duplicate-validate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model already has a validate clause named ${"propName"}`,
+    },
+  },
   "override-property-mismatch": {
     severity: "error",
     messages: {
