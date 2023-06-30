@@ -692,8 +692,13 @@ export function createChecker(program: Program): Checker {
       | OperationStatementNode
       | UnionStatementNode
   ): number {
+    const symbol =
+      node.kind === SyntaxKind.OperationStatement &&
+      node.parent?.kind === SyntaxKind.InterfaceStatement
+        ? getSymbolForMember(node)
+        : node.symbol;
     // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    return node.symbol?.id!;
+    return symbol?.id!;
   }
 
   /**
