@@ -62,6 +62,7 @@ union UnionDecl {
   x: int32;
   y: string;
 }
+
 enum MyEnum {
   a: "hi";
   b: "bye";
@@ -275,6 +276,22 @@ describe("emitter-framework: typescript emitter", () => {
     assert.match(contents, /x: \[string, number\]/);
   });
 
+  it("emits enum member references", async () => {
+    const contents = await emitTypeSpecToTs(`
+      enum MyEnum {
+        a: "hi";
+        b: "bye";
+      }
+      
+      model EnumReference {
+        prop: MyEnum.a;
+        prop2: MyEnum.b;
+      }
+    `);
+    assert.match(contents, /prop: MyEnum.a/);
+    assert.match(contents, /prop2: MyEnum.b/);
+  });
+
   it("emits scalars", async () => {
     class TestEmitter extends CodeTypeEmitter {
       scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<string> {
@@ -381,7 +398,7 @@ describe("emitter-framework: typescript emitter", () => {
       "UnionDecl.ts",
       "MyInterface.ts",
     ].forEach((file) => {
-      assert(files.has(file));
+      assert(files.has(file), `emits ${file}`);
     });
   });
 
