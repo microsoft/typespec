@@ -1,0 +1,28 @@
+{
+  "title": "Operations_List",
+  "operationId": "Operations_List",
+  "parameters": {
+    "api-version": "2021-10-01-preview"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "name": "ymeow",
+            "isDataAction": true,
+            "display": {
+              "provider": "qxyznq",
+              "resource": "bqfwkox",
+              "operation": "td",
+              "description": "yvgkhsuwartgxb"
+            },
+            "origin": "user",
+            "actionType": "Internal"
+          }
+        ],
+        "nextLink": "bamebrbqkebjwevbq"
+      }
+    }
+  }
+}

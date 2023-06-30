@@ -73,6 +73,16 @@ if (protobufDiag.length) {
   diagnostics.set("@typespec/protobuf", protobufDiag);
 }
 
+// JSON Schema
+const jsonSchema = await generateLibraryDocs(
+  join(repoRoot, "packages/json-schema"),
+  ["TypeSpec.JsonSchema"],
+  join(repoRoot, "docs/standard-library/json-schema/reference")
+);
+if (jsonSchema.length) {
+  diagnostics.set("@typespec/json-schema", jsonSchema);
+}
+
 // Versioning
 const versioningDiag = await generateLibraryDocs(
   join(repoRoot, "packages/versioning"),

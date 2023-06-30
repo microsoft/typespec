@@ -620,6 +620,34 @@ const diagnostics = {
   },
 
   /**
+   * Linter
+   */
+  "invalid-rule-ref": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Reference "${"ref"}" is not a valid reference to a rule or ruleset. It must be in the following format: "<library-name>:<rule-name>"`,
+    },
+  },
+  "unknown-rule": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Rule "${"ruleName"}" is not found in library "${"libraryName"}"`,
+    },
+  },
+  "unknown-rule-set": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Rule set "${"ruleSetName"}" is not found in library "${"libraryName"}"`,
+    },
+  },
+  "rule-enabled-disabled": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
+    },
+  },
+
+  /**
    * Decorator
    */
   "decorator-wrong-target": {

@@ -12,6 +12,7 @@ import {
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
+  DocNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
@@ -101,10 +102,11 @@ export function printTypeSpec(
   print: PrettierChildPrint
 ): prettier.Doc {
   const node = path.getValue();
+  const docs = printDocComments(path, options, print);
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
   const printedNode = printNode(path, options, print);
   const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
-  const parts: Doc[] = [directives, value];
+  const parts: Doc[] = [docs, directives, value];
   if (node.kind === SyntaxKind.TypeSpecScript) {
     // For TypeSpecScript(root of typespec document) we had a new line at the end.
     // This must be done here so the hardline entry can be the last item of the doc array returned by the printer
@@ -126,7 +128,7 @@ export function printNode(
   print: PrettierChildPrint
 ): prettier.Doc {
   const node: Node = path.getValue();
-  printDirectives(path, options, print);
+
   switch (node.kind) {
     // Root
     case SyntaxKind.TypeSpecScript:
@@ -345,6 +347,7 @@ export function printNode(
     case SyntaxKind.Return:
       return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
     case SyntaxKind.Doc:
+      return printDoc(path as AstPath<DocNode>, options, print);
     case SyntaxKind.DocText:
     case SyntaxKind.DocParamTag:
     case SyntaxKind.DocTemplateTag:
@@ -422,6 +425,12 @@ export function canAttachComment(node: Node): boolean {
       kind !== SyntaxKind.LineComment &&
       kind !== SyntaxKind.BlockComment &&
       kind !== SyntaxKind.EmptyStatement &&
+      kind !== SyntaxKind.Doc &&
+      kind !== SyntaxKind.DocParamTag &&
+      kind !== SyntaxKind.DocReturnsTag &&
+      kind !== SyntaxKind.DocTemplateTag &&
+      kind !== SyntaxKind.DocText &&
+      kind !== SyntaxKind.DocUnknownTag &&
       !(node.flags & NodeFlags.Synthetic)
   );
 }
@@ -447,12 +456,10 @@ function printBlockComment(commentPath: AstPath<BlockComment>, options: TypeSpec
   const comment = commentPath.getValue();
   const rawComment = options.originalText.slice(comment.pos + 2, comment.end - 2);
 
-  if (isIndentableBlockComment(rawComment)) {
-    const printed = printIndentableBlockComment(rawComment);
-    return printed;
-  }
-
-  return ["/*", rawComment, "*/"];
+  const printed = isIndentableBlockComment(rawComment)
+    ? printIndentableBlockCommentContent(rawComment)
+    : rawComment;
+  return ["/*", printed, "*/"];
 }
 
 function isIndentableBlockComment(rawComment: string): boolean {
@@ -464,11 +471,10 @@ function isIndentableBlockComment(rawComment: string): boolean {
   return lines.length > 1 && lines.every((line) => line.trim()[0] === "*");
 }
 
-function printIndentableBlockComment(rawComment: string): Doc {
+function printIndentableBlockCommentContent(rawComment: string): Doc {
   const lines = rawComment.split("\n");
 
   return [
-    "/*",
     join(
       hardline,
       lines.map((line, index) =>
@@ -477,8 +483,24 @@ function printIndentableBlockComment(rawComment: string): Doc {
           : " " + (index < lines.length - 1 ? line.trim() : line.trimStart())
       )
     ),
-    "*/",
   ];
+}
+
+/** Print a doc comment. */
+function printDoc(
+  path: AstPath<DocNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  const rawComment = options.originalText.slice(node.pos + 3, node.end - 2);
+
+  const printed = isIndentableBlockComment(rawComment)
+    ? printIndentableBlockCommentContent(rawComment)
+    : rawComment.includes("\n")
+    ? rawComment
+    : ` ${rawComment.trim()} `;
+  return ["/**", printed, "*/"];
 }
 
 export function printDecorators(
@@ -559,6 +581,16 @@ function printAugmentDecoratorArgs(
     ]),
     ")",
   ];
+}
+
+export function printDocComments(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
+  const node = path.getValue();
+  if (node.docs === undefined || node.docs.length === 0) {
+    return "";
+  }
+
+  const docs = path.map((x) => [print(x as any), line], "docs");
+  return group([...docs, breakParent]);
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
@@ -1066,7 +1098,8 @@ function shouldWrapPropertyInNewLines(
       shouldDecoratorBreakLine(path as any, options, {
         tryInline: DecoratorsTryInline.modelProperty,
       })) ||
-    hasComments(node, CommentCheckFlags.Leading)
+    hasComments(node, CommentCheckFlags.Leading) ||
+    (node.docs && node.docs?.length > 0)
   );
 }
 

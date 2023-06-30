@@ -494,7 +494,6 @@ components:
           type: array
           items:
             type: string
-          x-typespec-name: string[]
       required:
         - field
     Basic:
@@ -504,7 +503,6 @@ components:
           type: integer
           format: int32
           nullable: true
-          x-typespec-name: int32 | null
           description: Basic Id
         name:
           type: string
@@ -561,7 +559,6 @@ components:
           type: object
           additionalProperties:
             type: string
-          x-typespec-name: Record<string>
       required:
         - field
     DoubleWrapper:
@@ -676,7 +673,6 @@ components:
         'null':
           type: string
           nullable: true
-          x-typespec-name: string | null
       required:
         - field
         - empty

@@ -842,6 +842,46 @@ describe("compiler: parser", () => {
       { docs: true }
     );
 
+    describe("relation with comments", () => {
+      it("mark used block comment with parsedAsDocs", () => {
+        const script = parse(
+          `
+        /** One-liner */
+        model M {}
+      `,
+          { docs: true, comments: true }
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        strictEqual(comments[0].parsedAsDocs, true);
+      });
+
+      it("other comments are not marked with parsedAsDocs", () => {
+        const script = parse(
+          `
+        /* One-liner */
+        model M {}
+      `,
+          { docs: true, comments: true }
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        ok(!comments[0].parsedAsDocs);
+      });
+
+      it("doc comment syntax not attached to any node are not marked with parsedAsDocs", () => {
+        const script = parse(
+          `
+        /** One-liner */
+      `,
+          { docs: true, comments: true }
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        ok(!comments[0].parsedAsDocs);
+      });
+    });
+
     parseErrorEach(
       [
         [

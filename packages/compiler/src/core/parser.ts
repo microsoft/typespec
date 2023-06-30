@@ -16,6 +16,7 @@ import {
   AliasStatementNode,
   AnyKeywordNode,
   AugmentDecoratorStatementNode,
+  BlockComment,
   BooleanLiteralNode,
   Comment,
   DeclarationNode,
@@ -46,6 +47,7 @@ import {
   ImportStatementNode,
   InterfaceStatementNode,
   InvalidStatementNode,
+  LineComment,
   MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -312,6 +314,11 @@ interface Parser {
   parseStandaloneReferenceExpression(): TypeReferenceNode;
 }
 
+interface DocRange extends TextRange {
+  /** Parsed comment. */
+  comment?: BlockComment;
+}
+
 function createParser(code: string | SourceFile, options: ParseOptions = {}): Parser {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
@@ -323,7 +330,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
   const comments: Comment[] = [];
-  let docRanges: TextRange[] = [];
+  let docRanges: DocRange[] = [];
 
   nextToken();
   return {
@@ -2429,15 +2436,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
     const docs: DocNode[] = [];
     for (const range of docRanges) {
-      const doc = parseRange(ParseMode.Doc, innerDocRange(range), parseDoc);
+      const doc = parseRange(ParseMode.Doc, innerDocRange(range), () => parseDoc(range));
       docs.push(doc);
+      if (range.comment) {
+        mutate(range.comment).parsedAsDocs = true;
+      }
     }
 
     return [docRanges[0].pos, docs];
   }
 
-  function parseDoc(): DocNode {
-    const pos = tokenPos();
+  function parseDoc(range: TextRange): DocNode {
     const content: DocContent[] = [];
     const tags: DocTag[] = [];
 
@@ -2459,7 +2468,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       kind: SyntaxKind.Doc,
       content,
       tags,
-      ...finishNode(pos),
+      ...finishNode(range.pos),
+      end: range.end,
     };
   }
 
@@ -2475,12 +2485,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       switch (token()) {
         case Token.DocCodeFenceDelimiter:
           inCodeFence = !inCodeFence;
-          nextDocToken();
+          nextToken();
           break;
         case Token.NewLine:
           parts.push(source.substring(start, tokenPos()));
           parts.push("\n"); // normalize line endings
-          nextDocToken();
+          nextToken();
           start = tokenPos();
           while (parseOptional(Token.Whitespace));
           if (parseOptional(Token.Star)) {
@@ -2495,10 +2505,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           if (!inCodeFence) {
             break loop;
           }
-          nextDocToken();
+          nextToken();
           break;
         default:
-          nextDocToken();
+          nextToken();
           break;
       }
     }
@@ -2580,7 +2590,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     if (token() === Token.Identifier) {
       sv = tokenValue();
-      nextDocToken();
+      nextToken();
     } else {
       sv = "";
       warning({ code: "doc-invalid-identifier", messageId });
@@ -2631,20 +2641,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         if (!newLineIsTrivia && token() === Token.NewLine) {
           break;
         }
-        if (tokenFlags() & TokenFlags.DocComment) {
-          docRanges.push({
-            pos: tokenPos(),
-            end: tokenEnd(),
-          });
-        }
+        let comment: LineComment | BlockComment | undefined = undefined;
         if (options.comments && isComment(token())) {
-          comments.push({
+          comment = {
             kind:
               token() === Token.SingleLineComment
                 ? SyntaxKind.LineComment
                 : SyntaxKind.BlockComment,
             pos: tokenPos(),
             end: tokenEnd(),
+          };
+          comments.push(comment!);
+        }
+        if (tokenFlags() & TokenFlags.DocComment) {
+          docRanges.push({
+            pos: tokenPos(),
+            end: tokenEnd(),
+            comment: comment as BlockComment,
           });
         }
       } else {
