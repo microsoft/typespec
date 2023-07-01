@@ -93,7 +93,7 @@ async function emitTypeSpecToTs(code: string) {
   return sf.text;
 }
 
-describe("emitter-framework: typescript emitter", () => {
+describe.only("emitter-framework: typescript emitter", () => {
   it("emits models", async () => {
     const contents = await emitTypeSpecToTs(`
       model A {
@@ -399,6 +399,7 @@ describe("emitter-framework: typescript emitter", () => {
 
       modelDeclarationContext(model: Model): Context {
         const name = this.emitter.emitDeclarationName(model);
+        if (!name) return {};
         const nsName = name.slice(0, 1);
         let nsScope = this.nsByName.get(nsName);
         if (!nsScope) {

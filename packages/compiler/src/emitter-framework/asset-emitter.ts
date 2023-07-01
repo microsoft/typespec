@@ -1,7 +1,6 @@
 import {
   compilerAssert,
   EmitContext,
-  IntrinsicType,
   isTemplateDeclaration,
   joinPaths,
   Model,
@@ -20,16 +19,16 @@ import {
   EmitEntity,
   EmitterResult,
   EmitterState,
+  LexicalTypeStackEntry,
   NamespaceScope,
   NoEmit,
   RawCode,
   Scope,
   SourceFile,
   SourceFileScope,
+  TypeEmitterMethod,
   TypeSpecDeclaration,
 } from "./types.js";
-
-type EndingWith<Names, Name extends string> = Names extends `${infer _X}${Name}` ? Names : never;
 
 export function createAssetEmitter<T, TOptions extends object>(
   program: Program,
@@ -45,6 +44,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   };
   const typeId = CustomKeyMap.objectKeyer();
   const contextId = CustomKeyMap.objectKeyer();
+  const entryId = CustomKeyMap.objectKeyer();
 
   // This is effectively a seen set, ensuring that we don't emit the same
   // type with the same context twice. So the map stores a triple of:
@@ -81,9 +81,11 @@ export function createAssetEmitter<T, TOptions extends object>(
   // referenced with reference context set we need to get its declaration
   // context again. So we use the context's context as a key. Context must
   // be interned, see createInterner for more details.
-  const knownContexts = new CustomKeyMap<[Type, ContextState], ContextState>(([type, context]) => {
-    return `${typeId.getKey(type)}-${contextId.getKey(context)}`;
-  });
+  const knownContexts = new CustomKeyMap<[LexicalTypeStackEntry, ContextState], ContextState>(
+    ([entry, context]) => {
+      return `${entryId.getKey(entry)}-${contextId.getKey(context)}`;
+    }
+  );
 
   // The stack of types that the currently emitted type is lexically
   // contained in. This gets pushed to when we visit a type that is
@@ -93,7 +95,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   // an alias to a model expression, the alias is lexically outside the
   // model, but in the type graph we will consider it to be lexically inside
   // whatever references the alias.
-  let lexicalTypeStack: Type[] = [];
+  let lexicalTypeStack: LexicalTypeStackEntry[] = [];
 
   // Internally, context is is split between lexicalContext and
   // referenceContext because when a reference is made, we carry over
@@ -288,7 +290,7 @@ export function createAssetEmitter<T, TOptions extends object>(
       }
     },
 
-    emitDeclarationName(type): string {
+    emitDeclarationName(type): string | undefined {
       return typeEmitter.declarationName!(type);
     },
 
@@ -297,10 +299,13 @@ export function createAssetEmitter<T, TOptions extends object>(
     },
 
     emitType(type) {
-      const key = typeEmitterKey(type);
+      const declName =
+        isDeclaration(type) && type.kind !== "Namespace" ? typeEmitter.declarationName(type) : null;
+      let key = typeEmitterKey(type);
       let args: any[];
       switch (key) {
         case "scalarDeclaration":
+        case "scalarInstantiation":
         case "modelDeclaration":
         case "modelInstantiation":
         case "operationDeclaration":
@@ -309,21 +314,19 @@ export function createAssetEmitter<T, TOptions extends object>(
         case "enumDeclaration":
         case "unionDeclaration":
         case "unionInstantiation":
-          const declarationName = typeEmitter.declarationName(type as TypeSpecDeclaration);
-          args = [declarationName];
+          args = [declName];
           break;
 
         case "arrayDeclaration":
-          const arrayDeclName = typeEmitter.declarationName(type as TypeSpecDeclaration);
           const arrayDeclElement = (type as Model).indexer!.value;
-          args = [arrayDeclName, arrayDeclElement];
+          args = [declName, arrayDeclElement];
           break;
         case "arrayLiteral":
           const arrayLiteralElement = (type as Model).indexer!.value;
           args = [arrayLiteralElement];
           break;
         case "intrinsic":
-          args = [(type as IntrinsicType).name];
+          args = [declName];
           break;
         default:
           args = [];
@@ -380,7 +383,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     },
 
     emitModelProperties(model) {
-      const res = typeEmitter.modelProperties(model);
+      const res = invokeTypeEmitter("modelProperties", model);
       if (res instanceof EmitterResult) {
         return res as any;
       } else {
@@ -406,6 +409,11 @@ export function createAssetEmitter<T, TOptions extends object>(
 
     emitInterfaceOperation(operation) {
       const name = typeEmitter.declarationName(operation);
+      if (name === undefined) {
+        // the general approach of invoking the expression form doesn't work here
+        // because typespec doesn't have operation expressions.
+        compilerAssert(false, "Unnamed operations are not supported");
+      }
       return invokeTypeEmitter("interfaceOperationDeclaration", operation, name);
     },
 
@@ -437,23 +445,16 @@ export function createAssetEmitter<T, TOptions extends object>(
    * emit result. Also if a type emitter returns just a T or a
    * Placeholder<T>, it will convert that to a RawCode result.
    */
-  function invokeTypeEmitter<
-    TMethod extends keyof Omit<
-      TypeEmitter<T, TOptions>,
-      | "sourceFile"
-      | "declarationName"
-      | "reference"
-      | "emitValue"
-      | "writeOutput"
-      | EndingWith<keyof TypeEmitter<T, TOptions>, "Context">
-    >
-  >(method: TMethod, ...args: Parameters<TypeEmitter<T, TOptions>[TMethod]>): EmitEntity<T> {
+  function invokeTypeEmitter<TMethod extends TypeEmitterMethod>(
+    method: TMethod,
+    ...args: Parameters<TypeEmitter<T, TOptions>[TMethod]>
+  ): EmitEntity<T> {
     const type = args[0];
     let entity: EmitEntity<T>;
     let emitEntityKey: [string, Type, ContextState];
     let cached = false;
 
-    withTypeContext(type, () => {
+    withTypeContext(method, args, () => {
       emitEntityKey = [method, type, context];
       const seenEmitEntity = typeToEmitEntity.get(emitEntityKey);
 
@@ -513,21 +514,39 @@ export function createAssetEmitter<T, TOptions extends object>(
    * to take into account the current context and any incoming reference
    * context.
    */
-  function setContextForType(type: Type) {
-    let newTypeStack;
+  function setContextForType<TMethod extends TypeEmitterMethod>(
+    method: TMethod,
+    args: Parameters<TypeEmitter<T, TOptions>[TMethod]>
+  ) {
+    const type = args[0];
+    let newTypeStack: LexicalTypeStackEntry[];
 
     // if we've walked into a new declaration, reset the lexical type stack
     // to the lexical containers of the current type.
-    if (isDeclaration(type)) {
-      newTypeStack = [type];
+    if (
+      isDeclaration(type) &&
+      type.kind !== "Intrinsic" &&
+      method !== "interfaceDeclarationOperations" &&
+      method !== "interfaceOperationDeclaration" &&
+      method !== "operationParameters" &&
+      method !== "operationReturnType" &&
+      method !== "modelProperties" &&
+      method !== "enumMembers" &&
+      method !== "tupleLiteralValues" &&
+      method !== "unionVariants"
+    ) {
+      newTypeStack = [interner.intern({ method, args: interner.intern(args) })];
       let ns = type.namespace;
       while (ns) {
         if (ns.name === "") break;
-        newTypeStack.unshift(ns);
+        newTypeStack.unshift(interner.intern({ method: "namespace", args: interner.intern([ns]) }));
         ns = ns.namespace;
       }
     } else {
-      newTypeStack = [...lexicalTypeStack, type];
+      newTypeStack = [
+        ...lexicalTypeStack,
+        interner.intern({ method, args: interner.intern(args) }),
+      ];
     }
 
     lexicalTypeStack = newTypeStack;
@@ -543,10 +562,10 @@ export function createAssetEmitter<T, TOptions extends object>(
     // and merging in context for each of the lexical containers.
     context = programContext;
 
-    for (const contextChainEntry of lexicalTypeStack) {
+    for (const entry of lexicalTypeStack) {
       // when we're at the top of the lexical context stack (i.e. we are back
       // to the type we passed in), bring in any incoming reference context.
-      if (contextChainEntry === type && incomingReferenceContext) {
+      if (entry.args[0] === type && incomingReferenceContext) {
         context = interner.intern({
           lexicalContext: context.lexicalContext,
           referenceContext: interner.intern({
@@ -557,26 +576,35 @@ export function createAssetEmitter<T, TOptions extends object>(
         incomingReferenceContext = null;
       }
 
-      const seenContext = knownContexts.get([contextChainEntry, context]);
+      const seenContext = knownContexts.get([entry, context]);
       if (seenContext) {
         context = seenContext;
         continue;
       }
 
-      // invoke the context methods
-      const key = typeEmitterKey(contextChainEntry);
+      const lexicalKey = entry.method + "Context";
+      const referenceKey = entry.method + "ReferenceContext";
 
-      const lexicalKey = key + "Context";
-      const referenceKey = typeEmitterKey(contextChainEntry) + "ReferenceContext";
+      if (keyHasContext(entry.method)) {
+        compilerAssert(
+          (typeEmitter as any)[lexicalKey],
+          `TypeEmitter doesn't have a method named ${lexicalKey}`
+        );
+      }
 
-      compilerAssert(
-        (typeEmitter as any)[lexicalKey],
-        `TypeEmitter doesn't have a method named ${lexicalKey}`
-      );
+      if (keyHasReferenceContext(entry.method)) {
+        compilerAssert(
+          (typeEmitter as any)[lexicalKey],
+          `TypeEmitter doesn't have a method named ${referenceKey}`
+        );
+      }
 
-      const newContext = (typeEmitter as any)[lexicalKey](contextChainEntry);
-      const newReferenceContext = keyHasReferenceContext(key)
-        ? (typeEmitter as any)[referenceKey](contextChainEntry)
+      const newContext = keyHasContext(entry.method)
+        ? (typeEmitter as any)[lexicalKey](...entry.args)
+        : {};
+
+      const newReferenceContext = keyHasReferenceContext(entry.method)
+        ? (typeEmitter as any)[referenceKey](...entry.args)
         : {};
 
       // assemble our new reference and lexical contexts.
@@ -591,7 +619,7 @@ export function createAssetEmitter<T, TOptions extends object>(
         }),
       });
 
-      knownContexts.set([contextChainEntry, context], newContextState);
+      knownContexts.set([entry, context], newContextState);
       context = newContextState;
     }
   }
@@ -599,11 +627,15 @@ export function createAssetEmitter<T, TOptions extends object>(
   /**
    * Invoke the callback with the proper context for a given type.
    */
-  function withTypeContext(type: Type, cb: () => void) {
+  function withTypeContext<TMethod extends TypeEmitterMethod>(
+    method: TMethod,
+    args: Parameters<TypeEmitter<T, TOptions>[TMethod]>,
+    cb: () => void
+  ) {
     const oldContext = context;
     const oldTypeStack = lexicalTypeStack;
 
-    setContextForType(type);
+    setContextForType(method, args);
     cb();
 
     context = oldContext;
@@ -646,6 +678,7 @@ export function createAssetEmitter<T, TOptions extends object>(
         }
 
         return "modelDeclaration";
+
       case "Namespace":
         return "namespace";
       case "ModelProperty":
@@ -683,7 +716,12 @@ export function createAssetEmitter<T, TOptions extends object>(
       case "Tuple":
         return "tupleLiteral";
       case "Scalar":
-        return "scalarDeclaration";
+        if (type.templateMapper) {
+          return "scalarInstantiation";
+        } else {
+          return "scalarDeclaration";
+        }
+
       case "Intrinsic":
         return "intrinsic";
       default:
@@ -695,15 +733,19 @@ export function createAssetEmitter<T, TOptions extends object>(
   }
 }
 
-function isDeclaration(
-  type: Type
-): type is Exclude<TypeSpecDeclaration, IntrinsicType> | Namespace {
+/**
+ * Returns true if the given type is a declaration or an instantiation of a declaration.
+ * @param type
+ * @returns
+ */
+function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespace {
   switch (type.kind) {
     case "Namespace":
     case "Interface":
     case "Enum":
     case "Operation":
     case "Scalar":
+    case "Intrinsic":
       return true;
 
     case "Model":
@@ -760,13 +802,21 @@ function createInterner() {
   };
 }
 
+const noContext = new Set<string>(["modelPropertyReference"]);
+
+function keyHasContext(key: keyof TypeEmitter<any, any>) {
+  return !noContext.has(key);
+}
 const noReferenceContext = new Set<string>([
+  ...noContext,
   "booleanLiteral",
   "stringLiteral",
   "numericLiteral",
   "scalarDeclaration",
+  "scalarInstantiation",
   "enumDeclaration",
   "enumMember",
+  "enumMembers",
   "intrinsic",
 ]);
 

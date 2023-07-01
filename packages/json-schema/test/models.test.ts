@@ -155,6 +155,31 @@ describe("emitting models", () => {
     assert.deepStrictEqual(schemas["RecordNull.json"].additionalProperties, { type: "null" });
   });
 
+  it("handles instantiations of literal types", async () => {
+    const schemas = await emitSchema(
+      `
+        model Test {
+          "string": Record<"hi">;
+          "number": Record<1.2>;
+          "boolean": Record<true>;
+        }
+      `,
+      { emitAllRefs: true }
+    );
+    assert.deepStrictEqual(schemas["Test.json"].properties.string.additionalProperties, {
+      type: "string",
+      const: "hi",
+    });
+    assert.deepStrictEqual(schemas["Test.json"].properties.number.additionalProperties, {
+      type: "number",
+      const: 1.2,
+    });
+    assert.deepStrictEqual(schemas["Test.json"].properties.boolean.additionalProperties, {
+      type: "boolean",
+      const: true,
+    });
+  });
+
   it.only("handles instantiations of type expressions", async () => {
     const schemas = await emitSchema(
       `
@@ -163,12 +188,70 @@ describe("emitting models", () => {
         model Test {
           "union": Record<int32 | int16>;
           "intersection": Record<A & B>;
-          "instantiation": Record<Record<int32>>;
+          "speakableInstantiation": Record<Record<int32>>;
+          "unspeakableInstantiation": Record<Record<A & B>>;
         }
       `,
       { emitAllRefs: true }
     );
 
-    console.log(JSON.stringify(schemas, null, 4));
+    assert.deepStrictEqual(schemas["Test.json"].properties.union.additionalProperties, {
+      anyOf: [
+        {
+          type: "integer",
+          minimum: -2147483648,
+          maximum: 2147483647,
+        },
+        {
+          type: "integer",
+          minimum: -32768,
+          maximum: 32767,
+        },
+      ],
+    });
+
+    assert.deepStrictEqual(schemas["Test.json"].properties.intersection.additionalProperties, {
+      type: "object",
+      properties: {
+        x: {
+          type: "integer",
+          minimum: -2147483648,
+          maximum: 2147483647,
+        },
+        y: {
+          type: "integer",
+          minimum: -2147483648,
+          maximum: 2147483647,
+        },
+      },
+      required: ["x", "y"],
+    });
+
+    assert.deepStrictEqual(
+      schemas["Test.json"].properties.unspeakableInstantiation.additionalProperties,
+      {
+        type: "object",
+        properties: {},
+        additionalProperties: {
+          type: "object",
+          properties: {
+            x: {
+              type: "integer",
+              minimum: -2147483648,
+              maximum: 2147483647,
+            },
+            y: {
+              type: "integer",
+              minimum: -2147483648,
+              maximum: 2147483647,
+            },
+          },
+          required: ["x", "y"],
+        },
+      }
+    );
+    assert.deepStrictEqual(schemas["RecordRecordInt32.json"].additionalProperties, {
+      $ref: "RecordInt32.json",
+    });
   });
 });

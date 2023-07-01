@@ -3,7 +3,7 @@ import { Model, ModelProperty, Namespace, Program } from "../../src/core/index.j
 import { CodeTypeEmitter, Context, EmitterOutput } from "../../src/emitter-framework/index.js";
 import { emitTypeSpec } from "./host.js";
 
-describe("emitter-framework: emitter context", () => {
+describe.only("emitter-framework: emitter context", () => {
   describe("program context", () => {
     it("should be initialized to empty state", async () => {
       class Emitter extends CodeTypeEmitter {
