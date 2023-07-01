@@ -388,6 +388,16 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.emitTypeReference(property.type);
   }
 
+  /**
+   * Emit an enum member reference (e.g. as created by the `SomeEnum.member` syntax
+   * in TypeSpec). By default, this will emit nothing.
+   *
+   * @param property the enum member
+   */
+  enumMemberReference(member: EnumMember): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<T> {
     this.emitter.emitType(array.indexer!.value);
     return this.emitter.result.none();
