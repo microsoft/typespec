@@ -107,7 +107,8 @@ export function createAssetEmitter<T, TOptions extends object>(
   };
   let programContext: ContextState | null = null;
   let incomingReferenceContext: Record<string, string> | null = null;
-  const interner = createInterner();
+  const stateInterner = createInterner();
+  const stackEntryInterner = createInterner();
 
   const assetEmitter: AssetEmitter<T, TOptions> = {
     getContext() {
@@ -537,26 +538,28 @@ export function createAssetEmitter<T, TOptions extends object>(
       method !== "tupleLiteralValues" &&
       method !== "unionVariants"
     ) {
-      newTypeStack = [interner.intern({ method, args: interner.intern(args) })];
+      newTypeStack = [stackEntryInterner.intern({ method, args: stackEntryInterner.intern(args) })];
       let ns = type.namespace;
       while (ns) {
         if (ns.name === "") break;
-        newTypeStack.unshift(interner.intern({ method: "namespace", args: interner.intern([ns]) }));
+        newTypeStack.unshift(
+          stackEntryInterner.intern({ method: "namespace", args: stackEntryInterner.intern([ns]) })
+        );
         ns = ns.namespace;
       }
     } else {
       newTypeStack = [
         ...lexicalTypeStack,
-        interner.intern({ method, args: interner.intern(args) }),
+        stackEntryInterner.intern({ method, args: stackEntryInterner.intern(args) }),
       ];
     }
 
     lexicalTypeStack = newTypeStack;
 
     if (!programContext) {
-      programContext = interner.intern({
+      programContext = stateInterner.intern({
         lexicalContext: typeEmitter.programContext(program),
-        referenceContext: interner.intern({}),
+        referenceContext: stateInterner.intern({}),
       });
     }
 
@@ -568,9 +571,9 @@ export function createAssetEmitter<T, TOptions extends object>(
       // when we're at the top of the lexical context stack (i.e. we are back
       // to the type we passed in), bring in any incoming reference context.
       if (entry.args[0] === type && incomingReferenceContext) {
-        context = interner.intern({
+        context = stateInterner.intern({
           lexicalContext: context.lexicalContext,
-          referenceContext: interner.intern({
+          referenceContext: stateInterner.intern({
             ...context.referenceContext,
             ...incomingReferenceContext,
           }),
@@ -610,12 +613,12 @@ export function createAssetEmitter<T, TOptions extends object>(
         : {};
 
       // assemble our new reference and lexical contexts.
-      const newContextState = interner.intern({
-        lexicalContext: interner.intern({
+      const newContextState = stateInterner.intern({
+        lexicalContext: stateInterner.intern({
           ...context.lexicalContext,
           ...newContext,
         }),
-        referenceContext: interner.intern({
+        referenceContext: stateInterner.intern({
           ...context.referenceContext,
           ...newReferenceContext,
         }),
@@ -804,7 +807,7 @@ function createInterner() {
   };
 }
 
-const noContext = new Set<string>(["modelPropertyReference"]);
+const noContext = new Set<string>(["modelPropertyReference", "enumMemberReference"]);
 
 function keyHasContext(key: keyof TypeEmitter<any, any>) {
   return !noContext.has(key);
