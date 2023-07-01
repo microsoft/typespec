@@ -180,7 +180,7 @@ describe("emitting models", () => {
     });
   });
 
-  it.only("handles instantiations of type expressions", async () => {
+  it("handles instantiations of type expressions", async () => {
     const schemas = await emitSchema(
       `
         model A { x: int32 }
