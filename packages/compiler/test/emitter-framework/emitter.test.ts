@@ -94,7 +94,7 @@ async function emitTypeSpecToTs(code: string) {
   return sf.text;
 }
 
-describe.only("emitter-framework: typescript emitter", () => {
+describe("emitter-framework: typescript emitter", () => {
   it("emits models", async () => {
     const contents = await emitTypeSpecToTs(`
       model A {

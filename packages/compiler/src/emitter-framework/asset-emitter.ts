@@ -303,7 +303,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     emitType(type) {
       const declName =
         isDeclaration(type) && type.kind !== "Namespace" ? typeEmitter.declarationName(type) : null;
-      let key = typeEmitterKey(type);
+      const key = typeEmitterKey(type);
       let args: any[];
       switch (key) {
         case "scalarDeclaration":
