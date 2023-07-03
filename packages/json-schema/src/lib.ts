@@ -39,7 +39,7 @@ export interface JSONSchemaEmitterOptions {
   emitAllRefs?: boolean;
 }
 
-const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
+export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -89,6 +89,7 @@ export const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
+
 export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type JsonSchemaLibrary = typeof $lib;
