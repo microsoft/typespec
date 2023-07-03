@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Export the emitter and related types from the package.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}
