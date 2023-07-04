@@ -522,7 +522,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     for (const sf of sourceFiles) {
       const emittedSf = this.emitter.emitSourceFile(sf);
-
       if (sf.meta.shouldEmit) {
         toEmit.push(emittedSf);
       }
@@ -558,7 +557,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         throw new Error("Emit error - multiple decls in single schema per file mode");
       }
 
-      content = decls[0].value;
+      content = { ...decls[0].value };
 
       if (sourceFile.meta.bundledRefs.length > 0) {
         // bundle any refs, including refs of refs
