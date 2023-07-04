@@ -49,7 +49,7 @@ describe("bundling", () => {
     assert.strictEqual(schemas["Bar.json"].$id, "Bar.json");
   });
 
-  it.only("doesn't create duplicate defs for transitive references", async () => {
+  it("doesn't create duplicate defs for transitive references", async () => {
     const schemas = await emitSchema(
       `
       model A {}
