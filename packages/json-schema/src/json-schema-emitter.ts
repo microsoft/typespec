@@ -2,6 +2,7 @@ import {
   BooleanLiteral,
   emitFile,
   Enum,
+  EnumMember,
   getDeprecated,
   getDirectoryPath,
   getDoc,
@@ -71,7 +72,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: this.#getDeclId(model),
+      $id: this.#getDeclId(model, name),
       type: "object",
       properties: this.emitter.emitModelProperties(model),
       required: this.#requiredModelProperties(model),
@@ -99,17 +100,25 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       required: this.#requiredModelProperties(model),
     });
 
+    if (model.indexer) {
+      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+    }
+
     return schema;
   }
 
-  modelInstantiation(model: Model, name: string): EmitterOutput<Record<string, any>> {
+  modelInstantiation(model: Model, name: string | undefined): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.modelLiteral(model);
+    }
+
     return this.modelDeclaration(model, name);
   }
 
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: this.#getDeclId(array),
+      $id: this.#getDeclId(array, name),
       type: "array",
       items: this.emitter.emitTypeReference(elementType),
     });
@@ -187,7 +196,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const withConstraints = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: this.#getDeclId(en),
+      $id: this.#getDeclId(en, name),
       type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
       enum: [...enumValues],
     });
@@ -195,10 +204,22 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return this.#createDeclaration(en, name, withConstraints);
   }
 
+  enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
+    // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
+    switch (typeof member.value) {
+      case "undefined":
+        return { type: "string", const: member.name };
+      case "string":
+        return { type: "string", const: member.value };
+      case "number":
+        return { type: "number", const: member.value };
+    }
+  }
+
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const withConstraints = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: this.#getDeclId(union),
+      $id: this.#getDeclId(union, name),
       anyOf: this.emitter.emitUnionVariants(union),
     });
 
@@ -378,7 +399,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     builderSchema.$schema = "https://json-schema.org/draft/2020-12/schema";
-    builderSchema.$id = this.#getDeclId(scalar);
+    builderSchema.$id = this.#getDeclId(scalar, name);
     this.#applyConstraints(scalar, builderSchema);
     return this.#createDeclaration(scalar, name, builderSchema);
   }
@@ -499,6 +520,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return { type: "null" };
       case "unknown":
         return {};
+      case "never":
+      case "void":
+        return { not: {} };
     }
 
     throw new Error("Unknown intrinsic type " + name);
@@ -587,7 +611,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return scope.sourceFile;
   }
 
-  #getDeclId(type: JsonSchemaDeclaration): string {
+  #getDeclId(type: JsonSchemaDeclaration, name: string): string {
     const baseUri = findBaseUri(this.emitter.getProgram(), type);
     const explicitId = getId(this.emitter.getProgram(), type);
     if (explicitId) {
@@ -599,7 +623,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       if (!type.name) {
         throw new Error("Type needs a name to emit a declaration id");
       }
-      return this.#checkForDuplicateId(idWithBaseURI(this.declarationName(type), baseUri));
+      return this.#checkForDuplicateId(idWithBaseURI(name, baseUri));
     } else {
       // generate the ID based on the file path
       const base = this.emitter.getOptions().emitterOutputDir;
@@ -653,8 +677,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
 
-  modelInstantiationContext(model: Model): Context {
+  modelInstantiationContext(model: Model, name: string | undefined): Context {
     if (this.emitter.getOptions().bundleId) {
+      return {};
+    } else if (name === undefined) {
       return {};
     } else {
       return this.#newFileScope(model);

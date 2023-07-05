@@ -3216,6 +3216,7 @@ export function createChecker(program: Program): Checker {
   ) {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
     const decorators: DecoratorApplication[] = [];
+
     const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
     const decoratorNodes = [
       ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
@@ -3228,6 +3229,14 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    // Doc comment should always be the first decorator in case an explicit @doc must override it.
+    const docComment = extractMainDoc(targetType);
+    if (docComment) {
+      decorators.unshift({
+        decorator: $docFromComment,
+        args: [{ value: program.checker.createLiteralType(docComment), jsValue: docComment }],
+      });
+    }
     return decorators;
   }
 
@@ -5451,13 +5460,6 @@ function finishTypeForProgramAndChecker<T extends Type>(
   typeDef: T
 ): T {
   if ("decorators" in typeDef) {
-    const docComment = extractMainDoc(typeDef);
-    if (docComment) {
-      typeDef.decorators.unshift({
-        decorator: $docFromComment,
-        args: [{ value: program.checker.createLiteralType(docComment), jsValue: docComment }],
-      });
-    }
     for (const decApp of typeDef.decorators) {
       applyDecoratorToType(program, decApp, typeDef);
     }

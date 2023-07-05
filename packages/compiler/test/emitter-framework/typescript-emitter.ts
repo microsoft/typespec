@@ -211,6 +211,10 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
     `;
   }
 
+  enumMemberReference(member: EnumMember): EmitterOutput<string> {
+    return `${this.emitter.emitDeclarationName(member.enum)}.${member.name}`;
+  }
+
   unionDeclaration(union: Union, name: string): EmitterOutput<string> {
     return this.emitter.result.declaration(
       name,
