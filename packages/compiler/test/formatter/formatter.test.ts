@@ -2265,6 +2265,19 @@ model Foo {
     });
   });
 
+  describe("meta type accessor", () => {
+    it("format with ::", () => {
+      assertFormat({
+        code: `
+@@doc(myOp ::  parameters.foo, "")
+`,
+        expected: `
+@@doc(myOp::parameters.foo, "");
+`,
+      });
+    });
+  });
+
   describe("projections", () => {
     it("format projections", () => {
       assertFormat({
