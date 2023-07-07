@@ -23,7 +23,7 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
 export async function emitSchema(
   code: string,
   options: JSONSchemaEmitterOptions = {},
-  testOptions: { emitNamespace: boolean } = { emitNamespace: true }
+  testOptions: { emitNamespace?: boolean; emitTypes?: string[] } = { emitNamespace: true }
 ) {
   if (!options["file-type"]) {
     options["file-type"] = "json";
@@ -37,7 +37,14 @@ export async function emitSchema(
     emitterOutputDir: "cadl-output",
     options,
   } as any);
-  emitter.emitType(host.program.resolveTypeReference("test")[0]!);
+  if (testOptions.emitTypes === undefined) {
+    emitter.emitType(host.program.resolveTypeReference("test")[0]!);
+  } else {
+    for (const name of testOptions.emitTypes) {
+      emitter.emitType(host.program.resolveTypeReference(name)[0]!);
+    }
+  }
+
   await emitter.writeOutput();
   const schemas: Record<string, any> = {};
   const files = await emitter.getProgram().host.readDir("./cadl-output");

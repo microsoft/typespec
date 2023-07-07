@@ -416,6 +416,7 @@ describe("emitter-framework: typescript emitter", () => {
 
       modelDeclarationContext(model: Model): Context {
         const name = this.emitter.emitDeclarationName(model);
+        if (!name) return {};
         const nsName = name.slice(0, 1);
         let nsScope = this.nsByName.get(nsName);
         if (!nsScope) {
