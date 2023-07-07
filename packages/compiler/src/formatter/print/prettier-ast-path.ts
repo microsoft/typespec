@@ -2,11 +2,9 @@
 //  Unfortunately have to make our own `AstPath` as prettier types have issue with readonly Array.
 // https://github.com/prettier/prettier/issues/15034
 // --------------------------------------------------
-export type AST = any;
 
 // The type of elements that make up the given array T.
 type ArrayElement<T> = T extends Array<infer E> ? E : never;
-
 
 // Effectively performing T[P], except that it's telling TypeScript that it's
 // safe to do this for tuples, arrays, or objects.
@@ -18,9 +16,29 @@ type IndexValue<T, P> = T extends readonly any[]
   ? T[P]
   : never;
 
+// Determines if an object T is an array like string[] (in which case this
+// evaluates to false) or a tuple like [string] (in which case this evaluates to
+// true).
+type IsTuple<T> = T extends []
+  ? true
+  : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  T extends [infer First, ...infer Remain]
+  ? IsTuple<Remain>
+  : false;
+// A union of the properties of the given object that are arrays.
+type ArrayProperties<T> = {
+  [K in keyof T]: NonNullable<T[K]> extends readonly any[] ? K : never;
+}[keyof T];
 
-type CallProperties<T> = keyof T;
-type IterProperties<T> = keyof T;
+// A union of the properties of the given array T that can be used to index it.
+// If the array is a tuple, then that's going to be the explicit indices of the
+// array, otherwise it's going to just be number.
+type IndexProperties<T extends { length: number }> = IsTuple<T> extends true
+  ? Exclude<Partial<T>["length"], T["length"]>
+  : number;
+
+type CallProperties<T> = T extends any[] ? IndexProperties<T> : keyof T;
+export type IterProperties<T> = T extends any[] ? IndexProperties<T> : ArrayProperties<T>;
 
 type CallCallback<T, U> = (path: AstPath<T>, index: number, value: any) => U;
 type EachCallback<T> = (path: AstPath<ArrayElement<T>>, index: number, value: any) => void;
@@ -80,7 +98,6 @@ export interface AstPath<T = any> {
 
   each(callback: EachCallback<T>): void;
   each<P1 extends IterProperties<T>>(callback: EachCallback<IndexValue<T, P1>>, prop1: P1): void;
-  
 
   map<U>(callback: MapCallback<T, U>): U[];
   map<U, P1 extends IterProperties<T>>(callback: MapCallback<IndexValue<T, P1>, U>, prop1: P1): U[];

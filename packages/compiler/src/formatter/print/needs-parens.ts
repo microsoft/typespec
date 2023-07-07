@@ -1,5 +1,5 @@
-import { AstPath } from "prettier";
 import { Node, SyntaxKind } from "../../core/types.js";
+import { AstPath } from "./prettier-ast-path.js";
 import { TypeSpecPrettierOptions } from "./types.js";
 
 /**

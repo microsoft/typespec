@@ -11,15 +11,12 @@ import {
   BlockComment,
   BooleanLiteralNode,
   Comment,
-  TemplateableNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   DocNode,
-  ProjectionDecoratorReferenceExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
-  UsingStatementNode,
   EnumStatementNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
@@ -41,6 +38,7 @@ import {
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
   ProjectionCallExpressionNode,
+  ProjectionDecoratorReferenceExpressionNode,
   ProjectionEqualityExpressionNode,
   ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
@@ -70,6 +68,7 @@ import {
   UnionExpressionNode,
   UnionStatementNode,
   UnionVariantNode,
+  UsingStatementNode,
   ValueOfExpressionNode,
 } from "../../core/types.js";
 import { FlattenedNamespaceStatementNode } from "../types.js";
@@ -393,7 +392,7 @@ export function printAliasStatement(
   return ["alias ", id, template, " = ", path.call(print, "value"), ";"];
 }
 
-function printTemplateParameters<T extends TemplateableNode>(
+function printTemplateParameters<T extends Node>(
   path: AstPath<T>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
@@ -722,7 +721,7 @@ export function printEnumMember(
 }
 
 function printEnumSpreadMember(
-  path: prettier.AstPath<EnumSpreadMemberNode>,
+  path: AstPath<EnumSpreadMemberNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
@@ -1343,7 +1342,7 @@ function shouldHugType(node: Node) {
 }
 
 export function printTypeReference(
-  path: prettier.AstPath<TypeReferenceNode>,
+  path: AstPath<TypeReferenceNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.doc.builders.Doc {
@@ -1353,7 +1352,7 @@ export function printTypeReference(
 }
 
 export function printValueOfExpression(
-  path: prettier.AstPath<ValueOfExpressionNode>,
+  path: AstPath<ValueOfExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.doc.builders.Doc {
@@ -1375,7 +1374,7 @@ function printTemplateParameterDeclaration(
 }
 
 function printModelSpread(
-  path: prettier.AstPath<ModelSpreadPropertyNode | ProjectionModelSpreadPropertyNode>,
+  path: AstPath<ModelSpreadPropertyNode | ProjectionModelSpreadPropertyNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
@@ -1383,7 +1382,7 @@ function printModelSpread(
 }
 
 function printDecoratorDeclarationStatement(
-  path: prettier.AstPath<DecoratorDeclarationStatementNode>,
+  path: AstPath<DecoratorDeclarationStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
@@ -1403,7 +1402,7 @@ function printDecoratorDeclarationStatement(
 }
 
 function printFunctionDeclarationStatement(
-  path: prettier.AstPath<FunctionDeclarationStatementNode>,
+  path: AstPath<FunctionDeclarationStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
@@ -1425,7 +1424,7 @@ function printFunctionDeclarationStatement(
 }
 
 function printFunctionParameterDeclaration(
-  path: prettier.AstPath<FunctionParameterNode>,
+  path: AstPath<FunctionParameterNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
@@ -1457,7 +1456,7 @@ export function printModifiers(
 }
 
 function printStringLiteral(
-  path: prettier.AstPath<StringLiteralNode>,
+  path: AstPath<StringLiteralNode>,
   options: TypeSpecPrettierOptions
 ): prettier.doc.builders.Doc {
   const node = path.getValue();
@@ -1465,7 +1464,7 @@ function printStringLiteral(
 }
 
 function printNumberLiteral(
-  path: prettier.AstPath<NumericLiteralNode>,
+  path: AstPath<NumericLiteralNode>,
   options: TypeSpecPrettierOptions
 ): prettier.doc.builders.Doc {
   const node = path.getValue();
@@ -1473,7 +1472,7 @@ function printNumberLiteral(
 }
 
 function printBooleanLiteral(
-  path: prettier.AstPath<BooleanLiteralNode>,
+  path: AstPath<BooleanLiteralNode>,
   options: TypeSpecPrettierOptions
 ): prettier.doc.builders.Doc {
   const node = path.getValue();
