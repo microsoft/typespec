@@ -47,7 +47,7 @@ export const createCadlLibrary = createTypeSpecLibrary;
  */
 export function createTypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any>
+  E extends Record<string, any>,
 >(lib: Readonly<TypeSpecLibraryDef<T, E>>): TypeSpecLibrary<T, E> {
   let emitterOptionValidator: JSONSchemaValidator;
 

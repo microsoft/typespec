@@ -1875,7 +1875,7 @@ export type SemanticNodeListener = {
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
-  M extends keyof T[C] = "default"
+  M extends keyof T[C] = "default",
 > = {
   code: C;
   messageId?: M;
@@ -1884,13 +1884,13 @@ export type DiagnosticReportWithoutTarget<
 export type DiagnosticReport<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
-  M extends keyof T[C] = "default"
+  M extends keyof T[C] = "default",
 > = DiagnosticReportWithoutTarget<T, C, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
-  M extends keyof T[C] = "default"
+  M extends keyof T[C] = "default",
 > = T[C][M] extends CallableMessage<infer A>
   ? { format: Record<A[number], string> }
   : Record<string, unknown>;
@@ -1945,7 +1945,7 @@ export interface JSONSchemaValidator {
 /** @deprecated Use TypeSpecLibraryDef */
 export type CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibraryDef<T, E>;
 
 /**
@@ -1953,7 +1953,7 @@ export type CadlLibraryDef<
  */
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
 > {
   /**
    * Name of the library. Must match the package.json name.
@@ -2024,32 +2024,32 @@ export interface LinterRuleContext<DM extends DiagnosticMessages> {
 
 export type LinterRuleDiagnosticFormat<
   T extends DiagnosticMessages,
-  M extends keyof T = "default"
+  M extends keyof T = "default",
 > = T[M] extends CallableMessage<infer A>
   ? { format: Record<A[number], string> }
   : Record<string, unknown>;
 
 export type LinterRuleDiagnosticReportWithoutTarget<
   T extends DiagnosticMessages,
-  M extends keyof T = "default"
+  M extends keyof T = "default",
 > = {
   messageId?: M;
 } & LinterRuleDiagnosticFormat<T, M>;
 
 export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
-  M extends keyof T = "default"
+  M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 /** @deprecated Use TypeSpecLibrary */
 export type CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibrary<T, E>;
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
 > extends TypeSpecLibraryDef<T, E> {
   /**
    * JSON Schema validator for emitter options

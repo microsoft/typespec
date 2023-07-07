@@ -21,7 +21,9 @@ import { getTypeSignature } from "../utils/type-signature.js";
 /**
  * Render doc to a markdown using docusaurus addons.
  */
-export async function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Promise<Record<string, string>> {
+export async function renderToDocusaurusMarkdown(
+  refDoc: TypeSpecRefDoc
+): Promise<Record<string, string>> {
   const files: Record<string, string> = {
     "index.md": renderIndexFile(refDoc),
   };
