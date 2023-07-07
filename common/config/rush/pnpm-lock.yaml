@@ -44,7 +44,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/bundler:
@@ -99,7 +99,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
       vite:
         specifier: ^4.2.1
@@ -214,7 +214,7 @@ importers:
         specifier: workspace:~0.4.1
         version: link:../tmlanguage-generator
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
       vscode-oniguruma:
         specifier: ~1.7.0
@@ -253,7 +253,7 @@ importers:
         specifier: ^47.0.0
         version: 47.0.0(eslint@8.42.0)
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/eslint-plugin-typespec:
@@ -293,7 +293,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/html-program-viewer:
@@ -357,7 +357,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/http:
@@ -399,7 +399,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/internal-build-utils:
@@ -448,7 +448,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/json-schema:
@@ -506,7 +506,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/library-linter:
@@ -542,7 +542,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/lint:
@@ -581,7 +581,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/migrate:
@@ -663,7 +663,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/openapi:
@@ -711,7 +711,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/openapi3:
@@ -772,7 +772,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/playground:
@@ -908,7 +908,7 @@ importers:
         specifier: ~5.9.0
         version: 5.9.0
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
       vite:
         specifier: ^4.2.1
@@ -1020,7 +1020,7 @@ importers:
         specifier: ~5.9.0
         version: 5.9.0
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
       vite:
         specifier: ^4.2.1
@@ -1099,7 +1099,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/ref-doc:
@@ -1148,7 +1148,7 @@ importers:
         specifier: ~3.15.1
         version: 3.15.1(typedoc@0.24.8)
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/rest:
@@ -1193,7 +1193,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/samples:
@@ -1233,7 +1233,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/spec:
@@ -1273,7 +1273,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/typespec-vs:
@@ -1336,7 +1336,7 @@ importers:
         specifier: ~3.24.0
         version: 3.24.0
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
       vscode-languageclient:
         specifier: ~8.1.0
@@ -1381,7 +1381,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
   ../../packages/website:
@@ -1475,7 +1475,7 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       typescript:
-        specifier: ~5.1.5
+        specifier: ~5.1.3
         version: 5.1.5
 
 packages:

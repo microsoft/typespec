@@ -1,5 +1,6 @@
 import { Parser, SupportLanguage } from "prettier";
-import { Node } from "../core/types.js";
+import { DecoratorFunction, Node } from "../core/types.js";
+import { $deprecated } from "../index.js";
 import { parse } from "./parser.js";
 import { typespecPrinter } from "./print/index.js";
 
@@ -31,3 +32,16 @@ export const parsers = {
 export const printers = {
   "typespec-format": typespecPrinter,
 };
+
+type Decorators = DecoratorFunction | [DecoratorFunction, ...any[]];
+
+type Options = {};
+type Args = [...Decorators[], string, Options];
+
+const F = {
+  scalar: (...args: Args): any => null,
+};
+
+F.scalar($deprecated, "foo", {});
+F.scalar([$deprecated, "arg1"], "foo", {});
+F.scalar([$deprecated, "arg1"], [$deprecated, "arg1"], "foo", {});
