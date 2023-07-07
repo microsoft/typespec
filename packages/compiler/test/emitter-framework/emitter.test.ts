@@ -432,9 +432,9 @@ describe("emitter-framework: typescript emitter", () => {
       sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
         const emittedSourceFile = super.sourceFile(sourceFile);
         emittedSourceFile.contents += emitNamespaces(sourceFile.globalScope);
-        emittedSourceFile.contents = prettier.format(emittedSourceFile.contents, {
-          parser: "typescript",
-        });
+        // emittedSourceFile.contents = prettier.format(emittedSourceFile.contents, {
+        //   parser: "typescript",
+        // });
         return emittedSourceFile;
 
         function emitNamespaces(scope: Scope<string>) {

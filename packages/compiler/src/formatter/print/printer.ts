@@ -1,4 +1,6 @@
-import prettier, { AstPath, Doc, Printer } from "prettier";
+//  TODO revisit `getValue` is deprecated.
+/* eslint-disable deprecation/deprecation */
+import prettier, { Doc, Printer } from "prettier";
 import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
 import { Keywords } from "../../core/scanner.js";
@@ -13,8 +15,10 @@ import {
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   DocNode,
+  ProjectionDecoratorReferenceExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
+  UsingStatementNode,
   EnumStatementNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
@@ -70,12 +74,13 @@ import {
 import { FlattenedNamespaceStatementNode } from "../types.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
+import { AstPath } from "./prettier-ast-path.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 
 const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
   prettier.doc.builders;
 
-const { isNextLineEmpty } = prettier.util;
+const { isNextLineEmpty } = prettier.util as any;
 
 /**
  * If the decorators for that node should try to be kept inline.
@@ -135,7 +140,7 @@ export function printNode(
     case SyntaxKind.ImportStatement:
       return [`import "${node.path.value}";`];
     case SyntaxKind.UsingStatement:
-      return [`using `, path.call(print, "name"), `;`];
+      return [`using `, (path as AstPath<UsingStatementNode>).call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
     case SyntaxKind.OperationSignatureDeclaration:
@@ -333,7 +338,7 @@ export function printNode(
     case SyntaxKind.ProjectionTupleExpression:
       return printTuple(path as AstPath<ProjectionTupleExpressionNode>, options, print);
     case SyntaxKind.ProjectionDecoratorReferenceExpression:
-      return path.call(print, "target");
+      return (path as AstPath<ProjectionDecoratorReferenceExpressionNode>).call(print, "target");
     case SyntaxKind.Return:
       return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
     case SyntaxKind.Doc:
@@ -401,9 +406,9 @@ function printTemplateParameters<T extends Node>(
 
   const shouldHug = (args as any).length === 1;
   if (shouldHug) {
-    return ["<", join(", ", path.map(print, propertyName)), ">"];
+    return ["<", join(", ", path.map(print, propertyName as any)), ">"];
   } else {
-    const body = indent([softline, join([", ", softline], path.map(print, propertyName))]);
+    const body = indent([softline, join([", ", softline], path.map(print, propertyName as any))]);
     return group(["<", body, softline, ">"]);
   }
 }
@@ -855,7 +860,7 @@ function printDanglingComments(
     return "";
   }
   path.each((commentPath) => {
-    const comment = commentPath.getValue();
+    const comment: any = commentPath.getValue();
     if (!comment.leading && !comment.trailing) {
       parts.push(printComment(path, options));
     }
@@ -1289,7 +1294,7 @@ export function printStatementSequence<T extends Node>(
         parts.push(hardline);
       }
     }
-  }, property);
+  }, property as any);
 
   return parts;
 }
@@ -1558,7 +1563,7 @@ function printProjectionExpressionStatements<T extends Node>(
         parts.push(hardline);
       }
     }
-  }, key);
+  }, key as any);
   return parts;
 }
 
@@ -1689,7 +1694,7 @@ function printItemList<T extends Node>(
   print: PrettierChildPrint,
   key: keyof T
 ) {
-  return join(", ", path.map(print, key));
+  return join(", ", path.map(print, key as any));
 }
 
 /**

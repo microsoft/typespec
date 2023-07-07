@@ -79,7 +79,7 @@
     "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
     "mustache": "~4.2.0",
-    "prettier": "~2.8.7",
+    "prettier": "~3.0.0",
     "prompts": "~2.4.1",
     "vscode-languageserver": "~8.1.0",
     "vscode-languageserver-textdocument": "~1.0.1",

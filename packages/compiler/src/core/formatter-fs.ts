@@ -66,7 +66,7 @@ export async function findUnformattedTypeSpecFiles(
 export async function formatTypeSpecFile(filename: string) {
   const content = await readFile(filename, "utf-8");
   const prettierConfig = await prettier.resolveConfig(filename);
-  const formattedContent = formatTypeSpec(content, prettierConfig ?? {});
+  const formattedContent = await formatTypeSpec(content, prettierConfig ?? {});
   await writeFile(filename, formattedContent);
 }
 

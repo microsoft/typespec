@@ -104,7 +104,7 @@ export async function migratePackageVersion(
     }
   }
   if (changeMade) {
-    const prettyJsonString = prettier.format(JSON.stringify(packageJson), { parser: "json" });
+    const prettyJsonString = await prettier.format(JSON.stringify(packageJson), { parser: "json" });
     fs.writeFileSync(pkgFile, prettyJsonString);
   }
 

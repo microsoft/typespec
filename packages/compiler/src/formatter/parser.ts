@@ -1,13 +1,11 @@
-import { Parser, ParserOptions } from "prettier";
+import { ParserOptions } from "prettier";
 import { getSourceLocation } from "../core/diagnostics.js";
 import { parse as typespecParse, visitChildren } from "../core/parser.js";
 import { Diagnostic, Node, SyntaxKind, TypeSpecScriptNode } from "../core/types.js";
 import { mutate } from "../core/util.js";
 
 export function parse(
-  text: string,
-  parsers: { [parserName: string]: Parser },
-  opts: ParserOptions & { parentParser?: string }
+  text: string, options: ParserOptions<any>,
 ): TypeSpecScriptNode {
   const result = typespecParse(text, { comments: true, docs: true });
 

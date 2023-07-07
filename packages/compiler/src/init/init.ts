@@ -331,7 +331,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(joinPaths(config.directory, "main.tsp"), formatTypeSpec(content));
+  return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {

@@ -12,7 +12,7 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~2.8.7"
+    "prettier": "~3.0.0"
   },
   "devDependencies": {
     "@typespec/compiler": "workspace:~0.45.2",

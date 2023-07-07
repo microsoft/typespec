@@ -277,9 +277,9 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       emittedSourceFile.contents += decl.value + "\n";
     }
 
-    emittedSourceFile.contents = prettier.format(emittedSourceFile.contents, {
-      parser: "typescript",
-    });
+    // emittedSourceFile.contents = prettier.format(emittedSourceFile.contents, {
+    //   parser: "typescript",
+    // });
     return emittedSourceFile;
   }
 }

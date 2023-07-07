@@ -3,15 +3,15 @@ import prettier from "prettier";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
-function format(code: string, parser: TestParser = "typespec"): string {
-  const output = prettier.format(code, {
+async function format(code: string, parser: TestParser = "typespec"): Promise<string> {
+  const output = await prettier.format(code, {
     parser,
     plugins: [plugin],
   });
   return output;
 }
 
-function assertFormat({
+async function assertFormat({
   code,
   expected,
   parser,
@@ -20,7 +20,7 @@ function assertFormat({
   expected: string;
   parser?: TestParser;
 }) {
-  const result = format(code, parser ?? "typespec");
+  const result = await format(code, parser ?? "typespec");
   strictEqual(result.trim(), expected.trim());
 }
 
@@ -31,8 +31,8 @@ describe("compiler: prettier formatter", () => {
     throws(() => format(code));
   });
 
-  it("format imports", () => {
-    assertFormat({
+  it("format imports", async () => {
+    await assertFormat({
       code: `
     import   "@scope/package1";
 import        "@scope/package2";
@@ -46,8 +46,8 @@ import "@scope/package3";
     });
   });
 
-  it("formats returns of anonymous models", () => {
-    assertFormat({
+  it("formats returns of anonymous models", async () => {
+    await assertFormat({
       code: `
 op test(): { a: string; b: string; };
 `,
@@ -60,8 +60,8 @@ op test(): {
     });
   });
 
-  it("format using", () => {
-    assertFormat({
+  it("format using", async () => {
+    await assertFormat({
       code: `
 using       Some.Namespace  
 `,
@@ -72,8 +72,8 @@ using Some.Namespace;
   });
 
   describe("model", () => {
-    it("format empty model on single line", () => {
-      assertFormat({
+    it("format empty model on single line", async () => {
+      await assertFormat({
         code: `
 model Foo {
   
@@ -87,8 +87,8 @@ model Foo {}
       });
     });
 
-    it("format simple models", () => {
-      assertFormat({
+    it("format simple models", async () => {
+      await assertFormat({
         code: `
 model Foo {
   id: number;
@@ -109,8 +109,8 @@ model Foo {
       });
     });
 
-    it("format nested models", () => {
-      assertFormat({
+    it("format nested models", async () => {
+      await assertFormat({
         code: `
 model Foo {
       id: number;
@@ -129,8 +129,8 @@ model Foo {
       });
     });
 
-    it("format models with default values", () => {
-      assertFormat({
+    it("format models with default values", async () => {
+      await assertFormat({
         code: `
 model Foo {
 
@@ -145,8 +145,8 @@ model Foo {
       });
     });
 
-    it("format models with spread", () => {
-      assertFormat({
+    it("format models with spread", async () => {
+      await assertFormat({
         code: `
 model Foo {
     id: number;
@@ -164,8 +164,8 @@ model Foo {
       });
     });
 
-    it("format model with decorator", () => {
-      assertFormat({
+    it("format model with decorator", async () => {
+      await assertFormat({
         code: `
       @some @decorator
 model   Foo {}
@@ -179,8 +179,8 @@ model Foo {}
     });
 
     describe("model `extends`", () => {
-      it("format inline", () => {
-        assertFormat({
+      it("format inline", async () => {
+        await assertFormat({
           code: `
 model   Foo extends Base {
 }
@@ -197,8 +197,8 @@ model Bar extends Base<string> {}
         });
       });
 
-      it("split and indent is when model declaration line is too long", () => {
-        assertFormat({
+      it("split and indent is when model declaration line is too long", async () => {
+        await assertFormat({
           code: `
 model   Foo extends SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {
 }
@@ -212,8 +212,8 @@ model Foo
     });
 
     describe("model `is`", () => {
-      it("remove body if its empty", () => {
-        assertFormat({
+      it("remove body if its empty", async () => {
+        await assertFormat({
           code: `
 model   Foo is Base {
 }
@@ -230,8 +230,8 @@ model Bar is Base<string>;
         });
       });
 
-      it("keeps body if there is a comment inside", () => {
-        assertFormat({
+      it("keeps body if there is a comment inside", async () => {
+        await assertFormat({
           code: `
 model   Foo is Base {
    // Some comment
@@ -245,8 +245,8 @@ model Foo is Base {
         });
       });
 
-      it("split and indent is when model declaration line is too long", () => {
-        assertFormat({
+      it("split and indent is when model declaration line is too long", async () => {
+        await assertFormat({
           code: `
 model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong {
 }
@@ -259,8 +259,8 @@ model Foo
       });
     });
 
-    it("format model with generic", () => {
-      assertFormat({
+    it("format model with generic", async () => {
+      await assertFormat({
         code: `
 model   Foo < T   >{
 }
@@ -271,8 +271,8 @@ model Foo<T> {}
       });
     });
 
-    it("format spread reference", () => {
-      assertFormat({
+    it("format spread reference", async () => {
+      await assertFormat({
         code: `
 model Foo {
         ...       Bar
@@ -288,8 +288,8 @@ model Foo {
       });
     });
 
-    it("remove unnecessary backticks", () => {
-      assertFormat({
+    it("remove unnecessary backticks", async () => {
+      await assertFormat({
         code: `
 model \`Foo\` {
   \`abc\`: string;
@@ -307,8 +307,8 @@ model Foo {
       });
     });
 
-    it("format quoted string to identifier or backticked identifier when necessary", () => {
-      assertFormat({
+    it("format quoted string to identifier or backticked identifier when necessary", async () => {
+      await assertFormat({
         code: `
 model Foo {
   "abc": string;
@@ -335,8 +335,8 @@ enum \`2Colors\` {
     });
 
     describe("in between property spacing", () => {
-      it("hug properties with no line decorators or comments ", () => {
-        assertFormat({
+      it("hug properties with no line decorators or comments ", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -358,8 +358,8 @@ model Foo {
         });
       });
 
-      it("wrap in new lines properties with line decorators", () => {
-        assertFormat({
+      it("wrap in new lines properties with line decorators", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -385,8 +385,8 @@ model Foo {
         });
       });
 
-      it("wrap only in single line when 2 properties have decorators next to each other", () => {
-        assertFormat({
+      it("wrap only in single line when 2 properties have decorators next to each other", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -413,8 +413,8 @@ model Foo {
         });
       });
 
-      it("wrap in new lines properties with line comments", () => {
-        assertFormat({
+      it("wrap in new lines properties with line comments", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -438,8 +438,8 @@ model Foo {
         });
       });
 
-      it("first property with decorators or comment should not have extra blank space before", () => {
-        assertFormat({
+      it("first property with decorators or comment should not have extra blank space before", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   @foo
@@ -458,8 +458,8 @@ model Foo {
         });
       });
 
-      it("last property with decorators or comment should not have extra blank space after", () => {
-        assertFormat({
+      it("last property with decorators or comment should not have extra blank space after", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -478,8 +478,8 @@ model Foo {
         });
       });
 
-      it("hug properties if the comment is trailing the property end of line", () => {
-        assertFormat({
+      it("hug properties if the comment is trailing the property end of line", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -501,8 +501,8 @@ model Foo {
         });
       });
 
-      it("wrap in new lines properties with block comments", () => {
-        assertFormat({
+      it("wrap in new lines properties with block comments", async () => {
+        await assertFormat({
           code: `
 model   Foo{
   one: string;
@@ -533,8 +533,8 @@ model Foo {
   });
 
   describe("op", () => {
-    it("keeps operation inline if it can", () => {
-      assertFormat({
+    it("keeps operation inline if it can", async () => {
+      await assertFormat({
         code: `
 op foo(
 one: string;
@@ -552,8 +552,8 @@ op foo(one: string, two: string, three: string): void;
       });
     });
 
-    it("doesn't add extra blank space in parameters list if operation split in new lines", () => {
-      assertFormat({
+    it("doesn't add extra blank space in parameters list if operation split in new lines", async () => {
+      await assertFormat({
         code: `
 op foo(
 
@@ -567,8 +567,8 @@ op foo(
     });
 
     describe("in between parameter spacing", () => {
-      it("hug parameters with no line decorators or comments ", () => {
-        assertFormat({
+      it("hug parameters with no line decorators or comments ", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string;
@@ -593,8 +593,8 @@ op foo(
         });
       });
 
-      it("wrap in new lines parameters with line decorators", () => {
-        assertFormat({
+      it("wrap in new lines parameters with line decorators", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string,
@@ -620,8 +620,8 @@ op foo(
         });
       });
 
-      it("wrap only in single line when 2 parameters have decorators next to each other", () => {
-        assertFormat({
+      it("wrap only in single line when 2 parameters have decorators next to each other", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string,
@@ -648,8 +648,8 @@ op foo(
         });
       });
 
-      it("wrap in new lines parameters with line comments", () => {
-        assertFormat({
+      it("wrap in new lines parameters with line comments", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string,
@@ -673,8 +673,8 @@ op foo(
         });
       });
 
-      it("first property with decorators or comment should not have extra blank space before", () => {
-        assertFormat({
+      it("first property with decorators or comment should not have extra blank space before", async () => {
+        await assertFormat({
           code: `
 op foo(
   @foo
@@ -693,8 +693,8 @@ op foo(
         });
       });
 
-      it("last property with decorators or comment should not have extra blank space after", () => {
-        assertFormat({
+      it("last property with decorators or comment should not have extra blank space after", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string,
@@ -713,8 +713,8 @@ op foo(
         });
       });
 
-      it("hug parameters if the comment is trailing the property end of line", () => {
-        assertFormat({
+      it("hug parameters if the comment is trailing the property end of line", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string,
@@ -736,8 +736,8 @@ op foo(
         });
       });
 
-      it("wrap in new lines parameters with block comments", () => {
-        assertFormat({
+      it("wrap in new lines parameters with block comments", async () => {
+        await assertFormat({
           code: `
 op foo(
   one: string,
@@ -768,8 +768,8 @@ op foo(
   });
 
   describe("scalar", () => {
-    it("format on single line", () => {
-      assertFormat({
+    it("format on single line", async () => {
+      await assertFormat({
         code: `
 scalar
    Foo
@@ -780,8 +780,8 @@ scalar Foo;
       });
     });
 
-    it("format with extends", () => {
-      assertFormat({
+    it("format with extends", async () => {
+      await assertFormat({
         code: `
 scalar
    Foo extends 
@@ -793,8 +793,8 @@ scalar Foo extends string;
       });
     });
 
-    it("format with template parameters", () => {
-      assertFormat({
+    it("format with template parameters", async () => {
+      await assertFormat({
         code: `
 scalar
    Foo<K,
@@ -806,8 +806,8 @@ scalar Foo<K, V>;
       });
     });
 
-    it("format with decorator", () => {
-      assertFormat({
+    it("format with decorator", async () => {
+      await assertFormat({
         code: `
       @some @decorator
 scalar   Foo 
@@ -821,8 +821,8 @@ scalar Foo;
     });
   });
   describe("comments", () => {
-    it("format comment at position 0", () => {
-      assertFormat({
+    it("format comment at position 0", async () => {
+      await assertFormat({
         code: `// This comment is at position 0.
 model Foo {}
 `,
@@ -833,8 +833,8 @@ model Foo {}
       });
     });
 
-    it("format single line comments", () => {
-      assertFormat({
+    it("format single line comments", async () => {
+      await assertFormat({
         code: `
   // This is a comment.
 model Foo {}
@@ -846,8 +846,8 @@ model Foo {}
       });
     });
 
-    it("format indentable multi line comments", () => {
-      assertFormat({
+    it("format indentable multi line comments", async () => {
+      await assertFormat({
         code: `
   /**
  * This is a multiline comment
@@ -865,8 +865,8 @@ model Foo {}
       });
     });
 
-    it("format regular multi line comments", () => {
-      assertFormat({
+    it("format regular multi line comments", async () => {
+      await assertFormat({
         code: `
   /*
   This is a multiline comment
@@ -884,9 +884,9 @@ model Foo {}
       });
     });
 
-    it("format doc comment comments without * indent", () => {
+    it("format doc comment comments without * indent", async () => {
       // Keep the indentation
-      assertFormat({
+      await assertFormat({
         code: `
   /*
   This is a multiline comment
@@ -904,9 +904,9 @@ model Foo {}
       });
     });
 
-    it("format single line doc comment", () => {
+    it("format single line doc comment", async () => {
       // Keep the indentation
-      assertFormat({
+      await assertFormat({
         code: `
   /**    This is a single line doc comment    */
 model Foo {}
@@ -918,9 +918,9 @@ model Foo {}
       });
     });
 
-    it("print standalone doc comment", () => {
+    it("print standalone doc comment", async () => {
       // Keep the indentation
-      assertFormat({
+      await assertFormat({
         code: `
   /**    
    * This is a multiline doc comment  
@@ -934,8 +934,8 @@ model Foo {}
       });
     });
 
-    it("keeps block comment on same line", () => {
-      assertFormat({
+    it("keeps block comment on same line", async () => {
+      await assertFormat({
         code: `
   alias foo = ""; /* one */ /* two */    /* three */ 
   `,
@@ -945,8 +945,8 @@ alias foo = ""; /* one */ /* two */ /* three */
       });
     });
 
-    it("format empty file with comment inside", () => {
-      assertFormat({
+    it("format empty file with comment inside", async () => {
+      await assertFormat({
         code: `
 
 
@@ -959,8 +959,8 @@ alias foo = ""; /* one */ /* two */ /* three */
       });
     });
 
-    it("format empty model with comment inside", () => {
-      assertFormat({
+    it("format empty model with comment inside", async () => {
+      await assertFormat({
         code: `
 model Foo {
   // empty model
@@ -975,7 +975,7 @@ model Foo {
 `,
       });
 
-      assertFormat({
+      await assertFormat({
         code: `
 model Foo {
   // empty model 1
@@ -995,8 +995,8 @@ model Foo {
       });
     });
 
-    it("format empty anonymous model with comment inside", () => {
-      assertFormat({
+    it("format empty anonymous model with comment inside", async () => {
+      await assertFormat({
         code: `
 model Foo {
   nested: {
@@ -1015,8 +1015,8 @@ model Foo {
       });
     });
 
-    it("format empty interface with comment inside", () => {
-      assertFormat({
+    it("format empty interface with comment inside", async () => {
+      await assertFormat({
         code: `
 interface Foo {
   // empty interface
@@ -1031,7 +1031,7 @@ interface Foo {
 `,
       });
 
-      assertFormat({
+      await assertFormat({
         code: `
 interface Foo {
   // empty interface 1
@@ -1064,8 +1064,8 @@ interface Foo {
         ["union", "union Foo {}"],
         ["enum", "enum Foo {}"],
       ].forEach(([name, code]) => {
-        it(name, () => {
-          assertFormat({
+        it(name, async () => {
+          await assertFormat({
             code: `
 @foo
     // comment
@@ -1081,8 +1081,8 @@ ${code}
       });
     });
 
-    it("keeps comment in between decorators", () => {
-      assertFormat({
+    it("keeps comment in between decorators", async () => {
+      await assertFormat({
         code: `
 @foo
   // comment
@@ -1098,8 +1098,8 @@ model Bar {}
       });
     });
 
-    it("keeps comment at the end of line of a decorators", () => {
-      assertFormat({
+    it("keeps comment at the end of line of a decorators", async () => {
+      await assertFormat({
         code: `
 @foo          // comment
   @bar
@@ -1113,8 +1113,8 @@ model Bar {}
       });
     });
 
-    it("comment preceding decorators hug decorators", () => {
-      assertFormat({
+    it("comment preceding decorators hug decorators", async () => {
+      await assertFormat({
         code: `
         // comment
 @foo          
@@ -1130,8 +1130,8 @@ model Bar {}
       });
     });
 
-    it("keeps comment in between decorators on model property", () => {
-      assertFormat({
+    it("keeps comment in between decorators on model property", async () => {
+      await assertFormat({
         code: `
 model Bar {
       @foo
@@ -1151,8 +1151,8 @@ model Bar {
       });
     });
 
-    it("keeps comment in between decorators on enum member", () => {
-      assertFormat({
+    it("keeps comment in between decorators on enum member", async () => {
+      await assertFormat({
         code: `
 enum Bar {
       @foo
@@ -1172,8 +1172,8 @@ enum Bar {
       });
     });
 
-    it("keeps comment between statements of a flattened namespace", () => {
-      assertFormat({
+    it("keeps comment between statements of a flattened namespace", async () => {
+      await assertFormat({
         code: `
         namespace Foo.Bar {
 // one
@@ -1213,8 +1213,8 @@ namespace Foo.Bar {
       });
     });
 
-    it("keeps comment after augment decorator", () => {
-      assertFormat({
+    it("keeps comment after augment decorator", async () => {
+      await assertFormat({
         code: `
   @@doc(Foo.bar, "This");   // comment
 `,
@@ -1224,8 +1224,8 @@ namespace Foo.Bar {
       });
     });
 
-    it("formats doc comment before decorators and directives", () => {
-      assertFormat({
+    it("formats doc comment before decorators and directives", async () => {
+      await assertFormat({
         code: `
 #suppress "foo"
 @dec1
@@ -1247,8 +1247,8 @@ model Foo {}
       });
     });
 
-    it("formats multiple doc comment before decorators and directives", () => {
-      assertFormat({
+    it("formats multiple doc comment before decorators and directives", async () => {
+      await assertFormat({
         code: `
 #suppress "foo"
 @dec1
@@ -1278,8 +1278,8 @@ model Foo {}
   });
 
   describe("alias union", () => {
-    it("format simple alias", () => {
-      assertFormat({
+    it("format simple alias", async () => {
+      await assertFormat({
         code: `
 alias     Foo   = "one"       | "two";
 alias     Bar   
@@ -1293,8 +1293,8 @@ alias Bar = "one" | "two";
       });
     });
 
-    it("format generic alias", () => {
-      assertFormat({
+    it("format generic alias", async () => {
+      await assertFormat({
         code: `
 alias     Foo<   A,     B>   = A     |    B;
 alias     Bar<   
@@ -1309,8 +1309,8 @@ alias Bar<A, B> = A | B;
       });
     });
 
-    it("format long alias", () => {
-      assertFormat({
+    it("format long alias", async () => {
+      await assertFormat({
         code: `
 alias VeryLong =   "one" | "two" | "three" | "four" | "five" | "six" | "seven" | "height" | "nine" | "ten";
 `,
@@ -1330,8 +1330,8 @@ alias VeryLong =
       });
     });
 
-    it("keeps parentheses if under an intersection expression", () => {
-      assertFormat({
+    it("keeps parentheses if under an intersection expression", async () => {
+      await assertFormat({
         code: `
 alias Foo = (A     | B    ) & C;
 `,
@@ -1343,8 +1343,8 @@ alias Foo = (A | B) & C;
   });
 
   describe("alias intersection", () => {
-    it("format intersection of types", () => {
-      assertFormat({
+    it("format intersection of types", async () => {
+      await assertFormat({
         code: `
 alias     Foo   = One       &   Two;
 alias     Bar   
@@ -1358,8 +1358,8 @@ alias Bar = One & Two;
       });
     });
 
-    it("format intersection of anonymous models", () => {
-      assertFormat({
+    it("format intersection of anonymous models", async () => {
+      await assertFormat({
         code: `
 alias     Foo   = { foo: string }       &   {bar: string};
 alias     Bar   
@@ -1382,8 +1382,8 @@ alias Bar = {
       });
     });
 
-    it("keeps parentheses if under an union expression", () => {
-      assertFormat({
+    it("keeps parentheses if under an union expression", async () => {
+      await assertFormat({
         code: `
 alias Foo = A  |  (  B     & C);
 `,
@@ -1395,8 +1395,8 @@ alias Foo = A | (B & C);
   });
 
   describe("enum", () => {
-    it("format simple enum", () => {
-      assertFormat({
+    it("format simple enum", async () => {
+      await assertFormat({
         code: `
 enum      Foo       {    A,        B}
 enum      Bar       
@@ -1416,8 +1416,8 @@ enum Bar {
       });
     });
 
-    it("format named enum", () => {
-      assertFormat({
+    it("format named enum", async () => {
+      await assertFormat({
         code: `
 enum      Foo       {    A:   "a",        B    : "b"}
 enum      Bar       
@@ -1438,8 +1438,8 @@ enum Bar {
       });
     });
 
-    it("separate members if there is decorators", () => {
-      assertFormat({
+    it("separate members if there is decorators", async () => {
+      await assertFormat({
         code: `
 enum      Foo       {   
   @doc("foo") 
@@ -1467,8 +1467,8 @@ enum Foo {
       });
     });
 
-    it("format spread members", () => {
-      assertFormat({
+    it("format spread members", async () => {
+      await assertFormat({
         code: `
 enum Foo {
         ...       Bar  , One: "1",
@@ -1489,8 +1489,8 @@ enum Foo {
   });
 
   describe("namespaces", () => {
-    it("format global namespace", () => {
-      assertFormat({
+    it("format global namespace", async () => {
+      await assertFormat({
         code: `
 namespace     Foo;
 `,
@@ -1500,8 +1500,8 @@ namespace Foo;
       });
     });
 
-    it("format global nested namespace", () => {
-      assertFormat({
+    it("format global nested namespace", async () => {
+      await assertFormat({
         code: `
 namespace Foo     .   Bar;
 `,
@@ -1511,8 +1511,8 @@ namespace Foo.Bar;
       });
     });
 
-    it("format global namespace with decorators", () => {
-      assertFormat({
+    it("format global namespace with decorators", async () => {
+      await assertFormat({
         code: `
   @service
     @other
@@ -1526,8 +1526,8 @@ namespace Foo.Bar;
       });
     });
 
-    it("format namespace with body", () => {
-      assertFormat({
+    it("format namespace with body", async () => {
+      await assertFormat({
         code: `
 namespace     Foo { 
   op some(): string;
@@ -1550,8 +1550,8 @@ namespace Foo.Bar {
       });
     });
 
-    it("format nested namespaces", () => {
-      assertFormat({
+    it("format nested namespaces", async () => {
+      await assertFormat({
         code: `
 namespace     Foo { 
 namespace   Bar { 
@@ -1573,8 +1573,8 @@ namespace Foo {
   });
 
   describe("string literals", () => {
-    it("format single line string literal", () => {
-      assertFormat({
+    it("format single line string literal", async () => {
+      await assertFormat({
         code: `
 @doc(   "this is a doc.  "
  )
@@ -1587,8 +1587,8 @@ model Foo {}
       });
     });
 
-    it("format single line with newline characters", () => {
-      assertFormat({
+    it("format single line with newline characters", async () => {
+      await assertFormat({
         code: `
 @doc(   "foo\\nbar"
  )
@@ -1601,8 +1601,8 @@ model Foo {}
       });
     });
 
-    it("format multi line string literal", () => {
-      assertFormat({
+    it("format multi line string literal", async () => {
+      await assertFormat({
         code: `
 @doc(   """
   
@@ -1629,8 +1629,8 @@ model Foo {}
   });
 
   describe("number literals", () => {
-    it("format integer", () => {
-      assertFormat({
+    it("format integer", async () => {
+      await assertFormat({
         code: `
 alias MyNum =     123   ;
 `,
@@ -1640,8 +1640,8 @@ alias MyNum = 123;
       });
     });
 
-    it("format float", () => {
-      assertFormat({
+    it("format float", async () => {
+      await assertFormat({
         code: `
 alias MyFloat1 =     1.234   ;
 alias MyFloat2 =     0.123   ;
@@ -1653,8 +1653,8 @@ alias MyFloat2 = 0.123;
       });
     });
 
-    it("format e notation numbers", () => {
-      assertFormat({
+    it("format e notation numbers", async () => {
+      await assertFormat({
         code: `
 alias MyBigNumber =     1.0e8  ;
 `,
@@ -1664,8 +1664,8 @@ alias MyBigNumber = 1.0e8;
       });
     });
 
-    it("format big numbers", () => {
-      assertFormat({
+    it("format big numbers", async () => {
+      await assertFormat({
         code: `
 alias MyBigNumber =     1.0e999999999   ;
 `,
@@ -1677,8 +1677,8 @@ alias MyBigNumber = 1.0e999999999;
   });
 
   describe("recoverable error can be fixed", () => {
-    it("adds missing ;", () => {
-      assertFormat({
+    it("adds missing ;", async () => {
+      await assertFormat({
         code: `
 alias Foo = string
 model Bar {}
@@ -1690,8 +1690,8 @@ model Bar {}
       });
     });
 
-    it("adds missing } at the end of the file", () => {
-      assertFormat({
+    it("adds missing } at the end of the file", async () => {
+      await assertFormat({
         code: `
 namespace Bar {
 `,
@@ -1705,8 +1705,8 @@ namespace Bar {
   });
 
   describe("directives", () => {
-    it("keeps directive before a model", () => {
-      assertFormat({
+    it("keeps directive before a model", async () => {
+      await assertFormat({
         code: `
   #suppress "some-error"    "because"
   
@@ -1719,8 +1719,8 @@ model Bar {}
       });
     });
 
-    it("keeps directive before a model property", () => {
-      assertFormat({
+    it("keeps directive before a model property", async () => {
+      await assertFormat({
         code: `
         
         model Bar {
@@ -1738,8 +1738,8 @@ model Bar {
       });
     });
 
-    it("keeps directive before a decorators", () => {
-      assertFormat({
+    it("keeps directive before a decorators", async () => {
+      await assertFormat({
         code: `
   #suppress   "some-error"     "because"
     @decorate("args")
@@ -1759,8 +1759,8 @@ namespace MyNamespace {
       });
     });
 
-    it("directive hugs decorators on model property", () => {
-      assertFormat({
+    it("directive hugs decorators on model property", async () => {
+      await assertFormat({
         code: `
 model Foo {
   prop1: string;
@@ -1785,8 +1785,8 @@ model Foo {
   });
 
   describe("decorator declaration", () => {
-    it("format simple decorator declaration inline", () => {
-      assertFormat({
+    it("format simple decorator declaration inline", async () => {
+      await assertFormat({
         code: `
 extern 
   dec 
@@ -1799,8 +1799,8 @@ extern dec foo(target: Type, arg1: StringLiteral);
       });
     });
 
-    it("format decorator without parameter types", () => {
-      assertFormat({
+    it("format decorator without parameter types", async () => {
+      await assertFormat({
         code: `
 extern 
   dec 
@@ -1813,8 +1813,8 @@ extern dec foo(target, arg1);
       });
     });
 
-    it("format decorator with optional parameters", () => {
-      assertFormat({
+    it("format decorator with optional parameters", async () => {
+      await assertFormat({
         code: `
 extern 
   dec 
@@ -1827,8 +1827,8 @@ extern dec foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
       });
     });
 
-    it("format decorator with rest parameters", () => {
-      assertFormat({
+    it("format decorator with rest parameters", async () => {
+      await assertFormat({
         code: `
 extern 
   dec 
@@ -1841,8 +1841,8 @@ extern dec foo(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
       });
     });
 
-    it("split decorator argument into multiple lines if too long", () => {
-      assertFormat({
+    it("split decorator argument into multiple lines if too long", async () => {
+      await assertFormat({
         code: `
 extern dec  foo(target: Type,   arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral);
       `,
@@ -1860,8 +1860,8 @@ extern dec foo(
   });
 
   describe("function declaration", () => {
-    it("format simple function declaration inline", () => {
-      assertFormat({
+    it("format simple function declaration inline", async () => {
+      await assertFormat({
         code: `
 extern 
   fn 
@@ -1874,8 +1874,8 @@ extern fn foo(arg1: StringLiteral): void;
       });
     });
 
-    it("format function without parameter types and return type", () => {
-      assertFormat({
+    it("format function without parameter types and return type", async () => {
+      await assertFormat({
         code: `
 extern 
   fn 
@@ -1888,8 +1888,8 @@ extern fn foo(target, arg1);
       });
     });
 
-    it("format function with optional parameters", () => {
-      assertFormat({
+    it("format function with optional parameters", async () => {
+      await assertFormat({
         code: `
 extern 
   fn 
@@ -1902,8 +1902,8 @@ extern fn foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral): void;
       });
     });
 
-    it("format function with rest parameters", () => {
-      assertFormat({
+    it("format function with rest parameters", async () => {
+      await assertFormat({
         code: `
 extern 
   fn 
@@ -1916,8 +1916,8 @@ extern fn foo(target: Type, arg1: Type, ...args: Type[]): void;
       });
     });
 
-    it("split decorator argument into multiple lines if too long", () => {
-      assertFormat({
+    it("split decorator argument into multiple lines if too long", async () => {
+      await assertFormat({
         code: `
 extern fn  foo( arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral) : void;
       `,
@@ -1934,8 +1934,8 @@ extern fn foo(
   });
 
   describe("decorators", () => {
-    it("keep simple decorators inline", () => {
-      assertFormat({
+    it("keep simple decorators inline", async () => {
+      await assertFormat({
         code: `
 namespace Foo {
   @route("inline")  op       simple(): string;
@@ -1949,8 +1949,8 @@ namespace Foo {
       });
     });
 
-    it("it preserve new line if provided", () => {
-      assertFormat({
+    it("it preserve new line if provided", async () => {
+      await assertFormat({
         code: `
 namespace Foo {
   @route("inline")
@@ -1966,8 +1966,8 @@ namespace Foo {
       });
     });
 
-    it("split by new line if there is more than 2 decorator", () => {
-      assertFormat({
+    it("split by new line if there is more than 2 decorator", async () => {
+      await assertFormat({
         code: `
 namespace Foo {
   @route("inline") @mark @bar op       my(): string;
@@ -1984,8 +1984,8 @@ namespace Foo {
       });
     });
 
-    it("split decorator first if line is long", () => {
-      assertFormat({
+    it("split decorator first if line is long", async () => {
+      await assertFormat({
         code: `
 namespace Foo {
   @doc("this is a very long documentation that will for sure overflow the max line length") op my(parm: string): string;
@@ -2002,8 +2002,8 @@ namespace Foo {
   });
 
   describe("augment decorators", () => {
-    it("format into a single line if possible", () => {
-      assertFormat({
+    it("format into a single line if possible", async () => {
+      await assertFormat({
         code: `
 @@doc(Foo, 
   
@@ -2017,8 +2017,8 @@ namespace Foo {
       });
     });
 
-    it("break arguments per lines if the decorator is too long", () => {
-      assertFormat({
+    it("break arguments per lines if the decorator is too long", async () => {
+      await assertFormat({
         code: `
 @@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
       `,
@@ -2034,8 +2034,8 @@ namespace Foo {
   });
 
   describe("interfaces", () => {
-    it("removes op prefix", () => {
-      assertFormat({
+    it("removes op prefix", async () => {
+      await assertFormat({
         code: `
 interface Foo {
   op foo(): int32;
@@ -2049,8 +2049,8 @@ interface Foo {
   });
 
   describe("templated types", () => {
-    it("format parameter declarations", () => {
-      assertFormat({
+    it("format parameter declarations", async () => {
+      await assertFormat({
         code: `
 model Foo<   T  , K
 > {
@@ -2060,8 +2060,8 @@ model Foo<T, K> {}`,
       });
     });
 
-    it("format parameter declarations with defaults", () => {
-      assertFormat({
+    it("format parameter declarations with defaults", async () => {
+      await assertFormat({
         code: `
 model Foo<   T  ="abc",    K =        134
 > {
@@ -2071,8 +2071,8 @@ model Foo<T = "abc", K = 134> {}`,
       });
     });
 
-    it("format parameter declarations with constraints", () => {
-      assertFormat({
+    it("format parameter declarations with constraints", async () => {
+      await assertFormat({
         code: `
 model Foo<   T  extends      string, K      extends { 
         foo: int32   }
@@ -2083,8 +2083,8 @@ model Foo<T extends string, K extends {foo: int32}> {}`,
       });
     });
 
-    it("format parameter declarations with constraints and defaults", () => {
-      assertFormat({
+    it("format parameter declarations with constraints and defaults", async () => {
+      await assertFormat({
         code: `
 model Foo<T       extends    string =      
     "abc"> {
@@ -2096,8 +2096,8 @@ model Foo<T extends string = "abc"> {}`,
   });
 
   describe("template references", () => {
-    it("format simple template reference", () => {
-      assertFormat({
+    it("format simple template reference", async () => {
+      await assertFormat({
         code: `
 alias Foo = Bar<        
   string
@@ -2108,8 +2108,8 @@ alias Foo = Bar<string>;`,
       });
     });
 
-    it("doesn't split if there is a single argument that is too long", () => {
-      assertFormat({
+    it("doesn't split if there is a single argument that is too long", async () => {
+      await assertFormat({
         code: `
 alias Foo = Bar<
   "very very very very very very very very very very very verylong string that is overflowing the max column allowed">;
@@ -2119,8 +2119,8 @@ alias Foo = Bar<"very very very very very very very very very very very verylong
       });
     });
 
-    it("doesn't split if there is multiple args but line is not too long", () => {
-      assertFormat({
+    it("doesn't split if there is multiple args but line is not too long", async () => {
+      await assertFormat({
         code: `
 alias Foo = Bar<
   string,     int32, 
@@ -2131,8 +2131,8 @@ alias Foo = Bar<string, int32, boolean>;`,
       });
     });
 
-    it("split and indent if there is multiple argument and line is overflowing the max column allowed", () => {
-      assertFormat({
+    it("split and indent if there is multiple argument and line is overflowing the max column allowed", async () => {
+      await assertFormat({
         code: `
 alias Foo = Bar<
   "very long string that is overflowing the max column allowed",  "very long string that is overflowing the max column allowed">;
@@ -2147,8 +2147,8 @@ alias Foo = Bar<
   });
 
   describe("array expression", () => {
-    it("format an array expression", () => {
-      assertFormat({
+    it("format an array expression", async () => {
+      await assertFormat({
         code: `
 alias Foo = string       [];
 `,
@@ -2158,8 +2158,8 @@ alias Foo = string[];
       });
     });
 
-    it("keeps parentheses for array type if necessary(for union)", () => {
-      assertFormat({
+    it("keeps parentheses for array type if necessary(for union)", async () => {
+      await assertFormat({
         code: `
 alias Foo = (string     | int32    )  [];
 `,
@@ -2169,8 +2169,8 @@ alias Foo = (string | int32)[];
       });
     });
 
-    it("keeps parentheses for array type if necessary(for intersection)", () => {
-      assertFormat({
+    it("keeps parentheses for array type if necessary(for intersection)", async () => {
+      await assertFormat({
         code: `
 alias Foo = (string     & int32    )  [];
 `,
@@ -2182,8 +2182,8 @@ alias Foo = (string & int32)[];
   });
 
   describe("tuple expression", () => {
-    it("format a single line tuple", () => {
-      assertFormat({
+    it("format a single line tuple", async () => {
+      await assertFormat({
         code: `
 alias Foo = [string, 
   "abc",           134];
@@ -2193,8 +2193,8 @@ alias Foo = [string, "abc", 134];
 `,
       });
     });
-    it("format a long tuple over multi line", () => {
-      assertFormat({
+    it("format a long tuple over multi line", async () => {
+      await assertFormat({
         code: `
 alias Foo = ["very long text that will overflow 1","very long text that will overflow 2", "very long text that will overflow 3" ];
 `,
@@ -2210,8 +2210,8 @@ alias Foo = [
   });
 
   describe("empty statements", () => {
-    it("remove empty statements", () => {
-      assertFormat({
+    it("remove empty statements", async () => {
+      await assertFormat({
         code: `
   alias foo = "";;;;
   `,
@@ -2221,8 +2221,8 @@ alias foo = "";
       });
     });
 
-    it("keeps comments inside empty statements", () => {
-      assertFormat({
+    it("keeps comments inside empty statements", async () => {
+      await assertFormat({
         code: `
   alias foo = "";; /* one */ ;; /* two */ ;;; /* three */ ;;
   `,
@@ -2234,8 +2234,8 @@ alias foo = ""; /* one */ /* two */ /* three */
   });
 
   describe("member expression", () => {
-    it("a simple member expression", () => {
-      assertFormat({
+    it("a simple member expression", async () => {
+      await assertFormat({
         code: `
 model Foo {
   p: Some .     bar;
@@ -2248,8 +2248,8 @@ model Foo {
 `,
       });
     });
-    it("nested member expression", () => {
-      assertFormat({
+    it("nested member expression", async () => {
+      await assertFormat({
         code: `
 model Foo {
   p: Some . 
@@ -2266,8 +2266,8 @@ model Foo {
   });
 
   describe("meta type accessor", () => {
-    it("format with ::", () => {
-      assertFormat({
+    it("format with ::", async () => {
+      await assertFormat({
         code: `
 @@doc(myOp ::  parameters.foo, "")
 `,
@@ -2279,8 +2279,8 @@ model Foo {
   });
 
   describe("projections", () => {
-    it("format projections", () => {
-      assertFormat({
+    it("format projections", async () => {
+      await assertFormat({
         code: `
 projection         model#proj 
   {pre to{} to{} pre from {} from {}}
@@ -2304,8 +2304,8 @@ projection model#proj {
       });
     });
 
-    it("format empty projection on single line", () => {
-      assertFormat({
+    it("format empty projection on single line", async () => {
+      await assertFormat({
         code: `
 projection    model#proj    {
 
@@ -2315,8 +2315,8 @@ projection model#proj {}`,
       });
     });
 
-    it("format projections with args", () => {
-      assertFormat({
+    it("format projections with args", async () => {
+      await assertFormat({
         code: `
 projection         model#proj 
   {pre to ( val ) {} to(   val) {} pre from(  
@@ -2342,8 +2342,8 @@ projection model#proj {
       });
     });
 
-    it("format function call", () => {
-      assertFormat({
+    it("format function call", async () => {
+      await assertFormat({
         code: `
 projection model#proj {
 to {
@@ -2364,8 +2364,8 @@ projection model#proj {
 
     describe("format operation expression(s)", () => {
       ["+", "-", "*", "/", "==", "!=", ">", "<", ">=", "<=", "||", "&&"].forEach((op) => {
-        it(`with ${op}`, () => {
-          assertFormat({
+        it(`with ${op}`, async () => {
+          await assertFormat({
             code: `
 projection model#proj {
 to {
@@ -2392,8 +2392,8 @@ projection model#proj {
         ["( 1 + 2) * 3", "(1 + 2) * 3"],
         ["one || two && three", "one || (two && three)"],
       ].forEach(([input, expected]) => {
-        it(`case ${expected}`, () => {
-          assertFormat({
+        it(`case ${expected}`, async () => {
+          await assertFormat({
             code: `
 projection model#proj {
 to {
@@ -2413,8 +2413,8 @@ projection model#proj {
       });
     });
 
-    it("format lambda", () => {
-      assertFormat({
+    it("format lambda", async () => {
+      await assertFormat({
         code: `
 projection model#proj {
 to {
@@ -2436,8 +2436,8 @@ projection model#proj {
     });
 
     describe("if", () => {
-      it("format simple if", () => {
-        assertFormat({
+      it("format simple if", async () => {
+        await assertFormat({
           code: `
 projection model#proj {
   to {
@@ -2461,8 +2461,8 @@ projection model#proj {
         });
       });
 
-      it("format with else if", () => {
-        assertFormat({
+      it("format with else if", async () => {
+        await assertFormat({
           code: `
 projection model#proj {
   to {
@@ -2489,8 +2489,8 @@ projection model#proj {
         });
       });
 
-      it("format with else", () => {
-        assertFormat({
+      it("format with else", async () => {
+        await assertFormat({
           code: `
 projection model#proj {
   to {
@@ -2520,8 +2520,8 @@ projection model#proj {
   });
 
   describe("when embedded", () => {
-    it("doesn't include blank line at the end (in markdown)", () => {
-      assertFormat({
+    it("doesn't include blank line at the end (in markdown)", async () => {
+      await assertFormat({
         parser: "markdown",
         code: `
 This is markdown
