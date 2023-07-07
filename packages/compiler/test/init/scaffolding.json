@@ -1,7 +1,7 @@
 {
   "without-version": {
     "title": "Test template without version",
-    "description": "This template does not specify minimal version",
+    "description": "This template does not specify minimum version",
     "libraries": [],
     "skipCompilerPackage": true,
     "config": {},
@@ -15,7 +15,7 @@
   "version-not-met": {
     "compilerVersion": "99.0.0",
     "title": "Test template version not met",
-    "description": "This template has minimal version but not met",
+    "description": "This template has minimum version but not met",
     "libraries": [],
     "skipCompilerPackage": true,
     "config": {},

@@ -111,7 +111,7 @@ export async function initTypeSpecProject(
   const templates = url === undefined ? builtInTemplates : await downloadTemplates(host, url);
   const templateName = await promptTemplateSelection(templates, url);
 
-  // Validate minimal compiler version for non built-in templates
+  // Validate minimum compiler version for non built-in templates
   if (url !== undefined && !(await validateTemplate(templates[templateName], url))) {
     return;
   }
@@ -300,7 +300,7 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
     const confirmationMessage = template.compilerVersion
       ? `The template you selected is designed for tsp version ${template.compilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
-      : `The template you selected did not specify minimal support compiler version. You are currently using tsp version ${currentCompilerVersion}.`;
+      : `The template you selected did not specify minimum support compiler version. You are currently using tsp version ${currentCompilerVersion}.`;
     if (
       await confirm(
         `${confirmationMessage} The project created may not be correct. Do you want to continue?`

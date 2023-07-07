@@ -25,7 +25,7 @@ export interface InitTemplate {
    */
   description: string;
 
-  /** Minimal Compiler Support Version */
+  /** Minimum Compiler Support Version */
   compilerVersion: string;
 
   /**
