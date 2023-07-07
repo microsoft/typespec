@@ -54,7 +54,6 @@
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/js-yaml": "~4.0.1",
-    "@types/prettier": "2.6.0",
     "@types/semver": "^7.3.13",
     "@types/yargs": "~17.0.24",
     "@typespec/compiler": "workspace:~0.45.2",

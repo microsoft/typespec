@@ -6,6 +6,11 @@ import { PlaygroundUserConfig } from "./types.js";
 export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserConfig {
   return {
     base: "./",
+    resolve: {
+      alias: {
+        "node:module": "util",
+      },
+    },
     build: {
       target: "esnext",
       chunkSizeWarningLimit: 3000,

@@ -1,5 +1,5 @@
 import assert from "assert";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import {
   Enum,
   Interface,

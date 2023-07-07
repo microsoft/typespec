@@ -94,7 +94,6 @@
     "@types/mocha": "~10.0.1",
     "@types/mustache": "~4.2.1",
     "@types/node": "~18.11.9",
-    "@types/prettier": "2.6.0",
     "@types/prompts": "~2.4.3",
     "@types/semver": "^7.3.13",
     "@types/yargs": "~17.0.24",

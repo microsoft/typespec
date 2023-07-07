@@ -1,6 +1,6 @@
 //  TODO revisit `getValue` is deprecated.
 /* eslint-disable deprecation/deprecation */
-import prettier, { Doc, Printer } from "prettier";
+import { doc, Doc, Printer, util } from "prettier";
 import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
 import { Keywords } from "../../core/scanner.js";
@@ -77,10 +77,9 @@ import { needsParens } from "./needs-parens.js";
 import { AstPath } from "./prettier-ast-path.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 
-const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
-  prettier.doc.builders;
+const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = doc.builders;
 
-const { isNextLineEmpty } = prettier.util as any;
+const { isNextLineEmpty } = util as any;
 
 /**
  * If the decorators for that node should try to be kept inline.
@@ -104,7 +103,7 @@ export function printTypeSpec(
   path: AstPath<Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const node = path.getValue();
   const docs = printDocComments(path, options, print);
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
@@ -130,7 +129,7 @@ export function printNode(
   path: AstPath<Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const node: Node = path.getValue();
 
   switch (node.kind) {
@@ -504,7 +503,7 @@ export function printDecorators(
   options: object,
   print: PrettierChildPrint,
   { tryInline }: { tryInline: boolean }
-): { decorators: prettier.Doc; multiline: boolean } {
+): { decorators: Doc; multiline: boolean } {
   const node = path.getValue();
   if (node.decorators.length === 0) {
     return { decorators: "", multiline: false };
@@ -536,9 +535,7 @@ function shouldDecoratorBreakLine(
  * Check if there is already new lines in between the decorators of the node.
  */
 function hasNewlineBetweenOrAfterDecorators(node: DecorableNode, options: any) {
-  return node.decorators.some((decorator) =>
-    prettier.util.hasNewline(options.originalText, decorator.end)
-  );
+  return node.decorators.some((decorator) => util.hasNewline(options.originalText, decorator.end));
 }
 
 export function printDecorator(
@@ -725,7 +722,7 @@ function printEnumSpreadMember(
   path: AstPath<EnumSpreadMemberNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   return ["...", path.call(print, "target")];
 }
 
@@ -802,7 +799,7 @@ function printInterfaceExtends(
   path: AstPath<InterfaceStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const node = path.getValue();
   if (node.extends.length === 0) {
     return "";
@@ -826,7 +823,7 @@ export function printInterfaceMembers(
 
   const lastOperation = node.operations[node.operations.length - 1];
 
-  const parts: prettier.Doc[] = [];
+  const parts: Doc[] = [];
   path.each((operationPath) => {
     const node = operationPath.getValue() as any as OperationStatementNode;
 
@@ -842,7 +839,7 @@ export function printInterfaceMembers(
     }
   }, "operations");
 
-  const body: prettier.Doc[] = [hardline, parts];
+  const body: Doc[] = [hardline, parts];
 
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
@@ -856,7 +853,7 @@ function printDanglingComments(
   { sameIndent }: { sameIndent: boolean }
 ) {
   const node = path.getValue();
-  const parts: prettier.Doc[] = [];
+  const parts: Doc[] = [];
   if (!node || !node.comments) {
     return "";
   }
@@ -893,7 +890,7 @@ export function printIntersection(
 ) {
   const node = path.getValue();
   const types = path.map(print, "options");
-  const result: (prettier.Doc | string)[] = [];
+  const result: (Doc | string)[] = [];
   let wasIndented = false;
   for (let i = 0; i < types.length; ++i) {
     if (i === 0) {
@@ -1319,7 +1316,7 @@ export function printUnion(
   const shouldHug = shouldHugType(node);
 
   const types = path.map((typePath) => {
-    let printedType: string | prettier.Doc = print(typePath);
+    let printedType: string | Doc = print(typePath);
     if (!shouldHug) {
       printedType = align(2, printedType);
     }
@@ -1346,7 +1343,7 @@ export function printTypeReference(
   path: AstPath<TypeReferenceNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.doc.builders.Doc {
+): doc.builders.Doc {
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
   return [type, template];
@@ -1356,7 +1353,7 @@ export function printValueOfExpression(
   path: AstPath<ValueOfExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.doc.builders.Doc {
+): doc.builders.Doc {
   const type = path.call(print, "target");
   return ["valueof ", type];
 }
@@ -1378,7 +1375,7 @@ function printModelSpread(
   path: AstPath<ModelSpreadPropertyNode | ProjectionModelSpreadPropertyNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   return ["...", path.call(print, "target")];
 }
 
@@ -1386,7 +1383,7 @@ function printDecoratorDeclarationStatement(
   path: AstPath<DecoratorDeclarationStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const id = path.call(print, "id");
   const parameters = [
     group([
@@ -1406,7 +1403,7 @@ function printFunctionDeclarationStatement(
   path: AstPath<FunctionDeclarationStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const node = path.getValue();
   const id = path.call(print, "id");
   const parameters = [
@@ -1428,7 +1425,7 @@ function printFunctionParameterDeclaration(
   path: AstPath<FunctionParameterNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const node = path.getValue();
   const id = path.call(print, "id");
 
@@ -1447,7 +1444,7 @@ export function printModifiers(
   path: AstPath<DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): prettier.Doc {
+): Doc {
   const node = path.getValue();
   if (node.modifiers.length === 0) {
     return "";
@@ -1459,7 +1456,7 @@ export function printModifiers(
 function printStringLiteral(
   path: AstPath<StringLiteralNode>,
   options: TypeSpecPrettierOptions
-): prettier.doc.builders.Doc {
+): doc.builders.Doc {
   const node = path.getValue();
   return getRawText(node, options);
 }
@@ -1467,7 +1464,7 @@ function printStringLiteral(
 function printNumberLiteral(
   path: AstPath<NumericLiteralNode>,
   options: TypeSpecPrettierOptions
-): prettier.doc.builders.Doc {
+): doc.builders.Doc {
   const node = path.getValue();
   return getRawText(node, options);
 }
@@ -1475,7 +1472,7 @@ function printNumberLiteral(
 function printBooleanLiteral(
   path: AstPath<BooleanLiteralNode>,
   options: TypeSpecPrettierOptions
-): prettier.doc.builders.Doc {
+): doc.builders.Doc {
   const node = path.getValue();
   return node.value ? "true" : "false";
 }

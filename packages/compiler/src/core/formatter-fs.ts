@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "fs/promises";
 import { globby } from "globby";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
 import { normalizePath } from "./path-utils.js";

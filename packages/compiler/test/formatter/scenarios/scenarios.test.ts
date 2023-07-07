@@ -2,7 +2,7 @@ import { strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import { fileURLToPath } from "url";
 import * as plugin from "../../../src/formatter/index.js";
 

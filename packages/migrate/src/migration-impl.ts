@@ -1,7 +1,7 @@
 import { NodePackage, TextRange } from "@typespec/compiler";
 import * as fs from "fs";
 import { readFile, writeFile } from "fs/promises";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import { TypeSpecCompilers } from "./migration-config.js";
 import {
   AstContentMigrateAction,

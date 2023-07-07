@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import * as prettier from "prettier";
 import * as typespecPrettierPlugin from "../formatter/index.js";
 export { printId as formatIdentifier } from "../formatter/print/printer.js";
 

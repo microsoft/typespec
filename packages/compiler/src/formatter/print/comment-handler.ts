@@ -1,4 +1,5 @@
-import prettier, { Printer } from "prettier";
+import * as prettier from "prettier";
+import { Printer } from "prettier";
 import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
 
 const { util } = prettier;

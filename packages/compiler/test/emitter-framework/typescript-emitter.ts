@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import * as prettier from "prettier";
 import {
   BooleanLiteral,
   Enum,
