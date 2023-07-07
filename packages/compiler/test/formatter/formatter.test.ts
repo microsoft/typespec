@@ -1,4 +1,4 @@
-import { rejects, strictEqual, throws } from "assert";
+import { rejects, strictEqual } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../src/formatter/index.js";
 
