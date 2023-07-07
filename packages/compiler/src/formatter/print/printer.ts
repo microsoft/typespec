@@ -93,6 +93,7 @@ const DecoratorsTryInline = {
 
 export const typespecPrinter: Printer<Node> = {
   print: printTypeSpec,
+  isBlockComment: (node: any) => isBlockComment(node),
   canAttachComment: canAttachComment,
   printComment: printComment,
   handleComments: commentHandler,

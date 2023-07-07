@@ -1,4 +1,4 @@
-import { strictEqual, throws } from "assert";
+import { rejects, strictEqual, throws } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../src/formatter/index.js";
 
@@ -25,10 +25,10 @@ async function assertFormat({
 }
 
 describe("compiler: prettier formatter", () => {
-  it("throws error if there is a parsing issue", () => {
+  it("throws error if there is a parsing issue", async () => {
     const code = `namespace this is invalid`;
 
-    throws(() => format(code));
+    await rejects(() => format(code));
   });
 
   it("format imports", async () => {
