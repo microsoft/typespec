@@ -1,5 +1,6 @@
 // --------------------------------------------------
 //  Unfortunately have to make our own `AstPath` as prettier types have issue with readonly Array.
+// https://github.com/prettier/prettier/issues/15034
 // --------------------------------------------------
 export type AST = any;
 

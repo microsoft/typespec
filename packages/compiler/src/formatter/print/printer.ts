@@ -11,6 +11,7 @@ import {
   BlockComment,
   BooleanLiteralNode,
   Comment,
+  TemplateableNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
@@ -392,7 +393,7 @@ export function printAliasStatement(
   return ["alias ", id, template, " = ", path.call(print, "value"), ";"];
 }
 
-function printTemplateParameters<T extends Node>(
+function printTemplateParameters<T extends TemplateableNode>(
   path: AstPath<T>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,

@@ -662,7 +662,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
-  sourceFile(sourceFile: SourceFile<T>): EmittedSourceFile {
+  sourceFile(sourceFile: SourceFile<T>): Promise<EmittedSourceFile> | EmittedSourceFile {
     const emittedSourceFile: EmittedSourceFile = {
       path: sourceFile.path,
       contents: "",
@@ -677,7 +677,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
 
   async writeOutput(sourceFiles: SourceFile<T>[]) {
     for (const file of sourceFiles) {
-      const outputFile = this.emitter.emitSourceFile(file);
+      const outputFile = await this.emitter.emitSourceFile(file);
       await emitFile(this.emitter.getProgram(), {
         path: outputFile.path,
         content: outputFile.contents,
