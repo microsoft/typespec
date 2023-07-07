@@ -13,6 +13,7 @@ export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOption
     return false;
   }
 
+  // eslint-disable-next-line deprecation/deprecation
   const node = path.getValue();
   switch (node.kind) {
     case SyntaxKind.IntersectionExpression:
