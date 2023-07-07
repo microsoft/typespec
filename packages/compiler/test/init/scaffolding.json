@@ -1,0 +1,63 @@
+{
+  "without-version": {
+    "title": "Test template without version",
+    "description": "This template does not specify minimum version",
+    "libraries": [],
+    "skipCompilerPackage": true,
+    "config": {},
+    "files": [
+      {
+        "path": "./main.tsp",
+        "destination": "main.tsp"
+      }
+    ]
+  },
+  "version-not-met": {
+    "compilerVersion": "99.0.0",
+    "title": "Test template version not met",
+    "description": "This template has minimum version but not met",
+    "libraries": [],
+    "skipCompilerPackage": true,
+    "config": {},
+    "files": [
+      {
+        "path": "./main.tsp",
+        "destination": "main.tsp"
+      }
+    ]
+  },
+  "version-met-invalid": {
+    "compilerVersion": "0.44.0",
+    "title": "Test template version met but schema invalid",
+    "description": "Test template version met but schema invalid",
+    "libraries": [],
+    "skipCompilerPackage": true,
+    "config": {},
+    "files": [
+      {
+        "path": "./main.tsp",
+        "destination": "main.tsp"
+      }
+    ],
+    "randomMessage": "random message"
+  },
+  "version-met-valid": {
+    "compilerVersion": "0.44.0",
+    "title": "Test template version met and schema valid",
+    "description": "Test template version met but schema invalid",
+    "libraries": [],
+    "skipCompilerPackage": true,
+    "config": {},
+    "files": [
+      {
+        "path": "./main.tsp",
+        "destination": "main.tsp"
+      },
+      {
+        "path": "package.json",
+        "destination": "package.json",
+        "skipGeneration": true
+      }
+    ]
+  }
+}
