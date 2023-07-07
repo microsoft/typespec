@@ -1065,6 +1065,9 @@ importers:
       mocha-multi-reporters:
         specifier: ~1.5.1
         version: 1.5.1(mocha@10.2.0)
+      prettier_2:
+        specifier: npm:prettier@2.8.7
+        version: /prettier@2.8.7
       rollup:
         specifier: ~3.24.0
         version: 3.24.0
@@ -12675,7 +12678,6 @@ packages:
     resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-    dev: false
 
   /prettier@3.0.0:
     resolution: {integrity: sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==}
