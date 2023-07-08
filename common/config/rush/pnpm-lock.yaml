@@ -819,9 +819,6 @@ importers:
       monaco-editor:
         specifier: ~0.39.0
         version: 0.39.0
-      prettier:
-        specifier: ~3.0.0
-        version: 3.0.0
       react:
         specifier: ~18.2.0
         version: 18.2.0
