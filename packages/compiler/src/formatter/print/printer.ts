@@ -1,6 +1,7 @@
 //  TODO revisit `getValue` is deprecated.
 /* eslint-disable deprecation/deprecation */
-import { doc, Doc, Printer, util } from "prettier";
+import { Doc, Printer, util } from "prettier";
+import { builders } from "prettier/doc";
 import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
 import { Keywords } from "../../core/scanner.js";
@@ -76,8 +77,7 @@ import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
 import { AstPath } from "./prettier-ast-path.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
-
-const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = doc.builders;
+const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = builders;
 
 const { isNextLineEmpty } = util as any;
 
@@ -1343,7 +1343,7 @@ export function printTypeReference(
   path: AstPath<TypeReferenceNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): doc.builders.Doc {
+): Doc {
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
   return [type, template];
@@ -1353,7 +1353,7 @@ export function printValueOfExpression(
   path: AstPath<ValueOfExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
-): doc.builders.Doc {
+): Doc {
   const type = path.call(print, "target");
   return ["valueof ", type];
 }
@@ -1456,7 +1456,7 @@ export function printModifiers(
 function printStringLiteral(
   path: AstPath<StringLiteralNode>,
   options: TypeSpecPrettierOptions
-): doc.builders.Doc {
+): Doc {
   const node = path.getValue();
   return getRawText(node, options);
 }
@@ -1464,7 +1464,7 @@ function printStringLiteral(
 function printNumberLiteral(
   path: AstPath<NumericLiteralNode>,
   options: TypeSpecPrettierOptions
-): doc.builders.Doc {
+): Doc {
   const node = path.getValue();
   return getRawText(node, options);
 }
@@ -1472,7 +1472,7 @@ function printNumberLiteral(
 function printBooleanLiteral(
   path: AstPath<BooleanLiteralNode>,
   options: TypeSpecPrettierOptions
-): doc.builders.Doc {
+): Doc {
   const node = path.getValue();
   return node.value ? "true" : "false";
 }

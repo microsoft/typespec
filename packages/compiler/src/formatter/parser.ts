@@ -1,4 +1,4 @@
-import { ParserOptions } from "prettier";
+import type { ParserOptions } from "prettier";
 import { getSourceLocation } from "../core/diagnostics.js";
 import { parse as typespecParse, visitChildren } from "../core/parser.js";
 import { Diagnostic, Node, SyntaxKind, TypeSpecScriptNode } from "../core/types.js";

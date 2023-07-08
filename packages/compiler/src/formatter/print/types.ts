@@ -1,4 +1,4 @@
-import { Doc, ParserOptions } from "prettier";
+import type { Doc, ParserOptions } from "prettier";
 import { DecoratorExpressionNode } from "../../core/types.js";
 
 export interface TypeSpecPrettierOptions extends ParserOptions {}

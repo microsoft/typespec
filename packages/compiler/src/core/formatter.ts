@@ -1,4 +1,5 @@
-import { Options, check, format } from "prettier";
+import type { Options } from "prettier";
+import { check, format } from "prettier/standalone";
 import * as typespecPrettierPlugin from "../formatter/index.js";
 export { printId as formatIdentifier } from "../formatter/print/printer.js";
 
