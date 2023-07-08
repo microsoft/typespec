@@ -49,6 +49,9 @@ importers:
 
   ../../packages/bundler:
     dependencies:
+      '@rollup/plugin-alias':
+        specifier: ~5.0.0
+        version: 5.0.0(rollup@3.24.0)
       '@rollup/plugin-commonjs':
         specifier: ~25.0.0
         version: 25.0.0(rollup@3.24.0)
@@ -165,9 +168,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
       '@types/prompts':
         specifier: ~2.4.3
         version: 2.4.3
@@ -329,9 +329,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
       '@types/react':
         specifier: ~18.2.9
         version: 18.2.9
@@ -635,9 +632,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
       '@types/semver':
         specifier: ^7.3.13
         version: 7.3.13
@@ -865,9 +859,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
       '@types/react':
         specifier: ~18.2.9
         version: 18.2.9
@@ -977,9 +968,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
       '@types/react':
         specifier: ~18.2.9
         version: 18.2.9
@@ -1126,9 +1114,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.7.0
         version: link:../eslint-config-typespec
@@ -5948,6 +5933,19 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: false
 
+  /@rollup/plugin-alias@5.0.0(rollup@3.24.0):
+    resolution: {integrity: sha512-l9hY5chSCjuFRPsnRm16twWBiSApl2uYFLsepQYwtBuAxNMQ/1dJqADld40P0Jkqm65GRTLy/AC6hnpVebtLsA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 3.24.0
+      slash: 4.0.0
+    dev: false
+
   /@rollup/plugin-commonjs@25.0.0(rollup@3.24.0):
     resolution: {integrity: sha512-hoho2Kay9TZrLu0bnDsTTCaj4Npa+THk9snajP/XDNb9a9mmjTjh52EQM9sKl3HD1LsnihX7js+eA2sd2uKAhw==}
     engines: {node: '>=14.0.0'}
@@ -6474,10 +6472,6 @@ packages:
     dependencies:
       '@types/node': 18.11.9
       xmlbuilder: 15.1.1
-    dev: true
-
-  /@types/prettier@2.6.0:
-    resolution: {integrity: sha512-G/AdOadiZhnJp0jXCaBQU449W2h716OW/EoXeYkCytxKL06X1WCXB4DZpp8TpZ8eyIJVS1cw4lrlkkSYU21cDw==}
     dev: true
 
   /@types/prompts@2.4.3:

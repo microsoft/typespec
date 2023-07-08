@@ -1,8 +1,5 @@
-import * as prettier from "prettier";
-import { Printer } from "prettier";
+import { Printer, util } from "prettier";
 import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
-
-const { util } = prettier;
 
 interface CommentNode {
   precedingNode?: Node;

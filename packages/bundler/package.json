@@ -44,7 +44,8 @@
     "@rollup/plugin-json": "~6.0.0",
     "@rollup/plugin-node-resolve": "~15.1.0",
     "@rollup/plugin-multi-entry": "~6.0.0",
-    "rollup": "~3.24.0"
+    "rollup": "~3.24.0",
+    "@rollup/plugin-alias": "~5.0.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
