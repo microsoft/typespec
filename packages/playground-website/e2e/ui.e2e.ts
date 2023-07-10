@@ -29,8 +29,10 @@ test.describe("playground UI tests", () => {
     await typespecEditorContainer.type("op sharedCode(): string;");
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
-      // cspell:disable-next-line
-      page.waitForURL(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`),
+      page.waitForURL(
+        // cspell:disable-next-line
+        `${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7&e=%40typespec%2Fopenapi3&options=%7B%7D`
+      ),
       page.keyboard.press(`${ctrlOrCmd}+KeyS`),
     ]);
   });

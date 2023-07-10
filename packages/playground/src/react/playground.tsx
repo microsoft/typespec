@@ -55,7 +55,21 @@ export interface PlaygroundProps {
   /** Custom viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
-  onSave?: (value: string) => void;
+  onSave?: (value: PlaygroundSaveData) => void;
+}
+
+export interface PlaygroundSaveData {
+  /** Current content of the playground.   */
+  content: string;
+
+  /** Emitter name. */
+  emitter: string;
+
+  /** Emitter options. */
+  options?: EmitterOptions;
+
+  /** If a sample is selected and the content hasn't changed since. */
+  sampleName?: string;
 }
 
 export interface PlaygroundLinks {
@@ -88,12 +102,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultSampleName,
     props.onSampleNameChange
   );
-  const [content] = useControllableValue(undefined, props.defaultContent);
+  const [content, setContent] = useState(props.defaultContent);
+  const isSampleUntouched = useMemo(() => {
+    return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
+  }, [content, selectedSampleName, props.samples]);
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
+    setContent(content);
     const typespecCompiler = await importTypeSpecCompiler();
 
     const state = await compile(host, content, selectedEmitter, emitterOptions);
@@ -110,20 +128,20 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, emitterOptions, typespecModel]);
+  }, [host, selectedEmitter, emitterOptions, typespecModel, setContent]);
 
   const updateTypeSpec = useCallback(
     (value: string) => {
-      typespecModel.setValue(value);
+      if (typespecModel.getValue() !== value) {
+        typespecModel.setValue(value);
+      }
     },
     [typespecModel]
   );
   useEffect(() => {
-    if (content !== undefined) {
-      const newContent = content ?? "";
-      updateTypeSpec(newContent);
-    }
-  }, [content, updateTypeSpec]);
+    updateTypeSpec(props.defaultContent ?? "");
+  }, []);
+
   useEffect(() => {
     if (selectedSampleName && props.samples) {
       const config = props.samples[selectedSampleName];
@@ -149,23 +167,35 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     void doCompile();
   }, [doCompile]);
 
-  const saveCode = useCallback(async () => {
+  const saveCode = useCallback(() => {
     if (onSave) {
-      onSave(typespecModel.getValue());
+      onSave({
+        content: typespecModel.getValue(),
+        emitter: selectedEmitter,
+        options: emitterOptions,
+        sampleName: isSampleUntouched ? selectedSampleName : undefined,
+      });
     }
-  }, [typespecModel, onSave]);
+  }, [
+    typespecModel,
+    onSave,
+    selectedEmitter,
+    emitterOptions,
+    selectedSampleName,
+    isSampleUntouched,
+  ]);
 
   const newIssue = useCallback(async () => {
-    await saveCode();
+    saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `${props?.links?.githubIssueUrl}?body=${bodyPayload}`;
     window.open(url, "_blank");
   }, [saveCode, typespecModel]);
 
-  const typespecEditorCommands = useMemo(
-    () => [
+  const typespecEditorActions = useMemo(
+    (): editor.IActionDescriptor[] => [
       // ctrl/cmd+S => save
-      { binding: KeyMod.CtrlCmd | KeyCode.KeyS, handle: saveCode },
+      { id: "save", label: "Save", keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS], run: saveCode },
     ],
     [saveCode]
   );
@@ -197,7 +227,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
           documentationUrl={props.links?.documentationUrl}
         />
-        <TypeSpecEditor model={typespecModel} commands={typespecEditorCommands} />
+        <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
       </div>
       <div
         css={{

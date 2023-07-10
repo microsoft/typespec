@@ -29,7 +29,6 @@ paths:
               required:
                 - thing
                 - thing2
-              x-typespec-name: SubC.(anonymous model)
   /sub/a/subsub:
     post:
       operationId: SubSubA_doSomething

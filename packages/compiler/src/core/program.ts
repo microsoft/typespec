@@ -9,6 +9,7 @@ import {
   resolveTypeSpecEntrypointForDir,
 } from "./entrypoint-resolution.js";
 import { getLibraryUrlsLoaded } from "./library.js";
+import { createLinter } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
@@ -32,6 +33,7 @@ import {
   EmitContext,
   EmitterFunc,
   JsSourceFileNode,
+  LibraryInstance,
   LibraryMetadata,
   LiteralType,
   LocationContext,
@@ -329,20 +331,22 @@ export async function compile(
 
   if (resolvedMain) {
     await loadMain(resolvedMain);
+  } else {
+    return program;
   }
 
-  if (resolvedMain) {
-    let emit = options.emit;
-    let emitterOptions = options.options;
-    /* eslint-disable deprecation/deprecation */
-    if (options.emitters) {
-      emit ??= Object.keys(options.emitters);
-      emitterOptions ??= options.emitters;
-    }
-    /* eslint-enable deprecation/deprecation */
+  const basedir = getDirectoryPath(resolvedMain);
 
-    await loadEmitters(resolvedMain, emit ?? [], emitterOptions ?? {});
+  let emit = options.emit;
+  let emitterOptions = options.options;
+  /* eslint-disable deprecation/deprecation */
+  if (options.emitters) {
+    emit ??= Object.keys(options.emitters);
+    emitterOptions ??= options.emitters;
   }
+  /* eslint-enable deprecation/deprecation */
+
+  await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
 
   if (
     oldProgram &&
@@ -355,12 +359,17 @@ export async function compile(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
+  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  if (options.linterRuleSet) {
+    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
+  }
   program.checker = createChecker(program);
   program.checker.checkProgram();
 
   if (program.hasError()) {
     return program;
   }
+  // onValidate stage
   for (const cb of validateCbs) {
     try {
       await cb(program);
@@ -396,6 +405,10 @@ export async function compile(
     return program;
   }
 
+  // Linter stage
+  program.reportDiagnostics(linter.lint());
+
+  // Emitter stage
   for (const instance of emitters) {
     await runEmitter(instance);
   }
@@ -639,12 +652,12 @@ export async function compile(
   }
 
   async function loadEmitters(
-    mainFile: string,
+    basedir: string,
     emitterNameOrPaths: string[],
     emitterOptions: Record<string, EmitterOptions>
   ) {
     for (const emitterNameOrPath of emitterNameOrPaths) {
-      const emitter = await loadEmitter(mainFile, emitterNameOrPath, emitterOptions);
+      const emitter = await loadEmitter(basedir, emitterNameOrPath, emitterOptions);
       if (emitter) {
         emitters.push(emitter);
       }
@@ -652,7 +665,7 @@ export async function compile(
   }
 
   async function resolveEmitterModuleAndEntrypoint(
-    mainFile: string,
+    basedir: string,
     emitterNameOrPath: string
   ): Promise<
     [
@@ -660,7 +673,6 @@ export async function compile(
       readonly Diagnostic[]
     ]
   > {
-    const basedir = getDirectoryPath(mainFile);
     const locationContext: LocationContext = { type: "project" };
     // attempt to resolve a node module with this name
     const [module, diagnostics] = await resolveJSLibrary(
@@ -677,14 +689,14 @@ export async function compile(
 
     return [{ module, entrypoint: file }, []];
   }
-  async function loadEmitter(
-    mainFile: string,
-    emitterNameOrPath: string,
-    emittersOptions: Record<string, EmitterOptions>
-  ): Promise<EmitterRef | undefined> {
+
+  async function loadLibrary(
+    basedir: string,
+    libraryNameOrPath: string
+  ): Promise<LibraryInstance | undefined> {
     const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
-      mainFile,
-      emitterNameOrPath
+      basedir,
+      libraryNameOrPath
     );
 
     if (resolution === undefined) {
@@ -693,6 +705,28 @@ export async function compile(
     }
     const { module, entrypoint } = resolution;
 
+    const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
+    const metadata = computeLibraryMetadata(module, libDefinition);
+
+    return {
+      ...resolution,
+      metadata,
+      definition: libDefinition,
+    };
+  }
+
+  async function loadEmitter(
+    basedir: string,
+    emitterNameOrPath: string,
+    emittersOptions: Record<string, EmitterOptions>
+  ): Promise<EmitterRef | undefined> {
+    const library = await loadLibrary(basedir, emitterNameOrPath);
+
+    if (library === undefined) {
+      return undefined;
+    }
+
+    const { entrypoint, metadata } = library;
     if (entrypoint === undefined) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -705,8 +739,7 @@ export async function compile(
     }
 
     const emitFunction = entrypoint.esmExports.$onEmit;
-    const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint.esmExports.$lib;
-    const metadata = computeLibraryMetadata(module, libDefinition);
+    const libDefinition = library.definition;
 
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};

@@ -1,0 +1,19 @@
+{
+  "title": "Employees_Delete",
+  "operationId": "Employees_Delete",
+  "parameters": {
+    "api-version": "2021-10-01-preview",
+    "subscriptionId": "11809CA1-E126-4017-945E-AA795CD5C5A9",
+    "resourceGroupName": "rgopenapi",
+    "employeeName": "5vX--BxSu3ux48rI4O9OQ569"
+  },
+  "responses": {
+    "200": {},
+    "202": {
+      "headers": {
+        "location": "https://contoso.com/operationstatus"
+      }
+    },
+    "204": {}
+  }
+}

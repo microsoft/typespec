@@ -67,7 +67,6 @@ components:
           type: array
           items:
             type: string
-          x-typespec-name: string[]
       required:
         - type
         - nextWalkTime
@@ -96,7 +95,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Library.PetToy'
-          x-typespec-name: Library.PetToy[]
       discriminator:
         propertyName: type
         mapping:
