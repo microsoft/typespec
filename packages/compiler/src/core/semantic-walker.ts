@@ -5,6 +5,7 @@ import {
   Enum,
   Interface,
   ListenerFlow,
+  MemberAccessType,
   Model,
   ModelProperty,
   Namespace,
@@ -321,6 +322,14 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   }
 }
 
+function navigateMemberAccess(type: MemberAccessType, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("memberAccess", type) === ListenerFlow.NoRecursion) return;
+  navigateTypeInternal(type.value, context);
+}
+
 function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
@@ -357,6 +366,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateUnionTypeVariant(type, context);
     case "Tuple":
       return navigateTupleType(type, context);
+    case "MemberAccess":
+      return navigateMemberAccess(type, context);
     case "TemplateParameter":
       return navigateTemplateParameter(type, context);
     case "Decorator":

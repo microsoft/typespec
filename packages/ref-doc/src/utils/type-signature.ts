@@ -46,13 +46,14 @@ export function getTypeSignature(type: Type | ValueType): string {
       return `(number) ${type.value.toString()}`;
     case "Intrinsic":
       return `(intrinsic) ${type.name}`;
-
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
     case "ModelProperty":
       return `(model property) ${`${type.name}: ${getTypeName(type.type)}`}`;
     case "EnumMember":
       return `(enum member) ${getEnumMemberSignature(type)}`;
+    case "MemberAccess":
+      return `(member access) ${getTypeSignature(type.base)}.${type.id}`;
     case "TemplateParameter":
       return type.node.id.sv;
     case "UnionVariant":
