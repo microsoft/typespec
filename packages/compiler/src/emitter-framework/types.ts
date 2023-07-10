@@ -1,6 +1,7 @@
 import {
   Enum,
   Interface,
+  IntrinsicType,
   Model,
   ModelProperty,
   Operation,
@@ -11,6 +12,7 @@ import {
   Union,
 } from "../core/index.js";
 import { Placeholder } from "./placeholder.js";
+import { TypeEmitter } from "./type-emitter.js";
 type AssetEmitterOptions<TOptions extends object> = {
   noEmit: boolean;
   emitterOutputDir: string;
@@ -27,7 +29,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   getOptions(): AssetEmitterOptions<TOptions>;
   getProgram(): Program;
   emitTypeReference(type: Type): EmitEntity<T>;
-  emitDeclarationName(type: TypeSpecDeclaration): string;
+  emitDeclarationName(type: TypeSpecDeclaration): string | undefined;
   emitType(type: Type): EmitEntity<T>;
   emitProgram(options?: { emitGlobalNamespace?: boolean; emitTypeSpecNamespace?: boolean }): void;
   emitModelProperties(model: Model): EmitEntity<T>;
@@ -39,7 +41,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   emitEnumMembers(en: Enum): EmitEntity<T>;
   emitUnionVariants(union: Union): EmitEntity<T>;
   emitTupleLiteralValues(tuple: Tuple): EmitEntity<T>;
-
+  emitSourceFile(sourceFile: SourceFile<T>): EmittedSourceFile;
   /**
    * Create a source file.
    *
@@ -86,6 +88,7 @@ export interface SourceFile<T> {
   path: string;
   globalScope: Scope<T>;
   imports: Map<string, string[]>;
+  meta: Record<string, any>;
 }
 
 export interface EmittedSourceFile {
@@ -98,6 +101,7 @@ export type EmitEntity<T> = Declaration<T> | RawCode<T> | NoEmit | CircularEmit;
 export class EmitterResult {}
 export class Declaration<T> extends EmitterResult {
   public kind = "declaration" as const;
+  public meta: Record<string, any> = {};
 
   constructor(public name: string, public scope: Scope<T>, public value: T | Placeholder<T>) {
     if (value instanceof Placeholder) {
@@ -142,7 +146,14 @@ export type AssetTagFactory = {
   (value: string): AssetTagInstance;
 };
 
-export type TypeSpecDeclaration = Model | Interface | Union | Operation | Enum | Scalar;
+export type TypeSpecDeclaration =
+  | Model
+  | Interface
+  | Union
+  | Operation
+  | Enum
+  | Scalar
+  | IntrinsicType;
 
 export interface ContextState {
   lexicalContext: Record<string, any>;
@@ -152,7 +163,24 @@ export interface ContextState {
 export type Context = Record<string, any>;
 export type ESRecord = Record<string, any> & { _record: true };
 
+type EndingWith<Names, Name extends string> = Names extends `${infer _X}${Name}` ? Names : never;
+
+export type TypeEmitterMethod = keyof Omit<
+  TypeEmitter<any, any>,
+  | "sourceFile"
+  | "declarationName"
+  | "reference"
+  | "emitValue"
+  | "writeOutput"
+  | EndingWith<keyof TypeEmitter<any, any>, "Context">
+>;
+
+export interface LexicalTypeStackEntry {
+  method: TypeEmitterMethod;
+  args: any[];
+}
+
 export interface EmitterState {
-  lexicalTypeStack: Type[];
+  lexicalTypeStack: LexicalTypeStackEntry[];
   context: ContextState;
 }

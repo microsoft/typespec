@@ -302,7 +302,6 @@ describe("openapi3: metadata", () => {
                 type: "string",
               },
             ],
-            "x-typespec-name": "M | string",
           },
         },
       },
@@ -318,7 +317,6 @@ describe("openapi3: metadata", () => {
                 type: "string",
               },
             ],
-            "x-typespec-name": "M | string",
           },
         },
       },
@@ -334,7 +332,6 @@ describe("openapi3: metadata", () => {
                 type: "string",
               },
             ],
-            "x-typespec-name": "M | string",
           },
         },
       },
@@ -350,7 +347,6 @@ describe("openapi3: metadata", () => {
                 type: "string",
               },
             ],
-            "x-typespec-name": "M | string",
           },
         },
       },
@@ -366,7 +362,6 @@ describe("openapi3: metadata", () => {
                 type: "string",
               },
             ],
-            "x-typespec-name": "M | string",
           },
         },
       },
@@ -419,7 +414,6 @@ describe("openapi3: metadata", () => {
                 schema: {
                   type: "array",
                   items: { $ref: "#/components/schemas/Parameters" },
-                  "x-typespec-name": "Parameters[]",
                 },
               },
             },
@@ -519,7 +513,6 @@ describe("openapi3: metadata", () => {
                   },
                   required: ["foo", "bar"],
                   type: "object",
-                  "x-typespec-name": "(anonymous model)",
                 },
               },
             },
@@ -558,7 +551,6 @@ describe("openapi3: metadata", () => {
                 schema: {
                   type: "array",
                   items: { $ref: "#/components/schemas/Parameters" },
-                  "x-typespec-name": "Parameters[]",
                 },
               },
             },
@@ -606,7 +598,6 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, {
       type: "array",
       items: { $ref: "#/components/schemas/ThingItem" },
-      "x-typespec-name": "Thing[]",
     });
 
     deepStrictEqual(res.components, {

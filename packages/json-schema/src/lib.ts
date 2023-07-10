@@ -30,9 +30,16 @@ export interface JSONSchemaEmitterOptions {
    * the @jsonSchema decorator.
    */
   emitAllModels?: boolean;
+
+  /**
+   * When true, emit all references as json schema files, even if the referenced
+   * type does not have the `@jsonSchema` decorator or is not within a namespace
+   * with the `@jsonSchema` decorator.
+   */
+  emitAllRefs?: boolean;
 }
 
-const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
+export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -63,6 +70,12 @@ const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
       description:
         "When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.",
     },
+    emitAllRefs: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.",
+    },
   },
   required: [],
 };
@@ -76,6 +89,7 @@ export const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
+
 export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type JsonSchemaLibrary = typeof $lib;

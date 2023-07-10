@@ -20,17 +20,31 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
   return host;
 }
 
-export async function emitSchema(code: string, options: JSONSchemaEmitterOptions = {}) {
+export async function emitSchema(
+  code: string,
+  options: JSONSchemaEmitterOptions = {},
+  testOptions: { emitNamespace?: boolean; emitTypes?: string[] } = { emitNamespace: true }
+) {
   if (!options["file-type"]) {
     options["file-type"] = "json";
   }
-  code = `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test;` + code;
+
+  code = testOptions.emitNamespace
+    ? `import "@typespec/json-schema"; using TypeSpec.JsonSchema; @jsonSchema namespace test; ${code}`
+    : `import "@typespec/json-schema"; using TypeSpec.JsonSchema; ${code}`;
   const host = await getHostForCadlFile(code);
   const emitter = createAssetEmitter(host.program, JsonSchemaEmitter, {
     emitterOutputDir: "cadl-output",
     options,
   } as any);
-  emitter.emitType(host.program.resolveTypeReference("test")[0]!);
+  if (testOptions.emitTypes === undefined) {
+    emitter.emitType(host.program.resolveTypeReference("test")[0]!);
+  } else {
+    for (const name of testOptions.emitTypes) {
+      emitter.emitType(host.program.resolveTypeReference(name)[0]!);
+    }
+  }
+
   await emitter.writeOutput();
   const schemas: Record<string, any> = {};
   const files = await emitter.getProgram().host.readDir("./cadl-output");

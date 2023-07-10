@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Fix a bug that could result in a schema being bundled more than once.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}

@@ -137,6 +137,9 @@ importers:
       prompts:
         specifier: ~2.4.1
         version: 2.4.1
+      semver:
+        specifier: ^7.3.8
+        version: 7.3.8
       vscode-languageserver:
         specifier: ~8.1.0
         version: 8.1.0
@@ -168,6 +171,9 @@ importers:
       '@types/prompts':
         specifier: ~2.4.3
         version: 2.4.3
+      '@types/semver':
+        specifier: ^7.3.13
+        version: 7.3.13
       '@types/sinon':
         specifier: ~10.0.13
         version: 10.0.13
@@ -1429,6 +1435,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~0.45.0
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:~0.45.0
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.45.0
         version: link:../openapi
@@ -3105,9 +3114,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.7.1
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 7.0.0
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.3.1
     dev: false
 
@@ -3127,9 +3136,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.7.1
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -3149,9 +3158,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -6812,9 +6821,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -6834,9 +6843,9 @@ packages:
       node-watch: 0.7.1
       picocolors: 1.0.0
       prettier: 2.8.7
-      prompts: 2.4.1
+      prompts: 2.4.2
       vscode-languageserver: 8.0.2
-      vscode-languageserver-textdocument: 1.0.1
+      vscode-languageserver-textdocument: 1.0.8
       yargs: 17.6.2
     dev: false
 
@@ -15633,7 +15642,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
     dev: true
 
   /yargs@17.3.1:

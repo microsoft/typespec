@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Formatter incorrectly formatting `::` to `.`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

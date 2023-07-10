@@ -604,12 +604,10 @@ components:
           items:
             $ref: '#/components/schemas/Checkup'
           description: The items on this page
-          x-typespec-name: Checkup[]
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Checkup items
       required:
         - value
@@ -620,7 +618,7 @@ components:
           type: string
         notes:
           type: string
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Insurance:
       type: object
       properties:
@@ -647,7 +645,7 @@ components:
         deductible:
           type: integer
           format: int32
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Owner:
       type: object
       properties:
@@ -671,12 +669,10 @@ components:
           items:
             $ref: '#/components/schemas/Owner'
           description: The items on this page
-          x-typespec-name: Owner[]
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Owner items
       required:
         - value
@@ -688,7 +684,7 @@ components:
         age:
           type: integer
           format: int32
-      description: The template for adding updateable properties.
+      description: Resource create operation model.
       required:
         - name
         - age
@@ -700,7 +696,7 @@ components:
         age:
           type: integer
           format: int32
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Pet:
       type: object
       properties:
@@ -732,12 +728,10 @@ components:
           items:
             $ref: '#/components/schemas/Pet'
           description: The items on this page
-          x-typespec-name: Pet[]
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Pet items
       required:
         - value
@@ -756,7 +750,7 @@ components:
         ownerId:
           type: integer
           format: int64
-      description: The template for adding updateable properties.
+      description: Resource create operation model.
       required:
         - name
         - age
@@ -787,7 +781,7 @@ components:
         ownerId:
           type: integer
           format: int64
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Toy:
       type: object
       properties:
@@ -811,12 +805,10 @@ components:
           items:
             $ref: '#/components/schemas/Toy'
           description: The items on this page
-          x-typespec-name: Toy[]
         nextLink:
           type: string
           format: uri
           description: The link to the next page of items
-          x-typespec-name: TypeSpec.Rest.ResourceLocation
       description: Paged response of Toy items
       required:
         - value
