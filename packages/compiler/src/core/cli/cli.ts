@@ -9,7 +9,6 @@ try {
 /* eslint-disable no-console */
 import { spawnSync, SpawnSyncOptionsWithStringEncoding } from "child_process";
 import { mkdtemp, readdir, rm } from "fs/promises";
-import watch from "node-watch";
 import os from "os";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
@@ -23,11 +22,12 @@ import { installTypeSpecDependencies } from "../install.js";
 import { createConsoleSink } from "../logger/index.js";
 import { NodeHost } from "../node-host.js";
 import { CompilerOptions } from "../options.js";
-import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "../path-utils.js";
+import { getBaseFileName, joinPaths, resolvePath } from "../path-utils.js";
 import { compile, Program } from "../program.js";
 import { CompilerHost, Diagnostic } from "../types.js";
 import { ExternalError, typespecVersion } from "../util.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
+import { createWatcher, ProjectWatcher } from "./watch.js";
 
 async function main() {
   console.log(`TypeSpec compiler v${typespecVersion}\n`);
@@ -287,7 +287,7 @@ function compileInput(
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
       if (compilerOptions.watchForChanges) {
-        console.clear();
+        // console.clear();
       }
 
       currentCompilePromise = compile(host, resolve(path), compilerOptions)
@@ -302,7 +302,10 @@ function compileInput(
 
   const runCompile = () => void runCompilePromise();
 
+  let watcher: ProjectWatcher;
+
   const onCompileFinished = (program: Program) => {
+    watcher.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
     if (program.diagnostics.length > 0) {
       log("Diagnostics were reported during compilation:\n");
       logDiagnostics(program.diagnostics, host.logSink);
@@ -324,21 +327,11 @@ function compileInput(
   };
 
   if (compilerOptions.watchForChanges) {
+    watcher = createWatcher((name: string) => {
+      runCompile();
+    });
     runCompile();
     return new Promise((resolve, reject) => {
-      const watcher = (watch as any)(
-        path,
-        {
-          recursive: true,
-          filter: (f: string) =>
-            [".js", ".tsp", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 &&
-            !/node_modules/.test(f),
-        },
-        (e: any, name: string) => {
-          runCompile();
-        }
-      );
-
       // Handle Ctrl+C for termination
       process.on("SIGINT", () => {
         watcher.close();

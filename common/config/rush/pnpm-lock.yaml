@@ -126,8 +126,8 @@ importers:
         specifier: ~4.2.0
         version: 4.2.0
       node-watch:
-        specifier: ~0.7.1
-        version: 0.7.1
+        specifier: ~0.7.3
+        version: 0.7.3
       picocolors:
         specifier: ~1.0.0
         version: 1.0.0
@@ -3111,7 +3111,7 @@ packages:
       mkdirp: 1.0.4
       mustache: 4.2.0
       node-fetch: 3.2.8
-      node-watch: 0.7.1
+      node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.7.1
       prompts: 2.4.2
@@ -3133,7 +3133,7 @@ packages:
       mkdirp: 1.0.4
       mustache: 4.2.0
       node-fetch: 3.2.8
-      node-watch: 0.7.1
+      node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.7.1
       prompts: 2.4.2
@@ -3155,7 +3155,7 @@ packages:
       mkdirp: 1.0.4
       mustache: 4.2.0
       node-fetch: 3.2.8
-      node-watch: 0.7.1
+      node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.8.7
       prompts: 2.4.2
@@ -6818,7 +6818,7 @@ packages:
       mkdirp: 1.0.4
       mustache: 4.2.0
       node-fetch: 3.2.8
-      node-watch: 0.7.1
+      node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.8.7
       prompts: 2.4.2
@@ -6840,7 +6840,7 @@ packages:
       mkdirp: 1.0.4
       mustache: 4.2.0
       node-fetch: 3.2.8
-      node-watch: 0.7.1
+      node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.8.7
       prompts: 2.4.2
@@ -11762,8 +11762,8 @@ packages:
   /node-releases@2.0.12:
     resolution: {integrity: sha512-QzsYKWhXTWx8h1kIvqfnC++o0pEmpRQA/aenALsL2F4pqNVr7YzcdMlDij5WBnwftRbJCNJL/O7zdKaxKPHqgQ==}
 
-  /node-watch@0.7.1:
-    resolution: {integrity: sha512-UWblPYuZYrkCQCW5PxAwYSxaELNBLUckrTBBk8xr1/bUgyOkYYTsUcV4e3ytcazFEOyiRyiUrsG37pu6I0I05g==}
+  /node-watch@0.7.3:
+    resolution: {integrity: sha512-3l4E8uMPY1HdMMryPRUAl+oIHtXtyiTlIiESNSVSNxcPfzAFzeTbXFQkZfAwBbo0B1qMSG8nUABx+Gd+YrbKrQ==}
     engines: {node: '>=6'}
     dev: false
 
