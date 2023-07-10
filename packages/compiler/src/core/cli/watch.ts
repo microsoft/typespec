@@ -1,4 +1,7 @@
 import { FSWatcher, WatchEventType, watch } from "fs";
+import { pathToFileURL } from "url";
+import { NodeHost } from "../node-host.js";
+import { CompilerHost } from "../types.js";
 
 export interface ProjectWatcher {
   /** Set the files to watch. */
@@ -6,6 +9,10 @@ export interface ProjectWatcher {
 
   /** Close the watcher. */
   readonly close: () => void;
+}
+
+export interface WatchHost extends CompilerHost {
+  forceJSReload(): void;
 }
 
 export function createWatcher(
@@ -47,6 +54,17 @@ export function createWatcher(
   }
 }
 
+export function createWatchHost(): WatchHost {
+  let count = 0;
+  return {
+    ...NodeHost,
+    forceJSReload,
+    getJsImport: (path: string) => import(pathToFileURL(path).href + `?=${count}`),
+  };
+  function forceJSReload() {
+    count++;
+  }
+}
 function createDupsFilter() {
   let memo: Record<string, [WatchEventType, string]> = {};
   return function (fn: (e: WatchEventType, name: string) => void) {

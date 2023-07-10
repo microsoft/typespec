@@ -27,7 +27,7 @@ import { compile, Program } from "../program.js";
 import { CompilerHost, Diagnostic } from "../types.js";
 import { ExternalError, typespecVersion } from "../util.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
-import { createWatcher, ProjectWatcher } from "./watch.js";
+import { createWatcher, createWatchHost, ProjectWatcher, WatchHost } from "./watch.js";
 
 async function main() {
   console.log(`TypeSpec compiler v${typespecVersion}\n`);
@@ -287,7 +287,7 @@ function compileInput(
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
       if (compilerOptions.watchForChanges) {
-        // console.clear();
+        console.clear();
       }
 
       currentCompilePromise = compile(host, resolve(path), compilerOptions)
@@ -303,9 +303,11 @@ function compileInput(
   const runCompile = () => void runCompilePromise();
 
   let watcher: ProjectWatcher;
+  let watchHost: WatchHost;
 
   const onCompileFinished = (program: Program) => {
-    watcher.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
+    watchHost?.forceJSReload();
+    watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
     if (program.diagnostics.length > 0) {
       log("Diagnostics were reported during compilation:\n");
       logDiagnostics(program.diagnostics, host.logSink);
@@ -327,7 +329,8 @@ function compileInput(
   };
 
   if (compilerOptions.watchForChanges) {
-    watcher = createWatcher((name: string) => {
+    watchHost = host = createWatchHost();
+    watcher = createWatcher((_name: string) => {
       runCompile();
     });
     runCompile();
