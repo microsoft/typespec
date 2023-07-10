@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Fix** `getTypeName` include namespace prefix for unions as well",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
