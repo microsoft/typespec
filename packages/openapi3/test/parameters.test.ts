@@ -28,18 +28,78 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(
-        @query({name: "$select", format: "multi"}) selects: string[],
-        @query({name: "$order", format: "csv"}) orders: string[],
+        @query({name: "$select", format: "multi"}) selects?: string[],
+        @query({name: "$order", format: "csv"}) orders?: string[],
+        @query({name: "$tsv", format: "tsv"}) tsvs?: string[],
+        @query({name: "$ssv", format: "ssv"}) ssvs?: string[],
+        @query({name: "$pipes", format: "pipes"}) pipes?: string[]
       ): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "query");
-    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
-    strictEqual(res.paths["/"].get.parameters[0].style, "form");
-    strictEqual(res.paths["/"].get.parameters[0].explode, true);
-    strictEqual(res.paths["/"].get.parameters[1].in, "query");
-    strictEqual(res.paths["/"].get.parameters[1].name, "$order");
-    strictEqual(res.paths["/"].get.parameters[1].style, "simple");
+    const params = res.paths["/"].get.parameters;
+    deepStrictEqual(params[0], {
+      in: "query",
+      name: "$select",
+      style: "form",
+      required: false,
+      explode: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+    });
+    deepStrictEqual(params[1], {
+      in: "query",
+      name: "$order",
+      style: "simple",
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      required: false,
+    });
+    // deepStrictEqual(params[2], {
+    //   in: "query",
+    //   name: "$tsv",
+    //   style: "tabDelimited",
+    //   schema: {
+    //     type: "array",
+    //     items: {
+    //       type: "string",
+    //     },
+    //   },
+    //   required: false,
+    // });
+    deepStrictEqual(params[3], {
+      in: "query",
+      name: "$ssv",
+      style: "spaceDelimited",
+      required: false,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      explode: false,
+    });
+    deepStrictEqual(params[4], {
+      in: "query",
+      name: "$pipes",
+      style: "pipeDelimited",
+      required: false,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      explode: false,
+    });
   });
 
   it("create a query param that is a model property", async () => {

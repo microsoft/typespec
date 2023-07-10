@@ -1155,6 +1155,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       } else if (parameter.format === "multi") {
         ph.style = "form";
         ph.explode = true;
+      } else if (parameter.format === "ssv") {
+        ph.style = "spaceDelimited";
+        ph.explode = false;
+      } else if (parameter.format === "pipes") {
+        ph.style = "pipeDelimited";
+        ph.explode = false;
       }
     } else if (parameter.type === "header") {
       if (parameter.format === "csv") {
