@@ -28,20 +28,20 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(
-        @query({name: "$select", format: "multi"}) selects?: string[],
-        @query({name: "$order", format: "csv"}) orders?: string[],
-        @query({name: "$tsv", format: "tsv"}) tsvs?: string[],
-        @query({name: "$ssv", format: "ssv"}) ssvs?: string[],
-        @query({name: "$pipes", format: "pipes"}) pipes?: string[]
+        @query({name: "$multi", format: "multi"}) multis: string[],
+        @query({name: "$csv", format: "csv"}) csvs: string[],
+        @query({name: "$tsv", format: "tsv"}) tsvs: string[],
+        @query({name: "$ssv", format: "ssv"}) ssvs: string[],
+        @query({name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
       `
     );
     const params = res.paths["/"].get.parameters;
     deepStrictEqual(params[0], {
       in: "query",
-      name: "$select",
+      name: "$multi",
       style: "form",
-      required: false,
+      required: true,
       explode: true,
       schema: {
         type: "array",
@@ -52,7 +52,7 @@ describe("openapi3: parameters", () => {
     });
     deepStrictEqual(params[1], {
       in: "query",
-      name: "$order",
+      name: "$csv",
       style: "simple",
       schema: {
         type: "array",
@@ -60,8 +60,9 @@ describe("openapi3: parameters", () => {
           type: "string",
         },
       },
-      required: false,
+      required: true,
     });
+    // FIXME: tabDelimited is not supported in OpenAPI3...
     // deepStrictEqual(params[2], {
     //   in: "query",
     //   name: "$tsv",
@@ -72,13 +73,13 @@ describe("openapi3: parameters", () => {
     //       type: "string",
     //     },
     //   },
-    //   required: false,
+    //   required: true,
     // });
     deepStrictEqual(params[3], {
       in: "query",
       name: "$ssv",
       style: "spaceDelimited",
-      required: false,
+      required: true,
       schema: {
         type: "array",
         items: {
@@ -91,7 +92,7 @@ describe("openapi3: parameters", () => {
       in: "query",
       name: "$pipes",
       style: "pipeDelimited",
-      required: false,
+      required: true,
       schema: {
         type: "array",
         items: {
@@ -143,15 +144,83 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
   });
 
-  it("create an header param of array type", async () => {
+  it("create a header param of array type", async () => {
     const res = await openApiFor(
       `
-      op test(@header({name: "foo-bar", format: "csv"}) foo: string[]): void;
+      op test(
+        @header({name: "$csv", format: "csv"}) csvs: string[],
+        @header({name: "$multi", format: "multi"}) multis: string[],
+        @header({name: "$tsv", format: "tsv"}) tsvs: string[],
+        @header({name: "$ssv", format: "ssv"}) ssvs: string[],
+        @header({name: "$pipes", format: "pipes"}) pipes: string[]
+      ): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "header");
-    strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
-    strictEqual(res.paths["/"].get.parameters[0].style, "simple");
+    const params = res.paths["/"].get.parameters;
+    deepStrictEqual(params[0], {
+      in: "header",
+      name: "$csv",
+      style: "simple",
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      required: true,
+    });
+    deepStrictEqual(params[1], {
+      in: "header",
+      name: "$multi",
+      style: "form",
+      required: true,
+      explode: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+    });
+    // FIXME: tabDelimited is not supported in OpenAPI3...
+    // deepStrictEqual(params[2], {
+    //   in: "header",
+    //   name: "$tsv",
+    //   style: "tabDelimited",
+    //   schema: {
+    //     type: "array",
+    //     items: {
+    //       type: "string",
+    //     },
+    //   },
+    //   required: true,
+    // });
+    deepStrictEqual(params[3], {
+      in: "header",
+      name: "$ssv",
+      style: "spaceDelimited",
+      required: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      explode: false,
+    });
+    deepStrictEqual(params[4], {
+      in: "header",
+      name: "$pipes",
+      style: "pipeDelimited",
+      required: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      explode: false,
+    });
   });
 
   // Regression test for https://github.com/microsoft/typespec/issues/414

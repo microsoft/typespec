@@ -206,7 +206,7 @@ export type RouteProducer = (
 export interface HeaderFieldOptions {
   type: "header";
   name: string;
-  format?: "csv";
+  format?: string;
 }
 
 export interface QueryParameterOptions {

@@ -14,7 +14,7 @@ model HeaderOptions {
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "csv";
+  format?: "csv" | "multi" | "tsv" | "ssv" | "pipes";
 }
 
 /**
