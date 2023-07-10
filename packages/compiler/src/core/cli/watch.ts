@@ -16,12 +16,13 @@ export function createWatcher(
   return { updateWatchedFiles, close };
 
   function watchFile(file: string): FSWatcher {
-    return watch(
+    const watcher = watch(
       file,
-      dupFilter((event: WatchEventType, name: string) => {
-        onFileChanged(event, name);
+      dupFilter((event: WatchEventType, _name: string) => {
+        onFileChanged(event, file);
       })
     );
+    return watcher;
   }
 
   function close(): void {
