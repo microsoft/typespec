@@ -618,7 +618,7 @@ components:
           type: string
         notes:
           type: string
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Insurance:
       type: object
       properties:
@@ -645,7 +645,7 @@ components:
         deductible:
           type: integer
           format: int32
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Owner:
       type: object
       properties:
@@ -684,7 +684,7 @@ components:
         age:
           type: integer
           format: int32
-      description: The template for adding updateable properties.
+      description: Resource create operation model.
       required:
         - name
         - age
@@ -696,7 +696,7 @@ components:
         age:
           type: integer
           format: int32
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Pet:
       type: object
       properties:
@@ -750,7 +750,7 @@ components:
         ownerId:
           type: integer
           format: int64
-      description: The template for adding updateable properties.
+      description: Resource create operation model.
       required:
         - name
         - age
@@ -781,7 +781,7 @@ components:
         ownerId:
           type: integer
           format: int64
-      description: The template for adding optional properties.
+      description: Resource create or update operation model.
     Toy:
       type: object
       properties:

@@ -137,6 +137,9 @@ importers:
       prompts:
         specifier: ~2.4.1
         version: 2.4.1
+      semver:
+        specifier: ^7.3.8
+        version: 7.3.8
       vscode-languageserver:
         specifier: ~8.1.0
         version: 8.1.0
@@ -168,6 +171,9 @@ importers:
       '@types/prompts':
         specifier: ~2.4.3
         version: 2.4.3
+      '@types/semver':
+        specifier: ^7.3.13
+        version: 7.3.13
       '@types/sinon':
         specifier: ~10.0.13
         version: 10.0.13
@@ -15636,7 +15642,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
     dev: true
 
   /yargs@17.3.1:

@@ -289,19 +289,21 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
    * Set reference context for a model declaration.
    * @param model
    */
-  modelDeclarationReferenceContext(model: Model): Context {
+  modelDeclarationReferenceContext(model: Model, name: string): Context {
     return {};
   }
 
   /**
-   * Emit a model instantiation (e.g. as created by `Foo<string>` syntax in
-   * TypeSpec).
+   * Emit a model instantiation (e.g. as created by `Box<string>` syntax in
+   * TypeSpec). In some cases, `name` is undefined because a good name could
+   * not be found for the instantiation. This often occurs with for instantiations
+   * involving type expressions like `Box<string | int32>`.
    *
    * @param model
    * @param name The name of the instantiation as retrieved from the
    * `declarationName` method.
    */
-  modelInstantiation(model: Model, name: string): EmitterOutput<T> {
+  modelInstantiation(model: Model, name: string | undefined): EmitterOutput<T> {
     if (model.baseModel) {
       this.emitter.emitType(model.baseModel);
     }
@@ -313,7 +315,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
    * Set lexical context for a model instantiation.
    * @param model
    */
-  modelInstantiationContext(model: Model): Context {
+  modelInstantiationContext(model: Model, name: string | undefined): Context {
     return {};
   }
 
@@ -321,7 +323,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
    * Set reference context for a model declaration.
    * @param model
    */
-  modelInstantiationReferenceContext(model: Model): Context {
+  modelInstantiationReferenceContext(model: Model, name: string | undefined): Context {
     return {};
   }
 
@@ -336,6 +338,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
       this.emitter.emitModelProperty(prop);
     }
     return this.emitter.result.none();
+  }
+
+  modelPropertiesContext(model: Model): Context {
+    return {};
+  }
+
+  modelPropertiesReferenceContext(model: Model): Context {
+    return {};
   }
 
   /**
@@ -378,16 +388,26 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.emitTypeReference(property.type);
   }
 
+  /**
+   * Emit an enum member reference (e.g. as created by the `SomeEnum.member` syntax
+   * in TypeSpec). By default, this will emit nothing.
+   *
+   * @param property the enum member
+   */
+  enumMemberReference(member: EnumMember): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<T> {
     this.emitter.emitType(array.indexer!.value);
     return this.emitter.result.none();
   }
 
-  arrayDeclarationContext(array: Model): Context {
+  arrayDeclarationContext(array: Model, name: string, elementType: Type): Context {
     return {};
   }
 
-  arrayDeclarationReferenceContext(array: Model): Context {
+  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
     return {};
   }
 
@@ -395,11 +415,11 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  arrayLiteralContext(array: Model): Context {
+  arrayLiteralContext(array: Model, elementType: Type): Context {
     return {};
   }
 
-  arrayLiteralReferenceContext(array: Model): Context {
+  arrayLiteralReferenceContext(array: Model, elementType: Type): Context {
     return {};
   }
 
@@ -410,7 +430,15 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  scalarDeclarationContext(scalar: Scalar): Context {
+  scalarDeclarationContext(scalar: Scalar, name: string): Context {
+    return {};
+  }
+
+  scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
+  scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
     return {};
   }
 
@@ -418,9 +446,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  intrinsicContext(intrinsic: IntrinsicType): Context {
+  intrinsicContext(intrinsic: IntrinsicType, name: string): Context {
     return {};
   }
+
   booleanLiteralContext(boolean: BooleanLiteral): Context {
     return {};
   }
@@ -452,11 +481,11 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  operationDeclarationContext(operation: Operation): Context {
+  operationDeclarationContext(operation: Operation, name: string): Context {
     return {};
   }
 
-  operationDeclarationReferenceContext(operation: Operation): Context {
+  operationDeclarationReferenceContext(operation: Operation, name: string): Context {
     return {};
   }
 
@@ -489,11 +518,11 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  interfaceDeclarationContext(iface: Interface): Context {
+  interfaceDeclarationContext(iface: Interface, name: string): Context {
     return {};
   }
 
-  interfaceDeclarationReferenceContext(iface: Interface): Context {
+  interfaceDeclarationReferenceContext(iface: Interface, name: string): Context {
     return {};
   }
 
@@ -511,11 +540,11 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  interfaceOperationDeclarationContext(operation: Operation): Context {
+  interfaceOperationDeclarationContext(operation: Operation, name: string): Context {
     return {};
   }
 
-  interfaceOperationDeclarationReferenceContext(operation: Operation): Context {
+  interfaceOperationDeclarationReferenceContext(operation: Operation, name: string): Context {
     return {};
   }
 
@@ -524,7 +553,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  enumDeclarationContext(en: Enum): Context {
+  enumDeclarationContext(en: Enum, name: string): Context {
     return {};
   }
 
@@ -533,6 +562,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
       this.emitter.emitType(member);
     }
     return this.emitter.result.none();
+  }
+
+  enumMembersContext(en: Enum): Context {
+    return {};
   }
 
   enumMember(member: EnumMember): EmitterOutput<T> {
@@ -561,11 +594,11 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  unionInstantiationContext(union: Union): Context {
+  unionInstantiationContext(union: Union, name: string): Context {
     return {};
   }
 
-  unionInstantiationReferenceContext(union: Union): Context {
+  unionInstantiationReferenceContext(union: Union, name: string): Context {
     return {};
   }
 
@@ -587,6 +620,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
       this.emitter.emitType(variant);
     }
     return this.emitter.result.none();
+  }
+
+  unionVariantsContext(): Context {
+    return {};
+  }
+
+  unionVariantsReferenceContext(): Context {
+    return {};
   }
 
   unionVariant(variant: UnionVariant): EmitterOutput<T> {
@@ -653,13 +694,13 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  declarationName(declarationType: TypeSpecDeclaration): string {
+  declarationName(declarationType: TypeSpecDeclaration): string | undefined {
     compilerAssert(
       declarationType.name !== undefined,
       "Can't emit a declaration that doesn't have a name."
     );
 
-    if (declarationType.kind === "Enum") {
+    if (declarationType.kind === "Enum" || declarationType.kind === "Intrinsic") {
       return declarationType.name;
     }
 
@@ -673,6 +714,8 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
       return declarationType.name;
     }
 
+    let unspeakable = false;
+
     const parameterNames = declarationType.templateMapper.args.map((t) => {
       switch (t.kind) {
         case "Model":
@@ -681,15 +724,26 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
         case "Operation":
         case "Enum":
         case "Union":
+        case "Intrinsic":
+          if (!t.name) {
+            unspeakable = true;
+            return undefined;
+          }
           const declName = this.emitter.emitDeclarationName(t);
+          if (declName === undefined) {
+            unspeakable = true;
+            return undefined;
+          }
           return declName[0].toUpperCase() + declName.slice(1);
         default:
-          compilerAssert(
-            false,
-            `Can't get a declaration name for non-declaration type ${t.kind} used to instantiate a template.`
-          );
+          unspeakable = true;
+          return undefined;
       }
     });
+
+    if (unspeakable) {
+      return undefined;
+    }
 
     return declarationType.name + parameterNames.join("");
   }
@@ -729,6 +783,14 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
+  interfaceDeclarationOperationsContext(iface: Interface): Context {
+    return {};
+  }
+
+  interfaceDeclarationOperationsReferenceContext(iface: Interface): Context {
+    return {};
+  }
+
   enumMembers(en: Enum): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;
@@ -758,6 +820,14 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
       builder.push(code`${this.emitter.emitTypeReference(v)}${i < tuple.values.length ? "," : ""}`);
     }
     return builder.reduce();
+  }
+
+  tupleLiteralValuesContext(tuple: Tuple): Context {
+    return {};
+  }
+
+  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
+    return {};
   }
 
   reference(
