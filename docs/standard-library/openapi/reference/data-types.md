@@ -10,7 +10,7 @@ toc_max_heading_level: 3
 
 ### `AdditionalInfo` {#OpenAPI.AdditionalInfo}
 
-Additional information for OpenAPI 3 document.
+Additional information for the OpenAPI document.
 
 ```typespec
 model OpenAPI.AdditionalInfo
