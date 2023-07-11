@@ -61,7 +61,8 @@ extern dec defaultResponse(target: Model);
  */
 extern dec externalDocs(target: unknown, url: valueof string, description?: valueof string);
 
-alias AdditionalInfo = {
+/** Additional information for OpenAPI 3 document. */
+model AdditionalInfo {
   /** A URL to the Terms of Service for the API. MUST be in the format of a URL. */
   termsOfService?: url;
 
@@ -70,9 +71,10 @@ alias AdditionalInfo = {
 
   /** The license information for the exposed API. */
   license?: License;
-};
+}
 
-alias Contact = {
+/** Contact information for the exposed API. */
+model Contact {
   /** The identifying name of the contact person/organization. */
   name?: string;
 
@@ -81,15 +83,16 @@ alias Contact = {
 
   /** The email address of the contact person/organization. MUST be in the format of an email address. */
   email?: string;
-};
+}
 
-alias License = {
+/** License information for the exposed API. */
+model License {
   /** The license name used for the API. */
   name: string;
 
   /** A URL to the license used for the API. MUST be in the format of a URL. */
   url?: url;
-};
+}
 
 /**
  * Specify OpenAPI additional information.
