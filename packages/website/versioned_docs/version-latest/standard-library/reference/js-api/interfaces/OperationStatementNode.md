@@ -113,7 +113,7 @@ ___
 
 ### parent
 
-• `Optional` `Readonly` **parent**: [`InterfaceStatementNode`](InterfaceStatementNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md) \| [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
+• `Optional` `Readonly` **parent**: [`InterfaceStatementNode`](InterfaceStatementNode.md) \| [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md)
 
 #### Overrides
 

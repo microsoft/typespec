@@ -1,6 +1,6 @@
 {
   "name": "@typespec/migrate",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "Migration tool for typespec.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -38,7 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.45.2",
+    "@typespec/compiler": "workspace:~0.46.0",
     "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0",
     "@typespec/compiler-v0.38": "npm:@cadl-lang/compiler@0.38.5",
     "@typespec/compiler-v0.40": "npm:@cadl-lang/compiler@0.40.0",
@@ -57,9 +57,9 @@
     "@types/prettier": "2.6.0",
     "@types/semver": "^7.3.13",
     "@types/yargs": "~17.0.24",
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
-    "@typespec/eslint-plugin": "workspace:~0.45.0",
+    "@typespec/compiler": "workspace:~0.46.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
+    "@typespec/eslint-plugin": "workspace:~0.46.0",
     "c8": "~8.0.0",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",

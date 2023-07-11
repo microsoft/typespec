@@ -1,6 +1,6 @@
 {
   "name": "@typespec/html-program-viewer",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -51,7 +51,7 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.45.2"
+    "@typespec/compiler": "workspace:~0.46.0"
   },
   "dependencies": {
     "prettier": "~2.8.7",
@@ -66,8 +66,8 @@
     "@types/prettier": "2.6.0",
     "@types/react": "~18.2.9",
     "@types/react-dom": "~18.2.4",
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
+    "@typespec/compiler": "workspace:~0.46.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
     "@babel/core": "^7.0.0",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",
