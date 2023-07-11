@@ -53,4 +53,41 @@ describe("openapi3: info", () => {
       description: "more info",
     });
   });
+
+  it("set the additional information with @info decorator", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @info({
+        termsOfService: "http://example.com/terms/",
+        contact: {
+          name: "API Support",
+          url: "http://www.example.com/support",
+          email: "support@example.com"
+        },
+        license: {
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+      })
+      namespace Foo {
+        op test(): string;
+      }
+      `
+    );
+    deepStrictEqual(res.info, {
+      title: "(title)",
+      version: "0000-00-00",
+      termsOfService: "http://example.com/terms/",
+      contact: {
+        name: "API Support",
+        url: "http://www.example.com/support",
+        email: "support@example.com",
+      },
+      license: {
+        name: "Apache 2.0",
+        url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+      },
+    });
+  });
 });
