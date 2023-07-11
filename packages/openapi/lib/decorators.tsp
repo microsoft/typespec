@@ -61,7 +61,7 @@ extern dec defaultResponse(target: Model);
  */
 extern dec externalDocs(target: unknown, url: valueof string, description?: valueof string);
 
-/** Additional information for OpenAPI 3 document. */
+/** Additional information for the OpenAPI document. */
 model AdditionalInfo {
   /** A URL to the Terms of Service for the API. MUST be in the format of a URL. */
   termsOfService?: url;
