@@ -57,7 +57,7 @@ Returns an iterable of entries in the map.
 
 #### Inherited from
 
-ReadonlyMap.\_\_@iterator@95
+ReadonlyMap.[iterator]
 
 ___
 

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/eslint-plugin",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
   "homepage": "https://microsoft.github.io/typespec",
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
     "@typescript-eslint/parser": "^5.59.11",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",

@@ -15,7 +15,7 @@
 
 ### source
 
-• **source**: ``"@doc"`` \| ``"comment"``
+• **source**: ``"comment"`` \| ``"@doc"``
 
 How was the doc set.
 - `@doc` means the `@doc` decorator was used

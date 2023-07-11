@@ -2,6 +2,21 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.46.0",
+      "tag": "@typespec/openapi3_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Omitting `x-typespec-name` extension by default from openapi3 output. A new flag `include-x-typespec-name: \"inline-only\" | \"never\"` has been added to get previous behavior."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "@typespec/openapi3_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

@@ -30,6 +30,7 @@
 
 - [getGlobalNamespaceType](Program.md#getglobalnamespacetype)
 - [getOption](Program.md#getoption)
+- [getSourceFileLocationContext](Program.md#getsourcefilelocationcontext)
 - [hasError](Program.md#haserror)
 - [loadTypeSpecScript](Program.md#loadtypespecscript)
 - [onValidate](Program.md#onvalidate)
@@ -148,6 +149,24 @@ ___
 #### Returns
 
 `undefined` \| `string`
+
+___
+
+### getSourceFileLocationContext
+
+▸ **getSourceFileLocationContext**(`sourceFile`): [`LocationContext`](../index.md#locationcontext)
+
+Return location context of the given source file.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `sourceFile` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+[`LocationContext`](../index.md#locationcontext)
 
 ___
 

@@ -168,6 +168,8 @@ ___
 
 ▸ **readFile**(`path`): `Promise`<[`SourceFile`](SourceFile.md)\>
 
+read a utf-8 or utf-8 with bom encoded file
+
 #### Parameters
 
 | Name | Type |
@@ -183,6 +185,8 @@ ___
 ### readUrl
 
 ▸ **readUrl**(`url`): `Promise`<[`SourceFile`](SourceFile.md)\>
+
+read a file at the given url.
 
 #### Parameters
 
