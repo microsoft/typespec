@@ -6,7 +6,11 @@ import { CompilerOptions } from "../../../options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
-import { createCLICompilerHost, internalCompilerError, logDiagnosticCount } from "../../utils.js";
+import {
+  createCLICompilerHost,
+  handleInternalCompilerError,
+  logDiagnosticCount,
+} from "../../utils.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 
 export async function compileAction(args: CompileCliArgs & { path: string; pretty?: boolean }) {
@@ -28,6 +32,7 @@ export async function compileAction(args: CompileCliArgs & { path: string; prett
     process.exit(1);
   }
   if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
+    // eslint-disable-next-line no-console
     console.log(
       "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
     );
@@ -67,6 +72,7 @@ function compileInput(
   let currentCompilePromise: Promise<Program> | undefined = undefined;
   const log = (message?: any, ...optionalParams: any[]) => {
     const prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
+    // eslint-disable-next-line no-console
     console.log(`${prefix}${message}`, ...optionalParams);
   };
 
@@ -75,12 +81,13 @@ function compileInput(
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
       if (compilerOptions.watchForChanges) {
+        // eslint-disable-next-line no-console
         console.clear();
       }
 
       currentCompilePromise = compileProgram(host, resolve(path), compilerOptions)
         .then(onCompileFinished)
-        .catch(internalCompilerError);
+        .catch(handleInternalCompilerError);
     } else {
       compileRequested = true;
     }
@@ -101,6 +108,7 @@ function compileInput(
       }
     }
 
+    // eslint-disable-next-line no-console
     console.log(); // Insert a newline
     currentCompilePromise = undefined;
     if (compilerOptions.watchForChanges && compileRequested) {
@@ -130,6 +138,7 @@ function compileInput(
       // Handle Ctrl+C for termination
       process.on("SIGINT", () => {
         watcher.close();
+        // eslint-disable-next-line no-console
         console.info("Terminating watcher...\n");
       });
     });

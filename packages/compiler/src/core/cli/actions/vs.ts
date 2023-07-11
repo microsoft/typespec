@@ -11,6 +11,7 @@ export async function installVSExtension(debug: boolean) {
   const vsixInstaller = getVsixInstallerPath();
 
   if (!isVSInstalled(VS_SUPPORTED_VERSION_RANGE)) {
+    // eslint-disable-next-line no-console
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
   }
@@ -19,6 +20,7 @@ export async function installVSExtension(debug: boolean) {
     "typespec-vs",
     (vsixPaths) => {
       for (const vsix of vsixPaths) {
+        // eslint-disable-next-line no-console
         console.log(`Installing extension for Visual Studio...`);
         run(vsixInstaller, [vsix], {
           allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
@@ -48,6 +50,7 @@ function getVSWherePath(): string {
 
 function getVSInstallerPath(relativePath: string) {
   if (process.platform !== "win32") {
+    // eslint-disable-next-line no-console
     console.error("error: Visual Studio extension is not supported on non-Windows.");
     process.exit(1);
   }

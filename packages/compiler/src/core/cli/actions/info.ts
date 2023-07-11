@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { fileURLToPath } from "url";
 import { loadTypeSpecConfigForPath } from "../../../config/config-loader.js";
 import { logDiagnostics } from "../../diagnostics.js";

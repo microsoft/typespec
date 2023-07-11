@@ -15,9 +15,10 @@ import { printInfoAction } from "./actions/info.js";
 import { initAction } from "./actions/init.js";
 import { installVSExtension, uninstallVSExtension } from "./actions/vs.js";
 import { installVSCodeExtension, uninstallVSCodeExtension } from "./actions/vscode.js";
-import { createCLICompilerHost, internalCompilerError } from "./utils.js";
+import { createCLICompilerHost, handleInternalCompilerError } from "./utils.js";
 
 async function main() {
+  // eslint-disable-next-line no-console
   console.log(`TypeSpec compiler v${typespecVersion}\n`);
 
   await yargs(process.argv.slice(2))
@@ -205,8 +206,9 @@ async function main() {
 }
 
 process.on("unhandledRejection", (error: unknown) => {
+  // eslint-disable-next-line no-console
   console.error("Unhandled promise rejection!");
-  internalCompilerError(error);
+  handleInternalCompilerError(error);
 });
 
-main().catch(internalCompilerError);
+main().catch(handleInternalCompilerError);

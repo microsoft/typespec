@@ -13,8 +13,10 @@ export async function formatAction(args: FormatArgs) {
       debug: args.debug,
     });
     if (unformatted.length > 0) {
+      // eslint-disable-next-line no-console
       console.log(`Found ${unformatted.length} unformatted files:`);
       for (const file of unformatted) {
+        // eslint-disable-next-line no-console
         console.log(` - ${file}`);
       }
       process.exit(1);

@@ -87,14 +87,22 @@ export function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
   const errorText = addSuffix(errorCount, "error");
   const warningText = addSuffix(warningCount, "warning");
 
+  // eslint-disable-next-line no-console
   console.log(`\nFound ${[errorText, warningText].filter((x) => x !== undefined).join(", ")}.`);
 }
 
-export function internalCompilerError(error: unknown): never {
-  // NOTE: An expected error, like one thrown for bad input, shouldn't reach
-  // here, but be handled somewhere else. If we reach here, it should be
-  // considered a bug and therefore we should not suppress the stack trace as
-  // that risks losing it in the case of a bug that does not repro easily.
+/**
+ * Handle an internal compiler error.
+ *
+ * NOTE: An expected error, like one thrown for bad input, shouldn't reach
+ * here, but be handled somewhere else. If we reach here, it should be
+ * considered a bug and therefore we should not suppress the stack trace as
+ * that risks losing it in the case of a bug that does not repro easily.
+ *
+ * @param error error thrown
+ */
+export function handleInternalCompilerError(error: unknown): never {
+  /* eslint-disable no-console */
   if (error instanceof ExternalError) {
     // ExternalError should already have all the relevant information needed when thrown.
     console.error(error);
@@ -104,6 +112,7 @@ export function internalCompilerError(error: unknown): never {
     console.error();
     console.error(error);
   }
+  /* eslint-enable no-console */
 
   process.exit(1);
 }
