@@ -1,7 +1,7 @@
 import { FSWatcher, WatchEventType, watch } from "fs";
 import { pathToFileURL } from "url";
-import { NodeHost } from "../node-host.js";
-import { CompilerHost } from "../types.js";
+import { NodeHost } from "../../../node-host.js";
+import { CompilerHost } from "../../../types.js";
 
 export interface ProjectWatcher {
   /** Set the files to watch. */

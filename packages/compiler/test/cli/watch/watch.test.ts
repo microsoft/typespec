@@ -3,7 +3,7 @@ import { WatchEventType, mkdirSync } from "fs";
 import { appendFile, mkdir, rm } from "fs/promises";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { ProjectWatcher, createWatcher } from "../../../src/core/cli/watch.js";
+import { ProjectWatcher, createWatcher } from "../../../src/core/cli/actions/compile/watch.js";
 import { getDirectoryPath, resolvePath } from "../../../src/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

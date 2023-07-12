@@ -10,8 +10,8 @@ import {
   handleInternalCompilerError,
   logDiagnosticCount,
 } from "../../utils.js";
-import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "../../watch.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
+import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./watch.js";
 
 export async function compileAction(args: CompileCliArgs & { path: string; pretty?: boolean }) {
   const host = createCLICompilerHost(args);
