@@ -2,6 +2,31 @@
   "name": "@typespec/internal-build-utils",
   "entries": [
     {
+      "version": "0.46.0",
+      "tag": "@typespec/internal-build-utils_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Include previous patch number in dev version count to ensure patches get released in the dev versions"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix bumping dev version if there is zero changes"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Fix repo name in package.json"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.2",
       "tag": "@typespec/internal-build-utils_v0.4.2",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

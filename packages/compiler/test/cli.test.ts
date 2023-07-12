@@ -1,6 +1,6 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { dump } from "js-yaml";
-import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/args.js";
+import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
 import {
   TestHost,
   createTestHost,
