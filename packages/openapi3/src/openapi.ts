@@ -1507,9 +1507,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getSchemaForModel(model: Model, visibility: Visibility) {
     const arrayOrRecord = mapTypeSpecIntrinsicModelToOpenAPI(model, visibility);
     if (arrayOrRecord) {
-      const arrayDoc = getDoc(program, model);
-      arrayOrRecord.description = arrayDoc;
-      return arrayOrRecord;
+      return applyIntrinsicDecorators(model, arrayOrRecord);
     }
 
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
@@ -1646,13 +1644,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function applyIntrinsicDecorators(
-    typespecType: Scalar | ModelProperty,
+    typespecType: Model | Scalar | ModelProperty,
     target: OpenAPI3Schema
   ): OpenAPI3Schema {
     const newTarget = { ...target };
     const docStr = getDoc(program, typespecType);
-    const isString = isStringType(program, getPropertyType(typespecType));
-    const isNumeric = isNumericType(program, getPropertyType(typespecType));
+    const isString =
+      typespecType.kind !== "Model" && isStringType(program, getPropertyType(typespecType));
+    const isNumeric =
+      typespecType.kind !== "Model" && isNumericType(program, getPropertyType(typespecType));
 
     if (docStr) {
       newTarget.description = docStr;
