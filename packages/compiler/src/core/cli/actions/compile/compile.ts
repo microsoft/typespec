@@ -27,15 +27,10 @@ export async function compileAction(args: CompileCliArgs & { path: string; prett
   }
   const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
 
-  const program = await compileInput(host, entrypoint, cliOptions);
-  if (program.hasError()) {
-    process.exit(1);
-  }
-  if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
-    // eslint-disable-next-line no-console
-    console.log(
-      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
-    );
+  if (cliOptions.watchForChanges) {
+    await compileWatch(host, entrypoint, cliOptions);
+  } else {
+    await compileOnce(host, entrypoint, cliOptions);
   }
 }
 
@@ -62,29 +57,38 @@ async function getCompilerOptionsOrExit(
   return options;
 }
 
-function compileInput(
+async function compileOnce(
   host: CompilerHost,
   path: string,
-  compilerOptions: CompilerOptions,
-  printSuccess = true
-): Promise<Program> {
+  compilerOptions: CompilerOptions
+): Promise<void> {
+  try {
+    const program = await compileProgram(host, resolve(path), compilerOptions);
+    logProgramResult(host, program);
+    if (program.hasError()) {
+      process.exit(1);
+    }
+  } catch (e) {
+    handleInternalCompilerError(e);
+  }
+}
+
+function compileWatch(
+  host: CompilerHost,
+  path: string,
+  compilerOptions: CompilerOptions
+): Promise<void> {
   let compileRequested: boolean = false;
   let currentCompilePromise: Promise<Program> | undefined = undefined;
-  const log = (message?: any, ...optionalParams: any[]) => {
-    const prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
-    // eslint-disable-next-line no-console
-    console.log(`${prefix}${message}`, ...optionalParams);
-  };
 
   const runCompilePromise = () => {
     // Don't run the compiler if it's already running
-    if (!currentCompilePromise) {
+    if (currentCompilePromise === undefined) {
       // Clear the console before compiling in watch mode
-      if (compilerOptions.watchForChanges) {
-        // eslint-disable-next-line no-console
-        console.clear();
-      }
+      // eslint-disable-next-line no-console
+      console.clear();
 
+      watchHost?.forceJSReload();
       currentCompilePromise = compileProgram(host, resolve(path), compilerOptions)
         .then(onCompileFinished)
         .catch(handleInternalCompilerError);
@@ -95,50 +99,63 @@ function compileInput(
     return currentCompilePromise;
   };
 
-  const runCompile = () => void runCompilePromise();
+  const scheduleCompile = () => void runCompilePromise();
 
-  let watcher: ProjectWatcher;
-  let watchHost: WatchHost;
+  const watcher: ProjectWatcher = createWatcher((_name: string) => {
+    scheduleCompile();
+  });
+  const watchHost: WatchHost = (host = createWatchHost());
 
   const onCompileFinished = (program: Program) => {
-    watchHost?.forceJSReload();
     watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
-    if (program.diagnostics.length > 0) {
-      log("Diagnostics were reported during compilation:\n");
-      logDiagnostics(program.diagnostics, host.logSink);
-      logDiagnosticCount(program.diagnostics);
-    } else {
-      if (printSuccess) {
-        log("Compilation completed successfully.");
-      }
-    }
+    logProgramResult(host, program, { showTimestamp: true });
 
-    // eslint-disable-next-line no-console
-    console.log(); // Insert a newline
     currentCompilePromise = undefined;
-    if (compilerOptions.watchForChanges && compileRequested) {
+    if (compileRequested) {
       compileRequested = false;
-      runCompile();
+      scheduleCompile();
     }
 
     return program;
   };
 
-  if (compilerOptions.watchForChanges) {
-    watchHost = host = createWatchHost();
-    watcher = createWatcher((_name: string) => {
-      runCompile();
+  scheduleCompile();
+  return new Promise((resolve, reject) => {
+    // Handle Ctrl+C for termination
+    process.on("SIGINT", () => {
+      watcher.close();
+      // eslint-disable-next-line no-console
+      console.info("Terminating watcher...\n");
+      resolve();
     });
-    runCompile();
-    return new Promise((resolve, reject) => {
-      // Handle Ctrl+C for termination
-      process.on("SIGINT", () => {
-        watcher.close();
-        // eslint-disable-next-line no-console
-        console.info("Terminating watcher...\n");
-      });
-    });
+  });
+}
+
+function logProgramResult(
+  host: CompilerHost,
+  program: Program,
+  { showTimestamp }: { showTimestamp?: boolean } = {}
+) {
+  const log = (message?: any, ...optionalParams: any[]) => {
+    const timestamp = showTimestamp ? `[${new Date().toLocaleTimeString()}] ` : "";
+    // eslint-disable-next-line no-console
+    console.log(`${timestamp}${message}`, ...optionalParams);
+  };
+
+  if (program.diagnostics.length > 0) {
+    log("Diagnostics were reported during compilation:\n");
+    logDiagnostics(program.diagnostics, host.logSink);
+    logDiagnosticCount(program.diagnostics);
   } else {
-    return runCompilePromise();
+    log("Compilation completed successfully.");
+  }
+  // eslint-disable-next-line no-console
+  console.log(); // Insert a newline
+
+  if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
+    // eslint-disable-next-line no-console
+    log(
+      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
+    );
   }
 }
