@@ -119,6 +119,7 @@ JS Api
 
 - [DuplicateTracker](classes/DuplicateTracker.md)
 - [EventEmitter](classes/EventEmitter.md)
+- [InvalidEncodingError](classes/InvalidEncodingError.md)
 - [ProjectionError](classes/ProjectionError.md)
 - [Queue](classes/Queue.md)
 - [ResolveModuleError](classes/ResolveModuleError.md)
@@ -139,6 +140,7 @@ JS Api
 - [CallableMessage](interfaces/CallableMessage.md)
 - [Checker](interfaces/Checker.md)
 - [CompilerHost](interfaces/CompilerHost.md)
+- [CompilerLocationContext](interfaces/CompilerLocationContext.md)
 - [DeclarationNode](interfaces/DeclarationNode.md)
 - [DecoratedType](interfaces/DecoratedType.md)
 - [Decorator](interfaces/Decorator.md)
@@ -177,6 +179,7 @@ JS Api
 - [EnumStatementNode](interfaces/EnumStatementNode.md)
 - [ErrorType](interfaces/ErrorType.md)
 - [ExternKeywordNode](interfaces/ExternKeywordNode.md)
+- [FileLibraryMetadata](interfaces/FileLibraryMetadata.md)
 - [FunctionDeclarationStatementNode](interfaces/FunctionDeclarationStatementNode.md)
 - [FunctionParameter](interfaces/FunctionParameter.md)
 - [FunctionParameterNode](interfaces/FunctionParameterNode.md)
@@ -191,8 +194,15 @@ JS Api
 - [InvalidStatementNode](interfaces/InvalidStatementNode.md)
 - [JSONSchemaValidator](interfaces/JSONSchemaValidator.md)
 - [JsSourceFileNode](interfaces/JsSourceFileNode.md)
+- [LibraryInstance](interfaces/LibraryInstance.md)
+- [LibraryLocationContext](interfaces/LibraryLocationContext.md)
 - [LineAndCharacter](interfaces/LineAndCharacter.md)
 - [LineComment](interfaces/LineComment.md)
+- [LinterDefinition](interfaces/LinterDefinition.md)
+- [LinterRule](interfaces/LinterRule.md)
+- [LinterRuleContext](interfaces/LinterRuleContext.md)
+- [LinterRuleDefinition](interfaces/LinterRuleDefinition.md)
+- [LinterRuleSet](interfaces/LinterRuleSet.md)
 - [ListOperationOptions](interfaces/ListOperationOptions.md)
 - [LogInfo](interfaces/LogInfo.md)
 - [LogSink](interfaces/LogSink.md)
@@ -204,6 +214,7 @@ JS Api
 - [ModelPropertyNode](interfaces/ModelPropertyNode.md)
 - [ModelSpreadPropertyNode](interfaces/ModelSpreadPropertyNode.md)
 - [ModelStatementNode](interfaces/ModelStatementNode.md)
+- [ModuleLibraryMetadata](interfaces/ModuleLibraryMetadata.md)
 - [Namespace](interfaces/Namespace.md)
 - [NamespaceNavigationOptions](interfaces/NamespaceNavigationOptions.md)
 - [NamespaceStatementNode](interfaces/NamespaceStatementNode.md)
@@ -222,6 +233,7 @@ JS Api
 - [ParseOptions](interfaces/ParseOptions.md)
 - [ProcessedLog](interfaces/ProcessedLog.md)
 - [Program](interfaces/Program.md)
+- [ProjectLocationContext](interfaces/ProjectLocationContext.md)
 - [ProjectedNameView](interfaces/ProjectedNameView.md)
 - [ProjectedProgram](interfaces/ProjectedProgram.md)
 - [Projection](interfaces/Projection.md)
@@ -281,6 +293,7 @@ JS Api
 - [Sym](interfaces/Sym.md)
 - [SymbolLinks](interfaces/SymbolLinks.md)
 - [SymbolTable](interfaces/SymbolTable.md)
+- [SyntheticLocationContext](interfaces/SyntheticLocationContext.md)
 - [TemplateDeclarationNode](interfaces/TemplateDeclarationNode.md)
 - [TemplateParameter](interfaces/TemplateParameter.md)
 - [TemplateParameterDeclarationNode](interfaces/TemplateParameterDeclarationNode.md)
@@ -344,8 +357,13 @@ JS Api
 - [InferredTypeSpecValue](index.md#inferredtypespecvalue)
 - [IntrinsicScalarName](index.md#intrinsicscalarname)
 - [JSONSchemaType](index.md#jsonschematype)
+- [LibraryMetadata](index.md#librarymetadata)
+- [LinterRuleDiagnosticFormat](index.md#linterrulediagnosticformat)
+- [LinterRuleDiagnosticReport](index.md#linterrulediagnosticreport)
+- [LinterRuleDiagnosticReportWithoutTarget](index.md#linterrulediagnosticreportwithouttarget)
 - [LiteralNode](index.md#literalnode)
 - [LiteralType](index.md#literaltype)
+- [LocationContext](index.md#locationcontext)
 - [LogLevel](index.md#loglevel)
 - [MarshalledValue](index.md#marshalledvalue)
 - [MemberContainerNode](index.md#membercontainernode)
@@ -364,6 +382,7 @@ JS Api
 - [ProjectionExpression](index.md#projectionexpression)
 - [ProjectionStatementItem](index.md#projectionstatementitem)
 - [ReferenceExpression](index.md#referenceexpression)
+- [RuleRef](index.md#ruleref)
 - [ScopeNode](index.md#scopenode)
 - [SemanticNodeListener](index.md#semanticnodelistener)
 - [SourceFileKind](index.md#sourcefilekind)
@@ -410,6 +429,7 @@ JS Api
 - [createDiagnosticCreator](index.md#creatediagnosticcreator)
 - [createProjectedNameProgram](index.md#createprojectednameprogram)
 - [createRekeyableMap](index.md#createrekeyablemap)
+- [createRule](index.md#createrule)
 - [createScanner](index.md#createscanner)
 - [createServer](index.md#createserver)
 - [createSourceFile](index.md#createsourcefile)
@@ -432,6 +452,7 @@ JS Api
 - [getFirstAncestor](index.md#getfirstancestor)
 - [getFullyQualifiedSymbolName](index.md#getfullyqualifiedsymbolname)
 - [getIdentifierContext](index.md#getidentifiercontext)
+- [getLocationContext](index.md#getlocationcontext)
 - [getNamespaceFullName](index.md#getnamespacefullname)
 - [getNodeAtPosition](index.md#getnodeatposition)
 - [getNormalizedAbsolutePath](index.md#getnormalizedabsolutepath)
@@ -1373,6 +1394,51 @@ ___
 
 ___
 
+### LibraryMetadata
+
+Ƭ **LibraryMetadata**: [`FileLibraryMetadata`](interfaces/FileLibraryMetadata.md) \| [`ModuleLibraryMetadata`](interfaces/ModuleLibraryMetadata.md)
+
+___
+
+### LinterRuleDiagnosticFormat
+
+Ƭ **LinterRuleDiagnosticFormat**<`T`, `M`\>: `T`[`M`] extends [`CallableMessage`](interfaces/CallableMessage.md)<infer A\> ? { `format`: `Record`<`A`[`number`], `string`\>  } : `Record`<`string`, `unknown`\>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`DiagnosticMessages`](interfaces/DiagnosticMessages.md) |
+| `M` | extends keyof `T` = ``"default"`` |
+
+___
+
+### LinterRuleDiagnosticReport
+
+Ƭ **LinterRuleDiagnosticReport**<`T`, `M`\>: [`LinterRuleDiagnosticReportWithoutTarget`](index.md#linterrulediagnosticreportwithouttarget)<`T`, `M`\> & { `target`: [`DiagnosticTarget`](index.md#diagnostictarget) \| typeof [`NoTarget`](index.md#notarget)  }
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`DiagnosticMessages`](interfaces/DiagnosticMessages.md) |
+| `M` | extends keyof `T` = ``"default"`` |
+
+___
+
+### LinterRuleDiagnosticReportWithoutTarget
+
+Ƭ **LinterRuleDiagnosticReportWithoutTarget**<`T`, `M`\>: { `messageId?`: `M`  } & [`LinterRuleDiagnosticFormat`](index.md#linterrulediagnosticformat)<`T`, `M`\>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`DiagnosticMessages`](interfaces/DiagnosticMessages.md) |
+| `M` | extends keyof `T` = ``"default"`` |
+
+___
+
 ### LiteralNode
 
 Ƭ **LiteralNode**: [`StringLiteralNode`](interfaces/StringLiteralNode.md) \| [`NumericLiteralNode`](interfaces/NumericLiteralNode.md) \| [`BooleanLiteralNode`](interfaces/BooleanLiteralNode.md)
@@ -1382,6 +1448,18 @@ ___
 ### LiteralType
 
 Ƭ **LiteralType**: [`StringLiteral`](interfaces/StringLiteral.md) \| [`NumericLiteral`](interfaces/NumericLiteral.md) \| [`BooleanLiteral`](interfaces/BooleanLiteral.md)
+
+___
+
+### LocationContext
+
+Ƭ **LocationContext**: [`ProjectLocationContext`](interfaces/ProjectLocationContext.md) \| [`CompilerLocationContext`](interfaces/CompilerLocationContext.md) \| [`SyntheticLocationContext`](interfaces/SyntheticLocationContext.md) \| [`LibraryLocationContext`](interfaces/LibraryLocationContext.md)
+
+Represent a location context in the mind of the compiler. This can be:
+- the user project
+- a library
+- the compiler(standard library)
+- virtual
 
 ___
 
@@ -1534,6 +1612,14 @@ ___
 ### ReferenceExpression
 
 Ƭ **ReferenceExpression**: [`TypeReferenceNode`](interfaces/TypeReferenceNode.md) \| [`MemberExpressionNode`](interfaces/MemberExpressionNode.md) \| [`IdentifierNode`](interfaces/IdentifierNode.md) \| [`VoidKeywordNode`](interfaces/VoidKeywordNode.md) \| [`NeverKeywordNode`](interfaces/NeverKeywordNode.md)
+
+___
+
+### RuleRef
+
+Ƭ **RuleRef**: \`${string}/${string}\`
+
+Reference to a rule. In this format `<library name>:<rule/ruleset name>`
 
 ___
 
@@ -1754,7 +1840,7 @@ Assert that the input type has one of the kinds provided
 
 | Name | Type |
 | :------ | :------ |
-| `TKind` | extends (``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"``)[] |
+| `TKind` | extends (``"Model"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"Operation"`` \| ``"Union"`` \| ``"Intrinsic"`` \| ``"ModelProperty"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"UnionVariant"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"``)[] |
 
 #### Parameters
 
@@ -2036,6 +2122,31 @@ ___
 #### Returns
 
 [`RekeyableMap`](interfaces/RekeyableMap.md)<`K`, `V`\>
+
+___
+
+### createRule
+
+▸ **createRule**<`N`, `T`\>(`definition`): [`LinterRuleDefinition`](interfaces/LinterRuleDefinition.md)<`N`, `T`\>
+
+Create a new linter rule.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `N` | extends `string` |
+| `T` | extends [`DiagnosticMessages`](interfaces/DiagnosticMessages.md) |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `definition` | [`LinterRuleDefinition`](interfaces/LinterRuleDefinition.md)<`N`, `T`\> |
+
+#### Returns
+
+[`LinterRuleDefinition`](interfaces/LinterRuleDefinition.md)<`N`, `T`\>
 
 ___
 
@@ -2515,6 +2626,23 @@ ___
 
 ___
 
+### getLocationContext
+
+▸ **getLocationContext**(`program`, `type`): [`LocationContext`](index.md#locationcontext)
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `program` | [`Program`](interfaces/Program.md) |
+| `type` | [`DiagnosticTarget`](index.md#diagnostictarget) |
+
+#### Returns
+
+[`LocationContext`](index.md#locationcontext)
+
+___
+
 ### getNamespaceFullName
 
 ▸ **getNamespaceFullName**(`type`, `options?`): `string`
@@ -2884,7 +3012,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `target` | `undefined` \| [`DiagnosticTarget`](index.md#diagnostictarget) \| typeof [`NoTarget`](index.md#notarget) |
+| `target` | `undefined` \| typeof [`NoTarget`](index.md#notarget) \| [`DiagnosticTarget`](index.md#diagnostictarget) |
 
 #### Returns
 
@@ -3784,7 +3912,7 @@ Report a deprecated diagnostic.
 | :------ | :------ | :------ |
 | `program` | [`Program`](interfaces/Program.md) | TypeSpec Program. |
 | `message` | `string` | Message describing the deprecation. |
-| `target` | [`DiagnosticTarget`](index.md#diagnostictarget) \| typeof [`NoTarget`](index.md#notarget) | Target of the deprecation. |
+| `target` | typeof [`NoTarget`](index.md#notarget) \| [`DiagnosticTarget`](index.md#diagnostictarget) | Target of the deprecation. |
 
 #### Returns
 
@@ -4050,7 +4178,7 @@ createDecoratorDefinition#validate instead.
 
 | Name | Type |
 | :------ | :------ |
-| `K` | extends ``"Model"`` \| ``"ModelProperty"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"Operation"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"Union"`` \| ``"UnionVariant"`` \| ``"Intrinsic"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"`` |
+| `K` | extends ``"Model"`` \| ``"Scalar"`` \| ``"Interface"`` \| ``"Enum"`` \| ``"Operation"`` \| ``"Union"`` \| ``"Intrinsic"`` \| ``"ModelProperty"`` \| ``"EnumMember"`` \| ``"TemplateParameter"`` \| ``"Namespace"`` \| ``"String"`` \| ``"Number"`` \| ``"Boolean"`` \| ``"Tuple"`` \| ``"UnionVariant"`` \| ``"Function"`` \| ``"Decorator"`` \| ``"FunctionParameter"`` \| ``"Object"`` \| ``"Projection"`` |
 
 #### Parameters
 

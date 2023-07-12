@@ -87,6 +87,25 @@ Specify the OpenAPI `externalDocs` property for this type.
 op listPets(): Pet[];
 ```
 
+### `@info` {#@OpenAPI.info}
+
+Specify OpenAPI additional information.
+The service `title` and `version` are already specified using `@service`.
+
+```typespec
+@OpenAPI.info(additionalInfo: OpenAPI.AdditionalInfo)
+```
+
+#### Target
+
+`Namespace`
+
+#### Parameters
+
+| Name           | Type                           | Description            |
+| -------------- | ------------------------------ | ---------------------- |
+| additionalInfo | `model OpenAPI.AdditionalInfo` | Additional information |
+
 ### `@operationId` {#@OpenAPI.operationId}
 
 Specify the OpenAPI `operationId` property for this operation.
