@@ -74,3 +74,10 @@ Set the newline character for emitting files.
 
 Omit unreachable types.
 By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
+
+### `include-x-typespec-name`
+
+**Type:** `"inline-only" | "never"`
+
+If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
+This extension is meant for debugging and should not be depended on.
