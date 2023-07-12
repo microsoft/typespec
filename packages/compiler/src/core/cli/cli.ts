@@ -125,7 +125,7 @@ async function main() {
             describe: "Key/value of arguments that are used in the configuration.",
           });
       },
-      async (args) => compileAction(args)
+      withCliHost((host, args) => compileAction(host, args))
     )
     .command("code", "Manage VS Code Extension.", (cmd) => {
       return cmd

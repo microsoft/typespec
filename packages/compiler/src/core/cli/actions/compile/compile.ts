@@ -6,15 +6,14 @@ import { CompilerOptions } from "../../../options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
-import {
-  createCLICompilerHost,
-  handleInternalCompilerError,
-  logDiagnosticCount,
-} from "../../utils.js";
+import { CliCompilerHost } from "../../types.js";
+import { handleInternalCompilerError, logDiagnosticCount } from "../../utils.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 
-export async function compileAction(args: CompileCliArgs & { path: string; pretty?: boolean }) {
-  const host = createCLICompilerHost(args);
+export async function compileAction(
+  host: CliCompilerHost,
+  args: CompileCliArgs & { path: string; pretty?: boolean }
+) {
   const diagnostics: Diagnostic[] = [];
   const entrypoint = await resolveTypeSpecEntrypoint(
     host,
