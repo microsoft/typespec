@@ -14,8 +14,13 @@ import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
 import { initAction } from "./actions/init.js";
 import { installVSExtension, uninstallVSExtension } from "./actions/vs.js";
-import { installVSCodeExtension, uninstallVSCodeExtension } from "./actions/vscode.js";
-import { createCLICompilerHost, handleInternalCompilerError } from "./utils.js";
+import {
+  InstallVSCodeExtensionOptions,
+  UninstallVSCodeExtensionOptions,
+  installVSCodeExtension,
+  uninstallVSCodeExtension,
+} from "./actions/vscode.js";
+import { CliHostArgs, handleInternalCompilerError, withCliHost } from "./utils.js";
 
 async function main() {
   // eslint-disable-next-line no-console
@@ -129,13 +134,17 @@ async function main() {
           "install",
           "Install VS Code Extension",
           () => {},
-          (args) => installVSCodeExtension(args.insiders, args.debug)
+          withCliHost<CliHostArgs & InstallVSCodeExtensionOptions>((host, args) =>
+            installVSCodeExtension(host, args)
+          )
         )
         .command(
           "uninstall",
           "Uninstall VS Code Extension",
           () => {},
-          (args) => uninstallVSCodeExtension(args.insiders, args.debug)
+          withCliHost<CliHostArgs & UninstallVSCodeExtensionOptions>((host, args) =>
+            uninstallVSCodeExtension(host, args)
+          )
         );
     })
     .command("vs", "Manage Visual Studio Extension.", (cmd) => {
@@ -145,13 +154,13 @@ async function main() {
           "install",
           "Install Visual Studio Extension.",
           () => {},
-          (args) => installVSExtension(args.debug)
+          withCliHost((host) => installVSExtension(host))
         )
         .command(
           "uninstall",
           "Uninstall VS Extension",
           () => {},
-          () => uninstallVSExtension()
+          withCliHost((host) => uninstallVSExtension(host))
         );
     })
     .command(
@@ -177,7 +186,7 @@ async function main() {
             describe: "Verify the files are formatted.",
           });
       },
-      async (args) => formatAction(args)
+      withCliHost((host, args) => formatAction(host, args))
     )
     .command(
       "init [templatesUrl]",
@@ -187,19 +196,19 @@ async function main() {
           description: "Url of the initialization template",
           type: "string",
         }),
-      async (args) => initAction(args)
+      withCliHost((host, args) => initAction(host, args))
     )
     .command(
       "install",
       "Install typespec dependencies",
       () => {},
-      () => installTypeSpecDependencies(process.cwd())
+      withCliHost((host) => installTypeSpecDependencies(host, process.cwd()))
     )
     .command(
       "info",
       "Show information about current TypeSpec compiler.",
       () => {},
-      (args) => printInfoAction(createCLICompilerHost(args))
+      withCliHost((host) => printInfoAction(host))
     )
     .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;

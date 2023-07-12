@@ -6,8 +6,9 @@ import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
-import { CompilerHost, Diagnostic } from "../types.js";
+import { Diagnostic } from "../types.js";
 import { ExternalError } from "../util.js";
+import { CliCompilerHost } from "./types.js";
 
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
@@ -19,15 +20,33 @@ export interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> 
   readonly allowedExitCodes?: number[];
 }
 
-export function createCLICompilerHost(options: { pretty?: boolean }): CompilerHost {
-  return { ...NodeHost, logSink: createConsoleSink({ pretty: options.pretty }) };
+export interface CliHostArgs {
+  pretty?: boolean;
+  debug?: boolean;
 }
 
-export function run(command: string, commandArgs: string[], options?: RunOptions) {
-  const logger = createLogger({
-    sink: NodeHost.logSink,
-    level: options?.debug ? "trace" : "warning",
-  });
+export function withCliHost<T extends CliHostArgs>(
+  fn: (host: CliCompilerHost, args: T) => void | Promise<void>
+): (args: T) => void | Promise<void> {
+  return (args: T) => {
+    const host = createCLICompilerHost(args);
+    return fn(host, args);
+  };
+}
+
+export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
+  const logSink = createConsoleSink({ pretty: options.pretty });
+  const logger = createLogger({ sink: logSink, level: options.debug ? "trace" : "warning" });
+  return { ...NodeHost, logSink, logger, debug: options.debug ?? false };
+}
+
+export function run(
+  host: CliCompilerHost,
+  command: string,
+  commandArgs: string[],
+  options?: RunOptions
+) {
+  const logger = host.logger;
   if (options) {
     logger.trace(inspect(options, { depth: null }));
   }

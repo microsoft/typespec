@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { CliCompilerHost } from "./cli/types.js";
 
 interface SpawnError {
   errno: number;
@@ -8,7 +9,10 @@ interface SpawnError {
   spawnArgs: string[];
 }
 
-export async function installTypeSpecDependencies(directory: string): Promise<void> {
+export async function installTypeSpecDependencies(
+  host: CliCompilerHost,
+  directory: string
+): Promise<void> {
   const cmd = process.platform === "win32" ? "npm.cmd" : "npm";
   const child = spawn(cmd, ["install"], {
     stdio: "inherit",
@@ -19,13 +23,11 @@ export async function installTypeSpecDependencies(directory: string): Promise<vo
   return new Promise(() => {
     child.on("error", (error: SpawnError) => {
       if (error.code === "ENOENT") {
-        // eslint-disable-next-line no-console
-        console.error(
+        host.logger.error(
           "Cannot find `npm` executable. Make sure to have npm installed in your path."
         );
       } else {
-        // eslint-disable-next-line no-console
-        console.error("Error", error);
+        host.logger.error(error.toString());
       }
       process.exit(error.errno);
     });
