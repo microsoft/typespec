@@ -1,14 +1,14 @@
-import { expandConfigVariables } from "../../config/config-interpolation.js";
+import { expandConfigVariables } from "../../../../config/config-interpolation.js";
 import {
   loadTypeSpecConfigForPath,
   validateConfigPathsAbsolute,
-} from "../../config/config-loader.js";
-import { EmitterOptions, TypeSpecConfig } from "../../config/types.js";
-import { createDiagnosticCollector } from "../index.js";
-import { CompilerOptions } from "../options.js";
-import { getDirectoryPath, normalizePath, resolvePath } from "../path-utils.js";
-import { CompilerHost, Diagnostic } from "../types.js";
-import { deepClone, omitUndefined } from "../util.js";
+} from "../../../../config/config-loader.js";
+import { EmitterOptions, TypeSpecConfig } from "../../../../config/types.js";
+import { createDiagnosticCollector } from "../../../index.js";
+import { CompilerOptions } from "../../../options.js";
+import { getDirectoryPath, normalizePath, resolvePath } from "../../../path-utils.js";
+import { CompilerHost, Diagnostic } from "../../../types.js";
+import { deepClone, omitUndefined } from "../../../util.js";
 
 export interface CompileCliArgs {
   "output-dir"?: string;
