@@ -2,6 +2,7 @@
 
 import { SpawnSyncOptionsWithStringEncoding, spawnSync } from "child_process";
 import { inspect } from "util";
+import { logDiagnostics } from "../diagnostics.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
 import { NodeHost } from "../node-host.js";
@@ -31,6 +32,23 @@ export function withCliHost<T extends CliHostArgs>(
   return (args: T) => {
     const host = createCLICompilerHost(args);
     return fn(host, args);
+  };
+}
+
+/**
+ * Resolve Cli host automatically using cli args and handle diagnostics returned by the action.
+ */
+export function withCliHostAndDiagnostics<T extends CliHostArgs>(
+  fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>
+): (args: T) => void | Promise<void> {
+  return async (args: T) => {
+    const host = createCLICompilerHost(args);
+    const diagnostics = await fn(host, args);
+    logDiagnostics(diagnostics, host.logSink);
+    logDiagnosticCount(diagnostics);
+    if (diagnostics.some((d) => d.severity === "error")) {
+      process.exit(1);
+    }
   };
 }
 

@@ -1,4 +1,7 @@
+import { createDiagnosticCollector } from "../../diagnostics.js";
+import { createDiagnostic } from "../../messages.js";
 import { joinPaths } from "../../path-utils.js";
+import { Diagnostic, NoTarget } from "../../types.js";
 import { installVsix } from "../install-vsix.js";
 import { CliCompilerHost } from "../types.js";
 import { run } from "../utils.js";
@@ -8,13 +11,20 @@ const VSIX_NOT_INSTALLED = 1002;
 const VSIX_USER_CANCELED = 2005;
 const VS_SUPPORTED_VERSION_RANGE = "[17.0,)";
 
-export async function installVSExtension(host: CliCompilerHost) {
-  const vsixInstaller = getVsixInstallerPath();
+export async function installVSExtension(host: CliCompilerHost): Promise<readonly Diagnostic[]> {
+  const diagnostics = createDiagnosticCollector();
+  const vsixInstaller = diagnostics.pipe(getVsixInstallerPath());
+  if (vsixInstaller === undefined) {
+    return diagnostics.diagnostics;
+  }
 
   if (!isVSInstalled(host, VS_SUPPORTED_VERSION_RANGE)) {
-    // eslint-disable-next-line no-console
-    console.error("error: No compatible version of Visual Studio found.");
-    process.exit(1);
+    return [
+      createDiagnostic({
+        code: "no-compatible-vs-installed",
+        target: NoTarget,
+      }),
+    ];
   }
 
   await installVsix(host, "typespec-vs", (vsixPaths) => {
@@ -26,41 +36,51 @@ export async function installVSExtension(host: CliCompilerHost) {
       });
     }
   });
+
+  return diagnostics.diagnostics;
 }
 
-export async function uninstallVSExtension(host: CliCompilerHost) {
-  const vsixInstaller = getVsixInstallerPath();
+export async function uninstallVSExtension(host: CliCompilerHost): Promise<readonly Diagnostic[]> {
+  const [vsixInstaller, diagnostics] = getVsixInstallerPath();
+  if (vsixInstaller === undefined) {
+    return diagnostics;
+  }
   run(host, vsixInstaller, ["/uninstall:88b9492f-c019-492c-8aeb-f325a7e4cf23"], {
     allowedExitCodes: [VSIX_NOT_INSTALLED, VSIX_USER_CANCELED],
   });
+  return diagnostics;
 }
 
-function getVsixInstallerPath(): string {
+function getVsixInstallerPath(): [string | undefined, readonly Diagnostic[]] {
   return getVSInstallerPath(
     "resources/app/ServiceHub/Services/Microsoft.VisualStudio.Setup.Service/VSIXInstaller.exe"
   );
 }
 
-function getVSWherePath(): string {
+function getVSWherePath(): [string | undefined, readonly Diagnostic[]] {
   return getVSInstallerPath("vswhere.exe");
 }
 
-function getVSInstallerPath(relativePath: string) {
+function getVSInstallerPath(relativePath: string): [string | undefined, readonly Diagnostic[]] {
   if (process.platform !== "win32") {
-    // eslint-disable-next-line no-console
-    console.error("error: Visual Studio extension is not supported on non-Windows.");
-    process.exit(1);
+    return [undefined, [createDiagnostic({ code: "vs-extension-windows-only", target: NoTarget })]];
   }
 
-  return joinPaths(
-    process.env["ProgramFiles(x86)"] ?? "",
-    "Microsoft Visual Studio/Installer",
-    relativePath
-  );
+  return [
+    joinPaths(
+      process.env["ProgramFiles(x86)"] ?? "",
+      "Microsoft Visual Studio/Installer",
+      relativePath
+    ),
+    [],
+  ];
 }
 
 function isVSInstalled(host: CliCompilerHost, versionRange: string) {
-  const vswhere = getVSWherePath();
+  const [vswhere] = getVSWherePath();
+  if (vswhere === undefined) {
+    return false;
+  }
   const proc = run(
     host,
     vswhere,

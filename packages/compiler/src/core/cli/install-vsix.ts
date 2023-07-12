@@ -5,11 +5,11 @@ import { joinPaths } from "../path-utils.js";
 import { CliCompilerHost } from "./types.js";
 import { run } from "./utils.js";
 
-export async function installVsix(
+export async function installVsix<T = void>(
   host: CliCompilerHost,
   pkg: string,
-  install: (vsixPaths: string[]) => void
-) {
+  install: (vsixPaths: string[]) => T
+): Promise<T> {
   // download npm package to temporary directory
   const temp = await mkdtemp(joinPaths(os.tmpdir(), "typespec"));
   const npmArgs = ["install"];
@@ -49,8 +49,9 @@ export async function installVsix(
   );
 
   // install extension
-  install(vsixPaths);
+  const result = install(vsixPaths);
 
   // delete temporary directory
   await rm(temp, { recursive: true });
+  return result;
 }

@@ -20,7 +20,12 @@ import {
   installVSCodeExtension,
   uninstallVSCodeExtension,
 } from "./actions/vscode.js";
-import { CliHostArgs, handleInternalCompilerError, withCliHost } from "./utils.js";
+import {
+  CliHostArgs,
+  handleInternalCompilerError,
+  withCliHost,
+  withCliHostAndDiagnostics,
+} from "./utils.js";
 
 async function main() {
   // eslint-disable-next-line no-console
@@ -134,7 +139,7 @@ async function main() {
           "install",
           "Install VS Code Extension",
           () => {},
-          withCliHost<CliHostArgs & InstallVSCodeExtensionOptions>((host, args) =>
+          withCliHostAndDiagnostics<CliHostArgs & InstallVSCodeExtensionOptions>((host, args) =>
             installVSCodeExtension(host, args)
           )
         )
@@ -142,7 +147,7 @@ async function main() {
           "uninstall",
           "Uninstall VS Code Extension",
           () => {},
-          withCliHost<CliHostArgs & UninstallVSCodeExtensionOptions>((host, args) =>
+          withCliHostAndDiagnostics<CliHostArgs & UninstallVSCodeExtensionOptions>((host, args) =>
             uninstallVSCodeExtension(host, args)
           )
         );
@@ -154,13 +159,13 @@ async function main() {
           "install",
           "Install Visual Studio Extension.",
           () => {},
-          withCliHost((host) => installVSExtension(host))
+          withCliHostAndDiagnostics((host) => installVSExtension(host))
         )
         .command(
           "uninstall",
           "Uninstall VS Extension",
           () => {},
-          withCliHost((host) => uninstallVSExtension(host))
+          withCliHostAndDiagnostics((host) => uninstallVSExtension(host))
         );
     })
     .command(
@@ -196,7 +201,7 @@ async function main() {
           description: "Url of the initialization template",
           type: "string",
         }),
-      withCliHost((host, args) => initAction(host, args))
+      withCliHostAndDiagnostics((host, args) => initAction(host, args))
     )
     .command(
       "install",
@@ -208,7 +213,7 @@ async function main() {
       "info",
       "Show information about current TypeSpec compiler.",
       () => {},
-      withCliHost((host) => printInfoAction(host))
+      withCliHostAndDiagnostics((host) => printInfoAction(host))
     )
     .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
