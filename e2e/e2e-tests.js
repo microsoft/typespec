@@ -52,6 +52,7 @@ function packPackages() {
     "@typespec/compiler": resolvePackage("typespec-compiler-"),
     "@typespec/openapi": resolvePackage("typespec-openapi-"),
     "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
+    "@typespec/http": resolvePackage("typespec-http-"),
     "@typespec/rest": resolvePackage("typespec-rest-"),
     "@typespec/versioning": resolvePackage("typespec-versioning-"),
   };
@@ -93,6 +94,7 @@ function testBasicCurrentTgz(packages) {
     name: "@typespec/e2e-test-basic-current",
     dependencies: {
       "@typespec/compiler": packages["@typespec/compiler"],
+      "@typespec/http": packages["@typespec/http"],
       "@typespec/rest": packages["@typespec/rest"],
       "@typespec/openapi": packages["@typespec/openapi"],
       "@typespec/openapi3": packages["@typespec/openapi3"],
