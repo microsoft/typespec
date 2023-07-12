@@ -101,6 +101,7 @@ export type Type =
   | Union
   | UnionVariant
   | IntrinsicType
+  | MemberAccessType
   | FunctionType
   | Decorator
   | FunctionParameter
@@ -515,6 +516,18 @@ export interface UnionVariant extends BaseType, DecoratedType {
   node: UnionVariantNode | undefined;
   type: Type;
   union: Union;
+}
+
+export interface MemberAccessType extends BaseType {
+  kind: "MemberAccess";
+  /** Node */
+  node: MemberExpressionNode;
+  /** Base type. */
+  base: Type;
+  /** Member name. */
+  id: string;
+  /** Resolved value at the accessed member. */
+  value: Type;
 }
 
 export interface TemplateParameter extends BaseType {

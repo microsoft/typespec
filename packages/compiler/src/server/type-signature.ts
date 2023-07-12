@@ -62,6 +62,8 @@ function getTypeSignature(type: Type | ValueType): string {
       return `(model property)\n${fence(getModelPropertySignature(type))}`;
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
+    case "MemberAccess":
+      return `(member access)\n${getTypeSignature(type.base)}.${type.id}`;
     case "TemplateParameter":
       return `(template parameter)\n${fence(type.node.id.sv)}`;
     case "UnionVariant":
