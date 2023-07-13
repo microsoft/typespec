@@ -1,4 +1,3 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
@@ -78,12 +77,6 @@ export interface PlaygroundLinks {
   /** Issue to github issue to open a new issue. */
   githubIssueUrl?: string;
 }
-
-export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
-  <FluentProvider theme={webLightTheme}>
-    <Playground {...props} />
-  </FluentProvider>
-);
 
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
@@ -207,8 +200,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         gridTemplateColumns: "repeat(2, 1fr)",
         gridTemplateRows: "1fr auto",
         gridTemplateAreas: '"typespeceditor output"\n    "footer footer"',
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "100%",
         overflow: "hidden",
         fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
       }}
