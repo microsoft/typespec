@@ -34,7 +34,11 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
   };
 
   const App: FunctionComponent = () => {
-    return <StyledPlayground {...options} />;
+    return (
+      <div css={{ height: "100vh" }}>
+        <StyledPlayground {...options} />
+      </div>
+    );
   };
 
   return <App />;

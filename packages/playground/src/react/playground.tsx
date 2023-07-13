@@ -207,8 +207,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         gridTemplateColumns: "repeat(2, 1fr)",
         gridTemplateRows: "1fr auto",
         gridTemplateAreas: '"typespeceditor output"\n    "footer footer"',
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "100%",
         overflow: "hidden",
         fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
       }}
