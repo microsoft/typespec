@@ -1,4 +1,3 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
@@ -78,12 +77,6 @@ export interface PlaygroundLinks {
   /** Issue to github issue to open a new issue. */
   githubIssueUrl?: string;
 }
-
-export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
-  <FluentProvider theme={webLightTheme}>
-    <Playground {...props} />
-  </FluentProvider>
-);
 
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
