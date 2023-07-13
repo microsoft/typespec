@@ -1,20 +1,21 @@
 import { InitTemplateError, initTypeSpecProject } from "../../../init/init.js";
-import { logDiagnostics } from "../../diagnostics.js";
-import { createCLICompilerHost } from "../utils.js";
+import { Diagnostic } from "../../types.js";
+import { CliCompilerHost } from "../types.js";
 
 export interface InitArgs {
   templatesUrl?: string;
-  pretty?: boolean;
 }
 
-export async function initAction(args: InitArgs) {
-  const host = createCLICompilerHost(args);
+export async function initAction(
+  host: CliCompilerHost,
+  args: InitArgs
+): Promise<readonly Diagnostic[]> {
   try {
     await initTypeSpecProject(host, process.cwd(), args.templatesUrl);
+    return [];
   } catch (e) {
     if (e instanceof InitTemplateError) {
-      logDiagnostics(e.diagnostics, host.logSink);
-      process.exit(1);
+      return e.diagnostics;
     }
     throw e;
   }
