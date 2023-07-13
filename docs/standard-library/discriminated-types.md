@@ -1,6 +1,6 @@
 # Discriminated types
 
-TypeSpec allows you to represent unions and inheritance however when sending types over the wire many languages need a way to discriminate between the various union variants or model hierarchy.
+TypeSpec can express unions and inheritance. However, when sending types over the wire many languages need a way to discriminate between the various union variants or models in an inheritance hierarchy.
 
 TypeSpec provide the [`@discriminator` decorator](./built-in-decorators#@discriminator) to be able to help with this pattern.
 
