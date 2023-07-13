@@ -1,14 +1,12 @@
 /* eslint-disable no-console */
 import { fileURLToPath } from "url";
 import { loadTypeSpecConfigForPath } from "../../../config/config-loader.js";
-import { logDiagnostics } from "../../diagnostics.js";
-import { CompilerHost } from "../../types.js";
-import { logDiagnosticCount } from "../utils.js";
+import { CompilerHost, Diagnostic } from "../../types.js";
 
 /**
  * Print the resolved TypeSpec configuration.
  */
-export async function printInfoAction(host: CompilerHost) {
+export async function printInfoAction(host: CompilerHost): Promise<readonly Diagnostic[]> {
   const cwd = process.cwd();
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
@@ -22,9 +20,5 @@ export async function printInfoAction(host: CompilerHost) {
   console.log("-----------");
   console.log(jsyaml.dump(config, { replacer }));
   console.log("-----------");
-  logDiagnostics(config.diagnostics, host.logSink);
-  logDiagnosticCount(config.diagnostics);
-  if (config.diagnostics.some((d) => d.severity === "error")) {
-    process.exit(1);
-  }
+  return config.diagnostics;
 }
