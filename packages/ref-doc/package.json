@@ -52,6 +52,7 @@
   ],
   "dependencies": {
     "@typespec/compiler": "workspace:~0.46.0",
+    "js-yaml": "~4.1.0",
     "prettier": "~2.8.7"
   },
   "devDependencies": {
@@ -60,13 +61,14 @@
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
+    "@types/js-yaml": "~4.0.1",
     "c8": "~8.0.0",
     "eslint": "^8.42.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
     "mocha": "~10.2.0",
     "rimraf": "~5.0.1",
-    "typedoc-plugin-markdown": "~3.15.1",
+    "typedoc-plugin-markdown": "~4.0.0-next.17",
     "typedoc": "~0.24.8",
     "typescript": "~5.1.3"
   }

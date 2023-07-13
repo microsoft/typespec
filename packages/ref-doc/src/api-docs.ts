@@ -1,15 +1,27 @@
 import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
-import { Application } from "typedoc";
-import { load } from "typedoc-plugin-markdown";
+import { dump } from "js-yaml";
+import { Application, DeclarationReflection, PageEvent, ReflectionKind } from "typedoc";
+import { PluginOptions, load } from "typedoc-plugin-markdown";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
   const app = new Application();
 
+  loadRenderer(app);
   load(app);
 
-  const markdownPluginOptions: any = {
-    entryDocument: "index.md",
-    readme: "none",
+  const markdownPluginOptions: Partial<PluginOptions> = {
+    entryFileName: "index.md",
+    propertiesFormat: "table",
+    enumMembersFormat: "table",
+    typeDeclarationFormat: "table",
+    hidePageTitle: true,
+    hideBreadcrumbs: true,
+    hideKindPrefix: true,
+    hideInPageTOC: true,
+    hidePageHeader: true,
+    tocFormat: "list",
+    flattenOutputFiles: true,
+    identifiersAsCodeBlocks: true,
   };
 
   app.bootstrap({
@@ -17,7 +29,8 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     entryPoints: [libraryPath],
     entryPointStrategy: "legacy-packages",
     githubPages: false,
-    readme: false,
+    readme: "none",
+    hideGenerator: true,
     disableSources: true,
     ...markdownPluginOptions,
   });
@@ -40,4 +53,25 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
       },
     })
   );
+}
+
+export function loadRenderer(app: Application) {
+  app.renderer.on(PageEvent.END, (page: PageEvent<DeclarationReflection>) => {
+    if (page.contents) {
+      const frontMatter = createFrontMatter(page.model);
+      page.contents = frontMatter + page.contents.replace(/\\</g, "<");
+    }
+  });
+}
+
+function createFrontMatter(model: DeclarationReflection) {
+  return ["---", dump(createFrontMatterData(model)), "---", ""].join("\n");
+}
+
+function createFrontMatterData(model: DeclarationReflection) {
+  const kind = ReflectionKind.singularString(model.kind)[0];
+  return {
+    jsApi: true,
+    title: `[${kind}] ${model.name}`,
+  };
 }

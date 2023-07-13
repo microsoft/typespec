@@ -342,6 +342,7 @@ export class MultiKeyMap<K extends readonly object[], V> {
  * A map with exactly two keys per value.
  *
  * Functionally the same as `MultiKeyMap<[K1, K2], V>`, but more efficient.
+ * @hidden bug in typedoc
  */
 export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
   /**
