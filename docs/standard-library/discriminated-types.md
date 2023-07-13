@@ -64,12 +64,12 @@ model Cat extends Pet {
 }
 
 @discriminator("breed")
-model Siamese extends Pet {
+model Siamese extends Cat {
   breed: "siamese";
 }
 
 @discriminator("breed")
-model Bengal extends Pet {
+model Bengal extends Cat {
   breed: "bengal";
 }
 
