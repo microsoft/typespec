@@ -2,19 +2,20 @@ import { mkdtemp, readdir, rm } from "fs/promises";
 import os from "os";
 import { compilerAssert } from "../diagnostics.js";
 import { joinPaths } from "../path-utils.js";
+import { CliCompilerHost } from "./types.js";
 import { run } from "./utils.js";
 
-export async function installVsix(
+export async function installVsix<T = void>(
+  host: CliCompilerHost,
   pkg: string,
-  install: (vsixPaths: string[]) => void,
-  debug: boolean
-) {
+  install: (vsixPaths: string[]) => T
+): Promise<T> {
   // download npm package to temporary directory
   const temp = await mkdtemp(joinPaths(os.tmpdir(), "typespec"));
   const npmArgs = ["install"];
 
   // hide npm output unless --debug was passed to typespec
-  if (!debug) {
+  if (!host.debug) {
     npmArgs.push("--silent");
   }
 
@@ -30,7 +31,7 @@ export async function installVsix(
   // environment variable.
   npmArgs.push(process.env.TYPESPEC_DEBUG_VSIX_TGZ ?? pkg);
 
-  run("npm", npmArgs, { cwd: temp, debug });
+  run(host, "npm", npmArgs, { cwd: temp });
 
   // locate .vsix
   const dir = joinPaths(temp, "node_modules", pkg);
@@ -48,8 +49,9 @@ export async function installVsix(
   );
 
   // install extension
-  install(vsixPaths);
+  const result = install(vsixPaths);
 
   // delete temporary directory
   await rm(temp, { recursive: true });
+  return result;
 }
