@@ -161,6 +161,8 @@ namespace Pets {
 
 ## Content type
 
+[See content types docs](./content-types.md)
+
 ### Default behavior
 
 Depending on the body of the operation http library will assume different content types:
