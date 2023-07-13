@@ -53,6 +53,7 @@ model Dog extends Pet {
 ```tsp
 @discriminator("kind")
 model Pet {
+  kind: string;
   name: string;
   weight?: float32;
 }
@@ -60,6 +61,7 @@ model Pet {
 @discriminator("breed")
 model Cat extends Pet {
   kind: "cat";
+  breed: string;
   meow: int32;
 }
 
