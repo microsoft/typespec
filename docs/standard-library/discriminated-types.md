@@ -1,0 +1,100 @@
+# Discriminated types
+
+TypeSpec allows you to represent unions and inheritance however when sending types over the wire many languages need a way to discriminate between the various union variants or model hierarchy.
+
+TypeSpec provide the [`@discriminator` decorator](./built-in-decorators#@discriminator) to be able to help with this pattern.
+
+### Using polymorphism
+
+#### `string` discriminator
+
+```typespec
+@discriminator("kind")
+model Pet {
+  name: string;
+  weight?: float32;
+}
+model Cat extends Pet {
+  kind: "cat";
+  meow: int32;
+}
+model Dog extends Pet {
+  kind: "dog";
+  bark: string;
+}
+```
+
+#### `enum` discriminator
+
+```typespec
+enum PetKind {
+  cat,
+  dog,
+}
+
+@discriminator("kind")
+model Pet {
+  kind: PetKind;
+  name: string;
+  weight?: float32;
+}
+model Cat extends Pet {
+  kind: PetKind.cat;
+  meow: int32;
+}
+model Dog extends Pet {
+  kind: PetKind.dog;
+  bark: string;
+}
+```
+
+#### Nested discriminator
+
+```tsp
+@discriminator("kind")
+model Pet {
+  name: string;
+  weight?: float32;
+}
+
+@discriminator("breed")
+model Cat extends Pet {
+  kind: "cat";
+  meow: int32;
+}
+
+@discriminator("breed")
+model Siamese extends Pet {
+  breed: "siamese";
+}
+
+@discriminator("breed")
+model Bengal extends Pet {
+  breed: "bengal";
+}
+
+model Dog extends Pet {
+  kind: "dog";
+  bark: string;
+}
+```
+
+### Using unions
+
+```typespec
+@discriminator("kind")
+union Pet {
+  cat: Cat,
+  dog: Dog,
+}
+
+model Cat {
+  kind: "cat";
+  meow: int32;
+}
+
+model Dog {
+  kind: "dog";
+  bark: string;
+}
+```
