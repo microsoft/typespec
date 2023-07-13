@@ -117,7 +117,7 @@ model User {
 {
   "runtime": "PT5M5S",
   "runtimeInSecondsInt": "305",
-  "runtimeInSecondsFloatx": "305.0"
+  "runtimeInSecondsFloat": "305.0"
 }
 ```
 
