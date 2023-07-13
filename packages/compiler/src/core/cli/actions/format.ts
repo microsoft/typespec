@@ -1,4 +1,5 @@
 import { findUnformattedTypeSpecFiles, formatTypeSpecFiles } from "../../formatter-fs.js";
+import { CliCompilerHost } from "../types.js";
 
 export interface FormatArgs {
   include: string[];
@@ -6,7 +7,7 @@ export interface FormatArgs {
   debug?: boolean;
   check?: boolean;
 }
-export async function formatAction(args: FormatArgs) {
+export async function formatAction(host: CliCompilerHost, args: FormatArgs) {
   if (args["check"]) {
     const unformatted = await findUnformattedTypeSpecFiles(args["include"], {
       exclude: args["exclude"],
