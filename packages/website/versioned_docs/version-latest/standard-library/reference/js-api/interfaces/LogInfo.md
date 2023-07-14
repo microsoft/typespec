@@ -33,4 +33,4 @@ ___
 
 ### target
 
-• `Optional` **target**: [`DiagnosticTarget`](../index.md#diagnostictarget) \| typeof [`NoTarget`](../index.md#notarget)
+• `Optional` **target**: typeof [`NoTarget`](../index.md#notarget) \| [`DiagnosticTarget`](../index.md#diagnostictarget)

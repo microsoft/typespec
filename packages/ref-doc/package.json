@@ -51,12 +51,12 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.45.2",
+    "@typespec/compiler": "workspace:~0.46.0",
     "prettier": "~2.8.7"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
+    "@typespec/compiler": "workspace:~0.46.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",

@@ -1,6 +1,7 @@
 import {
   DecoratorContext,
   Model,
+  Namespace,
   Operation,
   Program,
   Type,
@@ -9,7 +10,7 @@ import {
 } from "@typespec/compiler";
 import { setStatusCode } from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
-import { ExtensionKey } from "./types.js";
+import { AdditionalInfo, ExtensionKey } from "./types.js";
 
 export const namespace = "OpenAPI";
 
@@ -122,4 +123,15 @@ export function $externalDocs(
 
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
   return program.stateMap(externalDocsKey).get(entity);
+}
+
+const infoKey = createStateSymbol("info");
+export function $info(context: DecoratorContext, entity: Namespace, model: Model) {
+  const [data, diagnostics] = typespecTypeToJson(model, context.getArgumentTarget(0)!);
+  context.program.reportDiagnostics(diagnostics);
+  context.program.stateMap(infoKey).set(entity, data);
+}
+
+export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
+  return program.stateMap(infoKey).get(entity);
 }
