@@ -212,7 +212,7 @@ export interface HeaderFieldOptions {
 export interface QueryParameterOptions {
   type: "query";
   name: string;
-  format?: "multi" | "csv";
+  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface PathParameterOptions {

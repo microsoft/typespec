@@ -1150,14 +1150,20 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     ph.name = parameter.name;
     ph.in = parameter.type;
     if (parameter.type === "query") {
-      if (parameter.format === "csv") {
+      if (parameter.format === "csv" || parameter.format === "simple") {
         ph.style = "simple";
-      } else if (parameter.format === "multi") {
+      } else if (parameter.format === "multi" || parameter.format === "form") {
         ph.style = "form";
         ph.explode = true;
       } else if (parameter.format === "ssv") {
         ph.style = "spaceDelimited";
         ph.explode = false;
+      } else if (parameter.format === "tsv") {
+        reportDiagnostic(program, {
+          code: "invalid-format",
+          target: parameter.param,
+        });
+        ph.style = "simple";
       } else if (parameter.format === "pipes") {
         ph.style = "pipeDelimited";
         ph.explode = false;

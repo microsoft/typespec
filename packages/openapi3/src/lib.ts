@@ -130,6 +130,12 @@ export const libDef = {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
     },
+    "invalid-format": {
+      severity: "warning",
+      messages: {
+        default: "Collection format `tsv` is not supported in OpenAPI3. Defaulting to `simple`.",
+      },
+    },
     "resource-namespace": {
       severity: "error",
       messages: {
