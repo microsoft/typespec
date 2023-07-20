@@ -344,6 +344,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
           schema = { type: "integer" };
         }
         break;
+      case "decimal":
+      case "decimal128":
+        schema = { type: "string" };
+        break;
       case "integer":
         schema = { type: "integer" };
         break;
