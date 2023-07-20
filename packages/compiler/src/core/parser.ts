@@ -705,7 +705,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ) {
         error({ code: "token-expected", messageId: "identifier" });
       } else if (idOrExpr.kind === SyntaxKind.StringLiteral) {
-        // convert string literal node to identifer node (back compat for string literal quoted properties)
+        // convert string literal node to identifier node (back compat for string literal quoted properties)
         id = {
           kind: SyntaxKind.Identifier,
           sv: idOrExpr.value,
