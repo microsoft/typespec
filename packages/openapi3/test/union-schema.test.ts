@@ -206,6 +206,48 @@ describe("openapi3: union type", () => {
     ]);
   });
 
+  it("handles union declarations with anonymous variants", async () => {
+    const res = await openApiFor(
+      `
+      model A {
+        type: "ay";
+        a: string;
+      }
+
+      model B {
+        type: "bee";
+        b: string;
+      }
+
+      @discriminator("type")
+      union AorB {
+        A,
+        B
+      }
+
+      op foo(x: AorB): { thing: AorB };
+      `
+    );
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
+  });
+
   it("handles enum unions", async () => {
     const res = await oapiForModel(
       "X",

@@ -2602,6 +2602,9 @@ export function createChecker(program: Program): Checker {
           break;
         case SyntaxKind.UnionStatement:
           for (const variant of node.options.values()) {
+            if (!variant.id) {
+              continue;
+            }
             const name = variant.id.sv;
             bindMember(name, variant, SymbolFlags.UnionVariant);
           }
@@ -3582,7 +3585,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as UnionVariant;
     }
 
-    const name = variantNode.id.sv;
+    const name = variantNode.id ? variantNode.id.sv : Symbol("name");
     const type = getTypeForNode(variantNode.value, mapper);
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
@@ -3615,6 +3618,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function getSymbolForMember(node: MemberNode): Sym | undefined {
+    if (!node.id) {
+      return undefined;
+    }
     const name = node.id.sv;
     const parentSym = node.parent?.symbol;
     return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;

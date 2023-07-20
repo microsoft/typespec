@@ -977,7 +977,9 @@ export function createServer(host: ServerHost): Server {
           break;
         case SyntaxKind.ModelProperty:
         case SyntaxKind.UnionVariant:
-          classify(node.id, SemanticTokenKind.Property);
+          if (node.id) {
+            classify(node.id, SemanticTokenKind.Property);
+          }
           break;
         case SyntaxKind.AliasStatement:
           classify(node.id, SemanticTokenKind.Struct);
