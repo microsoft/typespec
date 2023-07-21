@@ -206,12 +206,20 @@ export type RouteProducer = (
 export interface HeaderFieldOptions {
   type: "header";
   name: string;
-  format?: string;
+  /**
+   * The string format of the array. "csv" and "simple" are used interchangeably, as are
+   * "multi" and "form".
+   */
+  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface QueryParameterOptions {
   type: "query";
   name: string;
+  /**
+   * The string format of the array. "csv" and "simple" are used interchangeably, as are
+   * "multi" and "form".
+   */
   format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
