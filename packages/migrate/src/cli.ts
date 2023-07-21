@@ -68,7 +68,12 @@ async function main() {
   console.log(`Current Typespec version ${cliOptions.tspVersion}.`);
   const stepKeys = Object.keys(migrationConfigurations);
   for (const key of stepKeys) {
-    if (semver.gt(key, cliOptions.tspVersion)) {
+    const compKey = semver.coerce(key);
+    if (compKey === null) {
+      console.log(`Invalid migration step version; could not be coerced: ${key}`);
+      process.exit(1);
+    }
+    if (semver.gt(compKey, cliOptions.tspVersion)) {
       console.log(
         `Migration step found to upgrade from ${cliOptions.tspVersion} to ${key}. Migrating...`
       );
