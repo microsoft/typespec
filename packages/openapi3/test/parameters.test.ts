@@ -30,6 +30,7 @@ describe("openapi3: parameters", () => {
       op test(
         @query({name: "$multi", format: "multi"}) multis: string[],
         @query({name: "$csv", format: "csv"}) csvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
         @query({name: "$tsv", format: "tsv"}) tsvs: string[],
         @query({name: "$ssv", format: "ssv"}) ssvs: string[],
         @query({name: "$pipes", format: "pipes"}) pipes: string[]
@@ -62,19 +63,18 @@ describe("openapi3: parameters", () => {
       },
       required: true,
     });
-    // FIXME: tabDelimited is not supported in OpenAPI3...
-    // deepStrictEqual(params[2], {
-    //   in: "query",
-    //   name: "$tsv",
-    //   style: "tabDelimited",
-    //   schema: {
-    //     type: "array",
-    //     items: {
-    //       type: "string",
-    //     },
-    //   },
-    //   required: true,
-    // });
+    deepStrictEqual(params[2], {
+      in: "query",
+      name: "$tsv",
+      style: "simple",
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      required: true,
+    });
     deepStrictEqual(params[3], {
       in: "query",
       name: "$ssv",
@@ -150,6 +150,7 @@ describe("openapi3: parameters", () => {
       op test(
         @header({name: "$csv", format: "csv"}) csvs: string[],
         @header({name: "$multi", format: "multi"}) multis: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$tsv", format: "tsv"}) tsvs: string[],
         @header({name: "$ssv", format: "ssv"}) ssvs: string[],
         @header({name: "$pipes", format: "pipes"}) pipes: string[]
@@ -182,19 +183,18 @@ describe("openapi3: parameters", () => {
         },
       },
     });
-    // FIXME: tabDelimited is not supported in OpenAPI3...
-    // deepStrictEqual(params[2], {
-    //   in: "header",
-    //   name: "$tsv",
-    //   style: "tabDelimited",
-    //   schema: {
-    //     type: "array",
-    //     items: {
-    //       type: "string",
-    //     },
-    //   },
-    //   required: true,
-    // });
+    deepStrictEqual(params[2], {
+      in: "header",
+      name: "$tsv",
+      style: "simple",
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      required: true,
+    });
     deepStrictEqual(params[3], {
       in: "header",
       name: "$ssv",

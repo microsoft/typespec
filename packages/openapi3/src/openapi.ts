@@ -1149,7 +1149,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = parameter.name;
     ph.in = parameter.type;
-    if (parameter.type === "query") {
+    if (parameter.type === "query" || parameter.type === "header") {
       if (parameter.format === "csv" || parameter.format === "simple") {
         ph.style = "simple";
       } else if (parameter.format === "multi" || parameter.format === "form") {
@@ -1167,10 +1167,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       } else if (parameter.format === "pipes") {
         ph.style = "pipeDelimited";
         ph.explode = false;
-      }
-    } else if (parameter.type === "header") {
-      if (parameter.format === "csv") {
-        ph.style = "simple";
       }
     }
     const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
