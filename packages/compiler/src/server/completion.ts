@@ -7,6 +7,7 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
+import { isDeprecated } from "../core/deprecation.js";
 import {
   IdentifierNode,
   Node,
@@ -26,7 +27,6 @@ import {
 } from "../core/path-utils.js";
 import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
 import { printId } from "../formatter/print/printer.js";
-import { isDeprecated } from "../lib/decorators.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {

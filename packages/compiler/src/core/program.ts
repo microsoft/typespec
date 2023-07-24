@@ -1119,6 +1119,8 @@ export async function compile(
     switch (node.target.sv) {
       case "suppress":
         return { name: "suppress", code: args[0], message: args[1], node };
+      case "deprecated":
+        return { name: "deprecated", message: args[0], node };
       default:
         throw new Error("Unexpected directive name.");
     }

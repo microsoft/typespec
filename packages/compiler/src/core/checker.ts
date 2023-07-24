@@ -1,5 +1,6 @@
-import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
+import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
@@ -842,14 +843,22 @@ export function createChecker(program: Program): Checker {
     return [type === errorType ? undefined : type, diagnostics];
   }
 
-  function checkDeprecated(type: Type, target: DiagnosticTarget) {
-    const deprecated = getDeprecated(program, type);
-    if (deprecated) {
+  interface CheckDeprecatedOptions {
+    copyDeprecationTo: Type;
+  }
+
+  function checkDeprecated(type: Type, target: DiagnosticTarget, options?: CheckDeprecatedOptions) {
+    const deprecationDetails = getDeprecationDetails(program, type);
+    if (deprecationDetails) {
+      if (options?.copyDeprecationTo) {
+        markDeprecated(program, options?.copyDeprecationTo, deprecationDetails);
+      }
+
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "deprecated",
           format: {
-            message: deprecated,
+            message: deprecationDetails.message,
           },
           target,
         })
@@ -1633,9 +1642,13 @@ export function createChecker(program: Program): Checker {
         return errorType;
       }
       sourceOperation = baseOperation;
+
       // Reference the same return type and create the parameters type
       parameters = cloneType(baseOperation.parameters);
       returnType = baseOperation.returnType;
+
+      // Check for deprecated base operation
+      checkDeprecated(baseOperation, node.signature);
 
       // Copy decorators from the base operation, inserting the base decorators first
       decorators = [...baseOperation.decorators];
@@ -1658,6 +1671,8 @@ export function createChecker(program: Program): Checker {
     if (links) {
       linkType(links, operationType, mapper);
     }
+
+    checkDirectives(node, operationType);
 
     decorators.push(...checkDecorators(operationType, node, mapper));
 
@@ -2362,6 +2377,9 @@ export function createChecker(program: Program): Checker {
         type.indexer = isBase.indexer;
       }
     }
+
+    checkDirectives(node, type);
+
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
@@ -2380,7 +2398,7 @@ export function createChecker(program: Program): Checker {
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends, mapper);
       if (type.baseModel) {
-        checkDeprecated(type.baseModel, node.extends);
+        checkDeprecated(type.baseModel, node.extends, { copyDeprecationTo: type });
       }
     }
 
@@ -2978,6 +2996,8 @@ export function createChecker(program: Program): Checker {
       linkType(links, type, mapper);
     }
 
+    checkDirectives(prop, type);
+
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
     linkMapper(type, mapper);
@@ -3276,7 +3296,7 @@ export function createChecker(program: Program): Checker {
     if (node.extends) {
       type.baseScalar = checkScalarExtends(node, node.extends, mapper);
       if (type.baseScalar) {
-        checkDeprecated(type.baseScalar, node.extends);
+        checkDeprecated(type.baseScalar, node.extends, { copyDeprecationTo: type });
         type.baseScalar.derivedScalars.push(type);
       }
     }
@@ -3362,6 +3382,10 @@ export function createChecker(program: Program): Checker {
     const type = getTypeForNode(node.value, mapper);
     linkType(links, type, mapper);
     pendingResolutions.delete(aliasSymId);
+
+    // TODO: This is not good!  It's attaching the deprecation information to the resolved type
+    // SUGGESTION: Create a new Alias[ed]Type as intermediate value, auto-resolves to real type?
+    checkDirectives(node, type);
 
     return type;
   }
@@ -3461,6 +3485,12 @@ export function createChecker(program: Program): Checker {
         // Don't link it it is overritten
         if (!ownMembers.has(member.name)) {
           linkIndirectMember(node, newMember, mapper);
+        }
+
+        // Clone deprecation information
+        const deprecationDetails = getDeprecationDetails(program, member);
+        if (deprecationDetails) {
+          markDeprecated(program, newMember, deprecationDetails);
         }
 
         interfaceType.operations.set(newMember.name, newMember);
@@ -3692,6 +3722,27 @@ export function createChecker(program: Program): Checker {
     }
 
     return members;
+  }
+
+  function checkDirectives(node: Node, type: Type): void {
+    // TODO: Only one deprecation per node
+    node.directives?.forEach((directive) => {
+      if (directive.target.sv === "deprecated") {
+        // Extract deprecation dmessage
+        if (directive.arguments[0].kind === SyntaxKind.StringLiteral) {
+          markDeprecated(program, type, {
+            message: directive.arguments[0].value,
+          });
+        } else {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-deprecation-argument",
+              target: directive.arguments[0],
+            })
+          );
+        }
+      }
+    });
   }
 
   // the types here aren't ideal and could probably be refactored.

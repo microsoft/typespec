@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add #deprecated directive",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -480,6 +480,12 @@ const diagnostics = {
       default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
     },
   },
+  "invalid-deprecation-argument": {
+    severity: "error",
+    messages: {
+      default: "Invalid deprecation argument",
+    },
+  },
 
   /**
    * Configuration
