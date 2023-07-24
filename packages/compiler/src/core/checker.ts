@@ -1603,7 +1603,8 @@ export function createChecker(program: Program): Checker {
     parentInterface?: Interface
   ): Operation | ErrorType {
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
-    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol);
+    const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
+    const links = symbol && getSymbolLinks(symbol);
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
@@ -1634,7 +1635,11 @@ export function createChecker(program: Program): Checker {
       }
       sourceOperation = baseOperation;
       // Reference the same return type and create the parameters type
-      parameters = cloneType(baseOperation.parameters);
+      parameters = cloneType(
+        baseOperation.parameters,
+        {},
+        getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get("parameters")
+      );
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
@@ -2489,7 +2494,7 @@ export function createChecker(program: Program): Checker {
         defineProperty(properties, newProp);
       } else {
         // spread property
-        const newProperties = checkSpreadProperty(prop.target, parentModel, mapper);
+        const newProperties = checkSpreadProperty(node.symbol, prop.target, parentModel, mapper);
 
         for (const newProp of newProperties) {
           linkIndirectMember(node, newProp, mapper);
@@ -2651,6 +2656,34 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function copyMembersToContainer(targetContainerSym: Sym, table: SymbolTable) {
+    const members = augmentedSymbolTables.get(table) ?? table;
+    compilerAssert(targetContainerSym.members, "containerSym.members is undefined");
+    const containerMembers = getOrCreateAugmentedSymbolTable(targetContainerSym.members);
+
+    for (const member of members.values()) {
+      bindMemberToContainer(
+        targetContainerSym,
+        containerMembers,
+        member.name,
+        member.declarations[0],
+        member.flags
+      );
+    }
+  }
+
+  function bindMemberToContainer(
+    containerSym: Sym,
+    containerMembers: Mutable<SymbolTable>,
+    name: string,
+    node: Node,
+    kind: SymbolFlags
+  ) {
+    const sym = createSymbol(node, name, kind, containerSym);
+    compilerAssert(containerSym.members, "containerSym.members is undefined");
+    containerMembers.set(name, sym);
+  }
+
   function bindMetaTypes(node: Node) {
     switch (node.kind) {
       case SyntaxKind.ModelProperty: {
@@ -2677,7 +2710,18 @@ export function createChecker(program: Program): Checker {
           const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined)!;
           if (sig) {
             const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
-            table.set("parameters", sigTable.get("parameters")!);
+            const sigParameterSym = sigTable.get("parameters")!;
+
+            // TODO-TIM figure out why undefined sometimes.
+            if (sigParameterSym !== undefined) {
+              const parametersSym = createSymbol(
+                sigParameterSym.declarations[0],
+                "parameters",
+                SymbolFlags.Model & SymbolFlags.MemberContainer
+              );
+              copyMembersToContainer(parametersSym, sigParameterSym.members!);
+              table.set("parameters", parametersSym);
+            }
             table.set("returnType", sigTable.get("returnType")!);
           }
         }
@@ -2893,6 +2937,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkSpreadProperty(
+    parentModelSym: Sym,
     targetNode: TypeReferenceNode,
     parentModel: Model,
     mapper: TypeMapper | undefined
@@ -2910,11 +2955,16 @@ export function createChecker(program: Program): Checker {
     const props: ModelProperty[] = [];
     // copy each property
     for (const prop of walkPropertiesInherited(targetType)) {
+      const memberSym = getMemberSymbol(parentModelSym, prop.name);
       props.push(
-        cloneType(prop, {
-          sourceProperty: prop,
-          model: parentModel,
-        })
+        cloneType(
+          prop,
+          {
+            sourceProperty: prop,
+            model: parentModel,
+          },
+          memberSym
+        )
       );
     }
     return props;
@@ -3209,6 +3259,18 @@ export function createChecker(program: Program): Checker {
     return valid;
   }
 
+  function checkAugmentDecorators(sym: Sym, targetType: Type, mapper: TypeMapper | undefined) {
+    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+    const decorators: DecoratorApplication[] = [];
+
+    for (const decNode of augmentDecoratorNodes) {
+      const decorator = checkDecorator(targetType, decNode, mapper);
+      if (decorator) {
+        decorators.unshift(decorator);
+      }
+    }
+    return decorators;
+  }
   function checkDecorators(
     targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
@@ -3395,7 +3457,13 @@ export function createChecker(program: Program): Checker {
           memberNames.add(memberType.name);
           enumType.members.set(memberType.name, memberType);
         } else {
-          const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
+          const members = checkEnumSpreadMember(
+            node.symbol,
+            enumType,
+            member.target,
+            mapper,
+            memberNames
+          );
           for (const memberType of members) {
             linkIndirectMember(node, memberType, mapper);
             enumType.members.set(memberType.name, memberType);
@@ -3614,6 +3682,10 @@ export function createChecker(program: Program): Checker {
     );
   }
 
+  function getMemberSymbol(parentSym: Sym, name: string): Sym | undefined {
+    return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
+  }
+
   function getSymbolForMember(node: MemberNode): Sym | undefined {
     const name = node.id.sv;
     const parentSym = node.parent?.symbol;
@@ -3655,6 +3727,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkEnumSpreadMember(
+    parentEnumSym: Sym,
     parentEnum: Enum,
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined,
@@ -3680,10 +3753,15 @@ export function createChecker(program: Program): Checker {
           );
         } else {
           existingMemberNames.add(member.name);
-          const clonedMember = cloneType(member, {
-            enum: parentEnum,
-            sourceMember: member,
-          });
+          const memberSym = getMemberSymbol(parentEnumSym, member.name);
+          const clonedMember = cloneType(
+            member,
+            {
+              enum: parentEnum,
+              sourceMember: member,
+            },
+            memberSym
+          );
           if (clonedMember) {
             members.push(clonedMember);
           }
@@ -3875,7 +3953,7 @@ export function createChecker(program: Program): Checker {
    * If the entire type graph needs to be cloned, then cloneType must be called
    * recursively by the caller.
    */
-  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
+  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}, sym?: Sym): T {
     // TODO: this needs to handle other types
     let clone: Type;
     switch (type.kind) {
@@ -3890,7 +3968,7 @@ export function createChecker(program: Program): Checker {
           newModel.properties = createRekeyableMap(
             Array.from(type.properties.entries()).map(([key, prop]) => [
               key,
-              cloneType(prop, { model: newModel }),
+              cloneType(prop, { model: newModel }, sym && getMemberSymbol(sym, prop.name)),
             ])
           );
         }
@@ -3955,11 +4033,17 @@ export function createChecker(program: Program): Checker {
         break;
 
       default:
-        clone = createAndFinishType({
+        const newType = createType({
           ...type,
           ...("decorators" in type ? { decorators: [...type.decorators] } : {}),
           ...additionalProps,
         });
+        if (sym && "decorators" in newType) {
+          for (const dec of checkAugmentDecorators(sym, newType, undefined)) {
+            newType.decorators!.push(dec);
+          }
+        }
+        clone = finishType(newType);
         break;
     }
 
