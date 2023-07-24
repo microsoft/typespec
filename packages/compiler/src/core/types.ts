@@ -620,6 +620,9 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
+/**
+ * @hidden bug in typedoc
+ */
 export interface SymbolTable extends ReadonlyMap<string, Sym> {
   /**
    * Duplicate
@@ -678,6 +681,7 @@ export interface TypeInstantiationMap {
 
 /**
  * A map where keys can be changed without changing enumeration order.
+ * @hidden bug in typedoc
  */
 export interface RekeyableMap<K, V> extends Map<K, V> {
   /**
