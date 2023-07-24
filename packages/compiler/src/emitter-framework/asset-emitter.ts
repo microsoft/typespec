@@ -432,8 +432,8 @@ export function createAssetEmitter<T, TOptions extends object>(
       return invokeTypeEmitter("tupleLiteralValues", tuple);
     },
 
-    emitSourceFile(sourceFile) {
-      return typeEmitter.sourceFile(sourceFile);
+    async emitSourceFile(sourceFile) {
+      return await typeEmitter.sourceFile(sourceFile);
     },
   };
 
