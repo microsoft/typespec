@@ -7,14 +7,25 @@ using TypeSpec.Rest;
 using TypeSpec.Versioning;
 using Azure.Core;
 
+@useAuth(
+  ApiKeyAuth<ApiKeyLocation.header, "api-key"> | OAuth2Auth<[
+    {
+      type: OAuth2FlowType.implicit,
+      authorizationUrl: "https://login.contoso.com/common/oauth2/v2.0/authorize",
+      scopes: ["https://widget.contoso.com/.default"],
+    }
+  ]>
+)
 @service({
   title: "{{parameters.ServiceNamespace}} service",
 })
 @versioned({{parameters.ServiceNamespace}}.Versions)
 namespace {{parameters.ServiceNamespace}};
 
+@doc("The {{parameters.ServiceNamespace}} service versions.")
 enum Versions {
   @useDependency(Azure.Core.Versions.v1_0_Preview_1)
+  @doc("The 2022-11-01-preview version of the {{parameters.ServiceNamespace}} service.")
   `2022-11-01-preview`,
 }
 
