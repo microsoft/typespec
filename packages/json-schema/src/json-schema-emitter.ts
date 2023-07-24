@@ -532,7 +532,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const toEmit: EmittedSourceFile[] = [];
 
     for (const sf of sourceFiles) {
-      const emittedSf = this.emitter.emitSourceFile(sf);
+      const emittedSf = await this.emitter.emitSourceFile(sf);
 
       if (sf.meta.shouldEmit) {
         toEmit.push(emittedSf);
