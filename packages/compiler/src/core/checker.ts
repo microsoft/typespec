@@ -2402,14 +2402,6 @@ export function createChecker(program: Program): Checker {
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper);
 
-    for (const prop of walkPropertiesInherited(type)) {
-      const table = getOrCreateAugmentedSymbolTable(node.symbol.members!);
-      const sym = table.get(prop.name);
-      if (sym) {
-        mutate(sym).type = prop;
-      }
-    }
-
     linkMapper(type, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
