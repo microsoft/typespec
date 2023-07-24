@@ -41,7 +41,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   emitEnumMembers(en: Enum): EmitEntity<T>;
   emitUnionVariants(union: Union): EmitEntity<T>;
   emitTupleLiteralValues(tuple: Tuple): EmitEntity<T>;
-  emitSourceFile(sourceFile: SourceFile<T>): EmittedSourceFile;
+  emitSourceFile(sourceFile: SourceFile<T>): Promise<EmittedSourceFile>;
   /**
    * Create a source file.
    *
