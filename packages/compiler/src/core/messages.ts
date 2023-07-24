@@ -807,6 +807,29 @@ const diagnostics = {
       default: "Conflict marker encountered.",
     },
   },
+
+  // #region CLI
+  "no-compatible-vs-installed": {
+    severity: "error",
+    messages: {
+      default: "No compatible version of Visual Studio found.",
+    },
+  },
+  "vs-extension-windows-only": {
+    severity: "error",
+    messages: {
+      default: "Visual Studio extension is not supported on non-Windows.",
+    },
+  },
+  "vscode-in-path": {
+    severity: "error",
+    messages: {
+      default:
+        "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.",
+      osx: "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.\nSee instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac",
+    },
+  },
+  // #endregion CLI
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

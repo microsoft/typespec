@@ -289,7 +289,7 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
   const validationTarget = templatesUrl.file as SourceFile;
   let validationResult: ValidationResult;
   // 1. If current version > compilerVersion, proceed with strict validation
-  if (template.compilerVersion && semver.gt(currentCompilerVersion, template.compilerVersion)) {
+  if (template.compilerVersion && semver.gte(currentCompilerVersion, template.compilerVersion)) {
     validationResult = validateTemplateDefinitions(template, validationTarget, true);
 
     // 1.1 If strict validation fails, try relaxed validation
