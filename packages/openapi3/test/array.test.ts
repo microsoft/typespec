@@ -86,6 +86,38 @@ describe("openapi3: Array", () => {
     });
   });
 
+  it("can specify minItems using @minItems decorator (on array model)", async () => {
+    const res = await oapiForModel(
+      "Names",
+      `
+      @minItems(1)
+      model Names is string[];
+      `
+    );
+
+    deepStrictEqual(res.schemas.Names, {
+      type: "array",
+      minItems: 1,
+      items: { type: "string" },
+    });
+  });
+
+  it("can specify maxItems using @maxItems decorator  (on array model)", async () => {
+    const res = await oapiForModel(
+      "Names",
+      `
+      @maxItems(3)
+      model Names is string[];
+      `
+    );
+
+    deepStrictEqual(res.schemas.Names, {
+      type: "array",
+      maxItems: 3,
+      items: { type: "string" },
+    });
+  });
+
   it("can specify array defaults using tuple syntax", async () => {
     const res = await oapiForModel(
       "Pet",

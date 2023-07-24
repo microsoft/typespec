@@ -98,7 +98,7 @@ Map<K1, Map<K2, V\>\>.constructor
 
 #### Inherited from
 
-Map.\_\_@toStringTag@35
+Map.[toStringTag]
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 #### Inherited from
 
-Map.\_\_@species@612
+Map.[species]
 
 ## Methods
 
@@ -134,7 +134,7 @@ Returns an iterable of entries in the map.
 
 #### Inherited from
 
-Map.\_\_@iterator@95
+Map.[iterator]
 
 ___
 

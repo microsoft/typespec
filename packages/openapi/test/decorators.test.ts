@@ -1,6 +1,7 @@
+import { Namespace } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { getExtensions, getExternalDocs } from "../src/decorators.js";
+import { getExtensions, getExternalDocs, getInfo } from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
@@ -143,6 +144,63 @@ describe("openapi: decorators", () => {
       deepStrictEqual(getExternalDocs(runner.program, Foo), {
         url: "https://example.com",
         description: "More info there",
+      });
+    });
+  });
+
+  describe("@info", () => {
+    it("emit diagnostic if use on non namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        @info({})
+        model Foo {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @info decorator to Foo since it is not assignable to Namespace",
+      });
+    });
+
+    it("emit diagnostic if info parameter is not an object", async () => {
+      const diagnostics = await runner.diagnose(`
+        @info(123)
+        namespace Service {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: "Argument '123' is not assignable to parameter of type 'OpenAPI.AdditionalInfo'",
+      });
+    });
+
+    it("set all properties", async () => {
+      const { Service } = (await runner.compile(`
+        @info({
+          termsOfService: "http://example.com/terms/",
+          contact: {
+            name: "API Support",
+            url: "http://www.example.com/support",
+            email: "support@example.com"
+          },
+          license: {
+            name: "Apache 2.0",
+            url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+          },
+        })
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+
+      deepStrictEqual(getInfo(runner.program, Service), {
+        termsOfService: "http://example.com/terms/",
+        contact: {
+          name: "API Support",
+          url: "http://www.example.com/support",
+          email: "support@example.com",
+        },
+        license: {
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+        },
       });
     });
   });
