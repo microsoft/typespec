@@ -2689,51 +2689,61 @@ export function createChecker(program: Program): Checker {
   }
 
   function bindMetaTypes(node: Node) {
-    switch (node.kind) {
-      case SyntaxKind.ModelProperty: {
-        const sym = getSymbolForMember(node);
-        if (sym) {
-          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-
-          table.set(
-            "type",
-            node.value.kind === SyntaxKind.TypeReference
-              ? createSymbol(node.value, "", SymbolFlags.Alias)
-              : node.value.symbol
-          );
-        }
-        break;
+    const visited = new Set();
+    function visit(node: Node, symbol?: Sym) {
+      if (visited.has(node)) {
+        return;
       }
+      visited.add(node);
+      switch (node.kind) {
+        case SyntaxKind.ModelProperty: {
+          const sym = getSymbolForMember(node);
+          if (sym) {
+            const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
 
-      case SyntaxKind.OperationStatement: {
-        const sym = node.symbol ?? getSymbolForMember(node);
-        const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-        if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
-          table.set("parameters", node.signature.parameters.symbol);
-          table.set("returnType", node.signature.returnType.symbol);
-        } else {
-          const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined)!;
-          if (sig) {
-            const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
-            const sigParameterSym = sigTable.get("parameters")!;
-
-            const parametersSym = createSymbol(
-              sigParameterSym.declarations[0],
-              "parameters",
-              SymbolFlags.Model & SymbolFlags.MemberContainer
+            table.set(
+              "type",
+              node.value.kind === SyntaxKind.TypeReference
+                ? createSymbol(node.value, "", SymbolFlags.Alias)
+                : node.value.symbol
             );
-            copyMembersToContainer(parametersSym, sigParameterSym.members!);
-            table.set("parameters", parametersSym);
-            table.set("returnType", sigTable.get("returnType")!);
           }
+          break;
         }
 
-        break;
+        case SyntaxKind.OperationStatement: {
+          const sym = symbol ?? node.symbol ?? getSymbolForMember(node);
+          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+          if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
+            table.set("parameters", node.signature.parameters.symbol);
+            table.set("returnType", node.signature.returnType.symbol);
+          } else {
+            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined);
+            if (sig) {
+              visit(sig.declarations[0], sig);
+              const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
+              const sigParameterSym = sigTable.get("parameters")!;
+              if (sigParameterSym !== undefined) {
+                const parametersSym = createSymbol(
+                  sigParameterSym.declarations[0],
+                  "parameters",
+                  SymbolFlags.Model & SymbolFlags.MemberContainer
+                );
+                copyMembersToContainer(parametersSym, sigParameterSym.members!);
+                table.set("parameters", parametersSym);
+                table.set("returnType", sigTable.get("returnType")!);
+              }
+            }
+          }
+
+          break;
+        }
       }
+      visitChildren(node, (child) => {
+        bindMetaTypes(child);
+      });
     }
-    visitChildren(node, (child) => {
-      bindMetaTypes(child);
-    });
+    visit(node);
   }
 
   /**
@@ -3523,7 +3533,10 @@ export function createChecker(program: Program): Checker {
             })
           );
         }
-        const newMember = cloneType(member, { interface: interfaceType });
+
+        const newMember = cloneTypeForSymbol(getMemberSymbol(node.symbol, member.name)!, member, {
+          interface: interfaceType,
+        });
         // Don't link it it is overritten
         if (!ownMembers.has(member.name)) {
           linkIndirectMember(node, newMember, mapper);
