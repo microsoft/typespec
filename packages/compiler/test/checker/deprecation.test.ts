@@ -122,14 +122,25 @@ describe("compiler: checker: deprecation", () => {
     it("emits deprecation for usage on alias types", async () => {
       const diagnostics = await runner.diagnose(`
           model Foo<T> { val: T; }
+          model Bar {}
 
           #deprecated "StringFoo is deprecated"
           alias StringFoo = Foo<string>;
 
-          op oldGet(): StringFoo;
+          op get(): StringFoo;
+          op otherGet(): Foo<string>; // No diagnostic here, only on alias
+          op put(str: string | StringFoo): void;
+
+          model Baz {
+            foo: StringFoo;
+          }
           `);
 
-      expectDeprecations(diagnostics, ["StringFoo is deprecated"]);
+      expectDeprecations(diagnostics, [
+        "StringFoo is deprecated",
+        "StringFoo is deprecated",
+        "StringFoo is deprecated",
+      ]);
     });
 
     it("emits deprecation for use of deprecated decorator signatures", async () => {

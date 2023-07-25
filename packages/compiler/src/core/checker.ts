@@ -29,8 +29,10 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  DeprecatedDirective,
   Diagnostic,
   DiagnosticTarget,
+  Directive,
   DocContent,
   Enum,
   EnumMember,
@@ -1772,13 +1774,27 @@ export function createChecker(program: Program): Checker {
     const id = getSymbolId(s);
 
     if (symbolLinks.has(id)) {
-      return symbolLinks.get(id)!;
+      // Check if the link has an attached deprecation
+      const links = symbolLinks.get(id)!;
+      if (links?.deprecation) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "deprecated",
+            format: {
+              message: links.deprecation.message,
+            },
+            target: s,
+          })
+        );
+      }
+
+      return links;
     }
 
-    const links = {};
-    symbolLinks.set(id, links);
+    const newLinks = {};
+    symbolLinks.set(id, newLinks);
 
-    return links;
+    return newLinks;
   }
 
   function getSymbolId(s: Sym) {
@@ -3379,9 +3395,13 @@ export function createChecker(program: Program): Checker {
     linkType(links, type, mapper);
     pendingResolutions.delete(aliasSymId);
 
-    // TODO: This is not good!  It's attaching the deprecation information to the resolved type
-    // SUGGESTION: Create a new Alias[ed]Type as intermediate value, auto-resolves to real type?
-    checkDirectives(node, type);
+    // Look for a deprecation directive on the alias definition
+    const deprecation: Directive | undefined = getDirectivesForNode(node).find(
+      (d) => d.name === "deprecated"
+    );
+    if (deprecation) {
+      links.deprecation = deprecation as DeprecatedDirective;
+    }
 
     return type;
   }
@@ -3720,22 +3740,45 @@ export function createChecker(program: Program): Checker {
     return members;
   }
 
-  function checkDirectives(node: Node, type: Type): void {
-    // TODO: Only one deprecation per node
-    node.directives?.forEach((directive) => {
-      if (directive.target.sv === "deprecated") {
-        // Extract deprecation dmessage
-        if (directive.arguments[0].kind === SyntaxKind.StringLiteral) {
-          markDeprecated(program, type, {
+  function getDirectivesForNode(node: Node): Directive[] {
+    return (node.directives ?? [])
+      .map((directive) => {
+        if (directive.target.sv === "deprecated") {
+          if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "invalid-deprecation-argument",
+                target: directive.arguments[0],
+              })
+            );
+
+            return undefined;
+          }
+
+          return {
+            name: "deprecated",
+            node: directive,
             message: directive.arguments[0].value,
-          });
+          };
+        }
+
+        return undefined;
+      })
+      .filter((directive) => directive !== undefined) as Directive[];
+  }
+
+  function checkDirectives(node: Node, type: Type): void {
+    let hasDeprecation: boolean = false;
+    const directives = getDirectivesForNode(node);
+    directives.forEach((directive) => {
+      if (directive.name === "deprecated") {
+        if (hasDeprecation === true) {
+          // TODO: Diagnostic
         } else {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-deprecation-argument",
-              target: directive.arguments[0],
-            })
-          );
+          hasDeprecation = true;
+          markDeprecated(program, type, {
+            message: directive.message,
+          });
         }
       }
     });
