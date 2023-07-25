@@ -1634,12 +1634,24 @@ export function createChecker(program: Program): Checker {
         return errorType;
       }
       sourceOperation = baseOperation;
+      const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+        "parameters"
+      )!;
       // Reference the same return type and create the parameters type
-      parameters = cloneType(
-        baseOperation.parameters,
-        {},
-        getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get("parameters")
+      const clone = initializeClone(baseOperation.parameters, {
+        properties: createRekeyableMap(),
+      });
+
+      clone.properties = createRekeyableMap(
+        Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
+          key,
+          cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+            model: clone,
+            sourceProperty: prop,
+          }),
+        ])
       );
+      parameters = finishType(clone);
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
@@ -2949,14 +2961,10 @@ export function createChecker(program: Program): Checker {
     for (const prop of walkPropertiesInherited(targetType)) {
       const memberSym = getMemberSymbol(parentModelSym, prop.name);
       props.push(
-        cloneType(
-          prop,
-          {
-            sourceProperty: prop,
-            model: parentModel,
-          },
-          memberSym
-        )
+        cloneTypeForSymbol(memberSym!, prop, {
+          sourceProperty: prop,
+          model: parentModel,
+        })
       );
     }
     return props;
@@ -3288,7 +3296,7 @@ export function createChecker(program: Program): Checker {
     if (docComment) {
       decorators.unshift({
         decorator: $docFromComment,
-        args: [{ value: program.checker.createLiteralType(docComment), jsValue: docComment }],
+        args: [{ value: createLiteralType(docComment), jsValue: docComment }],
       });
     }
     return decorators;
@@ -3746,14 +3754,10 @@ export function createChecker(program: Program): Checker {
         } else {
           existingMemberNames.add(member.name);
           const memberSym = getMemberSymbol(parentEnumSym, member.name);
-          const clonedMember = cloneType(
-            member,
-            {
-              enum: parentEnum,
-              sourceMember: member,
-            },
-            memberSym
-          );
+          const clonedMember = cloneTypeForSymbol(memberSym!, member, {
+            enum: parentEnum,
+            sourceMember: member,
+          });
           if (clonedMember) {
             members.push(clonedMember);
           }
@@ -3930,23 +3934,7 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  /**
-   * Clone a type, resulting in an identical type with all the same decorators
-   * applied. Decorators are re-run on the clone to achieve this.
-   *
-   * Care is taken to clone nested data structures that are part of the type.
-   * Any type with e.g. a map or an array property must recreate the map or array
-   * so that clones don't share the same object.
-   *
-   * For types which have sub-types that are part of it, e.g. enums with members,
-   * unions with variants, or models with properties, the sub-types are cloned
-   * as well.
-   *
-   * If the entire type graph needs to be cloned, then cloneType must be called
-   * recursively by the caller.
-   */
-  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}, sym?: Sym): T {
-    // TODO: this needs to handle other types
+  function initializeClone<T extends Type>(type: T, additionalProps: Partial<T>): T {
     let clone: Type;
     switch (type.kind) {
       case "Model":
@@ -3960,11 +3948,11 @@ export function createChecker(program: Program): Checker {
           newModel.properties = createRekeyableMap(
             Array.from(type.properties.entries()).map(([key, prop]) => [
               key,
-              cloneType(prop, { model: newModel }, sym && getMemberSymbol(sym, prop.name)),
+              cloneType(prop, { model: newModel }),
             ])
           );
         }
-        clone = finishType(newModel);
+        clone = newModel;
         break;
 
       case "Union":
@@ -3985,7 +3973,7 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newUnion);
+        clone = newUnion;
         break;
 
       case "Interface":
@@ -4003,7 +3991,7 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newInterface);
+        clone = newInterface;
         break;
 
       case "Enum":
@@ -4021,29 +4009,66 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newEnum);
+        clone = newEnum;
         break;
 
       default:
-        const newType = createType({
+        clone = createType({
           ...type,
           ...("decorators" in type ? { decorators: [...type.decorators] } : {}),
           ...additionalProps,
         });
-        if (sym && "decorators" in newType) {
-          for (const dec of checkAugmentDecorators(sym, newType, undefined)) {
-            newType.decorators!.push(dec);
-          }
-        }
-        clone = finishType(newType);
         break;
     }
 
+    return clone as T;
+  }
+
+  /**
+   * Clone a type, resulting in an identical type with all the same decorators
+   * applied. Decorators are re-run on the clone to achieve this.
+   *
+   * Care is taken to clone nested data structures that are part of the type.
+   * Any type with e.g. a map or an array property must recreate the map or array
+   * so that clones don't share the same object.
+   *
+   * For types which have sub-types that are part of it, e.g. enums with members,
+   * unions with variants, or models with properties, the sub-types are cloned
+   * as well.
+   *
+   * If the entire type graph needs to be cloned, then cloneType must be called
+   * recursively by the caller.
+   */
+  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
+    const clone: Type = finishType(initializeClone(type, additionalProps));
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
     }
 
+    compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
+    return clone as T;
+  }
+
+  /**
+   * Clone a type linking to the given symbol.
+   * @param sym Symbol which to associate the clone
+   * @param type Type to clone
+   * @param additionalProps Additional properties to set/override on the clone
+   * @returns cloned type
+   */
+  function cloneTypeForSymbol<T extends Type>(
+    sym: Sym,
+    type: T,
+    additionalProps: Partial<T> = {}
+  ): T {
+    let clone: Type = initializeClone(type, additionalProps);
+    if ("decorators" in clone) {
+      for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
+        clone.decorators.push(dec);
+      }
+    }
+    clone = finishType(clone);
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone as T;
   }
