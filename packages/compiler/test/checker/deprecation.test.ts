@@ -1,9 +1,12 @@
 import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
+  createTestHost,
   createTestRunner,
+  createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  TestHost,
 } from "../../src/testing/index.js";
 
 describe("compiler: checker: deprecation", () => {
@@ -127,6 +130,25 @@ describe("compiler: checker: deprecation", () => {
           `);
 
       expectDeprecations(diagnostics, ["StringFoo is deprecated"]);
+    });
+
+    it("emits deprecation for use of deprecated decorator signatures", async () => {
+      const testHost: TestHost = await createTestHost();
+      testHost.addJsFile("test.js", { $testDec: () => {} });
+      const runner = createTestWrapper(testHost, {
+        autoImports: ["./test.js"],
+        autoUsings: ["TypeSpec.Reflection"],
+      });
+
+      const diagnostics = await runner.diagnose(`
+          #deprecated "testDec is deprecated"
+          extern dec testDec(target: Model);
+
+          @testDec
+          model Foo {}
+          `);
+
+      expectDeprecations(diagnostics, ["testDec is deprecated"]);
     });
   });
 

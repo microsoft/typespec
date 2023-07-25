@@ -5535,6 +5535,22 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
     }
   }
 
+  // Is the decorator definition deprecated?
+  if (decApp.definition) {
+    const deprecation = getDeprecationDetails(program, decApp.definition);
+    if (deprecation !== undefined) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          format: {
+            message: deprecation.message,
+          },
+          target: decApp.node ?? target,
+        })
+      );
+    }
+  }
+
   // peel `fn` off to avoid setting `this`.
   try {
     const args = decApp.args.map((x) => x.jsValue);
