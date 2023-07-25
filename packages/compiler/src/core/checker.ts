@@ -850,10 +850,23 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkDeprecated(type: Type, target: DiagnosticTarget) {
-    const deprecationDetails = getDeprecationDetails(program, type);
-    if (deprecationDetails) {
-      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+  function checkDeprecated(type: Type, node: Node | undefined, target: DiagnosticTarget) {
+    let hasDeprecation = false;
+    if (node) {
+      const directives = getDirectivesForNode(node);
+      directives.forEach((directive) => {
+        if (directive.name === "deprecated" && program.compilerOptions.ignoreDeprecated !== true) {
+          hasDeprecation = true;
+          reportDeprecation(program, node, directive.message, reportCheckerDiagnostic);
+        }
+      });
+    }
+
+    if (!hasDeprecation) {
+      const deprecationDetails = getDeprecationDetails(program, type);
+      if (deprecationDetails) {
+        reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+      }
     }
   }
 
@@ -1056,20 +1069,9 @@ export function createChecker(program: Program): Checker {
     }
 
     // Check for deprecations here, first on symbol, then on type.
-    const originalNode = sym?.declarations[0];
-    if (originalNode) {
-      let hasDeprecation = false;
-      const directives = getDirectivesForNode(originalNode);
-      directives.forEach((directive) => {
-        if (directive.name === "deprecated" && program.compilerOptions.ignoreDeprecated !== true) {
-          hasDeprecation = true;
-          reportDeprecation(program, node, directive.message, reportCheckerDiagnostic);
-        }
-      });
-
-      if (!hasDeprecation) {
-        checkDeprecated(baseType, node);
-      }
+    const declarationNode = sym?.declarations[0];
+    if (declarationNode) {
+      checkDeprecated(baseType, declarationNode, node);
     }
 
     return baseType;
