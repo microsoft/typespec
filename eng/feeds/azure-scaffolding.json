@@ -1,11 +1,17 @@
 {
   "azure-core": {
     "title": "(rest-api-spec repo) Azure Data Plane Service Project",
-    "description": "Create a project representing an Azure service Data Plane API",
+    "description": "Create a project in rest-api-spec repo, representing an Azure service Data Plane API",
+    "compilerVersion": "0.45.2",
     "libraries": [],
     "skipCompilerPackage": true,
     "config": {},
     "files": [
+      {
+        "path": "package.json",
+        "destination": "package.json",
+        "skipGeneration": true
+      },
       {
         "path": "./data-plane/main.tsp",
         "destination": "main.tsp"
@@ -50,8 +56,135 @@
   "azure-arm": {
     "title": "(rest-api-spec repo) Azure Resource Manager Service Project",
     "description": "Create a project in rest-api-spec repo, representing an Azure service ARM API",
+    "compilerVersion": "0.45.2",
     "libraries": [],
     "skipCompilerPackage": true,
+    "config": {
+      "emit": ["@azure-tools/typespec-autorest"]
+    },
+    "files": [
+      {
+        "path": "package.json",
+        "destination": "package.json",
+        "skipGeneration": true
+      },
+      {
+        "path": "./arm/main.tsp",
+        "destination": "main.tsp"
+      },
+      {
+        "path": "./arm/tspconfig.yaml",
+        "destination": "tspconfig.yaml"
+      },
+      {
+        "path": "./arm/examples/Employees_CreateOrUpdate.json",
+        "destination": "examples/Employees_CreateOrUpdate.json"
+      },
+      {
+        "path": "./arm/examples/Employees_Delete.json",
+        "destination": "examples/Employees_Delete.json"
+      },
+      {
+        "path": "./arm/examples/Employees_ListByResourceGroup.json",
+        "destination": "examples/Employees_ListByResourceGroup.json"
+      },
+      {
+        "path": "./arm/examples/Employees_ListBySubscription.json",
+        "destination": "examples/Employees_ListBySubscription.json"
+      },
+      {
+        "path": "./arm/examples/Employees_Update.json",
+        "destination": "examples/Employees_Update.json"
+      },
+      {
+        "path": "./arm/examples/Employees_Get.json",
+        "destination": "examples/Employees_Get.json"
+      },
+      {
+        "path": "./arm/examples/Operations_List.json",
+        "destination": "examples/Operations_List.json"
+      }
+    ],
+    "inputs": {
+      "ServiceNamespace": {
+        "description": "Please provide ARM Resource Provider Name in Pascal case:",
+        "type": "text",
+        "initialValue": "Microsoft.Contoso"
+      }
+    }
+  },
+  "azure-core_stand_alone": {
+    "title": "(stand alone) Azure Data Plane Service Project",
+    "description": "Create a stand alone project representing an Azure service Data Plane API",
+    "compilerVersion": "0.45.2",
+    "libraries": [
+      "@azure-tools/typespec-autorest",
+      "@azure-tools/typespec-azure-core",
+      "@azure-tools/typespec-azure-resource-manager",
+      "@azure-tools/typespec-client-generator-core",
+      "@azure-tools/typespec-providerhub",
+      "@typespec/http",
+      "@typespec/openapi",
+      "@typespec/rest",
+      "@typespec/versioning"
+    ],
+    "config": {},
+    "files": [
+      {
+        "path": "./data-plane/main.tsp",
+        "destination": "main.tsp"
+      },
+      {
+        "path": "./data-plane/client.tsp",
+        "destination": "client.tsp"
+      },
+      {
+        "path": "./data-plane/tspconfig_stand_alone.yaml",
+        "destination": "tspconfig.yaml"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_CreateOrUpdateWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_DeleteWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetOperationStatusSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_GetWidgetSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_GetWidgetSample.json"
+      },
+      {
+        "path": "./data-plane/examples/2022-11-01-preview/Widgets_ListWidgetsSample.json",
+        "destination": "examples/2022-11-01-preview/Widgets_ListWidgetsSample.json"
+      }
+    ],
+    "inputs": {
+      "ServiceNamespace": {
+        "description": "Please provide service namespace in Pascal case:",
+        "type": "text",
+        "initialValue": "Azure.Contoso"
+      }
+    }
+  },
+  "azure-arm_stand_alone": {
+    "title": "(stand alone) Azure Resource Manager Service Project",
+    "description": "Create a project in rest-api-spec repo, representing an Azure service ARM API",
+    "compilerVersion": "0.45.2",
+    "libraries": [
+      "@azure-tools/typespec-autorest",
+      "@azure-tools/typespec-azure-core",
+      "@azure-tools/typespec-azure-resource-manager",
+      "@azure-tools/typespec-providerhub",
+      "@typespec/http",
+      "@typespec/openapi",
+      "@typespec/rest",
+      "@typespec/versioning"
+    ],
     "config": {
       "emit": ["@azure-tools/typespec-autorest"]
     },
@@ -61,7 +194,7 @@
         "destination": "main.tsp"
       },
       {
-        "path": "./arm/tspconfig.yaml",
+        "path": "./arm/tspconfig_stand_alone.yaml",
         "destination": "tspconfig.yaml"
       },
       {

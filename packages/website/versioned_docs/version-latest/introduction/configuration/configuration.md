@@ -36,6 +36,13 @@ model TypeSpecProjectSchema {
   imports?: string;
   emit?: string[];
   options?: Record<unknown>;
+  linter?: LinterConfig;
+}
+
+model LinterConfig {
+  extends?: RuleRef[];
+  enable?: Record<RuleRef, boolean>;
+  disable?: Record<RuleRef, string>;
 }
 ```
 
@@ -182,6 +189,7 @@ options:
 | `imports`       | `--import`                | Additional imports to include                            |
 | `emit`          | `--emit`                  | Emitter configuration                                    |
 | `options`       | `--option` or `--options` | Emitter configuration                                    |
+| `linter`        |                           | Linter configuration                                     |
 
 ### `output-dir` - Configure the default output dir
 
@@ -300,6 +308,22 @@ Represent the path where the emitter should be outputing the generated files.
 Default: `{output-dir}/{emitter-name}`
 
 See [output directory configuration for mode details](#output-directory-configuration)
+
+### `linter` - Configuring linters
+
+Configure which linter rules should be enabled in this repository. Referencing to a rule or ruleset must be using their id which is in this format `<libraryName>:<ruleName>`
+
+```yaml
+linter:
+  extends: # Extend `recommended` ruleset from @typespec/best-practices library
+    - "@typespec/best-practices:recommended"
+
+  enable: # Explicitly enable some rules
+    "@typespec/best-practices:no-x": true
+
+  disable: # Disable some rules defined in one of the ruleset extended.
+    "@typespec/best-practices:no-y": "This rule cannot be applied in this project because X"
+```
 
 ## Emitter control cli flags
 

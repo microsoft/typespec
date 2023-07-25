@@ -1,6 +1,13 @@
 # Change Log - @typespec/eslint-config-typespec
 
-This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+
+## 0.46.0
+Tue, 11 Jul 2023 22:06:00 GMT
+
+### Updates
+
+- Update dependencies
 
 ## 0.7.0
 Wed, 10 May 2023 21:24:00 GMT
@@ -19,6 +26,10 @@ Fri, 03 Mar 2023 19:59:17 GMT
 ### Minor changes
 
 - Rename to TypeSpec
+
+### Updates
+
+- Revert back changelog
 
 ## 0.5.0
 Wed, 07 Dec 2022 17:21:52 GMT
@@ -44,6 +55,10 @@ Thu, 11 Aug 2022 19:05:23 GMT
 ### Minor changes
 
 - Add eslint-plugin-mocha
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.3.0
 Thu, 31 Mar 2022 17:10:49 GMT

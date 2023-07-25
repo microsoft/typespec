@@ -2,6 +2,21 @@
   "name": "typespec-vscode",
   "entries": [
     {
+      "version": "0.46.0",
+      "tag": "typespec-vscode_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Remove `mkdirp` dependencies and replace with built-in `mkdir({recursive: true})`."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "typespec-vscode_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

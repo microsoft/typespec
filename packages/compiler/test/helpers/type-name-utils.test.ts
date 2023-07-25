@@ -45,6 +45,12 @@ describe("compiler: TypeNameUtils", () => {
       ));
   });
 
+  describe("union", () => {
+    it("simple named union", () => assertNameFor(`@test("target") union Pet {}`, "Pet"));
+    it("include namespace qualifier", () =>
+      assertNameFor(`namespace Foo { @test("target") union Pet {} }`, "Foo.Pet"));
+  });
+
   describe("Standard library", () => {
     async function getNameForRef(ref: string) {
       const runner = await createTestRunner();

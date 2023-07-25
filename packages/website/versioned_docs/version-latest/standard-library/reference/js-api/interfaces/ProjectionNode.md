@@ -37,7 +37,7 @@ ___
 
 ### direction
 
-• `Readonly` **direction**: ``"from"`` \| ``"to"`` \| ``"pre_to"`` \| ``"pre_from"`` \| ``"<error>"``
+• `Readonly` **direction**: ``"to"`` \| ``"from"`` \| ``"pre_to"`` \| ``"pre_from"`` \| ``"<error>"``
 
 ___
 

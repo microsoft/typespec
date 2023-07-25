@@ -98,7 +98,7 @@ model Pet {
 model Cat extends Pet {}
 ```
 
-- Place no space between an operation/decorator/function name and the parmaeter list
+- Place no space between an operation/decorator/function name and the parameter list
 
 <!-- prettier-ignore -->
 ```typespec
@@ -159,3 +159,61 @@ alias foo = [1, 2, 3];
 ```
 
 - Avoid trailing spaces at the end of lines.
+
+### Model layout
+
+- Properties should hug each other unless it has decorators or comments
+
+<!-- prettier-ignore -->
+```tsp
+// bad
+model Foo {
+  one: string;
+  two: string;
+  tree: string;
+}
+
+// good
+model Foo {
+  one: string;
+  two: string;
+  tree: string;
+}
+```
+
+- Wrap properties in new lines if it has leading comments or decorators
+
+<!-- prettier-ignore -->
+```tsp
+// bad
+model Foo {
+  one: string;
+  @doc("Foo")
+  two: string;
+  // line comment
+  tree: string;
+  /**
+   *  Block comment
+   */
+  four: string;
+  five: string;
+}
+
+// good
+model Foo {
+  one: string;
+
+  @doc("Foo")
+  two: string;
+
+  // line comment
+  tree: string;
+
+  /**
+   *  Block comment
+   */
+  four: string;
+  
+  five: string;
+}
+```
