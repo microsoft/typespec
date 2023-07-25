@@ -1,7 +1,6 @@
 import { Program } from "./program.js";
 import { Type } from "./types.js";
 
-// TODO: No duplication!
 function createStateSymbol(name: string) {
   return Symbol.for(`TypeSpec.${name}`);
 }

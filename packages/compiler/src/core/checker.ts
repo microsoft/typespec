@@ -29,7 +29,6 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
-  DeprecatedDirective,
   Diagnostic,
   DiagnosticTarget,
   Directive,
@@ -830,7 +829,6 @@ export function createChecker(program: Program): Checker {
     }
 
     const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
-    checkDeprecated(type, node);
     return type;
   }
 
@@ -845,17 +843,16 @@ export function createChecker(program: Program): Checker {
     return [type === errorType ? undefined : type, diagnostics];
   }
 
-  interface CheckDeprecatedOptions {
-    copyDeprecationTo: Type;
+  function copyDeprecation(sourceType: Type, destType: Type): void {
+    const deprecationDetails = getDeprecationDetails(program, sourceType);
+    if (deprecationDetails) {
+      markDeprecated(program, destType, deprecationDetails);
+    }
   }
 
-  function checkDeprecated(type: Type, target: DiagnosticTarget, options?: CheckDeprecatedOptions) {
+  function checkDeprecated(type: Type, target: DiagnosticTarget) {
     const deprecationDetails = getDeprecationDetails(program, type);
     if (deprecationDetails) {
-      if (options?.copyDeprecationTo) {
-        markDeprecated(program, options?.copyDeprecationTo, deprecationDetails);
-      }
-
       if (program.compilerOptions.ignoreDeprecated !== true) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -981,7 +978,7 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    const symbolLinks = getSymbolLinks(sym, node);
+    const symbolLinks = getSymbolLinks(sym);
     let baseType;
     const args = checkTypeReferenceArgs(node, mapper);
     if (
@@ -1068,6 +1065,31 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    // Check for deprecations here, first on symbol, then on type.
+    const originalNode = sym?.declarations[0];
+    if (originalNode) {
+      let hasDeprecation = false;
+      const directives = getDirectivesForNode(originalNode);
+      directives.forEach((directive) => {
+        if (directive.name === "deprecated" && program.compilerOptions.ignoreDeprecated !== true) {
+          hasDeprecation = true;
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "deprecated",
+              format: {
+                message: directive.message,
+              },
+              target: node,
+            })
+          );
+        }
+      });
+
+      if (!hasDeprecation) {
+        checkDeprecated(baseType, node);
+      }
+    }
+
     return baseType;
   }
 
@@ -1083,7 +1105,7 @@ export function createChecker(program: Program): Checker {
     decl: TemplateableNode,
     mapper: TypeMapper | undefined
   ): TemplatedType {
-    const symbolLinks = getSymbolLinks(sym, decl);
+    const symbolLinks = getSymbolLinks(sym);
     if (symbolLinks.declaredType) {
       return symbolLinks.declaredType as TemplatedType;
     }
@@ -1136,7 +1158,7 @@ export function createChecker(program: Program): Checker {
       templateNode.kind === SyntaxKind.OperationStatement &&
       templateNode.parent!.kind === SyntaxKind.InterfaceStatement
         ? getSymbolLinksForMember(templateNode as MemberNode)
-        : getSymbolLinks(templateNode.symbol, templateNode);
+        : getSymbolLinks(templateNode.symbol);
 
     compilerAssert(
       symbolLinks,
@@ -1261,7 +1283,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): Decorator {
     const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol, node);
+    const links = getSymbolLinks(symbol);
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
@@ -1304,7 +1326,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): FunctionType {
     const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol, node);
+    const links = getSymbolLinks(symbol);
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as FunctionType;
@@ -1346,7 +1368,7 @@ export function createChecker(program: Program): Checker {
     node: FunctionParameterNode,
     mapper: TypeMapper | undefined
   ): FunctionParameter {
-    const links = getSymbolLinks(node.symbol, node);
+    const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
@@ -1479,7 +1501,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    const links = getSymbolLinks(getMergedSymbol(node.symbol), node);
+    const links = getSymbolLinks(getMergedSymbol(node.symbol));
     let type = links.type as Namespace;
     if (!type) {
       type = initializeTypeForNamespace(node);
@@ -1497,7 +1519,7 @@ export function createChecker(program: Program): Checker {
   function initializeTypeForNamespace(node: NamespaceStatementNode) {
     compilerAssert(node.symbol, "Namespace is unbound.", node);
     const mergedSymbol = getMergedSymbol(node.symbol)!;
-    const symbolLinks = getSymbolLinks(mergedSymbol, node);
+    const symbolLinks = getSymbolLinks(mergedSymbol);
     if (!symbolLinks.type) {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
@@ -1616,7 +1638,7 @@ export function createChecker(program: Program): Checker {
     parentInterface?: Interface
   ): Operation | ErrorType {
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
-    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol, node);
+    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol);
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
@@ -1646,13 +1668,9 @@ export function createChecker(program: Program): Checker {
         return errorType;
       }
       sourceOperation = baseOperation;
-
       // Reference the same return type and create the parameters type
       parameters = cloneType(baseOperation.parameters);
       returnType = baseOperation.returnType;
-
-      // Check for deprecated base operation
-      checkDeprecated(baseOperation, node.signature);
 
       // Copy decorators from the base operation, inserting the base decorators first
       decorators = [...baseOperation.decorators];
@@ -1770,31 +1788,17 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function getSymbolLinks(s: Sym, node?: Node): SymbolLinks {
+  function getSymbolLinks(s: Sym): SymbolLinks {
     const id = getSymbolId(s);
 
     if (symbolLinks.has(id)) {
-      // Check if the link has an attached deprecation
-      const links = symbolLinks.get(id)!;
-      if (links?.deprecation) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "deprecated",
-            format: {
-              message: links.deprecation.message,
-            },
-            target: node ?? s,
-          })
-        );
-      }
-
-      return links;
+      return symbolLinks.get(id)!;
     }
 
-    const newLinks = {};
-    symbolLinks.set(id, newLinks);
+    const links = {};
+    symbolLinks.set(id, links);
 
-    return newLinks;
+    return links;
   }
 
   function getSymbolId(s: Sym) {
@@ -2364,7 +2368,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
-    const links = getSymbolLinks(node.symbol, node);
+    const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this model and we've already checked it
@@ -2386,14 +2390,12 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       type.sourceModel = isBase;
-      checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
       if (isBase.indexer) {
         type.indexer = isBase.indexer;
       }
     }
-
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
@@ -2412,7 +2414,7 @@ export function createChecker(program: Program): Checker {
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends, mapper);
       if (type.baseModel) {
-        checkDeprecated(type.baseModel, node.extends, { copyDeprecationTo: type });
+        copyDeprecation(type.baseModel, type);
       }
     }
 
@@ -3308,7 +3310,7 @@ export function createChecker(program: Program): Checker {
     if (node.extends) {
       type.baseScalar = checkScalarExtends(node, node.extends, mapper);
       if (type.baseScalar) {
-        checkDeprecated(type.baseScalar, node.extends, { copyDeprecationTo: type });
+        copyDeprecation(type.baseScalar, type);
         type.baseScalar.derivedScalars.push(type);
       }
     }
@@ -3394,14 +3396,6 @@ export function createChecker(program: Program): Checker {
     const type = getTypeForNode(node.value, mapper);
     linkType(links, type, mapper);
     pendingResolutions.delete(aliasSymId);
-
-    // Look for a deprecation directive on the alias definition
-    const deprecation: Directive | undefined = getDirectivesForNode(node).find(
-      (d) => d.name === "deprecated"
-    );
-    if (deprecation) {
-      links.deprecation = deprecation as DeprecatedDirective;
-    }
 
     return type;
   }
@@ -3504,10 +3498,7 @@ export function createChecker(program: Program): Checker {
         }
 
         // Clone deprecation information
-        const deprecationDetails = getDeprecationDetails(program, member);
-        if (deprecationDetails) {
-          markDeprecated(program, newMember, deprecationDetails);
-        }
+        copyDeprecation(member, newMember);
 
         interfaceType.operations.set(newMember.name, newMember);
       }
@@ -3668,7 +3659,7 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {
     const sym = getSymbolForMember(node);
-    return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym, node) : undefined) : undefined;
+    return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym) : undefined) : undefined;
   }
 
   function checkEnumMember(

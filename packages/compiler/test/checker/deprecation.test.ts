@@ -92,6 +92,38 @@ describe("compiler: checker: deprecation", () => {
       expectDeprecations(diagnostics, ["Use id instead", "Use id instead", "Use id instead"]);
     });
 
+    it("emits deprecation for use of deprecated templated model", async () => {
+      const diagnostics = await runner.diagnose(`
+          #deprecated "Foo is deprecated"
+          model Foo<T> {}
+
+          model Bar {
+            foo: Foo<string>;
+          }
+          `);
+
+      expectDeprecations(diagnostics, ["Foo is deprecated"]);
+    });
+
+    it("emits deprecation for use of deprecated scalar", async () => {
+      const diagnostics = await runner.diagnose(`
+          #deprecated "Name is deprecated"
+          scalar Name extends string;
+          scalar OtherName extends Name; // Diagnostic here
+
+          model Bar {
+            name: Name;           // Diagnostic here
+            otherName: OtherName; // Diagnostic here
+          }
+          `);
+
+      expectDeprecations(diagnostics, [
+        "Name is deprecated",
+        "Name is deprecated",
+        "Name is deprecated",
+      ]);
+    });
+
     it("emits deprecation for use of deprecated operation type", async () => {
       const diagnostics = await runner.diagnose(`
           #deprecated "oldGet is deprecated"

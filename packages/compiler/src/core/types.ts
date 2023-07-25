@@ -618,9 +618,6 @@ export interface SymbolLinks {
   // a map of instantiations.
   declaredType?: Type;
   instantiations?: TypeInstantiationMap;
-
-  // Aliases can be deprecated, so store deprecation info here
-  deprecation?: DeprecatedDirective;
 }
 
 /**
