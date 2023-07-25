@@ -8,7 +8,9 @@ toc_max_heading_level: 3
 
 ### `@deprecated` {#@deprecated}
 
-Mark this type as deprecated
+Mark this type as deprecated.
+
+NOTE: It is preferable to the `#deprecated` directive instead.
 
 ```typespec
 @deprecated(message: valueof string)
@@ -27,6 +29,13 @@ Mark this type as deprecated
 
 ```typespec
 @deprecated("Use ActionV2")
+op Action<T>(): T;
+```
+
+NOTE: The `#deprecated` directive is preferred:
+
+```typespec
+#deprecated "Use ActionV2"
 op Action<T>(): T;
 ```
 

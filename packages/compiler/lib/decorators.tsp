@@ -30,13 +30,24 @@ extern dec summary(target: unknown, summary: valueof string);
 extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
- * Mark this type as deprecated
+ * Mark this type as deprecated.
+ *
+ * NOTE: It is preferable to the `#deprecated` directive instead.
+ *
+ * @deprecated Use the `#deprecated` directive instead.
  * @param message Deprecation message.
  *
  * @example
  *
  * ```typespec
  * @deprecated("Use ActionV2")
+ * op Action<T>(): T;
+ * ```
+ *
+ * NOTE: The `#deprecated` directive is preferred:
+ *
+ * ```typespec
+ * #deprecated "Use ActionV2"
  * op Action<T>(): T;
  * ```
  */
