@@ -112,7 +112,6 @@ export enum Token {
   EnumKeyword,
   AliasKeyword,
   IsKeyword,
-  AsKeyword,
   InKeyword,
   InterfaceKeyword,
   UnionKeyword,
@@ -227,7 +226,6 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.EnumKeyword, "'enum'"],
   [Token.AliasKeyword, "'alias'"],
   [Token.IsKeyword, "'is'"],
-  [Token.AsKeyword, "'as'"],
   [Token.InKeyword, "'in'"],
   [Token.InterfaceKeyword, "'interface'"],
   [Token.UnionKeyword, "'union'"],
@@ -263,7 +261,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["op", Token.OpKeyword],
   ["extends", Token.ExtendsKeyword],
   ["is", Token.IsKeyword],
-  ["as", Token.AsKeyword],
   ["in", Token.InKeyword],
   ["enum", Token.EnumKeyword],
   ["alias", Token.AliasKeyword],
@@ -325,6 +322,12 @@ export interface Scanner {
    * getTokenText().
    */
   getTokenValue(): string;
+
+  /** Get the current state of the scanner. */
+  getCurrentTokenState(): [number, Token, number, TokenFlags];
+
+  /** Reset the scanner to the given state. */
+  resetTokenState(state: [number, Token, number, TokenFlags]): void;
 }
 
 export enum TokenFlags {
@@ -397,6 +400,8 @@ export function createScanner(
     eof,
     getTokenText,
     getTokenValue,
+    getCurrentTokenState,
+    resetTokenState,
   };
 
   function eof() {
@@ -424,6 +429,17 @@ export function createScanner(
       return Number.NaN;
     }
     return input.charCodeAt(p);
+  }
+
+  function getCurrentTokenState(): [number, Token, number, TokenFlags] {
+    return [position, token, tokenPosition, tokenFlags];
+  }
+
+  function resetTokenState(state: [number, Token, number, TokenFlags]) {
+    position = state[0];
+    token = state[1];
+    tokenPosition = state[2];
+    tokenFlags = state[3];
   }
 
   function scan(): Token {

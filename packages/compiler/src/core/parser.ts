@@ -963,16 +963,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.ValidateKeyword) {
       nextToken();
 
-      const value = parseProjectionExpression();
-
       let vid: IdentifierNode | undefined = undefined;
-      if (token() === Token.AsKeyword) {
-        nextToken();
+      if (peekIsValidateTokenNamed()) {
         vid = parseIdentifier({
           message: "property",
           allowStringLiteral: false,
         });
+        parseExpected(Token.Colon);
       }
+
+      const value = parseProjectionExpression();
 
       return {
         kind: SyntaxKind.ModelValidate,
@@ -1044,16 +1044,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): ModelValidateNode {
     parseExpected(Token.ValidateKeyword);
 
-    const value = parseProjectionExpression();
-
     let vid: IdentifierNode | undefined = undefined;
-    if (token() === Token.AsKeyword) {
-      nextToken();
+    if (peekIsValidateTokenNamed()) {
       vid = parseIdentifier({
         message: "property",
         allowStringLiteral: false,
       });
+      parseExpected(Token.Colon);
     }
+
+    const value = parseProjectionExpression();
 
     return {
       kind: SyntaxKind.ModelValidate,
@@ -2673,6 +2673,20 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function nextDocToken() {
     // NOTE: trivia tokens are always significant in doc comments.
     scanner.scanDoc();
+  }
+
+  function peekIsValidateTokenNamed(): boolean {
+    const ostate = scanner.getCurrentTokenState();
+
+    if (token() !== Token.Identifier) {
+      return false;
+    } else {
+      nextToken();
+      const isNamed = token() === Token.Colon;
+
+      scanner.resetTokenState(ostate);
+      return isNamed;
+    }
   }
 
   function createMissingIdentifier(): IdentifierNode {

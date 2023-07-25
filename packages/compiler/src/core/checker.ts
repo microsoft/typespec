@@ -3074,7 +3074,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as ModelValidate;
     }
 
-    const name = vv.id?.sv ?? "[Anonymous]";
+    const name = vv.id?.sv ?? `[Anonymous-Validate-${vv.pos}]`;
 
     //
     //TODO: typecheck the projection expression here or leave that problem for the emitter?
