@@ -853,17 +853,7 @@ export function createChecker(program: Program): Checker {
   function checkDeprecated(type: Type, target: DiagnosticTarget) {
     const deprecationDetails = getDeprecationDetails(program, type);
     if (deprecationDetails) {
-      if (program.compilerOptions.ignoreDeprecated !== true) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "deprecated",
-            format: {
-              message: deprecationDetails.message,
-            },
-            target,
-          })
-        );
-      }
+      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
     }
   }
 
@@ -1073,15 +1063,7 @@ export function createChecker(program: Program): Checker {
       directives.forEach((directive) => {
         if (directive.name === "deprecated" && program.compilerOptions.ignoreDeprecated !== true) {
           hasDeprecation = true;
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "deprecated",
-              format: {
-                message: directive.message,
-              },
-              target: node,
-            })
-          );
+          reportDeprecation(program, node, directive.message, reportCheckerDiagnostic);
         }
       });
 
@@ -5561,6 +5543,25 @@ function finishTypeForProgramAndChecker<T extends Type>(
   return typeDef;
 }
 
+function reportDeprecation(
+  program: Program,
+  target: DiagnosticTarget,
+  message: string,
+  reportFunc: (d: Diagnostic) => void
+): void {
+  if (program.compilerOptions.ignoreDeprecated !== true) {
+    reportFunc(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message,
+        },
+        target,
+      })
+    );
+  }
+}
+
 function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
@@ -5575,14 +5576,11 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
   if (decApp.definition) {
     const deprecation = getDeprecationDetails(program, decApp.definition);
     if (deprecation !== undefined) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          format: {
-            message: deprecation.message,
-          },
-          target: decApp.node ?? target,
-        })
+      reportDeprecation(
+        program,
+        decApp.node ?? target,
+        deprecation.message,
+        program.reportDiagnostic
       );
     }
   }
