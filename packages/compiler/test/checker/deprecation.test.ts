@@ -1,11 +1,12 @@
-import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestRunner,
   createTestWrapper,
+  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  extractCursor,
   TestHost,
 } from "../../src/testing/index.js";
 
@@ -16,65 +17,80 @@ describe("compiler: checker: deprecation", () => {
     runner = await createTestRunner();
   });
 
-  function expectDeprecations(diagnostics: readonly Diagnostic[], deprecations: string[]) {
-    expectDiagnostics(
-      diagnostics,
-      deprecations.map((x) => ({
+  async function expectDeprecations(
+    source: string,
+    deprecations: string[],
+    testRunner: BasicTestRunner = runner
+  ) {
+    const expectedDiagnostics: DiagnosticMatch[] = [];
+    for (const deprecation of deprecations) {
+      const { source: newSource, pos } = extractCursor(source);
+      expectedDiagnostics.push({
         code: "deprecated",
-        message: `Deprecated: ${x}`,
+        message: `Deprecated: ${deprecation}`,
         severity: "warning",
-      }))
-    );
+        pos,
+      });
+
+      // Continue with the updated source
+      source = newSource;
+    }
+
+    expectDiagnostics(await testRunner.diagnose(source), expectedDiagnostics);
   }
 
   describe("#deprecated directive", () => {
     it("emits deprecation for use of deprecated model types", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
 
-          op get(): OldFoo;
+          op get(): ┆OldFoo;
 
           model Bar {
-            foo: string | OldFoo;
+            foo: string | ┆OldFoo;
           }
-          `);
-
-      expectDeprecations(diagnostics, ["OldFoo is deprecated", "OldFoo is deprecated"]);
+        `,
+        ["OldFoo is deprecated", "OldFoo is deprecated"]
+      );
     });
 
     it("emits deprecation for use of model that extends deprecated parent", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
 
-          model NewFoo extends OldFoo {} // Diagnostic here
-          model IsFoo is NewFoo {} // Diagnostic here
-          model NewIsFoo is IsFoo {} // No diagnostic here
-          `);
-
-      expectDeprecations(diagnostics, ["OldFoo is deprecated", "OldFoo is deprecated"]);
+          model NewFoo extends ┆OldFoo {}
+          model IsFoo is ┆NewFoo {}
+          model NewIsFoo is IsFoo {}
+          `,
+        ["OldFoo is deprecated", "OldFoo is deprecated"]
+      );
     });
 
     it("emits deprecation for use of deprecated model properties", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           model Foo {
             #deprecated "Use id instead"
             name: string;
           }
 
           model Bar {
-            value: Foo.name;
+            value: ┆Foo.name;
           }
 
-          op get(name: Foo.name): string;
-          `);
-
-      expectDeprecations(diagnostics, ["Use id instead", "Use id instead"]);
+          op get(name: ┆Foo.name): string;
+        `,
+        ["Use id instead", "Use id instead"]
+      );
     });
 
     it("emits deprecation for use of deprecated model properties from extended models", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           model Foo {
             #deprecated "Use id instead"
             name: string;
@@ -84,114 +100,113 @@ describe("compiler: checker: deprecation", () => {
           model Baz is Foo {}
           model Buz { ...Foo }
 
-          op get(name: Bar.name): string;
-          op put(name: Baz.name): string;
-          op delete(name: Buz.name): string;
-          `);
-
-      expectDeprecations(diagnostics, ["Use id instead", "Use id instead", "Use id instead"]);
+          op get(name: ┆Bar.name): string;
+          op put(name: ┆Baz.name): string;
+          op delete(name: ┆Buz.name): string;
+        `,
+        ["Use id instead", "Use id instead", "Use id instead"]
+      );
     });
 
     it("emits deprecation for use of deprecated templated model", async () => {
-      const diagnostics = await runner.diagnose(`
-          #deprecated "Foo is deprecated"
-          model Foo<T> {}
+      await expectDeprecations(
+        `
+        #deprecated "Foo is deprecated"
+        model Foo<T> {}
 
-          model Bar {
-            foo: Foo<string>;
-          }
-          `);
-
-      expectDeprecations(diagnostics, ["Foo is deprecated"]);
+        model Bar {
+          foo: ┆Foo<string>;
+        }
+        `,
+        ["Foo is deprecated"]
+      );
     });
 
     it("emits deprecation for use of deprecated scalar", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           #deprecated "Name is deprecated"
           scalar Name extends string;
-          scalar OtherName extends Name; // Diagnostic here
+          scalar OtherName extends ┆Name;
 
           model Bar {
-            name: Name;           // Diagnostic here
-            otherName: OtherName; // Diagnostic here
+            name: ┆Name;
+            otherName: ┆OtherName;
           }
-          `);
-
-      expectDeprecations(diagnostics, [
-        "Name is deprecated",
-        "Name is deprecated",
-        "Name is deprecated",
-      ]);
+          `,
+        ["Name is deprecated", "Name is deprecated", "Name is deprecated"]
+      );
     });
 
     it("emits deprecation for use of deprecated operation type", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           #deprecated "oldGet is deprecated"
           op oldGet(): string;
 
-          op someGet is oldGet; // Diagnostic here
+          op someGet is ┆oldGet;
           op newGet is someGet; // No diagnostic here
-         `);
-
-      expectDeprecations(diagnostics, ["oldGet is deprecated"]);
+         `,
+        ["oldGet is deprecated"]
+      );
     });
 
     it("emits deprecation for references of deprecated operations from extended interfaces", async () => {
-      const diagnostics = await runner.diagnose(`
-            interface Foo {
-              #deprecated "Foo is deprecated"
-              foo(): void;
-            }
+      await expectDeprecations(
+        `
+          interface Foo {
+            #deprecated "Foo is deprecated"
+            foo(): void;
+          }
 
-            interface Bar extends Foo {}
+          interface Bar extends Foo {}
 
-            op baz is Bar.foo;
-          `);
-
-      expectDeprecations(diagnostics, ["Foo is deprecated"]);
+          op baz is ┆Bar.foo;
+        `,
+        ["Foo is deprecated"]
+      );
     });
 
     it("emits deprecation for usage on alias types", async () => {
-      const diagnostics = await runner.diagnose(`
+      await expectDeprecations(
+        `
           model Foo<T> { val: T; }
           model Bar {}
 
           #deprecated "StringFoo is deprecated"
           alias StringFoo = Foo<string>;
 
-          op get(): StringFoo;
+          op get(): ┆StringFoo;
           op otherGet(): Foo<string>; // No diagnostic here, only on alias
-          op put(str: string | StringFoo): void;
+          op put(str: string | ┆StringFoo): void;
 
           model Baz {
-            foo: StringFoo;
+            foo: ┆StringFoo;
           }
-          `);
-
-      expectDeprecations(diagnostics, [
-        "StringFoo is deprecated",
-        "StringFoo is deprecated",
-        "StringFoo is deprecated",
-      ]);
+        `,
+        ["StringFoo is deprecated", "StringFoo is deprecated", "StringFoo is deprecated"]
+      );
     });
 
     it("emits deprecation for use of deprecated decorator signatures", async () => {
       const testHost: TestHost = await createTestHost();
       testHost.addJsFile("test.js", { $testDec: () => {} });
-      const runner = createTestWrapper(testHost, {
-        autoImports: ["./test.js"],
-        autoUsings: ["TypeSpec.Reflection"],
-      });
+      const runner = createTestWrapper(testHost);
 
-      const diagnostics = await runner.diagnose(`
-          #deprecated "testDec is deprecated"
-          extern dec testDec(target: Model);
+      await expectDeprecations(
+        `
+        import "./test.js";
+        using TypeSpec.Reflection;
 
-          @testDec
-          model Foo {}
-          `);
+        #deprecated "testDec is deprecated"
+        extern dec testDec(target: Model);
 
-      expectDeprecations(diagnostics, ["testDec is deprecated"]);
+        ┆@testDec
+        model Foo {}
+        `,
+        ["testDec is deprecated"],
+        runner
+      );
     });
 
     it("emits diagnostic when multiple #deprecated directives are used on a node", async () => {
