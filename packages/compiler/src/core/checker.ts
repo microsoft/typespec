@@ -857,7 +857,7 @@ export function createChecker(program: Program): Checker {
       directives.forEach((directive) => {
         if (directive.name === "deprecated" && program.compilerOptions.ignoreDeprecated !== true) {
           hasDeprecation = true;
-          reportDeprecation(program, node, directive.message, reportCheckerDiagnostic);
+          reportDeprecation(program, target, directive.message, reportCheckerDiagnostic);
         }
       });
     }
