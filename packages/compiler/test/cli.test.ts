@@ -1,6 +1,8 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { dump } from "js-yaml";
+import { TypeSpecRawConfig } from "../src/config/types.js";
 import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
+import { CompilerOptions } from "../src/core/options.js";
 import {
   TestHost,
   createTestHost,
@@ -171,6 +173,83 @@ describe("compiler: cli", () => {
           message: `Path "./my-output" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
         });
       });
+    });
+
+    async function resolveCompilerOptionsFor({
+      args,
+      config,
+    }: {
+      args?: CompileCliArgs;
+      config?: TypeSpecRawConfig;
+    }) {
+      host.addTypeSpecFile("ws/tspconfig.yaml", dump(config ?? {}));
+      return (await resolveCompilerOptions(args ?? {})) ?? {};
+    }
+
+    interface TestUnifiedOptions<
+      K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
+      T extends keyof CompilerOptions
+    > {
+      default: CompileCliArgs[K];
+      set: { in: CompileCliArgs[K]; alt: CompileCliArgs[K]; expected: CompilerOptions[T] }[];
+    }
+
+    function testUnifiedOptions<
+      K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
+      T extends keyof CompilerOptions
+    >(name: K, resolvedName: T, data: TestUnifiedOptions<K, T>) {
+      describe(name, () => {
+        it("default", async () => {
+          const options = await resolveCompilerOptionsFor({});
+          strictEqual(options[resolvedName], data.default);
+        });
+
+        for (const { in: input, alt, expected } of data.set) {
+          describe(`input: ${input}`, () => {
+            it("set from the cli args", async () => {
+              const options = await resolveCompilerOptionsFor({ args: { [name]: input } });
+              deepStrictEqual(options[resolvedName], expected);
+            });
+
+            it("set from the config", async () => {
+              const options = await resolveCompilerOptionsFor({ config: { [name]: input } });
+              deepStrictEqual(options[resolvedName], expected);
+            });
+
+            it("both cli and config (cli wins)", async () => {
+              const options = await resolveCompilerOptionsFor({
+                args: { [name]: input },
+                config: { [name]: alt },
+              });
+              deepStrictEqual(options[resolvedName], expected);
+            });
+          });
+        }
+      });
+    }
+
+    testUnifiedOptions("warn-as-error", "warningAsError", {
+      default: undefined,
+      set: [
+        { in: true, expected: true, alt: false },
+        { in: false, expected: false, alt: true },
+      ],
+    });
+
+    testUnifiedOptions("output-dir", "outputDir", {
+      default: resolveVirtualPath("ws/tsp-output"),
+      set: [
+        {
+          in: "{cwd}/override",
+          expected: resolveVirtualPath("ws/override"),
+          alt: "{cwd}/alt-in-config",
+        },
+      ],
+    });
+
+    testUnifiedOptions("trace", "trace", {
+      default: undefined,
+      set: [{ in: ["one", "two"], expected: ["one", "two"], alt: ["three"] }],
     });
   });
 });
