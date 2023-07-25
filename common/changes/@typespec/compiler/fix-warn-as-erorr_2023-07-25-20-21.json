@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Fix** `warn-as-error` in `tspconfig.yaml` was ignored",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
