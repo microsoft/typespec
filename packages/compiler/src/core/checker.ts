@@ -3773,7 +3773,9 @@ export function createChecker(program: Program): Checker {
     directives.forEach((directive) => {
       if (directive.name === "deprecated") {
         if (hasDeprecation === true) {
-          // TODO: Diagnostic
+          reportCheckerDiagnostic(
+            createDiagnostic({ code: "duplicate-deprecation", target: directive.node })
+          );
         } else {
           hasDeprecation = true;
           markDeprecated(program, type, {

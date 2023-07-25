@@ -161,6 +161,16 @@ describe("compiler: checker: deprecation", () => {
 
       expectDeprecations(diagnostics, ["testDec is deprecated"]);
     });
+
+    it("emits diagnostic when multiple #deprecated directives are used on a node", async () => {
+      const diagnostics = await runner.diagnose(`
+          #deprecated "Foo is deprecated"
+          #deprecated "Foo is deprecated again"
+          model Foo {}
+          `);
+
+      expectDiagnostics(diagnostics, [{ code: "duplicate-deprecation" }]);
+    });
   });
 
   describe("@deprecated decorator", () => {

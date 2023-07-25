@@ -486,6 +486,12 @@ const diagnostics = {
       default: "Invalid deprecation argument",
     },
   },
+  "duplicate-deprecation": {
+    severity: "warning",
+    messages: {
+      default: "The #deprecated directive cannot be used more than once on the same declaration.",
+    },
+  },
 
   /**
    * Configuration
