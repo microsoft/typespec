@@ -154,7 +154,7 @@ describe("compiler: linter", () => {
         "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
         "node_modules/my-lib/main.tsp": "model Foo {}",
       };
-      const linter = await createTestLinterAndEnableRules(files, {
+      const linter = await createTestLinter(files, {
         rules: [noModelFoo],
       });
       expectDiagnosticEmpty(linter.lint());
@@ -207,6 +207,45 @@ describe("compiler: linter", () => {
         })
       );
       expectDiagnosticEmpty(linter.lint());
+    });
+  });
+
+  describe("(integration) loading in program", () => {
+    async function diagnoseReal(code: string) {
+      const host = await createTestHost();
+      host.addTypeSpecFile("main.tsp", code);
+      host.addTypeSpecFile(
+        "node_modules/my-lib/package.json",
+        JSON.stringify({ name: "my-lib", main: "index.js" })
+      );
+      host.addJsFile("node_modules/my-lib/index.js", {
+        $lib: createTypeSpecLibrary({
+          name: "my-lib",
+          diagnostics: {},
+          linter: { rules: [noModelFoo] },
+        }),
+      });
+
+      return await host.diagnose("main.tsp", {
+        linterRuleSet: {
+          enable: { "my-lib/no-model-foo": true },
+        },
+      });
+    }
+
+    it("emit diagnostic when rule report", async () => {
+      const diagnostics = await diagnoseReal(`
+      model Foo {}`);
+
+      expectDiagnostics(diagnostics, { code: "my-lib/no-model-foo" });
+    });
+
+    it("doesn't emit diagnostic when suppressed", async () => {
+      const diagnostics = await diagnoseReal(`
+      #suppress "my-lib/no-model-foo"
+      model Foo {}`);
+
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 });
