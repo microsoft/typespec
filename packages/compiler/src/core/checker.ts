@@ -981,7 +981,7 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    const symbolLinks = getSymbolLinks(sym);
+    const symbolLinks = getSymbolLinks(sym, node);
     let baseType;
     const args = checkTypeReferenceArgs(node, mapper);
     if (
@@ -1083,7 +1083,7 @@ export function createChecker(program: Program): Checker {
     decl: TemplateableNode,
     mapper: TypeMapper | undefined
   ): TemplatedType {
-    const symbolLinks = getSymbolLinks(sym);
+    const symbolLinks = getSymbolLinks(sym, decl);
     if (symbolLinks.declaredType) {
       return symbolLinks.declaredType as TemplatedType;
     }
@@ -1136,7 +1136,7 @@ export function createChecker(program: Program): Checker {
       templateNode.kind === SyntaxKind.OperationStatement &&
       templateNode.parent!.kind === SyntaxKind.InterfaceStatement
         ? getSymbolLinksForMember(templateNode as MemberNode)
-        : getSymbolLinks(templateNode.symbol);
+        : getSymbolLinks(templateNode.symbol, templateNode);
 
     compilerAssert(
       symbolLinks,
@@ -1261,7 +1261,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): Decorator {
     const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol);
+    const links = getSymbolLinks(symbol, node);
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
@@ -1304,7 +1304,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): FunctionType {
     const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol);
+    const links = getSymbolLinks(symbol, node);
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as FunctionType;
@@ -1346,7 +1346,7 @@ export function createChecker(program: Program): Checker {
     node: FunctionParameterNode,
     mapper: TypeMapper | undefined
   ): FunctionParameter {
-    const links = getSymbolLinks(node.symbol);
+    const links = getSymbolLinks(node.symbol, node);
 
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
@@ -1479,7 +1479,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    const links = getSymbolLinks(getMergedSymbol(node.symbol));
+    const links = getSymbolLinks(getMergedSymbol(node.symbol), node);
     let type = links.type as Namespace;
     if (!type) {
       type = initializeTypeForNamespace(node);
@@ -1497,7 +1497,7 @@ export function createChecker(program: Program): Checker {
   function initializeTypeForNamespace(node: NamespaceStatementNode) {
     compilerAssert(node.symbol, "Namespace is unbound.", node);
     const mergedSymbol = getMergedSymbol(node.symbol)!;
-    const symbolLinks = getSymbolLinks(mergedSymbol);
+    const symbolLinks = getSymbolLinks(mergedSymbol, node);
     if (!symbolLinks.type) {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
@@ -1616,7 +1616,7 @@ export function createChecker(program: Program): Checker {
     parentInterface?: Interface
   ): Operation | ErrorType {
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
-    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol);
+    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol, node);
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
@@ -1770,7 +1770,7 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function getSymbolLinks(s: Sym): SymbolLinks {
+  function getSymbolLinks(s: Sym, node?: Node): SymbolLinks {
     const id = getSymbolId(s);
 
     if (symbolLinks.has(id)) {
@@ -1783,7 +1783,7 @@ export function createChecker(program: Program): Checker {
             format: {
               message: links.deprecation.message,
             },
-            target: s,
+            target: node ?? s,
           })
         );
       }
@@ -2364,7 +2364,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
-    const links = getSymbolLinks(node.symbol);
+    const links = getSymbolLinks(node.symbol, node);
 
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this model and we've already checked it
@@ -3668,7 +3668,7 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {
     const sym = getSymbolForMember(node);
-    return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym) : undefined) : undefined;
+    return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym, node) : undefined) : undefined;
   }
 
   function checkEnumMember(
