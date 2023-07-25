@@ -196,4 +196,26 @@ describe("compiler: checker: deprecation", () => {
       });
     });
   });
+
+  describe("--ignore-deprecated flag", () => {
+    it("suppresses deprecation warnings", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+          #deprecated "OldFoo is deprecated"
+          model OldFoo {}
+
+          op get(): OldFoo;
+
+          model Bar {
+            foo: string | OldFoo;
+          }
+      `,
+        {
+          ignoreDeprecated: true,
+        }
+      );
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
 });

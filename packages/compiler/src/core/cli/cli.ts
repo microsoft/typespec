@@ -118,6 +118,11 @@ async function main() {
             default: false,
             describe: "Run emitters but do not emit any output.",
           })
+          .option("ignore-deprecated", {
+            type: "boolean",
+            default: false,
+            describe: "Suppresses all `deprecated` diagnostics.",
+          })
           .option("arg", {
             type: "array",
             alias: "args",

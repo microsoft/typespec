@@ -854,15 +854,17 @@ export function createChecker(program: Program): Checker {
         markDeprecated(program, options?.copyDeprecationTo, deprecationDetails);
       }
 
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          format: {
-            message: deprecationDetails.message,
-          },
-          target,
-        })
-      );
+      if (program.compilerOptions.ignoreDeprecated !== true) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "deprecated",
+            format: {
+              message: deprecationDetails.message,
+            },
+            target,
+          })
+        );
+      }
     }
   }
 
