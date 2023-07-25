@@ -60,7 +60,11 @@ export async function getCompilerOptions(
     emit: args.emit ?? config.emit,
     options: resolveEmitterOptions(config, cliOptions),
   };
-  const cliOutputDir = pathArg ? resolvePath(cwd, pathArg) : undefined;
+  const cliOutputDir = pathArg
+    ? pathArg.startsWith("{")
+      ? pathArg
+      : resolvePath(cwd, pathArg)
+    : undefined;
 
   const expandedConfig = diagnostics.pipe(
     expandConfigVariables(configWithCliArgs, {
