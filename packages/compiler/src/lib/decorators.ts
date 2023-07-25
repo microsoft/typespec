@@ -1023,7 +1023,6 @@ export function $withDefaultKeyVisibility(
  * ```
  */
 export function $deprecated(context: DecoratorContext, target: Type, message: string) {
-  // TODO: Report a warning that this decorator should not be used.
   markDeprecated(context.program, target, { message });
 }
 
