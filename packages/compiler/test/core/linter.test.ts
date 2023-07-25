@@ -154,7 +154,7 @@ describe("compiler: linter", () => {
         "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
         "node_modules/my-lib/main.tsp": "model Foo {}",
       };
-      const linter = await createTestLinter(files, {
+      const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
       expectDiagnosticEmpty(linter.lint());
