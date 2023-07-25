@@ -81,12 +81,12 @@ describe("compiler: checker: deprecation", () => {
           model Baz is Foo {}
           model Buz { ...Foo }
 
-          op get(name: Bar.name): string; // Diagnostic here
-          op put(name: Baz.name): string; // No diagnostic here
-          op delete(name: Buz.name): string; // No diagnostic here
+          op get(name: Bar.name): string;
+          op put(name: Baz.name): string;
+          op delete(name: Buz.name): string;
           `);
 
-      expectDeprecations(diagnostics, ["Use id instead"]);
+      expectDeprecations(diagnostics, ["Use id instead", "Use id instead", "Use id instead"]);
     });
 
     it("emits deprecation for use of deprecated operation type", async () => {

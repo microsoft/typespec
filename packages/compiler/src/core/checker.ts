@@ -1672,8 +1672,6 @@ export function createChecker(program: Program): Checker {
       linkType(links, operationType, mapper);
     }
 
-    checkDirectives(node, operationType);
-
     decorators.push(...checkDecorators(operationType, node, mapper));
 
     operationType.parameters.namespace = namespace;
@@ -2378,8 +2376,6 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    checkDirectives(node, type);
-
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
@@ -2995,8 +2991,6 @@ export function createChecker(program: Program): Checker {
     if (links) {
       linkType(links, type, mapper);
     }
-
-    checkDirectives(prop, type);
 
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
@@ -3764,7 +3758,15 @@ export function createChecker(program: Program): Checker {
   ): T & TypePrototype & { isFinished: boolean } {
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
-    return typeDef as any;
+
+    // If the type has an associated syntax node, check any directives that
+    // might be attached.
+    const createdType = typeDef as any;
+    if (createdType.node) {
+      checkDirectives(createdType.node, createdType);
+    }
+
+    return createdType;
   }
 
   function finishType<T extends Type>(typeDef: T): T {
