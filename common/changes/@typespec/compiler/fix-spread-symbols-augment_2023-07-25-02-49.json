@@ -2,12 +2,12 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix issue where using augment decorators on spread model properties, enum members or operations extended from parent interface wouldn't do anything.",
+      "comment": "**Fix** issue where using augment decorators on spread model properties, enum members or operations extended from parent interface wouldn't do anything.",
       "type": "none"
     },
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix issue where using augment decorator on operation parameters applied to source operation parameter as well.",
+      "comment": "**Fix** issue where using augment decorator on operation parameters applied to source operation parameter as well.",
       "type": "none"
     }
   ],

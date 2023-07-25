@@ -4038,14 +4038,14 @@ export function createChecker(program: Program): Checker {
    * recursively by the caller.
    */
   function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
-    const clone: Type = finishType(initializeClone(type, additionalProps));
+    const clone = finishType(initializeClone(type, additionalProps));
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
     }
 
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
-    return clone as T;
+    return clone;
   }
 
   /**
@@ -4060,7 +4060,7 @@ export function createChecker(program: Program): Checker {
     type: T,
     additionalProps: Partial<T> = {}
   ): T {
-    let clone: Type = initializeClone(type, additionalProps);
+    let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
       for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
         clone.decorators.push(dec);
@@ -4068,7 +4068,7 @@ export function createChecker(program: Program): Checker {
     }
     clone = finishType(clone);
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
-    return clone as T;
+    return clone;
   }
 
   function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
