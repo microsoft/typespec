@@ -2704,6 +2704,7 @@ export function createChecker(program: Program): Checker {
         }
         break;
       }
+
       case SyntaxKind.OperationStatement: {
         const sym = node.symbol ?? getSymbolForMember(node);
         const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
@@ -2716,16 +2717,13 @@ export function createChecker(program: Program): Checker {
             const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
             const sigParameterSym = sigTable.get("parameters")!;
 
-            // TODO-TIM figure out why undefined sometimes.
-            if (sigParameterSym !== undefined) {
-              const parametersSym = createSymbol(
-                sigParameterSym.declarations[0],
-                "parameters",
-                SymbolFlags.Model & SymbolFlags.MemberContainer
-              );
-              copyMembersToContainer(parametersSym, sigParameterSym.members!);
-              table.set("parameters", parametersSym);
-            }
+            const parametersSym = createSymbol(
+              sigParameterSym.declarations[0],
+              "parameters",
+              SymbolFlags.Model & SymbolFlags.MemberContainer
+            );
+            copyMembersToContainer(parametersSym, sigParameterSym.members!);
+            table.set("parameters", parametersSym);
             table.set("returnType", sigTable.get("returnType")!);
           }
         }

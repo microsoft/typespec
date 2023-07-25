@@ -47,15 +47,14 @@ describe("compiler: operations", () => {
     notStrictEqual(b.parameters, a.parameters);
     notStrictEqual(b.parameters.properties.get("one"), a.parameters.properties.get("one"));
     notStrictEqual(b.parameters.properties.get("two"), a.parameters.properties.get("two"));
-    // TODO-TIM check that
-    // strictEqual(
-    //   b.parameters.properties.get("one")?.sourceProperty,
-    //   a.parameters.properties.get("one")
-    // );
-    // strictEqual(
-    //   b.parameters.properties.get("two")?.sourceProperty,
-    //   a.parameters.properties.get("two")
-    // );
+    strictEqual(
+      b.parameters.properties.get("one")?.sourceProperty,
+      a.parameters.properties.get("one")
+    );
+    strictEqual(
+      b.parameters.properties.get("two")?.sourceProperty,
+      a.parameters.properties.get("two")
+    );
   });
 
   it("can decorate operation parameters independently", async () => {
