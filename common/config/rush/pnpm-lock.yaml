@@ -1110,10 +1110,16 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~0.46.0
         version: link:../compiler
+      js-yaml:
+        specifier: ~4.1.0
+        version: 4.1.0
       prettier:
         specifier: ~2.8.7
         version: 2.8.7
     devDependencies:
+      '@types/js-yaml':
+        specifier: ~4.0.1
+        version: 4.0.1
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.1
@@ -1126,6 +1132,9 @@ importers:
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.46.0
         version: link:../eslint-config-typespec
+      '@typespec/prettier-plugin-typespec':
+        specifier: workspace:~0.46.0
+        version: link:../prettier-plugin-typespec
       c8:
         specifier: ~8.0.0
         version: 8.0.0
@@ -1148,8 +1157,8 @@ importers:
         specifier: ~0.24.8
         version: 0.24.8(typescript@5.1.3)
       typedoc-plugin-markdown:
-        specifier: ~3.15.1
-        version: 3.15.1(typedoc@0.24.8)
+        specifier: ~4.0.0-next.17
+        version: 4.0.0-next.17(prettier@2.8.7)(typedoc@0.24.8)
       typescript:
         specifier: ~5.1.3
         version: 5.1.3
@@ -10238,19 +10247,6 @@ packages:
     resolution: {integrity: sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg==}
     dev: false
 
-  /handlebars@4.7.7:
-    resolution: {integrity: sha512-aAcXm5OAfE/8IXkcZvCepKU3VzW1/39Fb5ZuqMtgI/hT8X2YgoMvBY5dLhq/cpOvw7Lk1nK/UF71aLG/ZnVYRA==}
-    engines: {node: '>=0.4.7'}
-    hasBin: true
-    dependencies:
-      minimist: 1.2.8
-      neo-async: 2.6.2
-      source-map: 0.6.1
-      wordwrap: 1.0.0
-    optionalDependencies:
-      uglify-js: 3.17.4
-    dev: true
-
   /has-flag@3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
@@ -14650,12 +14646,13 @@ packages:
       is-typedarray: 1.0.0
     dev: false
 
-  /typedoc-plugin-markdown@3.15.1(typedoc@0.24.8):
-    resolution: {integrity: sha512-TaXE8gc8s5YepU1Ogyqfkh+khPE1/n4rV5vaoZCNyXvSLv62jWmHf443lHiQh7r07qAimUOKAndaaufAeIUSiQ==}
+  /typedoc-plugin-markdown@4.0.0-next.17(prettier@2.8.7)(typedoc@0.24.8):
+    resolution: {integrity: sha512-hzIoOt81PTkO50m+QJAo4B4tnsmp5sfv7kQfPOx/ZKRLODoa3buQzo2k6/sHGahUeKIyzHtqoiEFzB6Bl4nHQQ==}
     peerDependencies:
+      prettier: '>=1.8.0'
       typedoc: '>=0.24.0'
     dependencies:
-      handlebars: 4.7.7
+      prettier: 2.8.7
       typedoc: 0.24.8(typescript@5.1.3)
     dev: true
 
@@ -14695,14 +14692,6 @@ packages:
   /uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
     dev: true
-
-  /uglify-js@3.17.4:
-    resolution: {integrity: sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==}
-    engines: {node: '>=0.8.0'}
-    hasBin: true
-    requiresBuild: true
-    dev: true
-    optional: true
 
   /underscore@1.13.6:
     resolution: {integrity: sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==}
@@ -15457,10 +15446,6 @@ packages:
   /word-wrap@1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
     engines: {node: '>=0.10.0'}
-
-  /wordwrap@1.0.0:
-    resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
-    dev: true
 
   /wordwrapjs@4.0.1:
     resolution: {integrity: sha512-kKlNACbvHrkpIw6oPeYDSmdCTu2hdMHoyXLTcUKala++lx5Y+wjJ/e474Jqv5abnVmwxw08DiTuHmw69lJGksA==}

@@ -55,8 +55,17 @@ export function $header(
       }
       const format = headerNameOrOptions.properties.get("format")?.type;
       if (format?.kind === "String") {
-        if (format.value === "csv") {
-          options.format = format.value;
+        const val = format.value;
+        if (
+          val === "csv" ||
+          val === "tsv" ||
+          val === "pipes" ||
+          val === "ssv" ||
+          val === "simple" ||
+          val === "form" ||
+          val === "multi"
+        ) {
+          options.format = val;
         }
       }
     }
