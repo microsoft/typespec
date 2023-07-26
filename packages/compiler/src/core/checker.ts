@@ -31,7 +31,6 @@ import {
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticTarget,
-  Directive,
   DocContent,
   Enum,
   EnumMember,
@@ -851,22 +850,17 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDeprecated(type: Type, node: Node | undefined, target: DiagnosticTarget) {
-    let hasDeprecation = false;
     if (node) {
-      const directives = getDirectivesForNode(node);
-      directives.forEach((directive) => {
-        if (directive.name === "deprecated" && program.compilerOptions.ignoreDeprecated !== true) {
-          hasDeprecation = true;
-          reportDeprecation(program, target, directive.message, reportCheckerDiagnostic);
-        }
-      });
-    }
-
-    if (!hasDeprecation) {
-      const deprecationDetails = getDeprecationDetails(program, type);
+      const deprecationDetails = getDeprecationDetails(program, node);
       if (deprecationDetails) {
         reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+        return;
       }
+    }
+
+    const deprecationDetails = getDeprecationDetails(program, type);
+    if (deprecationDetails) {
+      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
     }
   }
 
@@ -3715,46 +3709,27 @@ export function createChecker(program: Program): Checker {
     return members;
   }
 
-  function getDirectivesForNode(node: Node): Directive[] {
-    return (node.directives ?? [])
-      .map((directive) => {
-        if (directive.target.sv === "deprecated") {
-          if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "invalid-deprecation-argument",
-                target: directive.arguments[0],
-              })
-            );
-
-            return undefined;
-          }
-
-          return {
-            name: "deprecated",
-            node: directive,
-            message: directive.arguments[0].value,
-          };
-        }
-
-        return undefined;
-      })
-      .filter((directive) => directive !== undefined) as Directive[];
-  }
-
   function checkDirectives(node: Node, type: Type): void {
     let hasDeprecation: boolean = false;
-    const directives = getDirectivesForNode(node);
-    directives.forEach((directive) => {
-      if (directive.name === "deprecated") {
+    (node.directives ?? []).forEach((directive) => {
+      if (directive.target.sv === "deprecated") {
+        if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-deprecation-argument",
+              target: directive.arguments[0],
+            })
+          );
+        }
+
         if (hasDeprecation === true) {
           reportCheckerDiagnostic(
-            createDiagnostic({ code: "duplicate-deprecation", target: directive.node })
+            createDiagnostic({ code: "duplicate-deprecation", target: node })
           );
         } else {
           hasDeprecation = true;
           markDeprecated(program, type, {
-            message: directive.message,
+            message: (directive.arguments[0] as StringLiteralNode).value,
           });
         }
       }
