@@ -1153,14 +1153,26 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       if (parameter.format === "csv" || parameter.format === "simple") {
         ph.style = "simple";
       } else if (parameter.format === "multi" || parameter.format === "form") {
-        ph.style = "form";
-        ph.explode = true;
+        if (parameter.type === "header") {
+          reportDiagnostic(program, {
+            code: "invalid-format",
+            messageId: "formHeader",
+            format: {
+              value: parameter.format,
+            },
+            target: parameter.param,
+          });
+        } else {
+          ph.style = "form";
+          ph.explode = true;
+        }
       } else if (parameter.format === "ssv") {
         ph.style = "spaceDelimited";
         ph.explode = false;
       } else if (parameter.format === "tsv") {
         reportDiagnostic(program, {
           code: "invalid-format",
+          messageId: "tsv",
           target: parameter.param,
         });
         ph.style = "simple";

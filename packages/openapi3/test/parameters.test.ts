@@ -149,6 +149,7 @@ describe("openapi3: parameters", () => {
       `
       op test(
         @header({name: "$csv", format: "csv"}) csvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$multi", format: "multi"}) multis: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$tsv", format: "tsv"}) tsvs: string[],
@@ -173,9 +174,7 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[1], {
       in: "header",
       name: "$multi",
-      style: "form",
       required: true,
-      explode: true,
       schema: {
         type: "array",
         items: {
