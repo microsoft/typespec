@@ -176,10 +176,7 @@ describe("openapi3: parameters", () => {
       name: "$multi",
       required: true,
       schema: {
-        type: "array",
-        items: {
-          type: "string",
-        },
+        type: "string",
       },
     });
     deepStrictEqual(params[2], {

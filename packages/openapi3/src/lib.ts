@@ -134,7 +134,7 @@ export const libDef = {
       severity: "warning",
       messages: {
         tsv: "Collection format `tsv` is not supported in OpenAPI3. Defaulting to `simple`.",
-        formHeader: paramMessage`Collection format '${"value"}' is not supported in OpenAPI3 headers. Ignoring.`,
+        formHeader: paramMessage`Collection format '${"value"}' is not supported in OpenAPI3 headers. Defaulting to type 'string'.`,
       },
     },
     "resource-namespace": {

@@ -1153,19 +1153,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       if (parameter.format === "csv" || parameter.format === "simple") {
         ph.style = "simple";
       } else if (parameter.format === "multi" || parameter.format === "form") {
-        if (parameter.type === "header") {
-          reportDiagnostic(program, {
-            code: "invalid-format",
-            messageId: "formHeader",
-            format: {
-              value: parameter.format,
-            },
-            target: parameter.param,
-          });
-        } else {
-          ph.style = "form";
-          ph.explode = true;
-        }
+        ph.style = "form";
+        ph.explode = true;
       } else if (parameter.format === "ssv") {
         ph.style = "spaceDelimited";
         ph.explode = false;
@@ -1184,6 +1173,26 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
     if (paramBase) {
       ph = mergeOpenApiParameters(ph, paramBase);
+    }
+
+    // don't allow header of type form/multi. Change to string schema.
+    if (
+      parameter.type === "header" &&
+      (parameter.format === "form" || parameter.format === "multi")
+    ) {
+      reportDiagnostic(program, {
+        code: "invalid-format",
+        messageId: "formHeader",
+        format: {
+          value: parameter.format,
+        },
+        target: parameter.param,
+      });
+      ph.schema = {
+        type: "string",
+      };
+      delete ph.style;
+      delete ph.explode;
     }
   }
 
