@@ -5545,12 +5545,41 @@ function finishTypeForProgramAndChecker<T extends Type>(
   return typeDef;
 }
 
+function isTemplateParameterOfParent(identifier: IdentifierNode, startNode: Node): boolean {
+  for (let current: Node | undefined = startNode; current; current = current.parent) {
+    if (isTemplatedNode(current)) {
+      for (const param of current.templateParameters) {
+        // If the identifiers are the same symbol, we're looking at a template
+        // parameter of a templated type
+        if (param.id.symbol === identifier.symbol) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 function reportDeprecation(
   program: Program,
   target: DiagnosticTarget,
   message: string,
   reportFunc: (d: Diagnostic) => void
 ): void {
+  // Check if the deprecation is being reported on a template parameter inside
+  // of a templated type so that deprecated types don't raise un-suppressable
+  // diagnostics in library abstractions
+  const typeReference: TypeReferenceNode | undefined =
+    (target as any).kind === SyntaxKind.TypeReference ? (target as TypeReferenceNode) : undefined;
+  if (typeReference && typeReference.target.kind === SyntaxKind.Identifier) {
+    if (isTemplateParameterOfParent(typeReference.target, typeReference)) {
+      // Don't report diagnostics when deprecated types are referenced by
+      // template parameters
+      return;
+    }
+  }
+
   if (program.compilerOptions.ignoreDeprecated !== true) {
     reportFunc(
       createDiagnostic({

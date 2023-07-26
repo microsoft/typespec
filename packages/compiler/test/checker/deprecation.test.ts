@@ -218,6 +218,53 @@ describe("compiler: checker: deprecation", () => {
 
       expectDiagnostics(diagnostics, [{ code: "duplicate-deprecation" }]);
     });
+
+    it("can have its diagnostics suppressed", async () => {
+      const diagnostics = await runner.diagnose(`
+        #deprecated "Foo is deprecated"
+        model Foo {
+          #deprecated "Name is deprecated"
+          name: string;
+        }
+
+        model Bar {
+          #suppress "deprecated" "Using it anyway"
+          name: Foo;
+        }
+
+        op foo(
+          #suppress "deprecated" "Using it anyway"
+          foo: Foo
+        ): string;
+
+        model Baz {
+          #suppress "deprecated" "Using it anyway"
+          ...Foo;
+        }
+
+        model Buz {
+          #suppress "deprecated" "Using it anyway"
+          name: Foo.name;
+        }
+
+        model Morp<T> {
+          ...T;
+        }
+
+        #suppress "deprecated" "Using it anyway"
+        model IsFooMorp is Morp<Foo>;
+
+        #suppress "deprecated" "Using it anyway"
+        alias FooMorp = Morp<Foo>;
+
+        op bar<T>(...T): void;
+
+        #suppress "deprecated" "Using it anyway"
+        op baz is bar<Foo>;
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("@deprecated decorator", () => {
