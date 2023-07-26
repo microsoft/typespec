@@ -1038,12 +1038,13 @@ function printModelPropertiesBlock(
 function joinPropertiesInBlock(
   path: AstPath<
     Node & {
-      properties: readonly (
+      properties?: readonly (
         | ModelPropertyNode
         | ModelSpreadPropertyNode
         | ProjectionModelPropertyNode
         | ProjectionModelSpreadPropertyNode
       )[];
+      validates?: readonly ModelValidateNode[];
     }
   >,
   options: TypeSpecPrettierOptions,
@@ -1054,27 +1055,61 @@ function joinPropertiesInBlock(
   const doc: Doc[] = [regularLine];
   const propertyContainerNode = path.getValue();
 
-  let newLineBeforeNextProp = false;
-  path.each((item, propertyIndex) => {
-    const isFirst = propertyIndex === 0;
-    const isLast = propertyIndex === propertyContainerNode.properties.length - 1;
-    const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
+  const propct = (propertyContainerNode.properties ?? []).length;
+  const validct = (propertyContainerNode.validates ?? []).length;
 
-    if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
-      doc.push(hardline);
-      newLineBeforeNextProp = false;
-    }
-    doc.push(print(item));
-    if (isLast) {
-      doc.push(ifBreak(separator));
-    } else {
-      doc.push(separator);
-      doc.push(regularLine);
-      if (shouldWrapInNewLines) {
-        newLineBeforeNextProp = true;
+  let newLineBeforeNextProp = false;
+  if (propct > 0) {
+    path.each((item, propertyIndex) => {
+      const isFirst = propertyIndex === 0;
+      const isLast = propertyIndex === propct - 1 && validct === 0;
+      const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
+
+      if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
+        doc.push(hardline);
+        newLineBeforeNextProp = false;
       }
-    }
-  }, "properties");
+      doc.push(print(item));
+      if (isLast) {
+        doc.push(ifBreak(separator));
+      } else {
+        doc.push(separator);
+        doc.push(regularLine);
+        if (shouldWrapInNewLines) {
+          newLineBeforeNextProp = true;
+        }
+      }
+    }, "properties");
+  }
+
+  if (propct > 0 && validct > 0) {
+    doc.push(hardline);
+    newLineBeforeNextProp = false;
+  }
+
+  if (validct > 0) {
+    path.each((item, propertyIndex) => {
+      const isFirst = propertyIndex === 0 && propct === 0;
+      const isLast = propertyIndex === validct - 1;
+      const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
+
+      if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
+        doc.push(hardline);
+        newLineBeforeNextProp = false;
+      }
+      doc.push(print(item));
+      if (isLast) {
+        doc.push(ifBreak(separator));
+      } else {
+        doc.push(separator);
+        doc.push(regularLine);
+        if (shouldWrapInNewLines) {
+          newLineBeforeNextProp = true;
+        }
+      }
+    }, "validates");
+  }
+
   return doc;
 }
 
@@ -1114,6 +1149,7 @@ function isModelAValue(path: AstPath<Node>): boolean {
   do {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ScalarStatement:
       case SyntaxKind.AliasStatement:
       case SyntaxKind.OperationStatement:
         return false;
@@ -1165,6 +1201,7 @@ export function printModelValidate(
       multiline && isNotFirst ? hardline : "",
       printDirectives(path, options, print),
       decorators,
+      "validate ",
       path.call(print, "value"),
     ];
   } else {
@@ -1173,7 +1210,9 @@ export function printModelValidate(
       multiline && isNotFirst ? hardline : "",
       printDirectives(path, options, print),
       decorators,
+      "validate ",
       id,
+      ": ",
       path.call(print, "value"),
     ];
   }
@@ -1240,44 +1279,19 @@ export function printScalarStatement(
   const heritage = node.extends
     ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
     : "";
+
+  const shouldPrintBody = node.validates.length > 0;
+  const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     "scalar ",
     id,
     template,
     group(indent(["", heritage])),
-    ";",
+    body,
   ];
 }
-/*
-function printScalarValidatesBlock(
-  path: AstPath<
-    Node & {
-      validates?: readonly ModelValidateNode[];
-    }
-  >,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint
-) {
-  const node = path.getValue();
-  const hasValidates = node.validates && node.validates.length > 0;
-  if (!hasValidates) {
-    return "";
-  }
-  const tryInline = path.getParentNode()?.kind === SyntaxKind.TemplateParameterDeclaration;
-  const lineDoc = tryInline ? softline : hardline;
-  const seperator = isModelAValue(path) ? "," : ";";
 
-  const body: prettier.Doc = [
-    lineDoc,
-    join(
-      [seperator, lineDoc],
-      path.map((x) => [print(x as any)], "validates")
-    ),
-  ];
-  return group(["{", indent(body), lineDoc, "}"]);
-}
-*/
 export function printNamespaceStatement(
   path: AstPath<FlattenedNamespaceStatementNode>,
   options: TypeSpecPrettierOptions,
