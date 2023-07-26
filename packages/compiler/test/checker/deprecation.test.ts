@@ -220,6 +220,7 @@ describe("compiler: checker: deprecation", () => {
     });
 
     it("can have its diagnostics suppressed", async () => {
+      // cspell:ignore Morp
       const diagnostics = await runner.diagnose(`
         #deprecated "Foo is deprecated"
         model Foo {
