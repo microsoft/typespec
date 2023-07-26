@@ -66,12 +66,8 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[2], {
       in: "query",
       name: "$tsv",
-      style: "simple",
       schema: {
-        type: "array",
-        items: {
-          type: "string",
-        },
+        type: "string",
       },
       required: true,
     });
@@ -182,12 +178,8 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[2], {
       in: "header",
       name: "$tsv",
-      style: "simple",
       schema: {
-        type: "array",
-        items: {
-          type: "string",
-        },
+        type: "string",
       },
       required: true,
     });
