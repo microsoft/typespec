@@ -32,19 +32,14 @@ extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 /**
  * Mark this type as deprecated.
  *
- * NOTE: It is preferable to the `#deprecated` directive instead.
+ * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
  *
  * @deprecated Use the `#deprecated` directive instead.
  * @param message Deprecation message.
  *
  * @example
  *
- * ```typespec
- * @deprecated("Use ActionV2")
- * op Action<T>(): T;
- * ```
- *
- * NOTE: The `#deprecated` directive is preferred:
+ * Use the `#deprecated` directive instead:
  *
  * ```typespec
  * #deprecated "Use ActionV2"
