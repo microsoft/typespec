@@ -1,2 +1,2 @@
 emit:
-  - ../dist/rest-emitter/rest-emitter-sample.js
+  - ../dist/rest-metadata-emitter/rest-metadata-emitter-sample.js

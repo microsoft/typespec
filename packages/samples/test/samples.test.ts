@@ -48,7 +48,7 @@ describe("TypeSpec Samples", () => {
       };
 
       const [options, diagnostics] = await resolveCompilerOptions(host, {
-        entrypoint: sample.fullPath,
+        entrypoint: sample.entrypoint,
       });
       expectDiagnosticEmpty(diagnostics);
 
@@ -86,7 +86,7 @@ describe("TypeSpec Samples", () => {
           strictEqual(content, existingContent.toString());
         }
 
-        for (const filename of await readdir(outputDir)) {
+        for (const filename of await readFilesInDirRecursively(outputDir)) {
           ok(
             filename in outputs,
             `Snapshot for "${filename}" is missing. Run with RECORD=true to regenerate it.`
@@ -96,6 +96,21 @@ describe("TypeSpec Samples", () => {
     });
   });
 });
+
+async function readFilesInDirRecursively(dir: string): Promise<string[]> {
+  const files = [];
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      for (const file of await readFilesInDirRecursively(resolvePath(dir, entry.name))) {
+        files.push(resolvePath(entry.name, file));
+      }
+    } else {
+      files.push(entry.name);
+    }
+  }
+  return files;
+}
 
 export interface Sample {
   name: string;
