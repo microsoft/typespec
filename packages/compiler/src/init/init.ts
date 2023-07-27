@@ -12,9 +12,14 @@ import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
 import { MANIFEST } from "../manifest.js";
-import { InitTemplate, InitTemplateFile, InitTemplateSchema } from "./init-template.js";
+import {
+  InitTemplate,
+  InitTemplateFile,
+  InitTemplateLibrarySpec,
+  InitTemplateSchema,
+} from "./init-template.js";
 
-interface ScaffoldingConfig extends InitTemplate {
+export interface ScaffoldingConfig extends InitTemplate {
   /**
    * Path where this template was loaded from.
    */
@@ -38,7 +43,7 @@ interface ScaffoldingConfig extends InitTemplate {
   /**
    * List of libraries to include
    */
-  libraries: string[];
+  libraries: InitTemplateLibrarySpec[];
 
   /**
    * A flag to indicate not adding @typespec/compiler package to package.json.
@@ -94,6 +99,24 @@ const normalizePackageName = function () {
   };
 };
 
+export function makeScaffoldingConfig(config: Partial<ScaffoldingConfig>): ScaffoldingConfig {
+  return {
+    title: config.title ?? "",
+    description: config.description ?? "",
+    compilerVersion: config.compilerVersion ?? "",
+    templateUri: config.templateUri ?? ".",
+    libraries: config.libraries ?? [],
+    name: config.name ?? "",
+    directory: config.directory ?? "",
+    skipCompilerPackage: config.skipCompilerPackage ?? false,
+    folderName: config.folderName ?? "",
+    parameters: config.parameters ?? {},
+    normalizeVersion: config.normalizeVersion ?? normalizeVersion,
+    toLowerCase: config.toLowerCase ?? toLowerCase,
+    normalizePackageName: config.normalizePackageName ?? normalizePackageName,
+  };
+}
+
 export async function initTypeSpecProject(
   host: CompilerHost,
   directory: string,
@@ -132,7 +155,7 @@ export async function initTypeSpecProject(
 
   const libraries = await selectLibraries(template);
   const parameters = await promptCustomParameters(template);
-  const scaffoldingConfig: ScaffoldingConfig = {
+  const scaffoldingConfig = makeScaffoldingConfig({
     ...template,
     templateUri: url?.finalUrl ?? ".",
     libraries,
@@ -144,8 +167,11 @@ export async function initTypeSpecProject(
     normalizeVersion,
     toLowerCase,
     normalizePackageName,
-  };
+  });
   await scaffoldNewProject(host, scaffoldingConfig);
+
+  // eslint-disable-next-line no-console
+  console.log("TypeSpec init completed. You can run `tsp install` now to install dependencies.");
 
   // eslint-disable-next-line no-console
   console.log("Project created successfully.");
@@ -324,12 +350,24 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
   return true;
 }
 
-async function selectLibraries(template: InitTemplate): Promise<string[]> {
+function getLibrarySpec(library: string | InitTemplateLibrarySpec): InitTemplateLibrarySpec {
+  return typeof library === "string" ? { name: library } : library;
+}
+
+async function getLibraryVersion(library: InitTemplateLibrarySpec): Promise<string> {
+  // TODO: Resolve 'latest' version from npm, issue #1919
+  return library.version ?? "latest";
+}
+
+async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
   if (template.libraries.length === 0) {
     return [];
   }
 
-  const libraryChoices = template.libraries.map((x) => ({ name: x, description: "" }));
+  const libraryChoices = template.libraries.map((x) => ({
+    ...getLibrarySpec(x),
+    description: "",
+  }));
 
   const { libraries } = await prompts({
     type: "multiselect",
@@ -339,7 +377,7 @@ async function selectLibraries(template: InitTemplate): Promise<string[]> {
       return {
         title: x.name,
         description: x.description,
-        value: x.name,
+        value: x,
         selected: true,
       };
     }),
@@ -354,9 +392,6 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writeConfig(host, config);
   await writeMain(host, config);
   await writeFiles(host, config);
-
-  // eslint-disable-next-line no-console
-  console.log("TypeSpec init completed. You can run `tsp install` now to install dependencies.");
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
@@ -370,7 +405,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   }
 
   for (const library of config.libraries) {
-    dependencies[library] = "latest";
+    dependencies[library.name] = await getLibraryVersion(library);
   }
 
   const packageJson: NodePackage = {
@@ -405,10 +440,10 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const dependencies: Record<string, string> = {};
 
   for (const library of config.libraries) {
-    dependencies[library] = "latest";
+    dependencies[library.name] = await getLibraryVersion(library);
   }
 
-  const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
+  const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
   const content = lines.join("\n");
 
   return host.writeFile(joinPaths(config.directory, "main.tsp"), formatTypeSpec(content));
