@@ -356,7 +356,7 @@ function getLibrarySpec(library: string | InitTemplateLibrarySpec): InitTemplate
 
 async function getLibraryVersion(library: InitTemplateLibrarySpec): Promise<string> {
   // TODO: Resolve 'latest' version from npm, issue #1919
-  return library.version || "latest";
+  return library.version ?? "latest";
 }
 
 async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
