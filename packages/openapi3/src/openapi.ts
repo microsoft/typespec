@@ -1147,23 +1147,53 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     parameter: HttpOperationParameter,
     visibility: Visibility
   ) {
+    let defaultToString = false;
     ph.name = parameter.name;
     ph.in = parameter.type;
-    if (parameter.type === "query") {
-      if (parameter.format === "csv") {
+    if (parameter.type === "query" || parameter.type === "header") {
+      if (parameter.format === "csv" || parameter.format === "simple") {
         ph.style = "simple";
-      } else if (parameter.format === "multi") {
+      } else if (parameter.format === "multi" || parameter.format === "form") {
+        if (parameter.type === "header") {
+          reportDiagnostic(program, {
+            code: "invalid-format",
+            messageId: "formHeader",
+            format: {
+              value: parameter.format,
+            },
+            target: parameter.param,
+          });
+          defaultToString = true;
+        }
         ph.style = "form";
         ph.explode = true;
-      }
-    } else if (parameter.type === "header") {
-      if (parameter.format === "csv") {
-        ph.style = "simple";
+      } else if (parameter.format === "ssv") {
+        ph.style = "spaceDelimited";
+        ph.explode = false;
+      } else if (parameter.format === "tsv") {
+        reportDiagnostic(program, {
+          code: "invalid-format",
+          messageId: "tsv",
+          target: parameter.param,
+        });
+        defaultToString = true;
+      } else if (parameter.format === "pipes") {
+        ph.style = "pipeDelimited";
+        ph.explode = false;
       }
     }
     const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
     if (paramBase) {
       ph = mergeOpenApiParameters(ph, paramBase);
+    }
+
+    // Revert unsupported formats to just string schema type
+    if (defaultToString) {
+      ph.schema = {
+        type: "string",
+      };
+      delete ph.style;
+      delete ph.explode;
     }
   }
 

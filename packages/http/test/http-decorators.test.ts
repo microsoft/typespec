@@ -211,7 +211,7 @@ describe("http: decorators", () => {
     });
 
     describe("change format for array value", () => {
-      ["csv", "tsv", "ssv", "pipes"].forEach((format) => {
+      ["csv", "tsv", "ssv", "simple", "form", "pipes"].forEach((format) => {
         it(`set query format to "${format}"`, async () => {
           const { selects } = await runner.compile(`
             op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
