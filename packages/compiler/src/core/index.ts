@@ -1,6 +1,7 @@
 export * from "../manifest.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
+export * from "./deprecation.js";
 export * from "./diagnostics.js";
 export * from "./emitter-utils.js";
 export * from "./formatter.js";

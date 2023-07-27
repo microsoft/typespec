@@ -4,6 +4,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
+import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
   StdTypeName,
   StringLiteral,
@@ -1022,17 +1023,7 @@ export function $withDefaultKeyVisibility(
  * ```
  */
 export function $deprecated(context: DecoratorContext, target: Type, message: string) {
-  return context.program.stateMap(deprecatedKey).set(target, message);
-}
-const deprecatedKey = createStateSymbol("deprecated");
-
-/**
- * Check if the given type is deprecated
- * @param program Program
- * @param type Type
- */
-export function isDeprecated(program: Program, type: Type): boolean {
-  return program.stateMap(deprecatedKey).has(type);
+  markDeprecated(context.program, target, { message });
 }
 
 /**
@@ -1041,7 +1032,7 @@ export function isDeprecated(program: Program, type: Type): boolean {
  * @param type Type
  */
 export function getDeprecated(program: Program, type: Type): string | undefined {
-  return program.stateMap(deprecatedKey).get(type);
+  return getDeprecationDetails(program, type)?.message;
 }
 
 const overloadedByKey = createStateSymbol("overloadedByKey");

@@ -569,6 +569,7 @@ describe("compiler: parser", () => {
         [
           ["#suppress foo;\nmodel Foo {}", [/Unexpected token Semicolon/]],
           ["#suppress foo 123\nmodel Foo {}", [/Unexpected token NumericLiteral/]],
+          ["#deprecated 321\nop doFoo(): string;", [/Unexpected token NumericLiteral/]],
         ],
         { strict: true }
       );
