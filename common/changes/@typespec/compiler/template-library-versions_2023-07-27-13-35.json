@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Allow library dependency versions to be specified in init templates using the form `{ name: \"the-lib\", version: \"1.0.0\" }`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
