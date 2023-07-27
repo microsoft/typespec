@@ -28,7 +28,6 @@ const excludedSamples = [
 ];
 
 const samplesRoot = resolvePath(fileURLToPath(import.meta.url), "../../..");
-console.log(":Root", samplesRoot);
 const rootOutputDir = resolvePath(samplesRoot, "test/output");
 
 describe("TypeSpec Samples", () => {
