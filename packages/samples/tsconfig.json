@@ -2,10 +2,10 @@
   "extends": "../tsconfig.json",
   "references": [{ "path": "../compiler/tsconfig.json" }, { "path": "../rest/tsconfig.json" }],
   "compilerOptions": {
-    "types": [],
+    "types": ["node", "mocha"],
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["rest-metadata-emitter/**/*.ts"]
+  "include": ["rest-metadata-emitter/**/*.ts", "test/**/*.ts"]
 }
