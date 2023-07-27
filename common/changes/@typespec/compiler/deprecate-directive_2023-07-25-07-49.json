@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add `--ignore-deprecated` CLI argument to suppress all `deprecated` diagnostics",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
