@@ -124,7 +124,7 @@ scalar boolean;
  * Represent a model
  */
 // Deprecated June 2023 sprint
-@deprecated("object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.")
+#deprecated "object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array."
 model object {}
 
 /**
