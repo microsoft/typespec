@@ -480,6 +480,18 @@ const diagnostics = {
       default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
     },
   },
+  "invalid-deprecation-argument": {
+    severity: "error",
+    messages: {
+      default: "Invalid deprecation argument",
+    },
+  },
+  "duplicate-deprecation": {
+    severity: "warning",
+    messages: {
+      default: "The #deprecated directive cannot be used more than once on the same declaration.",
+    },
+  },
 
   /**
    * Configuration

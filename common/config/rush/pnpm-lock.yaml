@@ -1120,6 +1120,9 @@ importers:
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.46.0
         version: link:../eslint-config-typespec
+      '@typespec/prettier-plugin-typespec':
+        specifier: workspace:~0.46.0
+        version: link:../prettier-plugin-typespec
       c8:
         specifier: ~8.0.0
         version: 8.0.0

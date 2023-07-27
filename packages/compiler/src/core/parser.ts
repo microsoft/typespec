@@ -1206,7 +1206,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     parseExpected(Token.Hash);
 
     const target = parseIdentifier();
-    if (target.sv !== "suppress") {
+    if (target.sv !== "suppress" && target.sv !== "deprecated") {
       error({
         code: "unknown-directive",
         format: { id: target.sv },

@@ -23,6 +23,7 @@ export interface CompileCliArgs {
   config?: string;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
+  "ignore-deprecated"?: boolean;
   args?: string[];
 }
 
@@ -60,7 +61,11 @@ export async function getCompilerOptions(
     emit: args.emit ?? config.emit,
     options: resolveEmitterOptions(config, cliOptions),
   };
-  const cliOutputDir = pathArg ? resolvePath(cwd, pathArg) : undefined;
+  const cliOutputDir = pathArg
+    ? pathArg.startsWith("{")
+      ? pathArg
+      : resolvePath(cwd, pathArg)
+    : undefined;
 
   const expandedConfig = diagnostics.pipe(
     expandConfigVariables(configWithCliArgs, {
@@ -76,6 +81,7 @@ export async function getCompilerOptions(
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
     noEmit: args["no-emit"],
+    ignoreDeprecated: args["ignore-deprecated"],
     miscOptions: cliOptions.miscOptions,
     outputDir: expandedConfig.outputDir,
     config: config.filename,

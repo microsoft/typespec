@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Add collection format support: simple, form, ssv, tsv, pipes",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

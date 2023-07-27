@@ -31,7 +31,7 @@ export interface InitTemplate {
   /**
    * List of libraries to include
    */
-  libraries: string[];
+  libraries: InitTemplateLibrary[];
 
   /**
    * Config
@@ -55,6 +55,36 @@ export interface InitTemplate {
   files?: InitTemplateFile[];
 }
 
+/**
+ * Describes a library dependency that will be added to the generated project.
+ */
+export type InitTemplateLibrary = string | InitTemplateLibrarySpec;
+
+/**
+ * Describes a library dependency that will be added to the generated project.
+ */
+export interface InitTemplateLibrarySpec {
+  /**
+   * The npm package name of the library.
+   */
+  name: string;
+
+  /**
+   *  The npm-style version string as it would appear in package.json.
+   */
+  version?: string;
+}
+
+export const InitTemplateLibrarySpecSchema: JSONSchemaType<InitTemplateLibrarySpec> = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    name: { type: "string" },
+    version: { type: "string", nullable: true },
+  },
+  required: ["name"],
+};
+
 export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   type: "object",
   additionalProperties: false,
@@ -62,7 +92,12 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     title: { type: "string" },
     description: { type: "string" },
     compilerVersion: { type: "string" },
-    libraries: { type: "array", items: { type: "string" } },
+    libraries: {
+      type: "array",
+      items: {
+        oneOf: [{ type: "string" }, InitTemplateLibrarySpecSchema],
+      },
+    },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },
     inputs: {
