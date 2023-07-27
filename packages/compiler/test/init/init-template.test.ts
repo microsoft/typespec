@@ -4,13 +4,17 @@ import {
   makeScaffoldingConfig,
   scaffoldNewProject,
 } from "../../src/init/init.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
 describe("compiler: init: templates", () => {
   let testHost: TestHost;
   beforeEach(async () => {
     testHost = await createTestHost();
   });
+
+  function getOutputFile(path: string): string | undefined {
+    return testHost.fs.get(resolveVirtualPath(path));
+  }
 
   async function runTemplate(config: Partial<ScaffoldingConfig>): Promise<void> {
     await scaffoldNewProject(
@@ -38,13 +42,13 @@ describe("compiler: init: templates", () => {
         libraries: [{ name: "foo", version: "~1.2.3" }, { name: "bar" }],
       });
 
-      deepStrictEqual(JSON.parse(testHost.fs.get("/test/package.json")! as any).dependencies, {
+      deepStrictEqual(JSON.parse(getOutputFile("package.json")!).dependencies, {
         "@typespec/compiler": "latest",
         foo: "~1.2.3",
         bar: "latest",
       });
 
-      strictEqual(testHost.fs.get("/test/main.tsp")!, 'import "foo";\nimport "bar";\n');
+      strictEqual(getOutputFile("main.tsp")!, 'import "foo";\nimport "bar";\n');
     });
   });
 });
