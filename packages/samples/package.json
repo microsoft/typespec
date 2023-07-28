@@ -34,7 +34,7 @@
     "watch": "tsc -p . --watch",
     "test": "mocha",
     "test-official": "mocha --forbid-only",
-    "regen-samples": "CLEAN_SAMPLES=true RECORD=true mocha"
+    "regen-samples": "cross-env CLEAN_SAMPLES=true RECORD=true mocha"
   },
   "files": [
     "lib/*.tsp",
@@ -56,6 +56,7 @@
     "@typespec/eslint-config-typespec": "workspace:~0.46.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
+    "cross-env": "~7.0.3",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",
     "autorest": "~3.3.2",
