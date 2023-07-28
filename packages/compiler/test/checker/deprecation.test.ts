@@ -219,6 +219,77 @@ describe("compiler: checker: deprecation", () => {
       expectDiagnostics(diagnostics, [{ code: "duplicate-deprecation" }]);
     });
 
+    describe("referencing in template constraint", () => {
+      it("emits diagnostic when template is not instantiated", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "OldFoo is deprecated"
+            model OldFoo {}
+            
+            model Bar<T extends ┆OldFoo> {}
+          `,
+          ["OldFoo is deprecated"]
+        );
+      });
+
+      it("doesn't emit more diagnostic if instantiating template", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "OldFoo is deprecated"
+            model OldFoo {}
+            
+            model Bar<T extends ┆OldFoo> {}
+          
+            alias T1 = Bar<{one: string}>;
+            alias T2 = Bar<{two: string}>;
+          `,
+          ["OldFoo is deprecated"]
+        );
+      });
+
+      it("can suppress", async () => {
+        const diagnostics = await runner.diagnose(`
+          #deprecated "OldFoo is deprecated"
+          model OldFoo {}
+          
+          #suppress "deprecated" "Using it anyway"
+          model Bar<T extends OldFoo> {}
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+    });
+
+    describe("referencing in template argument", () => {
+      it("emits diagnostic", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "OldFoo is deprecated"
+            model OldFoo {}
+            
+            model Bar<T> {...T}
+
+            alias T1 = Bar<┆OldFoo>;
+          `,
+          ["OldFoo is deprecated"]
+        );
+      });
+
+      it("can suppress", async () => {
+        const diagnostics = await runner.diagnose(`
+          #deprecated "OldFoo is deprecated"
+          model OldFoo {}
+          
+          model Bar<T> {...T}
+
+          #suppress "deprecated" "Using it anyway"
+          alias T1 = Bar<OldFoo>;
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+    });
+
     it("can have its diagnostics suppressed", async () => {
       // cspell:ignore Morp
       const diagnostics = await runner.diagnose(`
@@ -247,21 +318,6 @@ describe("compiler: checker: deprecation", () => {
           #suppress "deprecated" "Using it anyway"
           name: Foo.name;
         }
-
-        model Morp<T> {
-          ...T;
-        }
-
-        #suppress "deprecated" "Using it anyway"
-        model IsFooMorp is Morp<Foo>;
-
-        #suppress "deprecated" "Using it anyway"
-        alias FooMorp = Morp<Foo>;
-
-        op bar<T>(...T): void;
-
-        #suppress "deprecated" "Using it anyway"
-        op baz is bar<Foo>;
         `);
 
       expectDiagnosticEmpty(diagnostics);
