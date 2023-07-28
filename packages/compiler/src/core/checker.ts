@@ -1064,7 +1064,7 @@ export function createChecker(program: Program): Checker {
 
     // Check for deprecations here, first on symbol, then on type.
     const declarationNode = sym?.declarations[0];
-    if (declarationNode) {
+    if (declarationNode && mapper === undefined) {
       checkDeprecated(baseType, declarationNode, node);
     }
 
@@ -1627,6 +1627,7 @@ export function createChecker(program: Program): Checker {
     if (mapper === undefined && inInterface) {
       compilerAssert(parentInterface, "Operation in interface should already have been checked.");
     }
+    checkTemplateDeclaration(node, mapper);
 
     // If we are instantating operation inside of interface
     if (isTemplatedNode(node) && mapper !== undefined && parentInterface) {
@@ -2334,6 +2335,20 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  /**
+   * Check that the given node template parameters are valid if applicable.
+   * @param node Node with template parameters
+   * @param mapper Type mapper, set if instantiating the template, undefined otherwise.
+   */
+  function checkTemplateDeclaration(node: TemplateableNode, mapper: TypeMapper | undefined) {
+    // If mapper is undefined it means we are checking the declaration of the template.
+    if (mapper === undefined) {
+      for (const templateParameter of node.templateParameters) {
+        checkTemplateParameterDeclaration(templateParameter, undefined);
+      }
+    }
+  }
+
   function checkModel(
     node: ModelExpressionNode | ModelStatementNode,
     mapper: TypeMapper | undefined
@@ -2352,6 +2367,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -3273,6 +3289,8 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
+
     const decorators: DecoratorApplication[] = [];
 
     const type: Scalar = createType({
@@ -3354,6 +3372,7 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType && mapper === undefined) {
       return links.declaredType;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const aliasSymId = getNodeSymId(node);
     if (pendingResolutions.has(aliasSymId)) {
@@ -3433,6 +3452,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const interfaceType: Interface = createType({
       kind: "Interface",
@@ -3532,6 +3552,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this union and we've already checked it
       return links.declaredType as Union;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({
@@ -5520,41 +5541,12 @@ function finishTypeForProgramAndChecker<T extends Type>(
   return typeDef;
 }
 
-function isTemplateParameterOfParent(identifier: IdentifierNode, startNode: Node): boolean {
-  for (let current: Node | undefined = startNode; current; current = current.parent) {
-    if (isTemplatedNode(current)) {
-      for (const param of current.templateParameters) {
-        // If the identifiers are the same symbol, we're looking at a template
-        // parameter of a templated type
-        if (param.id.symbol === identifier.symbol) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
 function reportDeprecation(
   program: Program,
   target: DiagnosticTarget,
   message: string,
   reportFunc: (d: Diagnostic) => void
 ): void {
-  // Check if the deprecation is being reported on a template parameter inside
-  // of a templated type so that deprecated types don't raise un-suppressable
-  // diagnostics in library abstractions
-  const typeReference: TypeReferenceNode | undefined =
-    (target as any).kind === SyntaxKind.TypeReference ? (target as TypeReferenceNode) : undefined;
-  if (typeReference && typeReference.target.kind === SyntaxKind.Identifier) {
-    if (isTemplateParameterOfParent(typeReference.target, typeReference)) {
-      // Don't report diagnostics when deprecated types are referenced by
-      // template parameters
-      return;
-    }
-  }
-
   if (program.compilerOptions.ignoreDeprecated !== true) {
     reportFunc(
       createDiagnostic({
