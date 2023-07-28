@@ -1122,6 +1122,7 @@ function joinPropertiesInBlock(
 function shouldWrapPropertyInNewLines(
   path: AstPath<
     | ModelPropertyNode
+    | ModelValidateNode
     | ModelSpreadPropertyNode
     | ProjectionModelPropertyNode
     | ProjectionModelSpreadPropertyNode
@@ -1130,7 +1131,9 @@ function shouldWrapPropertyInNewLines(
 ): boolean {
   const node = path.getValue();
   return (
-    ((node.kind === SyntaxKind.ModelProperty || node.kind === SyntaxKind.ProjectionModelProperty) &&
+    ((node.kind === SyntaxKind.ModelProperty ||
+      node.kind === SyntaxKind.ProjectionModelProperty ||
+      node.kind === SyntaxKind.ModelValidate) &&
       shouldDecoratorBreakLine(path as any, options, {
         tryInline: DecoratorsTryInline.modelProperty,
       })) ||
@@ -1186,36 +1189,17 @@ export function printModelValidate(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
-  const propertyIndex = path.stack[path.stack.length - 2];
-  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
-  const { decorators, multiline } = printDecorators(
-    path as AstPath<DecorableNode>,
-    options,
-    print,
-    {
-      tryInline: true,
-    }
-  );
-  if (node.id === undefined) {
-    return [
-      multiline && isNotFirst ? hardline : "",
-      printDirectives(path, options, print),
-      decorators,
-      "validate ",
-      path.call(print, "value"),
-    ];
-  } else {
-    const id = printIdentifier(node.id, options);
-    return [
-      multiline && isNotFirst ? hardline : "",
-      printDirectives(path, options, print),
-      decorators,
-      "validate ",
-      id,
-      ": ",
-      path.call(print, "value"),
-    ];
-  }
+  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
+    tryInline: true,
+  });
+  const id = node.id ? [printIdentifier(node.id, options), ": "] : "";
+  return [
+    printDirectives(path, options, print),
+    decorators,
+    "validate ",
+    id,
+    path.call(print, "value"),
+  ];
 }
 
 function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
