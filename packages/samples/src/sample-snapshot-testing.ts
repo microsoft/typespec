@@ -44,7 +44,7 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
       overrides.emit = config.emit;
     }
     const [options, diagnostics] = await resolveCompilerOptions(host, {
-      entrypoint: sample.entrypoint,
+      entrypoint: sample.fullPath,
       overrides,
     });
     expectDiagnosticEmpty(diagnostics);
@@ -56,7 +56,7 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
       );
     }
 
-    const program = await compile(host, sample.entrypoint, options);
+    const program = await compile(host, sample.fullPath, options);
     expectDiagnosticEmpty(program.diagnostics);
 
     const outputDir = resolvePath(config.outputDir, sample.name);
@@ -85,7 +85,7 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
           existingContent = await readFile(snapshotPath);
         } catch (e: unknown) {
           if (typeof e === "object" && e !== null && "code" in e && e.code === "ENOENT") {
-            fail(`Snapshot for "${filename}" is missing. Run with RECORD=true to regenerate it.`);
+            fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
           }
           throw e;
         }
@@ -95,7 +95,10 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
       for (const filename of await readFilesInDirRecursively(outputDir)) {
         ok(
           host.outputs.has(filename),
-          `Snapshot for "${filename}" is missing. Run with RECORD=true to regenerate it.`
+          `Snapshot for "${resolvePath(
+            outputDir,
+            filename
+          )}" is missing. Run with RECORD=true to regenerate it.`
         );
       }
     }
@@ -137,7 +140,6 @@ interface Sample {
   name: string;
   /** Sample folder */
   fullPath: string;
-  entrypoint: string;
 }
 
 function resolveSamples(config: SampleSnapshotTestOptions): Sample[] {
@@ -154,11 +156,10 @@ function resolveSamples(config: SampleSnapshotTestOptions): Sample[] {
     for (const entry of readdirSync(fullDir, { withFileTypes: true })) {
       if (entry.isDirectory()) {
         walk(joinPaths(relativeDir, entry.name));
-      } else if (relativeDir && entry.name === "main.tsp") {
+      } else if (relativeDir && (entry.name === "main.tsp" || entry.name === "package.json")) {
         samples.push({
           name: relativeDir,
           fullPath: joinPaths(config.sampleDir, relativeDir),
-          entrypoint: joinPaths(config.sampleDir, relativeDir, entry.name),
         });
       }
     }

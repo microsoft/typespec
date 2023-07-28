@@ -1,4 +1,4 @@
-import { createDiagnosticCollector, getDirectoryPath, normalizePath } from "../core/index.js";
+import { createDiagnosticCollector, normalizePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, omitUndefined } from "../core/util.js";
@@ -45,7 +45,7 @@ export async function resolveCompilerOptions(
   const cwd = normalizePath(options.cwd ?? process.cwd());
   const diagnostics = createDiagnosticCollector();
 
-  const configPath = options.configPath ?? getDirectoryPath(options.entrypoint);
+  const configPath = options.configPath ?? options.entrypoint;
   const config = await loadTypeSpecConfigForPath(host, configPath);
   const configWithOverrides: TypeSpecConfig = {
     ...config,

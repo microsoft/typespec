@@ -34,7 +34,7 @@
     "watch": "tsc -p . --watch",
     "test": "mocha",
     "test-official": "mocha --forbid-only",
-    "regen-samples": "RECORD=true mocha"
+    "regen-samples": "CLEAN_SAMPLES=true RECORD=true mocha"
   },
   "files": [
     "lib/*.tsp",
