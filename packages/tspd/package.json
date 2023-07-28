@@ -1,6 +1,6 @@
 {
   "name": "@typespec/tspd",
-  "version": "0.1.0",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating typespec docs",
   "homepage": "https://microsoft.github.io/typespec",
@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "bin": {
-    "tspd": "./dist/src/index.js"
+    "tspd": "./cmd/tspd.js"
   },
   "main": "dist/src/index.js",
   "engines": {

@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
-import { NodeHost, resolvePath, typespecVersion } from "@typespec/compiler";
+import { NodeHost, logDiagnostics, resolvePath, typespecVersion } from "@typespec/compiler";
 import pc from "picocolors";
 import yargs from "yargs";
+import { generateLibraryDocs } from "./ref-doc/experimental.js";
 
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -50,13 +51,13 @@ async function main() {
         "Enable color and formatting in TypeSpec's output to make compiler errors easier to read.",
       default: true,
     })
-    .option("enable-experiemental", {
+    .option("enable-experimental", {
       type: "boolean",
       description: "Acknowledge that the tspd command line is experiemental.",
       default: false,
     })
     .check((args) => {
-      if (args["enable-experiemental"]) {
+      if (args["enable-experimental"]) {
         logExperimentalWarning("log");
         return true;
       } else {
@@ -68,19 +69,27 @@ async function main() {
       "doc <entrypoint>",
       "Generate documentation for a TypeSpec library.",
       (cmd) => {
-        return cmd.positional("entrypoint", {
-          description: "Path to the library entrypoint.",
-          type: "string",
-          demandOption: true,
-        });
+        return cmd
+          .positional("entrypoint", {
+            description: "Path to the library entrypoint.",
+            type: "string",
+            demandOption: true,
+          })
+          .option("output-dir", {
+            type: "string",
+          });
       },
       async (args) => {
         const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
         const host = NodeHost;
+        const diagnostics = await generateLibraryDocs(
+          resolvedRoot,
+          args["output-dir"] ?? resolvePath(resolvedRoot, "docs")
+        );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);
-        // if (diagnostics.length > 0) {
-        //   logDiagnostics(diagnostics, host.logSink);
-        // }
+        if (diagnostics.length > 0) {
+          logDiagnostics(diagnostics, host.logSink);
+        }
       }
     )
     .version(typespecVersion)

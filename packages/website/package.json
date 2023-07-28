@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@typespec/compiler": "workspace:~0.46.0",
-    "@typespec/tspd": "workspace:~0.1.0",
+    "@typespec/tspd": "workspace:~0.46.0",
     "@typespec/spec": "workspace:*",
     "@typespec/http": "workspace:~0.46.0",
     "@typespec/rest": "workspace:~0.46.0",

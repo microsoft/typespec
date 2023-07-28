@@ -698,6 +698,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:~0.46.0
         version: link:../rest
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       c8:
         specifier: ~8.0.0
         version: 8.0.0
@@ -756,6 +759,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:~0.46.0
         version: link:../rest
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       '@typespec/versioning':
         specifier: workspace:~0.46.0
         version: link:../versioning
@@ -1472,7 +1478,7 @@ importers:
         specifier: workspace:*
         version: link:../spec
       '@typespec/tspd':
-        specifier: workspace:~0.1.0
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@typespec/versioning':
         specifier: workspace:~0.46.0

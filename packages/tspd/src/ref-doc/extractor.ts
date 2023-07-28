@@ -8,9 +8,9 @@ import {
   DocUnknownTagNode,
   Enum,
   getDoc,
+  getLocationContext,
   getSourceLocation,
   getTypeName,
-  ignoreDiagnostics,
   Interface,
   isDeclaredType,
   isTemplateDeclaration,
@@ -18,6 +18,7 @@ import {
   JSONSchemaType,
   Model,
   Namespace,
+  navigateProgram,
   navigateTypesInNamespace,
   NodeHost,
   NodePackage,
@@ -53,8 +54,7 @@ import {
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
 export async function extractLibraryRefDocs(
-  libraryPath: string,
-  namespaces: string[]
+  libraryPath: string
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -68,7 +68,7 @@ export async function extractLibraryRefDocs(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    refDoc.namespaces = extractRefDocs(program, namespaces).namespaces;
+    refDoc.namespaces = extractRefDocs(program).namespaces;
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }
@@ -92,13 +92,16 @@ async function readPackageJson(libraryPath: string): Promise<NodePackage> {
   return JSON.parse(buffer.toString());
 }
 
-export function extractRefDocs(
-  program: Program,
-  filterToNamespace: string[] = []
-): TypeSpecRefDocBase {
-  const namespaceTypes = filterToNamespace
-    .map((x) => ignoreDiagnostics(program.resolveTypeReference(x)))
-    .filter((x): x is Namespace => x !== undefined);
+export function extractRefDocs(program: Program): TypeSpecRefDocBase {
+  const namespaceTypes: Namespace[] = [];
+  navigateProgram(program, {
+    namespace(namespace) {
+      if (getLocationContext(program, namespace).type !== "project") {
+        return;
+      }
+      namespaceTypes.push(namespace);
+    },
+  });
 
   const refDoc: TypeSpecRefDocBase = {
     namespaces: [],
