@@ -25,14 +25,10 @@ npm install -g @typespec/compiler
 
 ## Install the VS and VSCode extensions
 
-The cli comes bundled with extensions for VS and VSCode. Install them via:
+TypeSpec provides extension for the following editors:
 
-```bash
-tsp code install
-tsp vs install
-```
-
-If you are using the VSCode insiders build, pass the `--insiders` option to the `tsp code install` command.
+- [Visual Studio Code](./editor/vscode.md)
+- [Visual Studio](./editor/vscode.md)
 
 ## Create first TypeSpec Project
 
