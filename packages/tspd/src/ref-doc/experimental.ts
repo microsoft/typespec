@@ -9,7 +9,7 @@ import {
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
-import { extractLibraryRefDocs, extractRefDocs } from "./extractor.js";
+import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
 
 /**
@@ -35,7 +35,8 @@ export async function generateLibraryDocs(
 }
 
 export async function resolveLibraryRefDocsBase(
-  libraryPath: string
+  libraryPath: string,
+  options: ExtractRefDocOptions = {}
 ): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]] | undefined> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -44,7 +45,7 @@ export async function resolveLibraryRefDocsBase(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    const refDoc = extractRefDocs(program);
+    const refDoc = diagnostics.pipe(extractRefDocs(program, options));
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }

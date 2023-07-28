@@ -6,7 +6,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run regen-ref-docs && node  .scripts/docusaurus-build.mjs 2>&1",
+    "build": "node  .scripts/docusaurus-build.mjs 2>&1",
     "swizzle": "docusaurus swizzle",
     "clear": "docusaurus clear",
     "clean": "docusaurus clear",
@@ -16,7 +16,7 @@
     "update-latest-docs": "rimraf versions.json ./versioned_docs ./versioned_sidebars && docusaurus docs:version latest",
     "lint": "eslint . --ext .ts,.js --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts,.js",
-    "regen-ref-docs": "node ./.scripts/regen-ref-docs.mjs"
+    "regen-docs": "node ./.scripts/regen-compiler-docs.mjs"
   },
   "keywords": [],
   "author": "",

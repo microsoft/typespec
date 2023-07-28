@@ -386,6 +386,9 @@ importers:
       '@typespec/library-linter':
         specifier: workspace:~0.46.0
         version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       c8:
         specifier: ~8.0.0
         version: 8.0.0
@@ -487,6 +490,9 @@ importers:
       '@typespec/library-linter':
         specifier: workspace:~0.46.0
         version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       ajv:
         specifier: ~8.12.0
         version: 8.12.0
@@ -1095,6 +1101,9 @@ importers:
       '@typespec/eslint-plugin':
         specifier: workspace:~0.46.0
         version: link:../eslint-plugin-typespec
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       c8:
         specifier: ~8.0.0
         version: 8.0.0
@@ -1137,6 +1146,9 @@ importers:
       '@typespec/library-linter':
         specifier: workspace:~0.46.0
         version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       c8:
         specifier: ~8.0.0
         version: 8.0.0
@@ -1296,6 +1308,9 @@ importers:
       rimraf:
         specifier: ~5.0.1
         version: 5.0.1
+      source-map-support:
+        specifier: ~0.5.19
+        version: 0.5.19
       typedoc:
         specifier: ~0.24.8
         version: 0.24.8(typescript@5.1.3)
@@ -1392,6 +1407,9 @@ importers:
       '@typespec/library-linter':
         specifier: workspace:~0.46.0
         version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
       c8:
         specifier: ~8.0.0
         version: 8.0.0

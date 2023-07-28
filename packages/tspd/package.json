@@ -20,7 +20,21 @@
   "bin": {
     "tspd": "./cmd/tspd.js"
   },
-  "main": "dist/src/index.js",
+  "main": "./dist/src/index.js",
+  "exports": {
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./ref-doc": {
+      "default": "./dist/src/ref-doc/index.js",
+      "types": "./dist/src/ref-doc/index.d.ts"
+    },
+    "./ref-doc/emitters/docusaurus": {
+      "default": "./dist/src/ref-doc/emitters/docusaurus.js",
+      "types": "./dist/src/ref-doc/emitters/docusaurus.d.ts"
+    }
+  },
   "engines": {
     "node": ">=16.0.0"
   },
@@ -59,6 +73,7 @@
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
     "mocha": "~10.2.0",
+    "source-map-support": "~0.5.19",
     "rimraf": "~5.0.1",
     "typedoc-plugin-markdown": "~4.0.0-next.17",
     "typedoc": "~0.24.8",
