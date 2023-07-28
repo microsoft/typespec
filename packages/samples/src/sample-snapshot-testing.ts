@@ -1,6 +1,7 @@
 import {
   CompilerHost,
   NodeHost,
+  ResolveCompilerOptionsOptions,
   compile,
   getDirectoryPath,
   joinPaths,
@@ -20,8 +21,12 @@ export interface SampleSnapshotTestOptions {
 
   /** Output directory for snapshots. */
   outputDir: string;
+
   /** Folders to exclude from testing. */
   exclude?: string[];
+
+  /** Override the emitters to use. */
+  emit?: string[];
 }
 
 export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
@@ -32,8 +37,15 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
   it(sample.name, async () => {
     const host = createSampleSnapshotTestHost(config);
 
+    const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
+      outputDir: "/out",
+    };
+    if (config.emit) {
+      overrides.emit = config.emit;
+    }
     const [options, diagnostics] = await resolveCompilerOptions(host, {
       entrypoint: sample.entrypoint,
+      overrides,
     });
     expectDiagnosticEmpty(diagnostics);
 
@@ -44,10 +56,7 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
       );
     }
 
-    const program = await compile(host, sample.entrypoint, {
-      ...options,
-      outputDir: "/out/",
-    });
+    const program = await compile(host, sample.entrypoint, options);
     expectDiagnosticEmpty(program.diagnostics);
 
     const outputDir = resolvePath(config.outputDir, sample.name);
@@ -56,18 +65,30 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
       try {
         await host.rm(outputDir, { recursive: true });
       } catch (e) {}
-      await host.mkdirp(outputDir);
+      await mkdir(outputDir, { recursive: true });
 
       for (const [filename, content] of host.outputs.entries()) {
         const snapshotPath = resolvePath(outputDir, filename);
 
-        await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
-        await writeFile(snapshotPath, content);
+        try {
+          await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
+          await writeFile(snapshotPath, content);
+        } catch (e) {
+          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
+        }
       }
     } else {
       for (const [filename, content] of host.outputs.entries()) {
         const snapshotPath = resolvePath(outputDir, filename);
-        const existingContent = await readFile(snapshotPath);
+        let existingContent;
+        try {
+          existingContent = await readFile(snapshotPath);
+        } catch (e: unknown) {
+          if (typeof e === "object" && e !== null && "code" in e && e.code === "ENOENT") {
+            fail(`Snapshot for "${filename}" is missing. Run with RECORD=true to regenerate it.`);
+          }
+          throw e;
+        }
         strictEqual(content, existingContent.toString());
       }
 

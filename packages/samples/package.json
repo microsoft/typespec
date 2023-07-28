@@ -20,7 +20,10 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
   },
   "engines": {
     "node": ">=16.0.0"
