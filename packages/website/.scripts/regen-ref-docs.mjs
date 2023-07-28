@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 // @ts-check
 import { NodeHost, logDiagnostics } from "@typespec/compiler";
-import {
-  generateJsApiDocs,
-  generateLibraryDocs,
-  resolveLibraryRefDocsBase,
-} from "@typespec/ref-doc";
 import { renderDecoratorFile } from "@typespec/ref-doc/emitters/docusaurus";
+import { generateJsApiDocs, generateLibraryDocs, resolveLibraryRefDocsBase } from "@typespec/tspd";
 import assert from "assert";
 import { writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";

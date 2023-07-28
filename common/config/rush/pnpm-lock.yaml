@@ -1108,64 +1108,6 @@ importers:
         specifier: ~5.1.3
         version: 5.1.3
 
-  ../../packages/ref-doc:
-    dependencies:
-      '@typespec/compiler':
-        specifier: workspace:~0.46.0
-        version: link:../compiler
-      js-yaml:
-        specifier: ~4.1.0
-        version: 4.1.0
-      prettier:
-        specifier: ~2.8.7
-        version: 2.8.7
-    devDependencies:
-      '@types/js-yaml':
-        specifier: ~4.0.1
-        version: 4.0.1
-      '@types/mocha':
-        specifier: ~10.0.1
-        version: 10.0.1
-      '@types/node':
-        specifier: ~18.11.9
-        version: 18.11.9
-      '@types/prettier':
-        specifier: 2.6.0
-        version: 2.6.0
-      '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
-        version: link:../eslint-config-typespec
-      '@typespec/prettier-plugin-typespec':
-        specifier: workspace:~0.46.0
-        version: link:../prettier-plugin-typespec
-      c8:
-        specifier: ~8.0.0
-        version: 8.0.0
-      eslint:
-        specifier: ^8.42.0
-        version: 8.42.0
-      mocha:
-        specifier: ~10.2.0
-        version: 10.2.0
-      mocha-junit-reporter:
-        specifier: ~2.2.0
-        version: 2.2.0(mocha@10.2.0)
-      mocha-multi-reporters:
-        specifier: ~1.5.1
-        version: 1.5.1(mocha@10.2.0)
-      rimraf:
-        specifier: ~5.0.1
-        version: 5.0.1
-      typedoc:
-        specifier: ~0.24.8
-        version: 0.24.8(typescript@5.1.3)
-      typedoc-plugin-markdown:
-        specifier: ~4.0.0-next.17
-        version: 4.0.0-next.17(prettier@2.8.7)(typedoc@0.24.8)
-      typescript:
-        specifier: ~5.1.3
-        version: 5.1.3
-
   ../../packages/rest:
     devDependencies:
       '@types/mocha':
@@ -1287,6 +1229,73 @@ importers:
       rimraf:
         specifier: ~5.0.1
         version: 5.0.1
+      typescript:
+        specifier: ~5.1.3
+        version: 5.1.3
+
+  ../../packages/tspd:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:~0.46.0
+        version: link:../compiler
+      js-yaml:
+        specifier: ~4.1.0
+        version: 4.1.0
+      picocolors:
+        specifier: ~1.0.0
+        version: 1.0.0
+      prettier:
+        specifier: ~2.8.7
+        version: 2.8.7
+      yargs:
+        specifier: ~17.7.1
+        version: 17.7.1
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ~4.0.1
+        version: 4.0.1
+      '@types/mocha':
+        specifier: ~10.0.1
+        version: 10.0.1
+      '@types/node':
+        specifier: ~18.11.9
+        version: 18.11.9
+      '@types/prettier':
+        specifier: 2.6.0
+        version: 2.6.0
+      '@types/yargs':
+        specifier: ~17.0.24
+        version: 17.0.24
+      '@typespec/eslint-config-typespec':
+        specifier: workspace:~0.46.0
+        version: link:../eslint-config-typespec
+      '@typespec/prettier-plugin-typespec':
+        specifier: workspace:~0.46.0
+        version: link:../prettier-plugin-typespec
+      c8:
+        specifier: ~8.0.0
+        version: 8.0.0
+      eslint:
+        specifier: ^8.42.0
+        version: 8.42.0
+      mocha:
+        specifier: ~10.2.0
+        version: 10.2.0
+      mocha-junit-reporter:
+        specifier: ~2.2.0
+        version: 2.2.0(mocha@10.2.0)
+      mocha-multi-reporters:
+        specifier: ~1.5.1
+        version: 1.5.1(mocha@10.2.0)
+      rimraf:
+        specifier: ~5.0.1
+        version: 5.0.1
+      typedoc:
+        specifier: ~0.24.8
+        version: 0.24.8(typescript@5.1.3)
+      typedoc-plugin-markdown:
+        specifier: ~4.0.0-next.17
+        version: 4.0.0-next.17(prettier@2.8.7)(typedoc@0.24.8)
       typescript:
         specifier: ~5.1.3
         version: 5.1.3
@@ -1456,15 +1465,15 @@ importers:
       '@typespec/protobuf':
         specifier: workspace:~0.46.0
         version: link:../protobuf
-      '@typespec/ref-doc':
-        specifier: workspace:~0.1.0
-        version: link:../ref-doc
       '@typespec/rest':
         specifier: workspace:~0.46.0
         version: link:../rest
       '@typespec/spec':
         specifier: workspace:*
         version: link:../spec
+      '@typespec/tspd':
+        specifier: workspace:~0.1.0
+        version: link:../tspd
       '@typespec/versioning':
         specifier: workspace:~0.46.0
         version: link:../versioning
