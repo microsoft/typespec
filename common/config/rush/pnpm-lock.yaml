@@ -1253,6 +1253,9 @@ importers:
       autorest:
         specifier: ~3.3.2
         version: 3.3.2
+      cross-env:
+        specifier: ~7.0.3
+        version: 7.0.3
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
