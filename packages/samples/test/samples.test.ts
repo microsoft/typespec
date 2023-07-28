@@ -1,6 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
 import { fileURLToPath } from "url";
-import { defineSampleSnaphotTests } from "./sample-snapshot-testing.js";
+import { defineSampleSnaphotTests } from "../src/sample-snapshot-testing.js";
 
 const excludedSamples = [
   // fails compilation by design to demo language server

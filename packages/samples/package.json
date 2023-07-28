@@ -19,6 +19,9 @@
     "cli"
   ],
   "type": "module",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
   "engines": {
     "node": ">=16.0.0"
   },
