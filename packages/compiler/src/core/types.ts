@@ -1086,7 +1086,8 @@ export type ProjectionExpression =
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode
-  | ReturnExpressionNode;
+  | ReturnExpressionNode
+  | ReferenceExpression;
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -2234,6 +2235,7 @@ export type LogicExpression =
   | LogicUnaryExpression
   | LogicArithmeticExpression
   | LogicCallExpression
+  | LogicReferenceExpression
   | LogicMemberExpression
   | LogicIfExpression
   | LogicBlockExpression
@@ -2298,15 +2300,21 @@ export interface LogicArithmeticExpression extends LogicNodeBase, LogicBinOp {
 
 export interface LogicCallExpression extends LogicNodeBase {
   kind: "CallExpression";
-  callKind: "method" | "template";
   target: LogicExpression;
   arguments: LogicExpression[];
+}
+
+export interface LogicReferenceExpression extends LogicNodeBase {
+  kind: "ReferenceExpression";
+  target: LogicMemberExpression | LogicIdentifier;
+  arguments: LogicExpression[];
+  type: Type;
 }
 
 export interface LogicMemberExpression extends LogicNodeBase {
   kind: "MemberExpression";
   base: LogicExpression;
-  id: LogicIdentifier;
+  id: string;
   selector: "." | "::";
   type: Type;
 }

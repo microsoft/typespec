@@ -114,9 +114,9 @@ import { isArray, mutate } from "./util.js";
  * @param decorators The decorators that were applied to the list element and
  *                   parsed before entering the callback.
  */
-type ParseListItem<K, T> = K extends UnannotatedListKind
-  ? () => T
-  : (pos: number, decorators: DecoratorExpressionNode[]) => T;
+type ParseListItem<K, T, TArgs extends any[] = []> = K extends UnannotatedListKind
+  ? (...args: TArgs) => T
+  : (pos: number, decorators: DecoratorExpressionNode[], ...args: TArgs) => T;
 
 type OpenToken = Token.OpenBrace | Token.OpenParen | Token.OpenBracket | Token.LessThan;
 type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
@@ -289,6 +289,7 @@ namespace ListKind {
     open: Token.OpenBracket,
     close: Token.CloseBracket,
     allowedStatementKeyword: Token.None,
+    invalidAnnotationTarget: "expression",
   } as const;
 }
 
@@ -972,7 +973,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         parseExpected(Token.Colon);
       }
 
-      const value = parseProjectionExpression();
+      const value = parseProjectionExpression(true);
 
       return {
         kind: SyntaxKind.ModelValidate,
@@ -1053,7 +1054,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseExpected(Token.Colon);
     }
 
-    const value = parseProjectionExpression();
+    const value = parseProjectionExpression(true);
 
     return {
       kind: SyntaxKind.ModelValidate,
@@ -1829,7 +1830,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ...finishNode(pos),
     };
   }
-  function parseProjectionStatementList(): ProjectionStatementItem[] {
+  function parseProjectionStatementList(parsingLogic = false): ProjectionStatementItem[] {
     const stmts = [];
 
     while (token() !== Token.CloseBrace) {
@@ -1839,7 +1840,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         break;
       }
 
-      const expr = parseProjectionExpressionStatement();
+      const expr = parseProjectionExpressionStatement(parsingLogic);
       stmts.push(expr);
 
       if (tokenPos() === startPos) {
@@ -1852,9 +1853,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return stmts;
   }
 
-  function parseProjectionExpressionStatement(): ProjectionExpressionStatementNode {
+  function parseProjectionExpressionStatement(
+    parsingLogic = false
+  ): ProjectionExpressionStatementNode {
     const pos = tokenPos();
-    const expr = parseProjectionExpression();
+    const expr = parseProjectionExpression(parsingLogic);
     parseExpected(Token.Semicolon);
     return {
       kind: SyntaxKind.ProjectionExpressionStatement,
@@ -1863,26 +1866,28 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseProjectionExpression() {
-    return parseProjectionReturnExpressionOrHigher();
+  function parseProjectionExpression(parsingLogic = false) {
+    return parseProjectionReturnExpressionOrHigher(parsingLogic);
   }
 
-  function parseProjectionReturnExpressionOrHigher(): ProjectionExpression {
+  function parseProjectionReturnExpressionOrHigher(parsingLogic = false): ProjectionExpression {
     if (token() === Token.ReturnKeyword) {
       const pos = tokenPos();
       parseExpected(Token.ReturnKeyword);
       return {
         kind: SyntaxKind.Return,
-        value: parseProjectionExpression(),
+        value: parseProjectionExpression(parsingLogic),
         ...finishNode(pos),
       };
     }
 
-    return parseProjectionLogicalImpliesExpressionOrHigher();
+    return parseProjectionLogicalImpliesExpressionOrHigher(parsingLogic);
   }
 
-  function parseProjectionLogicalImpliesExpressionOrHigher(): ProjectionExpression {
-    let expr = parseProjectionLogicalOrExpressionOrHigher();
+  function parseProjectionLogicalImpliesExpressionOrHigher(
+    parsingLogic = false
+  ): ProjectionExpression {
+    let expr = parseProjectionLogicalOrExpressionOrHigher(parsingLogic);
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
       if (parseOptional(Token.BigArrow)) {
@@ -1890,7 +1895,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "==>",
           left: expr,
-          right: parseProjectionLogicalOrExpressionOrHigher(),
+          right: parseProjectionLogicalOrExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -1901,8 +1906,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionLogicalOrExpressionOrHigher(): ProjectionExpression {
-    let expr = parseProjectionLogicalAndExpressionOrHigher();
+  function parseProjectionLogicalOrExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr = parseProjectionLogicalAndExpressionOrHigher(parsingLogic);
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
       if (parseOptional(Token.BarBar)) {
@@ -1910,7 +1915,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "||",
           left: expr,
-          right: parseProjectionLogicalAndExpressionOrHigher(),
+          right: parseProjectionLogicalAndExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -1921,8 +1926,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionLogicalAndExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionMembershipExpressionOrHigher();
+  function parseProjectionLogicalAndExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionMembershipExpressionOrHigher(parsingLogic);
 
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
@@ -1931,7 +1936,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionLogicalExpression,
           op: "&&",
           left: expr,
-          right: parseProjectionMembershipExpressionOrHigher(),
+          right: parseProjectionMembershipExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -1942,14 +1947,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionMembershipExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
+  function parseProjectionMembershipExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher(parsingLogic);
 
     if (token() === Token.InKeyword) {
       const pos = expr.pos;
       nextToken();
       parseExpected(Token.Hash);
-      const args = parseList(ListKind.MemberSet, parseProjectionLogicalImpliesExpressionOrHigher);
+      const args = parseList(
+        ListKind.MemberSet,
+        parseProjectionLogicalImpliesExpressionOrHigher,
+        parsingLogic
+      );
       expr = {
         kind: SyntaxKind.ProjectionMembershipExpression,
         left: expr,
@@ -1960,8 +1969,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionEqualityExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionRelationalExpressionOrHigher();
+  function parseProjectionEqualityExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionRelationalExpressionOrHigher(parsingLogic);
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
       const tok = token();
@@ -1972,7 +1981,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionEqualityExpression,
           op,
           left: expr,
-          right: parseProjectionRelationalExpressionOrHigher(),
+          right: parseProjectionRelationalExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -1983,8 +1992,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionRelationalExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionAdditiveExpressionOrHigher();
+  function parseProjectionRelationalExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionAdditiveExpressionOrHigher(parsingLogic);
 
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
@@ -2001,7 +2010,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionRelationalExpression,
           op,
           left: expr,
-          right: parseProjectionAdditiveExpressionOrHigher(),
+          right: parseProjectionAdditiveExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -2012,8 +2021,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionAdditiveExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionMultiplicativeExpressionOrHigher();
+  function parseProjectionAdditiveExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionMultiplicativeExpressionOrHigher(parsingLogic);
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
       const tok = token();
@@ -2024,7 +2033,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionArithmeticExpression,
           op,
           left: expr,
-          right: parseProjectionMultiplicativeExpressionOrHigher(),
+          right: parseProjectionMultiplicativeExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -2035,8 +2044,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionMultiplicativeExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionUnaryExpressionOrHigher();
+  function parseProjectionMultiplicativeExpressionOrHigher(
+    parsingLogic = false
+  ): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionUnaryExpressionOrHigher(parsingLogic);
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
       const tok = token();
@@ -2047,7 +2058,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.ProjectionArithmeticExpression,
           op,
           left: expr,
-          right: parseProjectionUnaryExpressionOrHigher(),
+          right: parseProjectionUnaryExpressionOrHigher(parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -2058,7 +2069,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionUnaryExpressionOrHigher(): ProjectionExpression {
+  function parseProjectionUnaryExpressionOrHigher(parsingLogic = false): ProjectionExpression {
     if (token() === Token.Exclamation) {
       const pos = tokenPos();
       nextToken();
@@ -2069,11 +2080,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         ...finishNode(pos),
       };
     }
-    return parseProjectionCallExpressionOrHigher();
+    return parseProjectionCallExpressionOrHigher(parsingLogic);
   }
 
-  function parseProjectionCallExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionDecoratorReferenceExpressionOrHigher();
+  function parseProjectionCallExpressionOrHigher(parsingLogic = false): ProjectionExpression {
+    let expr: ProjectionExpression =
+      parseProjectionDecoratorReferenceExpressionOrHigher(parsingLogic);
+
+    if (parsingLogic) {
+      return expr;
+    }
 
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
@@ -2094,8 +2110,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionDecoratorReferenceExpressionOrHigher(): ProjectionExpression {
-    if (token() === Token.At) {
+  function parseProjectionDecoratorReferenceExpressionOrHigher(
+    parsingLogic = false
+  ): ProjectionExpression {
+    if (!parsingLogic && token() === Token.At) {
       const pos = tokenPos();
       nextToken();
       return {
@@ -2105,13 +2123,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       };
     }
 
-    return parseProjectionMemberExpressionOrHigher();
+    return parseProjectionMemberExpressionOrHigher(parsingLogic);
   }
 
-  function parseProjectionMemberExpressionOrHigher(): ProjectionExpression {
+  function parseProjectionMemberExpressionOrHigher(parsingLogic = false): ProjectionExpression {
     const pos = tokenPos();
-    let expr = parseProjectionPrimaryExpression();
-    expr = parseProjectionMemberExpressionRest(expr, pos);
+    let expr = parseProjectionPrimaryExpression(parsingLogic);
+    if (!parsingLogic) {
+      expr = parseProjectionMemberExpressionRest(expr, pos);
+    }
     return expr;
   }
 
@@ -2144,7 +2164,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return expr;
   }
 
-  function parseProjectionPrimaryExpression(): ProjectionExpression {
+  function parseProjectionPrimaryExpression(parsingLogic = false): ProjectionExpression {
     switch (token()) {
       case Token.IfKeyword:
         return parseProjectionIfExpression();
@@ -2168,7 +2188,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       case Token.UnknownKeyword:
         return parseUnknownKeyword();
       default:
-        return parseIdentifier({ message: "expression" });
+        if (parsingLogic) {
+          return parseReferenceExpression("expression");
+        } else {
+          return parseIdentifier({ message: "expression" });
+        }
     }
   }
 
@@ -2312,10 +2336,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseProjectionBlockExpression(): ProjectionBlockExpressionNode {
+  function parseProjectionBlockExpression(parsingLogic = false): ProjectionBlockExpressionNode {
     const pos = tokenPos();
     parseExpected(Token.OpenBrace);
-    const statements = parseProjectionStatementList();
+    const statements = parseProjectionStatementList(parsingLogic);
     parseExpected(Token.CloseBrace);
     return {
       kind: SyntaxKind.ProjectionBlockExpression,
@@ -2727,9 +2751,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
    * as part of a bad statement. As such, parsing of decorators and statements
    * do not go through here.
    */
-  function parseList<K extends ListKind, T extends Node>(
+  function parseList<K extends ListKind, T extends Node, TArgs extends any[] = []>(
     kind: K,
-    parseItem: ParseListItem<K, T>
+    parseItem: ParseListItem<K, T, TArgs>,
+    ...args: TArgs
   ): T[] {
     if (kind.open !== Token.None) {
       parseExpected(kind.open);
@@ -2762,7 +2787,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       if (kind.invalidAnnotationTarget) {
         item = (parseItem as ParseListItem<UnannotatedListKind, T>)();
       } else {
-        item = parseItem(pos, decorators);
+        item = parseItem(pos, decorators, ...args);
         mutate(item).docs = docs;
         mutate(item).directives = directives;
       }

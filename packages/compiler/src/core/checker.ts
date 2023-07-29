@@ -52,6 +52,9 @@ import {
   LiteralType,
   LogicBlockExpression,
   LogicExpression,
+  LogicIdentifier,
+  LogicMemberExpression,
+  LogicReferenceExpression,
   LogicStatement,
   MarshalledValue,
   MemberContainerNode,
@@ -136,7 +139,7 @@ import {
   VoidType,
 } from "./types.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
-
+let blah: any;
 export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
 
 export interface Checker {
@@ -2114,6 +2117,7 @@ export function createChecker(program: Program): Checker {
 
     if (node.kind === SyntaxKind.MemberExpression) {
       let base = resolveTypeReferenceSym(node.base, mapper, false, resolveMembers);
+
       if (!base) {
         return undefined;
       }
@@ -2121,6 +2125,15 @@ export function createChecker(program: Program): Checker {
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
         base = getAliasedSymbol(base, mapper);
+        if (!base) {
+          return undefined;
+        }
+      }
+
+      if (resolveMembers && base.flags & SymbolFlags.ModelProperty) {
+        const table = augmentedSymbolTables.get(base.metatypeMembers!) ?? base.metatypeMembers!;
+        base = table.get("type");
+        base = getAliasedSymbol(base!, mapper);
         if (!base) {
           return undefined;
         }
@@ -3164,6 +3177,11 @@ export function createChecker(program: Program): Checker {
       sourceType: Type,
       expectedType: Type
     ) {
+      if (sourceType.kind === "ModelProperty") {
+        // check against the type of the model property
+        sourceType = sourceType.type;
+      }
+
       if (!isTypeAssignableTo(sourceType, expectedType, node)[0]) {
         reportIncorrectType(node, sourceType, expectedType);
         return false;
@@ -3246,9 +3264,12 @@ export function createChecker(program: Program): Checker {
         const right = checkLogicExpression(node.right, mapper);
         if (!right) return undefined;
 
+        const leftType = left.type.kind === "ModelProperty" ? left.type.type : left.type;
+        const rightType = right.type.kind === "ModelProperty" ? right.type.type : right.type;
+
         if (
-          !isTypeAssignableTo(left.type, right.type, node)[0] &&
-          !isTypeAssignableTo(right.type, left.type, node)[0]
+          !isTypeAssignableTo(leftType, rightType, node)[0] &&
+          !isTypeAssignableTo(rightType, leftType, node)[0]
         ) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -3364,31 +3385,65 @@ export function createChecker(program: Program): Checker {
       }
       case SyntaxKind.ProjectionCallExpression:
         throw new Error("NYI");
-      case SyntaxKind.ProjectionMemberExpression:
-        throw new Error("NYI");
+      case SyntaxKind.TypeReference:
       case SyntaxKind.Identifier: {
-        const sym = resolveTypeReferenceSym(
-          node,
-          mapper,
-          false /* resolve decorators*/,
-          true /* resolve members */
-        );
-        if (!sym) {
-          // TODO: probably should return `undefined` to signal that the AST is invalid
-          // which would ultimately set the `logic` field to undefined or an empty block
-          // or somethisuch. For now, we're throwing.
-          throw new Error(`Unknown identifier ${node.sv}`);
-        }
-        const type = checkTypeReferenceSymbol(sym, node, mapper);
+        function referenceToLogic(node: TypeReferenceNode | MemberExpressionNode | IdentifierNode):
+          | {
+              logic: LogicReferenceExpression | LogicMemberExpression | LogicIdentifier;
+              type: Type;
+            }
+          | undefined {
+          const sym = resolveTypeReferenceSym(
+            node,
+            mapper,
+            false /* resolve decorators*/,
+            true /* resolve members */
+          );
 
-        return {
-          logic: {
-            kind: "Identifier",
-            name: node.sv,
-            type,
-          },
-          type,
-        };
+          if (!sym) {
+            return undefined;
+          }
+
+          const type = checkTypeReferenceSymbol(sym!, node, mapper);
+
+          if (node.kind === SyntaxKind.Identifier) {
+            return {
+              logic: {
+                kind: "Identifier",
+                name: node.sv,
+                type,
+              },
+              type,
+            };
+          } else if (node.kind === SyntaxKind.MemberExpression) {
+            const base = referenceToLogic(node.base);
+            if (!base) return undefined;
+
+            return {
+              logic: {
+                kind: "MemberExpression",
+                base: base.logic,
+                id: node.id.sv,
+                type,
+                selector: node.selector,
+              },
+              type,
+            };
+          } else {
+            const target = referenceToLogic(node.target);
+            if (!target) return undefined;
+            return {
+              logic: {
+                kind: "ReferenceExpression",
+                target: target.logic as LogicMemberExpression | LogicIdentifier,
+                arguments: [],
+                type,
+              },
+              type,
+            };
+          }
+        }
+        return referenceToLogic(node);
       }
       case SyntaxKind.StringLiteral:
         return {
@@ -3444,36 +3499,6 @@ export function createChecker(program: Program): Checker {
       default:
         throw new Error("FAIL" + SyntaxKind[node.kind]);
     }
-
-    /*
-
-| ProjectionExpressionStatementNode
-| ProjectionLogicalExpressionNode
-| ProjectionRelationalExpressionNode
-| ProjectionMembershipExpressionNode
-| ProjectionEqualityExpressionNode
-| ProjectionUnaryExpressionNode
-| ProjectionArithmeticExpressionNode
-| ProjectionCallExpressionNode
-| ProjectionMemberExpressionNode
-| ProjectionDecoratorReferenceExpressionNode
-| ProjectionTupleExpressionNode
-| ProjectionModelExpressionNode
-
-
-| ProjectionIfExpressionNode
-| ProjectionBlockExpressionNode
-| ProjectionLambdaExpressionNode
-| StringLiteralNode
-| NumericLiteralNode
-| BooleanLiteralNode
-| IdentifierNode
-| VoidKeywordNode
-| NeverKeywordNode
-| AnyKeywordNode
-| ReturnExpressionNode;
-
-*/
   }
 
   function isValueType(type: Type): boolean {
@@ -3817,33 +3842,39 @@ export function createChecker(program: Program): Checker {
     return extendsType;
   }
 
-  function checkAlias(node: AliasStatementNode, mapper: TypeMapper | undefined): Type {
-    const links = getSymbolLinks(node.symbol);
+  function checkAlias(node: Node, mapper: TypeMapper | undefined): Type {
+    if (node.kind === SyntaxKind.AliasStatement) {
+      const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
-      return links.declaredType;
-    }
-
-    const aliasSymId = getNodeSymId(node);
-    if (pendingResolutions.has(aliasSymId)) {
-      if (mapper === undefined) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "circular-alias-type",
-            format: { typeName: node.id.sv },
-            target: node,
-          })
-        );
+      if (links.declaredType && mapper === undefined) {
+        return links.declaredType;
       }
-      links.declaredType = errorType;
-      return errorType;
+
+      const aliasSymId = getNodeSymId(node);
+      if (pendingResolutions.has(aliasSymId)) {
+        if (mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-alias-type",
+              format: { typeName: node.id.sv },
+              target: node,
+            })
+          );
+        }
+        links.declaredType = errorType;
+        return errorType;
+      }
+
+      pendingResolutions.add(aliasSymId);
+      const type = getTypeForNode(node.value, mapper);
+      linkType(links, type, mapper);
+      pendingResolutions.delete(aliasSymId);
+
+      return type;
     }
 
-    pendingResolutions.add(aliasSymId);
-    const type = getTypeForNode(node.value, mapper);
-    linkType(links, type, mapper);
-    pendingResolutions.delete(aliasSymId);
-
+    // handle aliases to any ast node (e.g. as created by the `::type` metatype property)
+    const type = getTypeForNode(node, mapper);
     return type;
   }
 

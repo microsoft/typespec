@@ -139,6 +139,7 @@ describe("compiler: validate", () => {
       `  
       @test model M {
         ii: int64;
+
         validate chkii: ii >= if true { true; } else { false; };
       }
       `
@@ -168,26 +169,38 @@ describe("compiler: validate", () => {
     };
   });
 
-  it.only("handles member expressions", async () => {
+  it("handles member expressions", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `  
       @test model M {
         n: N;
-        validate chkn: true.prop;
+        validate chkn: n.value == 0;
       }
 
-      model N {
+      @test model N {
         value: int64;
       }
       `
     );
 
-    const { M } = (await testHost.compile("main.tsp")) as {
+    const { M, N } = (await testHost.compile("main.tsp")) as {
       M: Model;
+      N: Model;
     };
 
-    console.log(M.validates.get("chkn")?.logic);
+    const logic = M.validates.get("chkn")!.logic;
+    strictEqual(logic.kind, "EqualityExpression");
+    strictEqual(logic.left.kind, "ReferenceExpression");
+    strictEqual(logic.left.type, N.properties.get("value"));
+    strictEqual(logic.right.kind, "NumericLiteral");
+
+    const memberExpr = logic.left.target;
+    strictEqual(memberExpr.kind, "MemberExpression");
+    strictEqual(memberExpr.type, N.properties.get("value"));
+    strictEqual(memberExpr.id, "value");
+    strictEqual(memberExpr.base.kind, "Identifier");
+    strictEqual(memberExpr.base.type, M.properties.get("n"));
   });
 
   it.skip("doesn't allow references decorators", async () => {
