@@ -50,6 +50,9 @@ import {
   JsSourceFileNode,
   LiteralNode,
   LiteralType,
+  LogicBlockExpression,
+  LogicExpression,
+  LogicStatement,
   MarshalledValue,
   MemberContainerNode,
   MemberContainerType,
@@ -2002,7 +2005,8 @@ export function createChecker(program: Program): Checker {
   function resolveIdentifierInScope(
     node: IdentifierNode,
     mapper: TypeMapper | undefined,
-    resolveDecorator = false
+    resolveDecorator = false,
+    resolveMembers = false
   ): Sym | undefined {
     compilerAssert(
       node.parent?.kind !== SyntaxKind.MemberExpression || node.parent.id !== node,
@@ -2019,10 +2023,18 @@ export function createChecker(program: Program): Checker {
     let binding: Sym | undefined;
 
     while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
-      if (scope.symbol && "exports" in scope.symbol) {
+      if (scope.symbol) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
-        binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
-        if (binding) return binding;
+
+        if (resolveMembers && "members" in scope.symbol) {
+          binding = resolveIdentifierInTable(node, mergedSymbol.members, resolveDecorator);
+          if (binding) return binding;
+        }
+
+        if ("exports" in scope.symbol) {
+          binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
+          if (binding) return binding;
+        }
       }
 
       if ("locals" in scope) {
@@ -2073,12 +2085,13 @@ export function createChecker(program: Program): Checker {
   function resolveTypeReferenceSym(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
-    resolveDecorator = false
+    resolveDecorator = false,
+    resolveMembers = false
   ): Sym | undefined {
     if (mapper === undefined && referenceSymCache.has(node)) {
       return referenceSymCache.get(node);
     }
-    const sym = resolveTypeReferenceSymInternal(node, mapper, resolveDecorator);
+    const sym = resolveTypeReferenceSymInternal(node, mapper, resolveDecorator, resolveMembers);
     referenceSymCache.set(node, sym);
     return sym;
   }
@@ -2086,7 +2099,8 @@ export function createChecker(program: Program): Checker {
   function resolveTypeReferenceSymInternal(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
-    resolveDecorator = false
+    resolveDecorator = false,
+    resolveMembers = false
   ): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
@@ -2095,11 +2109,11 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReferenceSym(node.target, mapper, resolveDecorator);
+      return resolveTypeReferenceSym(node.target, mapper, resolveDecorator, resolveMembers);
     }
 
     if (node.kind === SyntaxKind.MemberExpression) {
-      let base = resolveTypeReferenceSym(node.base, mapper);
+      let base = resolveTypeReferenceSym(node.base, mapper, false, resolveMembers);
       if (!base) {
         return undefined;
       }
@@ -2120,7 +2134,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.Identifier) {
-      const sym = resolveIdentifierInScope(node, mapper, resolveDecorator);
+      const sym = resolveIdentifierInScope(node, mapper, resolveDecorator, resolveMembers);
       if (!sym) return undefined;
 
       return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
@@ -3080,13 +3094,17 @@ export function createChecker(program: Program): Checker {
     //TODO: typecheck the projection expression here or leave that problem for the emitter?
     //
 
+    const logic = checkLogicExpression(vv.value, mapper);
+
     const type: ModelValidate = createType({
       kind: "ModelValidate",
       name,
       node: vv,
+      logic: logic ? logic.logic : (null as any),
       decorators: [],
-      model: undefined,
+      model: undefined, // TODO: shouldn't this reference the model?
     });
+
     if (links) {
       linkType(links, type, mapper);
     }
@@ -3100,6 +3118,362 @@ export function createChecker(program: Program): Checker {
     }
 
     return type;
+  }
+
+  function checkLogicStatement(
+    node: ProjectionExpressionStatementNode,
+    mapper: TypeMapper | undefined
+  ): { logic: LogicStatement; type: Type } | undefined {
+    switch (node.kind) {
+      case SyntaxKind.ProjectionExpressionStatement:
+        const expr = checkLogicExpression(node.expr, mapper);
+        if (!expr) return undefined;
+
+        return {
+          logic: {
+            kind: "ExpressionStatement",
+            expr: expr.logic,
+          },
+          type: expr.type,
+        };
+      default:
+        // const _assertNever: never = node; (not never for some reason)
+        compilerAssert(false, "Unreachable");
+    }
+  }
+
+  function checkLogicExpression(
+    node: ProjectionExpression,
+    mapper: TypeMapper | undefined
+  ): { logic: LogicExpression; type: Type } | undefined {
+    function reportIncorrectType(node: ProjectionExpression, sourceType: Type, expectedType: Type) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "type-expected",
+          format: {
+            actual: getTypeName(sourceType),
+            expected: getTypeName(expectedType),
+          },
+          target: node,
+        })
+      );
+    }
+
+    function checkTypeAssignability(
+      node: ProjectionExpression,
+      sourceType: Type,
+      expectedType: Type
+    ) {
+      if (!isTypeAssignableTo(sourceType, expectedType, node)[0]) {
+        reportIncorrectType(node, sourceType, expectedType);
+        return false;
+      }
+
+      return true;
+    }
+
+    const booleanType = getStdType("boolean");
+
+    switch (node.kind) {
+      case SyntaxKind.ProjectionLogicalExpression: {
+        const left = checkLogicExpression(node.left, mapper);
+        if (!left) return undefined;
+        if (!checkTypeAssignability(node.left, left.type, booleanType)) {
+          return undefined;
+        }
+
+        const right = checkLogicExpression(node.right, mapper);
+        if (!right) return undefined;
+        if (!checkTypeAssignability(node.right, right.type, booleanType)) {
+          return undefined;
+        }
+
+        return {
+          logic: {
+            kind: "LogicalExpression",
+            op: node.op,
+            left: left.logic,
+            right: right.logic,
+          },
+          type: booleanType,
+        };
+      }
+      case SyntaxKind.ProjectionRelationalExpression: {
+        const left = checkLogicExpression(node.left, mapper);
+        if (!left) return undefined;
+        const numericType = getStdType("numeric");
+        if (!checkTypeAssignability(node.left, left.type, numericType)) {
+          return undefined;
+        }
+
+        const right = checkLogicExpression(node.right, mapper);
+        if (!right) return undefined;
+        if (!checkTypeAssignability(node.right, right.type, numericType)) {
+          return undefined;
+        }
+
+        return {
+          logic: {
+            kind: "RelationalExpression",
+            op: node.op,
+            left: left.logic,
+            right: right.logic,
+          },
+          type: numericType,
+        };
+      }
+
+      case SyntaxKind.ProjectionMembershipExpression: {
+        const left = checkLogicExpression(node.left, mapper);
+        if (!left) return undefined;
+
+        const argumentsResults = node.arguments.map((x) => checkLogicExpression(x, mapper));
+        if (argumentsResults.some((x) => x === undefined)) return undefined;
+
+        return {
+          logic: {
+            kind: "MembershipExpression",
+            op: "in", // TODO: should we add not in?
+            left: left.logic,
+            arguments: argumentsResults.map((r) => r!.logic),
+          },
+          type: booleanType,
+        };
+      }
+      case SyntaxKind.ProjectionEqualityExpression: {
+        const left = checkLogicExpression(node.left, mapper);
+        if (!left) return undefined;
+        const right = checkLogicExpression(node.right, mapper);
+        if (!right) return undefined;
+
+        if (
+          !isTypeAssignableTo(left.type, right.type, node)[0] &&
+          !isTypeAssignableTo(right.type, left.type, node)[0]
+        ) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "type-expected",
+              messageId: "comparable",
+              format: {
+                left: getTypeName(left.type),
+                right: getTypeName(right.type),
+              },
+              target: node,
+            })
+          );
+
+          return undefined;
+        }
+
+        return {
+          logic: {
+            kind: "EqualityExpression",
+            op: node.op,
+            left: left.logic,
+            right: right.logic,
+          },
+          type: booleanType,
+        };
+      }
+      case SyntaxKind.ProjectionArithmeticExpression: {
+        const left = checkLogicExpression(node.left, mapper);
+        if (!left) return undefined;
+        const numeric = getStdType("numeric");
+        if (!checkTypeAssignability(node.left, left.type, numeric)) {
+          return undefined;
+        }
+
+        const right = checkLogicExpression(node.right, mapper);
+        if (!right) return undefined;
+        if (!checkTypeAssignability(node.right, right.type, numeric)) {
+          return undefined;
+        }
+        return {
+          logic: {
+            kind: "ArithmeticExpression",
+            op: node.op,
+            left: left.logic,
+            right: right.logic,
+          },
+          type: numeric,
+        };
+      }
+      case SyntaxKind.ProjectionUnaryExpression:
+        const target = checkLogicExpression(node.target, mapper);
+        if (!target) return undefined;
+        if (!checkTypeAssignability(node.target, target.type, booleanType)) {
+          return undefined;
+        }
+
+        return {
+          logic: {
+            kind: "UnaryExpression",
+            op: node.op,
+            target: target.logic,
+          },
+          type: booleanType,
+        };
+      case SyntaxKind.ProjectionIfExpression: {
+        const test = checkLogicExpression(node.test, mapper);
+        if (!test) return undefined;
+        if (!checkTypeAssignability(node.test, test.type, booleanType)) {
+          return undefined;
+        }
+        const consequent = checkLogicExpression(node.consequent, mapper);
+        if (!consequent) return undefined;
+
+        const alternate = node.alternate ? checkLogicExpression(node.alternate, mapper) : undefined;
+        if (node.alternate && !alternate) {
+          return undefined;
+        }
+
+        return {
+          logic: {
+            kind: "IfExpression",
+            test: test.logic,
+            consequent: consequent.logic as LogicBlockExpression,
+            alternate: node.alternate ? (alternate!.logic as LogicBlockExpression) : undefined,
+          },
+          type: unknownType, // TODO: Union of consequent and alternate types
+        };
+      }
+      case SyntaxKind.ProjectionBlockExpression: {
+        const statementsResult = node.statements.map((x) => checkLogicStatement(x, mapper));
+        if (statementsResult.some((x) => x === undefined)) return undefined;
+
+        return {
+          logic: {
+            kind: "BlockExpression",
+            statements: statementsResult.map((x) => x!.logic as LogicStatement),
+          },
+          type: statementsResult[statementsResult.length - 1]!.type,
+        };
+      }
+      case SyntaxKind.ProjectionLambdaExpression: {
+        const body = checkLogicExpression(node.body, mapper);
+        if (!body) return undefined;
+
+        return {
+          logic: {
+            kind: "LambdaExpression",
+            parameters: node.parameters.map((x) => ({ kind: "Parameter", name: x.id.sv })),
+            body: body.logic as LogicBlockExpression,
+          },
+          type: unknownType, // probably should be operation type?
+        };
+      }
+      case SyntaxKind.ProjectionCallExpression:
+        throw new Error("NYI");
+      case SyntaxKind.ProjectionMemberExpression:
+        throw new Error("NYI");
+      case SyntaxKind.Identifier: {
+        const sym = resolveTypeReferenceSym(
+          node,
+          mapper,
+          false /* resolve decorators*/,
+          true /* resolve members */
+        );
+        if (!sym) {
+          // TODO: probably should return `undefined` to signal that the AST is invalid
+          // which would ultimately set the `logic` field to undefined or an empty block
+          // or somethisuch. For now, we're throwing.
+          throw new Error(`Unknown identifier ${node.sv}`);
+        }
+        const type = checkTypeReferenceSymbol(sym, node, mapper);
+
+        return {
+          logic: {
+            kind: "Identifier",
+            name: node.sv,
+            type,
+          },
+          type,
+        };
+      }
+      case SyntaxKind.StringLiteral:
+        return {
+          logic: {
+            kind: "StringLiteral",
+            value: node.value,
+          },
+          type: getStdType("string"),
+        };
+      case SyntaxKind.NumericLiteral:
+        return {
+          logic: {
+            kind: "NumericLiteral",
+            value: node.value,
+          },
+          type: getStdType("numeric"),
+        };
+      case SyntaxKind.BooleanLiteral:
+        return {
+          logic: {
+            kind: "BooleanLiteral",
+            value: node.value,
+          },
+          type: booleanType,
+        };
+      case SyntaxKind.VoidKeyword:
+        return {
+          logic: {
+            kind: "TypeKeyword",
+            name: "void",
+            type: voidType,
+          },
+          type: voidType,
+        };
+      case SyntaxKind.NeverKeyword:
+        return {
+          logic: {
+            kind: "TypeKeyword",
+            name: "never",
+            type: neverType,
+          },
+          type: neverType,
+        };
+      case SyntaxKind.UnknownKeyword:
+        return {
+          logic: {
+            kind: "TypeKeyword",
+            name: "unknown",
+            type: unknownType,
+          },
+          type: unknownType,
+        };
+      default:
+        throw new Error("FAIL" + SyntaxKind[node.kind]);
+    }
+
+    /*
+
+| ProjectionExpressionStatementNode
+| ProjectionLogicalExpressionNode
+| ProjectionRelationalExpressionNode
+| ProjectionMembershipExpressionNode
+| ProjectionEqualityExpressionNode
+| ProjectionUnaryExpressionNode
+| ProjectionArithmeticExpressionNode
+| ProjectionCallExpressionNode
+| ProjectionMemberExpressionNode
+| ProjectionDecoratorReferenceExpressionNode
+| ProjectionTupleExpressionNode
+| ProjectionModelExpressionNode
+
+
+| ProjectionIfExpressionNode
+| ProjectionBlockExpressionNode
+| ProjectionLambdaExpressionNode
+| StringLiteralNode
+| NumericLiteralNode
+| BooleanLiteralNode
+| IdentifierNode
+| VoidKeywordNode
+| NeverKeywordNode
+| AnyKeywordNode
+| ReturnExpressionNode;
+
+*/
   }
 
   function isValueType(type: Type): boolean {

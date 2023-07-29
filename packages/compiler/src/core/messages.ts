@@ -486,6 +486,13 @@ const diagnostics = {
       default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
     },
   },
+  "type-expected": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Expected type of ${"expected"} but got ${"actual"}`,
+      comparable: paramMessage`The types ${"left"} and ${"right"} are not comparable.`,
+    },
+  },
 
   /**
    * Configuration

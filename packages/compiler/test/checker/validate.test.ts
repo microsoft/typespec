@@ -130,4 +130,83 @@ describe("compiler: validate", () => {
 
     strictEqual(S.validates.size, 1);
   });
+
+  it.skip("resolves identifiers");
+  it.skip("resolves member expressions");
+  it.skip("converts logic expressions to a useful AST", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `  
+      @test model M {
+        ii: int64;
+        validate chkii: ii >= if true { true; } else { false; };
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    console.log(M.validates.get("chkii2")?.logic);
+  });
+
+  it.skip("checks that operands of logical expressions are booleans", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `  
+      @test model M {
+        ii: boolean;
+        prop: string;
+        validate chkii: 12 == true;
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+  });
+
+  it.only("handles member expressions", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `  
+      @test model M {
+        n: N;
+        validate chkn: true.prop;
+      }
+
+      model N {
+        value: int64;
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    console.log(M.validates.get("chkn")?.logic);
+  });
+
+  it.skip("doesn't allow references decorators", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      model Foo { }
+      @test scalar S extends int64 {
+        validate chkv: @doc(1);
+      }
+      `
+    );
+
+    const { S } = (await testHost.compile("main.tsp")) as {
+      S: Scalar;
+    };
+
+    strictEqual(S.validates.size, 1);
+  });
+
+  it.skip("doesn't allow model literal and tuple literal references", async () => {});
 });
