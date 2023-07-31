@@ -687,7 +687,7 @@ export const enum SymbolFlags {
   /**
    * Symbols whose members will be late bound (and stored on the type)
    */
-  MemberContainer = Model | Enum | Union | Interface,
+  MemberContainer = Model | Enum | Union | Interface | Scalar,
   Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember | ModelValidate,
 }
 
@@ -2300,7 +2300,7 @@ export interface LogicArithmeticExpression extends LogicNodeBase, LogicBinOp {
 
 export interface LogicCallExpression extends LogicNodeBase {
   kind: "CallExpression";
-  target: LogicExpression;
+  target: LogicReferenceExpression;
   arguments: LogicExpression[];
 }
 

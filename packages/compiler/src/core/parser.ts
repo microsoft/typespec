@@ -187,7 +187,7 @@ namespace ListKind {
     open: Token.OpenBrace,
     close: Token.CloseBrace,
     delimiter: Token.Semicolon,
-    toleratedDelimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
     toleratedDelimiterIsValid: false,
     allowedStatementKeyword: Token.ValidateKeyword,
   } as const;
@@ -1236,11 +1236,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
   function parseReferenceExpression(
-    message?: keyof CompilerDiagnostics["token-expected"]
+    message?: keyof CompilerDiagnostics["token-expected"],
+    allowArguments = true
   ): TypeReferenceNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
-    const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
+    const args = allowArguments
+      ? parseOptionalList(ListKind.TemplateArguments, parseExpression)
+      : [];
 
     return {
       kind: SyntaxKind.TypeReference,
@@ -2087,19 +2090,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     let expr: ProjectionExpression =
       parseProjectionDecoratorReferenceExpressionOrHigher(parsingLogic);
 
-    if (parsingLogic) {
-      return expr;
-    }
-
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
-      expr = parseProjectionMemberExpressionRest(expr, pos);
+      if (!parsingLogic) {
+        expr = parseProjectionMemberExpressionRest(expr, pos);
+      }
       if (token() === Token.OpenParen) {
         expr = {
           kind: SyntaxKind.ProjectionCallExpression,
           callKind: "method",
           target: expr,
-          arguments: parseList(ListKind.CallArguments, parseProjectionExpression),
+          arguments: parseList(ListKind.CallArguments, parseProjectionExpression, parsingLogic),
           ...finishNode(pos),
         };
       } else {
@@ -2189,7 +2190,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         return parseUnknownKeyword();
       default:
         if (parsingLogic) {
-          return parseReferenceExpression("expression");
+          return parseReferenceExpression("expression", false);
         } else {
           return parseIdentifier({ message: "expression" });
         }

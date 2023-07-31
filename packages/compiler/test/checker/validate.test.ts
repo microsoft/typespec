@@ -1,8 +1,8 @@
 import { strictEqual } from "assert";
-import { Model, Scalar } from "../../src/core/types.js";
+import { IntrinsicType, LogicCallExpression, Model, Scalar } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
-describe("compiler: validate", () => {
+describe.only("compiler: validate", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -74,8 +74,8 @@ describe("compiler: validate", () => {
       @test model M {
         ii: int64;
 
-        validate ii >= 0;
-        validate ii < 1000;
+        validate foo: ii >= 0;
+        validate foo2: ii < 1000;
       }
       `
     );
@@ -129,6 +129,10 @@ describe("compiler: validate", () => {
     };
 
     strictEqual(S.validates.size, 1);
+    const validate = S.validates.get("chkv")!;
+    strictEqual(validate.logic.kind, "RelationalExpression");
+    strictEqual(validate.logic.left.kind, "ReferenceExpression");
+    strictEqual(validate.logic.left.type, S);
   });
 
   it.skip("resolves identifiers");
@@ -169,6 +173,32 @@ describe("compiler: validate", () => {
     };
   });
 
+  it("can resolve built-in functions", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test model M {
+        items: string[];
+        str: string;
+        validate checkItems: items::someOf((x) => { x == "foo";});
+        validate checkStr: str::startsWith("foo");
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    const checkItems = M.validates.get("checkItems")!.logic as LogicCallExpression;
+    strictEqual((checkItems.target.type as IntrinsicType).name, "Array::someOf");
+    strictEqual(checkItems.arguments[0].kind, "LambdaExpression");
+
+    const validateStr = M.validates.get("checkStr")!.logic as LogicCallExpression;
+    strictEqual((validateStr.target.type as IntrinsicType).name, "String::startsWith");
+    strictEqual(validateStr.arguments[0].kind, "StringLiteral");
+  });
+
   it("handles member expressions", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -201,6 +231,23 @@ describe("compiler: validate", () => {
     strictEqual(memberExpr.id, "value");
     strictEqual(memberExpr.base.kind, "Identifier");
     strictEqual(memberExpr.base.type, M.properties.get("n"));
+  });
+
+  it("allows for arithmetic on scalar subtypes", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test scalar S extends int64 {
+        validate chkv: value + 1 == 2;
+      }
+      `
+    );
+
+    const { S } = (await testHost.compile("main.tsp")) as {
+      S: Scalar;
+    };
+
+    // TODO: Validate
   });
 
   it.skip("doesn't allow references decorators", async () => {

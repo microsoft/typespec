@@ -1,4 +1,4 @@
-import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getDeprecated, getIndexer, isArrayModelType } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -301,6 +301,8 @@ export function createChecker(program: Program): Checker {
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
   const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
+
+  const sharedMetaProperties = createSharedMetaProperties();
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -677,6 +679,8 @@ export function createChecker(program: Program): Checker {
         return neverType;
       case SyntaxKind.UnknownKeyword:
         return unknownType;
+      case SyntaxKind.ProjectionLambdaParameterDeclaration:
+        return unknownType;
     }
 
     // we don't emit an error here as we blindly call this function
@@ -940,6 +944,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (tooFew) {
+      throw new Error("TOO FEW");
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "invalid-template-args",
@@ -1018,7 +1023,6 @@ export function createChecker(program: Program): Checker {
         }
       } else {
         const declaredType = getOrCheckDeclaredType(sym, decl, mapper);
-
         const templateParameters = decl.templateParameters;
         const [params, instantiationArgs] = checkTemplateInstantiationArgs(
           node,
@@ -2133,6 +2137,11 @@ export function createChecker(program: Program): Checker {
       if (resolveMembers && base.flags & SymbolFlags.ModelProperty) {
         const table = augmentedSymbolTables.get(base.metatypeMembers!) ?? base.metatypeMembers!;
         base = table.get("type");
+
+        if (!base) {
+          return undefined;
+        }
+
         base = getAliasedSymbol(base!, mapper);
         if (!base) {
           return undefined;
@@ -2142,7 +2151,7 @@ export function createChecker(program: Program): Checker {
       if (node.selector === ".") {
         return resolveMemberInContainer(node, base, mapper, resolveDecorator);
       } else {
-        return resolveMetaProperty(node, base);
+        return resolveMetaProperty(node, base, mapper);
       }
     }
 
@@ -2240,9 +2249,31 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
+  function resolveMetaProperty(
+    node: MemberExpressionNode,
+    base: Sym,
+    mapper: TypeMapper | undefined
+  ) {
     const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
-    return resolved;
+    if (resolved) {
+      return resolved;
+    }
+    const baseType =
+      base.flags & SymbolFlags.LateBound
+        ? base.type!
+        : checkTypeReferenceSymbol(base, node, mapper);
+
+    let selector =
+      baseType.kind === "Model" && isArrayModelType(program, baseType)
+        ? ("Array" as const)
+        : baseType.kind === "Scalar" && isRelatedToScalar(baseType, getStdType("string"))
+        ? ("String" as const)
+        : baseType.kind;
+
+    const metaMembers = sharedMetaProperties[selector];
+    if (!metaMembers) return undefined;
+    const metaProp = metaMembers[node.id.sv];
+    return metaProp.symbol;
   }
 
   function getMemberKindName(node: Node) {
@@ -2686,6 +2717,12 @@ export function createChecker(program: Program): Checker {
             bindMember(name, variant, SymbolFlags.UnionVariant);
           }
           break;
+        case SyntaxKind.ScalarStatement:
+          if (node.validates.length > 0) {
+            bindMember("value", node, SymbolFlags.Scalar);
+          }
+
+          break;
       }
 
       function resolveAndCopyMembers(node: TypeReferenceNode) {
@@ -2737,13 +2774,10 @@ export function createChecker(program: Program): Checker {
         const sym = getSymbolForMember(node);
         if (sym) {
           const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-
-          table.set(
-            "type",
-            node.value.kind === SyntaxKind.TypeReference
-              ? createSymbol(node.value, "", SymbolFlags.Alias)
-              : node.value.symbol
-          );
+          const typeSym = node.value.symbol
+            ? node.value.symbol
+            : createSymbol(node.value, "::type", SymbolFlags.Alias);
+          table.set("type", typeSym);
         }
         break;
       }
@@ -3103,10 +3137,6 @@ export function createChecker(program: Program): Checker {
 
     const name = vv.id?.sv ?? `[Anonymous-Validate-${vv.pos}]`;
 
-    //
-    //TODO: typecheck the projection expression here or leave that problem for the emitter?
-    //
-
     const logic = checkLogicExpression(vv.value, mapper);
 
     const type: ModelValidate = createType({
@@ -3383,8 +3413,24 @@ export function createChecker(program: Program): Checker {
           type: unknownType, // probably should be operation type?
         };
       }
-      case SyntaxKind.ProjectionCallExpression:
-        throw new Error("NYI");
+      case SyntaxKind.ProjectionCallExpression: {
+        const target = checkLogicExpression(node.target, mapper);
+        if (!target) return;
+        const args = [];
+        for (const arg of node.arguments) {
+          const argResult = checkLogicExpression(arg, mapper);
+          if (!argResult) return;
+          args.push(argResult);
+        }
+        return {
+          logic: {
+            kind: "CallExpression",
+            target: target.logic as LogicReferenceExpression,
+            arguments: args.map((x) => x.logic),
+          },
+          type: unknownType, // pull return type from target
+        };
+      }
       case SyntaxKind.TypeReference:
       case SyntaxKind.Identifier: {
         function referenceToLogic(node: TypeReferenceNode | MemberExpressionNode | IdentifierNode):
@@ -5713,6 +5759,41 @@ export function createChecker(program: Program): Checker {
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     if (type.kind === "Model") return stdType === undefined || stdType === type.name;
     return false;
+  }
+
+  function createSharedMetaProperties(): Partial<Record<Type["kind"] | "Array", any>> {
+    function createSharedMetaProperty(scope: string, name: string) {
+      const type = createAndFinishType({ kind: "Intrinsic", name: scope + "::" + name });
+      const symbol = createSymbol(undefined, name, SymbolFlags.LateBound);
+      mutate(symbol).type = type as any; // intrinsics have a set name, need to fix this
+      return {
+        type,
+        symbol,
+      };
+    }
+
+    return {
+      Array: {
+        someOf: createSharedMetaProperty("Array", "someOf"),
+        allOf: createSharedMetaProperty("Array", "allOf"),
+        noneOf: createSharedMetaProperty("Array", "noneOf"),
+        find: createSharedMetaProperty("Array", "find"),
+        contains: createSharedMetaProperty("Array", "contains"),
+        first: createSharedMetaProperty("Array", "first"),
+        last: createSharedMetaProperty("Array", "last"),
+        sum: createSharedMetaProperty("Array", "sum"),
+        min: createSharedMetaProperty("Array", "min"),
+        max: createSharedMetaProperty("Array", "max"),
+        distinct: createSharedMetaProperty("Array", "distinct"),
+      },
+      String: {
+        startsWith: createSharedMetaProperty("String", "startsWith"),
+        endsWith: createSharedMetaProperty("String", "endsWith"),
+        contains: createSharedMetaProperty("String", "contains"),
+        slice: createSharedMetaProperty("String", "slice"),
+        concat: createSharedMetaProperty("String", "concat"),
+      },
+    };
   }
 }
 
