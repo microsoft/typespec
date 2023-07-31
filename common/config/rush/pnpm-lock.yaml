@@ -119,9 +119,6 @@ importers:
       globby:
         specifier: ~13.1.1
         version: 13.1.1
-      js-yaml:
-        specifier: ~4.1.0
-        version: 4.1.0
       mustache:
         specifier: ~4.2.0
         version: 4.2.0
@@ -146,6 +143,9 @@ importers:
       vscode-languageserver-textdocument:
         specifier: ~1.0.1
         version: 1.0.1
+      yaml:
+        specifier: ~2.3.1
+        version: 2.3.1
       yargs:
         specifier: ~17.7.1
         version: 17.7.1
@@ -153,9 +153,6 @@ importers:
       '@types/babel__code-frame':
         specifier: ~7.0.3
         version: 7.0.3
-      '@types/js-yaml':
-        specifier: ~4.0.1
-        version: 4.0.1
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.1
@@ -15591,6 +15588,11 @@ packages:
   /yaml@1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /yaml@2.3.1:
+    resolution: {integrity: sha512-2eHWfjaoXgTBC2jNM1LRef62VQa0umtvRiDSk6HSzW7RvS5YtkabJrwYLLEKWBc8a5U2PTSCs+dJjUTJdlHsWQ==}
+    engines: {node: '>= 14'}
     dev: false
 
   /yargs-parser@20.2.4:

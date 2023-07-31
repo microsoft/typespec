@@ -1,9 +1,11 @@
-import jsyaml from "js-yaml";
 import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
+import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { deepClone, deepFreeze, doIO, omitUndefined } from "../core/util.js";
+import { createSourceFile } from "../index.js";
+import { YamlScript } from "../yaml/types.js";
+import { parseYaml } from "../yaml/yaml-parser.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
 import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
@@ -103,7 +105,7 @@ export async function loadTypeSpecConfigFile(
   host: CompilerHost,
   filePath: string
 ): Promise<TypeSpecConfig> {
-  const config = await loadConfigFile(host, filePath, jsyaml.load);
+  const config = await loadConfigFile(host, filePath, parseYaml);
   if (config.diagnostics.length === 0 && config.extends) {
     const extendPath = resolvePath(getDirectoryPath(filePath), config.extends);
     const parent = await loadTypeSpecConfigFile(host, extendPath);
@@ -160,12 +162,16 @@ async function searchConfigFile(
 async function loadConfigFile(
   host: CompilerHost,
   filename: string,
-  loadData: (content: string) => any
+  loadData: (content: SourceFile) => [YamlScript, readonly Diagnostic[]]
 ): Promise<TypeSpecConfig> {
   let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
+  const file =
+    (await doIO(host.readFile, filename, reportDiagnostic)) ?? createSourceFile("", filename);
+  const [yamlScript, yamlDiagnostics] = loadData(file);
+  yamlDiagnostics.forEach((d) => reportDiagnostic(d));
 
-  let [data, file] = await loadFile<TypeSpecRawConfig>(host, filename, loadData, reportDiagnostic);
+  let data: any = yamlScript.value;
 
   if (data) {
     diagnostics = diagnostics.concat(configValidator.validate(data, file));
