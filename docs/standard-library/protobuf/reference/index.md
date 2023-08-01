@@ -49,3 +49,12 @@ npm install --save-peer @typespec/protobuf
 - [`Extern`](./data-types.md#TypeSpec.Protobuf.Extern)
 - [`Map`](./data-types.md#TypeSpec.Protobuf.Map)
 - [`PackageDetails`](./data-types.md#TypeSpec.Protobuf.PackageDetails)
+
+## TypeSpec.Protobuf.WellKnown
+
+### Models
+
+- [`Any`](./data-types.md#TypeSpec.Protobuf.WellKnown.Any)
+- [`Empty`](./data-types.md#TypeSpec.Protobuf.WellKnown.Empty)
+- [`LatLng`](./data-types.md#TypeSpec.Protobuf.WellKnown.LatLng)
+- [`Timestamp`](./data-types.md#TypeSpec.Protobuf.WellKnown.Timestamp)
