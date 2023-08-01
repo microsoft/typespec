@@ -2220,6 +2220,17 @@ export function createChecker(program: Program): Checker {
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
     const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
+    if (!resolved) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "metaProperty",
+          format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+          target: node,
+        })
+      );
+    }
+
     return resolved;
   }
 
@@ -2228,6 +2239,8 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
         return "Model";
+      case SyntaxKind.ModelProperty:
+        return "ModelProperty";
       case SyntaxKind.EnumStatement:
         return "Enum";
       case SyntaxKind.InterfaceStatement:
