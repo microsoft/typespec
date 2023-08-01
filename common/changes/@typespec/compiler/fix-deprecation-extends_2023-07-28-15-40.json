@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix some issues with not reporting deprecation on template constraints",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
