@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const libDef = {
-  name: "@typespec/ref-doc",
+  name: "@typespec/tspd",
   diagnostics: {
     "documentation-missing": {
       severity: "warning",

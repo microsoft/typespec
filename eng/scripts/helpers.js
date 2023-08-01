@@ -19,14 +19,31 @@ export const tsc = resolve(repoRoot, "packages/compiler/node_modules/.bin/tsc");
 
 const rush = read(`${repoRoot}/rush.json`);
 
-export function forEachProject(onEach) {
+export function forEachProject(onEach, filter) {
   // load all the projects
   for (const each of rush.projects) {
     const packageName = each.packageName;
+    if (filter !== undefined && !filter.includes(packageName)) continue;
     const projectFolder = resolve(`${repoRoot}/${each.projectFolder}`);
     const project = JSON.parse(readFileSync(`${projectFolder}/package.json`, "utf-8"));
     onEach(packageName, projectFolder, project);
   }
+}
+
+export function npmForEachDependency(cmd, projectDir, options) {
+  const project = JSON.parse(readFileSync(`${projectDir}/package.json`, "utf-8"));
+  const deps = [
+    Object.keys(project.dependencies || {}),
+    Object.keys(project.devDependencies || {}),
+    Object.keys(project.peerDependencies || {}),
+  ].flat();
+
+  forEachProject((name, location, project) => {
+    if (project.scripts[cmd] || cmd === "pack") {
+      const args = cmd === "pack" ? [cmd] : ["run", cmd];
+      run("npm", args, { cwd: location, ...options });
+    }
+  }, deps);
 }
 
 export function npmForEach(cmd, options) {

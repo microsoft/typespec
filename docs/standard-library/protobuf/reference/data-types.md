@@ -153,3 +153,45 @@ Uses variable-length encoding. These more efficiently encode negative numbers th
 ```typespec
 scalar TypeSpec.Protobuf.sint64
 ```
+
+## TypeSpec.Protobuf.WellKnown
+
+### `Any` {#TypeSpec.Protobuf.WellKnown.Any}
+
+Any value.
+
+This model references `google.protobuf.Any` from `google/protobuf/any.proto`.
+
+```typespec
+model TypeSpec.Protobuf.WellKnown.Any
+```
+
+### `Empty` {#TypeSpec.Protobuf.WellKnown.Empty}
+
+An empty message.
+
+This model references `google.protobuf.Empty` from `google/protobuf/empty.proto`.
+
+```typespec
+model TypeSpec.Protobuf.WellKnown.Empty
+```
+
+### `LatLng` {#TypeSpec.Protobuf.WellKnown.LatLng}
+
+A latitude and longitude.
+
+This model references `google.type.LatLng` from `google/type/latlng.proto`.
+
+```typespec
+model TypeSpec.Protobuf.WellKnown.LatLng
+```
+
+### `Timestamp` {#TypeSpec.Protobuf.WellKnown.Timestamp}
+
+A timestamp.
+
+This model references `google.protobuf.Timestamp` from `google/protobuf/timestamp.proto`.
+
+```typespec
+model TypeSpec.Protobuf.WellKnown.Timestamp
+```
