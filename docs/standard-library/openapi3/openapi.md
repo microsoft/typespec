@@ -101,7 +101,7 @@ enclosing namespace(s) are included in the OpenAPI operation's tags array.
 
 ### deprecated
 
-If the [(built-in) `@deprecated` decorator][deprecated-decorator] is specified on the operation, then the operation's
+If the [(built-in) `#deprecated` directive][deprecated-decorator] is specified on the operation, then the operation's
 deprecated field is set to true.
 
 [deprecated-decorator]: ../built-in-decorators.md#deprecated

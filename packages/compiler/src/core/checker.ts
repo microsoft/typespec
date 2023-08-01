@@ -1,5 +1,6 @@
-import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
+import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
@@ -827,7 +828,6 @@ export function createChecker(program: Program): Checker {
     }
 
     const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
-    checkDeprecated(type, node);
     return type;
   }
 
@@ -842,18 +842,25 @@ export function createChecker(program: Program): Checker {
     return [type === errorType ? undefined : type, diagnostics];
   }
 
-  function checkDeprecated(type: Type, target: DiagnosticTarget) {
-    const deprecated = getDeprecated(program, type);
-    if (deprecated) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          format: {
-            message: deprecated,
-          },
-          target,
-        })
-      );
+  function copyDeprecation(sourceType: Type, destType: Type): void {
+    const deprecationDetails = getDeprecationDetails(program, sourceType);
+    if (deprecationDetails) {
+      markDeprecated(program, destType, deprecationDetails);
+    }
+  }
+
+  function checkDeprecated(type: Type, node: Node | undefined, target: DiagnosticTarget) {
+    if (node) {
+      const deprecationDetails = getDeprecationDetails(program, node);
+      if (deprecationDetails) {
+        reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+        return;
+      }
+    }
+
+    const deprecationDetails = getDeprecationDetails(program, type);
+    if (deprecationDetails) {
+      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
     }
   }
 
@@ -1053,6 +1060,12 @@ export function createChecker(program: Program): Checker {
           symbolLinks.type = baseType;
         }
       }
+    }
+
+    // Check for deprecations here, first on symbol, then on type.
+    const declarationNode = sym?.declarations[0];
+    if (declarationNode && mapper === undefined) {
+      checkDeprecated(baseType, declarationNode, node);
     }
 
     return baseType;
@@ -1615,6 +1628,7 @@ export function createChecker(program: Program): Checker {
     if (mapper === undefined && inInterface) {
       compilerAssert(parentInterface, "Operation in interface should already have been checked.");
     }
+    checkTemplateDeclaration(node, mapper);
 
     // If we are instantating operation inside of interface
     if (isTemplatedNode(node) && mapper !== undefined && parentInterface) {
@@ -2223,6 +2237,17 @@ export function createChecker(program: Program): Checker {
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
     const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
+    if (!resolved) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "metaProperty",
+          format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+          target: node,
+        })
+      );
+    }
+
     return resolved;
   }
 
@@ -2231,6 +2256,8 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
         return "Model";
+      case SyntaxKind.ModelProperty:
+        return "ModelProperty";
       case SyntaxKind.EnumStatement:
         return "Enum";
       case SyntaxKind.InterfaceStatement:
@@ -2338,6 +2365,20 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  /**
+   * Check that the given node template parameters are valid if applicable.
+   * @param node Node with template parameters
+   * @param mapper Type mapper, set if instantiating the template, undefined otherwise.
+   */
+  function checkTemplateDeclaration(node: TemplateableNode, mapper: TypeMapper | undefined) {
+    // If mapper is undefined it means we are checking the declaration of the template.
+    if (mapper === undefined) {
+      for (const templateParameter of node.templateParameters) {
+        checkTemplateParameterDeclaration(templateParameter, undefined);
+      }
+    }
+  }
+
   function checkModel(
     node: ModelExpressionNode | ModelStatementNode,
     mapper: TypeMapper | undefined
@@ -2356,6 +2397,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -2372,7 +2414,6 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       type.sourceModel = isBase;
-      checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
       if (isBase.indexer) {
@@ -2397,7 +2438,7 @@ export function createChecker(program: Program): Checker {
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends, mapper);
       if (type.baseModel) {
-        checkDeprecated(type.baseModel, node.extends);
+        copyDeprecation(type.baseModel, type);
       }
     }
 
@@ -3331,6 +3372,8 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
+
     const decorators: DecoratorApplication[] = [];
 
     const type: Scalar = createType({
@@ -3346,7 +3389,7 @@ export function createChecker(program: Program): Checker {
     if (node.extends) {
       type.baseScalar = checkScalarExtends(node, node.extends, mapper);
       if (type.baseScalar) {
-        checkDeprecated(type.baseScalar, node.extends);
+        copyDeprecation(type.baseScalar, type);
         type.baseScalar.derivedScalars.push(type);
       }
     }
@@ -3412,6 +3455,7 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType && mapper === undefined) {
       return links.declaredType;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const aliasSymId = getNodeSymId(node);
     if (pendingResolutions.has(aliasSymId)) {
@@ -3497,6 +3541,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const interfaceType: Interface = createType({
       kind: "Interface",
@@ -3541,6 +3586,9 @@ export function createChecker(program: Program): Checker {
         if (!ownMembers.has(member.name)) {
           linkIndirectMember(node, newMember, mapper);
         }
+
+        // Clone deprecation information
+        copyDeprecation(member, newMember);
 
         interfaceType.operations.set(newMember.name, newMember);
       }
@@ -3596,6 +3644,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this union and we've already checked it
       return links.declaredType as Union;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({
@@ -3779,6 +3828,33 @@ export function createChecker(program: Program): Checker {
     return members;
   }
 
+  function checkDirectives(node: Node, type: Type): void {
+    let hasDeprecation: boolean = false;
+    (node.directives ?? []).forEach((directive) => {
+      if (directive.target.sv === "deprecated") {
+        if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-deprecation-argument",
+              target: directive.arguments[0],
+            })
+          );
+        }
+
+        if (hasDeprecation === true) {
+          reportCheckerDiagnostic(
+            createDiagnostic({ code: "duplicate-deprecation", target: node })
+          );
+        } else {
+          hasDeprecation = true;
+          markDeprecated(program, type, {
+            message: (directive.arguments[0] as StringLiteralNode).value,
+          });
+        }
+      }
+    });
+  }
+
   // the types here aren't ideal and could probably be refactored.
 
   function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
@@ -3798,7 +3874,15 @@ export function createChecker(program: Program): Checker {
   ): T & TypePrototype & { isFinished: boolean } {
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
-    return typeDef as any;
+
+    // If the type has an associated syntax node, check any directives that
+    // might be attached.
+    const createdType = typeDef as any;
+    if (createdType.node) {
+      checkDirectives(createdType.node, createdType);
+    }
+
+    return createdType;
   }
 
   function finishType<T extends Type>(typeDef: T): T {
@@ -5582,6 +5666,25 @@ function finishTypeForProgramAndChecker<T extends Type>(
   return typeDef;
 }
 
+function reportDeprecation(
+  program: Program,
+  target: DiagnosticTarget,
+  message: string,
+  reportFunc: (d: Diagnostic) => void
+): void {
+  if (program.compilerOptions.ignoreDeprecated !== true) {
+    reportFunc(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message,
+        },
+        target,
+      })
+    );
+  }
+}
+
 function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
@@ -5589,6 +5692,19 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
     if (isErrorType(arg.value)) {
       // If one of the decorator argument is an error don't run it.
       return;
+    }
+  }
+
+  // Is the decorator definition deprecated?
+  if (decApp.definition) {
+    const deprecation = getDeprecationDetails(program, decApp.definition);
+    if (deprecation !== undefined) {
+      reportDeprecation(
+        program,
+        decApp.node ?? target,
+        deprecation.message,
+        program.reportDiagnostic
+      );
     }
   }
 

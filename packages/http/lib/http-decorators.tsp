@@ -14,7 +14,7 @@ model HeaderOptions {
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "csv";
+  format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
 }
 
 /**
@@ -51,7 +51,7 @@ model QueryOptions {
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes";
+  format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 /**

@@ -1757,11 +1757,16 @@ export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
 
-export type Directive = SuppressDirective;
+export type Directive = SuppressDirective | DeprecatedDirective;
 
 export interface SuppressDirective extends DirectiveBase {
   name: "suppress";
   code: string;
+  message: string;
+}
+
+export interface DeprecatedDirective extends DirectiveBase {
+  name: "deprecated";
   message: string;
 }
 
