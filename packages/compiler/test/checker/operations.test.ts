@@ -72,6 +72,22 @@ describe("compiler: operations", () => {
     strictEqual(getDoc(testHost.program, a.parameters.properties.get("one")!), "base doc");
   });
 
+  it("can decorate operation parameters independently from a template operation", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op a<T>(@doc("base doc") one: T): void;
+      @test op b is a<string>;
+      @test op c is a<string>;
+
+      @@doc(b::parameters.one, "override for b")
+      `
+    );
+    const { b, c } = (await testHost.compile("main.tsp")) as { b: Operation; c: Operation };
+    strictEqual(getDoc(testHost.program, b.parameters.properties.get("one")!), "override for b");
+    strictEqual(getDoc(testHost.program, c.parameters.properties.get("one")!), "base doc");
+  });
+
   it("can be templated and referenced to define other operations", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
