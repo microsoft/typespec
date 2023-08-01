@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Emit diagnostic for an unresolved metatype property reference",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
