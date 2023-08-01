@@ -347,6 +347,14 @@ tsp compile . --no-emit
 
 ## Other Command line flags
 
+### `--config`
+
+Specify a different config file
+
+```bash
+tsp compile . --config ./tspconfig.alt.yaml
+```
+
 ### `--watch`
 
 Start the tsp compiler in watch mode: watch for file changes and compile on save.
