@@ -347,6 +347,14 @@ tsp compile . --no-emit
 
 ## Other Command line flags
 
+### `--config`
+
+Specify a different config file
+
+```bash
+tsp compile . --config ./tspconfig.alt.yaml
+```
+
 ### `--watch`
 
 Start the tsp compiler in watch mode: watch for file changes and compile on save.
@@ -354,6 +362,10 @@ Start the tsp compiler in watch mode: watch for file changes and compile on save
 ```bash
 tsp compile . --watch
 ```
+
+:::caution
+Known issue: the watch mode does not pickup changes in JS files that are indirectly included(Only imported via another JS file.)
+:::
 
 ### `--nostdlib`
 
