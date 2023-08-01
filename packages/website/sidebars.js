@@ -33,6 +33,11 @@ const sidebars = {
       items: [
         "introduction/introduction",
         "introduction/installation",
+        {
+          type: "category",
+          label: "Editor",
+          items: ["introduction/editor/vscode", "introduction/editor/vs"],
+        },
         "introduction/usage",
         "introduction/style-guide",
         "introduction/formatter",
