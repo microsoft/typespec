@@ -35,7 +35,7 @@ describe("compiler: operations", () => {
     strictEqual(b.sourceOperation, a);
   });
 
-  it("operation reference paramters are spread in target operation", async () => {
+  it("operation reference parameters are spread in target operation", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
