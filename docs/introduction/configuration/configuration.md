@@ -363,6 +363,10 @@ Start the tsp compiler in watch mode: watch for file changes and compile on save
 tsp compile . --watch
 ```
 
+:::caution
+Known issue: the watch mode does not pickup changes in JS files that are indirectly included(Only imported via another JS file.)
+:::
+
 ### `--nostdlib`
 
 Don't load the TypeSpec standard library.
