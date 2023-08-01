@@ -608,10 +608,6 @@ describe("compiler: references", () => {
           a: A;
         }
 
-        model Spread {
-          ... B.a::type;
-        }
-
         op testOp(...B::foo): void;
         `
       );
@@ -621,11 +617,36 @@ describe("compiler: references", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-ref",
-          message: `ModelProperty doesn't have meta property type`,
+          message: `Model doesn't have meta property foo`,
         },
+      ]);
+    });
+
+    // Error should be removed when this is fixed https://github.com/microsoft/typespec/issues/2213
+    it("(TEMP) emits a diagnostic when referencing a non-resolved meta type property", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A {
+          name: string;
+        }
+
+        model B {
+          a: A;
+        }
+
+        model Spread {
+          ... B.a::type;
+        }
+        `
+      );
+
+      const diagnostics = await testHost.diagnose("./main.tsp");
+
+      expectDiagnostics(diagnostics, [
         {
           code: "invalid-ref",
-          message: `Model doesn't have meta property foo`,
+          message: `ModelProperty doesn't have meta property type`,
         },
       ]);
     });
