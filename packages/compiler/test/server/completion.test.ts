@@ -862,7 +862,7 @@ describe("compiler: server: completion", () => {
   it("completes deprecated type", async () => {
     const completions = await complete(
       `
-      @deprecated("Foo is bad")
+      #deprecated "Foo is bad"
       model Foo {}
 
       model Bar {
@@ -877,6 +877,31 @@ describe("compiler: server: completion", () => {
         insertText: "Foo",
         kind: CompletionItemKind.Class,
         documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Foo\n```" },
+        tags: [CompletionItemTag.Deprecated],
+      },
+    ]);
+  });
+
+  it("completes deprecated alias", async () => {
+    const completions = await complete(
+      `
+      model Foo {}
+
+      #deprecated "AliasedFoo is bad"
+      alias AliasedFoo = Foo
+
+      model Bar {
+        prop: Ali┆
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "AliasedFoo",
+        insertText: "AliasedFoo",
+        kind: CompletionItemKind.Variable,
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nalias AliasedFoo\n```" },
         tags: [CompletionItemTag.Deprecated],
       },
     ]);

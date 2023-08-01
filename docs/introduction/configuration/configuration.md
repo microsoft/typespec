@@ -245,6 +245,14 @@ or via the cli
 tsp compile . --warn-as-error
 ```
 
+### `--ignore-deprecated`
+
+Suppress all `deprecated` diagnostics that are raised when declarations are marked with the `#deprecated` directive.
+
+```yaml
+tsp compile . --ignore-deprecated
+```
+
 ### `imports` - Configure additional imports
 
 ```yaml
