@@ -1,14 +1,14 @@
-import watch from "node-watch";
 import { resolve } from "path";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
-import { getAnyExtensionFromPath, resolvePath } from "../../../path-utils.js";
+import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
 import { CliCompilerHost } from "../../types.js";
 import { handleInternalCompilerError, logDiagnosticCount } from "../../utils.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
+import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./watch.js";
 
 export async function compileAction(
   host: CliCompilerHost,
@@ -26,15 +26,10 @@ export async function compileAction(
   }
   const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
 
-  const program = await compileInput(host, entrypoint, cliOptions);
-  if (program.hasError()) {
-    process.exit(1);
-  }
-  if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
-    // eslint-disable-next-line no-console
-    console.log(
-      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
-    );
+  if (cliOptions.watchForChanges) {
+    await compileWatch(host, entrypoint, cliOptions);
+  } else {
+    await compileOnce(host, entrypoint, cliOptions);
   }
 }
 
@@ -61,29 +56,38 @@ async function getCompilerOptionsOrExit(
   return options;
 }
 
-function compileInput(
+async function compileOnce(
   host: CompilerHost,
   path: string,
-  compilerOptions: CompilerOptions,
-  printSuccess = true
-): Promise<Program> {
+  compilerOptions: CompilerOptions
+): Promise<void> {
+  try {
+    const program = await compileProgram(host, resolve(path), compilerOptions);
+    logProgramResult(host, program);
+    if (program.hasError()) {
+      process.exit(1);
+    }
+  } catch (e) {
+    handleInternalCompilerError(e);
+  }
+}
+
+function compileWatch(
+  host: CompilerHost,
+  path: string,
+  compilerOptions: CompilerOptions
+): Promise<void> {
   let compileRequested: boolean = false;
   let currentCompilePromise: Promise<Program> | undefined = undefined;
-  const log = (message?: any, ...optionalParams: any[]) => {
-    const prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
-    // eslint-disable-next-line no-console
-    console.log(`${prefix}${message}`, ...optionalParams);
-  };
 
   const runCompilePromise = () => {
     // Don't run the compiler if it's already running
-    if (!currentCompilePromise) {
+    if (currentCompilePromise === undefined) {
       // Clear the console before compiling in watch mode
-      if (compilerOptions.watchForChanges) {
-        // eslint-disable-next-line no-console
-        console.clear();
-      }
+      // eslint-disable-next-line no-console
+      console.clear();
 
+      watchHost?.forceJSReload();
       currentCompilePromise = compileProgram(host, resolve(path), compilerOptions)
         .then(onCompileFinished)
         .catch(handleInternalCompilerError);
@@ -94,54 +98,63 @@ function compileInput(
     return currentCompilePromise;
   };
 
-  const runCompile = () => void runCompilePromise();
+  const scheduleCompile = () => void runCompilePromise();
+
+  const watcher: ProjectWatcher = createWatcher((_name: string) => {
+    scheduleCompile();
+  });
+  const watchHost: WatchHost = (host = createWatchHost());
 
   const onCompileFinished = (program: Program) => {
-    if (program.diagnostics.length > 0) {
-      log("Diagnostics were reported during compilation:\n");
-      logDiagnostics(program.diagnostics, host.logSink);
-      logDiagnosticCount(program.diagnostics);
-    } else {
-      if (printSuccess) {
-        log("Compilation completed successfully.");
-      }
-    }
+    watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
+    logProgramResult(host, program, { showTimestamp: true });
 
-    // eslint-disable-next-line no-console
-    console.log(); // Insert a newline
     currentCompilePromise = undefined;
-    if (compilerOptions.watchForChanges && compileRequested) {
+    if (compileRequested) {
       compileRequested = false;
-      runCompile();
+      scheduleCompile();
     }
 
     return program;
   };
 
-  if (compilerOptions.watchForChanges) {
-    runCompile();
-    return new Promise((resolve, reject) => {
-      const watcher = (watch as any)(
-        path,
-        {
-          recursive: true,
-          filter: (f: string) =>
-            [".js", ".tsp", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 &&
-            !/node_modules/.test(f),
-        },
-        (e: any, name: string) => {
-          runCompile();
-        }
-      );
-
-      // Handle Ctrl+C for termination
-      process.on("SIGINT", () => {
-        watcher.close();
-        // eslint-disable-next-line no-console
-        console.info("Terminating watcher...\n");
-      });
+  scheduleCompile();
+  return new Promise((resolve, reject) => {
+    // Handle Ctrl+C for termination
+    process.on("SIGINT", () => {
+      watcher.close();
+      // eslint-disable-next-line no-console
+      console.info("Terminating watcher...\n");
+      resolve();
     });
+  });
+}
+
+function logProgramResult(
+  host: CompilerHost,
+  program: Program,
+  { showTimestamp }: { showTimestamp?: boolean } = {}
+) {
+  const log = (message?: any, ...optionalParams: any[]) => {
+    const timestamp = showTimestamp ? `[${new Date().toLocaleTimeString()}] ` : "";
+    // eslint-disable-next-line no-console
+    console.log(`${timestamp}${message}`, ...optionalParams);
+  };
+
+  if (program.diagnostics.length > 0) {
+    log("Diagnostics were reported during compilation:\n");
+    logDiagnostics(program.diagnostics, host.logSink);
+    logDiagnosticCount(program.diagnostics);
   } else {
-    return runCompilePromise();
+    log("Compilation completed successfully.");
+  }
+  // eslint-disable-next-line no-console
+  console.log(); // Insert a newline
+
+  if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
+    // eslint-disable-next-line no-console
+    log(
+      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
+    );
   }
 }
