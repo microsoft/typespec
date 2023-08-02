@@ -34,6 +34,7 @@
     "watch": "tsc -p . --watch",
     "test": "mocha",
     "test-official": "mocha --forbid-only",
+    "test:regen": "cross-env RECORD=true mocha",
     "regen-samples": "cross-env CLEAN_SAMPLES=true RECORD=true mocha"
   },
   "files": [
