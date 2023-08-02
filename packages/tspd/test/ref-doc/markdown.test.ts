@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { table } from "../src/utils/markdown.js";
+import { table } from "../../src/ref-doc/utils/markdown.js";
 
 describe("ref-doc: markdown", () => {
   it("escapes table content", () => {

@@ -350,7 +350,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum;
+          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum as any;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -1341,13 +1341,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getSchemaForEnum(e: Enum) {
     const values = [];
     if (e.members.size === 0) {
-      reportUnsupportedUnion("empty");
+      reportDiagnostic(program, { code: "empty-enum", target: e });
+
       return {};
     }
     const type = enumMemberType(e.members.values().next().value);
     for (const option of e.members.values()) {
       if (type !== enumMemberType(option)) {
-        reportUnsupportedUnion();
+        reportDiagnostic(program, { code: "enum-unique-type", target: e });
         continue;
       }
 
@@ -1366,10 +1367,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
       return "string";
     }
-
-    function reportUnsupportedUnion(messageId: "default" | "empty" = "default") {
-      reportDiagnostic(program, { code: "union-unsupported", messageId, target: e });
-    }
   }
 
   /**
@@ -1383,7 +1380,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    *   literals into enums) is an `anyOf` union unless `oneOf` is applied to the union
    *   declaration.
    */
-  function getSchemaForUnion(union: Union, visibility: Visibility) {
+  function getSchemaForUnion(union: Union, visibility: Visibility): OpenAPI3Schema {
+    if (union.variants.size === 0) {
+      reportDiagnostic(program, { code: "empty-union", target: union });
+      return {};
+    }
     const variants = Array.from(union.variants.values());
     const literalVariantEnumByType: Record<string, any> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";

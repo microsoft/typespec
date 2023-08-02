@@ -28,7 +28,8 @@
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
     "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint:fix": "eslint . --fix --ext .ts",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/standard-library/protobuf/reference"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:~0.46.0"
@@ -39,6 +40,7 @@
     "@typespec/eslint-plugin": "workspace:~0.46.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
+    "@typespec/tspd": "workspace:~0.46.0",
     "c8": "~8.0.0",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",
