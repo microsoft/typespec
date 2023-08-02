@@ -4,6 +4,23 @@ TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema
 ```bash
 npm install @typespec/json-schema
 ```
+## Usage
+Add the `@jsonSchema` decorator to any types or namespaces you want to emit as JSON Schema.
+
+```TypeSpec
+import "@typespec/json-schema";
+
+using TypeSpec.JsonSchema;
+
+@jsonSchema
+namespace Example;
+
+model Car {
+  make: string;
+  model: string;
+}
+```
+
 ## Emitter usage
 ### Usage
 1. Via the command line

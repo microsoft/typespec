@@ -29,7 +29,7 @@ export async function generateLibraryDocs(
   for (const [name, content] of Object.entries(files)) {
     await writeFile(joinPaths(outputDir, name), content);
   }
-  const readme = renderReadme(refDoc);
+  const readme = await renderReadme(refDoc, libraryPath);
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));

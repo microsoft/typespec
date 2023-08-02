@@ -1,3 +1,5 @@
+import { resolvePath } from "@typespec/compiler";
+import { readFile } from "fs/promises";
 import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
@@ -25,7 +27,12 @@ import {
 } from "../utils/markdown.js";
 import { getTypeSignature } from "../utils/type-signature.js";
 
-export function renderReadme(refDoc: TypeSpecRefDoc) {
+async function loadTemplate(projectRoot: string, name: string) {
+  const content = await readFile(resolvePath(projectRoot, `.tspd/docs/${name}.md`));
+  return content.toString();
+}
+
+export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) {
   const content: MarkdownDoc[] = [];
   const renderer = new MarkdownRenderer();
 
@@ -35,6 +42,10 @@ export function renderReadme(refDoc: TypeSpecRefDoc) {
 
   content.push(section("Install", [codeblock(`npm install ${refDoc.name}`, "bash")]));
 
+  const usageTemplate = await loadTemplate(projectRoot, "usage");
+  if (usageTemplate) {
+    content.push(section("Usage", [usageTemplate]));
+  }
   if (refDoc.emitter?.options) {
     content.push(renderEmitterUsage(refDoc));
   }
@@ -53,7 +64,7 @@ export function renderEmitterUsage(refDoc: TypeSpecLibraryRefDoc): MarkdownDoc {
     return [];
   }
 
-  return section("Emitter usage", [
+  return section("Emitter", [
     section("Usage", [
       "1. Via the command line",
       codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
