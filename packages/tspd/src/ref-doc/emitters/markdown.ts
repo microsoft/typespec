@@ -1,17 +1,23 @@
 import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
+  EnumRefDoc,
   ExampleRefDoc,
+  InterfaceRefDoc,
+  ModelRefDoc,
   NamedTypeRefDoc,
   NamespaceRefDoc,
+  OperationRefDoc,
+  ScalarRefDoc,
+  TemplateParameterRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
   TypeSpecRefDocBase,
+  UnionRefDoc,
 } from "../types.js";
 import {
   MarkdownDoc,
   codeblock,
-  headings,
   inlinecode,
   renderMarkdowDoc,
   section,
@@ -61,8 +67,9 @@ export function renderEmitterUsage(refDoc: TypeSpecLibraryRefDoc): MarkdownDoc {
 function renderEmitterOptions(options: EmitterOptionRefDoc[]): MarkdownDoc {
   const content = [];
   for (const option of options) {
-    content.push(headings.h3(`${inlinecode(option.name)}`));
-    content.push(`**Type:** ${inlinecode(option.type)}`, "");
+    content.push(
+      section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""])
+    );
 
     content.push(option.doc);
   }
@@ -117,8 +124,9 @@ export function renderExamples(examples: ExampleRefDoc[]): MarkdownDoc {
     const exampleContent = ["", example.content, ""];
     if (example.title) {
       content.push(section(example.title, exampleContent));
+    } else {
+      content.push(exampleContent);
     }
-    content.push(exampleContent);
   }
   return section("Examples", content);
 }
@@ -147,6 +155,93 @@ export class MarkdownRenderer {
 
   anchorId(item: NamedTypeRefDoc): string {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
+  }
+
+  operation(op: OperationRefDoc) {
+    const content: MarkdownDoc = ["", op.doc, codeblock(op.signature, "typespec"), ""];
+
+    if (op.templateParameters) {
+      content.push(this.renderTemplateParametersTable(op.templateParameters));
+    }
+
+    content.push(renderExamples(op.examples));
+
+    return section(this.headingTitle(op), content);
+  }
+
+  interface(iface: InterfaceRefDoc) {
+    const content: MarkdownDoc = ["", iface.doc, codeblock(iface.signature, "typespec"), ""];
+
+    if (iface.templateParameters) {
+      content.push(this.renderTemplateParametersTable(iface.templateParameters));
+    }
+
+    if (iface.interfaceOperations.length > 0) {
+      for (const op of iface.interfaceOperations) {
+        content.push(this.operation(op));
+      }
+    }
+
+    content.push(renderExamples(iface.examples));
+
+    return section(this.headingTitle(iface), content);
+  }
+
+  model(model: ModelRefDoc) {
+    const content: MarkdownDoc = ["", model.doc, codeblock(model.signature, "typespec"), ""];
+
+    if (model.templateParameters) {
+      content.push(this.renderTemplateParametersTable(model.templateParameters));
+    }
+
+    content.push(renderExamples(model.examples));
+
+    return section(this.headingTitle(model), content);
+  }
+
+  enum(e: EnumRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = [
+      "",
+      e.doc,
+      codeblock(e.signature, "typespec"),
+      "",
+      renderExamples(e.examples),
+    ];
+
+    return section(this.headingTitle(e), content);
+  }
+
+  union(union: UnionRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = ["", union.doc, codeblock(union.signature, "typespec"), ""];
+
+    if (union.templateParameters) {
+      content.push(this.renderTemplateParametersTable(union.templateParameters));
+    }
+
+    content.push(renderExamples(union.examples));
+
+    return section(this.headingTitle(union), content);
+  }
+
+  scalar(scalar: ScalarRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = ["", scalar.doc, codeblock(scalar.signature, "typespec"), ""];
+
+    if (scalar.templateParameters) {
+      content.push(this.renderTemplateParametersTable(scalar.templateParameters));
+    }
+
+    content.push(renderExamples(scalar.examples));
+
+    return section(this.headingTitle(scalar), content);
+  }
+
+  renderTemplateParametersTable(templateParameters: TemplateParameterRefDoc[]): MarkdownDoc {
+    const paramTable: string[][] = [["Name", "Description"]];
+    for (const param of templateParameters) {
+      paramTable.push([param.name, param.doc]);
+    }
+
+    return section("Template Parameters", [table(paramTable), ""]);
   }
 
   decoratorToc(namespace: NamespaceRefDoc) {

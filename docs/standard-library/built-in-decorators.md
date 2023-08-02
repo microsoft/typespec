@@ -5,7 +5,6 @@ toc_max_heading_level: 3
 ---
 # Built-in Decorators
 ## TypeSpec
-
 ### `@deprecated` {#@deprecated}
 
 Mark this type as deprecated.
@@ -905,5 +904,4 @@ model DogRead {
 ...Dog;
 }
 ```
-
 
