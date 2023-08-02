@@ -4,7 +4,7 @@ TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol bindin
 ```bash
 npm install @typespec/openapi3
 ```
-## Emitter usage
+## Emitter
 ### Usage
 1. Via the command line
 ```bash

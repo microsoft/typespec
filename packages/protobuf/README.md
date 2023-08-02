@@ -4,7 +4,7 @@ TypeSpec library and emitter for Protobuf (gRPC)
 ```bash
 npm install @typespec/protobuf
 ```
-## Emitter usage
+## Emitter
 ### Usage
 1. Via the command line
 ```bash

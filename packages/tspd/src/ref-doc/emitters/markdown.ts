@@ -28,8 +28,15 @@ import {
 import { getTypeSignature } from "../utils/type-signature.js";
 
 async function loadTemplate(projectRoot: string, name: string) {
-  const content = await readFile(resolvePath(projectRoot, `.tspd/docs/${name}.md`));
-  return content.toString();
+  try {
+    const content = await readFile(resolvePath(projectRoot, `.tspd/docs/${name}.md`));
+    return content.toString();
+  } catch (e) {
+    if (typeof e === "object" && (e as any)?.code === "ENOENT") {
+      return undefined;
+    }
+    throw e;
+  }
 }
 
 export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) {
