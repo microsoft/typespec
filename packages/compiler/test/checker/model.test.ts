@@ -1,7 +1,7 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
-import { Operation, isArrayModelType } from "../../src/index.js";
+import { Operation, getDoc, isArrayModelType } from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
@@ -395,6 +395,24 @@ describe("compiler: models", () => {
       );
       const { Spread } = (await testHost.compile("main.tsp")) as { Spread: Model };
       strictEqual((Spread.properties.get("h1")!.type as any)!.value, "test");
+    });
+
+    it("can decorate spread properties independently", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Base {@doc("base doc") one: string}
+        @test model Spread {...Base}
+
+        @@doc(Spread.one, "override for spread")
+        `
+      );
+      const { Base, Spread } = (await testHost.compile("main.tsp")) as {
+        Base: Model;
+        Spread: Model;
+      };
+      strictEqual(getDoc(testHost.program, Spread.properties.get("one")!), "override for spread");
+      strictEqual(getDoc(testHost.program, Base.properties.get("one")!), "base doc");
     });
 
     it("keeps reference of children", async () => {
