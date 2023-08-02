@@ -213,24 +213,21 @@ function renderOperationMarkdown(op: OperationRefDoc, headingLevel: number = 3) 
   ];
 
   if (op.templateParameters) {
-    content.push(renderTemplateParametersTable(op.templateParameters, headingLevel + 1));
+    content.push(renderTemplateParametersTable(op.templateParameters));
   }
 
-  content.push(renderExamples(op.examples, headingLevel + 1));
+  content.push(renderExamples(op.examples));
 
   return renderMarkdowDoc(content);
 }
 
-function renderTemplateParametersTable(
-  templateParameters: TemplateParameterRefDoc[],
-  headingLevel: number
-) {
+function renderTemplateParametersTable(templateParameters: TemplateParameterRefDoc[]): MarkdownDoc {
   const paramTable: string[][] = [["Name", "Description"]];
   for (const param of templateParameters) {
     paramTable.push([param.name, param.doc]);
   }
 
-  return [headings.hx(headingLevel, "Template Parameters"), table(paramTable), ""].join("\n");
+  return section("Template Parameters", [table(paramTable), ""]);
 }
 
 function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 3) {
@@ -243,16 +240,16 @@ function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 
   ];
 
   if (iface.templateParameters) {
-    content.push(renderTemplateParametersTable(iface.templateParameters, headingLevel + 1));
+    content.push(renderTemplateParametersTable(iface.templateParameters));
   }
 
   if (iface.interfaceOperations.length > 0) {
     for (const op of iface.interfaceOperations) {
-      content.push(renderOperationMarkdown(op, headingLevel + 1));
+      content.push(renderOperationMarkdown(op));
     }
   }
 
-  content.push(renderExamples(iface.examples, headingLevel + 1));
+  content.push(renderExamples(iface.examples));
 
   return renderMarkdowDoc(content);
 }
@@ -312,10 +309,10 @@ function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
   ];
 
   if (model.templateParameters) {
-    content.push(renderTemplateParametersTable(model.templateParameters, headingLevel + 1));
+    content.push(renderTemplateParametersTable(model.templateParameters));
   }
 
-  content.push(renderExamples(model.examples, headingLevel + 1));
+  content.push(renderExamples(model.examples));
 
   return renderMarkdowDoc(content);
 }
@@ -327,7 +324,7 @@ function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
     e.doc,
     codeblock(e.signature, "typespec"),
     "",
-    renderExamples(e.examples, headingLevel + 1),
+    renderExamples(e.examples),
   ];
 
   return renderMarkdowDoc(content);
@@ -343,10 +340,10 @@ function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
   ];
 
   if (union.templateParameters) {
-    content.push(renderTemplateParametersTable(union.templateParameters, headingLevel + 1));
+    content.push(renderTemplateParametersTable(union.templateParameters));
   }
 
-  content.push(renderExamples(union.examples, headingLevel + 1));
+  content.push(renderExamples(union.examples));
 
   return renderMarkdowDoc(content);
 }
@@ -361,10 +358,10 @@ function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
   ];
 
   if (scalar.templateParameters) {
-    content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
+    content.push(renderTemplateParametersTable(scalar.templateParameters));
   }
 
-  content.push(renderExamples(scalar.examples, headingLevel + 1));
+  content.push(renderExamples(scalar.examples));
 
   return renderMarkdowDoc(content);
 }

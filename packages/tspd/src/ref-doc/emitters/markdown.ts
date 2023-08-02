@@ -74,14 +74,11 @@ export function renderDecoratorSection(refDoc: TypeSpecRefDocBase): MarkdownDoc 
   });
 }
 
-function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3): MarkdownDoc {
+function renderDecoratorMarkdown(dec: DecoratorRefDoc): MarkdownDoc {
   const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
 
   content.push(
-    headings.hx(headingLevel + 1, "Target"),
-    dec.target.doc,
-    inlinecode(getTypeSignature(dec.target.type.type)),
-    ""
+    section("Target", [dec.target.doc, inlinecode(getTypeSignature(dec.target.type.type)), ""])
   );
 
   if (dec.parameters.length > 0) {
@@ -89,30 +86,30 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3)
     for (const param of dec.parameters) {
       paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
     }
-    content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
+    content.push(section("Parameters", [table(paramTable), ""]));
   } else {
-    content.push(headings.hx(headingLevel + 1, "Parameters"), "None", "");
+    content.push(section("Parameters", ["None", ""]));
   }
 
-  content.push(renderExamples(dec.examples, headingLevel + 1));
+  content.push(renderExamples(dec.examples));
 
   return section(`${inlinecode(dec.name)} {#${dec.id}}`, content);
 }
 
-export function renderExamples(examples: ExampleRefDoc[], headingLevel: number): MarkdownDoc {
+export function renderExamples(examples: ExampleRefDoc[]): MarkdownDoc {
   const content: MarkdownDoc = [];
   if (examples.length === 0) {
     return "";
   }
 
-  content.push(headings.hx(headingLevel, "Examples"));
   for (const example of examples) {
+    const exampleContent = ["", example.content, ""];
     if (example.title) {
-      content.push(headings.hx(headingLevel + 1, example.title));
+      content.push(section(example.title, exampleContent));
     }
-    content.push("", example.content, "");
+    content.push(exampleContent);
   }
-  return content;
+  return section("Examples", content);
 }
 
 export function groupByNamespace(
@@ -128,3 +125,5 @@ export function groupByNamespace(
   }
   return content;
 }
+
+export class MarkdownRenderer {}
