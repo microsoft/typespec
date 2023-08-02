@@ -2,7 +2,10 @@
 // @ts-check
 import { NodeHost, logDiagnostics } from "@typespec/compiler";
 import { generateJsApiDocs, resolveLibraryRefDocsBase } from "@typespec/tspd/ref-doc";
-import { renderDecoratorFile } from "@typespec/tspd/ref-doc/emitters/docusaurus";
+import {
+  DocusaurusRenderer,
+  renderDecoratorFile,
+} from "@typespec/tspd/ref-doc/emitters/docusaurus";
 
 import assert from "assert";
 import { writeFile } from "fs/promises";
@@ -35,9 +38,10 @@ async function generateCompilerDocs() {
   const results = await resolveLibraryRefDocsBase(compilerPath, {
     namespaces: { include: ["TypeSpec"] },
   });
+  const renderer = new DocusaurusRenderer();
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
   const [refDoc, diagnostics] = results;
-  const decoratorContent = renderDecoratorFile(refDoc, { title: "Built-in Decorators" });
+  const decoratorContent = renderDecoratorFile(renderer, refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
 
