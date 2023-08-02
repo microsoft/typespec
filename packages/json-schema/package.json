@@ -34,7 +34,8 @@
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint:fix": "eslint . --fix --ext .ts",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/standard-library/json-schema/reference"
   },
   "files": [
     "lib/*.tsp",
@@ -51,6 +52,7 @@
     "@typespec/library-linter": "workspace:~0.46.0",
     "@typespec/eslint-plugin": "workspace:~0.46.0",
     "@typespec/eslint-config-typespec": "workspace:~0.46.0",
+    "@typespec/tspd": "workspace:~0.46.0",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",

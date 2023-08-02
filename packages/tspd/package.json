@@ -1,10 +1,10 @@
 {
-  "name": "@typespec/ref-doc",
-  "version": "0.1.0",
+  "name": "@typespec/tspd",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating typespec docs",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,22 +17,24 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/index.js",
-  "exports": {
-    ".": "./dist/src/index.js",
-    "./emitters/docusaurus": "./dist/src/emitters/docusaurus.js"
+  "bin": {
+    "tspd": "./cmd/tspd.js"
   },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/src/index.d.ts"
-      ],
-      "emitters/docusaurus": [
-        "./dist/src/emitters/docusaurus.d.ts"
-      ]
+  "main": "./dist/src/index.js",
+  "exports": {
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./ref-doc": {
+      "default": "./dist/src/ref-doc/index.js",
+      "types": "./dist/src/ref-doc/index.d.ts"
+    },
+    "./ref-doc/emitters/docusaurus": {
+      "default": "./dist/src/ref-doc/emitters/docusaurus.js",
+      "types": "./dist/src/ref-doc/emitters/docusaurus.d.ts"
     }
   },
-  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -53,7 +55,9 @@
   "dependencies": {
     "@typespec/compiler": "workspace:~0.46.0",
     "js-yaml": "~4.1.0",
-    "prettier": "~2.8.7"
+    "prettier": "~2.8.7",
+    "picocolors": "~1.0.0",
+    "yargs": "~17.7.1"
   },
   "devDependencies": {
     "@typespec/compiler": "workspace:~0.46.0",
@@ -63,11 +67,13 @@
     "@types/node": "~18.11.9",
     "@types/prettier": "2.6.0",
     "@types/js-yaml": "~4.0.1",
+    "@types/yargs": "~17.0.24",
     "c8": "~8.0.0",
     "eslint": "^8.42.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",
     "mocha": "~10.2.0",
+    "source-map-support": "~0.5.19",
     "rimraf": "~5.0.1",
     "typedoc-plugin-markdown": "~4.0.0-next.17",
     "typedoc": "~0.24.8",
