@@ -9,6 +9,7 @@ import {
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
+import { renderReadme } from "./emitters/markdown.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
 
@@ -28,6 +29,8 @@ export async function generateLibraryDocs(
   for (const [name, content] of Object.entries(files)) {
     await writeFile(joinPaths(outputDir, name), content);
   }
+  const readme = renderReadme(refDoc);
+  await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
   }
