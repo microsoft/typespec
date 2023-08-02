@@ -6,7 +6,7 @@ npm install @typespec/openapi
 ```
 ## Decorators
 ### OpenAPI
-#### `@defaultResponse` {#@OpenAPI.defaultResponse}
+#### `@defaultResponse`
 
 Specify that this model is to be treated as the OpenAPI `default` response.
 This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
@@ -32,7 +32,7 @@ op listPets(): Pet[] | PetStoreResponse;
 ```
 
 
-#### `@extension` {#@OpenAPI.extension}
+#### `@extension`
 
 Attach some custom data to the OpenAPI element generated from this type.
 
@@ -59,7 +59,7 @@ op read(): string;
 ```
 
 
-#### `@externalDocs` {#@OpenAPI.externalDocs}
+#### `@externalDocs`
 
 Specify the OpenAPI `externalDocs` property for this type.
 
@@ -85,7 +85,7 @@ op listPets(): Pet[];
 ```
 
 
-#### `@info` {#@OpenAPI.info}
+#### `@info`
 
 Specify OpenAPI additional information.
 The service `title` and `version` are already specified using `@service`.
@@ -105,7 +105,7 @@ The service `title` and `version` are already specified using `@service`.
 
 
 
-#### `@operationId` {#@OpenAPI.operationId}
+#### `@operationId`
 
 Specify the OpenAPI `operationId` property for this operation.
 

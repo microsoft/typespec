@@ -4,6 +4,7 @@ import {
   EnumRefDoc,
   InterfaceRefDoc,
   ModelRefDoc,
+  NamedTypeRefDoc,
   OperationRefDoc,
   ScalarRefDoc,
   TemplateParameterRefDoc,
@@ -23,6 +24,7 @@ import {
   tabs,
 } from "../utils/markdown.js";
 import {
+  MarkdownRenderer,
   groupByNamespace,
   renderDecoratorSection,
   renderEmitterUsage,
@@ -33,11 +35,12 @@ import {
  * Render doc to a markdown using docusaurus addons.
  */
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
+  const renderer = new DocusaurusRenderer();
   const files: Record<string, string> = {
     "index.md": renderIndexFile(refDoc),
   };
 
-  const decoratorFile = renderDecoratorFile(refDoc);
+  const decoratorFile = renderDecoratorFile(renderer, refDoc);
   if (decoratorFile) {
     files["decorators.md"] = decoratorFile;
   }
@@ -149,6 +152,7 @@ export type DecoratorRenderOptions = {
   title?: string;
 };
 export function renderDecoratorFile(
+  renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDocBase,
   options?: DecoratorRenderOptions
 ): string | undefined {
@@ -164,7 +168,7 @@ export function renderDecoratorFile(
     "---",
   ];
 
-  content.push(section(title, renderDecoratorSection(refDoc)));
+  content.push(section(title, renderDecoratorSection(renderer, refDoc)));
 
   return renderMarkdowDoc(content);
 }
@@ -399,4 +403,15 @@ function renderEmitterOptions(options: EmitterOptionRefDoc[]): string {
     content.push(option.doc);
   }
   return renderMarkdowDoc(content);
+}
+
+export class DocusaurusRenderer extends MarkdownRenderer {
+  headingTitle(item: NamedTypeRefDoc): string {
+    // Set an explicit anchor id.
+    return `${inlinecode(item.name)} {#${item.id}}`;
+  }
+  anchorId(item: NamedTypeRefDoc): string {
+    // Set an explicit anchor id.
+    return item.id;
+  }
 }

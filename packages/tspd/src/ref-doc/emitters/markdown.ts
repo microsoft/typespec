@@ -2,6 +2,7 @@ import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
   ExampleRefDoc,
+  NamedTypeRefDoc,
   NamespaceRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
@@ -20,6 +21,7 @@ import { getTypeSignature } from "../utils/type-signature.js";
 
 export function renderReadme(refDoc: TypeSpecRefDoc) {
   const content: MarkdownDoc[] = [];
+  const renderer = new MarkdownRenderer();
 
   if (refDoc.description) {
     content.push(refDoc.description);
@@ -32,7 +34,7 @@ export function renderReadme(refDoc: TypeSpecRefDoc) {
   }
 
   if (refDoc.namespaces.some((x) => x.decorators.length > 0)) {
-    content.push(section("Decorators", renderDecoratorSection(refDoc)));
+    content.push(section("Decorators", renderDecoratorSection(renderer, refDoc)));
   }
 
   return renderMarkdowDoc(section(refDoc.name, content));
@@ -65,16 +67,19 @@ function renderEmitterOptions(options: EmitterOptionRefDoc[]): MarkdownDoc {
   return section("Emitter options", content);
 }
 
-export function renderDecoratorSection(refDoc: TypeSpecRefDocBase): MarkdownDoc {
+export function renderDecoratorSection(
+  renderer: MarkdownRenderer,
+  refDoc: TypeSpecRefDocBase
+): MarkdownDoc {
   return groupByNamespace(refDoc.namespaces, (namespace) => {
     if (namespace.decorators.length === 0) {
       return undefined;
     }
-    return namespace.decorators.map((x) => [renderDecoratorMarkdown(x), ""]);
+    return namespace.decorators.map((x) => [renderDecoratorMarkdown(renderer, x), ""]);
   });
 }
 
-function renderDecoratorMarkdown(dec: DecoratorRefDoc): MarkdownDoc {
+function renderDecoratorMarkdown(renderer: MarkdownRenderer, dec: DecoratorRefDoc): MarkdownDoc {
   const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
 
   content.push(
@@ -93,7 +98,7 @@ function renderDecoratorMarkdown(dec: DecoratorRefDoc): MarkdownDoc {
 
   content.push(renderExamples(dec.examples));
 
-  return section(`${inlinecode(dec.name)} {#${dec.id}}`, content);
+  return section(renderer.headingTitle(dec), content);
 }
 
 export function renderExamples(examples: ExampleRefDoc[]): MarkdownDoc {
@@ -126,4 +131,12 @@ export function groupByNamespace(
   return content;
 }
 
-export class MarkdownRenderer {}
+export class MarkdownRenderer {
+  headingTitle(item: NamedTypeRefDoc): string {
+    return inlinecode(item.name);
+  }
+
+  anchorId(item: NamedTypeRefDoc): string {
+    return `${item.name.toLowerCase().replace(/ /g, "-")}`;
+  }
+}
