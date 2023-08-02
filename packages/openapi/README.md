@@ -6,6 +6,11 @@ npm install @typespec/openapi
 ```
 ## Decorators
 ### OpenAPI
+ - [`@defaultResponse`](#@defaultresponse)
+ - [`@extension`](#@extension)
+ - [`@externalDocs`](#@externaldocs)
+ - [`@info`](#@info)
+ - [`@operationId`](#@operationid)
 #### `@defaultResponse`
 
 Specify that this model is to be treated as the OpenAPI `default` response.

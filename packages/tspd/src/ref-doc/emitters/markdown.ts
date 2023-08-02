@@ -34,7 +34,9 @@ export function renderReadme(refDoc: TypeSpecRefDoc) {
   }
 
   if (refDoc.namespaces.some((x) => x.decorators.length > 0)) {
-    content.push(section("Decorators", renderDecoratorSection(renderer, refDoc)));
+    content.push(
+      section("Decorators", renderDecoratorSection(renderer, refDoc, { includeToc: true }))
+    );
   }
 
   return renderMarkdowDoc(section(refDoc.name, content));
@@ -69,13 +71,17 @@ function renderEmitterOptions(options: EmitterOptionRefDoc[]): MarkdownDoc {
 
 export function renderDecoratorSection(
   renderer: MarkdownRenderer,
-  refDoc: TypeSpecRefDocBase
+  refDoc: TypeSpecRefDocBase,
+  options: { includeToc?: boolean } = {}
 ): MarkdownDoc {
   return groupByNamespace(refDoc.namespaces, (namespace) => {
     if (namespace.decorators.length === 0) {
       return undefined;
     }
-    return namespace.decorators.map((x) => [renderDecoratorMarkdown(renderer, x), ""]);
+    return [
+      options.includeToc ? renderer.decoratorToc(namespace) : [],
+      namespace.decorators.map((x) => [renderDecoratorMarkdown(renderer, x), ""]),
+    ];
   });
 }
 
@@ -131,6 +137,9 @@ export function groupByNamespace(
   return content;
 }
 
+/**
+ * Github flavored markdown renderer.
+ */
 export class MarkdownRenderer {
   headingTitle(item: NamedTypeRefDoc): string {
     return inlinecode(item.name);
@@ -138,5 +147,13 @@ export class MarkdownRenderer {
 
   anchorId(item: NamedTypeRefDoc): string {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
+  }
+
+  decoratorToc(namespace: NamespaceRefDoc) {
+    const listContent = [];
+    for (const decorator of namespace.decorators) {
+      listContent.push(` - [${inlinecode(decorator.name)}](#${this.anchorId(decorator)})`);
+    }
+    return listContent;
   }
 }
