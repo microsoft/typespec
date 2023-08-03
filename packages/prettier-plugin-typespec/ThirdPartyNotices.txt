@@ -8,7 +8,7 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. prettier version 3.0.0 (prettier/prettier)
+1. prettier version 3.0.1 (prettier/prettier)
 
 
 %% prettier NOTICES AND INFORMATION BEGIN HERE
@@ -28,11 +28,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Licenses of bundled dependencies
 
 The published Prettier artifact additionally contains code with the following licenses:
-MIT, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD, Apache-2.0
+MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0
 
 ## Bundled dependencies
 
-### @angular/compiler@v16.1.3
+### @angular/compiler@v16.1.7
 
 > Angular - the compiler library
 
@@ -143,7 +143,7 @@ Author: The Babel Team (https://babel.dev/team)
 
 ----------------------------------------
 
-### @babel/parser@v7.22.5
+### @babel/parser@v7.22.7
 
 > A JavaScript parser
 
@@ -381,7 +381,7 @@ License: MIT
 
 ----------------------------------------
 
-### @prettier/is-es5-identifier-name@v0.1.0
+### @prettier/is-es5-identifier-name@v0.2.0
 
 > Check if provided string is an `IdentifierName` as specified in ECMA262 edition 5.1 section 7.6.
 
@@ -444,7 +444,7 @@ Author: Alex Bell <alex@bellandwhistle.net>
 
 ----------------------------------------
 
-### @typescript-eslint/types@v5.60.1
+### @typescript-eslint/types@v6.2.0
 
 > Types for the TypeScript-ESTree AST spec
 
@@ -475,7 +475,7 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### @typescript-eslint/typescript-estree@v5.60.1
+### @typescript-eslint/typescript-estree@v6.2.0
 
 > A parser that converts TypeScript source code into an ESTree compatible form
 
@@ -511,7 +511,7 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### acorn@v8.9.0
+### acorn@v8.10.0
 
 > ECMAScript parser
 
@@ -884,7 +884,7 @@ License: MIT
 
 ----------------------------------------
 
-### chalk@v5.2.0
+### chalk@v5.3.0
 
 > Terminal string styling done right
 
@@ -1534,7 +1534,7 @@ Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 ----------------------------------------
 
-### espree@v9.6.0
+### espree@v9.6.1
 
 > An Esprima-compatible JavaScript parser built on Acorn
 
@@ -1930,7 +1930,7 @@ Contributors:
 
 ----------------------------------------
 
-### flow-parser@v0.211.0
+### flow-parser@v0.213.1
 
 > JavaScript parser written in OCaml. Produces ESTree AST
 
@@ -2907,37 +2907,6 @@ Contributors:
 
 ----------------------------------------
 
-### leven@v2.1.0
-
-> Measure the difference between two strings using the fastest JS implementation of the Levenshtein distance algorithm
-
-License: MIT
-Author: Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-> The MIT License (MIT)
->
-> Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in
-> all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-> THE SOFTWARE.
-
-----------------------------------------
-
 ### leven@v4.0.0
 
 > Measure the difference between two strings using the Levenshtein distance algorithm
@@ -3702,7 +3671,7 @@ Author: typicode
 
 ----------------------------------------
 
-### postcss@v8.4.24
+### postcss@v8.4.27
 
 > Tool for transforming styles with JS plugins
 
@@ -4159,7 +4128,7 @@ Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 ----------------------------------------
 
-### semver@v7.5.3
+### semver@v7.5.4
 
 > The semantic version parser used by npm.
 
@@ -4476,63 +4445,38 @@ Contributors:
 
 ----------------------------------------
 
-### tslib@v1.14.1
+### ts-api-utils@v1.0.1
 
-> Runtime library for TypeScript helper functions
-
-License: 0BSD
-Homepage: <https://www.typescriptlang.org/>
-Repository: <https://github.com/Microsoft/tslib.git>
-Author: Microsoft Corp.
-
-> Copyright (c) Microsoft Corporation.
-> 
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-> REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-> AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-> INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-> LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-> OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-> PERFORMANCE OF THIS SOFTWARE.
-
-----------------------------------------
-
-### tsutils@v3.21.0
-
-> utilities for working with typescript's AST
+> Utility functions for working with TypeScript's API. Successor to the wonderful tsutils.
 
 License: MIT
-Repository: <https://github.com/ajafff/tsutils>
-Author: Klaus Meinhardt
+Repository: <https://github.com/JoshuaKGoldberg/ts-api-utils>
+Author: Josh Goldberg <npm@joshuakgoldberg.com>
 
-> The MIT License (MIT)
-> 
-> Copyright (c) 2017 Klaus Meinhardt
-> 
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
-> 
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> SOFTWARE.
+> # MIT License
+>
+> Permission is hereby granted, free of charge, to any person obtaining
+> a copy of this software and associated documentation files (the
+> 'Software'), to deal in the Software without restriction, including
+> without limitation the rights to use, copy, modify, merge, publish,
+> distribute, sublicense, and/or sell copies of the Software, and to
+> permit persons to whom the Software is furnished to do so, subject to
+> the following conditions:
+>
+> The above copyright notice and this permission notice shall be
+> included in all copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+> EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+> MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+> IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+> CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+> TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+> SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----------------------------------------
 
-### typescript@v5.1.5
+### typescript@v5.1.6
 
 > TypeScript is a language for application scale JavaScript development
 
@@ -4984,7 +4928,7 @@ Contributors:
 
 ----------------------------------------
 
-### vnopts@v1.0.2
+### vnopts@v2.0.0
 
 > validate and normalize options
 

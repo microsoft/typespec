@@ -55,7 +55,7 @@
   "dependencies": {
     "@typespec/compiler": "workspace:~0.46.0",
     "js-yaml": "~4.1.0",
-    "prettier": "~3.0.0",
+    "prettier": "~3.0.1",
     "picocolors": "~1.0.0",
     "yargs": "~17.7.1"
   },
