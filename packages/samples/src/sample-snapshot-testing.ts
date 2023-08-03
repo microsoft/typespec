@@ -144,12 +144,10 @@ function defineSampleSnaphotTest(
       }
 
       for (const filename of await readFilesInDirRecursively(outputDir)) {
+        const snapshotPath = resolvePath(outputDir, filename);
         ok(
-          host.outputs.has(filename),
-          `Snapshot for "${resolvePath(
-            outputDir,
-            filename
-          )}" is missing. Run with RECORD=true to regenerate it.`
+          host.outputs.has(snapshotPath),
+          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`
         );
       }
     }
