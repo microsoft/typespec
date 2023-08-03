@@ -4,6 +4,7 @@ import {
   ResolveCompilerOptionsOptions,
   compile,
   getDirectoryPath,
+  getRelativePathFromDirectory,
   joinPaths,
   resolveCompilerOptions,
   resolvePath,
@@ -85,8 +86,10 @@ function defineSampleSnaphotTest(
     context.runCount++;
     const host = createSampleSnapshotTestHost(config);
 
+    const outputDir = resolvePath(config.outputDir, sample.name);
+
     const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
-      outputDir: "/out",
+      outputDir,
     };
     if (config.emit) {
       overrides.emit = config.emit;
@@ -107,28 +110,26 @@ function defineSampleSnaphotTest(
     const program = await compile(host, sample.fullPath, options);
     expectDiagnosticEmpty(program.diagnostics);
 
-    const outputDir = resolvePath(config.outputDir, sample.name);
-
     if (shouldUpdateSnapshots) {
       try {
         await host.rm(outputDir, { recursive: true });
       } catch (e) {}
       await mkdir(outputDir, { recursive: true });
 
-      for (const [filename, content] of host.outputs.entries()) {
-        const snapshotPath = resolvePath(outputDir, filename);
+      for (const [snapshotPath, content] of host.outputs.entries()) {
+        const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
 
         try {
           await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
           await writeFile(snapshotPath, content);
-          context.registerSnapshot(resolvePath(sample.name, filename));
+          context.registerSnapshot(resolvePath(sample.name, relativePath));
         } catch (e) {
           throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
         }
       }
     } else {
-      for (const [filename, content] of host.outputs.entries()) {
-        const snapshotPath = resolvePath(outputDir, filename);
+      for (const [snapshotPath, content] of host.outputs.entries()) {
+        const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
         let existingContent;
         try {
           existingContent = await readFile(snapshotPath);
@@ -138,7 +139,7 @@ function defineSampleSnaphotTest(
           }
           throw e;
         }
-        context.registerSnapshot(resolvePath(sample.name, filename));
+        context.registerSnapshot(resolvePath(sample.name, relativePath));
         strictEqual(content, existingContent.toString());
       }
 
@@ -158,6 +159,7 @@ function defineSampleSnaphotTest(
 interface SampleSnapshotTestHost extends CompilerHost {
   outputs: Map<string, string>;
 }
+
 function createSampleSnapshotTestHost(config: SampleSnapshotTestOptions): SampleSnapshotTestHost {
   const outputs = new Map<string, string>();
   return {
@@ -165,9 +167,7 @@ function createSampleSnapshotTestHost(config: SampleSnapshotTestOptions): Sample
     outputs,
     mkdirp: (path: string) => Promise.resolve(path),
     writeFile: async (path: string, content: string) => {
-      if (path.startsWith("/out/")) {
-        outputs.set(path.slice("/out/".length), content);
-      }
+      outputs.set(path, content);
     },
   };
 }
