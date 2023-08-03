@@ -1,6 +1,6 @@
 //  TODO revisit `getValue` is deprecated.
 /* eslint-disable deprecation/deprecation */
-import type { Doc, Printer, AstPath} from "prettier";
+import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
@@ -75,7 +75,6 @@ import {
 import { FlattenedNamespaceStatementNode } from "../types.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
-// import { AstPath } from "./prettier-ast-path.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
 const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = builders;
