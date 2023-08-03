@@ -56,6 +56,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     for (const writtenSnapshot of writtenSnapshots) {
       missingSnapshots.delete(writtenSnapshot);
     }
+    console.log("Written snapshots:", writtenSnapshots);
     if (missingSnapshots.size > 0) {
       if (shouldUpdateSnapshots) {
         for (const file of [...missingSnapshots].map((x) => joinPaths(config.outputDir, x))) {
@@ -64,7 +65,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
       } else {
         const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
         fail(
-          `The following snapshot are still present in the output dir but were not generated.:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
+          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
         );
       }
     }
