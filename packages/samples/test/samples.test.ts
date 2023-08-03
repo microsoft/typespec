@@ -1,5 +1,4 @@
 import { resolvePath } from "@typespec/compiler";
-import { rm } from "fs/promises";
 import { fileURLToPath } from "url";
 import { defineSampleSnaphotTests } from "../src/sample-snapshot-testing.js";
 
@@ -18,12 +17,6 @@ const excludedSamples = [
 
 const samplesRoot = resolvePath(fileURLToPath(import.meta.url), "../../..");
 const rootOutputDir = resolvePath(samplesRoot, "test/output");
-
-before(async () => {
-  if (process.env.CLEAN_SAMPLES) {
-    await rm(rootOutputDir, { recursive: true, force: true });
-  }
-});
 
 describe("TypeSpec Samples", () => {
   defineSampleSnaphotTests({

@@ -11,7 +11,7 @@ import {
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
-import { mkdir, readFile, readdir, writeFile } from "fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
 
@@ -29,12 +29,56 @@ export interface SampleSnapshotTestOptions {
   emit?: string[];
 }
 
+export interface TestContext {
+  runCount: number;
+  registerSnapshot(filename: string): void;
+}
 export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
-  resolveSamples(config).forEach((samples) => defineSampleSnaphotTest(config, samples));
+  const samples = resolveSamples(config);
+  let existingSnapshots: string[];
+  const writtenSnapshots: string[] = [];
+  const context = {
+    runCount: 0,
+    registerSnapshot(filename: string) {
+      writtenSnapshots.push(filename);
+    },
+  };
+  before(async () => {
+    existingSnapshots = await readFilesInDirRecursively(config.outputDir);
+  });
+
+  after(async () => {
+    if (context.runCount !== samples.length) {
+      return; // Not running the full test suite, so don't bother checking snapshots.
+    }
+
+    const missingSnapshots = new Set<string>(existingSnapshots);
+    for (const writtenSnapshot of writtenSnapshots) {
+      missingSnapshots.delete(writtenSnapshot);
+    }
+    if (missingSnapshots.size > 0) {
+      if (shouldUpdateSnapshots) {
+        for (const file of [...missingSnapshots].map((x) => joinPaths(config.outputDir, x))) {
+          await rm(file);
+        }
+      } else {
+        const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
+        fail(
+          `The following snapshot are still present in the output dir but were not generated.:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
+        );
+      }
+    }
+  });
+  samples.forEach((samples) => defineSampleSnaphotTest(context, config, samples));
 }
 
-function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Sample) {
+function defineSampleSnaphotTest(
+  context: TestContext,
+  config: SampleSnapshotTestOptions,
+  sample: Sample
+) {
   it(sample.name, async () => {
+    context.runCount++;
     const host = createSampleSnapshotTestHost(config);
 
     const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
@@ -73,6 +117,7 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
         try {
           await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
           await writeFile(snapshotPath, content);
+          context.registerSnapshot(resolvePath(sample.name, filename));
         } catch (e) {
           throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
         }
@@ -89,6 +134,7 @@ function defineSampleSnaphotTest(config: SampleSnapshotTestOptions, sample: Samp
           }
           throw e;
         }
+        context.registerSnapshot(resolvePath(sample.name, filename));
         strictEqual(content, existingContent.toString());
       }
 
