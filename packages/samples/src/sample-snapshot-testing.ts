@@ -47,16 +47,19 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  after(async () => {
+  after(async function (this: any) {
     if (context.runCount !== samples.length) {
       return; // Not running the full test suite, so don't bother checking snapshots.
+    }
+
+    if (this.test.parent.tests.some((x: any) => x.state === "failed")) {
+      return; // Do not check snapshots if the test failed so we don't get a confusing error message about the missing snapshot if there is already a failure.
     }
 
     const missingSnapshots = new Set<string>(existingSnapshots);
     for (const writtenSnapshot of writtenSnapshots) {
       missingSnapshots.delete(writtenSnapshot);
     }
-    console.log("Written snapshots:", writtenSnapshots);
     if (missingSnapshots.size > 0) {
       if (shouldUpdateSnapshots) {
         for (const file of [...missingSnapshots].map((x) => joinPaths(config.outputDir, x))) {
