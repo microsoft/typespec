@@ -8,9 +8,9 @@ import {
   DocUnknownTagNode,
   Enum,
   getDoc,
+  getLocationContext,
   getSourceLocation,
   getTypeName,
-  ignoreDiagnostics,
   Interface,
   isDeclaredType,
   isTemplateDeclaration,
@@ -18,6 +18,7 @@ import {
   JSONSchemaType,
   Model,
   Namespace,
+  navigateProgram,
   navigateTypesInNamespace,
   NodeHost,
   NodePackage,
@@ -53,8 +54,7 @@ import {
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
 export async function extractLibraryRefDocs(
-  libraryPath: string,
-  namespaces: string[]
+  libraryPath: string
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -68,7 +68,7 @@ export async function extractLibraryRefDocs(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    refDoc.namespaces = extractRefDocs(program, namespaces).namespaces;
+    refDoc.namespaces = diagnostics.pipe(extractRefDocs(program)).namespaces;
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }
@@ -92,13 +92,51 @@ async function readPackageJson(libraryPath: string): Promise<NodePackage> {
   return JSON.parse(buffer.toString());
 }
 
+export interface ExtractRefDocOptions {
+  namespaces?: {
+    include?: string[];
+    exclude?: string[];
+  };
+}
+
+function resolveNamespaces(
+  program: Program,
+  options: ExtractRefDocOptions
+): [Namespace[], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  let namespaceTypes: Namespace[] = [];
+
+  const { include, exclude } = options?.namespaces ?? {};
+  if (include) {
+    namespaceTypes = include
+      .map((x) => diagnostics.pipe(program.resolveTypeReference(x)))
+      .filter((x): x is Namespace => x !== undefined);
+  }
+  navigateProgram(program, {
+    namespace(namespace) {
+      if (getLocationContext(program, namespace).type !== "project") {
+        return;
+      }
+      if (namespace.name === "Private") {
+        return;
+      }
+      namespaceTypes.push(namespace);
+    },
+  });
+
+  if (exclude !== undefined) {
+    namespaceTypes = namespaceTypes.filter((x) => {
+      return exclude.includes(getTypeName(x));
+    });
+  }
+  return diagnostics.wrap(namespaceTypes);
+}
 export function extractRefDocs(
   program: Program,
-  filterToNamespace: string[] = []
-): TypeSpecRefDocBase {
-  const namespaceTypes = filterToNamespace
-    .map((x) => ignoreDiagnostics(program.resolveTypeReference(x)))
-    .filter((x): x is Namespace => x !== undefined);
+  options: ExtractRefDocOptions = {}
+): [TypeSpecRefDocBase, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
 
   const refDoc: TypeSpecRefDocBase = {
     namespaces: [],
@@ -183,7 +221,7 @@ export function extractRefDocs(
     arr.sort((a, b) => a.id.localeCompare(b.id, "en"));
   }
 
-  return refDoc;
+  return diagnostics.wrap(refDoc);
 }
 
 function extractTemplateParameterDocs(program: Program, type: TemplatedType) {

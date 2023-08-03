@@ -1,5 +1,6 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
+import { getDoc } from "../../src/index.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: operations", () => {
@@ -32,6 +33,59 @@ describe("compiler: operations", () => {
     );
     const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
     strictEqual(b.sourceOperation, a);
+  });
+
+  it("operation reference parameters are spread in target operation", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op a(one: string, two: string): void;
+      @test op b is a;
+      `
+    );
+    const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
+    notStrictEqual(b.parameters, a.parameters);
+    notStrictEqual(b.parameters.properties.get("one"), a.parameters.properties.get("one"));
+    notStrictEqual(b.parameters.properties.get("two"), a.parameters.properties.get("two"));
+    strictEqual(
+      b.parameters.properties.get("one")?.sourceProperty,
+      a.parameters.properties.get("one")
+    );
+    strictEqual(
+      b.parameters.properties.get("two")?.sourceProperty,
+      a.parameters.properties.get("two")
+    );
+  });
+
+  it("can decorate operation parameters independently", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op a(@doc("base doc") one: string): void;
+      @test op b is a;
+
+      @@doc(b::parameters.one, "override for b")
+      `
+    );
+    const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
+    strictEqual(getDoc(testHost.program, b.parameters.properties.get("one")!), "override for b");
+    strictEqual(getDoc(testHost.program, a.parameters.properties.get("one")!), "base doc");
+  });
+
+  it("can decorate operation parameters independently from a template operation", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op a<T>(@doc("base doc") one: T): void;
+      @test op b is a<string>;
+      @test op c is a<string>;
+
+      @@doc(b::parameters.one, "override for b")
+      `
+    );
+    const { b, c } = (await testHost.compile("main.tsp")) as { b: Operation; c: Operation };
+    strictEqual(getDoc(testHost.program, b.parameters.properties.get("one")!), "override for b");
+    strictEqual(getDoc(testHost.program, c.parameters.properties.get("one")!), "base doc");
   });
 
   it("can be templated and referenced to define other operations", async () => {

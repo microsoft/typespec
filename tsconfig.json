@@ -19,7 +19,7 @@
     { "path": "packages/bundler/tsconfig.json" },
     { "path": "packages/playground/tsconfig.json" },
     { "path": "packages/playground-website/tsconfig.json" },
-    { "path": "packages/ref-doc/tsconfig.json" },
+    { "path": "packages/tspd/tsconfig.json" },
     { "path": "packages/samples/tsconfig.json" },
     { "path": "packages/json-schema/tsconfig.json" },
     { "path": "packages/best-practices/tsconfig.json" }
