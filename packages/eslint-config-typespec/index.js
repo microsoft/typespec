@@ -21,7 +21,9 @@ module.exports = {
       { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
     ],
     "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-misused-promises": "error",
+
+    // This rule is bugged https://github.com/typescript-eslint/typescript-eslint/issues/6538
+    "@typescript-eslint/no-misused-promises": "off",
 
     /**
      * Unicorn
