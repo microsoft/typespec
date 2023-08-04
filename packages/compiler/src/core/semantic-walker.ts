@@ -153,7 +153,7 @@ function computeOptions(options: NavigationOptions): ResolvedNavigationOptions {
 }
 
 interface NavigationContext<
-  T extends { [key: string]: (...args: any) => any } = SemanticNodeListener
+  T extends { [key: string]: (...args: any) => any } = SemanticNodeListener,
 > {
   options: ResolvedNavigationOptions;
   visited: Set<Type>;

@@ -188,7 +188,7 @@ describe("compiler: cli", () => {
 
     interface TestUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions
+      T extends keyof CompilerOptions,
     > {
       default: CompileCliArgs[K];
       set: { in: CompileCliArgs[K]; alt: CompileCliArgs[K]; expected: CompilerOptions[T] }[];
@@ -196,7 +196,7 @@ describe("compiler: cli", () => {
 
     function testUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions
+      T extends keyof CompilerOptions,
     >(name: K, resolvedName: T, data: TestUnifiedOptions<K, T>) {
       describe(name, () => {
         it("default", async () => {

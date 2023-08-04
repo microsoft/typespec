@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import * as prettier from "prettier";
 import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
@@ -21,7 +21,9 @@ import { getTypeSignature } from "../utils/type-signature.js";
 /**
  * Render doc to a markdown using docusaurus addons.
  */
-export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
+export async function renderToDocusaurusMarkdown(
+  refDoc: TypeSpecRefDoc
+): Promise<Record<string, string>> {
   const files: Record<string, string> = {
     "index.md": renderIndexFile(refDoc),
   };
@@ -48,7 +50,7 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
 
   for (const [file, content] of Object.entries(files)) {
     try {
-      files[file] = prettier.format(content, {
+      files[file] = await prettier.format(content, {
         parser: "markdown",
       });
     } catch (e) {

@@ -107,7 +107,7 @@
     "TYPESPEC_VERBOSE_TEST_OUTPUT": "true",
     "NODE_OPTIONS": "--stack-trace-limit=50"
   },
-  "prettier.prettierPath": "./packages/compiler/node_modules/prettier",
+  "prettier.prettierPath": "./packages/compiler/node_modules/prettier/index.cjs",
   "prettier.documentSelectors": ["**/*.tsp"],
   "testExplorer.errorDecoration": false,
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
