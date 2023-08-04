@@ -173,12 +173,12 @@ function createSampleSnapshotTestHost(config: SampleSnapshotTestOptions): Sample
 async function readFilesInDirRecursively(dir: string): Promise<string[]> {
   let entries;
   try {
-     entries = await readdir(dir, { withFileTypes: true });
-  } catch(e) {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (e) {
     if (isEnoentError(e)) {
       return [];
     } else {
-      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`)
+      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`);
     }
   }
   const files: string[] = [];
@@ -223,7 +223,6 @@ function resolveSamples(config: SampleSnapshotTestOptions): Sample[] {
     }
   }
 }
-
 
 function isEnoentError(e: unknown): e is { code: "ENOENT" } {
   return typeof e === "object" && e !== null && "code" in e;
