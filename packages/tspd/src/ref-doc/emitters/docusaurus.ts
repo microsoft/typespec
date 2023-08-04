@@ -6,6 +6,7 @@ import {
 } from "../types.js";
 import {
   MarkdownDoc,
+  MarkdownSection,
   codeblock,
   headings,
   inlinecode,
@@ -13,12 +14,7 @@ import {
   section,
   tabs,
 } from "../utils/markdown.js";
-import {
-  MarkdownRenderer,
-  groupByNamespace,
-  renderDecoratorSection,
-  renderEmitterUsage,
-} from "./markdown.js";
+import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
 /**
  * Render doc to a markdown using docusaurus addons.
@@ -26,7 +22,7 @@ import {
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
   const renderer = new DocusaurusRenderer();
   const files: Record<string, string> = {
-    "index.md": renderIndexFile(refDoc),
+    "index.md": renderIndexFile(renderer, refDoc),
   };
 
   const decoratorFile = renderDecoratorFile(renderer, refDoc);
@@ -44,7 +40,7 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
     files["data-types.md"] = dataTypes;
   }
 
-  const emitter = renderEmitter(refDoc);
+  const emitter = renderEmitter(renderer, refDoc);
   if (emitter) {
     files["emitter.md"] = emitter;
   }
@@ -52,7 +48,7 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
   return files;
 }
 
-function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
+function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRefDoc): string {
   const content: MarkdownDoc = [
     "---",
     `title: Overview`,
@@ -68,17 +64,7 @@ function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
   if (refDoc.description) {
     content.push(refDoc.description);
   }
-  content.push(headings.h2("Install"));
-  content.push(
-    tabs([
-      { id: "spec", label: "In a spec", content: codeblock(`npm install ${refDoc.name}`, "bash") },
-      {
-        id: "library",
-        label: "In a library",
-        content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
-      },
-    ])
-  );
+  content.push(renderer.install(refDoc));
 
   if (refDoc.emitter?.options) {
     content.push(headings.h3("Emitter usage"), "");
@@ -130,6 +116,7 @@ function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
 export type DecoratorRenderOptions = {
   title?: string;
 };
+
 export function renderDecoratorFile(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDocBase,
@@ -147,8 +134,7 @@ export function renderDecoratorFile(
     "---",
   ];
 
-  content.push(section(title, renderDecoratorSection(renderer, refDoc)));
-
+  content.push(section(title, renderer.decoratorsSection(refDoc)));
   return renderMarkdowDoc(content);
 }
 
@@ -235,7 +221,10 @@ function renderDataTypes(renderer: DocusaurusRenderer, refDoc: TypeSpecRefDoc): 
   return renderMarkdowDoc(content);
 }
 
-function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
+function renderEmitter(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecLibraryRefDoc
+): string | undefined {
   if (refDoc.emitter?.options === undefined) {
     return undefined;
   }
@@ -245,7 +234,7 @@ function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    renderEmitterUsage(refDoc),
+    renderer.emitterUsage(refDoc),
   ];
 
   return renderMarkdowDoc(content);
@@ -259,5 +248,23 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   anchorId(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return item.id;
+  }
+
+  install(refDoc: TypeSpecLibraryRefDoc): MarkdownSection {
+    return section(
+      "Install",
+      tabs([
+        {
+          id: "spec",
+          label: "In a spec",
+          content: codeblock(`npm install ${refDoc.name}`, "bash"),
+        },
+        {
+          id: "library",
+          label: "In a library",
+          content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
+        },
+      ])
+    );
   }
 }

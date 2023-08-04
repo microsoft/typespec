@@ -12,7 +12,6 @@ import {
   OperationRefDoc,
   ScalarRefDoc,
   TemplateParameterRefDoc,
-  TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
   TypeSpecRefDocBase,
   UnionRefDoc,
@@ -47,106 +46,21 @@ export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) 
     content.push(refDoc.description);
   }
 
-  content.push(section("Install", [codeblock(`npm install ${refDoc.name}`, "bash")]));
+  content.push(renderer.install(refDoc));
 
   const usageTemplate = await loadTemplate(projectRoot, "usage");
   if (usageTemplate) {
     content.push(section("Usage", [usageTemplate]));
   }
   if (refDoc.emitter?.options) {
-    content.push(renderEmitterUsage(refDoc));
+    content.push(renderer.emitterUsage(refDoc));
   }
 
   if (refDoc.namespaces.some((x) => x.decorators.length > 0)) {
-    content.push(
-      section("Decorators", renderDecoratorSection(renderer, refDoc, { includeToc: true }))
-    );
+    content.push(section("Decorators", renderer.decoratorsSection(refDoc, { includeToc: true })));
   }
 
   return renderMarkdowDoc(section(refDoc.name, content));
-}
-
-export function renderEmitterUsage(refDoc: TypeSpecLibraryRefDoc): MarkdownDoc {
-  if (refDoc.emitter?.options === undefined) {
-    return [];
-  }
-
-  return section("Emitter", [
-    section("Usage", [
-      "1. Via the command line",
-      codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
-      "2. Via the config",
-      codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"),
-    ]),
-    renderEmitterOptions(refDoc.emitter.options),
-  ]);
-}
-
-function renderEmitterOptions(options: EmitterOptionRefDoc[]): MarkdownDoc {
-  const content = [];
-  for (const option of options) {
-    content.push(
-      section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""])
-    );
-
-    content.push(option.doc);
-  }
-  return section("Emitter options", content);
-}
-
-export function renderDecoratorSection(
-  renderer: MarkdownRenderer,
-  refDoc: TypeSpecRefDocBase,
-  options: { includeToc?: boolean } = {}
-): MarkdownDoc {
-  return groupByNamespace(refDoc.namespaces, (namespace) => {
-    if (namespace.decorators.length === 0) {
-      return undefined;
-    }
-    return [
-      options.includeToc ? renderer.decoratorToc(namespace) : [],
-      namespace.decorators.map((x) => [renderDecoratorMarkdown(renderer, x), ""]),
-    ];
-  });
-}
-
-function renderDecoratorMarkdown(renderer: MarkdownRenderer, dec: DecoratorRefDoc): MarkdownDoc {
-  const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
-
-  content.push(
-    section("Target", [dec.target.doc, inlinecode(getTypeSignature(dec.target.type.type)), ""])
-  );
-
-  if (dec.parameters.length > 0) {
-    const paramTable: string[][] = [["Name", "Type", "Description"]];
-    for (const param of dec.parameters) {
-      paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
-    }
-    content.push(section("Parameters", [table(paramTable), ""]));
-  } else {
-    content.push(section("Parameters", ["None", ""]));
-  }
-
-  content.push(renderExamples(dec.examples));
-
-  return section(renderer.headingTitle(dec), content);
-}
-
-export function renderExamples(examples: ExampleRefDoc[]): MarkdownDoc {
-  const content: MarkdownDoc = [];
-  if (examples.length === 0) {
-    return "";
-  }
-
-  for (const example of examples) {
-    const exampleContent = ["", example.content, ""];
-    if (example.title) {
-      content.push(section(example.title, exampleContent));
-    } else {
-      content.push(exampleContent);
-    }
-  }
-  return section("Examples", content);
 }
 
 export function groupByNamespace(
@@ -175,14 +89,15 @@ export class MarkdownRenderer {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
   }
 
+  //#region TypeSpec types
   operation(op: OperationRefDoc) {
     const content: MarkdownDoc = ["", op.doc, codeblock(op.signature, "typespec"), ""];
 
     if (op.templateParameters) {
-      content.push(this.renderTemplateParametersTable(op.templateParameters));
+      content.push(this.templateParameters(op.templateParameters));
     }
 
-    content.push(renderExamples(op.examples));
+    content.push(this.examples(op.examples));
 
     return section(this.headingTitle(op), content);
   }
@@ -191,7 +106,7 @@ export class MarkdownRenderer {
     const content: MarkdownDoc = ["", iface.doc, codeblock(iface.signature, "typespec"), ""];
 
     if (iface.templateParameters) {
-      content.push(this.renderTemplateParametersTable(iface.templateParameters));
+      content.push(this.templateParameters(iface.templateParameters));
     }
 
     if (iface.interfaceOperations.length > 0) {
@@ -200,7 +115,7 @@ export class MarkdownRenderer {
       }
     }
 
-    content.push(renderExamples(iface.examples));
+    content.push(this.examples(iface.examples));
 
     return section(this.headingTitle(iface), content);
   }
@@ -209,10 +124,10 @@ export class MarkdownRenderer {
     const content: MarkdownDoc = ["", model.doc, codeblock(model.signature, "typespec"), ""];
 
     if (model.templateParameters) {
-      content.push(this.renderTemplateParametersTable(model.templateParameters));
+      content.push(this.templateParameters(model.templateParameters));
     }
 
-    content.push(renderExamples(model.examples));
+    content.push(this.examples(model.examples));
 
     return section(this.headingTitle(model), content);
   }
@@ -223,7 +138,7 @@ export class MarkdownRenderer {
       e.doc,
       codeblock(e.signature, "typespec"),
       "",
-      renderExamples(e.examples),
+      this.examples(e.examples),
     ];
 
     return section(this.headingTitle(e), content);
@@ -233,10 +148,10 @@ export class MarkdownRenderer {
     const content: MarkdownDoc = ["", union.doc, codeblock(union.signature, "typespec"), ""];
 
     if (union.templateParameters) {
-      content.push(this.renderTemplateParametersTable(union.templateParameters));
+      content.push(this.templateParameters(union.templateParameters));
     }
 
-    content.push(renderExamples(union.examples));
+    content.push(this.examples(union.examples));
 
     return section(this.headingTitle(union), content);
   }
@@ -245,15 +160,15 @@ export class MarkdownRenderer {
     const content: MarkdownDoc = ["", scalar.doc, codeblock(scalar.signature, "typespec"), ""];
 
     if (scalar.templateParameters) {
-      content.push(this.renderTemplateParametersTable(scalar.templateParameters));
+      content.push(this.templateParameters(scalar.templateParameters));
     }
 
-    content.push(renderExamples(scalar.examples));
+    content.push(this.examples(scalar.examples));
 
     return section(this.headingTitle(scalar), content);
   }
 
-  renderTemplateParametersTable(templateParameters: TemplateParameterRefDoc[]): MarkdownDoc {
+  templateParameters(templateParameters: TemplateParameterRefDoc[]): MarkdownDoc {
     const paramTable: string[][] = [["Name", "Description"]];
     for (const param of templateParameters) {
       paramTable.push([param.name, param.doc]);
@@ -262,11 +177,99 @@ export class MarkdownRenderer {
     return section("Template Parameters", [table(paramTable), ""]);
   }
 
+  decorator(dec: DecoratorRefDoc) {
+    const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
+
+    content.push(
+      section("Target", [dec.target.doc, inlinecode(getTypeSignature(dec.target.type.type)), ""])
+    );
+
+    if (dec.parameters.length > 0) {
+      const paramTable: string[][] = [["Name", "Type", "Description"]];
+      for (const param of dec.parameters) {
+        paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+      }
+      content.push(section("Parameters", [table(paramTable), ""]));
+    } else {
+      content.push(section("Parameters", ["None", ""]));
+    }
+
+    content.push(this.examples(dec.examples));
+
+    return section(this.headingTitle(dec), content);
+  }
+
+  examples(examples: ExampleRefDoc[]) {
+    const content: MarkdownDoc = [];
+    if (examples.length === 0) {
+      return "";
+    }
+
+    for (const example of examples) {
+      const exampleContent = ["", example.content, ""];
+      if (example.title) {
+        content.push(section(example.title, exampleContent));
+      } else {
+        content.push(exampleContent);
+      }
+    }
+    return section("Examples", content);
+  }
+  // #endregion TypeSpec types
+
+  /** Render all decorators */
+  decoratorsSection(
+    refDoc: TypeSpecRefDocBase,
+    options: { includeToc?: boolean } = {}
+  ): MarkdownDoc {
+    return groupByNamespace(refDoc.namespaces, (namespace) => {
+      if (namespace.decorators.length === 0) {
+        return undefined;
+      }
+      return [
+        options.includeToc ? this.decoratorToc(namespace) : [],
+        namespace.decorators.map((x) => [this.decorator(x), ""]),
+      ];
+    });
+  }
+
   decoratorToc(namespace: NamespaceRefDoc) {
     const listContent = [];
     for (const decorator of namespace.decorators) {
       listContent.push(` - [${inlinecode(decorator.name)}](#${this.anchorId(decorator)})`);
     }
     return listContent;
+  }
+
+  install(refDoc: TypeSpecRefDoc) {
+    return section("Install", [codeblock(`npm install ${refDoc.name}`, "bash")]);
+  }
+
+  emitterUsage(refDoc: TypeSpecRefDoc) {
+    if (refDoc.emitter?.options === undefined) {
+      return [];
+    }
+
+    return section("Emitter", [
+      section("Usage", [
+        "1. Via the command line",
+        codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
+        "2. Via the config",
+        codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"),
+      ]),
+      this.emitterOptions(refDoc.emitter.options),
+    ]);
+  }
+
+  emitterOptions(options: EmitterOptionRefDoc[]) {
+    const content = [];
+    for (const option of options) {
+      content.push(
+        section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""])
+      );
+
+      content.push(option.doc);
+    }
+    return section("Emitter options", content);
   }
 }
