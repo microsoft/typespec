@@ -110,13 +110,16 @@ async function main() {
           })
           .option("warn-as-error", {
             type: "boolean",
-            default: false,
             describe: "Treat warnings as errors and return non-zero exit code if there are any.",
           })
           .option("no-emit", {
             type: "boolean",
-            default: false,
             describe: "Run emitters but do not emit any output.",
+          })
+          .option("ignore-deprecated", {
+            type: "boolean",
+            default: false,
+            describe: "Suppresses all `deprecated` diagnostics.",
           })
           .option("arg", {
             type: "array",

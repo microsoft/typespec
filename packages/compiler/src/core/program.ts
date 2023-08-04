@@ -124,7 +124,10 @@ class StateMap extends Map<undefined | Projector, Map<Type, unknown>> {}
 class StateSet extends Map<undefined | Projector, Set<Type>> {}
 
 class StateMapView<V> implements Map<Type, V> {
-  public constructor(private state: StateMap, private projector?: Projector) {}
+  public constructor(
+    private state: StateMap,
+    private projector?: Projector
+  ) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -185,7 +188,10 @@ class StateMapView<V> implements Map<Type, V> {
 }
 
 class StateSetView implements Set<Type> {
-  public constructor(private state: StateSet, private projector?: Projector) {}
+  public constructor(
+    private state: StateSet,
+    private projector?: Projector
+  ) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -670,7 +676,7 @@ export async function compile(
   ): Promise<
     [
       { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined,
-      readonly Diagnostic[]
+      readonly Diagnostic[],
     ]
   > {
     const locationContext: LocationContext = { type: "project" };
@@ -1119,6 +1125,8 @@ export async function compile(
     switch (node.target.sv) {
       case "suppress":
         return { name: "suppress", code: args[0], message: args[1], node };
+      case "deprecated":
+        return { name: "deprecated", message: args[0], node };
       default:
         throw new Error("Unexpected directive name.");
     }

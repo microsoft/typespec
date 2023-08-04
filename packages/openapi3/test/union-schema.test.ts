@@ -1,5 +1,6 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
-import { oapiForModel, openApiFor } from "./test-host.js";
+import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
   it("makes nullable schema when union with null", async () => {
@@ -295,5 +296,15 @@ describe("openapi3: union type", () => {
       },
     ]);
     ok(res.schemas.X.properties.prop.nullable);
+  });
+
+  it("throws diagnostics for empty enum definitions", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/empty-union",
+      message:
+        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
+    });
   });
 });

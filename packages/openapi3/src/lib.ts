@@ -130,6 +130,13 @@ export const libDef = {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
     },
+    "invalid-format": {
+      severity: "warning",
+      messages: {
+        tsv: "Collection format 'tsv' is not supported in OpenAPI3. Defaulting to type 'string'.",
+        formHeader: paramMessage`Collection format '${"value"}' is not supported in OpenAPI3 headers. Defaulting to type 'string'.`,
+      },
+    },
     "resource-namespace": {
       severity: "error",
       messages: {
@@ -172,14 +179,24 @@ export const libDef = {
         default: "Cannot have a union containing only null types.",
       },
     },
-    "union-unsupported": {
+    "empty-union": {
       severity: "error",
       messages: {
-        default: "Unions are not supported unless all options are literals of the same type.",
-        type: paramMessage`Type "${"kind"}" cannot be used in unions`,
-        empty:
+        default:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
-        null: "Unions containing multiple model types cannot be emitted to OpenAPI v3 unless the union is between one model type and 'null'.",
+      },
+    },
+    "empty-enum": {
+      severity: "error",
+      messages: {
+        default:
+          "Empty enums are not supported for OpenAPI v3 - enums must have at least one value.",
+      },
+    },
+    "enum-unique-type": {
+      severity: "error",
+      messages: {
+        default: "Enums are not supported unless all options are literals of the same type.",
       },
     },
     "invalid-default": {

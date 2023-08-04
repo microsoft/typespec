@@ -33,6 +33,7 @@ words:
   - lzutf
   - msbuild
   - MSRC
+  - multis
   - munge
   - mylib
   - nostdlib
@@ -54,9 +55,12 @@ words:
   - segmentof
   - sfixed
   - sint
+  - ssvs
   - strs
   - TRYIT
   - TSES
+  - tspd
+  - tsvs
   - Uhoh
   - unassignable
   - Uncapitalize

@@ -79,13 +79,12 @@
     "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
     "mustache": "~4.2.0",
-    "prettier": "~2.8.7",
+    "prettier": "~3.0.1",
     "prompts": "~2.4.1",
     "semver": "^7.3.8",
     "vscode-languageserver": "~8.1.0",
     "vscode-languageserver-textdocument": "~1.0.1",
     "yargs": "~17.7.1",
-    "node-watch": "~0.7.1",
     "change-case": "~4.1.2"
   },
   "devDependencies": {
@@ -94,7 +93,6 @@
     "@types/mocha": "~10.0.1",
     "@types/mustache": "~4.2.1",
     "@types/node": "~18.11.9",
-    "@types/prettier": "2.6.0",
     "@types/prompts": "~2.4.3",
     "@types/semver": "^7.3.13",
     "@types/yargs": "~17.0.24",

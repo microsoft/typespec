@@ -786,7 +786,7 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = formatTypeSpec(document.getText(), {
+    const formattedText = await formatTypeSpec(document.getText(), {
       tabWidth: params.options.tabSize,
       useTabs: !params.options.insertSpaces,
     });

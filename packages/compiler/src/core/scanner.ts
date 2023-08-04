@@ -702,7 +702,7 @@ export function createScanner(
 
   function error<
     C extends keyof CompilerDiagnostics,
-    M extends keyof CompilerDiagnostics[C] = "default"
+    M extends keyof CompilerDiagnostics[C] = "default",
   >(report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">) {
     const diagnostic = createDiagnostic({
       ...report,

@@ -200,8 +200,8 @@
       "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@typespec/ref-doc",
-      "projectFolder": "packages/ref-doc",
+      "packageName": "@typespec/tspd",
+      "projectFolder": "packages/tspd",
       "reviewCategory": "production",
       "shouldPublish": false
     },

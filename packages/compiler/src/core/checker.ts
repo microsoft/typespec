@@ -1,5 +1,6 @@
-import { $docFromComment, getDeprecated, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getIndexer } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
+import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
@@ -827,7 +828,6 @@ export function createChecker(program: Program): Checker {
     }
 
     const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
-    checkDeprecated(type, node);
     return type;
   }
 
@@ -842,18 +842,25 @@ export function createChecker(program: Program): Checker {
     return [type === errorType ? undefined : type, diagnostics];
   }
 
-  function checkDeprecated(type: Type, target: DiagnosticTarget) {
-    const deprecated = getDeprecated(program, type);
-    if (deprecated) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          format: {
-            message: deprecated,
-          },
-          target,
-        })
-      );
+  function copyDeprecation(sourceType: Type, destType: Type): void {
+    const deprecationDetails = getDeprecationDetails(program, sourceType);
+    if (deprecationDetails) {
+      markDeprecated(program, destType, deprecationDetails);
+    }
+  }
+
+  function checkDeprecated(type: Type, node: Node | undefined, target: DiagnosticTarget) {
+    if (node) {
+      const deprecationDetails = getDeprecationDetails(program, node);
+      if (deprecationDetails) {
+        reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+        return;
+      }
+    }
+
+    const deprecationDetails = getDeprecationDetails(program, type);
+    if (deprecationDetails) {
+      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
     }
   }
 
@@ -1053,6 +1060,12 @@ export function createChecker(program: Program): Checker {
           symbolLinks.type = baseType;
         }
       }
+    }
+
+    // Check for deprecations here, first on symbol, then on type.
+    const declarationNode = sym?.declarations[0];
+    if (declarationNode && mapper === undefined) {
+      checkDeprecated(baseType, declarationNode, node);
     }
 
     return baseType;
@@ -1603,7 +1616,8 @@ export function createChecker(program: Program): Checker {
     parentInterface?: Interface
   ): Operation | ErrorType {
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
-    const links = inInterface ? getSymbolLinksForMember(node) : getSymbolLinks(node.symbol);
+    const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
+    const links = symbol && getSymbolLinks(symbol);
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
@@ -1614,6 +1628,7 @@ export function createChecker(program: Program): Checker {
     if (mapper === undefined && inInterface) {
       compilerAssert(parentInterface, "Operation in interface should already have been checked.");
     }
+    checkTemplateDeclaration(node, mapper);
 
     // If we are instantating operation inside of interface
     if (isTemplatedNode(node) && mapper !== undefined && parentInterface) {
@@ -1633,8 +1648,24 @@ export function createChecker(program: Program): Checker {
         return errorType;
       }
       sourceOperation = baseOperation;
+      const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+        "parameters"
+      )!;
       // Reference the same return type and create the parameters type
-      parameters = cloneType(baseOperation.parameters);
+      const clone = initializeClone(baseOperation.parameters, {
+        properties: createRekeyableMap(),
+      });
+
+      clone.properties = createRekeyableMap(
+        Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
+          key,
+          cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+            model: clone,
+            sourceProperty: prop,
+          }),
+        ])
+      );
+      parameters = finishType(clone);
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
@@ -2206,6 +2237,17 @@ export function createChecker(program: Program): Checker {
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
     const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
+    if (!resolved) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "metaProperty",
+          format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+          target: node,
+        })
+      );
+    }
+
     return resolved;
   }
 
@@ -2214,6 +2256,8 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
         return "Model";
+      case SyntaxKind.ModelProperty:
+        return "ModelProperty";
       case SyntaxKind.EnumStatement:
         return "Enum";
       case SyntaxKind.InterfaceStatement:
@@ -2321,6 +2365,20 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  /**
+   * Check that the given node template parameters are valid if applicable.
+   * @param node Node with template parameters
+   * @param mapper Type mapper, set if instantiating the template, undefined otherwise.
+   */
+  function checkTemplateDeclaration(node: TemplateableNode, mapper: TypeMapper | undefined) {
+    // If mapper is undefined it means we are checking the declaration of the template.
+    if (mapper === undefined) {
+      for (const templateParameter of node.templateParameters) {
+        checkTemplateParameterDeclaration(templateParameter, undefined);
+      }
+    }
+  }
+
   function checkModel(
     node: ModelExpressionNode | ModelStatementNode,
     mapper: TypeMapper | undefined
@@ -2339,6 +2397,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -2355,7 +2414,6 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       type.sourceModel = isBase;
-      checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
       if (isBase.indexer) {
@@ -2380,7 +2438,7 @@ export function createChecker(program: Program): Checker {
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends, mapper);
       if (type.baseModel) {
-        checkDeprecated(type.baseModel, node.extends);
+        copyDeprecation(type.baseModel, type);
       }
     }
 
@@ -2396,14 +2454,6 @@ export function createChecker(program: Program): Checker {
 
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper);
-
-    for (const prop of walkPropertiesInherited(type)) {
-      const table = getOrCreateAugmentedSymbolTable(node.symbol.members!);
-      const sym = table.get(prop.name);
-      if (sym) {
-        mutate(sym).type = prop;
-      }
-    }
 
     linkMapper(type, mapper);
 
@@ -2489,7 +2539,7 @@ export function createChecker(program: Program): Checker {
         defineProperty(properties, newProp);
       } else {
         // spread property
-        const newProperties = checkSpreadProperty(prop.target, parentModel, mapper);
+        const newProperties = checkSpreadProperty(node.symbol, prop.target, parentModel, mapper);
 
         for (const newProp of newProperties) {
           linkIndirectMember(node, newProp, mapper);
@@ -2654,43 +2704,90 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function bindMetaTypes(node: Node) {
-    switch (node.kind) {
-      case SyntaxKind.ModelProperty: {
-        const sym = getSymbolForMember(node);
-        if (sym) {
-          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+  function copyMembersToContainer(targetContainerSym: Sym, table: SymbolTable) {
+    const members = augmentedSymbolTables.get(table) ?? table;
+    compilerAssert(targetContainerSym.members, "containerSym.members is undefined");
+    const containerMembers = getOrCreateAugmentedSymbolTable(targetContainerSym.members);
 
-          table.set(
-            "type",
-            node.value.kind === SyntaxKind.TypeReference
-              ? createSymbol(node.value, "", SymbolFlags.Alias)
-              : node.value.symbol
-          );
-        }
-        break;
-      }
-      case SyntaxKind.OperationStatement: {
-        const sym = node.symbol ?? getSymbolForMember(node);
-        const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-        if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
-          table.set("parameters", node.signature.parameters.symbol);
-          table.set("returnType", node.signature.returnType.symbol);
-        } else {
-          const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined)!;
-          if (sig) {
-            const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
-            table.set("parameters", sigTable.get("parameters")!);
-            table.set("returnType", sigTable.get("returnType")!);
-          }
-        }
-
-        break;
-      }
+    for (const member of members.values()) {
+      bindMemberToContainer(
+        targetContainerSym,
+        containerMembers,
+        member.name,
+        member.declarations[0],
+        member.flags
+      );
     }
-    visitChildren(node, (child) => {
-      bindMetaTypes(child);
-    });
+  }
+
+  function bindMemberToContainer(
+    containerSym: Sym,
+    containerMembers: Mutable<SymbolTable>,
+    name: string,
+    node: Node,
+    kind: SymbolFlags
+  ) {
+    const sym = createSymbol(node, name, kind, containerSym);
+    compilerAssert(containerSym.members, "containerSym.members is undefined");
+    containerMembers.set(name, sym);
+  }
+
+  function bindMetaTypes(node: Node) {
+    const visited = new Set();
+    function visit(node: Node, symbol?: Sym) {
+      if (visited.has(node)) {
+        return;
+      }
+      visited.add(node);
+      switch (node.kind) {
+        case SyntaxKind.ModelProperty: {
+          const sym = getSymbolForMember(node);
+          if (sym) {
+            const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+
+            table.set(
+              "type",
+              node.value.kind === SyntaxKind.TypeReference
+                ? createSymbol(node.value, "", SymbolFlags.Alias)
+                : node.value.symbol
+            );
+          }
+          break;
+        }
+
+        case SyntaxKind.OperationStatement: {
+          const sym = symbol ?? node.symbol ?? getSymbolForMember(node);
+          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
+          if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
+            table.set("parameters", node.signature.parameters.symbol);
+            table.set("returnType", node.signature.returnType.symbol);
+          } else {
+            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined);
+            if (sig) {
+              visit(sig.declarations[0], sig);
+              const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
+              const sigParameterSym = sigTable.get("parameters")!;
+              if (sigParameterSym !== undefined) {
+                const parametersSym = createSymbol(
+                  sigParameterSym.declarations[0],
+                  "parameters",
+                  SymbolFlags.Model & SymbolFlags.MemberContainer
+                );
+                copyMembersToContainer(parametersSym, sigParameterSym.members!);
+                table.set("parameters", parametersSym);
+                table.set("returnType", sigTable.get("returnType")!);
+              }
+            }
+          }
+
+          break;
+        }
+      }
+      visitChildren(node, (child) => {
+        bindMetaTypes(child);
+      });
+    }
+    visit(node);
   }
 
   /**
@@ -2896,6 +2993,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkSpreadProperty(
+    parentModelSym: Sym,
     targetNode: TypeReferenceNode,
     parentModel: Model,
     mapper: TypeMapper | undefined
@@ -2913,8 +3011,9 @@ export function createChecker(program: Program): Checker {
     const props: ModelProperty[] = [];
     // copy each property
     for (const prop of walkPropertiesInherited(targetType)) {
+      const memberSym = getMemberSymbol(parentModelSym, prop.name);
       props.push(
-        cloneType(prop, {
+        cloneTypeForSymbol(memberSym!, prop, {
           sourceProperty: prop,
           model: parentModel,
         })
@@ -3212,6 +3311,18 @@ export function createChecker(program: Program): Checker {
     return valid;
   }
 
+  function checkAugmentDecorators(sym: Sym, targetType: Type, mapper: TypeMapper | undefined) {
+    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+    const decorators: DecoratorApplication[] = [];
+
+    for (const decNode of augmentDecoratorNodes) {
+      const decorator = checkDecorator(targetType, decNode, mapper);
+      if (decorator) {
+        decorators.unshift(decorator);
+      }
+    }
+    return decorators;
+  }
   function checkDecorators(
     targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
@@ -3237,7 +3348,7 @@ export function createChecker(program: Program): Checker {
     if (docComment) {
       decorators.unshift({
         decorator: $docFromComment,
-        args: [{ value: program.checker.createLiteralType(docComment), jsValue: docComment }],
+        args: [{ value: createLiteralType(docComment), jsValue: docComment }],
       });
     }
     return decorators;
@@ -3264,6 +3375,8 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
+
     const decorators: DecoratorApplication[] = [];
 
     const type: Scalar = createType({
@@ -3279,7 +3392,7 @@ export function createChecker(program: Program): Checker {
     if (node.extends) {
       type.baseScalar = checkScalarExtends(node, node.extends, mapper);
       if (type.baseScalar) {
-        checkDeprecated(type.baseScalar, node.extends);
+        copyDeprecation(type.baseScalar, type);
         type.baseScalar.derivedScalars.push(type);
       }
     }
@@ -3345,6 +3458,7 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType && mapper === undefined) {
       return links.declaredType;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const aliasSymId = getNodeSymId(node);
     if (pendingResolutions.has(aliasSymId)) {
@@ -3398,7 +3512,13 @@ export function createChecker(program: Program): Checker {
           memberNames.add(memberType.name);
           enumType.members.set(memberType.name, memberType);
         } else {
-          const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
+          const members = checkEnumSpreadMember(
+            node.symbol,
+            enumType,
+            member.target,
+            mapper,
+            memberNames
+          );
           for (const memberType of members) {
             linkIndirectMember(node, memberType, mapper);
             enumType.members.set(memberType.name, memberType);
@@ -3424,6 +3544,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const interfaceType: Interface = createType({
       kind: "Interface",
@@ -3460,11 +3581,17 @@ export function createChecker(program: Program): Checker {
             })
           );
         }
-        const newMember = cloneType(member, { interface: interfaceType });
+
+        const newMember = cloneTypeForSymbol(getMemberSymbol(node.symbol, member.name)!, member, {
+          interface: interfaceType,
+        });
         // Don't link it it is overritten
         if (!ownMembers.has(member.name)) {
           linkIndirectMember(node, newMember, mapper);
         }
+
+        // Clone deprecation information
+        copyDeprecation(member, newMember);
 
         interfaceType.operations.set(newMember.name, newMember);
       }
@@ -3520,6 +3647,7 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this union and we've already checked it
       return links.declaredType as Union;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({
@@ -3617,6 +3745,10 @@ export function createChecker(program: Program): Checker {
     );
   }
 
+  function getMemberSymbol(parentSym: Sym, name: string): Sym | undefined {
+    return parentSym ? getOrCreateAugmentedSymbolTable(parentSym.members!).get(name) : undefined;
+  }
+
   function getSymbolForMember(node: MemberNode): Sym | undefined {
     if (!node.id) {
       return undefined;
@@ -3661,6 +3793,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkEnumSpreadMember(
+    parentEnumSym: Sym,
     parentEnum: Enum,
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined,
@@ -3686,7 +3819,8 @@ export function createChecker(program: Program): Checker {
           );
         } else {
           existingMemberNames.add(member.name);
-          const clonedMember = cloneType(member, {
+          const memberSym = getMemberSymbol(parentEnumSym, member.name);
+          const clonedMember = cloneTypeForSymbol(memberSym!, member, {
             enum: parentEnum,
             sourceMember: member,
           });
@@ -3698,6 +3832,33 @@ export function createChecker(program: Program): Checker {
     }
 
     return members;
+  }
+
+  function checkDirectives(node: Node, type: Type): void {
+    let hasDeprecation: boolean = false;
+    (node.directives ?? []).forEach((directive) => {
+      if (directive.target.sv === "deprecated") {
+        if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-deprecation-argument",
+              target: directive.arguments[0],
+            })
+          );
+        }
+
+        if (hasDeprecation === true) {
+          reportCheckerDiagnostic(
+            createDiagnostic({ code: "duplicate-deprecation", target: node })
+          );
+        } else {
+          hasDeprecation = true;
+          markDeprecated(program, type, {
+            message: (directive.arguments[0] as StringLiteralNode).value,
+          });
+        }
+      }
+    });
   }
 
   // the types here aren't ideal and could probably be refactored.
@@ -3719,7 +3880,15 @@ export function createChecker(program: Program): Checker {
   ): T & TypePrototype & { isFinished: boolean } {
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
-    return typeDef as any;
+
+    // If the type has an associated syntax node, check any directives that
+    // might be attached.
+    const createdType = typeDef as any;
+    if (createdType.node) {
+      checkDirectives(createdType.node, createdType);
+    }
+
+    return createdType;
   }
 
   function finishType<T extends Type>(typeDef: T): T {
@@ -3866,23 +4035,7 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  /**
-   * Clone a type, resulting in an identical type with all the same decorators
-   * applied. Decorators are re-run on the clone to achieve this.
-   *
-   * Care is taken to clone nested data structures that are part of the type.
-   * Any type with e.g. a map or an array property must recreate the map or array
-   * so that clones don't share the same object.
-   *
-   * For types which have sub-types that are part of it, e.g. enums with members,
-   * unions with variants, or models with properties, the sub-types are cloned
-   * as well.
-   *
-   * If the entire type graph needs to be cloned, then cloneType must be called
-   * recursively by the caller.
-   */
-  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
-    // TODO: this needs to handle other types
+  function initializeClone<T extends Type>(type: T, additionalProps: Partial<T>): T {
     let clone: Type;
     switch (type.kind) {
       case "Model":
@@ -3900,7 +4053,7 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newModel);
+        clone = newModel;
         break;
 
       case "Union":
@@ -3921,7 +4074,7 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newUnion);
+        clone = newUnion;
         break;
 
       case "Interface":
@@ -3939,7 +4092,7 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newInterface);
+        clone = newInterface;
         break;
 
       case "Enum":
@@ -3957,11 +4110,11 @@ export function createChecker(program: Program): Checker {
             ])
           );
         }
-        clone = finishType(newEnum);
+        clone = newEnum;
         break;
 
       default:
-        clone = createAndFinishType({
+        clone = createType({
           ...type,
           ...("decorators" in type ? { decorators: [...type.decorators] } : {}),
           ...additionalProps,
@@ -3969,13 +4122,56 @@ export function createChecker(program: Program): Checker {
         break;
     }
 
+    return clone as T;
+  }
+
+  /**
+   * Clone a type, resulting in an identical type with all the same decorators
+   * applied. Decorators are re-run on the clone to achieve this.
+   *
+   * Care is taken to clone nested data structures that are part of the type.
+   * Any type with e.g. a map or an array property must recreate the map or array
+   * so that clones don't share the same object.
+   *
+   * For types which have sub-types that are part of it, e.g. enums with members,
+   * unions with variants, or models with properties, the sub-types are cloned
+   * as well.
+   *
+   * If the entire type graph needs to be cloned, then cloneType must be called
+   * recursively by the caller.
+   */
+  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
+    const clone = finishType(initializeClone(type, additionalProps));
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
     }
 
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
-    return clone as T;
+    return clone;
+  }
+
+  /**
+   * Clone a type linking to the given symbol.
+   * @param sym Symbol which to associate the clone
+   * @param type Type to clone
+   * @param additionalProps Additional properties to set/override on the clone
+   * @returns cloned type
+   */
+  function cloneTypeForSymbol<T extends Type>(
+    sym: Sym,
+    type: T,
+    additionalProps: Partial<T> = {}
+  ): T {
+    let clone = initializeClone(type, additionalProps);
+    if ("decorators" in clone) {
+      for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
+        clone.decorators.push(dec);
+      }
+    }
+    clone = finishType(clone);
+    compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
+    return clone;
   }
 
   function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
@@ -5476,6 +5672,25 @@ function finishTypeForProgramAndChecker<T extends Type>(
   return typeDef;
 }
 
+function reportDeprecation(
+  program: Program,
+  target: DiagnosticTarget,
+  message: string,
+  reportFunc: (d: Diagnostic) => void
+): void {
+  if (program.compilerOptions.ignoreDeprecated !== true) {
+    reportFunc(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message,
+        },
+        target,
+      })
+    );
+  }
+}
+
 function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
@@ -5483,6 +5698,19 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
     if (isErrorType(arg.value)) {
       // If one of the decorator argument is an error don't run it.
       return;
+    }
+  }
+
+  // Is the decorator definition deprecated?
+  if (decApp.definition) {
+    const deprecation = getDeprecationDetails(program, decApp.definition);
+    if (deprecation !== undefined) {
+      reportDeprecation(
+        program,
+        decApp.node ?? target,
+        deprecation.message,
+        program.reportDiagnostic
+      );
     }
   }
 

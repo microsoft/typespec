@@ -101,7 +101,7 @@ enclosing namespace(s) are included in the OpenAPI operation's tags array.
 
 ### deprecated
 
-If the [(built-in) `@deprecated` decorator][deprecated-decorator] is specified on the operation, then the operation's
+If the [(built-in) `#deprecated` directive][deprecated-decorator] is specified on the operation, then the operation's
 deprecated field is set to true.
 
 [deprecated-decorator]: ../built-in-decorators.md#deprecated
@@ -272,7 +272,8 @@ When working with the `@encode` decorator the rule is as follow. Given the 3 val
    - `unixTimestamp` encoding will produce `type: integer, format: unixtime`
    - encoding a `utcDateTime` or `offsetDateTime` will produce this format `date-time-<encoding>` (e.g. `date-time-rfc7231` for `rfc7231` encoding)
 
-2. If the schema of encodeAs produce a `format` use it (e.g. encoding as `int32` will produce an `type: integer, format: integer` )
+2. When `encodeAs` is specified, it will be used to generate the corresponding schema (e.g. encoding as `int32` will produce an `type: integer, format: int32` )
+
 3. Otherwise use the `encoding` as the format
 
 **Summary table**
