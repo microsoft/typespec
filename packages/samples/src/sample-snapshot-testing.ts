@@ -112,7 +112,6 @@ function defineSampleSnaphotTest(
 
     if (shouldUpdateSnapshots) {
       try {
-        console.log("Remove dir");
         await host.rm(outputDir, { recursive: true });
       } catch (e) {}
       await mkdir(outputDir, { recursive: true });
@@ -135,7 +134,7 @@ function defineSampleSnaphotTest(
         try {
           existingContent = await readFile(snapshotPath);
         } catch (e: unknown) {
-          if (typeof e === "object" && e !== null && "code" in e && e.code === "ENOENT") {
+          if (isEnoentError(e)) {
             fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
           }
           throw e;
@@ -172,8 +171,17 @@ function createSampleSnapshotTestHost(config: SampleSnapshotTestOptions): Sample
   };
 }
 async function readFilesInDirRecursively(dir: string): Promise<string[]> {
-  const files = [];
-  const entries = await readdir(dir, { withFileTypes: true });
+  let entries;
+  try {
+     entries = await readdir(dir, { withFileTypes: true });
+  } catch(e) {
+    if (isEnoentError(e)) {
+      return [];
+    } else {
+      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`)
+    }
+  }
+  const files: string[] = [];
   for (const entry of entries) {
     if (entry.isDirectory()) {
       for (const file of await readFilesInDirRecursively(resolvePath(dir, entry.name))) {
@@ -214,4 +222,9 @@ function resolveSamples(config: SampleSnapshotTestOptions): Sample[] {
       }
     }
   }
+}
+
+
+function isEnoentError(e: unknown): e is { code: "ENOENT" } {
+  return typeof e === "object" && e !== null && "code" in e;
 }
