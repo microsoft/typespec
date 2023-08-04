@@ -35,7 +35,7 @@
     "test": "mocha",
     "test-official": "mocha --forbid-only",
     "test:regen": "cross-env RECORD=true mocha",
-    "regen-samples": "cross-env traRECORD=true mocha"
+    "regen-samples": "cross-env RECORD=true mocha"
   },
   "files": [
     "lib/*.tsp",
