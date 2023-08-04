@@ -103,7 +103,11 @@ export class Declaration<T> extends EmitterResult {
   public kind = "declaration" as const;
   public meta: Record<string, any> = {};
 
-  constructor(public name: string, public scope: Scope<T>, public value: T | Placeholder<T>) {
+  constructor(
+    public name: string,
+    public scope: Scope<T>,
+    public value: T | Placeholder<T>
+  ) {
     if (value instanceof Placeholder) {
       value.onValue((v) => (this.value = v));
     }

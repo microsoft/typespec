@@ -5,6 +5,7 @@ import { EmitEntity, EmitterResult } from "../types.js";
 // eslint is confused by merging generic interface and classes
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface ObjectBuilder<T> extends Record<string, any> {}
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class ObjectBuilder<T> {
   constructor(initializer: Record<string, unknown> | Placeholder<Record<string, unknown>> = {}) {
     if (initializer instanceof Placeholder) {

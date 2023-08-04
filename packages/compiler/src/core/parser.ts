@@ -2727,7 +2727,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function error<
     C extends keyof CompilerDiagnostics,
-    M extends keyof CompilerDiagnostics[C] = "default"
+    M extends keyof CompilerDiagnostics[C] = "default",
   >(
     report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
       target?: Partial<TextRange> & { realPos?: number };
@@ -2771,7 +2771,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function warning<
     C extends keyof CompilerDiagnostics,
-    M extends keyof CompilerDiagnostics[C] = "default"
+    M extends keyof CompilerDiagnostics[C] = "default",
   >(
     report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
       target?: Partial<TextRange>;
