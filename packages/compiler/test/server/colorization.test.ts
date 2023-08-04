@@ -1098,7 +1098,10 @@ interface Span {
 }
 
 class Input {
-  private constructor(public lines: string[], public span: Span) {}
+  private constructor(
+    public lines: string[],
+    public span: Span
+  ) {}
 
   public static fromText(text: string) {
     // ensure consistent line-endings irrelevant of OS

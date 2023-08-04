@@ -55,7 +55,7 @@
   "dependencies": {
     "@typespec/compiler": "workspace:~0.46.0",
     "js-yaml": "~4.1.0",
-    "prettier": "~2.8.7",
+    "prettier": "~3.0.1",
     "picocolors": "~1.0.0",
     "yargs": "~17.7.1"
   },
@@ -65,7 +65,6 @@
     "@typespec/prettier-plugin-typespec": "workspace:~0.46.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@types/prettier": "2.6.0",
     "@types/js-yaml": "~4.0.1",
     "@types/yargs": "~17.0.24",
     "c8": "~8.0.0",

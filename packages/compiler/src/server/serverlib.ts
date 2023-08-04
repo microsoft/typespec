@@ -786,7 +786,7 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = formatTypeSpec(document.getText(), {
+    const formattedText = await formatTypeSpec(document.getText(), {
       tabWidth: params.options.tabSize,
       useTabs: !params.options.insertSpaces,
     });
@@ -977,7 +977,9 @@ export function createServer(host: ServerHost): Server {
           break;
         case SyntaxKind.ModelProperty:
         case SyntaxKind.UnionVariant:
-          classify(node.id, SemanticTokenKind.Property);
+          if (node.id) {
+            classify(node.id, SemanticTokenKind.Property);
+          }
           break;
         case SyntaxKind.AliasStatement:
           classify(node.id, SemanticTokenKind.Struct);

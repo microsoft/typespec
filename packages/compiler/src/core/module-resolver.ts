@@ -56,7 +56,10 @@ export interface NodePackage {
 
 type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
 export class ResolveModuleError extends Error {
-  public constructor(public code: ResolveModuleErrorCode, message: string) {
+  public constructor(
+    public code: ResolveModuleErrorCode,
+    message: string
+  ) {
     super(message);
   }
 }

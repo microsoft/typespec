@@ -1,14 +1,9 @@
-import { expandConfigVariables } from "../../../../config/config-interpolation.js";
-import {
-  loadTypeSpecConfigForPath,
-  validateConfigPathsAbsolute,
-} from "../../../../config/config-loader.js";
-import { EmitterOptions, TypeSpecConfig } from "../../../../config/types.js";
-import { createDiagnosticCollector } from "../../../index.js";
+import { resolveCompilerOptions } from "../../../../config/config-to-options.js";
+import { createDiagnosticCollector } from "../../../diagnostics.js";
 import { CompilerOptions } from "../../../options.js";
-import { getDirectoryPath, normalizePath, resolvePath } from "../../../path-utils.js";
+import { resolvePath } from "../../../path-utils.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
-import { deepClone, omitUndefined } from "../../../util.js";
+import { omitUndefined } from "../../../util.js";
 
 export interface CompileCliArgs {
   "output-dir"?: string;
@@ -34,65 +29,39 @@ export async function getCompilerOptions(
   args: CompileCliArgs,
   env: Record<string, string | undefined>
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
-  cwd = normalizePath(cwd);
-
   const diagnostics = createDiagnosticCollector();
+
   const pathArg = args["output-dir"] ?? args["output-path"];
-  const configPath = args["config"]
-    ? resolvePath(cwd, args["config"])
-    : getDirectoryPath(entrypoint);
-
-  const config = await loadTypeSpecConfigForPath(host, configPath, "config" in args);
-  if (config.diagnostics.length > 0) {
-    if (config.diagnostics.some((d) => d.severity === "error")) {
-      return [undefined, config.diagnostics];
-    }
-    config.diagnostics.forEach((x) => diagnostics.add(x));
-  }
-
-  const cliOptions = resolveCliOptions(args);
-
-  const configWithCliArgs: TypeSpecConfig = {
-    ...config,
-    outputDir: config.outputDir,
-    imports: args["import"] ?? config["imports"],
-    warnAsError: args["warn-as-error"] ?? config.warnAsError,
-    trace: args.trace ?? config.trace,
-    emit: args.emit ?? config.emit,
-    options: resolveEmitterOptions(config, cliOptions),
-  };
   const cliOutputDir = pathArg
     ? pathArg.startsWith("{")
       ? pathArg
       : resolvePath(cwd, pathArg)
     : undefined;
 
-  const expandedConfig = diagnostics.pipe(
-    expandConfigVariables(configWithCliArgs, {
-      cwd: cwd,
-      outputDir: cliOutputDir,
-      env,
+  const cliOptions = resolveCliOptions(args);
+  const resolvedOptions = diagnostics.pipe(
+    await resolveCompilerOptions(host, {
+      entrypoint,
+      configPath: args["config"] && resolvePath(cwd, args["config"]),
+      cwd,
       args: resolveConfigArgs(args),
+      env,
+      overrides: omitUndefined({
+        outputDir: cliOutputDir,
+        imports: args["import"],
+        warnAsError: args["warn-as-error"],
+        trace: args.trace,
+        emit: args.emit,
+        options: cliOptions.options,
+      }),
     })
   );
-  validateConfigPathsAbsolute(expandedConfig).forEach((x) => diagnostics.add(x));
-
-  const options: CompilerOptions = omitUndefined({
-    nostdlib: args["nostdlib"],
-    watchForChanges: args["watch"],
-    noEmit: args["no-emit"],
-    ignoreDeprecated: args["ignore-deprecated"],
-    miscOptions: cliOptions.miscOptions,
-    outputDir: expandedConfig.outputDir,
-    config: config.filename,
-    additionalImports: expandedConfig["imports"],
-    warningAsError: expandedConfig.warnAsError,
-    trace: expandedConfig.trace,
-    emit: expandedConfig.emit,
-    options: expandedConfig.options,
-    linterRuleSet: expandedConfig.linter,
-  });
-  return diagnostics.wrap(options);
+  return diagnostics.wrap(
+    omitUndefined({
+      ...resolvedOptions,
+      miscOptions: cliOptions.miscOptions,
+    })
+  );
 }
 
 function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
@@ -108,9 +77,11 @@ function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
 
   return map;
 }
-function resolveCliOptions(
-  args: CompileCliArgs
-): Record<string | "miscOptions", Record<string, unknown>> {
+function resolveCliOptions(args: CompileCliArgs): {
+  options: Record<string, Record<string, unknown>>;
+  miscOptions: Record<string, string> | undefined;
+} {
+  let miscOptions: Record<string, string> | undefined;
   const options: Record<string, Record<string, string>> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
@@ -122,10 +93,10 @@ function resolveCliOptions(
     let optionKeyParts = optionParts[0].split(".");
     if (optionKeyParts.length === 1) {
       const key = optionKeyParts[0];
-      if (!("miscOptions" in options)) {
-        options.miscOptions = {};
+      if (miscOptions === undefined) {
+        miscOptions = {};
       }
-      options.miscOptions[key] = optionParts[1];
+      miscOptions[key] = optionParts[1];
       continue;
     } else if (optionKeyParts.length > 2) {
       // support emitter/path/file.js.option=xyz
@@ -141,26 +112,5 @@ function resolveCliOptions(
     }
     options[emitterName][key] = optionParts[1];
   }
-  return options;
-}
-
-function resolveEmitterOptions(
-  config: TypeSpecConfig,
-  cliOptions: Record<string | "miscOptions", Record<string, unknown>>
-): Record<string, EmitterOptions> {
-  const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(
-    config.options ?? {}
-  );
-
-  for (const [emitterName, cliOptionOverride] of Object.entries(cliOptions)) {
-    if (emitterName === "miscOptions") {
-      continue;
-    }
-    configuredEmitters[emitterName] = {
-      ...(configuredEmitters[emitterName] ?? {}),
-      ...cliOptionOverride,
-    };
-  }
-
-  return configuredEmitters;
+  return { options, miscOptions };
 }
