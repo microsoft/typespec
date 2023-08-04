@@ -91,6 +91,7 @@
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
+  "testExplorer.useNativeTesting": true,
   "mochaExplorer.parallel": false,
   "mochaExplorer.files": [
     "./packages/*/dist/test/**/*.test.js",
