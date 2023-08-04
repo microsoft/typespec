@@ -59,57 +59,55 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
     "import Tabs from '@theme/Tabs';",
     "import TabItem from '@theme/TabItem';",
     "",
+
+    section("Overview", [
+      refDoc.description ?? [],
+      renderer.install(refDoc),
+      refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
+
+      groupByNamespace(refDoc.namespaces, (namespace) => {
+        const content = [];
+
+        if (namespace.decorators.length > 0) {
+          content.push(
+            section(
+              "Decorators",
+              namespace.decorators.map((x) => ` - [${inlinecode(x.name)}](./decorators.md#${x.id})`)
+            )
+          );
+        }
+
+        if (namespace.interfaces.length > 0) {
+          content.push(headings.h3("Interfaces"), "");
+          const listContent = [];
+          for (const iface of namespace.interfaces) {
+            listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
+          }
+          content.push(...listContent);
+        }
+
+        if (namespace.operations.length > 0) {
+          content.push(
+            section(
+              "Operations",
+              namespace.operations.map((x) => ` - [${inlinecode(x.name)}](./interfaces.md#${x.id})`)
+            )
+          );
+        }
+
+        if (namespace.models.length > 0) {
+          content.push(
+            section(
+              "Models",
+              namespace.models.map((x) => ` - [${inlinecode(x.name)}](./data-types.md#${x.id})`)
+            )
+          );
+        }
+        return content;
+      }),
+    ]),
   ];
 
-  if (refDoc.description) {
-    content.push(refDoc.description);
-  }
-  content.push(renderer.install(refDoc));
-
-  if (refDoc.emitter?.options) {
-    content.push(headings.h3("Emitter usage"), "");
-    content.push(`[See documentation](./emitter.md)`);
-  }
-
-  for (const namespace of refDoc.namespaces) {
-    content.push(headings.h2(namespace.id), "");
-
-    if (namespace.decorators.length > 0) {
-      content.push(headings.h3("Decorators"), "");
-      const listContent = [];
-      for (const decorator of namespace.decorators) {
-        listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
-      }
-      content.push(...listContent);
-    }
-
-    if (namespace.interfaces.length > 0) {
-      content.push(headings.h3("Interfaces"), "");
-      const listContent = [];
-      for (const iface of namespace.interfaces) {
-        listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
-      }
-      content.push(...listContent);
-    }
-
-    if (namespace.operations.length > 0) {
-      content.push(headings.h3("Operations"), "");
-      const listContent = [];
-      for (const operation of namespace.operations) {
-        listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
-      }
-      content.push(...listContent);
-    }
-
-    if (namespace.models.length > 0) {
-      content.push(headings.h3("Models"), "");
-      const listContent = [];
-      for (const model of namespace.models) {
-        listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
-      }
-      content.push(...listContent);
-    }
-  }
   return renderMarkdowDoc(content);
 }
 

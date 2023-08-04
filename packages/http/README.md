@@ -56,7 +56,7 @@ op download(): {
 
 #### `@delete`
 
-Specify the http verb for the target operation to be `DELETE`.
+Specify the HTTP verb for the target operation to be `DELETE`.
 
 ```typespec
 @TypeSpec.Http.delete
@@ -78,7 +78,7 @@ None
 
 #### `@get`
 
-Specify the http verb for the target operation to be `GET`.
+Specify the HTTP verb for the target operation to be `GET`.
 
 ```typespec
 @TypeSpec.Http.get
@@ -100,7 +100,7 @@ None
 
 #### `@head`
 
-Specify the http verb for the target operation to be `HEAD`.
+Specify the HTTP verb for the target operation to be `HEAD`.
 
 ```typespec
 @TypeSpec.Http.head
@@ -122,7 +122,7 @@ None
 
 #### `@header`
 
-Specify this property is to be sent or received as an http header.
+Specify this property is to be sent or received as an HTTP header.
 
 ```typespec
 @TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
@@ -134,15 +134,15 @@ Specify this property is to be sent or received as an http header.
 
 ##### Parameters
 
-| Name                | Type                                          | Description                                                                                                                                                                                   |
-| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options.<br />By default the header name will be the property name converted from camelCase to camel-case. (e.g. `eTag` -> `e-tag`) |
+| Name                | Type                                          | Description                                                                                                                                                                                                 |
+| ------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
 
 ##### Examples
 
 ```typespec
 op read(@header accept: string): {
-  @header("E-Tag") eTag: string;
+  @header("ETag") eTag: string;
 };
 op create(
   @header({
@@ -157,11 +157,9 @@ op create(
 
 ```typespec
 op read(): {
-  @header eTag: string;
-}; // headerName: e-tag
-op read(): {
   @header contentType: string;
 }; // headerName: content-type
+op update(@header ifMatch: string): void; // headerName: if-match
 ```
 
 #### `@includeInapplicableMetadataInPayload`
@@ -184,7 +182,7 @@ Specify if inapplicable metadata should be included in the payload for the given
 
 #### `@patch`
 
-Specify the http verb for the target operation to be `PATCH`.
+Specify the HTTP verb for the target operation to be `PATCH`.
 
 ```typespec
 @TypeSpec.Http.patch
@@ -231,7 +229,7 @@ op read(@path explicit: string, implicit: string): void;
 
 #### `@post`
 
-Specify the http verb for the target operation to be `POST`.
+Specify the HTTP verb for the target operation to be `POST`.
 
 ```typespec
 @TypeSpec.Http.post
@@ -253,7 +251,7 @@ None
 
 #### `@put`
 
-Specify the http verb for the target operation to be `PUT`.
+Specify the HTTP verb for the target operation to be `PUT`.
 
 ```typespec
 @TypeSpec.Http.put
