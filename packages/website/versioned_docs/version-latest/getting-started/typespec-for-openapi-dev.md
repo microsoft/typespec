@@ -113,6 +113,10 @@ But a namespace may contain operations for a set of related paths (depending on 
 The http method decorators also accept an explicit path, which is appended to the namespace path.
 
 ```typespec
+model PetId {
+  @path petId: int32;
+}
+
 @route("/pets")
 namespace Pets {
   @get op list(): Pet[]; // get on path "/pets"
@@ -121,7 +125,6 @@ namespace Pets {
   @route("{petId}:walk")
   op walk(... PetId): ; // post on path "/pets/{petId}:walk"
 }
-
 ```
 
 ## Operation Object

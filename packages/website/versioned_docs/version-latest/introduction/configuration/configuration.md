@@ -70,7 +70,7 @@ emit:
   - emitter1
 ```
 
-in `<my-pkg>/tspconfig.yaml`, enable `emitter2` using the options specified in the parent `tspconfig.yaml
+in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter2` using the options specified in the parent `tspconfig.yaml
 
 ```yaml
 extends: ../tspconfig.yaml
