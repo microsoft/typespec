@@ -1,27 +1,34 @@
 # @typespec/http
+
 TypeSpec HTTP protocol binding
+
 ## Install
+
 ```bash
 npm install @typespec/http
 ```
+
 ## Decorators
+
 ### TypeSpec.Http
- - [`@body`](#@body)
- - [`@delete`](#@delete)
- - [`@get`](#@get)
- - [`@head`](#@head)
- - [`@header`](#@header)
- - [`@includeInapplicableMetadataInPayload`](#@includeinapplicablemetadatainpayload)
- - [`@patch`](#@patch)
- - [`@path`](#@path)
- - [`@post`](#@post)
- - [`@put`](#@put)
- - [`@query`](#@query)
- - [`@route`](#@route)
- - [`@server`](#@server)
- - [`@sharedRoute`](#@sharedroute)
- - [`@statusCode`](#@statuscode)
- - [`@useAuth`](#@useauth)
+
+- [`@body`](#@body)
+- [`@delete`](#@delete)
+- [`@get`](#@get)
+- [`@head`](#@head)
+- [`@header`](#@header)
+- [`@includeInapplicableMetadataInPayload`](#@includeinapplicablemetadatainpayload)
+- [`@patch`](#@patch)
+- [`@path`](#@path)
+- [`@post`](#@post)
+- [`@put`](#@put)
+- [`@query`](#@query)
+- [`@route`](#@route)
+- [`@server`](#@server)
+- [`@sharedRoute`](#@sharedroute)
+- [`@statusCode`](#@statuscode)
+- [`@useAuth`](#@useauth)
+
 #### `@body`
 
 Explicitly specify that this property is to be set as the body
@@ -35,15 +42,17 @@ Explicitly specify that this property is to be set as the body
 `ModelProperty`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
 op upload(@body image: bytes): void;
-op download(): {@body image: bytes};
+op download(): {
+  @body image: bytes;
+};
 ```
-
 
 #### `@delete`
 
@@ -58,14 +67,14 @@ Specify the http verb for the target operation to be `DELETE`.
 `Operation`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
-@delete op set(petId: string): void
+@delete op set(petId: string): void;
 ```
-
 
 #### `@get`
 
@@ -80,14 +89,14 @@ Specify the http verb for the target operation to be `GET`.
 `Operation`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
-@get op read(): string
+@get op read(): string;
 ```
-
 
 #### `@head`
 
@@ -102,14 +111,14 @@ Specify the http verb for the target operation to be `HEAD`.
 `Operation`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
-@head op ping(petId: string): void
+@head op ping(petId: string): void;
 ```
-
 
 #### `@header`
 
@@ -124,25 +133,36 @@ Specify this property is to be sent or received as an http header.
 `ModelProperty`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name                | Type                                          | Description                                                                                                                                                                                   |
+| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options.<br />By default the header name will be the property name converted from camelCase to camel-case. (e.g. `eTag` -> `e-tag`) |
 
 ##### Examples
 
 ```typespec
-op read(@header accept: string): {@header("E-Tag") eTag: string};
-op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+op read(@header accept: string): {
+  @header("E-Tag") eTag: string;
+};
+op create(
+  @header({
+    name: "X-Color",
+    format: "csv",
+  })
+  colors: string[],
+): void;
 ```
 
 ###### Implicit header name
 
-
 ```typespec
-op read(): {@header eTag: string}; // headerName: e-tag
-op read(): {@header contentType: string}; // headerName: content-type
+op read(): {
+  @header eTag: string;
+}; // headerName: e-tag
+op read(): {
+  @header contentType: string;
+}; // headerName: content-type
 ```
-
 
 #### `@includeInapplicableMetadataInPayload`
 
@@ -157,11 +177,10 @@ Specify if inapplicable metadata should be included in the payload for the given
 `(intrinsic) unknown`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                     | Description                                                     |
+| ----- | ------------------------ | --------------------------------------------------------------- |
 | value | `valueof scalar boolean` | If true, inapplicable metadata will be included in the payload. |
-
-
 
 #### `@patch`
 
@@ -176,14 +195,14 @@ Specify the http verb for the target operation to be `PATCH`.
 `Operation`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
-@patch op update(pet: Pet): void
+@patch op update(pet: Pet): void;
 ```
-
 
 #### `@path`
 
@@ -198,8 +217,9 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 `ModelProperty`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name      | Type                    | Description                                         |
+| --------- | ----------------------- | --------------------------------------------------- |
 | paramName | `valueof scalar string` | Optional name of the parameter in the url template. |
 
 ##### Examples
@@ -208,7 +228,6 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 @route("/read/{explicit}/things/{implicit}")
 op read(@path explicit: string, implicit: string): void;
 ```
-
 
 #### `@post`
 
@@ -223,14 +242,14 @@ Specify the http verb for the target operation to be `POST`.
 `Operation`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
-@post op create(pet: Pet): void
+@post op create(pet: Pet): void;
 ```
-
 
 #### `@put`
 
@@ -245,14 +264,14 @@ Specify the http verb for the target operation to be `PUT`.
 `Operation`
 
 ##### Parameters
+
 None
 
 ##### Examples
 
 ```typespec
-@put op set(pet: Pet): void
+@put op set(pet: Pet): void;
 ```
-
 
 #### `@query`
 
@@ -267,17 +286,23 @@ Specify this property is to be sent as a query parameter.
 `ModelProperty`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name               | Type                                         | Description                                                                     |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
 | queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 ##### Examples
 
 ```typespec
 op read(@query select: string, @query("order-by") orderBy: string): void;
-op list(@query({name: "id", format: "multi"}) ids: string[]): void;
+op list(
+  @query({
+    name: "id",
+    format: "multi",
+  })
+  ids: string[],
+): void;
 ```
-
 
 #### `@route`
 
@@ -298,9 +323,10 @@ it will be used as a prefix to the route URI of the operation.
 `union Namespace | Interface | Operation`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| path | `valueof scalar string` | Relative route path. Cannot include query parameters. |
+
+| Name    | Type                      | Description                                                                                                                                  |
+| ------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| path    | `valueof scalar string`   | Relative route path. Cannot include query parameters.                                                                                        |
 | options | `model (anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ##### Examples
@@ -309,7 +335,6 @@ it will be used as a prefix to the route URI of the operation.
 @route("/widgets")
 op getWidget(@path id: string): Widget;
 ```
-
 
 #### `@server`
 
@@ -324,11 +349,12 @@ Specify the endpoint for this service.
 `Namespace`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| url | `valueof scalar string` | Server endpoint |
-| description | `valueof scalar string` | Description of the endpoint |
-| parameters | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
+
+| Name        | Type                    | Description                                             |
+| ----------- | ----------------------- | ------------------------------------------------------- |
+| url         | `valueof scalar string` | Server endpoint                                         |
+| description | `valueof scalar string` | Description of the endpoint                             |
+| parameters  | `model Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 ##### Examples
 
@@ -340,14 +366,12 @@ namespace PetStore;
 
 ###### parameterized
 
-
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
 @doc("Region name")
 region?: string = "westus",
 })
 ```
-
 
 #### `@sharedRoute`
 
@@ -373,9 +397,8 @@ op getWidget(@path id: string): Widget;
 `Operation`
 
 ##### Parameters
+
 None
-
-
 
 #### `@statusCode`
 
@@ -390,6 +413,7 @@ Specify the status code for this response. Property type must be a status code i
 `ModelProperty`
 
 ##### Parameters
+
 None
 
 ##### Examples
@@ -398,7 +422,6 @@ None
 op read(): {@statusCode: 200, @body pet: Pet}
 op create(): {@statusCode: 201 | 202}
 ```
-
 
 #### `@useAuth`
 
@@ -413,8 +436,9 @@ Specify this service authentication. See the [documentation in the Http library]
 `Namespace`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name | Type                        | Description                                                                                                                                                    |
+| ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
 
 ##### Examples
@@ -424,4 +448,3 @@ Specify this service authentication. See the [documentation in the Http library]
 @useAuth(BasicAuth)
 namespace PetStore;
 ```
-

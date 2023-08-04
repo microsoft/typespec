@@ -1,39 +1,54 @@
 # @typespec/protobuf
+
 TypeSpec library and emitter for Protobuf (gRPC)
+
 ## Install
+
 ```bash
 npm install @typespec/protobuf
 ```
+
 ## Emitter
+
 ### Usage
+
 1. Via the command line
+
 ```bash
 tsp compile . --emit=@typespec/protobuf
 ```
+
 2. Via the config
+
 ```yaml
 emit:
-  - "@typespec/protobuf" 
+  - "@typespec/protobuf"
 ```
+
 ### Emitter options
+
 #### `noEmit`
+
 **Type:** `boolean`
 
-
 ## Decorators
+
 ### TypeSpec.Protobuf
- - [`@field`](#@field)
- - [`@message`](#@message)
- - [`@package`](#@package)
- - [`@reserve`](#@reserve)
- - [`@service`](#@service)
- - [`@stream`](#@stream)
+
+- [`@field`](#@field)
+- [`@message`](#@message)
+- [`@package`](#@package)
+- [`@reserve`](#@reserve)
+- [`@service`](#@service)
+- [`@stream`](#@stream)
+
 #### `@field`
 
 Defines the field index of a model property for conversion to a Protobuf
 message.
 
 The field index of a Protobuf message must:
+
 - fall between 1 and 2<sup>29</sup> - 1, inclusive.
 - not fall within the implementation reserved range of 19000 to 19999, inclusive.
 - not fall within any range that was [marked reserved](#
@@ -47,19 +62,19 @@ The field index of a Protobuf message must:
 `ModelProperty`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name  | Type                    | Description                          |
+| ----- | ----------------------- | ------------------------------------ |
 | index | `valueof scalar uint32` | The whole-number index of the field. |
 
 ##### Examples
 
 ```typespec
 model ExampleMessage {
-@field(1)
-test: string;
+  @field(1)
+  test: string;
 }
 ```
-
 
 #### `@message`
 
@@ -81,9 +96,8 @@ This decorator will force the emitter to check and emit a model.
 `model {}`
 
 ##### Parameters
+
 None
-
-
 
 #### `@package`
 
@@ -99,11 +113,10 @@ single Protobuf file.
 `Namespace`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name    | Type                                     | Description                         |
+| ------- | ---------------------------------------- | ----------------------------------- |
 | details | `model TypeSpec.Protobuf.PackageDetails` | the optional details of the package |
-
-
 
 #### `@reserve`
 
@@ -137,8 +150,9 @@ information.
 `model {}`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name         | Type                                                   | Description                  |
+| ------------ | ------------------------------------------------------ | ---------------------------- |
 | reservations | `valueof model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
 ##### Examples
@@ -147,10 +161,9 @@ information.
 // Reserve the fields 8-15 inclusive, 100, and the field name "test" within a model.
 @reserve([8, 15], 100, "test")
 model Example {
-// ...
+  // ...
 }
 ```
-
 
 #### `@service`
 
@@ -166,9 +179,8 @@ a `service` declaration in the resulting Protobuf file.
 `Interface`
 
 ##### Parameters
+
 None
-
-
 
 #### `@stream`
 
@@ -183,8 +195,9 @@ Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.P
 `Operation`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name | Type                                | Description                                    |
+| ---- | ----------------------------------- | ---------------------------------------------- |
 | mode | `enum TypeSpec.Protobuf.StreamMode` | The streaming mode to apply to this operation. |
 
 ##### Examples
@@ -194,9 +207,7 @@ Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.P
 op logs(...LogsRequest): LogEvent;
 ```
 
-
 ```typespec
 @stream(StreamMode.Duplex)
 op connectToMessageService(...Message): Message;
 ```
-

@@ -37,8 +37,8 @@ The field index of a Protobuf message must:
 
 ```typespec
 model ExampleMessage {
-@field(1)
-test: string;
+  @field(1)
+  test: string;
 }
 ```
 
@@ -127,7 +127,7 @@ information.
 // Reserve the fields 8-15 inclusive, 100, and the field name "test" within a model.
 @reserve([8, 15], 100, "test")
 model Example {
-// ...
+  // ...
 }
 ```
 

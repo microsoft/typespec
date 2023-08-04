@@ -1,4 +1,3 @@
-import * as prettier from "prettier";
 import {
   NamedTypeRefDoc,
   TypeSpecLibraryRefDoc,
@@ -50,16 +49,6 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
     files["emitter.md"] = emitter;
   }
 
-  for (const [file, content] of Object.entries(files)) {
-    try {
-      files[file] = await prettier.format(content, {
-        parser: "markdown",
-      });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(`Cannot format with prettier ${file}`);
-    }
-  }
   return files;
 }
 

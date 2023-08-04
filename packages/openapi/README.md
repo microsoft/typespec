@@ -1,16 +1,23 @@
 # @typespec/openapi
+
 TypeSpec library providing OpenAPI concepts
+
 ## Install
+
 ```bash
 npm install @typespec/openapi
 ```
+
 ## Decorators
+
 ### OpenAPI
- - [`@defaultResponse`](#@defaultresponse)
- - [`@extension`](#@extension)
- - [`@externalDocs`](#@externaldocs)
- - [`@info`](#@info)
- - [`@operationId`](#@operationid)
+
+- [`@defaultResponse`](#@defaultresponse)
+- [`@extension`](#@extension)
+- [`@externalDocs`](#@externaldocs)
+- [`@info`](#@info)
+- [`@operationId`](#@operationid)
+
 #### `@defaultResponse`
 
 Specify that this model is to be treated as the OpenAPI `default` response.
@@ -25,6 +32,7 @@ This differs from the compiler built-in `@error` decorator as this does not nece
 `Model`
 
 ##### Parameters
+
 None
 
 ##### Examples
@@ -35,7 +43,6 @@ model PetStoreResponse is object;
 
 op listPets(): Pet[] | PetStoreResponse;
 ```
-
 
 #### `@extension`
 
@@ -50,19 +57,24 @@ Attach some custom data to the OpenAPI element generated from this type.
 `(intrinsic) unknown`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| key | `valueof scalar string` | Extension key. Must start with `x-` |
-| value | `(intrinsic) unknown` | Extension value. |
+
+| Name  | Type                    | Description                         |
+| ----- | ----------------------- | ----------------------------------- |
+| key   | `valueof scalar string` | Extension key. Must start with `x-` |
+| value | `(intrinsic) unknown`   | Extension value.                    |
 
 ##### Examples
 
 ```typespec
 @extension("x-custom", "My value")
-@extension("x-pageable", {nextLink: "x-next-link"})
+@extension(
+  "x-pageable",
+  {
+    nextLink: "x-next-link",
+  }
+)
 op read(): string;
 ```
-
 
 #### `@externalDocs`
 
@@ -77,18 +89,21 @@ Specify the OpenAPI `externalDocs` property for this type.
 `(intrinsic) unknown`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| url | `valueof scalar string` | Url to the docs |
+
+| Name        | Type                    | Description             |
+| ----------- | ----------------------- | ----------------------- |
+| url         | `valueof scalar string` | Url to the docs         |
 | description | `valueof scalar string` | Description of the docs |
 
 ##### Examples
 
 ```typespec
-@externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")
+@externalDocs(
+  "https://example.com/detailed.md",
+  "Detailed information on how to use this operation"
+)
 op listPets(): Pet[];
 ```
-
 
 #### `@info`
 
@@ -104,11 +119,10 @@ The service `title` and `version` are already specified using `@service`.
 `Namespace`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name           | Type                           | Description            |
+| -------------- | ------------------------------ | ---------------------- |
 | additionalInfo | `model OpenAPI.AdditionalInfo` | Additional information |
-
-
 
 #### `@operationId`
 
@@ -123,8 +137,9 @@ Specify the OpenAPI `operationId` property for this operation.
 `Operation`
 
 ##### Parameters
-| Name | Type | Description |
-|------|------|-------------|
+
+| Name        | Type                    | Description         |
+| ----------- | ----------------------- | ------------------- |
 | operationId | `valueof scalar string` | Operation id value. |
 
 ##### Examples
@@ -133,4 +148,3 @@ Specify the OpenAPI `operationId` property for this operation.
 @operationId("download")
 op read(): string;
 ```
-
