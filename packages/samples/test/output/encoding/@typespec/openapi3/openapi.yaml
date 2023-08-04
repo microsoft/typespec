@@ -37,7 +37,7 @@ components:
               format: date-time
             rfc7231:
               type: string
-              format: date-time-rfc7231
+              format: http-date
             rfc7231ViaScalar:
               $ref: '#/components/schemas/myRfc7231DateTime'
             unixtime:
@@ -94,7 +94,7 @@ components:
         - bytes
     myRfc7231DateTime:
       type: string
-      format: date-time-rfc7231
+      format: http-date
     myUnixTimestamp:
       type: integer
       format: unixtime
