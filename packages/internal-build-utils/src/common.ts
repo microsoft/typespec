@@ -1,7 +1,10 @@
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 
 export class CommandFailedError extends Error {
-  constructor(msg: string, public proc: ChildProcess) {
+  constructor(
+    msg: string,
+    public proc: ChildProcess
+  ) {
     super(msg);
   }
 }

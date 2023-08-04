@@ -12,9 +12,10 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~2.8.7"
+    "prettier": "~3.0.1"
   },
   "devDependencies": {
+    "prettier_2": "npm:prettier@2.8.7",
     "@typespec/compiler": "workspace:~0.46.0",
     "@typespec/internal-build-utils": "workspace:~0.46.0",
     "@rollup/plugin-commonjs": "~25.0.0",

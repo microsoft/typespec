@@ -1,5 +1,5 @@
 import assert from "assert";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import {
   Enum,
   Interface,
@@ -429,10 +429,10 @@ describe("emitter-framework: typescript emitter", () => {
         };
       }
 
-      sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
-        const emittedSourceFile = super.sourceFile(sourceFile);
+      async sourceFile(sourceFile: SourceFile<string>): Promise<EmittedSourceFile> {
+        const emittedSourceFile = await super.sourceFile(sourceFile);
         emittedSourceFile.contents += emitNamespaces(sourceFile.globalScope);
-        emittedSourceFile.contents = prettier.format(emittedSourceFile.contents, {
+        emittedSourceFile.contents = await prettier.format(emittedSourceFile.contents, {
           parser: "typescript",
         });
         return emittedSourceFile;

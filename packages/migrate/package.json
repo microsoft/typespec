@@ -45,7 +45,7 @@
     "@typespec/compiler-v0.41": "npm:@typespec/compiler@0.41.0",
     "@typespec/compiler-v0.42": "npm:@typespec/compiler@0.42.0",
     "globby": "~13.1.1",
-    "prettier": "~2.8.7",
+    "prettier": "~3.0.1",
     "semver": "^7.3.8",
     "yargs": "~17.7.1",
     "js-yaml": "~4.1.0"
@@ -54,7 +54,6 @@
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/js-yaml": "~4.0.1",
-    "@types/prettier": "2.6.0",
     "@types/semver": "^7.3.13",
     "@types/yargs": "~17.0.24",
     "@typespec/compiler": "workspace:~0.46.0",
