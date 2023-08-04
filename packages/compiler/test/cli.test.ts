@@ -25,7 +25,7 @@ describe("compiler: cli", () => {
     async function resolveCompilerOptions(args: CompileCliArgs, env: Record<string, string> = {}) {
       const [options, diagnostics] = await getCompilerOptions(
         host.compilerHost,
-        "ws/main.cadl",
+        "ws/main.tsp",
         cwd,
         args,
         env
@@ -139,7 +139,7 @@ describe("compiler: cli", () => {
       it("emit diagnostic if passing unknown parameter", async () => {
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
-          "ws/main.cadl",
+          "ws/main.tsp",
           cwd,
           {
             args: ["not-defined-arg=my-value"],
@@ -162,7 +162,7 @@ describe("compiler: cli", () => {
         );
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
-          "ws/main.cadl",
+          "ws/main.tsp",
           cwd,
           {},
           {}

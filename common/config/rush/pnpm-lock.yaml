@@ -1183,12 +1183,30 @@ importers:
         specifier: workspace:~0.46.0
         version: link:../versioning
     devDependencies:
+      '@types/mocha':
+        specifier: ~10.0.1
+        version: 10.0.1
+      '@types/node':
+        specifier: ~18.11.9
+        version: 18.11.9
+      '@typespec/eslint-config-typespec':
+        specifier: workspace:~0.46.0
+        version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
         specifier: workspace:~0.46.0
         version: link:../internal-build-utils
       autorest:
         specifier: ~3.3.2
         version: 3.3.2
+      cross-env:
+        specifier: ~7.0.3
+        version: 7.0.3
+      eslint:
+        specifier: ^8.42.0
+        version: 8.42.0
+      mocha:
+        specifier: ~10.2.0
+        version: 10.2.0
       rimraf:
         specifier: ~5.0.1
         version: 5.0.1
