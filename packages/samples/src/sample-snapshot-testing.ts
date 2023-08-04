@@ -64,7 +64,6 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     if (missingSnapshots.size > 0) {
       if (shouldUpdateSnapshots) {
         for (const file of [...missingSnapshots].map((x) => joinPaths(config.outputDir, x))) {
-          console.log("Removing")
           await rm(file);
         }
       } else {
@@ -113,7 +112,7 @@ function defineSampleSnaphotTest(
 
     if (shouldUpdateSnapshots) {
       try {
-        console.log("Remove dir")
+        console.log("Remove dir");
         await host.rm(outputDir, { recursive: true });
       } catch (e) {}
       await mkdir(outputDir, { recursive: true });
