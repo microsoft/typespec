@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import * as prettier from "prettier";
 import {
   NamedTypeRefDoc,
   TypeSpecLibraryRefDoc,
@@ -52,7 +52,7 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
 
   for (const [file, content] of Object.entries(files)) {
     try {
-      files[file] = prettier.format(content, {
+      files[file] = await prettier.format(content, {
         parser: "markdown",
       });
     } catch (e) {

@@ -1,7 +1,7 @@
 import { NodePackage, TextRange } from "@typespec/compiler";
 import * as fs from "fs";
 import { readFile, writeFile } from "fs/promises";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import { TypeSpecCompilers } from "./migration-config.js";
 import {
   AstContentMigrateAction,
@@ -104,7 +104,7 @@ export async function migratePackageVersion(
     }
   }
   if (changeMade) {
-    const prettyJsonString = prettier.format(JSON.stringify(packageJson), { parser: "json" });
+    const prettyJsonString = await prettier.format(JSON.stringify(packageJson), { parser: "json" });
     fs.writeFileSync(pkgFile, prettyJsonString);
   }
 
@@ -153,7 +153,7 @@ async function migrateTypeSpecFile(
 ): Promise<boolean> {
   const buffer = await readFile(filename);
   const content = buffer.toString();
-  const [newContent, changed] = migrateTypeSpecContentInternal(
+  const [newContent, changed] = await migrateTypeSpecContentInternal(
     fromCompiler,
     toCompiler,
     content,
@@ -164,12 +164,12 @@ async function migrateTypeSpecFile(
   return changed;
 }
 
-function migrateTypeSpecContentInternal(
+async function migrateTypeSpecContentInternal(
   fromCompiler: TypeSpecCompiler,
   toCompiler: TypeSpecCompiler,
   content: string,
   migration: AstContentMigration<any>
-): [string, boolean] {
+): Promise<[string, boolean]> {
   const parsed = fromCompiler.parse(content);
   const actions = migration
     .migrate(createMigrationContext(parsed), fromCompiler, parsed as any)
@@ -179,14 +179,14 @@ function migrateTypeSpecContentInternal(
     )
     .sort((a, b) => a.target.pos - b.target.pos);
 
-  return ContentMigration(toCompiler, content, actions);
+  return contentMigration(toCompiler, content, actions);
 }
 
-function ContentMigration(
+async function contentMigration(
   toCompiler: TypeSpecCompiler,
   content: string,
   actions: AstContentMigrateAction[]
-): [string, boolean] {
+): Promise<[string, boolean]> {
   if (actions.length === 0) {
     return [content, false];
   }
@@ -206,7 +206,7 @@ function ContentMigration(
       // For migration before rename.
       return [(toCompiler as any).formatCadl(newContent), true];
     }
-    return [(toCompiler as any).formatTypeSpec(newContent), true];
+    return [await (toCompiler as any).formatTypeSpec(newContent), true];
   } catch (e) {
     console.log(
       "TSP compiler",

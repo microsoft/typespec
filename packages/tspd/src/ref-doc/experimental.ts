@@ -12,6 +12,7 @@ import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
 import { renderReadme } from "./emitters/markdown.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
+import prettier from "prettier";
 
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
@@ -29,7 +30,8 @@ export async function generateLibraryDocs(
   for (const [name, content] of Object.entries(files)) {
     await writeFile(joinPaths(outputDir, name), content);
   }
-  const readme = await renderReadme(refDoc, libraryPath);
+  const config = await prettier.resolveConfig(libraryPath);
+  const readme = await prettier.format(await renderReadme(refDoc, libraryPath), config ?? {});
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));

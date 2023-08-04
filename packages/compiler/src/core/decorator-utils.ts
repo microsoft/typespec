@@ -173,7 +173,7 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
 export interface DecoratorDefinition<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
-  S extends DecoratorParamDefinition<TypeKind> | undefined = undefined
+  S extends DecoratorParamDefinition<TypeKind> | undefined = undefined,
 > {
   /**
    * Name of the decorator.
@@ -210,7 +210,7 @@ export interface DecoratorParamDefinition<K extends TypeKind> {
 
 type InferParameters<
   P extends readonly DecoratorParamDefinition<TypeKind>[],
-  S extends DecoratorParamDefinition<TypeKind> | undefined
+  S extends DecoratorParamDefinition<TypeKind> | undefined,
 > = S extends undefined
   ? InferPosParameters<P>
   : [...InferPosParameters<P>, ...InferSpreadParameter<S>];
@@ -234,7 +234,7 @@ type InferParameterKind<P extends TypeKind | readonly TypeKind[]> =
 export interface DecoratorValidator<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
-  S extends DecoratorParamDefinition<TypeKind> | undefined = undefined
+  S extends DecoratorParamDefinition<TypeKind> | undefined = undefined,
 > {
   validate(
     context: DecoratorContext,
@@ -251,7 +251,7 @@ export type TypeKind = Type["kind"] | "Any";
 export function createDecoratorDefinition<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
-  S extends DecoratorParamDefinition<TypeKind> | undefined
+  S extends DecoratorParamDefinition<TypeKind> | undefined,
 >(definition: DecoratorDefinition<T, P, S>): DecoratorValidator<T, P, S> {
   const minParams = definition.args.filter((x) => !x.optional).length;
   const maxParams = definition.spreadArgs ? undefined : definition.args.length;

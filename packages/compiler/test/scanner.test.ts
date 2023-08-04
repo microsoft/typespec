@@ -22,7 +22,7 @@ type TokenEntry = [
     line?: number;
     character?: number;
     value?: string;
-  }?
+  }?,
 ];
 
 function tokens(text: string, diagnosticHandler?: DiagnosticHandler): TokenEntry[] {
