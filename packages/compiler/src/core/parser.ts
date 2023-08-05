@@ -3467,6 +3467,9 @@ export function getFirstAncestor(node: Node, test: NodeCallback<boolean>): Node 
 
 export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
   const node = getFirstAncestor(id, (n) => n.kind !== SyntaxKind.MemberExpression);
+  // todo: optimize by bailing out when we discover any non-expression node
+  const parentValidate = getFirstAncestor(id, (n) => n.kind === SyntaxKind.ModelValidate);
+
   compilerAssert(node, "Identifier with no non-member-expression ancestor.");
 
   let kind: IdentifierKind;
@@ -3492,5 +3495,5 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
       break;
   }
 
-  return { node, kind };
+  return { node, kind, parentValidate };
 }

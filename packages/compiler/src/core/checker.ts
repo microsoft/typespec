@@ -1892,7 +1892,7 @@ export function createChecker(program: Program): Checker {
 
   function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
     const completions = new Map<string, TypeSpecCompletionItem>();
-    const { kind } = getIdentifierContext(identifier);
+    const { kind, parentValidate } = getIdentifierContext(identifier);
 
     switch (kind) {
       case IdentifierKind.Using:
@@ -1928,6 +1928,11 @@ export function createChecker(program: Program): Checker {
       }
     } else {
       let scope: Node | undefined = identifier.parent;
+      if (parentValidate) {
+        const parentNode = parentValidate.parent! as ModelStatementNode | ScalarStatementNode;
+        addCompletions(parentNode.symbol.members);
+      }
+
       while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
         if (scope.symbol && scope.symbol.exports) {
           const mergedSymbol = getMergedSymbol(scope.symbol)!;

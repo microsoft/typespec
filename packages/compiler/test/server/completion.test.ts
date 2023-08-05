@@ -882,6 +882,60 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes model members inside of a validate clause of model", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        prop: string;
+        prop2: string;
+        validate ┆
+      }
+      `
+    );
+    check(completions, [
+      {
+        label: "prop",
+        insertText: "prop",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```typespec\nFoo.prop: string\n```",
+        },
+      },
+      {
+        label: "prop2",
+        insertText: "prop2",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```typespec\nFoo.prop2: string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes value member inside of a validate clause of scalar", async () => {
+    const completions = await complete(
+      `
+      scalar Foo {
+        validate ┆
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "value",
+        insertText: "value",
+        kind: CompletionItemKind.Unit,
+        documentation: {
+          kind: "markdown",
+          value: "```typespec\nscalar Foo\n```",
+        },
+      },
+    ]);
+  });
+
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],

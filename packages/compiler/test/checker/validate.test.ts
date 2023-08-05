@@ -2,7 +2,7 @@ import { strictEqual } from "assert";
 import { IntrinsicType, LogicCallExpression, Model, Scalar } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
-describe.only("compiler: validate", () => {
+describe("compiler: validate", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -231,6 +231,26 @@ describe.only("compiler: validate", () => {
     strictEqual(memberExpr.id, "value");
     strictEqual(memberExpr.base.kind, "Identifier");
     strictEqual(memberExpr.base.type, M.properties.get("n"));
+  });
+
+  it.skip("allows multiple fn calls", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test model M {
+        str1: string;
+        str2: string;
+        
+        validate checkStr: str1::concat(str2)::concat(str1);
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    console.log(M.validates.get("checkStr")?.logic);
   });
 
   it("allows for arithmetic on scalar subtypes", async () => {

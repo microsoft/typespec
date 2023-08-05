@@ -1573,6 +1573,7 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
 export interface IdentifierContext {
   kind: IdentifierKind;
   node: Node;
+  parentValidate?: Node;
 }
 
 export enum IdentifierKind {
