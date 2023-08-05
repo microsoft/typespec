@@ -1146,7 +1146,7 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface UnionVariantNode extends BaseNode {
   readonly kind: SyntaxKind.UnionVariant;
-  readonly id: IdentifierNode;
+  readonly id?: IdentifierNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: UnionStatementNode;
