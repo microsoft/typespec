@@ -1910,9 +1910,20 @@ export function createChecker(program: Program): Checker {
     }
 
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
-      let base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
+      let base = resolveTypeReferenceSym(
+        identifier.parent.base,
+        undefined,
+        false,
+        !!parentValidate
+      );
+
       if (base) {
         if (identifier.parent.selector === ".") {
+          if (parentValidate && base.flags & SymbolFlags.ModelProperty) {
+            const metaTable = getOrCreateAugmentedSymbolTable(base.metatypeMembers!);
+            base = getAliasedSymbol(metaTable.get("type")!, undefined)!;
+          }
+          
           if (base.flags & SymbolFlags.Alias) {
             base = getAliasedSymbol(base, undefined);
           }

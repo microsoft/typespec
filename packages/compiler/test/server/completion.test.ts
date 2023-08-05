@@ -980,6 +980,34 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it.only("Completes members of the type of model property references inside validates clauses", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        bar: Bar;
+
+        validate bar.┆
+      }
+
+      model Bar {
+        prop: string;
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "prop",
+        insertText: "prop",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```typespec\nBar.prop: string\n```",
+        },
+      },
+    ]);
+  });
+
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],
