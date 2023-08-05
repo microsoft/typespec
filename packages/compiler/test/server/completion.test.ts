@@ -936,6 +936,50 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("Completes meta-members of arrays", async () => {
+    const completions = await complete(
+      `
+      alias Foo = string[];
+      alias Bar = Foo::┆
+      `
+    );
+
+    check(completions, [
+      {
+        label: "min",
+        insertText: "min",
+        kind: CompletionItemKind.Function,
+        documentation: undefined,
+      },
+      {
+        label: "max",
+        insertText: "max",
+        kind: CompletionItemKind.Function,
+        documentation: undefined,
+      },
+    ]);
+  });
+
+  it("Completes meta-members of model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        prop: string;
+      }
+      alias Bar = Foo.prop::┆
+      `
+    );
+
+    check(completions, [
+      {
+        label: "type",
+        insertText: "type",
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: "markdown", value: "```typespec\nscalar string\n```" },
+      },
+    ]);
+  });
+
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],

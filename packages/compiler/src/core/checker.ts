@@ -1912,18 +1912,29 @@ export function createChecker(program: Program): Checker {
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
       if (base) {
-        if (base.flags & SymbolFlags.Alias) {
-          base = getAliasedSymbol(base, undefined);
-        }
-        if (base) {
-          if (isTemplatedNode(base.declarations[0])) {
-            const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
-            if (isTemplateInstance(type)) {
-              lateBindMemberContainer(type);
-              lateBindMembers(type, base);
+        if (identifier.parent.selector === ".") {
+          if (base.flags & SymbolFlags.Alias) {
+            base = getAliasedSymbol(base, undefined);
+          }
+          if (base) {
+            if (isTemplatedNode(base.declarations[0])) {
+              const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
+              if (isTemplateInstance(type)) {
+                lateBindMemberContainer(type);
+                lateBindMembers(type, base);
+              }
+            }
+            addCompletions(base.exports ?? base.members);
+          }
+        } else {
+          addCompletions(base.metatypeMembers);
+          const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
+          const members = sharedMetaProperties[metaMemberKey(type)];
+          if (members) {
+            for (const sym of Object.values(members).map((m: any) => m.symbol)) {
+              addCompletion(sym.name, sym);
             }
           }
-          addCompletions(base.exports ?? base.members);
         }
       }
     } else {
@@ -2268,17 +2279,18 @@ export function createChecker(program: Program): Checker {
         ? base.type!
         : checkTypeReferenceSymbol(base, node, mapper);
 
-    let selector =
-      baseType.kind === "Model" && isArrayModelType(program, baseType)
-        ? ("Array" as const)
-        : baseType.kind === "Scalar" && isRelatedToScalar(baseType, getStdType("string"))
-        ? ("String" as const)
-        : baseType.kind;
-
-    const metaMembers = sharedMetaProperties[selector];
+    const metaMembers = sharedMetaProperties[metaMemberKey(baseType)];
     if (!metaMembers) return undefined;
     const metaProp = metaMembers[node.id.sv];
     return metaProp.symbol;
+  }
+
+  function metaMemberKey(baseType: Type) {
+    return baseType.kind === "Model" && isArrayModelType(program, baseType)
+      ? ("Array" as const)
+      : baseType.kind === "Scalar" && isRelatedToScalar(baseType, getStdType("string"))
+      ? ("String" as const)
+      : baseType.kind;
   }
 
   function getMemberKindName(node: Node) {
@@ -5766,7 +5778,7 @@ export function createChecker(program: Program): Checker {
     return false;
   }
 
-  function createSharedMetaProperties(): Partial<Record<Type["kind"] | "Array", any>> {
+  function createSharedMetaProperties(): Partial<Record<Type["kind"] | "Array" | "String", any>> {
     function createSharedMetaProperty(scope: string, name: string) {
       const type = createAndFinishType({ kind: "Intrinsic", name: scope + "::" + name });
       const symbol = createSymbol(undefined, name, SymbolFlags.LateBound);
