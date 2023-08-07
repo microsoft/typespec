@@ -54,8 +54,7 @@ jobs:
           nodeVersion: $(nodeVersion)
           poolName: $(pool)
 
-  - job: publish_artifacts
-    template: ./jobs/publish-artifacts.yml
+  - template: ./jobs/publish-artifacts.yml
 
   - job: docker_build
     pool:
