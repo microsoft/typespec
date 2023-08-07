@@ -114,7 +114,7 @@ None
 Specify an external reference that should be used inside of emitting this type.
 
 ```typespec
-@OpenAPI.useRef(ref: string)
+@OpenAPI.useRef(ref: valueof string)
 ```
 
 ##### Target
@@ -123,6 +123,6 @@ Specify an external reference that should be used inside of emitting this type.
 
 ##### Parameters
 
-| Name | Type            | Description                                                          |
-| ---- | --------------- | -------------------------------------------------------------------- |
-| ref  | `scalar string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
+| Name | Type                    | Description                                                          |
+| ---- | ----------------------- | -------------------------------------------------------------------- |
+| ref  | `valueof scalar string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
