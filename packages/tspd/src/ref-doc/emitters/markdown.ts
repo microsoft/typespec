@@ -227,18 +227,16 @@ export class MarkdownRenderer {
         return undefined;
       }
       return [
-        options.includeToc ? this.decoratorToc(namespace) : [],
+        options.includeToc ? this.toc(namespace.decorators) : [],
         namespace.decorators.map((x) => [this.decorator(x), ""]),
       ];
     });
   }
 
-  decoratorToc(namespace: NamespaceRefDoc) {
-    const listContent = [];
-    for (const decorator of namespace.decorators) {
-      listContent.push(` - [${inlinecode(decorator.name)}](#${this.anchorId(decorator)})`);
-    }
-    return listContent;
+  toc(items: NamedTypeRefDoc[], filename?: string) {
+    return items.map(
+      (item) => ` - [${inlinecode(item.name)}](${filename ?? ""}#${this.anchorId(item)})`
+    );
   }
 
   install(refDoc: TypeSpecRefDoc) {

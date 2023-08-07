@@ -8,7 +8,6 @@ import {
   MarkdownDoc,
   MarkdownSection,
   codeblock,
-  headings,
   inlinecode,
   renderMarkdowDoc,
   section,
@@ -70,38 +69,24 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
 
         if (namespace.decorators.length > 0) {
           content.push(
-            section(
-              "Decorators",
-              namespace.decorators.map((x) => ` - [${inlinecode(x.name)}](./decorators.md#${x.id})`)
-            )
+            section("Decorators", renderer.toc(namespace.decorators, "./decorators.md"))
           );
         }
 
         if (namespace.interfaces.length > 0) {
-          content.push(headings.h3("Interfaces"), "");
-          const listContent = [];
-          for (const iface of namespace.interfaces) {
-            listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
-          }
-          content.push(...listContent);
+          content.push(
+            section("Interfaces", renderer.toc(namespace.interfaces, "./interfaces.md"))
+          );
         }
 
         if (namespace.operations.length > 0) {
           content.push(
-            section(
-              "Operations",
-              namespace.operations.map((x) => ` - [${inlinecode(x.name)}](./interfaces.md#${x.id})`)
-            )
+            section("Operations", renderer.toc(namespace.operations, "./interfaces.md"))
           );
         }
 
         if (namespace.models.length > 0) {
-          content.push(
-            section(
-              "Models",
-              namespace.models.map((x) => ` - [${inlinecode(x.name)}](./data-types.md#${x.id})`)
-            )
-          );
+          content.push(section("Models", renderer.toc(namespace.models, "./data-types.md")));
         }
         return content;
       }),
