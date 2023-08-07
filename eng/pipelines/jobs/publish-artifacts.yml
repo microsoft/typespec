@@ -17,6 +17,13 @@ jobs:
       - template: ../templates/install.yml
       - template: ../templates/build.yml
 
+      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
+        displayName: Bump version to prerelease targets
+
+      - script: npm run gen-manifest
+        displayName: Regen manifest for compiler
+        workingDirectory: ./packages/compiler
+
       - script: npx @microsoft/rush publish --publish --pack --include-all
         displayName: Pack packages
 

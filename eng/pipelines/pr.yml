@@ -6,9 +6,12 @@ pr:
 
 jobs:
   - job: Build_And_Test
+    displayName: Build And Test
+
     variables:
       TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
       TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
     strategy:
       matrix:
         # Node 16
