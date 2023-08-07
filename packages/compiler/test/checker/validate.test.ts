@@ -2,7 +2,7 @@ import { strictEqual } from "assert";
 import { IntrinsicType, LogicCallExpression, Model, Scalar } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
-describe("compiler: validate", () => {
+describe.only("compiler: validate", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -219,18 +219,20 @@ describe("compiler: validate", () => {
       N: Model;
     };
 
+    // todo: test type
+
     const logic = M.validates.get("chkn")!.logic;
     strictEqual(logic.kind, "EqualityExpression");
     strictEqual(logic.left.kind, "ReferenceExpression");
-    strictEqual(logic.left.type, N.properties.get("value"));
+    strictEqual(logic.left.referencedType, N.properties.get("value"));
     strictEqual(logic.right.kind, "NumericLiteral");
 
     const memberExpr = logic.left.target;
     strictEqual(memberExpr.kind, "MemberExpression");
-    strictEqual(memberExpr.type, N.properties.get("value"));
+    strictEqual(memberExpr.referencedType, N.properties.get("value"));
     strictEqual(memberExpr.id, "value");
     strictEqual(memberExpr.base.kind, "Identifier");
-    strictEqual(memberExpr.base.type, M.properties.get("n"));
+    strictEqual(memberExpr.base.referencedType, M.properties.get("n"));
   });
 
   it.skip("allows multiple fn calls", async () => {
@@ -270,7 +272,7 @@ describe("compiler: validate", () => {
     // TODO: Validate
   });
 
-  it.only("produces union types for if statements", async () => {
+  it("produces union types for if statements", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `

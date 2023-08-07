@@ -2310,6 +2310,7 @@ export interface LogicReferenceExpression extends LogicNodeBase {
   target: LogicMemberExpression | LogicIdentifier;
   arguments: LogicExpression[];
   type: Type;
+  referencedType?: Type;
 }
 
 export interface LogicMemberExpression extends LogicNodeBase {

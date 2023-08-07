@@ -3325,9 +3325,6 @@ export function createChecker(program: Program): Checker {
         const leftType = left.type.kind === "ModelProperty" ? left.type.type : left.type;
         const rightType = right.type.kind === "ModelProperty" ? right.type.type : right.type;
 
-        console.log({ leftType, rightType });
-        debugger;
-
         if (
           !isTypeAssignableTo(leftType, rightType, node)[0] &&
           !isTypeAssignableTo(rightType, leftType, node)[0]
@@ -3443,13 +3440,32 @@ export function createChecker(program: Program): Checker {
         const body = checkLogicExpression(node.body, mapper);
         if (!body) return undefined;
 
+        const opType: Operation = createAndFinishType({
+          kind: "Operation",
+          name: "",
+          namespace: undefined,
+          node: undefined as any, // todo: clean up this story
+          parameters: createAndFinishType({
+            kind: "Model",
+            node: undefined,
+            name: "",
+            indexer: undefined,
+            properties: createRekeyableMap(), // TODO: Create parameter types as unknown (will be filled in later, contextually)
+            validates: createRekeyableMap(),
+            decorators: [],
+            derivedModels: [],
+          }),
+          returnType: body.type,
+          decorators: [],
+        });
+
         return {
           logic: {
             kind: "LambdaExpression",
             parameters: node.parameters.map((x) => ({ kind: "Parameter", name: x.id.sv })),
             body: body.logic as LogicBlockExpression,
           },
-          type: unknownType, // probably should be operation type?
+          type: opType,
         };
       }
       case SyntaxKind.ProjectionCallExpression: {
@@ -3531,6 +3547,7 @@ export function createChecker(program: Program): Checker {
                 target: target.logic as LogicMemberExpression | LogicIdentifier,
                 arguments: [],
                 type,
+                referencedType,
               },
               type,
             };
