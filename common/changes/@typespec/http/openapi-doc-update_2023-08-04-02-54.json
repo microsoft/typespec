@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Update doc for openapi developers",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

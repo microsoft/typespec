@@ -365,6 +365,7 @@ UnionVariantList :
 UnionVariant :
     DecoratorList? Identifier `:` Expression
     DecoratorList? StringLiteral `:` Expression
+    DecoratorList? Expression
 
 EnumStatement :
     DecoratorList? `enum` Identifier `{` EnumBody? `}`
