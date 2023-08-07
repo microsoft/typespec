@@ -1229,3 +1229,31 @@ export function getDiscriminator(program: Program, entity: Type): Discriminator 
 export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
   return [...program.stateMap(discriminatorKey).entries()] as any;
 }
+
+const parameterVisibilityKey = createStateSymbol("parameterVisibility");
+
+export function $parameterVisibility(
+  context: DecoratorContext,
+  entity: Operation,
+  ...visibilities: string[]
+) {
+  context.program.stateMap(parameterVisibilityKey).set(entity, visibilities);
+}
+
+export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
+  return program.stateMap(parameterVisibilityKey).get(entity);
+}
+
+const returnVisibilityKey = createStateSymbol("returnVisibility");
+
+export function $returnVisibility(
+  context: DecoratorContext,
+  entity: Operation,
+  ...visibilities: string[]
+) {
+  context.program.stateMap(returnVisibilityKey).set(entity, visibilities);
+}
+
+export function getReturnVisibility(program: Program, entity: Operation): string[] | undefined {
+  return program.stateMap(returnVisibilityKey).get(entity);
+}
