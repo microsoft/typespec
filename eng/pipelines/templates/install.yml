@@ -2,6 +2,7 @@
 parameters:
   - name: nodeVersion
     type: string
+    default: 20.x
 
 steps:
   - task: NodeTool@0
