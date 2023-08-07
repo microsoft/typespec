@@ -6,6 +6,9 @@ parameters:
 
 steps:
   - template: ../templates/install.yml
+    parameters:
+      nodeVersion: ${{ parameters.nodeVersion }}
+
   - template: ../templates/build.yml
 
   - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
