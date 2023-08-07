@@ -7,7 +7,7 @@ Content type is assumed to be `application/json` by default regardless of the ty
 **Examples:**
 
 ```typespec
-op download(): bytes; // Returns the bytes serialized as a base64 string.
+op download(): bytes; // Returns a json string with the bytes serialized as a base64.
 op getContent(): string; // Returns a json string
 op getPet(): {
   // Json object with a name property.
