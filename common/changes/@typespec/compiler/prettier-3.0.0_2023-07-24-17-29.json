@@ -4,8 +4,7 @@
       "packageName": "@typespec/compiler",
       "comment": "**Breaking change** `formatTypeSpec` is now async. Formatter was updated to use prettier 3.0.",
       "type": "none"
-    },
-    
+    }
   ],
   "packageName": "@typespec/compiler"
 }
