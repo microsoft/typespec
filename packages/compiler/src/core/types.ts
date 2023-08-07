@@ -294,8 +294,8 @@ export interface ModelProperty extends BaseType, DecoratedType {
 export interface ModelValidate extends BaseType, DecoratedType {
   kind: "ModelValidate";
   node: ModelValidateNode;
+  logic: LogicExpression;
   name: string;
-
   model?: Model | Scalar;
 }
 
@@ -687,7 +687,7 @@ export const enum SymbolFlags {
   /**
    * Symbols whose members will be late bound (and stored on the type)
    */
-  MemberContainer = Model | Enum | Union | Interface,
+  MemberContainer = Model | Enum | Union | Interface | Scalar,
   Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember | ModelValidate,
 }
 
@@ -1086,7 +1086,8 @@ export type ProjectionExpression =
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode
-  | ReturnExpressionNode;
+  | ReturnExpressionNode
+  | ReferenceExpression;
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -1572,6 +1573,7 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
 export interface IdentifierContext {
   kind: IdentifierKind;
   node: Node;
+  parentValidate?: Node;
 }
 
 export enum IdentifierKind {
@@ -2222,4 +2224,151 @@ export interface Tracer {
    * @param area
    */
   sub(subarea: string): Tracer;
+}
+
+export type LogicNode = LogicStatement | LogicExpression | LogicParameter;
+export type LogicStatement = LogicExpressionStatement;
+export type LogicExpression =
+  | LogicLogicalExpression
+  | LogicRelationalExpression
+  | LogicMembershipExpression
+  | LogicEqualityExpression
+  | LogicUnaryExpression
+  | LogicArithmeticExpression
+  | LogicCallExpression
+  | LogicReferenceExpression
+  | LogicMemberExpression
+  | LogicIfExpression
+  | LogicBlockExpression
+  | LogicLambdaExpression
+  | LogicStringLiteral
+  | LogicBooleanLiteral
+  | LogicNumericLiteral
+  | LogicIdentifier
+  | LogicTypeKeyword;
+
+export interface LogicNodeBase {
+  kind: string;
+}
+
+export interface LogicExpressionStatement extends LogicNodeBase {
+  kind: "ExpressionStatement";
+  expr: LogicExpression;
+}
+
+export interface LogicBinOp {
+  op: string;
+  left: LogicExpression;
+  right: LogicExpression;
+}
+
+export interface LogicUnaryOp {
+  op: string;
+  target: LogicExpression;
+}
+
+export interface LogicLogicalExpression extends LogicNodeBase, LogicBinOp {
+  kind: "LogicalExpression";
+  op: "||" | "&&" | "==>";
+}
+
+export interface LogicRelationalExpression extends LogicNodeBase, LogicBinOp {
+  kind: "RelationalExpression";
+  op: "<=" | "<" | ">" | ">=";
+}
+
+export interface LogicMembershipExpression extends LogicNodeBase {
+  kind: "MembershipExpression";
+  op: "in" | "not in";
+  left: LogicExpression;
+  arguments: LogicExpression[];
+}
+
+export interface LogicEqualityExpression extends LogicNodeBase, LogicBinOp {
+  kind: "EqualityExpression";
+  op: "==" | "!=";
+}
+
+export interface LogicUnaryExpression extends LogicNodeBase, LogicUnaryOp {
+  kind: "UnaryExpression";
+  op: "!";
+}
+
+export interface LogicArithmeticExpression extends LogicNodeBase, LogicBinOp {
+  kind: "ArithmeticExpression";
+  op: "+" | "-" | "*" | "/";
+}
+
+export interface LogicCallExpression extends LogicNodeBase {
+  kind: "CallExpression";
+  target: LogicReferenceExpression;
+  arguments: LogicExpression[];
+}
+
+export interface LogicReferenceExpression extends LogicNodeBase {
+  kind: "ReferenceExpression";
+  target: LogicMemberExpression | LogicIdentifier;
+  arguments: LogicExpression[];
+  type: Type;
+  referencedType?: Type;
+}
+
+export interface LogicMemberExpression extends LogicNodeBase {
+  kind: "MemberExpression";
+  base: LogicExpression;
+  id: string;
+  selector: "." | "::";
+  type: Type;
+  referencedType?: Type;
+}
+
+export interface LogicIfExpression extends LogicNodeBase {
+  kind: "IfExpression";
+  test: LogicExpression;
+  consequent: LogicBlockExpression;
+  alternate?: LogicBlockExpression | LogicIfExpression;
+}
+
+export interface LogicBlockExpression extends LogicNodeBase {
+  kind: "BlockExpression";
+  statements: LogicStatement[];
+}
+
+export interface LogicLambdaExpression extends LogicNodeBase {
+  kind: "LambdaExpression";
+  parameters: LogicParameter[];
+  body: LogicBlockExpression;
+}
+
+export interface LogicStringLiteral extends LogicNodeBase {
+  kind: "StringLiteral";
+  value: string;
+}
+
+export interface LogicNumericLiteral extends LogicNodeBase {
+  kind: "NumericLiteral";
+  value: number;
+}
+
+export interface LogicBooleanLiteral extends LogicNodeBase {
+  kind: "BooleanLiteral";
+  value: boolean;
+}
+
+export interface LogicParameter extends LogicNodeBase {
+  kind: "Parameter";
+  name: string;
+}
+
+export interface LogicIdentifier extends LogicNodeBase {
+  kind: "Identifier";
+  name: string;
+  type: Type;
+  referencedType?: Type;
+}
+
+export interface LogicTypeKeyword extends LogicNodeBase {
+  kind: "TypeKeyword";
+  name: "unknown" | "void" | "never";
+  type: UnknownType | VoidType | NeverType;
 }

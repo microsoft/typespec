@@ -882,6 +882,132 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes model members inside of a validate clause of model", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        prop: string;
+        prop2: string;
+        validate ┆
+      }
+      `
+    );
+    check(completions, [
+      {
+        label: "prop",
+        insertText: "prop",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```typespec\nFoo.prop: string\n```",
+        },
+      },
+      {
+        label: "prop2",
+        insertText: "prop2",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```typespec\nFoo.prop2: string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes value member inside of a validate clause of scalar", async () => {
+    const completions = await complete(
+      `
+      scalar Foo {
+        validate ┆
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "value",
+        insertText: "value",
+        kind: CompletionItemKind.Unit,
+        documentation: {
+          kind: "markdown",
+          value: "```typespec\nscalar Foo\n```",
+        },
+      },
+    ]);
+  });
+
+  it("Completes meta-members of arrays", async () => {
+    const completions = await complete(
+      `
+      alias Foo = string[];
+      alias Bar = Foo::┆
+      `
+    );
+
+    check(completions, [
+      {
+        label: "min",
+        insertText: "min",
+        kind: CompletionItemKind.Function,
+        documentation: undefined,
+      },
+      {
+        label: "max",
+        insertText: "max",
+        kind: CompletionItemKind.Function,
+        documentation: undefined,
+      },
+    ]);
+  });
+
+  it("Completes meta-members of model properties", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        prop: string;
+      }
+      alias Bar = Foo.prop::┆
+      `
+    );
+
+    check(completions, [
+      {
+        label: "type",
+        insertText: "type",
+        kind: CompletionItemKind.Unit,
+        documentation: { kind: "markdown", value: "```typespec\nscalar string\n```" },
+      },
+    ]);
+  });
+
+  it.only("Completes members of the type of model property references inside validates clauses", async () => {
+    const completions = await complete(
+      `
+      model Foo {
+        bar: Bar;
+
+        validate bar.┆
+      }
+
+      model Bar {
+        prop: string;
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "prop",
+        insertText: "prop",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: "markdown",
+          value: "(model property)\n```typespec\nBar.prop: string\n```",
+        },
+      },
+    ]);
+  });
+
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],

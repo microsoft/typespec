@@ -252,6 +252,9 @@ function addIdentifierCompletion(
 }
 
 function getCompletionItemKind(program: Program, target: Type): CompletionItemKind {
+  if (target.kind === "Intrinsic") {
+    return CompletionItemKind.Function;
+  }
   switch (target.node?.kind) {
     case SyntaxKind.EnumStatement:
     case SyntaxKind.UnionStatement:
