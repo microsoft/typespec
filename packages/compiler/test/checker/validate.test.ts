@@ -270,6 +270,24 @@ describe("compiler: validate", () => {
     // TODO: Validate
   });
 
+  it.only("produces union types for if statements", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test model M {
+        string: string;
+        int32: int32;
+        numeric: numeric;
+        
+        // this check will only succeed if we properly produce a union type
+        validate c1: if (true) { string; } else { int32; } == int32;
+      }
+      `
+    );
+
+    await testHost.compile("main.tsp");
+  });
+
   it.skip("doesn't allow references decorators", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",

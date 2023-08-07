@@ -2318,6 +2318,7 @@ export interface LogicMemberExpression extends LogicNodeBase {
   id: string;
   selector: "." | "::";
   type: Type;
+  referencedType?: Type;
 }
 
 export interface LogicIfExpression extends LogicNodeBase {
@@ -2362,6 +2363,7 @@ export interface LogicIdentifier extends LogicNodeBase {
   kind: "Identifier";
   name: string;
   type: Type;
+  referencedType?: Type;
 }
 
 export interface LogicTypeKeyword extends LogicNodeBase {

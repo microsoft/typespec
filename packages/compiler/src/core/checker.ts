@@ -1923,7 +1923,7 @@ export function createChecker(program: Program): Checker {
             const metaTable = getOrCreateAugmentedSymbolTable(base.metatypeMembers!);
             base = getAliasedSymbol(metaTable.get("type")!, undefined)!;
           }
-          
+
           if (base.flags & SymbolFlags.Alias) {
             base = getAliasedSymbol(base, undefined);
           }
@@ -3325,6 +3325,9 @@ export function createChecker(program: Program): Checker {
         const leftType = left.type.kind === "ModelProperty" ? left.type.type : left.type;
         const rightType = right.type.kind === "ModelProperty" ? right.type.type : right.type;
 
+        console.log({ leftType, rightType });
+        debugger;
+
         if (
           !isTypeAssignableTo(leftType, rightType, node)[0] &&
           !isTypeAssignableTo(rightType, leftType, node)[0]
@@ -3406,6 +3409,14 @@ export function createChecker(program: Program): Checker {
           return undefined;
         }
 
+        let type: Type;
+        if (!alternate || consequent.type === alternate.type) {
+          // fast path for common cases of no-else or equal types in both branches
+          type = consequent.type;
+        } else {
+          type = reducedUnionType([consequent.type, alternate.type]);
+        }
+
         return {
           logic: {
             kind: "IfExpression",
@@ -3413,7 +3424,7 @@ export function createChecker(program: Program): Checker {
             consequent: consequent.logic as LogicBlockExpression,
             alternate: node.alternate ? (alternate!.logic as LogicBlockExpression) : undefined,
           },
-          type: unknownType, // TODO: Union of consequent and alternate types
+          type,
         };
       }
       case SyntaxKind.ProjectionBlockExpression: {
@@ -3478,7 +3489,13 @@ export function createChecker(program: Program): Checker {
             return undefined;
           }
 
-          const type = checkTypeReferenceSymbol(sym!, node, mapper);
+          let type = checkTypeReferenceSymbol(sym!, node, mapper);
+          let referencedType: Type | undefined = undefined;
+
+          if (type.kind === "ModelProperty") {
+            referencedType = type;
+            type = type.type;
+          }
 
           if (node.kind === SyntaxKind.Identifier) {
             return {
@@ -3486,6 +3503,7 @@ export function createChecker(program: Program): Checker {
                 kind: "Identifier",
                 name: node.sv,
                 type,
+                referencedType,
               },
               type,
             };
@@ -3499,6 +3517,7 @@ export function createChecker(program: Program): Checker {
                 base: base.logic,
                 id: node.id.sv,
                 type,
+                referencedType,
                 selector: node.selector,
               },
               type,
@@ -3572,6 +3591,67 @@ export function createChecker(program: Program): Checker {
         };
       default:
         throw new Error("FAIL" + SyntaxKind[node.kind]);
+    }
+  }
+
+  function reducedUnionType(types: Type[]) {
+    const variantTypes: { name: string | symbol; type: Type }[] = [];
+
+    for (const type of types) {
+      if (isNeverType(type)) {
+        continue;
+      } else if (type.kind === "Union") {
+        for (const [name, { type: variantType }] of type.variants) {
+          variantTypes.push({ name, type: variantType });
+        }
+      } else {
+        variantTypes.push({ name: Symbol("name"), type });
+      }
+    }
+
+    let i = variantTypes.length;
+    while (i > 0) {
+      i--;
+      const source = variantTypes[i];
+      for (const target of variantTypes) {
+        if (source === target) continue;
+        if (isTypeAssignableTo(source.type, target.type, source.type)[0]) {
+          variantTypes.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    if (variantTypes.length === 0) {
+      return neverType;
+    } else if (variantTypes.length === 1) {
+      return variantTypes[0].type;
+    } else {
+      const unionType: Union = createAndFinishType({
+        kind: "Union",
+        node: undefined as any, // TODO: need a strategy for "virtual" types
+        get options() {
+          return Array.from(this.variants.values()).map((v) => v.type);
+        },
+        expression: true,
+        variants: createRekeyableMap(),
+        decorators: [],
+      });
+
+      for (const { name, type } of variantTypes) {
+        const variant: UnionVariant = createAndFinishType({
+          kind: "UnionVariant",
+          type,
+          name,
+          decorators: [],
+          node: undefined,
+          union: unionType,
+        });
+
+        unionType.variants.set(name, variant);
+      }
+
+      return unionType;
     }
   }
 
