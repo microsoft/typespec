@@ -5,38 +5,13 @@ parameters:
     type: string
 
 steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: ${{ parameters.nodeVersion }}
-    displayName: Install Node.js
-
-  - task: UseDotNet@2
-    inputs:
-      version: 6.0.x
-
-  - script: |
-      echo "Node:"
-      node -v
-      echo "Npm:"
-      npm -v
-      echo "Dotnet:"
-      dotnet --version
-    displayName: "Log tool versions used"
-
-  - script: node common/scripts/install-run-rush.js install
-    displayName: Install JavaScript Dependencies
-
-  - script: dotnet restore
-    displayName: Restore .NET Dependencies
-    workingDirectory: packages/typespec-vs
-
-  - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
-    displayName: Build
+  - template: ../templates/install.yml
+  - template: ../templates/build.yml
 
   - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
     displayName: Test
 
-  - template: ./upload-coverage.yml
+  - template: ../tempalates/upload-coverage.yml
 
   - script: node common/scripts/install-run-rush.js check-format
     displayName: Check Formatting

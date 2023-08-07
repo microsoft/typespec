@@ -6,7 +6,9 @@ pr:
 
 jobs:
   - job: Build_And_Test
-
+    variables:
+      TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
     strategy:
       matrix:
         # Node 16
@@ -47,20 +49,13 @@ jobs:
       vmImage: $(imageName)
 
     steps:
-      - script: |
-          echo ##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true
-        displayName: Enable official Visual Studio extension build
-        condition: eq(variables['Agent.OS'], 'Windows_NT')
-
-      - script: |
-          echo ##vso[task.setvariable variable=TYPESPEC_SKIP_DOCUSAURUS_BUILD;]true
-        displayName: Disable docusaurus build
-        condition: eq(variables['Agent.OS'], 'Windows_NT')
-
-      - template: pull-request-common.yml
+      - template: ./jobs/build-and-test.yml
         parameters:
           nodeVersion: $(nodeVersion)
           poolName: $(pool)
+
+  - job: publish_artifacts
+    template: ./jobs/publish-artifacts.yml
 
   - job: docker_build
     pool:
@@ -76,4 +71,4 @@ jobs:
       vmImage: ubuntu-20.04
 
     steps:
-      - template: pull-request-consistency.yml
+      - template: ./templates/pull-request-consistency.yml
