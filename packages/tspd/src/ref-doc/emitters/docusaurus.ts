@@ -1,68 +1,54 @@
-import * as prettier from "prettier";
 import {
-  DecoratorRefDoc,
-  EmitterOptionRefDoc,
-  EnumRefDoc,
-  ExampleRefDoc,
-  InterfaceRefDoc,
-  ModelRefDoc,
-  NamespaceRefDoc,
-  OperationRefDoc,
-  ScalarRefDoc,
-  TemplateParameterRefDoc,
+  NamedTypeRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
   TypeSpecRefDocBase,
-  UnionRefDoc,
 } from "../types.js";
-import { codeblock, headings, inlinecode, table, tabs } from "../utils/markdown.js";
-import { getTypeSignature } from "../utils/type-signature.js";
+import {
+  MarkdownDoc,
+  MarkdownSection,
+  codeblock,
+  inlinecode,
+  renderMarkdowDoc,
+  section,
+  tabs,
+} from "../utils/markdown.js";
+import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
 /**
  * Render doc to a markdown using docusaurus addons.
  */
-export async function renderToDocusaurusMarkdown(
-  refDoc: TypeSpecRefDoc
-): Promise<Record<string, string>> {
+export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
+  const renderer = new DocusaurusRenderer();
   const files: Record<string, string> = {
-    "index.md": renderIndexFile(refDoc),
+    "index.md": renderIndexFile(renderer, refDoc),
   };
 
-  const decoratorFile = renderDecoratorFile(refDoc);
+  const decoratorFile = renderDecoratorFile(renderer, refDoc);
   if (decoratorFile) {
     files["decorators.md"] = decoratorFile;
   }
 
-  const interfaceFile = renderInterfacesFile(refDoc);
+  const interfaceFile = renderInterfacesFile(renderer, refDoc);
   if (interfaceFile) {
     files["interfaces.md"] = interfaceFile;
   }
 
-  const dataTypes = renderDataTypes(refDoc);
+  const dataTypes = renderDataTypes(renderer, refDoc);
   if (dataTypes) {
     files["data-types.md"] = dataTypes;
   }
 
-  const emitter = renderEmitter(refDoc);
+  const emitter = renderEmitter(renderer, refDoc);
   if (emitter) {
     files["emitter.md"] = emitter;
   }
 
-  for (const [file, content] of Object.entries(files)) {
-    try {
-      files[file] = await prettier.format(content, {
-        parser: "markdown",
-      });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(`Cannot format with prettier ${file}`);
-    }
-  }
   return files;
 }
 
-function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
-  const content = [
+function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRefDoc): string {
+  const content: MarkdownDoc = [
     "---",
     `title: Overview`,
     `sidebar_position: 0`,
@@ -72,74 +58,50 @@ function renderIndexFile(refDoc: TypeSpecLibraryRefDoc): string {
     "import Tabs from '@theme/Tabs';",
     "import TabItem from '@theme/TabItem';",
     "",
+
+    section("Overview", [
+      refDoc.description ?? [],
+      renderer.install(refDoc),
+      refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
+
+      groupByNamespace(refDoc.namespaces, (namespace) => {
+        const content = [];
+
+        if (namespace.decorators.length > 0) {
+          content.push(
+            section("Decorators", renderer.toc(namespace.decorators, "./decorators.md"))
+          );
+        }
+
+        if (namespace.interfaces.length > 0) {
+          content.push(
+            section("Interfaces", renderer.toc(namespace.interfaces, "./interfaces.md"))
+          );
+        }
+
+        if (namespace.operations.length > 0) {
+          content.push(
+            section("Operations", renderer.toc(namespace.operations, "./interfaces.md"))
+          );
+        }
+
+        if (namespace.models.length > 0) {
+          content.push(section("Models", renderer.toc(namespace.models, "./data-types.md")));
+        }
+        return content;
+      }),
+    ]),
   ];
 
-  if (refDoc.description) {
-    content.push(refDoc.description);
-  }
-  content.push(headings.h2("Install"));
-  content.push(
-    tabs([
-      { id: "spec", label: "In a spec", content: codeblock(`npm install ${refDoc.name}`, "bash") },
-      {
-        id: "library",
-        label: "In a library",
-        content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
-      },
-    ])
-  );
-
-  if (refDoc.emitter?.options) {
-    content.push(headings.h3("Emitter usage"), "");
-    content.push(`[See documentation](./emitter.md)`);
-  }
-
-  for (const namespace of refDoc.namespaces) {
-    content.push(headings.h2(namespace.id), "");
-
-    if (namespace.decorators.length > 0) {
-      content.push(headings.h3("Decorators"), "");
-      const listContent = [];
-      for (const decorator of namespace.decorators) {
-        listContent.push(` - [${inlinecode(decorator.name)}](./decorators.md#${decorator.id})`);
-      }
-      content.push(...listContent);
-    }
-
-    if (namespace.interfaces.length > 0) {
-      content.push(headings.h3("Interfaces"), "");
-      const listContent = [];
-      for (const iface of namespace.interfaces) {
-        listContent.push(` - [${inlinecode(iface.name)}](./interfaces.md#${iface.id})`);
-      }
-      content.push(...listContent);
-    }
-
-    if (namespace.operations.length > 0) {
-      content.push(headings.h3("Operations"), "");
-      const listContent = [];
-      for (const operation of namespace.operations) {
-        listContent.push(` - [${inlinecode(operation.name)}](./interfaces.md#${operation.id})`);
-      }
-      content.push(...listContent);
-    }
-
-    if (namespace.models.length > 0) {
-      content.push(headings.h3("Models"), "");
-      const listContent = [];
-      for (const model of namespace.models) {
-        listContent.push(` - [${inlinecode(model.name)}](./data-types.md#${model.id})`);
-      }
-      content.push(...listContent);
-    }
-  }
-  return content.join("\n");
+  return renderMarkdowDoc(content);
 }
 
 export type DecoratorRenderOptions = {
   title?: string;
 };
+
 export function renderDecoratorFile(
+  renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDocBase,
   options?: DecoratorRenderOptions
 ): string | undefined {
@@ -147,322 +109,145 @@ export function renderDecoratorFile(
     return undefined;
   }
   const title = options?.title ?? "Decorators";
-  const content = [
+  const content: MarkdownDoc = [
     "---",
     `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1(title),
   ];
 
-  content.push(
-    groupByNamespace(refDoc.namespaces, (namespace) => {
-      if (namespace.decorators.length === 0) {
-        return undefined;
-      }
-      const content: string[] = [];
-      for (const dec of namespace.decorators) {
-        content.push(renderDecoratorMarkdown(dec), "");
-      }
-      return content.join("\n");
-    })
-  );
-
-  return content.join("\n");
+  content.push(section(title, renderer.decoratorsSection(refDoc)));
+  return renderMarkdowDoc(content);
 }
 
-function renderDecoratorMarkdown(dec: DecoratorRefDoc, headingLevel: number = 3): string {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(dec.name)} {#${dec.id}}`),
-    "",
-    dec.doc,
-    codeblock(dec.signature, "typespec"),
-    "",
-  ];
-
-  content.push(
-    headings.hx(headingLevel + 1, "Target"),
-    dec.target.doc,
-    inlinecode(getTypeSignature(dec.target.type.type)),
-    ""
-  );
-
-  if (dec.parameters.length > 0) {
-    const paramTable: string[][] = [["Name", "Type", "Description"]];
-    for (const param of dec.parameters) {
-      paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
-    }
-    content.push(headings.hx(headingLevel + 1, "Parameters"), table(paramTable), "");
-  } else {
-    content.push(headings.hx(headingLevel + 1, "Parameters"), "None", "");
-  }
-
-  content.push(renderExamples(dec.examples, headingLevel + 1));
-
-  return content.join("\n");
-}
-
-function renderExamples(examples: ExampleRefDoc[], headingLevel: number) {
-  const content = [];
-  if (examples.length === 0) {
-    return "";
-  }
-
-  content.push(headings.hx(headingLevel, "Examples"));
-  for (const example of examples) {
-    if (example.title) {
-      content.push(headings.hx(headingLevel + 1, example.title));
-    }
-    content.push("", example.content, "");
-  }
-  return content.join("\n");
-}
-
-function renderInterfacesFile(refDoc: TypeSpecRefDoc): string | undefined {
+function renderInterfacesFile(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecRefDoc
+): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
     return undefined;
   }
-  const content = [
+  const content: MarkdownDoc = [
     "---",
     `title: "Interfaces and Operations"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1("Interfaces and Operations"),
   ];
 
   content.push(
-    groupByNamespace(refDoc.namespaces, (namespace) => {
-      if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
-        return undefined;
-      }
+    section("Interfaces and Operations", [
+      groupByNamespace(refDoc.namespaces, (namespace) => {
+        if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
+          return undefined;
+        }
 
-      const content = [];
-      for (const iface of namespace.interfaces) {
-        content.push(renderInterfaceMarkdown(iface), "");
-      }
+        const content: MarkdownDoc = [];
+        for (const iface of namespace.interfaces) {
+          content.push(renderer.interface(iface), "");
+        }
 
-      for (const operation of namespace.operations) {
-        content.push(renderOperationMarkdown(operation), "");
-      }
-      return content.join("\n");
-    })
+        for (const operation of namespace.operations) {
+          content.push(renderer.operation(operation), "");
+        }
+        return content;
+      }),
+    ])
   );
 
-  return content.join("\n");
+  return renderMarkdowDoc(content);
 }
 
-function renderOperationMarkdown(op: OperationRefDoc, headingLevel: number = 3) {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(op.name)} {#${op.id}}`),
-    "",
-    op.doc,
-    codeblock(op.signature, "typespec"),
-    "",
-  ];
-
-  if (op.templateParameters) {
-    content.push(renderTemplateParametersTable(op.templateParameters, headingLevel + 1));
-  }
-
-  content.push(renderExamples(op.examples, headingLevel + 1));
-
-  return content.join("\n");
-}
-
-function renderTemplateParametersTable(
-  templateParameters: TemplateParameterRefDoc[],
-  headingLevel: number
-) {
-  const paramTable: string[][] = [["Name", "Description"]];
-  for (const param of templateParameters) {
-    paramTable.push([param.name, param.doc]);
-  }
-
-  return [headings.hx(headingLevel, "Template Parameters"), table(paramTable), ""].join("\n");
-}
-
-function renderInterfaceMarkdown(iface: InterfaceRefDoc, headingLevel: number = 3) {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(iface.name)} {#${iface.id}}`),
-    "",
-    iface.doc,
-    codeblock(iface.signature, "typespec"),
-    "",
-  ];
-
-  if (iface.templateParameters) {
-    content.push(renderTemplateParametersTable(iface.templateParameters, headingLevel + 1));
-  }
-
-  if (iface.interfaceOperations.length > 0) {
-    for (const op of iface.interfaceOperations) {
-      content.push(renderOperationMarkdown(op, headingLevel + 1));
-    }
-  }
-
-  content.push(renderExamples(iface.examples, headingLevel + 1));
-
-  return content.join("\n");
-}
-
-function renderDataTypes(refDoc: TypeSpecRefDoc): string | undefined {
+function renderDataTypes(renderer: DocusaurusRenderer, refDoc: TypeSpecRefDoc): string | undefined {
   if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
     return undefined;
   }
-  const content = [
+  const content: MarkdownDoc = [
     "---",
     `title: "Data types"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1("Data types"),
   ];
 
   content.push(
-    groupByNamespace(refDoc.namespaces, (namespace) => {
-      const modelCount =
-        namespace.models.length +
-        namespace.enums.length +
-        namespace.unions.length +
-        namespace.scalars.length;
-      if (modelCount === 0) {
-        return undefined;
-      }
-      const content = [];
-      for (const model of namespace.models) {
-        content.push(renderModel(model), "");
-      }
-      for (const e of namespace.enums) {
-        content.push(renderEnum(e), "");
-      }
-      for (const union of namespace.unions) {
-        content.push(renderUnion(union), "");
-      }
-      for (const scalar of namespace.scalars) {
-        content.push(renderScalar(scalar), "");
-      }
-      return content.join("\n");
-    })
+    section(
+      "Data types",
+      groupByNamespace(refDoc.namespaces, (namespace) => {
+        const modelCount =
+          namespace.models.length +
+          namespace.enums.length +
+          namespace.unions.length +
+          namespace.scalars.length;
+        if (modelCount === 0) {
+          return undefined;
+        }
+        const content: MarkdownDoc = [];
+        for (const model of namespace.models) {
+          content.push(renderer.model(model), "");
+        }
+        for (const e of namespace.enums) {
+          content.push(renderer.enum(e), "");
+        }
+        for (const union of namespace.unions) {
+          content.push(renderer.union(union), "");
+        }
+        for (const scalar of namespace.scalars) {
+          content.push(renderer.scalar(scalar), "");
+        }
+        return content;
+      })
+    )
   );
 
-  return content.join("\n");
+  return renderMarkdowDoc(content);
 }
 
-function renderModel(model: ModelRefDoc, headingLevel: number = 3): string {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(model.name)} {#${model.id}}`),
-    "",
-    model.doc,
-    codeblock(model.signature, "typespec"),
-    "",
-  ];
-
-  if (model.templateParameters) {
-    content.push(renderTemplateParametersTable(model.templateParameters, headingLevel + 1));
-  }
-
-  content.push(renderExamples(model.examples, headingLevel + 1));
-
-  return content.join("\n");
-}
-
-function renderEnum(e: EnumRefDoc, headingLevel: number = 3): string {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(e.name)} {#${e.id}}`),
-    "",
-    e.doc,
-    codeblock(e.signature, "typespec"),
-    "",
-    renderExamples(e.examples, headingLevel + 1),
-  ];
-
-  return content.join("\n");
-}
-
-function renderUnion(union: UnionRefDoc, headingLevel: number = 3): string {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(union.name)} {#${union.id}}`),
-    "",
-    union.doc,
-    codeblock(union.signature, "typespec"),
-    "",
-  ];
-
-  if (union.templateParameters) {
-    content.push(renderTemplateParametersTable(union.templateParameters, headingLevel + 1));
-  }
-
-  content.push(renderExamples(union.examples, headingLevel + 1));
-
-  return content.join("\n");
-}
-
-function renderScalar(scalar: ScalarRefDoc, headingLevel: number = 3): string {
-  const content = [
-    headings.hx(headingLevel, `${inlinecode(scalar.name)} {#${scalar.id}}`),
-    "",
-    scalar.doc,
-    codeblock(scalar.signature, "typespec"),
-    "",
-  ];
-
-  if (scalar.templateParameters) {
-    content.push(renderTemplateParametersTable(scalar.templateParameters, headingLevel + 1));
-  }
-
-  content.push(renderExamples(scalar.examples, headingLevel + 1));
-
-  return content.join("\n");
-}
-
-function renderEmitter(refDoc: TypeSpecLibraryRefDoc): string | undefined {
+function renderEmitter(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecLibraryRefDoc
+): string | undefined {
   if (refDoc.emitter?.options === undefined) {
     return undefined;
   }
-  const content = [
+  const content: MarkdownDoc = [
     "---",
     `title: "Emitter usage"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    headings.h1("Emitter usage"),
+    renderer.emitterUsage(refDoc),
   ];
 
-  content.push(headings.h2("Usage"));
-  content.push("1. Via the command line");
-  content.push(codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"));
-  content.push("2. Via the config");
-  content.push(codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"));
-
-  content.push(renderEmitterOptions(refDoc.emitter.options));
-
-  return content.join("\n");
+  return renderMarkdowDoc(content);
 }
 
-function renderEmitterOptions(options: EmitterOptionRefDoc[]): string {
-  const content = [headings.h2("Emitter options")];
-  for (const option of options) {
-    content.push(headings.h3(`${inlinecode(option.name)}`));
-    content.push(`**Type:** ${inlinecode(option.type)}`, "");
-
-    content.push(option.doc);
+export class DocusaurusRenderer extends MarkdownRenderer {
+  headingTitle(item: NamedTypeRefDoc): string {
+    // Set an explicit anchor id.
+    return `${inlinecode(item.name)} {#${item.id}}`;
   }
-  return content.join("\n");
-}
-
-function groupByNamespace(
-  namespaces: NamespaceRefDoc[],
-  callback: (namespace: NamespaceRefDoc) => string | undefined
-): string {
-  const content = [];
-  for (const namespace of namespaces) {
-    const contentForNamespace = callback(namespace);
-    if (contentForNamespace) {
-      content.push(headings.h2(namespace.id), "");
-      content.push(contentForNamespace, "");
-    }
+  anchorId(item: NamedTypeRefDoc): string {
+    // Set an explicit anchor id.
+    return item.id;
   }
-  return content.join("\n");
+
+  install(refDoc: TypeSpecLibraryRefDoc): MarkdownSection {
+    return section(
+      "Install",
+      tabs([
+        {
+          id: "spec",
+          label: "In a spec",
+          content: codeblock(`npm install ${refDoc.name}`, "bash"),
+        },
+        {
+          id: "library",
+          label: "In a library",
+          content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
+        },
+      ])
+    );
+  }
 }

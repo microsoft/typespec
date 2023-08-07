@@ -8,6 +8,8 @@ toc_max_heading_level: 3
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+# Overview
+
 TypeSpec library providing OpenAPI concepts
 
 ## Install
