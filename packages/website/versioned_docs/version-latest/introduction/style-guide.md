@@ -17,7 +17,7 @@ The guidelines in this article are used in TypeSpec Core libraries. You can use 
 | scalar           | camelCase                                    | `scalar uuid extends string;`                    |
 | model            | PascalCase                                   | `model Pet {}`                                   |
 | model property   | camelCase                                    | `model Pet {furColor: string}`                   |
-| enum             | PascalCase                                   | `model Pet {furColor: string}`                   |
+| enum             | PascalCase                                   | `enum Direction {}`                              |
 | enum member      | camelCase                                    | `enum Direction {up, down}`                      |
 | namespace        | PascalCase                                   | `namespace Org.PetStore`                         |
 | interface        | PascalCase                                   | `interface Stores {}`                            |
@@ -169,15 +169,17 @@ alias foo = [1, 2, 3];
 // bad
 model Foo {
   one: string;
+
   two: string;
-  tree: string;
+
+  three: string;
 }
 
 // good
 model Foo {
   one: string;
   two: string;
-  tree: string;
+  three: string;
 }
 ```
 
@@ -191,7 +193,7 @@ model Foo {
   @doc("Foo")
   two: string;
   // line comment
-  tree: string;
+  three: string;
   /**
    *  Block comment
    */
@@ -207,7 +209,7 @@ model Foo {
   two: string;
 
   // line comment
-  tree: string;
+  three: string;
 
   /**
    *  Block comment

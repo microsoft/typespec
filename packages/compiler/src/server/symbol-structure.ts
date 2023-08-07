@@ -59,7 +59,9 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
       case SyntaxKind.UnionStatement:
         return getForUnion(node);
       case SyntaxKind.UnionVariant:
-        return createDocumentSymbol(node, getName(node.id), SymbolKind.EnumMember);
+        return node.id === undefined
+          ? undefined
+          : createDocumentSymbol(node, getName(node.id), SymbolKind.EnumMember);
       case SyntaxKind.EnumStatement:
         return getForEnum(node);
       case SyntaxKind.EnumMember:
