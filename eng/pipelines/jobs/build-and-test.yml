@@ -11,7 +11,7 @@ steps:
   - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
     displayName: Test
 
-  - template: ../tempalates/upload-coverage.yml
+  - template: ../templates/upload-coverage.yml
 
   - script: node common/scripts/install-run-rush.js check-format
     displayName: Check Formatting
