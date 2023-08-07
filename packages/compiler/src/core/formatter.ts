@@ -1,9 +1,10 @@
-import prettier from "prettier";
+import type { Options } from "prettier";
+import { check, format } from "prettier/standalone";
 import * as typespecPrettierPlugin from "../formatter/index.js";
 export { printId as formatIdentifier } from "../formatter/print/printer.js";
 
-export function formatTypeSpec(code: string, prettierConfig?: prettier.Options): string {
-  const output = prettier.format(code, {
+export async function formatTypeSpec(code: string, prettierConfig?: Options): Promise<string> {
+  const output = await format(code, {
     ...prettierConfig,
     parser: "typespec",
     plugins: [typespecPrettierPlugin],
@@ -21,9 +22,9 @@ export const checkFormatCadl = checkFormatTypeSpec;
  */
 export async function checkFormatTypeSpec(
   code: string,
-  prettierConfig?: prettier.Options
+  prettierConfig?: Options
 ): Promise<boolean> {
-  return prettier.check(code, {
+  return check(code, {
     ...prettierConfig,
     parser: "typespec",
     plugins: [typespecPrettierPlugin],

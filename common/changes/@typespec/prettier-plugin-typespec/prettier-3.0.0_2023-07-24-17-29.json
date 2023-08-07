@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/prettier-plugin-typespec",
+      "comment": "Added support for prettier 3.0",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/prettier-plugin-typespec"
+}

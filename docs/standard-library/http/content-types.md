@@ -2,20 +2,15 @@
 
 ## Default behavior
 
-Depending on the body of the operation http library will assume different content types:
-
-- `bytes`: `application/octet-stream`
-- `string`: `text/plain`
-- otherwise `application/json`
+Content type is assumed to be `application/json` by default regardless of the type of the request or response body.
 
 **Examples:**
 
 ```typespec
-op download(): bytes; // response content type is application/octet-stream
-op upload(@body file: bytes): void; // request content type is application/octet-stream
-op getContent(): string; // response content type is text/plain
+op download(): bytes; // Returns a json string with the bytes serialized as a base64.
+op getContent(): string; // Returns a json string
 op getPet(): {
-  // response content type is application/json
+  // Json object with a name property.
   name: string;
 };
 ```

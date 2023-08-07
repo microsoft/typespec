@@ -2,12 +2,12 @@ import { strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
-import prettier from "prettier";
+import * as prettier from "prettier";
 import { fileURLToPath } from "url";
 import * as plugin from "../../../src/formatter/index.js";
 
-function format(code: string): string {
-  const output = prettier.format(code, {
+async function format(code: string): Promise<string> {
+  const output = await prettier.format(code, {
     parser: "typespec",
     plugins: [plugin],
   });
@@ -36,7 +36,7 @@ async function saveOutput(name: string, content: string) {
 async function testScenario(name: string) {
   const content = await readFile(join(scenarioRoot, "inputs", name), "utf-8");
   const output = await getOutput(name);
-  const formatted = format(content);
+  const formatted = await format(content);
   if (!output) {
     return await saveOutput(name, formatted);
   }
