@@ -70,4 +70,4 @@ jobs:
       vmImage: ubuntu-20.04
 
     steps:
-      - template: ./templates/pull-request-consistency.yml
+      - template: ./jobs/pull-request-consistency.yml
