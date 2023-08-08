@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { notStrictEqual, strictEqual } from "assert";
 import { IntrinsicType, LogicCallExpression, Model, Scalar } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
@@ -137,14 +137,14 @@ describe.only("compiler: validate", () => {
 
   it.skip("resolves identifiers");
   it.skip("resolves member expressions");
-  it.skip("converts logic expressions to a useful AST", async () => {
+  it("converts logic expressions to a useful AST", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `  
       @test model M {
         ii: int64;
 
-        validate chkii: ii >= if true { true; } else { false; };
+        validate chkii: ii >= if true { 1; } else { 2; };
       }
       `
     );
@@ -153,7 +153,29 @@ describe.only("compiler: validate", () => {
       M: Model;
     };
 
-    console.log(M.validates.get("chkii2")?.logic);
+    notStrictEqual(M.validates.get("chkii")?.logic, undefined);
+
+    const n1 = M.validates.get("chkii")!.logic;
+    strictEqual(n1.kind, "RelationalExpression");
+
+    const n2 = n1.left;
+    strictEqual(n2.kind, "ReferenceExpression");
+    strictEqual(n2.target.kind, "Identifier");
+    strictEqual(n2.target.name, "ii");
+    strictEqual(n2.type.kind, "Scalar");
+    strictEqual(n2.type.name, "int64");
+
+    const n3 = n1.right;
+    strictEqual(n3.kind, "IfExpression");
+    strictEqual(n3.test.kind, "BooleanLiteral");
+
+    const n4 = n3.consequent;
+    strictEqual(n4.kind, "BlockExpression");
+    strictEqual(n4.statements.length, 1);
+
+    const n5 = n4.statements[0];
+    strictEqual(n5.expr.kind, "NumericLiteral");
+    strictEqual(n5.expr.value, 1);
   });
 
   it.skip("checks that operands of logical expressions are booleans", async () => {
