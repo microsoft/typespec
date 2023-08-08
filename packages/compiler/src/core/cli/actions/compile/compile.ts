@@ -26,7 +26,7 @@ export async function compileAction(
   }
   const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
 
-  if (cliOptions.watchForChanges) {
+  if (args.watch) {
     await compileWatch(host, entrypoint, cliOptions);
   } else {
     await compileOnce(host, entrypoint, cliOptions);
