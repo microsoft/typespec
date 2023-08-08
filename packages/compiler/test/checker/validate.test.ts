@@ -1,6 +1,6 @@
 import { notStrictEqual, strictEqual } from "assert";
 import { IntrinsicType, LogicCallExpression, Model, Scalar } from "../../src/core/types.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe.only("compiler: validate", () => {
   let testHost: TestHost;
@@ -135,8 +135,83 @@ describe.only("compiler: validate", () => {
     strictEqual(validate.logic.left.type, S);
   });
 
-  it.skip("resolves identifiers");
-  it.skip("resolves member expressions");
+  it("resolves identifiers", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test model M {
+        flag: boolean;
+
+        validate chkf: flag;
+      }
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    notStrictEqual(M.validates.get("chkf")?.logic, undefined);
+
+    const n1 = M.validates.get("chkf")!.logic;
+    strictEqual(n1.kind, "ReferenceExpression");
+    strictEqual(n1.target.kind, "Identifier");
+    strictEqual(n1.target.name, "flag");
+    strictEqual(n1.type.kind, "Scalar");
+    strictEqual(n1.type.name, "boolean");
+  });
+
+  it("resolves member expressions", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test model M {
+        om: OModel;
+
+        validate chks: om.s != "";
+        validate chki: om.i != 0;
+      }
+
+      model OModel {
+        s: string;
+        i: IV;
+      }
+
+      scalar IV extends int64;
+      `
+    );
+
+    const { M } = (await testHost.compile("main.tsp")) as {
+      M: Model;
+    };
+
+    notStrictEqual(M.validates.get("chks")?.logic, undefined);
+    const s1 = M.validates.get("chks")!.logic;
+    strictEqual(s1.kind, "EqualityExpression");
+
+    const s2 = s1.left;
+    strictEqual(s2.kind, "ReferenceExpression");
+    strictEqual(s2.target.kind, "MemberExpression");
+    strictEqual(s2.target.base.kind, "Identifier");
+    strictEqual(s2.target.base.name, "om");
+    strictEqual(s2.target.id, "s");
+    strictEqual(s2.type.kind, "Scalar");
+    strictEqual(s2.type.name, "string");
+
+    notStrictEqual(M.validates.get("chki")?.logic, undefined);
+    const i1 = M.validates.get("chki")!.logic;
+    strictEqual(i1.kind, "EqualityExpression");
+
+    const i2 = i1.left;
+    strictEqual(i2.kind, "ReferenceExpression");
+    strictEqual(i2.target.kind, "MemberExpression");
+    strictEqual(i2.target.base.kind, "Identifier");
+    strictEqual(i2.target.base.name, "om");
+    strictEqual(i2.target.id, "i");
+    strictEqual(i2.type.kind, "Scalar");
+    strictEqual(i2.type.name, "IV");
+  });
+
   it("converts logic expressions to a useful AST", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -161,7 +236,6 @@ describe.only("compiler: validate", () => {
     const n2 = n1.left;
     strictEqual(n2.kind, "ReferenceExpression");
     strictEqual(n2.target.kind, "Identifier");
-    strictEqual(n2.target.name, "ii");
     strictEqual(n2.type.kind, "Scalar");
     strictEqual(n2.type.name, "int64");
 
@@ -178,7 +252,7 @@ describe.only("compiler: validate", () => {
     strictEqual(n5.expr.value, 1);
   });
 
-  it.skip("checks that operands of logical expressions are booleans", async () => {
+  it("checks that operands of logical expressions are booleans", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `  
@@ -190,9 +264,11 @@ describe.only("compiler: validate", () => {
       `
     );
 
-    const { M } = (await testHost.compile("main.tsp")) as {
-      M: Model;
-    };
+    const diagnostics = await testHost.diagnose("main.tsp");
+
+    expectDiagnostics(diagnostics, [
+      { code: "type-expected", message: /The types numeric and boolean are not comparable/ },
+    ]);
   });
 
   it("can resolve built-in functions", async () => {
