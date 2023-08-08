@@ -1,7 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
-import { YamlDiagnosticTarget } from "../yaml/types.js";
+import { YamlDiagnosticTarget, YamlScript } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
 
@@ -1952,7 +1952,7 @@ export interface JSONSchemaValidator {
    * @param target Source file target to use for diagnostics.
    * @returns Diagnostics produced by schema validation of the configuration.
    */
-  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+  validate(config: unknown, target: YamlScript | SourceFile | typeof NoTarget): Diagnostic[];
 }
 
 /** @deprecated Use TypeSpecLibraryDef */

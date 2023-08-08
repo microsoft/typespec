@@ -175,7 +175,7 @@ async function loadConfigFile(
   let data: any = yamlScript.value;
 
   if (data) {
-    diagnostics = diagnostics.concat(configValidator.validate(data, file));
+    diagnostics = diagnostics.concat(configValidator.validate(data, yamlScript));
   }
 
   if (!data || diagnostics.length > 0) {
