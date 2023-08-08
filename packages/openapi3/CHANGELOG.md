@@ -1,6 +1,18 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+This log was last generated on Tue, 08 Aug 2023 20:52:00 GMT and should not be manually modified.
+
+## 0.47.0
+Tue, 08 Aug 2023 20:52:00 GMT
+
+### Updates
+
+- Handle general encodings for utcDateTime
+- Add support for  `@info` decorator providing the ability to specify the additional fields from openapi info object.
+- Emit diagnostic for empty unions
+- Fix: Apply `@minItems` and `@maxItems` decorators on model array.
+- Fix `@useRef` decorator serializing `$ref` as an object.
+- Support collection formats: simple, form, ssv and pipes.
 
 ## 0.46.0
 Tue, 11 Jul 2023 22:06:00 GMT

@@ -1,6 +1,31 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+This log was last generated on Tue, 08 Aug 2023 20:52:00 GMT and should not be manually modified.
+
+## 0.47.0
+Tue, 08 Aug 2023 20:52:00 GMT
+
+### Updates
+
+- Allow omitting variant names in union declarations
+- Internal: Refactoring of cli code
+- Other cli commands reuse the diagnostic system to report errors
+- Add `#deprecated` directive to replace `@deprecated` decorator
+- Add `--ignore-deprecated` CLI argument to suppress all `deprecated` diagnostics
+- **Breaking change** Emitter Framework: `sourceFile` method can return a `Promise`. This allows running async processes when generating the file content, a formatter for example. This result in a potential breaking change if calling `emitSourceFile` where you'll have to add `await` before.
+- Add a new util `resolveCompilerOptions` to resolve compiler options from a given entrypoint. This will resolve the options from the tspconfig.yaml in the same way the cli would.
+- Fix: Compiler version mismatch error would fire incorrectly
+- Fix crash when `using` non-namespace
+- Fix some issues with not reporting deprecation on template constraints
+- Emit diagnostic for an unresolved metatype property reference
+- **Fix** issue where using augment decorators on spread model properties, enum members or operations extended from parent interface wouldn't do anything.
+- **Fix** issue where using augment decorator on operation parameters applied to source operation parameter as well.
+- Fix: TypeEmitter missing interfaces methods causing crash
+- **Fix** `warn-as-error` in `tspconfig.yaml` was ignored
+- Improve compiler watch mode. Files loaded in previous compilation will be watched for changes.
+- **Breaking change** `formatTypeSpec` is now async. Formatter was updated to use prettier 3.0.
+- Allow library dependency versions to be specified in init templates using the form `{ name: "the-lib", version: "1.0.0" }`
+- Update init template version compare to be greaterThanAndEqual instead of greaterThan.
 
 ## 0.46.0
 Tue, 11 Jul 2023 22:06:00 GMT

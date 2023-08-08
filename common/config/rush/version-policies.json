@@ -12,7 +12,7 @@
   {
     "definitionName": "lockStepVersion",
     "policyName": "typespec",
-    "version": "0.46.0",
+    "version": "0.47.0",
     "nextBump": "minor"
   }
   // {

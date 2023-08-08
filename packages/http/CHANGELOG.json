@@ -2,6 +2,21 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.47.0",
+      "tag": "@typespec/http_v0.47.0",
+      "date": "Tue, 08 Aug 2023 20:52:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update doc for openapi developers"
+          },
+          {
+            "comment": "Add collection format support: simple, form, ssv, tsv, pipes"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.46.0",
       "tag": "@typespec/http_v0.46.0",
       "date": "Tue, 11 Jul 2023 22:06:00 GMT",

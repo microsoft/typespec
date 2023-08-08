@@ -76,6 +76,27 @@ model {{parameters.ModelName}} {
 }
 ```
 
+### Interpolating values
+
+The template can interpolate values in the files. The values available are anything available in the template configuration referenced as it is.
+Examples:
+
+- Reference a parameter `{{parameters.ModelName}}`
+- Reference a the template title `{{title}}`
+
+Additionally the following values and functions are available:
+
+| Name                                  | Description                                                     |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `directory`                           | Directory full path where the project should be initialized.    |
+| `folderName`                          | Folder name where the project should be initialized.            |
+| `name`                                | Name of the project.                                            |
+| `libraries`                           | List of libraries to include                                    |
+| `templateUri`                         | Path where this template was loaded from.                       |
+| Functions                             |                                                                 |
+| `toLowerCase(value: string)`          | Convert string to lower case                                    |
+| `normalizePackageName(value: string)` | Normalize package name. It replaces `.` with`-` and toLowerCase |
+
 ## Demanding additional input from the user
 
 When generating files there might be a need for additional inputs to be retrieved from the user. For example the model name.

@@ -1,6 +1,13 @@
 # Change Log - @typespec/eslint-plugin
 
-This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+This log was last generated on Tue, 08 Aug 2023 20:52:00 GMT and should not be manually modified.
+
+## 0.47.0
+Tue, 08 Aug 2023 20:52:00 GMT
+
+### Updates
+
+- Update dependencies
 
 ## 0.46.0
 Tue, 11 Jul 2023 22:06:00 GMT

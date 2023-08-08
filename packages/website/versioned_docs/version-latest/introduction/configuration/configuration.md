@@ -237,6 +237,14 @@ or via the cli
 tsp compile . --warn-as-error
 ```
 
+### `--ignore-deprecated`
+
+Suppress all `deprecated` diagnostics that are raised when declarations are marked with the `#deprecated` directive.
+
+```yaml
+tsp compile . --ignore-deprecated
+```
+
 ### `imports` - Configure additional imports
 
 ```yaml
@@ -331,6 +339,14 @@ tsp compile . --no-emit
 
 ## Other Command line flags
 
+### `--config`
+
+Specify a different config file
+
+```bash
+tsp compile . --config ./tspconfig.alt.yaml
+```
+
 ### `--watch`
 
 Start the tsp compiler in watch mode: watch for file changes and compile on save.
@@ -338,6 +354,10 @@ Start the tsp compiler in watch mode: watch for file changes and compile on save
 ```bash
 tsp compile . --watch
 ```
+
+:::caution
+Known issue: the watch mode does not pickup changes in JS files that are indirectly included(Only imported via another JS file.)
+:::
 
 ### `--nostdlib`
 

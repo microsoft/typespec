@@ -2,6 +2,12 @@
   "name": "@typespec/internal-build-utils",
   "entries": [
     {
+      "version": "0.47.0",
+      "tag": "@typespec/internal-build-utils_v0.47.0",
+      "date": "Tue, 08 Aug 2023 20:52:00 GMT",
+      "comments": {}
+    },
+    {
       "version": "0.46.0",
       "tag": "@typespec/internal-build-utils_v0.46.0",
       "date": "Tue, 11 Jul 2023 22:06:00 GMT",
