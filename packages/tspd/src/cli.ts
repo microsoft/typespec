@@ -30,7 +30,7 @@ function logExperimentalWarning(type: "log" | "error") {
 }
 
 async function main() {
-  console.log(`TypeSpec compiler v${typespecVersion}\n`);
+  console.log(`TypeSpec Developer Tools v${typespecVersion}\n`);
 
   await yargs(process.argv.slice(2))
     .scriptName("tspd")

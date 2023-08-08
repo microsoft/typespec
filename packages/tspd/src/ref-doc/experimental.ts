@@ -7,8 +7,10 @@ import {
   NodePackage,
 } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
+import prettier from "prettier";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
+import { renderReadme } from "./emitters/markdown.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
 
@@ -25,9 +27,17 @@ export async function generateLibraryDocs(
   const refDoc = diagnostics.pipe(await extractLibraryRefDocs(libraryPath));
   const files = renderToDocusaurusMarkdown(refDoc);
   await mkdir(outputDir, { recursive: true });
+  const config = await prettier.resolveConfig(libraryPath);
   for (const [name, content] of Object.entries(files)) {
-    await writeFile(joinPaths(outputDir, name), content);
+    const formatted = await formatMarkdown(name, content, config);
+    await writeFile(joinPaths(outputDir, name), formatted);
   }
+  const readme = await formatMarkdown(
+    joinPaths(libraryPath, "README.md"),
+    await renderReadme(refDoc, libraryPath),
+    config ?? {}
+  );
+  await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
   }
@@ -57,4 +67,20 @@ export async function resolveLibraryRefDocsBase(
 async function readPackageJson(libraryPath: string): Promise<NodePackage> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
+}
+async function formatMarkdown(
+  filename: string,
+  content: string,
+  options: prettier.Options | null
+): Promise<string> {
+  try {
+    return await prettier.format(content, {
+      ...(options ?? {}),
+      parser: "markdown",
+    });
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`Cannot format with prettier ${filename}`);
+    return content;
+  }
 }
