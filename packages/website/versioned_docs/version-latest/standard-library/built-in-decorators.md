@@ -5,10 +5,11 @@ toc_max_heading_level: 3
 ---
 # Built-in Decorators
 ## TypeSpec
-
 ### `@deprecated` {#@deprecated}
 
-Mark this type as deprecated
+Mark this type as deprecated.
+
+NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
 
 ```typespec
 @deprecated(message: valueof string)
@@ -25,8 +26,10 @@ Mark this type as deprecated
 
 #### Examples
 
+Use the `#deprecated` directive instead:
+
 ```typespec
-@deprecated("Use ActionV2")
+#deprecated "Use ActionV2"
 op Action<T>(): T;
 ```
 
@@ -901,5 +904,4 @@ model DogRead {
 ...Dog;
 }
 ```
-
 
