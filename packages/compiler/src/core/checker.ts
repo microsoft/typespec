@@ -440,6 +440,7 @@ export function createChecker(program: Program): Checker {
 
       if (!(sym.flags & SymbolFlags.Namespace)) {
         reportCheckerDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
+        continue;
       }
 
       const namespaceSym = getMergedSymbol(sym)!;
