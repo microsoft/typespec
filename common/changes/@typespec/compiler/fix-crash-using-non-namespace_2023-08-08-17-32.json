@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix crash when `using` non-namespace",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
