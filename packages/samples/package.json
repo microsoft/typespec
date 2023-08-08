@@ -19,6 +19,12 @@
     "cli"
   ],
   "type": "module",
+  "exports": {
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
   "engines": {
     "node": ">=16.0.0"
   },
@@ -26,7 +32,10 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "regen-samples": "node scripts/regen-samples.js"
+    "test": "mocha",
+    "test-official": "mocha --forbid-only",
+    "test:regen": "cross-env RECORD=true mocha",
+    "regen-samples": "cross-env RECORD=true mocha"
   },
   "files": [
     "lib/*.tsp",
@@ -45,6 +54,12 @@
   },
   "devDependencies": {
     "@typespec/internal-build-utils": "workspace:~0.46.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
+    "@types/mocha": "~10.0.1",
+    "@types/node": "~18.11.9",
+    "cross-env": "~7.0.3",
+    "eslint": "^8.42.0",
+    "mocha": "~10.2.0",
     "autorest": "~3.3.2",
     "rimraf": "~5.0.1",
     "typescript": "~5.1.3"

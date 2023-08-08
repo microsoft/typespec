@@ -57,7 +57,12 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
 @extension("x-custom", "My value")
-@extension("x-pageable", {nextLink: "x-next-link"})
+@extension(
+  "x-pageable",
+  {
+    nextLink: "x-next-link",
+  }
+)
 op read(): string;
 ```
 
@@ -83,7 +88,10 @@ Specify the OpenAPI `externalDocs` property for this type.
 #### Examples
 
 ```typespec
-@externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")
+@externalDocs(
+  "https://example.com/detailed.md",
+  "Detailed information on how to use this operation"
+)
 op listPets(): Pet[];
 ```
 

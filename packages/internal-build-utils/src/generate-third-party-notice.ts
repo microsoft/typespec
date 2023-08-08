@@ -122,6 +122,7 @@ async function getLicense(packageRoot: string) {
       let text = await readFile(licensePath, "utf-8");
       text = text.replace("&lt;", "<");
       text = text.replace("&gt;", ">");
+      text = text.replace(/(\r\n|\r)/gm, "\n");
       return text;
     } catch (err: any) {
       if (err.code === "ENOENT") {

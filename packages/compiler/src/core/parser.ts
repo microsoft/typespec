@@ -695,19 +695,46 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const id = parseIdentifier({
-      message: "property",
-      allowStringLiteral: true,
-    });
+    const idOrExpr = parseExpression();
+    if (parseOptional(Token.Colon)) {
+      let id: IdentifierNode | undefined = undefined;
 
-    parseExpected(Token.Colon);
+      if (
+        idOrExpr.kind !== SyntaxKind.TypeReference &&
+        idOrExpr.kind !== SyntaxKind.StringLiteral
+      ) {
+        error({ code: "token-expected", messageId: "identifier" });
+      } else if (idOrExpr.kind === SyntaxKind.StringLiteral) {
+        // convert string literal node to identifier node (back compat for string literal quoted properties)
+        id = {
+          kind: SyntaxKind.Identifier,
+          sv: idOrExpr.value,
+          ...finishNode(idOrExpr.pos),
+        };
+      } else {
+        const target = idOrExpr.target;
+        if (target.kind === SyntaxKind.Identifier) {
+          id = target;
+        } else {
+          error({ code: "token-expected", messageId: "identifier" });
+        }
+      }
 
-    const value = parseExpression();
+      const value = parseExpression();
+
+      return {
+        kind: SyntaxKind.UnionVariant,
+        id,
+        value,
+        decorators,
+        ...finishNode(pos),
+      };
+    }
 
     return {
       kind: SyntaxKind.UnionVariant,
-      id,
-      value,
+      id: undefined,
+      value: idOrExpr,
       decorators,
       ...finishNode(pos),
     };
@@ -2727,7 +2754,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function error<
     C extends keyof CompilerDiagnostics,
-    M extends keyof CompilerDiagnostics[C] = "default"
+    M extends keyof CompilerDiagnostics[C] = "default",
   >(
     report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
       target?: Partial<TextRange> & { realPos?: number };
@@ -2771,7 +2798,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function warning<
     C extends keyof CompilerDiagnostics,
-    M extends keyof CompilerDiagnostics[C] = "default"
+    M extends keyof CompilerDiagnostics[C] = "default",
   >(
     report: DiagnosticReportWithoutTarget<CompilerDiagnostics, C, M> & {
       target?: Partial<TextRange>;

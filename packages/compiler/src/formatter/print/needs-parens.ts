@@ -1,4 +1,4 @@
-import { AstPath } from "prettier";
+import type { AstPath } from "prettier";
 import { Node, SyntaxKind } from "../../core/types.js";
 import { TypeSpecPrettierOptions } from "./types.js";
 
@@ -13,6 +13,7 @@ export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOption
     return false;
   }
 
+  // eslint-disable-next-line deprecation/deprecation
   const node = path.getValue();
   switch (node.kind) {
     case SyntaxKind.IntersectionExpression:

@@ -1,5 +1,6 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
-import { oapiForModel, openApiFor } from "./test-host.js";
+import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
   it("makes nullable schema when union with null", async () => {
@@ -206,6 +207,48 @@ describe("openapi3: union type", () => {
     ]);
   });
 
+  it("handles union declarations with anonymous variants", async () => {
+    const res = await openApiFor(
+      `
+      model A {
+        type: "ay";
+        a: string;
+      }
+
+      model B {
+        type: "bee";
+        b: string;
+      }
+
+      @discriminator("type")
+      union AorB {
+        A,
+        B
+      }
+
+      op foo(x: AorB): { thing: AorB };
+      `
+    );
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
+  });
+
   it("handles enum unions", async () => {
     const res = await oapiForModel(
       "X",
@@ -253,5 +296,15 @@ describe("openapi3: union type", () => {
       },
     ]);
     ok(res.schemas.X.properties.prop.nullable);
+  });
+
+  it("throws diagnostics for empty enum definitions", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/empty-union",
+      message:
+        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
+    });
   });
 });

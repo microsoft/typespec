@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Improve compiler watch mode. Files loaded in previous compilation will be watched for changes.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

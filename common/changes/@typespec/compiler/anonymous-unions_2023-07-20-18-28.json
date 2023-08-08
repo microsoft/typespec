@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Allow omitting variant names in union declarations",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

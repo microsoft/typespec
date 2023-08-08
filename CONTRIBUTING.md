@@ -209,7 +209,7 @@ debug the last one you chose.
    attach to both the VS Code client process and the language server
    process automatically.
 2. **Compile Scratch**: Use this to debug compiling
-   `packages/typespec-samples/scratch/*.tsp`. The TypeSpec source code in that
+   `packages/samples/scratch/*.tsp`. The TypeSpec source code in that
    folder is excluded from source control by design. Create TypeSpec files
    there to experiment and debug how the compiler reacts.
 3. **Compile Scratch (nostdlib)**: Same as above, but skips parsing

@@ -46,9 +46,6 @@ steps:
     displayName: Lint
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: cd packages/samples && npm run regen-samples
-    displayName: Regenerate Samples
-
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 

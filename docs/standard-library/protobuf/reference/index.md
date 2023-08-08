@@ -8,6 +8,8 @@ toc_max_heading_level: 3
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+# Overview
+
 TypeSpec library and emitter for Protobuf (gRPC)
 
 ## Install
@@ -29,7 +31,7 @@ npm install --save-peer @typespec/protobuf
 </TabItem>
 </Tabs>
 
-### Emitter usage
+## Emitter usage
 
 [See documentation](./emitter.md)
 
@@ -49,3 +51,12 @@ npm install --save-peer @typespec/protobuf
 - [`Extern`](./data-types.md#TypeSpec.Protobuf.Extern)
 - [`Map`](./data-types.md#TypeSpec.Protobuf.Map)
 - [`PackageDetails`](./data-types.md#TypeSpec.Protobuf.PackageDetails)
+
+## TypeSpec.Protobuf.WellKnown
+
+### Models
+
+- [`Any`](./data-types.md#TypeSpec.Protobuf.WellKnown.Any)
+- [`Empty`](./data-types.md#TypeSpec.Protobuf.WellKnown.Empty)
+- [`LatLng`](./data-types.md#TypeSpec.Protobuf.WellKnown.LatLng)
+- [`Timestamp`](./data-types.md#TypeSpec.Protobuf.WellKnown.Timestamp)

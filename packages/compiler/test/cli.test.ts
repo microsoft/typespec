@@ -25,7 +25,7 @@ describe("compiler: cli", () => {
     async function resolveCompilerOptions(args: CompileCliArgs, env: Record<string, string> = {}) {
       const [options, diagnostics] = await getCompilerOptions(
         host.compilerHost,
-        "ws/main.cadl",
+        "ws/main.tsp",
         cwd,
         args,
         env
@@ -139,7 +139,7 @@ describe("compiler: cli", () => {
       it("emit diagnostic if passing unknown parameter", async () => {
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
-          "ws/main.cadl",
+          "ws/main.tsp",
           cwd,
           {
             args: ["not-defined-arg=my-value"],
@@ -162,7 +162,7 @@ describe("compiler: cli", () => {
         );
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
-          "ws/main.cadl",
+          "ws/main.tsp",
           cwd,
           {},
           {}
@@ -188,7 +188,7 @@ describe("compiler: cli", () => {
 
     interface TestUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions
+      T extends keyof CompilerOptions,
     > {
       default: CompileCliArgs[K];
       set: { in: CompileCliArgs[K]; alt: CompileCliArgs[K]; expected: CompilerOptions[T] }[];
@@ -196,7 +196,7 @@ describe("compiler: cli", () => {
 
     function testUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions
+      T extends keyof CompilerOptions,
     >(name: K, resolvedName: T, data: TestUnifiedOptions<K, T>) {
       describe(name, () => {
         it("default", async () => {
