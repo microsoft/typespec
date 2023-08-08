@@ -28,12 +28,14 @@ None
 
 ```typespec
 op upload(@body image: bytes): void;
-op download(): {@body image: bytes};
+op download(): {
+  @body image: bytes;
+};
 ```
 
 ### `@delete` {#@TypeSpec.Http.delete}
 
-Specify the http verb for the target operation to be `DELETE`.
+Specify the HTTP verb for the target operation to be `DELETE`.
 
 ```typespec
 @TypeSpec.Http.delete
@@ -50,12 +52,12 @@ None
 #### Examples
 
 ```typespec
-@delete op set(petId: string): void
+@delete op set(petId: string): void;
 ```
 
 ### `@get` {#@TypeSpec.Http.get}
 
-Specify the http verb for the target operation to be `GET`.
+Specify the HTTP verb for the target operation to be `GET`.
 
 ```typespec
 @TypeSpec.Http.get
@@ -72,12 +74,12 @@ None
 #### Examples
 
 ```typespec
-@get op read(): string
+@get op read(): string;
 ```
 
 ### `@head` {#@TypeSpec.Http.head}
 
-Specify the http verb for the target operation to be `HEAD`.
+Specify the HTTP verb for the target operation to be `HEAD`.
 
 ```typespec
 @TypeSpec.Http.head
@@ -94,12 +96,12 @@ None
 #### Examples
 
 ```typespec
-@head op ping(petId: string): void
+@head op ping(petId: string): void;
 ```
 
 ### `@header` {#@TypeSpec.Http.header}
 
-Specify this property is to be sent or received as an http header.
+Specify this property is to be sent or received as an HTTP header.
 
 ```typespec
 @TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
@@ -111,22 +113,32 @@ Specify this property is to be sent or received as an http header.
 
 #### Parameters
 
-| Name                | Type                                          | Description                                                                                                                                                                                   |
-| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options.<br />By default the header name will be the property name converted from camelCase to camel-case. (e.g. `eTag` -> `e-tag`) |
+| Name                | Type                                          | Description                                                                                                                                                                                                 |
+| ------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
 
 #### Examples
 
 ```typespec
-op read(@header accept: string): {@header("E-Tag") eTag: string};
-op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+op read(@header accept: string): {
+  @header("ETag") eTag: string;
+};
+op create(
+  @header({
+    name: "X-Color",
+    format: "csv",
+  })
+  colors: string[],
+): void;
 ```
 
 ##### Implicit header name
 
 ```typespec
-op read(): {@header eTag: string}; // headerName: e-tag
-op read(): {@header contentType: string}; // headerName: content-type
+op read(): {
+  @header contentType: string;
+}; // headerName: content-type
+op update(@header ifMatch: string): void; // headerName: if-match
 ```
 
 ### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
@@ -149,7 +161,7 @@ Specify if inapplicable metadata should be included in the payload for the given
 
 ### `@patch` {#@TypeSpec.Http.patch}
 
-Specify the http verb for the target operation to be `PATCH`.
+Specify the HTTP verb for the target operation to be `PATCH`.
 
 ```typespec
 @TypeSpec.Http.patch
@@ -166,7 +178,7 @@ None
 #### Examples
 
 ```typespec
-@patch op update(pet: Pet): void
+@patch op update(pet: Pet): void;
 ```
 
 ### `@path` {#@TypeSpec.Http.path}
@@ -196,7 +208,7 @@ op read(@path explicit: string, implicit: string): void;
 
 ### `@post` {#@TypeSpec.Http.post}
 
-Specify the http verb for the target operation to be `POST`.
+Specify the HTTP verb for the target operation to be `POST`.
 
 ```typespec
 @TypeSpec.Http.post
@@ -213,12 +225,12 @@ None
 #### Examples
 
 ```typespec
-@post op create(pet: Pet): void
+@post op create(pet: Pet): void;
 ```
 
 ### `@put` {#@TypeSpec.Http.put}
 
-Specify the http verb for the target operation to be `PUT`.
+Specify the HTTP verb for the target operation to be `PUT`.
 
 ```typespec
 @TypeSpec.Http.put
@@ -235,7 +247,7 @@ None
 #### Examples
 
 ```typespec
-@put op set(pet: Pet): void
+@put op set(pet: Pet): void;
 ```
 
 ### `@query` {#@TypeSpec.Http.query}
@@ -260,7 +272,13 @@ Specify this property is to be sent as a query parameter.
 
 ```typespec
 op read(@query select: string, @query("order-by") orderBy: string): void;
-op list(@query({name: "id", format: "multi"}) ids: string[]): void;
+op list(
+  @query({
+    name: "id",
+    format: "multi",
+  })
+  ids: string[],
+): void;
 ```
 
 ### `@route` {#@TypeSpec.Http.route}
