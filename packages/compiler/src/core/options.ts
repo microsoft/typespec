@@ -46,6 +46,7 @@ export interface CompilerOptions {
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];
+  /** @deprecated This option does nothing. */
   watchForChanges?: boolean;
   warningAsError?: boolean;
 
