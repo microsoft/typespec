@@ -51,7 +51,7 @@ export async function resolveCompilerOptions(
       ? options.entrypoint
       : getDirectoryPath(options.entrypoint);
   const config = await loadTypeSpecConfigForPath(host, configPath);
-  // config.diagnostics.forEach((x) => diagnostics.add(x));
+  config.diagnostics.forEach((x) => diagnostics.add(x));
 
   const configWithOverrides: TypeSpecConfig = {
     ...config,
