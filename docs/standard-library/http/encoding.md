@@ -59,7 +59,7 @@ model User {
   updatedAtPretty: offsetDateTime; // rfc7231
 
   @encode(DateTimeKnownEncoding.unixTimestamp, int32)
-  createdAtUnix: utcDateTime; // rfc7231
+  createdAtUnix: utcDateTime; // unixTime
 }
 ```
 
