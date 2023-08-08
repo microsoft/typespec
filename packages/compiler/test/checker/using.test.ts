@@ -484,4 +484,31 @@ describe("compiler: using statements", () => {
     );
     await testHost.compile("./");
   });
+
+  describe("emit diagnostic when using non-namespace types", () => {
+    [
+      ["model", "model Target {}"],
+      ["enum", "enum Target {}"],
+      ["union", "union Target {}"],
+      ["scalar", "scalar Target;"],
+      ["interface", "interface Target {}"],
+      ["operation", "op Target(): void;"],
+    ].forEach(([name, code]) => {
+      it(name, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+          using Target;
+          ${code}
+        `
+        );
+
+        const diagnostics = await testHost.diagnose("./");
+        expectDiagnostics(diagnostics, {
+          code: "using-invalid-ref",
+          message: "Using must refer to a namespace",
+        });
+      });
+    });
+  });
 });
