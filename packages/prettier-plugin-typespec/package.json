@@ -21,7 +21,7 @@
     "@rollup/plugin-commonjs": "~25.0.0",
     "@rollup/plugin-json": "~6.0.0",
     "@rollup/plugin-node-resolve": "~15.1.0",
-    "@rollup/plugin-replace": "~4.0.0",
+    "@rollup/plugin-replace": "~5.0.2",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",

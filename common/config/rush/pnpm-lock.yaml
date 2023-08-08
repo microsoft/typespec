@@ -1039,8 +1039,8 @@ importers:
         specifier: ~15.1.0
         version: 15.1.0(rollup@3.24.0)
       '@rollup/plugin-replace':
-        specifier: ~4.0.0
-        version: 4.0.0(rollup@3.24.0)
+        specifier: ~5.0.2
+        version: 5.0.2(rollup@3.24.0)
       '@typespec/compiler':
         specifier: workspace:~0.46.0
         version: link:../compiler
@@ -3709,7 +3709,7 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
       reading-time: 1.5.0
-      tslib: 2.5.3
+      tslib: 2.6.1
       unist-util-visit: 2.0.3
       utility-types: 3.10.0
       webpack: 5.87.0
@@ -3753,7 +3753,7 @@ packages:
       lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
       utility-types: 3.10.0
       webpack: 5.87.0
     transitivePeerDependencies:
@@ -3789,7 +3789,7 @@ packages:
       fs-extra: 10.1.0
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
       webpack: 5.87.0
     transitivePeerDependencies:
       - '@parcel/css'
@@ -3823,7 +3823,7 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
       react-json-view: 1.21.3(react-dom@17.0.2)(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
     transitivePeerDependencies:
       - '@parcel/css'
       - '@swc/core'
@@ -3856,7 +3856,7 @@ packages:
       '@docusaurus/utils-validation': 2.2.0(@docusaurus/types@2.2.0)
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
     transitivePeerDependencies:
       - '@parcel/css'
       - '@swc/core'
@@ -3887,7 +3887,7 @@ packages:
       '@docusaurus/utils-validation': 2.2.0(@docusaurus/types@2.2.0)
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
     transitivePeerDependencies:
       - '@parcel/css'
       - '@swc/core'
@@ -3923,7 +3923,7 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
       sitemap: 7.1.1
-      tslib: 2.5.3
+      tslib: 2.6.1
     transitivePeerDependencies:
       - '@parcel/css'
       - '@swc/core'
@@ -4026,7 +4026,7 @@ packages:
       react-dom: 17.0.2(react@17.0.2)
       react-router-dom: 5.3.4(react@17.0.2)
       rtlcss: 3.5.0
-      tslib: 2.5.3
+      tslib: 2.6.1
       utility-types: 3.10.0
     transitivePeerDependencies:
       - '@parcel/css'
@@ -4067,7 +4067,7 @@ packages:
       prism-react-renderer: 1.3.5(react@17.0.2)
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
       utility-types: 3.10.0
     transitivePeerDependencies:
       - '@docusaurus/types'
@@ -4146,7 +4146,7 @@ packages:
       lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-      tslib: 2.5.3
+      tslib: 2.6.1
       utility-types: 3.10.0
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -4557,7 +4557,7 @@ packages:
       '@esfx/cancelable': 1.0.0
       '@esfx/canceltoken': 1.0.0
       '@esfx/disposable': 1.0.0
-      tslib: 2.5.3
+      tslib: 2.6.1
     dev: true
 
   /@esfx/cancelable@1.0.0:
@@ -6069,13 +6069,17 @@ packages:
       resolve: 1.22.2
       rollup: 3.24.0
 
-  /@rollup/plugin-replace@4.0.0(rollup@3.24.0):
-    resolution: {integrity: sha512-+rumQFiaNac9y64OHtkHGmdjm7us9bo1PlbgQfdihQtuNxzjpaB064HbRnewUOggLQxVCCyINfStkgmBeQpv1g==}
+  /@rollup/plugin-replace@5.0.2(rollup@3.24.0):
+    resolution: {integrity: sha512-M9YXNekv/C/iHHK+cvORzfRYfPbq0RDD8r0G+bMiTXjNGKulPnCT9O3Ss46WfhI6ZOCgApOP7xAdmCQJ+U2LAA==}
+    engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0 || ^2.0.0
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@rollup/pluginutils': 3.1.0(rollup@3.24.0)
-      magic-string: 0.25.9
+      '@rollup/pluginutils': 5.0.2(rollup@3.24.0)
+      magic-string: 0.27.0
       rollup: 3.24.0
     dev: true
 
@@ -6090,18 +6094,6 @@ packages:
     dependencies:
       rollup: 3.24.0
     dev: false
-
-  /@rollup/pluginutils@3.1.0(rollup@3.24.0):
-    resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
-    engines: {node: '>= 8.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0
-    dependencies:
-      '@types/estree': 0.0.39
-      estree-walker: 1.0.1
-      picomatch: 2.3.1
-      rollup: 3.24.0
-    dev: true
 
   /@rollup/pluginutils@5.0.2(rollup@3.24.0):
     resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
@@ -6409,10 +6401,6 @@ packages:
     dependencies:
       '@types/estree': 1.0.1
       '@types/json-schema': 7.0.12
-
-  /@types/estree@0.0.39:
-    resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
-    dev: true
 
   /@types/estree@1.0.1:
     resolution: {integrity: sha512-LG4opVs2ANWZ1TJoKc937iMmNstM/d0ae1vNbnBvBhqCSezgVUOzcLCqbI5elV8Vy6WKwKjaqR+zO9VKirBBCA==}
@@ -7689,7 +7677,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.5.3
+      tslib: 2.6.1
     dev: false
 
   /camelcase-css@2.0.1:
@@ -7717,7 +7705,7 @@ packages:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.1
       upper-case-first: 2.0.2
     dev: false
 
@@ -8063,7 +8051,7 @@ packages:
     resolution: {integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.1
       upper-case: 2.0.2
     dev: false
 
@@ -9257,7 +9245,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.1
     dev: false
 
   /dot-prop@5.3.0:
@@ -9645,10 +9633,6 @@ packages:
   /estraverse@5.3.0:
     resolution: {integrity: sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==}
     engines: {node: '>=4.0'}
-
-  /estree-walker@1.0.1:
-    resolution: {integrity: sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==}
-    dev: true
 
   /estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
@@ -11462,12 +11446,6 @@ packages:
     dependencies:
       readable-stream: 4.4.0
     dev: false
-
-  /magic-string@0.25.9:
-    resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
-    dependencies:
-      sourcemap-codec: 1.4.8
-    dev: true
 
   /magic-string@0.27.0:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
@@ -14247,11 +14225,6 @@ packages:
     engines: {node: '>= 8'}
     dev: true
 
-  /sourcemap-codec@1.4.8:
-    resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
-    deprecated: Please use @jridgewell/sourcemap-codec instead
-    dev: true
-
   /space-separated-tokens@1.1.5:
     resolution: {integrity: sha512-q/JSVd1Lptzhf5bkYm4ob4iWPjx0KiRe3sRFBNrVqbJkFaBm5vbbowy1mymoPNLRa52+oadOhJ+K49wsSeSjTA==}
     dev: false
@@ -14594,7 +14567,7 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
       '@pkgr/utils': 2.4.2
-      tslib: 2.5.3
+      tslib: 2.6.1
     dev: false
 
   /table-layout@1.0.2:
@@ -14800,6 +14773,7 @@ packages:
 
   /tslib@2.5.3:
     resolution: {integrity: sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==}
+    dev: false
 
   /tslib@2.6.1:
     resolution: {integrity: sha512-t0hLfiEKfMUoqhG+U1oid7Pva4bbDPHYfJNiB7BiIjRkj1pyC++4N3huJfqY6aRH6VTB0rvtzQwjM4K6qpfOig==}

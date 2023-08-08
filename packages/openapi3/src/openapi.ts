@@ -1791,8 +1791,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
             return "date-time";
           case "unixTimestamp":
             return "unixtime";
+          case "rfc7231":
+            return "http-date";
           default:
-            return `date-time-${encoding}`;
+            return encoding;
         }
       case "duration":
         switch (encoding) {

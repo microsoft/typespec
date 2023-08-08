@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Handle general encodings for utcDateTime",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
