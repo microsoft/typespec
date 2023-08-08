@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: TypeEmitter missing interfaces methods causing crash",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
