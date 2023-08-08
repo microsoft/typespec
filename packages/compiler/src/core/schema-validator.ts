@@ -1,4 +1,4 @@
-import Ajv, { DefinedError } from "ajv";
+import Ajv, { DefinedError, Options } from "ajv";
 import { createYamlDiagnosticTarget } from "../yaml/diagnostics.js";
 import { YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
@@ -16,7 +16,8 @@ export function createJSONSchemaValidator<T>(
   const ajv = new (Ajv as any)({
     strict: options.strict,
     coerceTypes: options.coerceTypes,
-  });
+    allErrors: true,
+  } satisfies Options);
 
   return { validate };
 
@@ -47,7 +48,7 @@ function ajvErrorToDiagnostic(
   error: DefinedError,
   target: YamlScript | SourceFile | typeof NoTarget
 ): Diagnostic {
-  const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];
+  const messageLines = [`Schema violation: ${error.message} (${error.instancePath ?? "/"})`];
   for (const [name, value] of Object.entries(error.params).filter(
     ([name]) => !IGNORED_AJV_PARAMS.has(name)
   )) {
