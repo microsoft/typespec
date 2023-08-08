@@ -484,4 +484,24 @@ describe("compiler: using statements", () => {
     );
     await testHost.compile("./");
   });
+
+  it("cannot use a model", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      model M {}
+
+      using M;
+    `);
+
+    const diagnostics = await testHost.diagnose("./");
+
+    expectDiagnostics(diagnostics, {
+      code: "using-invalid-ref",
+      file: /main\.tsp$/,
+      message: "Using must refer to a namespace",
+      severity: "error",
+      pos: 25
+    })
+  });
 });
