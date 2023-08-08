@@ -12,4 +12,4 @@ extern dec oneOf(target: Union);
  * Specify an external reference that should be used inside of emitting this type.
  * @param ref External reference(e.g. "../../common.json#/components/schemas/Foo")
  */
-extern dec useRef(target: Model | ModelProperty, ref: string);
+extern dec useRef(target: Model | ModelProperty, ref: valueof string);

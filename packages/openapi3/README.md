@@ -1,124 +1,128 @@
-# TypeSpec OpenAPI 3.0 Emitter
+# @typespec/openapi3
 
-This package provides the [TypeSpec](https://github.com/microsoft/typespec) emitter to produce OpenAPI 3.0 output from TypeSpec source.
+TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding
 
 ## Install
-
-In your typespec project root
 
 ```bash
 npm install @typespec/openapi3
 ```
 
-## Emit OpenAPI 3.0 spec
+## Emitter
+
+### Usage
 
 1. Via the command line
 
 ```bash
-tsp compile . --emit @typespec/openapi3
+tsp compile . --emit=@typespec/openapi3
 ```
 
 2. Via the config
 
-Add the following to the `tspconfig.yaml` file.
-
 ```yaml
-emitters:
-  @typespec/openapi3: true
+emit:
+  - "@typespec/openapi3"
 ```
 
-For configuration [see options](#emitter-options)
+### Emitter options
 
-## Use OpenAPI 3.0 specific decorators:
+#### `file-type`
 
-```typespec
-import "@typespec/openapi3";
+**Type:** `"yaml" | "json"`
 
-using OpenAPI;
+If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension
 
-// Using `using`
-@useRef("common.json#/components/schemas/Foo")
-model Foo {}
+#### `output-file`
 
-// Using fully qualified names
-@OpenAPI.oneOf
-union MyUnion {
-  cat: Cat,
-  dog: Dog,
-}
-```
+**Type:** `string`
+
+Name of the output file.
+Output file will interpolate the following values:
+
+- service-name: Name of the service if multiple
+- version: Version of the service if multiple
+
+Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
+
+Example Single service no versioning
+
+- `openapi.yaml`
+
+Example Multiple services no versioning
+
+- `openapi.Org1.Service1.yaml`
+- `openapi.Org1.Service2.yaml`
+
+Example Single service with versioning
+
+- `openapi.v1.yaml`
+- `openapi.v2.yaml`
+
+Example Multiple service with versioning
+
+- `openapi.Org1.Service1.v1.yaml`
+- `openapi.Org1.Service1.v2.yaml`
+- `openapi.Org1.Service2.v1.0.yaml`
+- `openapi.Org1.Service2.v1.1.yaml`
+
+#### `new-line`
+
+**Type:** `"crlf" | "lf"`
+
+Set the newline character for emitting files.
+
+#### `omit-unreachable-types`
+
+**Type:** `boolean`
+
+Omit unreachable types.
+By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
+
+#### `include-x-typespec-name`
+
+**Type:** `"inline-only" | "never"`
+
+If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
+This extension is meant for debugging and should not be depended on.
 
 ## Decorators
 
-- [@useRef](#useref)
-- [@oneOf](#oneof)
+### OpenAPI
 
-### @useRef
+- [`@oneOf`](#@oneof)
+- [`@useRef`](#@useref)
 
-Syntax:
+#### `@oneOf`
 
-```
-@useRef(urlString)
-```
+Specify that `oneOf` should be used instead of `anyOf` for that union.
 
-`@useRef`
-
-`@useRef` is used to replace the TypeSpec model type in emitter output with a pre-existing named OpenAPI schema.
-
-### @oneOf
-
-Syntax:
-
-```
-@oneOf()
+```typespec
+@OpenAPI.oneOf
 ```
 
-`@oneOf`emits `oneOf` keyword for a union type in the resulting OpenAPI 3.0 specification. It indicates that the value of union type can only contain exactly one of the subschemas.
+##### Target
 
-`@oneOf` can only be applied to a union types.
+`Union`
 
-## Emitter options:
+##### Parameters
 
-Emitter options can be configured via the `tspconfig.yaml` configuration:
+None
 
-```yaml
-emitters:
-  '@typespec/openapi3':
-    <optionName>: <value>
+#### `@useRef`
 
+Specify an external reference that should be used inside of emitting this type.
 
-# For example
-emitters:
-  '@typespec/openapi3':
-    outputFile: my-custom-openapi.json
+```typespec
+@OpenAPI.useRef(ref: valueof string)
 ```
 
-or via the command line with
+##### Target
 
-```bash
---option "@typespec/openapi3.<optionName>=<value>"
+`union Model | ModelProperty`
 
-# For example
---option "@typespec/openapi3.output-file=my-custom-openapi.json"
-```
+##### Parameters
 
-### `output-file`
-
-Configure the name of the swagger output file relative to the compiler `output-path`.
-
-### `new-line`
-
-Set the newline character for emitting files. Can be either:
-
-- `lf`(Default)
-- `crlf`
-
-### `omit-unreachable-types`
-
-Only include types referenced via an operation.
-
-## See also
-
-- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
-- [TypeSpec Website](https://microsoft.github.io/typespec)
-- [TypeSpec for the OpenAPI Developer](https://github.com/microsoft/typespec/blob/main/docs/typespec-for-openapi-dev.md)
+| Name | Type                    | Description                                                          |
+| ---- | ----------------------- | -------------------------------------------------------------------- |
+| ref  | `valueof scalar string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |

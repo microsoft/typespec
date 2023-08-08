@@ -56,3 +56,37 @@ export function tabs(tabs: Tab[]) {
   result.push("</Tabs>", "");
   return result.join("\n");
 }
+
+export interface MarkdownSection {
+  kind: "section";
+  title: string;
+  body: MarkdownDoc;
+}
+export type MarkdownDoc = string | MarkdownSection | MarkdownDoc[];
+
+export function renderMarkdowDoc(doc: MarkdownDoc, heading = 1) {
+  const flattened: string[] = [];
+  let currentHeading = heading;
+  function render(doc: MarkdownDoc) {
+    if (typeof doc === "string") {
+      flattened.push(doc);
+    } else if (Array.isArray(doc)) {
+      doc.forEach(render);
+    } else {
+      flattened.push(headings.hx(currentHeading, doc.title));
+      currentHeading++;
+      render(doc.body);
+      currentHeading--;
+    }
+  }
+  render(doc);
+  return flattened.join("\n");
+}
+
+export function section(title: string, body: MarkdownDoc): MarkdownSection {
+  return {
+    kind: "section",
+    title,
+    body,
+  };
+}

@@ -1,105 +1,150 @@
-# TypeSpec OpenAPI Library
+# @typespec/openapi
 
-This package provide [TypeSpec](https://github.com/microsoft/typespec) decorators to specify some OpenAPI specific concepts.
+TypeSpec library providing OpenAPI concepts
 
 ## Install
-
-In your typespec project root
 
 ```bash
 npm install @typespec/openapi
 ```
 
-## Usage
+## Decorators
+
+### OpenAPI
+
+- [`@defaultResponse`](#@defaultresponse)
+- [`@extension`](#@extension)
+- [`@externalDocs`](#@externaldocs)
+- [`@info`](#@info)
+- [`@operationId`](#@operationid)
+
+#### `@defaultResponse`
+
+Specify that this model is to be treated as the OpenAPI `default` response.
+This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
 
 ```typespec
-import "@typespec/openapi";
-
-using OpenAPI;
+@OpenAPI.defaultResponse
 ```
 
-## References
+##### Target
 
-Decorators:
+`Model`
 
-- [`@defaultResponse`](#defaultResponse)
-- [`@extension`](#extension)
-- [`@externalDocs`](#externalDocs)
-- [`@operationId`](#operationId)
+##### Parameters
 
-### `@defaultResponse`
+None
 
-**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://microsoft.github.io/typespec/docs/standard-library/built-in-decorators/#error)**
-
-Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
+##### Examples
 
 ```typespec
 @defaultResponse
-model MyNonErrorResponse {}
+model PetStoreResponse is object;
 
-op foo(): MyNonErrorResponse;
+op listPets(): Pet[] | PetStoreResponse;
 ```
 
-### `@extension`
+#### `@extension`
 
-This decorator lets you specify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
-[OpenAPI reference on extensions](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#specificationExtensions)
-
-Arguments:
-
-| Name    | foo          | Description                                                      |
-| ------- | ------------ | ---------------------------------------------------------------- |
-| `key`   | **Required** | Extension key. **MUST** start with `x-`                          |
-| `value` | **Required** | Value of the extension. Can be an primitive, a tuple or a model. |
+Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@extension("x-custom", "MyCustomValue")
-model Foo {}
+@OpenAPI.extension(key: valueof string, value: unknown)
+```
 
-// Value can be an model.
+##### Target
+
+`(intrinsic) unknown`
+
+##### Parameters
+
+| Name  | Type                    | Description                         |
+| ----- | ----------------------- | ----------------------------------- |
+| key   | `valueof scalar string` | Extension key. Must start with `x-` |
+| value | `(intrinsic) unknown`   | Extension value.                    |
+
+##### Examples
+
+```typespec
+@extension("x-custom", "My value")
 @extension(
-  "x-custom",
+  "x-pageable",
   {
-    some: "value",
+    nextLink: "x-next-link",
   }
 )
-model Foo {}
+op read(): string;
 ```
 
-### `@externalDocs`
+#### `@externalDocs`
 
-Decorator that can be used to provide the `externalDocs` property on OpenAPI elements.
-[OpenAPI spec for externalDocs](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#externalDocumentationObject)
-
-Arguments:
-
-| Name          | foo          | Description                      |
-| ------------- | ------------ | -------------------------------- |
-| `url`         | **Required** | Url for the external docs        |
-| `description` | **Optional** | Description of the documentation |
+Specify the OpenAPI `externalDocs` property for this type.
 
 ```typespec
-@externalDocs("https://example.com", "More info there")
-model Foo {}
+@OpenAPI.externalDocs(url: valueof string, description?: valueof string)
 ```
 
-### `@operationId`
+##### Target
 
-Decorator that can be used on an operation to specify the `operationId` field in OpenAPI. If this is not provided the `operationId` will be the typespec operation name.
+`(intrinsic) unknown`
 
-Arguments:
+##### Parameters
 
-| Name   | foo          | Description         |
-| ------ | ------------ | ------------------- |
-| `opId` | **Required** | Id of the operation |
+| Name        | Type                    | Description             |
+| ----------- | ----------------------- | ----------------------- |
+| url         | `valueof scalar string` | Url to the docs         |
+| description | `valueof scalar string` | Description of the docs |
+
+##### Examples
 
 ```typespec
-@operationId("custom_Foo")
-op foo(): string;
+@externalDocs(
+  "https://example.com/detailed.md",
+  "Detailed information on how to use this operation"
+)
+op listPets(): Pet[];
 ```
 
-## See also
+#### `@info`
 
-- [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
-- [TypeSpec Website](https://microsoft.github.io/typespec)
-- [TypeSpec for the OpenAPI Developer](https://github.com/microsoft/typespec/blob/main/docs/typespec-for-openapi-dev.md)
+Specify OpenAPI additional information.
+The service `title` and `version` are already specified using `@service`.
+
+```typespec
+@OpenAPI.info(additionalInfo: OpenAPI.AdditionalInfo)
+```
+
+##### Target
+
+`Namespace`
+
+##### Parameters
+
+| Name           | Type                           | Description            |
+| -------------- | ------------------------------ | ---------------------- |
+| additionalInfo | `model OpenAPI.AdditionalInfo` | Additional information |
+
+#### `@operationId`
+
+Specify the OpenAPI `operationId` property for this operation.
+
+```typespec
+@OpenAPI.operationId(operationId: valueof string)
+```
+
+##### Target
+
+`Operation`
+
+##### Parameters
+
+| Name        | Type                    | Description         |
+| ----------- | ----------------------- | ------------------- |
+| operationId | `valueof scalar string` | Operation id value. |
+
+##### Examples
+
+```typespec
+@operationId("download")
+op read(): string;
+```

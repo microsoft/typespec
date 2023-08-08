@@ -1,10 +1,8 @@
-# `@typespec/versioning` library
+# @typespec/versioning
 
-This package provide [TypeSpec](https://github.com/microsoft/typespec) decorators and projections to define versioning in a service.
+TypeSpec library for declaring and emitting versioned APIs
 
 ## Install
-
-Run the following command in your typespec project root directory.
 
 ```bash
 npm install @typespec/versioning
@@ -12,131 +10,74 @@ npm install @typespec/versioning
 
 ## Usage
 
-```typespec
-import "@typespec/versioning";
+### Consuming versioning library from an emitter
 
-using Versioning;
-```
+#### Get the service representation at a given version
 
-### Enable versioning for Service or Library
+Versioning library works with projection to project the service at a given version.
 
-Use [`@versioned`](#versioned) decorator to mark a namespace as versioned.
+```ts
+// Get a list of all the different version of the service and the projections
+const projections = buildVersionProjections(program, serviceNamespace);
 
-```typespec
-@versioned(Versions)
-namespace MyService;
-
-enum Versions {
-  v1,
-  v2,
-  v3,
+for (const projection of projections) {
+  const projectedProgram = projectProgram(program, projection.projections);
+  // projectedProgram now contains the representation of the service at the given version.
 }
 ```
 
-The following decorators can then be used to provide version evolution of a service.
+#### Get list of versions and version dependency across namespaces
 
-- [`@added`](#added)
-- [`@removed`](#removed)
-- [`@renamedFrom`](#renamedfrom)
-- [`@madeOptional`](#madeoptional)
+Versioning library works with projection to project the service at a given version.
 
-### Consume a versioned library
-
-When consuming a versioned library, it is required to indicate which version of the library to use.
-See [`@useDependency`](#useDependency) decorator for information about this.
-
-## References
-
-Decorators:
-
-- [`@versioned`](#versioned) <!-- no toc -->
-- [`@useDependency`](#usedependency)
-- [`@added`](#added)
-- [`@removed`](#removed)
-- [`@renamedFrom`](#renamedfrom)
-- [`@madeOptional`](#madeoptional)
-
-### `@versioned`
-
-Mark a namespace as being versioned. It takes as an argument an `enum` of versions for that namespace.
-
-```typespec
-@versioned(Versions)
-namespace MyService;
-
-enum Versions {
-  v1,
-  v2,
-  v3,
-}
+```ts
+const versions = resolveVersions(program, serviceNamespace);
+// versions now contain a list of all the version of the service namespace and what version should all the other dependencies namespace use.
 ```
 
-### `@useDependency`
+#### Consume versioning manually
 
-When using elements from another versioned namespace, the consuming namespace **MUST** specify which version of the consumed namespace to use even if the consuming namespace is not versioned itself.
+If the emitter needs to have the whole picture of the service evolution across the version then using the decorator accessor will provide the metadata for each type:
 
-The decorator can either target:
+- `getAddedOn`
+- `getRemovedOn`
+- `getRenamedFromVersion`
+- `getMadeOptionalOn`
 
-- an unversioned namespace.
-- individual enum members of a versioned namespace's version enum.
+## Decorators
 
-If we have a library with the following definition:
+### TypeSpec.Versioning
+
+- [`@added`](#@added)
+- [`@madeOptional`](#@madeoptional)
+- [`@removed`](#@removed)
+- [`@renamedFrom`](#@renamedfrom)
+- [`@returnTypeChangedFrom`](#@returntypechangedfrom)
+- [`@typeChangedFrom`](#@typechangedfrom)
+- [`@useDependency`](#@usedependency)
+- [`@versioned`](#@versioned)
+
+#### `@added`
+
+Identifies when the target was added.
 
 ```typespec
-@versioned(Versions)
-namespace MyLib;
-
-enum Versions {
-  v1,
-  v1_1,
-  v2,
-}
+@TypeSpec.Versioning.added(version: EnumMember)
 ```
 
-Pick a specific version to be used for all version of the service.
+##### Target
 
-```typespec
-@versioned(Versions)
-@useDependency(MyLib.Versions.v1_1)
-namespace MyService1;
+`(intrinsic) unknown`
 
-enum Version {
-  v1,
-  v2,
-  v3,
-}
-```
+##### Parameters
 
-Service is not versioned, pick which version of `MyLib` should be used.
+| Name    | Type         | Description                               |
+| ------- | ------------ | ----------------------------------------- |
+| version | `EnumMember` | The version that the target was added in. |
 
-```typespec
-@useDependency(MyLib.Versions.v1_1)
-namespace NonVersionedService;
-```
+##### Examples
 
-Select mapping of version to use
-
-```typespec
-@versioned(Versions)
-namespace MyService1;
-
-enum Version {
-  @useDependency(MyLib.Versions.v1_1) // V1 use lib v1_1
-  v1,
-  @useDependency(MyLib.Versions.v1_1) // V2 use lib v1_1
-  v2,
-  @useDependency(MyLib.Versions.v2) // V3 use lib v2
-  v3,
-}
-```
-
-### `@added`
-
-Specify which version an entity was added. Take the enum version member.
-
-Version enum member **MUST** be from the version enum for the containing namespace.
-
-```typespec
+```tsp
 @added(Versions.v2)
 op addedInV2(): void;
 
@@ -151,13 +92,56 @@ model Foo {
 }
 ```
 
-### `@removed`
+#### `@madeOptional`
 
-Specify which version an entity was removed. Take the enum version member.
-
-Version enum member **MUST** be from the version enum for the containing namespace.
+Identifies when a target was made optional.
 
 ```typespec
+@TypeSpec.Versioning.madeOptional(version: EnumMember)
+```
+
+##### Target
+
+`(intrinsic) unknown`
+
+##### Parameters
+
+| Name    | Type         | Description                                       |
+| ------- | ------------ | ------------------------------------------------- |
+| version | `EnumMember` | The version that the target was made optional in. |
+
+##### Examples
+
+```tsp
+model Foo {
+  name: string;
+
+  @madeOptional(Versions.v2)
+  nickname: string;
+}
+```
+
+#### `@removed`
+
+Identifies when the target was removed.
+
+```typespec
+@TypeSpec.Versioning.removed(version: EnumMember)
+```
+
+##### Target
+
+`(intrinsic) unknown`
+
+##### Parameters
+
+| Name    | Type         | Description                                 |
+| ------- | ------------ | ------------------------------------------- |
+| version | `EnumMember` | The version that the target was removed in. |
+
+##### Examples
+
+```tsp
 @removed(Versions.v2)
 op removedInV2(): void;
 
@@ -172,62 +156,138 @@ model Foo {
 }
 ```
 
-### `@renamedFrom`
+#### `@renamedFrom`
 
-Specify which version an entity was renamed and what is is old name.
-
-Version enum member **MUST** be from the version enum for the containing namespace.
+Identifies when the target has been renamed.
 
 ```typespec
+@TypeSpec.Versioning.renamedFrom(version: EnumMember, oldName: valueof string)
+```
+
+##### Target
+
+`(intrinsic) unknown`
+
+##### Parameters
+
+| Name    | Type                    | Description                                 |
+| ------- | ----------------------- | ------------------------------------------- |
+| version | `EnumMember`            | The version that the target was renamed in. |
+| oldName | `valueof scalar string` | The previous name of the target.            |
+
+##### Examples
+
+```tsp
 @renamedFrom(Versions.v2, "oldName")
 op newName(): void;
 ```
 
-### `@madeOptional`
+#### `@returnTypeChangedFrom`
 
-Specify which version a property was made optional
-
-Version enum member **MUST** be from the version enum for the containing namespace.
+Identifies when the target type changed.
 
 ```typespec
-model Foo {
-  name: string;
+@TypeSpec.Versioning.returnTypeChangedFrom(version: EnumMember, oldType: unknown)
+```
 
-  @madeOptional(Versions.v2)
-  nickname: string;
+##### Target
+
+`Operation`
+
+##### Parameters
+
+| Name    | Type                  | Description                                  |
+| ------- | --------------------- | -------------------------------------------- |
+| version | `EnumMember`          | The version that the target type changed in. |
+| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+
+#### `@typeChangedFrom`
+
+Identifies when the target type changed.
+
+```typespec
+@TypeSpec.Versioning.typeChangedFrom(version: EnumMember, oldType: unknown)
+```
+
+##### Target
+
+`(intrinsic) unknown`
+
+##### Parameters
+
+| Name    | Type                  | Description                                  |
+| ------- | --------------------- | -------------------------------------------- |
+| version | `EnumMember`          | The version that the target type changed in. |
+| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+
+#### `@useDependency`
+
+Identifies that a namespace or a given versioning enum member relies upon a versioned package.
+
+```typespec
+@TypeSpec.Versioning.useDependency(...versionRecords: EnumMember[])
+```
+
+##### Target
+
+`union EnumMember | Namespace`
+
+##### Parameters
+
+| Name           | Type                 | Description                                                           |
+| -------------- | -------------------- | --------------------------------------------------------------------- |
+| versionRecords | `model EnumMember[]` | The dependent library version(s) for the target namespace or version. |
+
+##### Examples
+
+###### Select a single version of `MyLib` to use
+
+```tsp
+@useDependency(MyLib.Versions.v1_1)
+namespace NonVersionedService;
+```
+
+###### Select which version of the library match to which version of the service.
+
+```tsp
+@versioned(Versions)
+namespace MyService1;
+enum Version {
+  @useDependency(MyLib.Versions.v1_1) // V1 use lib v1_1
+  v1,
+  @useDependency(MyLib.Versions.v1_1) // V2 use lib v1_1
+  v2,
+  @useDependency(MyLib.Versions.v2) // V3 use lib v2
+  v3,
 }
 ```
 
-## Consuming versioning library from an emitter
+#### `@versioned`
 
-### Get the service representation at a given version
+Identifies that the decorated namespace is versioned by the provided enum.
 
-Versioning library works with projection to project the service at a given version.
+```typespec
+@TypeSpec.Versioning.versioned(versions: Enum)
+```
 
-```ts
-// Get a list of all the different version of the service and the projections
-const projections = buildVersionProjections(program, serviceNamespace);
+##### Target
 
-for (const projection of projections) {
-  const projectedProgram = projectProgram(program, projection.projections);
-  // projectedProgram now contains the representation of the service at the given version.
+`Namespace`
+
+##### Parameters
+
+| Name     | Type   | Description                                     |
+| -------- | ------ | ----------------------------------------------- |
+| versions | `Enum` | The enum that describes the supported versions. |
+
+##### Examples
+
+```tsp
+@versioned(Versions)
+namespace MyService;
+enum Versions {
+  v1,
+  v2,
+  v3,
 }
 ```
-
-### Get list of versions and version dependency across namespaces
-
-Versioning library works with projection to project the service at a given version.
-
-```ts
-const versions = resolveVersions(program, serviceNamespace);
-// versions now contain a list of all the version of the service namespace and what version should all the other dependencies namespace use.
-```
-
-### Consume versioning manually
-
-If the emitter needs to have the whole picture of the service evolution across the version then using the decorator accessor will provide the metadata for each type:
-
-- `getAddedOn`
-- `getRemovedOn`
-- `getRenamedFromVersion`
-- `getMadeOptionalOn`
