@@ -10,3 +10,11 @@ export interface YamlScript {
   /** @internal */
   readonly doc: Document.Parsed;
 }
+
+export interface YamlTarget {
+  readonly file: YamlScript;
+  readonly path: string[];
+  readonly kind: YamlTargetType;
+}
+
+export type YamlTargetType = "value" | "key";

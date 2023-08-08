@@ -15,7 +15,6 @@ export function parseYaml(source: string | SourceFile): [YamlScript, readonly Di
   for (const warning of doc.warnings) {
     diagnostics.add(convertYamlErrorToDiagnostic("warning", warning, file));
   }
-  console.log("Doc", doc);
   return diagnostics.wrap({
     kind: "yaml-script",
     file,

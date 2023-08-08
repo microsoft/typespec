@@ -4,7 +4,8 @@ import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { deepClone, deepFreeze, doIO, omitUndefined } from "../core/util.js";
 import { createSourceFile } from "../index.js";
-import { YamlScript } from "../yaml/types.js";
+import { createYamlTarget, getLocationOfYamlTarget } from "../yaml/index.js";
+import { YamlScript, YamlTarget } from "../yaml/types.js";
 import { parseYaml } from "../yaml/yaml-parser.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
 import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
@@ -189,6 +190,7 @@ async function loadConfigFile(
 
   return omitUndefined({
     projectRoot: getDirectoryPath(filename),
+    file: yamlScript,
     filename,
     diagnostics,
     extends: data.extends,
@@ -207,29 +209,35 @@ async function loadConfigFile(
 export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
-  function checkPath(value: string | undefined) {
+  function checkPath(value: string | undefined, path: string[]) {
     if (value === undefined) {
       return;
     }
-    const diagnostic = validatePathAbsolute(value);
+    const diagnostic = validatePathAbsolute(
+      value,
+      config.file ? createYamlTarget(config.file, path) : NoTarget
+    );
     if (diagnostic) {
       diagnostics.push(diagnostic);
     }
   }
 
-  checkPath(config.outputDir);
-  for (const emitterOptions of Object.values(config.options ?? {})) {
-    checkPath(emitterOptions["emitter-output-dir"]);
+  checkPath(config.outputDir, ["output-dir"]);
+  for (const [emitterName, emitterOptions] of Object.entries(config.options ?? {})) {
+    checkPath(emitterOptions["emitter-output-dir"], ["options", emitterName, "emitter-output-dir"]);
   }
   return diagnostics;
 }
 
-function validatePathAbsolute(path: string): Diagnostic | undefined {
+function validatePathAbsolute(
+  path: string,
+  target: YamlTarget | typeof NoTarget
+): Diagnostic | undefined {
   if (path.startsWith(".") || !isPathAbsolute(path)) {
     return createDiagnostic({
       code: "config-path-absolute",
       format: { path },
-      target: NoTarget,
+      target: target === NoTarget ? NoTarget : getLocationOfYamlTarget(target),
     });
   }
 
