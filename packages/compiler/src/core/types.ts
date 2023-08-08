@@ -1,6 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
+import { YamlDiagnosticTarget } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
 
@@ -1732,9 +1733,12 @@ export interface SourceLocation extends TextRange {
   isSynthetic?: boolean;
 }
 
+/** Used to explicitly specify that a diagnostic has no target. */
 export const NoTarget = Symbol.for("NoTarget");
 
-export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
+/** Diagnostic target that can be used when working with TypeSpec types.  */
+export type TypeSpecDiagnosticTarget = Node | Type | Sym;
+export type DiagnosticTarget = TypeSpecDiagnosticTarget | YamlDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";
 

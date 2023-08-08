@@ -4,8 +4,8 @@ import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { deepClone, deepFreeze, doIO, omitUndefined } from "../core/util.js";
 import { createSourceFile } from "../index.js";
-import { createYamlTarget, getLocationOfYamlTarget } from "../yaml/index.js";
-import { YamlScript, YamlTarget } from "../yaml/types.js";
+import { createYamlDiagnosticTarget } from "../yaml/index.js";
+import { YamlDiagnosticTarget, YamlScript } from "../yaml/types.js";
 import { parseYaml } from "../yaml/yaml-parser.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
 import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
@@ -215,7 +215,7 @@ export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Di
     }
     const diagnostic = validatePathAbsolute(
       value,
-      config.file ? createYamlTarget(config.file, path) : NoTarget
+      config.file ? createYamlDiagnosticTarget(config.file, path) : NoTarget
     );
     if (diagnostic) {
       diagnostics.push(diagnostic);
@@ -231,13 +231,13 @@ export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Di
 
 function validatePathAbsolute(
   path: string,
-  target: YamlTarget | typeof NoTarget
+  target: YamlDiagnosticTarget | typeof NoTarget
 ): Diagnostic | undefined {
   if (path.startsWith(".") || !isPathAbsolute(path)) {
     return createDiagnostic({
       code: "config-path-absolute",
       format: { path },
-      target: target === NoTarget ? NoTarget : getLocationOfYamlTarget(target),
+      target,
     });
   }
 

@@ -7,14 +7,20 @@ export interface YamlScript {
   /** Value of the yaml script. */
   readonly value: unknown;
 
-  /** @internal */
+  /** @internal yaml library document. We do not expose this as the "yaml" library is not part of the contract. */
   readonly doc: Document.Parsed;
 }
 
-export interface YamlTarget {
+/**
+ * Diagnostic target pointing to a specific yaml node.
+ */
+export interface YamlDiagnosticTarget {
+  /** Yaml script */
   readonly file: YamlScript;
+  /** Path to the target node from the root of the document. */
   readonly path: string[];
-  readonly kind: YamlTargetType;
+  /** If targeting the value or the key in the case of a map. */
+  readonly kind: YamlDiagnosticTargetType;
 }
 
-export type YamlTargetType = "value" | "key";
+export type YamlDiagnosticTargetType = "value" | "key";

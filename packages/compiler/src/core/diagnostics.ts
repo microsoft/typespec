@@ -1,3 +1,4 @@
+import { getLocationOfYamlDiagnosticTarget } from "../yaml/diagnostics.js";
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger/index.js";
 import { reportDiagnostic } from "./messages.js";
@@ -172,7 +173,11 @@ export function getSourceLocation(
   }
 
   if ("file" in target) {
-    return target;
+    if ("path" in target) {
+      return getLocationOfYamlDiagnosticTarget(target);
+    } else {
+      return target;
+    }
   }
 
   if (!("kind" in target)) {

@@ -1,13 +1,13 @@
 import { Node, isCollection, isMap, isScalar } from "yaml";
 import { findPair } from "yaml/util";
 import { SourceLocation } from "../core/types.js";
-import { YamlScript, YamlTarget, YamlTargetType } from "./types.js";
+import { YamlDiagnosticTarget, YamlDiagnosticTargetType, YamlScript } from "./types.js";
 
-export function createYamlTarget(
+export function createYamlDiagnosticTarget(
   file: YamlScript,
   path: string[],
-  kind: YamlTargetType = "key"
-): YamlTarget {
+  kind: YamlDiagnosticTargetType = "value"
+): YamlDiagnosticTarget {
   return {
     file,
     path,
@@ -15,7 +15,7 @@ export function createYamlTarget(
   };
 }
 
-export function getLocationOfYamlTarget(target: YamlTarget): SourceLocation {
+export function getLocationOfYamlDiagnosticTarget(target: YamlDiagnosticTarget): SourceLocation {
   const node: Node | undefined = findYamlNode(target);
   return {
     file: target.file.file,
@@ -24,7 +24,7 @@ export function getLocationOfYamlTarget(target: YamlTarget): SourceLocation {
   };
 }
 
-function findYamlNode(target: YamlTarget): Node | undefined {
+function findYamlNode(target: YamlDiagnosticTarget): Node | undefined {
   let current: Node | null = target.file.doc.contents;
 
   for (let i = 0; i < target.path.length; i++) {
