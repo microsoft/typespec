@@ -61,12 +61,10 @@
     "rimraf": "~5.0.1",
     "typescript": "~5.1.3",
     "ajv": "~8.12.0",
-    "@types/js-yaml": "~4.0.1",
     "@typespec/internal-build-utils": "workspace:~0.46.0",
-    "js-yaml": "~4.1.0",
     "ajv-formats": "~2.1.1"
   },
   "dependencies": {
-    "js-yaml": "~4.1.0"
+    "yaml": "~2.3.1"
   }
 }

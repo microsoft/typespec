@@ -453,13 +453,10 @@ importers:
 
   ../../packages/json-schema:
     dependencies:
-      js-yaml:
-        specifier: ~4.1.0
-        version: 4.1.0
+      yaml:
+        specifier: ~2.3.1
+        version: 2.3.1
     devDependencies:
-      '@types/js-yaml':
-        specifier: ~4.0.1
-        version: 4.0.1
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.1
@@ -610,22 +607,19 @@ importers:
       globby:
         specifier: ~13.1.1
         version: 13.1.1
-      js-yaml:
-        specifier: ~4.1.0
-        version: 4.1.0
       prettier:
         specifier: ~3.0.1
         version: 3.0.1
       semver:
         specifier: ^7.3.8
         version: 7.3.8
+      yaml:
+        specifier: ~2.3.1
+        version: 2.3.1
       yargs:
         specifier: ~17.7.1
         version: 17.7.1
     devDependencies:
-      '@types/js-yaml':
-        specifier: ~4.0.1
-        version: 4.0.1
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.1
@@ -719,13 +713,10 @@ importers:
 
   ../../packages/openapi3:
     dependencies:
-      js-yaml:
-        specifier: ~4.1.0
-        version: 4.1.0
+      yaml:
+        specifier: ~2.3.1
+        version: 2.3.1
     devDependencies:
-      '@types/js-yaml':
-        specifier: ~4.0.1
-        version: 4.0.1
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.1
@@ -1256,22 +1247,19 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~0.46.0
         version: link:../compiler
-      js-yaml:
-        specifier: ~4.1.0
-        version: 4.1.0
       picocolors:
         specifier: ~1.0.0
         version: 1.0.0
       prettier:
         specifier: ~3.0.1
         version: 3.0.1
+      yaml:
+        specifier: ~2.3.1
+        version: 2.3.1
       yargs:
         specifier: ~17.7.1
         version: 17.7.1
     devDependencies:
-      '@types/js-yaml':
-        specifier: ~4.0.1
-        version: 4.0.1
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.1
@@ -6463,10 +6451,6 @@ packages:
     dependencies:
       '@types/istanbul-lib-report': 3.0.0
     dev: false
-
-  /@types/js-yaml@4.0.1:
-    resolution: {integrity: sha512-xdOvNmXmrZqqPy3kuCQ+fz6wA0xU5pji9cd1nDrflWaAWtYLLGk5ykW0H6yg5TVyehHP1pfmuuSaZkhP+kspVA==}
-    dev: true
 
   /@types/json-schema@7.0.12:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}

@@ -14,7 +14,7 @@ describe("compiler: config file loading", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (path: string, errorIfNotFound: boolean = true) => {
       const fullPath = join(scenarioRoot, path);
-      const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
+      const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
         errorIfNotFound

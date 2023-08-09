@@ -48,12 +48,11 @@
     "prettier": "~3.0.1",
     "semver": "^7.3.8",
     "yargs": "~17.7.1",
-    "js-yaml": "~4.1.0"
+    "yaml": "~2.3.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@types/js-yaml": "~4.0.1",
     "@types/semver": "^7.3.13",
     "@types/yargs": "~17.0.24",
     "@typespec/compiler": "workspace:~0.46.0",
