@@ -334,6 +334,86 @@ enum \`2Colors\` {
       });
     });
 
+    describe("validate formats", () => {
+      it("do a basic validate in a model ", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: int64;
+  two: int64;
+
+  validate chkone: one >= 0;
+}
+  `,
+          expected: `
+model Foo {
+  one: int64;
+  two: int64;
+
+  validate chkone: one >= 0;
+}
+  `,
+        });
+      });
+
+      it("do a basic validate in a model 2x ", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: int64;
+  two: int64;
+  validate chkone: one >= 0;
+
+  validate chk2: two >= 0;
+}
+  `,
+          expected: `
+model Foo {
+  one: int64;
+  two: int64;
+
+  validate chkone: one >= 0;
+  validate chk2: two >= 0;
+}
+  `,
+        });
+      });
+
+      it("do a reorder validate in a model ", () => {
+        assertFormat({
+          code: `
+model   Foo{
+  one: int64;
+  validate chkone: one >= 0;
+  
+  two: int64;
+}
+  `,
+          expected: `
+model Foo {
+  one: int64;
+  two: int64;
+
+  validate chkone: one >= 0;
+}
+  `,
+        });
+      });
+
+      it("do a basic validate in a scalar ", () => {
+        assertFormat({
+          code: `
+scalar S extends int64 { validate value >= 0;}
+  `,
+          expected: `
+scalar S extends int64 {
+  validate value >= 0;
+}
+  `,
+        });
+      });
+    });
+
     describe("in between property spacing", () => {
       it("hug properties with no line decorators or comments ", () => {
         assertFormat({

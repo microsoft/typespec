@@ -2,6 +2,18 @@
   "name": "@typespec/eslint-config-typespec",
   "entries": [
     {
+      "version": "0.46.0",
+      "tag": "@typespec/eslint-config-typespec_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.0",
       "tag": "@typespec/eslint-config-typespec_v0.7.0",
       "date": "Wed, 10 May 2023 21:24:00 GMT",

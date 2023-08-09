@@ -111,15 +111,22 @@ Specify this property is to be sent or received as an http header.
 
 #### Parameters
 
-| Name                | Type                                          | Description                                                        |
-| ------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
-| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options. |
+| Name                | Type                                          | Description                                                                                                                                                                                   |
+| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over http or header options.<br />By default the header name will be the property name converted from camelCase to camel-case. (e.g. `eTag` -> `e-tag`) |
 
 #### Examples
 
 ```typespec
 op read(@header accept: string): {@header("E-Tag") eTag: string};
 op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+```
+
+##### Implicit header name
+
+```typespec
+op read(): {@header eTag: string}; // headerName: e-tag
+op read(): {@header contentType: string}; // headerName: content-type
 ```
 
 ### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}

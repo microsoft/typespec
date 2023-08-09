@@ -24,6 +24,7 @@ Definition of a TypeSpec library
 - [diagnostics](TypeSpecLibrary.md#diagnostics)
 - [emitter](TypeSpecLibrary.md#emitter)
 - [emitterOptionValidator](TypeSpecLibrary.md#emitteroptionvalidator)
+- [linter](TypeSpecLibrary.md#linter)
 - [name](TypeSpecLibrary.md#name)
 - [requireImports](TypeSpecLibrary.md#requireimports)
 
@@ -71,6 +72,18 @@ ___
 • `Optional` `Readonly` **emitterOptionValidator**: [`JSONSchemaValidator`](JSONSchemaValidator.md)
 
 JSON Schema validator for emitter options
+
+___
+
+### linter
+
+• `Optional` `Readonly` **linter**: [`LinterDefinition`](LinterDefinition.md)
+
+Configuration if library is providing linting rules/rulesets.
+
+#### Inherited from
+
+[TypeSpecLibraryDef](TypeSpecLibraryDef.md).[linter](TypeSpecLibraryDef.md#linter)
 
 ___
 

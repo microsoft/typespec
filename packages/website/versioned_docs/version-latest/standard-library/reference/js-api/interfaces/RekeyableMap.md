@@ -46,7 +46,7 @@ A map where keys can be changed without changing enumeration order.
 
 #### Inherited from
 
-Map.\_\_@toStringTag@35
+Map.[toStringTag]
 
 ___
 
@@ -72,7 +72,7 @@ Returns an iterable of entries in the map.
 
 #### Inherited from
 
-Map.\_\_@iterator@95
+Map.[iterator]
 
 ___
 

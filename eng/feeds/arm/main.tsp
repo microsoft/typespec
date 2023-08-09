@@ -48,11 +48,16 @@ model EmployeeProperties {
 }
 
 @lroStatus
+@doc("The resource provisioning state.")
 enum ProvisioningState {
   ...ResourceProvisioningState,
+  @doc("The resource is being provisioned.")
   Provisioning,
+  @doc("The resource is being updated.")
   Updating,
+  @doc("The resource is being deleted.")
   Deleting,
+  @doc("The resource provisioning request has been accepted.")
   Accepted,
 }
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Other cli commands reuse the diagnostic system to report errors",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

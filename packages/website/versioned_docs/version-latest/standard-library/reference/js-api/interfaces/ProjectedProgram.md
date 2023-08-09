@@ -31,6 +31,7 @@
 
 - [getGlobalNamespaceType](ProjectedProgram.md#getglobalnamespacetype)
 - [getOption](ProjectedProgram.md#getoption)
+- [getSourceFileLocationContext](ProjectedProgram.md#getsourcefilelocationcontext)
 - [hasError](ProjectedProgram.md#haserror)
 - [loadTypeSpecScript](ProjectedProgram.md#loadtypespecscript)
 - [onValidate](ProjectedProgram.md#onvalidate)
@@ -215,6 +216,28 @@ ___
 #### Inherited from
 
 [Program](Program.md).[getOption](Program.md#getoption)
+
+___
+
+### getSourceFileLocationContext
+
+▸ **getSourceFileLocationContext**(`sourceFile`): [`LocationContext`](../index.md#locationcontext)
+
+Return location context of the given source file.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `sourceFile` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+[`LocationContext`](../index.md#locationcontext)
+
+#### Inherited from
+
+[Program](Program.md).[getSourceFileLocationContext](Program.md#getsourcefilelocationcontext)
 
 ___
 

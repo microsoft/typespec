@@ -2,6 +2,45 @@
   "name": "@typespec/json-schema",
   "entries": [
     {
+      "version": "0.46.0",
+      "tag": "@typespec/json-schema_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for enum member references."
+          },
+          {
+            "comment": "Export the emitter and related types from the package."
+          },
+          {
+            "comment": "Fix a bug that could result in a schema being bundled more than once."
+          },
+          {
+            "comment": "By default, types that are not marked with @jsonSchema or are within a namespace with @jsonSchema are bundled into the schemas that reference them. Set the `emitAllRefs` option to true to get the previous behavior of emitting all types referenced as JSON Schema."
+          },
+          {
+            "comment": "Support @extension for adding arbitrary vendor extensions into the output."
+          },
+          {
+            "comment": "Breaking change: the namespace has been corrected to TypeSpec.JsonSchema."
+          },
+          {
+            "comment": "Fix: Make sure `$lib` is exported"
+          },
+          {
+            "comment": "Add support for Record<T>"
+          },
+          {
+            "comment": "Support templates instantiated with intrinsic types and type expressions."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "@typespec/json-schema_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

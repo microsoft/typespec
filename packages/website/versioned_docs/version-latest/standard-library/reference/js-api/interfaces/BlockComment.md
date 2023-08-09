@@ -14,6 +14,7 @@
 
 - [end](BlockComment.md#end)
 - [kind](BlockComment.md#kind)
+- [parsedAsDocs](BlockComment.md#parsedasdocs)
 - [pos](BlockComment.md#pos)
 
 ## Properties
@@ -34,6 +35,14 @@ ___
 ### kind
 
 • `Readonly` **kind**: [`BlockComment`](../enums/SyntaxKind.md#blockcomment)
+
+___
+
+### parsedAsDocs
+
+• `Optional` `Readonly` **parsedAsDocs**: `boolean`
+
+If that comment was parsed as a doc comment. If parserOptions.docs=false this will always be false.
 
 ___
 

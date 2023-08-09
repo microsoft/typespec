@@ -5,6 +5,7 @@ import { TypeSpecRawConfig } from "../config/types.js";
 export interface InitTemplateFile {
   path: string;
   destination: string;
+  skipGeneration: boolean;
 }
 
 export interface InitTemplateInput {
@@ -23,6 +24,9 @@ export interface InitTemplate {
    * Description for the template.
    */
   description: string;
+
+  /** Minimum Compiler Support Version */
+  compilerVersion: string;
 
   /**
    * List of libraries to include
@@ -57,6 +61,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   properties: {
     title: { type: "string" },
     description: { type: "string" },
+    compilerVersion: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },
@@ -82,16 +87,11 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         properties: {
           path: { type: "string" },
           destination: { type: "string" },
+          skipGeneration: { type: "boolean" },
         },
         required: ["path", "destination"],
       },
     },
   },
-  required: ["title", "description"],
-};
-
-export const InitTemplateDefinitionsSchema: JSONSchemaType<Record<string, InitTemplate>> = {
-  type: "object",
-  additionalProperties: InitTemplateSchema,
-  required: [],
+  required: ["title", "description", "compilerVersion"],
 };

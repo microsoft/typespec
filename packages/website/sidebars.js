@@ -83,10 +83,13 @@ const sidebars = {
           dirName: `standard-library/reference`,
         },
         "standard-library/projected-names",
+        "standard-library/discriminated-types",
         createLibraryReferenceStructure("http", "Http", [
           "standard-library/http/cheat-sheet",
           "standard-library/http/authentication",
           "standard-library/http/operations",
+          "standard-library/http/content-types",
+          "standard-library/http/encoding",
         ]),
         createLibraryReferenceStructure("json-schema", "JSON Schema", []),
         createLibraryReferenceStructure("rest", "Rest", [

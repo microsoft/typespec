@@ -332,6 +332,12 @@ const diagnostics = {
       default: paramMessage`Model already has a property named ${"propName"}`,
     },
   },
+  "duplicate-validate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model already has a validate clause named ${"propName"}`,
+    },
+  },
   "override-property-mismatch": {
     severity: "error",
     messages: {
@@ -478,6 +484,13 @@ const diagnostics = {
     severity: "warning",
     messages: {
       default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+    },
+  },
+  "type-expected": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Expected type of ${"expected"} but got ${"actual"}`,
+      comparable: paramMessage`The types ${"left"} and ${"right"} are not comparable.`,
     },
   },
 
@@ -807,6 +820,29 @@ const diagnostics = {
       default: "Conflict marker encountered.",
     },
   },
+
+  // #region CLI
+  "no-compatible-vs-installed": {
+    severity: "error",
+    messages: {
+      default: "No compatible version of Visual Studio found.",
+    },
+  },
+  "vs-extension-windows-only": {
+    severity: "error",
+    messages: {
+      default: "Visual Studio extension is not supported on non-Windows.",
+    },
+  },
+  "vscode-in-path": {
+    severity: "error",
+    messages: {
+      default:
+        "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.",
+      osx: "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.\nSee instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac",
+    },
+  },
+  // #endregion CLI
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

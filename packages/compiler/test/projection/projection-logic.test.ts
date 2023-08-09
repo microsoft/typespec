@@ -26,6 +26,93 @@ describe("compiler: projections: logic", () => {
     testHost = await createTestHost();
   });
 
+  it("projects logical implies", async () => {
+    const code = `
+      @test model Foo {
+        a: int32;
+        b: int16;
+        c: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#v {
+        to(version) {
+          if false ==> version >= 1 {
+            self::deleteProperty("a");
+          };
+
+          if true ==> version >= 1 {
+            self::deleteProperty("b");
+          };
+
+          if true ==> version >= 2 {
+            self::deleteProperty("c");
+          };
+        }
+      }
+    `;
+
+    const result2 = (await testProjection(code, [projection("v", 0)])) as Model;
+    strictEqual(result2.properties.size, 2);
+
+    const result1 = (await testProjection(code, [projection("v", 1)])) as Model;
+    strictEqual(result1.properties.size, 1);
+
+    const result0 = (await testProjection(code, [projection("v", 2)])) as Model;
+    strictEqual(result0.properties.size, 0);
+  });
+
+  it("projects logical member", async () => {
+    const code = `
+      @test model Foo {
+        a: int32;
+        b: int16;
+        c: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#v {
+        to(version) {
+          if version in #[1, 2] {
+            self::deleteProperty("a");
+          };
+
+          if version >= 3 ==> !(version in #[1, 2]) {
+            self::deleteProperty("b");
+          };
+        }
+      }
+    `;
+
+    const result1 = (await testProjection(code, [projection("v", 1)])) as Model;
+    strictEqual(result1.properties.size, 1);
+
+    const result3 = (await testProjection(code, [projection("v", 3)])) as Model;
+    strictEqual(result3.properties.size, 2);
+  });
+
+  it("projects logical member a string", async () => {
+    const code = `
+      @test model Foo {
+        a: int32;
+        b: int16;
+        c: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#v {
+        to(version) {
+          if "bob" in #["sam", "bob"] {
+            self::deleteProperty("a");
+          };
+        }
+      }
+    `;
+
+    const result3 = (await testProjection(code, [projection("v", 3)])) as Model;
+    strictEqual(result3.properties.size, 2);
+  });
+
   it("projects nested namespaces", async () => {
     const code = `
      namespace Bar.Baz;

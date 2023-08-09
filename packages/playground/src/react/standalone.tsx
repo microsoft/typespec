@@ -1,3 +1,4 @@
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
@@ -5,7 +6,7 @@ import { registerMonacoDefaultWorkers } from "../monaco-worker.js";
 import { registerMonacoLanguage } from "../services.js";
 import { StateStorage, createUrlStateStorage } from "../state-storage.js";
 import { filterEmitters } from "../utils.js";
-import { PlaygroundProps, PlaygroundSaveData, StyledPlayground } from "./playground.js";
+import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js";
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   libraries: string[];
@@ -34,7 +35,13 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
   };
 
   const App: FunctionComponent = () => {
-    return <StyledPlayground {...options} />;
+    return (
+      <FluentProvider theme={webLightTheme}>
+        <div css={{ height: "100vh" }}>
+          <Playground {...options} />
+        </div>
+      </FluentProvider>
+    );
   };
 
   return <App />;

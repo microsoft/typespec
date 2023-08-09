@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -52,15 +52,15 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.45.2"
+    "@typespec/compiler": "workspace:~0.46.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
-    "@typespec/library-linter": "workspace:~0.45.0",
-    "@typespec/eslint-plugin": "workspace:~0.45.0",
+    "@typespec/compiler": "workspace:~0.46.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
+    "@typespec/library-linter": "workspace:~0.46.0",
+    "@typespec/eslint-plugin": "workspace:~0.46.0",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",

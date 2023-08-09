@@ -54,6 +54,7 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
       return node.templateParameters.length > 0 ? node : undefined;
     case SyntaxKind.OperationSignatureDeclaration:
     case SyntaxKind.ModelProperty:
+    case SyntaxKind.ModelValidate:
     case SyntaxKind.ModelExpression:
       return node.parent ? getParentTemplateNode(node.parent) : undefined;
     default:

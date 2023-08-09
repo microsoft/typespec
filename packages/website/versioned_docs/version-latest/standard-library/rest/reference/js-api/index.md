@@ -55,6 +55,7 @@ JS Api
 - [getResourceTypeKey](index.md#getresourcetypekey)
 - [getSegment](index.md#getsegment)
 - [isAutoRoute](index.md#isautoroute)
+- [isListOperation](index.md#islistoperation)
 - [setResourceOperation](index.md#setresourceoperation)
 - [setResourceTypeKey](index.md#setresourcetypekey)
 
@@ -692,6 +693,25 @@ ___
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Interface` \| `Operation` |
+
+#### Returns
+
+`boolean`
+
+___
+
+### isListOperation
+
+▸ **isListOperation**(`program`, `target`): `boolean`
+
+Returns `true` if the given operation is marked as a list operation.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `program` | `Program` | the TypeSpec program |
+| `target` | `Operation` | the target operation |
 
 #### Returns
 

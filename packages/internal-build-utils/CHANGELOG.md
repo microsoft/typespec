@@ -1,6 +1,22 @@
 # Change Log - @typespec/internal-build-utils
 
-This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+
+## 0.46.0
+Tue, 11 Jul 2023 22:06:00 GMT
+
+### Minor changes
+
+- Include previous patch number in dev version count to ensure patches get released in the dev versions
+
+### Patches
+
+- Fix bumping dev version if there is zero changes
+
+### Updates
+
+- Fix repo name in package.json
+- Update dependencies
 
 ## 0.4.2
 Tue, 06 Jun 2023 22:44:16 GMT
@@ -23,6 +39,11 @@ Fri, 03 Mar 2023 19:59:17 GMT
 ### Minor changes
 
 - Rename to TypeSpec
+
+### Updates
+
+- Revert back changelog
+- Update homepage link
 
 ## 0.3.3
 Fri, 13 Jan 2023 00:05:26 GMT
@@ -56,6 +77,10 @@ Mon, 13 Jun 2022 23:42:28 GMT
 
 - Improve logging of dotnet errors
 - Fix prerelease publishing for packages with no changes.
+
+### Updates
+
+- Upgrade to TS4.7
 
 ## 0.2.0
 Fri, 06 May 2022 17:19:57 GMT

@@ -21,7 +21,7 @@ ___
 
 ### direction
 
-• `Optional` **direction**: ``"from"`` \| ``"to"``
+• `Optional` **direction**: ``"to"`` \| ``"from"``
 
 ___
 

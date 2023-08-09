@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Internal: Refactoring of cli code",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

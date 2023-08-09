@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix: Apply `@minItems` and `@maxItems` decorators on model array.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}

@@ -87,6 +87,7 @@ export interface TemplatedTypeBase {
 export type Type =
   | Model
   | ModelProperty
+  | ModelValidate
   | Scalar
   | Interface
   | Enum
@@ -247,6 +248,11 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   properties: RekeyableMap<string, ModelProperty>;
 
   /**
+   * Map of validators for this model.
+   */
+  validates: RekeyableMap<string, ModelValidate>;
+
+  /**
    * Model this model extends. This represent inheritance.
    */
   baseModel?: Model;
@@ -285,6 +291,14 @@ export interface ModelProperty extends BaseType, DecoratedType {
   model?: Model;
 }
 
+export interface ModelValidate extends BaseType, DecoratedType {
+  kind: "ModelValidate";
+  node: ModelValidateNode;
+  logic: LogicExpression;
+  name: string;
+  model?: Model | Scalar;
+}
+
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Scalar";
   name: string;
@@ -298,6 +312,11 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
    * Scalar this scalar extends.
    */
   baseScalar?: Scalar;
+
+  /**
+   * Map of validators for this scalar.
+   */
+  validates: RekeyableMap<string, ModelValidate>;
 
   /**
    * Direct children. This is the reverse relation of @see baseScalar
@@ -620,6 +639,9 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
+/**
+ * @hidden bug in typedoc
+ */
 export interface SymbolTable extends ReadonlyMap<string, Sym> {
   /**
    * Duplicate
@@ -653,19 +675,20 @@ export const enum SymbolFlags {
   SourceFile            = 1 << 21,
   Declaration           = 1 << 22,
   Implementation        = 1 << 23,
+  ModelValidate         = 1 << 24,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 24,
+  LateBound = 1 << 25,
 
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
    */
-  MemberContainer = Model | Enum | Union | Interface,
-  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
+  MemberContainer = Model | Enum | Union | Interface | Scalar,
+  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember | ModelValidate,
 }
 
 /**
@@ -678,6 +701,7 @@ export interface TypeInstantiationMap {
 
 /**
  * A map where keys can be changed without changing enumeration order.
+ * @hidden bug in typedoc
  */
 export interface RekeyableMap<K, V> extends Map<K, V> {
   /**
@@ -713,6 +737,7 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   ModelSpreadProperty,
+  ModelValidate,
   ScalarStatement,
   InterfaceStatement,
   UnionStatement,
@@ -764,6 +789,7 @@ export enum SyntaxKind {
   ProjectionBlockExpression,
   ProjectionMemberExpression,
   ProjectionLogicalExpression,
+  ProjectionMembershipExpression,
   ProjectionEqualityExpression,
   ProjectionUnaryExpression,
   ProjectionRelationalExpression,
@@ -838,6 +864,7 @@ export type Node =
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
   | ModelPropertyNode
+  | ModelValidateNode
   | UnionVariantNode
   | OperationStatementNode
   | OperationSignatureDeclarationNode
@@ -892,6 +919,7 @@ export type MemberContainerNode =
 
 export type MemberNode =
   | ModelPropertyNode
+  | ModelValidateNode
   | EnumMemberNode
   | OperationStatementNode
   | UnionVariantNode;
@@ -1039,6 +1067,7 @@ export type Expression =
 export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
   | ProjectionRelationalExpressionNode
+  | ProjectionMembershipExpressionNode
   | ProjectionEqualityExpressionNode
   | ProjectionUnaryExpressionNode
   | ProjectionArithmeticExpressionNode
@@ -1057,7 +1086,8 @@ export type ProjectionExpression =
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode
-  | ReturnExpressionNode;
+  | ReturnExpressionNode
+  | ReferenceExpression;
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -1112,6 +1142,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly validates: ModelValidateNode[];
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -1120,6 +1151,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
+  readonly validates: ModelValidateNode[];
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
@@ -1211,6 +1243,14 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
   readonly parent?: ModelStatementNode | ModelExpressionNode;
+}
+
+export interface ModelValidateNode extends BaseNode {
+  readonly kind: SyntaxKind.ModelValidate;
+  readonly id: IdentifierNode | undefined;
+  readonly value: ProjectionExpression;
+  readonly decorators: readonly DecoratorExpressionNode[];
+  readonly parent?: ModelStatementNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
@@ -1395,9 +1435,15 @@ export interface ProjectionExpressionStatementNode extends BaseNode {
 
 export interface ProjectionLogicalExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionLogicalExpression;
-  readonly op: "||" | "&&";
+  readonly op: "||" | "&&" | "==>";
   readonly left: ProjectionExpression;
   readonly right: ProjectionExpression;
+}
+
+export interface ProjectionMembershipExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionMembershipExpression;
+  readonly left: ProjectionExpression;
+  readonly arguments: ProjectionExpression[];
 }
 
 export interface ProjectionRelationalExpressionNode extends BaseNode {
@@ -1527,6 +1573,7 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
 export interface IdentifierContext {
   kind: IdentifierKind;
   node: Node;
+  parentValidate?: Node;
 }
 
 export enum IdentifierKind {
@@ -2177,4 +2224,151 @@ export interface Tracer {
    * @param area
    */
   sub(subarea: string): Tracer;
+}
+
+export type LogicNode = LogicStatement | LogicExpression | LogicParameter;
+export type LogicStatement = LogicExpressionStatement;
+export type LogicExpression =
+  | LogicLogicalExpression
+  | LogicRelationalExpression
+  | LogicMembershipExpression
+  | LogicEqualityExpression
+  | LogicUnaryExpression
+  | LogicArithmeticExpression
+  | LogicCallExpression
+  | LogicReferenceExpression
+  | LogicMemberExpression
+  | LogicIfExpression
+  | LogicBlockExpression
+  | LogicLambdaExpression
+  | LogicStringLiteral
+  | LogicBooleanLiteral
+  | LogicNumericLiteral
+  | LogicIdentifier
+  | LogicTypeKeyword;
+
+export interface LogicNodeBase {
+  kind: string;
+}
+
+export interface LogicExpressionStatement extends LogicNodeBase {
+  kind: "ExpressionStatement";
+  expr: LogicExpression;
+}
+
+export interface LogicBinOp {
+  op: string;
+  left: LogicExpression;
+  right: LogicExpression;
+}
+
+export interface LogicUnaryOp {
+  op: string;
+  target: LogicExpression;
+}
+
+export interface LogicLogicalExpression extends LogicNodeBase, LogicBinOp {
+  kind: "LogicalExpression";
+  op: "||" | "&&" | "==>";
+}
+
+export interface LogicRelationalExpression extends LogicNodeBase, LogicBinOp {
+  kind: "RelationalExpression";
+  op: "<=" | "<" | ">" | ">=";
+}
+
+export interface LogicMembershipExpression extends LogicNodeBase {
+  kind: "MembershipExpression";
+  op: "in" | "not in";
+  left: LogicExpression;
+  arguments: LogicExpression[];
+}
+
+export interface LogicEqualityExpression extends LogicNodeBase, LogicBinOp {
+  kind: "EqualityExpression";
+  op: "==" | "!=";
+}
+
+export interface LogicUnaryExpression extends LogicNodeBase, LogicUnaryOp {
+  kind: "UnaryExpression";
+  op: "!";
+}
+
+export interface LogicArithmeticExpression extends LogicNodeBase, LogicBinOp {
+  kind: "ArithmeticExpression";
+  op: "+" | "-" | "*" | "/";
+}
+
+export interface LogicCallExpression extends LogicNodeBase {
+  kind: "CallExpression";
+  target: LogicReferenceExpression;
+  arguments: LogicExpression[];
+}
+
+export interface LogicReferenceExpression extends LogicNodeBase {
+  kind: "ReferenceExpression";
+  target: LogicMemberExpression | LogicIdentifier;
+  arguments: LogicExpression[];
+  type: Type;
+  referencedType?: Type;
+}
+
+export interface LogicMemberExpression extends LogicNodeBase {
+  kind: "MemberExpression";
+  base: LogicExpression;
+  id: string;
+  selector: "." | "::";
+  type: Type;
+  referencedType?: Type;
+}
+
+export interface LogicIfExpression extends LogicNodeBase {
+  kind: "IfExpression";
+  test: LogicExpression;
+  consequent: LogicBlockExpression;
+  alternate?: LogicBlockExpression | LogicIfExpression;
+}
+
+export interface LogicBlockExpression extends LogicNodeBase {
+  kind: "BlockExpression";
+  statements: LogicStatement[];
+}
+
+export interface LogicLambdaExpression extends LogicNodeBase {
+  kind: "LambdaExpression";
+  parameters: LogicParameter[];
+  body: LogicBlockExpression;
+}
+
+export interface LogicStringLiteral extends LogicNodeBase {
+  kind: "StringLiteral";
+  value: string;
+}
+
+export interface LogicNumericLiteral extends LogicNodeBase {
+  kind: "NumericLiteral";
+  value: number;
+}
+
+export interface LogicBooleanLiteral extends LogicNodeBase {
+  kind: "BooleanLiteral";
+  value: boolean;
+}
+
+export interface LogicParameter extends LogicNodeBase {
+  kind: "Parameter";
+  name: string;
+}
+
+export interface LogicIdentifier extends LogicNodeBase {
+  kind: "Identifier";
+  name: string;
+  type: Type;
+  referencedType?: Type;
+}
+
+export interface LogicTypeKeyword extends LogicNodeBase {
+  kind: "TypeKeyword";
+  name: "unknown" | "void" | "never";
+  type: UnknownType | VoidType | NeverType;
 }

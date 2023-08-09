@@ -305,6 +305,25 @@ Invalid,
 ```
 
 
+### `@list` {#@list}
+
+Mark this operation as a `list` operation for resource types.
+
+```typespec
+@list(listedType?: Model)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| listedType | `Model` | Optional type of the items in the list. |
+
+
+
 ### `@maxItems` {#@maxItems}
 
 Specify the maximum number of items this array should have.

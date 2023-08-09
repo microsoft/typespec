@@ -423,7 +423,7 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindScalarStatement(node: ScalarStatementNode) {
-    declareSymbol(node, SymbolFlags.Scalar);
+    declareSymbol(node, SymbolFlags.Scalar)!;
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }

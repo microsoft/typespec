@@ -34,17 +34,17 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/versioning": "workspace:~0.45.0",
+    "@typespec/versioning": "workspace:~0.46.0",
     "@typespec/best-practices": "workspace:~0.45.0",
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/http": "workspace:~0.45.0",
-    "@typespec/rest": "workspace:~0.45.0",
-    "@typespec/openapi": "workspace:~0.45.0",
-    "@typespec/openapi3": "workspace:~0.45.0",
-    "@typespec/html-program-viewer": "workspace:~0.45.0"
+    "@typespec/compiler": "workspace:~0.46.0",
+    "@typespec/http": "workspace:~0.46.0",
+    "@typespec/rest": "workspace:~0.46.0",
+    "@typespec/openapi": "workspace:~0.46.0",
+    "@typespec/openapi3": "workspace:~0.46.0",
+    "@typespec/html-program-viewer": "workspace:~0.46.0"
   },
   "devDependencies": {
-    "@typespec/internal-build-utils": "workspace:~0.4.2",
+    "@typespec/internal-build-utils": "workspace:~0.46.0",
     "autorest": "~3.3.2",
     "rimraf": "~5.0.1",
     "typescript": "~5.1.3"

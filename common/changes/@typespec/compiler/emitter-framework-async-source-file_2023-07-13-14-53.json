@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Breaking change** Emitter Framework: `sourceFile` method can return a `Promise`. This allows running async processes when generating the file content, a formatter for example. This result in a potential breaking change if calling `emitSourceFile` where you'll have to add `await` before.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

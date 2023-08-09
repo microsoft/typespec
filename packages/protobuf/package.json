@@ -1,6 +1,6 @@
 {
   "name": "@typespec/protobuf",
-  "version": "0.44.0",
+  "version": "0.46.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
   "homepage": "https://github.com/microsoft/typespec",
@@ -31,12 +31,12 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.45.2"
+    "@typespec/compiler": "workspace:~0.46.0"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
-    "@typespec/eslint-plugin": "workspace:~0.45.0",
+    "@typespec/compiler": "workspace:~0.46.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
+    "@typespec/eslint-plugin": "workspace:~0.46.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "c8": "~8.0.0",

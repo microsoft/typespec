@@ -7,6 +7,7 @@ import {
   ListenerFlow,
   Model,
   ModelProperty,
+  ModelValidate,
   Namespace,
   Operation,
   Scalar,
@@ -256,6 +257,14 @@ function navigateModelTypeProperty(property: ModelProperty, context: NavigationC
   navigateTypeInternal(property.type, context);
 }
 
+function navigateModelTypeValidate(validate: ModelValidate, context: NavigationContext) {
+  if (checkVisited(context.visited, validate)) {
+    return;
+  }
+  if (context.emit("modelValidate", validate) === ListenerFlow.NoRecursion) return;
+  context.emit("exitModelValidate", validate);
+}
+
 function navigateScalarType(scalar: Scalar, context: NavigationContext) {
   if (checkVisited(context.visited, scalar)) {
     return;
@@ -343,6 +352,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateScalarType(type, context);
     case "ModelProperty":
       return navigateModelTypeProperty(type, context);
+    case "ModelValidate":
+      return navigateModelTypeValidate(type, context);
     case "Namespace":
       return navigateNamespaceType(type, context);
     case "Interface":
@@ -422,6 +433,8 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "exitModel",
   "modelProperty",
   "exitModelProperty",
+  "modelValidate",
+  "exitModelValidate",
   "interface",
   "exitInterface",
   "enum",

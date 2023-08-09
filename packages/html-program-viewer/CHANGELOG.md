@@ -1,6 +1,14 @@
 # Change Log - @typespec/html-program-viewer
 
-This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+
+## 0.46.0
+Tue, 11 Jul 2023 22:06:00 GMT
+
+### Updates
+
+- Fix repo name in package.json
+- Update dependencies
 
 ## 0.45.0
 Tue, 06 Jun 2023 22:44:16 GMT

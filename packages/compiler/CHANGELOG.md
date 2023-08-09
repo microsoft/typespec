@@ -1,6 +1,44 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Thu, 15 Jun 2023 17:00:33 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+
+## 0.46.0
+Tue, 11 Jul 2023 22:06:00 GMT
+
+### Updates
+
+- Fix signature help after comment with no closing parenthesis or angle bracket
+- Internal: Reorganize sources inside `src/` folder
+- Fix: Doc comment `/** */` should override base type doc in `model is` or `op is`
+- Emitter Framework: add support for emitting enum member references.
+- **Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://microsoft.github.io/typespec/introduction/configuration#linter---configuring-linters) and [writing a linter](https://microsoft.github.io/typespec/extending-typespec/linters)
+- **Breaking** Minimum version of TypeScript updated to 5.0. TypeSpec is using new features available in TypeScript 5.0 which result in a definition file not parsable by older version. Note that this only affect compiling TypeScript code and is not breaking any JS or TypeSpec code. [See more information on typescript 5.0](https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/)
+- Remove `mkdirp` dependencies and replace with built-in `mkdir({recursive: true})`.
+- Compiler keeps track of the scope where a file is declared(User project, a library or the compiler)
+- Add support for `UTF-8 with bom` for other files loaded by typespec compiler. `.tsp` files already had support, this make it more available for any library/emitter using the compiler api to load a file.
+- Allow annotations(Decorators, directives and doc comments) to be specified in any order
+- Fix: `entrypoints` folder wasn't included in package causing failure to resolve cli.js
+- Fix: Formatter incorrectly formatting `::` to `.`
+- Fix formatting issue with comment between decorator and scalar or interface
+- Fix: Stack overflow crash when having circular reference with `op is` inside an interface. 
+- Fix IDE issue with squiggles in library code if the library had an entry point named something other than `main.tsp` and a library document was opened after another document that imported the library.
+- Fix: Referencing decorator target in argument cause stack overflow for enum and union in checker and interface and operations in projection.
+- **Fix** `getTypeName` include namespace prefix for unions as well
+- Formatter will now format doc comment above directives and decorators. This only applies to doc comments. Regular line comments and block comments will remain where they are
+- **Formatter**: Improve formatting for properties with comments and decorators. A property with a leading decorator on its own line or comment will be wrapped in blank lines.
+- **Breaking change** Updating tsp init template schema for future extensibility. Older tsp version will fail validation.
+- Emitter Framework: TypeEmitter can now implement `writeOutput` to customize how to write source files to disk.
+- Emitter Framework: Source Files and Declarations have a new property `meta` which can store arbitrary metadata about those entities.
+- Add support for new identifier characters from Unicode 15.0
+- **Deprecate** `@list` decorator in favor of `@listsResource` in `@typespec/rest`
+- **Deprecate** `isListOperation` function in favor of `isListOperation` in `@typespec/rest`
+- **Deprecate** `getListOperationType` function
+- Emitter Framework: Add new `TypeEmitter` methods for scalar instantiation.
+- Emitter Framework: Fix that context was set incorrectly for some `TypeEmitter` methods, and add missing context methods for model properties, enum members, and union variants.
+- Emitter Framework: Fix that some context methods were not being passed the expected parameters.
+- Emitter Framework: Breaking change: Add support for templates instantiated with types without declared names. In such cases, `TypeEmitter`'s declarationName method may return `undefined`, and so the various `*Instantiation` methods might be called with an undefined name, and `AssetEmitter`'s `emitDeclarationName` method might return undefined.
+- Fix: Wrong path for typescript types for main entrypoint
+- Update dependencies
 
 ## 0.45.2
 Thu, 15 Jun 2023 17:00:33 GMT

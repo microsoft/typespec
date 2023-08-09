@@ -1,6 +1,14 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Tue, 06 Jun 2023 22:44:16 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+
+## 0.46.0
+Tue, 11 Jul 2023 22:06:00 GMT
+
+### Updates
+
+- Omitting `x-typespec-name` extension by default from openapi3 output. A new flag `include-x-typespec-name: "inline-only" | "never"` has been added to get previous behavior.
+- Update dependencies
 
 ## 0.45.0
 Tue, 06 Jun 2023 22:44:16 GMT

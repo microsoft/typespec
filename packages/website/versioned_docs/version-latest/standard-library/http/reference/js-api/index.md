@@ -617,20 +617,21 @@ ___
 
 ### gatherMetadata
 
-▸ **gatherMetadata**(`program`, `diagnostics`, `type`, `visibility`, `isMetadataCallback?`): `Set`<`ModelProperty`\>
+▸ **gatherMetadata**(`program`, `diagnostics`, `type`, `visibility`, `isMetadataCallback?`, `rootMapOut?`): `Set`<`ModelProperty`\>
 
 Walks the given type and collects all applicable metadata and `@body`
 properties recursively.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `program` | `Program` | `undefined` |
-| `diagnostics` | `DiagnosticCollector` | `undefined` |
-| `type` | `Type` | `undefined` |
-| `visibility` | [`Visibility`](enums/Visibility.md) | `undefined` |
-| `isMetadataCallback` | (`program`: `Program`, `property`: `ModelProperty`) => `boolean` | `isMetadata` |
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `program` | `Program` | `undefined` | - |
+| `diagnostics` | `DiagnosticCollector` | `undefined` | - |
+| `type` | `Type` | `undefined` | - |
+| `visibility` | [`Visibility`](enums/Visibility.md) | `undefined` | - |
+| `isMetadataCallback` | (`program`: `Program`, `property`: `ModelProperty`) => `boolean` | `isMetadata` | Determines if a property is metadata. A property is defined to be metadata if it is marked `@header`, `@query`, `@path`, or `@statusCode`. |
+| `rootMapOut?` | `Map`<`ModelProperty`, `ModelProperty`\> | `undefined` | If provided, the map will be populated to link nested metadata properties to their root properties. |
 
 #### Returns
 

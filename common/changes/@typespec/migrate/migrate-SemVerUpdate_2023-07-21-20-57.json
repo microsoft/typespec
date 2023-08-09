@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Fix issue with latest semver package.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

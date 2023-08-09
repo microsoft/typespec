@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Compiler version mismatch error would fire incorrectly",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

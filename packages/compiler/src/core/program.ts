@@ -996,15 +996,15 @@ export async function compile(
 
     const expected = resolvePath(
       await host.realpath(host.fileURLToPath(import.meta.url)),
-      "../index.js"
+      "../../../.."
     );
 
-    if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
+    if (actual.path !== expected && MANIFEST.version !== actual.manifest.version) {
       const betterTypeSpecServerPath = actual.path;
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterTypeSpecServerPath, actual: actual.mainFile, expected },
+          format: { basedir: baseDir, betterTypeSpecServerPath, actual: actual.path, expected },
           target: NoTarget,
         })
       );

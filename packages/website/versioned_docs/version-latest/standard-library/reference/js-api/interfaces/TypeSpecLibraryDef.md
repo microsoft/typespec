@@ -23,6 +23,7 @@ Definition of a TypeSpec library
 
 - [diagnostics](TypeSpecLibraryDef.md#diagnostics)
 - [emitter](TypeSpecLibraryDef.md#emitter)
+- [linter](TypeSpecLibraryDef.md#linter)
 - [name](TypeSpecLibraryDef.md#name)
 - [requireImports](TypeSpecLibraryDef.md#requireimports)
 
@@ -47,6 +48,14 @@ Emitter configuration if library is an emitter.
 | Name | Type |
 | :------ | :------ |
 | `options?` | [`JSONSchemaType`](../index.md#jsonschematype)<`E`\> |
+
+___
+
+### linter
+
+• `Optional` `Readonly` **linter**: [`LinterDefinition`](LinterDefinition.md)
+
+Configuration if library is providing linting rules/rulesets.
 
 ___
 

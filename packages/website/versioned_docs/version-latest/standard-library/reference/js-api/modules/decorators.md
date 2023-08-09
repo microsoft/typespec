@@ -428,6 +428,10 @@ ___
 
 ▸ **$list**(`context`, `target`, `listedType?`): `void`
 
+**`Deprecated`**
+
+Use the `listsResource` decorator in `@typespec/rest` instead.
+
 #### Parameters
 
 | Name | Type |
@@ -1095,6 +1099,10 @@ ___
 
 ▸ **getListOperationType**(`program`, `target`): [`Model`](../interfaces/Model.md) \| `undefined`
 
+**`Deprecated`**
+
+This function is unused and will be removed in a future release.
+
 #### Parameters
 
 | Name | Type |
@@ -1531,6 +1539,10 @@ ___
 ### isListOperation
 
 ▸ **isListOperation**(`program`, `target`): `boolean`
+
+**`Deprecated`**
+
+Use `isListOperation` in `@typespec/rest` instead.
 
 #### Parameters
 

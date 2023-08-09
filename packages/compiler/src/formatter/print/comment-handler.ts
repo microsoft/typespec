@@ -79,6 +79,7 @@ function addStatementDecoratorComment({ comment }: CommentContext) {
       enclosingNode.kind === SyntaxKind.ScalarStatement ||
       enclosingNode.kind === SyntaxKind.InterfaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelProperty ||
+      enclosingNode.kind === SyntaxKind.ModelValidate ||
       enclosingNode.kind === SyntaxKind.EnumMember ||
       enclosingNode.kind === SyntaxKind.UnionStatement)
   ) {

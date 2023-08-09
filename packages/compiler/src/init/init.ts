@@ -2,6 +2,7 @@ import { readdir } from "fs/promises";
 import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
+import * as semver from "semver";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { createDiagnostic } from "../core/messages.js";
@@ -10,7 +11,8 @@ import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
-import { InitTemplate, InitTemplateDefinitionsSchema, InitTemplateFile } from "./init-template.js";
+import { MANIFEST } from "../manifest.js";
+import { InitTemplate, InitTemplateFile, InitTemplateSchema } from "./init-template.js";
 
 interface ScaffoldingConfig extends InitTemplate {
   /**
@@ -70,6 +72,8 @@ interface TemplatesUrl {
   url: string;
   /** The final URL after HTTP redirects. Populated when template is downloaded. */
   finalUrl?: string;
+  /** The actual template file. Populated when template is downloaded. */
+  file?: SourceFile;
 }
 
 const normalizeVersion = function () {
@@ -98,11 +102,25 @@ export async function initTypeSpecProject(
   if (!(await confirmDirectoryEmpty(directory))) {
     return;
   }
+
   const folderName = getBaseFileName(directory);
-
   const url: TemplatesUrl | undefined = templatesUrl ? { url: templatesUrl } : undefined;
-  const template = await selectTemplate(host, url);
 
+  // Download template configuration and prompt user to select a template
+  // No validation is done until one has been selected
+  const templates = url === undefined ? builtInTemplates : await downloadTemplates(host, url);
+  const templateName = await promptTemplateSelection(templates, url);
+
+  // Validate minimum compiler version for non built-in templates
+  if (url !== undefined && !(await validateTemplate(templates[templateName], url))) {
+    return;
+  }
+
+  const template = templates[templateName] as InitTemplate;
+  if (template.description) {
+    // eslint-disable-next-line no-console
+    console.log(template.description);
+  }
   const { name } = await prompts([
     {
       type: "text",
@@ -128,6 +146,9 @@ export async function initTypeSpecProject(
     normalizePackageName,
   };
   await scaffoldNewProject(host, scaffoldingConfig);
+
+  // eslint-disable-next-line no-console
+  console.log("Project created successfully.");
 }
 
 async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
@@ -170,10 +191,12 @@ const builtInTemplates: Record<string, InitTemplate> = {
     title: "Empty project",
     description: "Create an empty project.",
     libraries: [],
+    compilerVersion: MANIFEST.version,
   },
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
+    compilerVersion: MANIFEST.version,
     libraries: ["@typespec/rest", "@typespec/openapi3"],
     config: {
       emit: ["@typespec/openapi3"],
@@ -194,11 +217,12 @@ async function confirm(message: string): Promise<boolean> {
 async function downloadTemplates(
   host: CompilerHost,
   templatesUrl: TemplatesUrl
-): Promise<Record<string, InitTemplate>> {
+): Promise<Record<string, unknown>> {
   let file: SourceFile;
   try {
     file = await readUrlOrPath(host, templatesUrl.url);
     templatesUrl.finalUrl = file.path;
+    templatesUrl.file = file;
   } catch (e: any) {
     throw new InitTemplateError([
       createDiagnostic({
@@ -222,35 +246,82 @@ async function downloadTemplates(
     ]);
   }
 
-  validateTemplateDefinitions(json, file);
-  return json;
-}
-
-async function selectTemplate(
-  host: CompilerHost,
-  templatesUrl: TemplatesUrl | undefined
-): Promise<InitTemplate> {
-  const templates =
-    templatesUrl === undefined ? builtInTemplates : await downloadTemplates(host, templatesUrl);
-  return promptTemplateSelection(templates);
+  return json as Record<string, unknown>;
 }
 
 async function promptTemplateSelection(
-  templates: Record<string, InitTemplate>
-): Promise<InitTemplate> {
+  templates: Record<string, any>,
+  templatesUrl: TemplatesUrl | undefined
+): Promise<string> {
   const { templateName } = await prompts({
     type: "select",
     name: "templateName",
     message: "Please select a template",
     choices: Object.entries(templates).map(([id, template]) => {
-      return { value: id, description: template.description, title: template.title };
+      return {
+        value: id,
+        description: template.description,
+        title:
+          template.title +
+          `\tmin compiler ver: ${
+            template.compilerVersion ? template.compilerVersion : "-not specified-"
+          }`,
+      };
     }),
   });
+
   const template = templates[templateName];
   if (!template) {
     throw new Error(`Unexpected error: Cannot find template ${templateName}`);
   }
-  return template;
+
+  return templateName;
+}
+
+type ValidationResult = {
+  valid: boolean;
+  diagnostics: readonly Diagnostic[];
+};
+
+async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Promise<boolean> {
+  // After selection, validate the template definition
+  const currentCompilerVersion = MANIFEST.version;
+  const validationTarget = templatesUrl.file as SourceFile;
+  let validationResult: ValidationResult;
+  // 1. If current version > compilerVersion, proceed with strict validation
+  if (template.compilerVersion && semver.gte(currentCompilerVersion, template.compilerVersion)) {
+    validationResult = validateTemplateDefinitions(template, validationTarget, true);
+
+    // 1.1 If strict validation fails, try relaxed validation
+    if (!validationResult.valid) {
+      validationResult = validateTemplateDefinitions(template, validationTarget, false);
+    }
+  } else {
+    // 2. if version mis-match or none specified, warn and prompt user to continue or not
+    const confirmationMessage = template.compilerVersion
+      ? `The template you selected is designed for tsp version ${template.compilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
+      : `The template you selected did not specify minimum support compiler version. You are currently using tsp version ${currentCompilerVersion}.`;
+    if (
+      await confirm(
+        `${confirmationMessage} The project created may not be correct. Do you want to continue?`
+      )
+    ) {
+      // 2.1 If user choose to continue, proceed with relaxed validation
+      validationResult = validateTemplateDefinitions(template, validationTarget, false);
+    } else {
+      return false;
+    }
+  }
+
+  // 3. If even relaxed validation fails, still prompt user to continue or not
+  if (!validationResult.valid) {
+    logDiagnostics(validationResult.diagnostics);
+
+    return await confirm(
+      "Template schema failed. The project created may not be correct. Do you want to continue?"
+    );
+  }
+  return true;
 }
 
 async function selectLibraries(template: InitTemplate): Promise<string[]> {
@@ -289,6 +360,9 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
+  if (isFileSkipGeneration("package.json", config.files ?? [])) {
+    return;
+  }
   const dependencies: Record<string, string> = {};
 
   if (!config.skipCompilerPackage) {
@@ -314,6 +388,9 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
+  if (isFileSkipGeneration(TypeSpecConfigFilename, config.files ?? [])) {
+    return;
+  }
   if (!config.config) {
     return;
   }
@@ -322,6 +399,9 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
+  if (isFileSkipGeneration("main.tsp", config.files ?? [])) {
+    return;
+  }
   const dependencies: Record<string, string> = {};
 
   for (const library of config.libraries) {
@@ -339,7 +419,9 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
     return;
   }
   for (const file of config.files) {
-    await writeFile(host, config, file);
+    if (file.skipGeneration !== true) {
+      await writeFile(host, config, file);
+    }
   }
 }
 
@@ -365,12 +447,29 @@ export class InitTemplateError extends Error {
 }
 
 function validateTemplateDefinitions(
-  templates: unknown,
-  file: SourceFile
-): asserts templates is Record<string, InitTemplate> {
-  const validator = createJSONSchemaValidator(InitTemplateDefinitionsSchema);
-  const diagnostics = validator.validate(templates, file);
-  if (diagnostics.length > 0) {
-    throw new InitTemplateError(diagnostics);
+  template: unknown,
+  templateName: SourceFile,
+  strictValidation: boolean
+): ValidationResult {
+  const validator = createJSONSchemaValidator(InitTemplateSchema, {
+    strict: strictValidation,
+  });
+  const diagnostics = validator.validate(template, templateName);
+  return { valid: diagnostics.length === 0, diagnostics };
+}
+
+function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
+  for (const file of files) {
+    if (file.path === fileName) {
+      return file.skipGeneration;
+    }
   }
+  return false;
+}
+
+function logDiagnostics(diagnostics: readonly Diagnostic[]): void {
+  diagnostics.forEach((diagnostic) => {
+    // eslint-disable-next-line no-console
+    console.log(diagnostic.message);
+  });
 }

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Update init template version compare to be greaterThanAndEqual instead of greaterThan.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
