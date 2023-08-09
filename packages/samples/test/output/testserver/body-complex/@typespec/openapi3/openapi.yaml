@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /complex/array/valid:
@@ -44,7 +44,7 @@ paths:
   /complex/basic/valid:
     get:
       operationId: Complex_getValid
-      description: 'Get complex type {id: 2, name: ''abc'', color: ''YELLOW''}'
+      description: "Get complex type {id: 2, name: 'abc', color: 'YELLOW'}"
       parameters: []
       responses:
         '200':
@@ -61,7 +61,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     put:
       operationId: Complex_putValid
-      description: 'Please put {id: 2, name: ''abc'', color: ''Magenta''}'
+      description: "Please put {id: 2, name: 'abc', color: 'Magenta'}"
       parameters: []
       responses:
         '200':
@@ -506,8 +506,7 @@ components:
           description: Basic Id
         name:
           type: string
-          description: >-
-            Name property with a very long description that does not fit on a
+          description: Name property with a very long description that does not fit on a
             single line and a line break.
         color:
           $ref: '#/components/schemas/CMYKColors'
@@ -572,8 +571,7 @@ components:
           format: double
       required:
         - field1
-        - >-
-          field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
+        - field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
     DurationWrapper:
       type: object
       properties:

@@ -2045,9 +2045,15 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return stringify(root, (key, value) => {
-        return value instanceof Ref ? value.toJSON() : value;
-      });
+      return stringify(
+        root,
+        (key, value) => {
+          return value instanceof Ref ? value.toJSON() : value;
+        },
+        {
+          singleQuote: true,
+        }
+      );
   }
 }
 

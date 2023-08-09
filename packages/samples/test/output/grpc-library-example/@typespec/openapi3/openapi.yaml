@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Grpc Library sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: LibraryService
 paths:
@@ -40,8 +40,10 @@ paths:
         Lists shelves. The order is unspecified but deterministic. Newly created
         shelves will not necessarily be added to the end of this list.
       parameters:
-        - $ref: '#/components/parameters/ListRequestBase.page_size'
-        - $ref: '#/components/parameters/ListRequestBase.page_token'
+        - &a1
+          $ref: '#/components/parameters/ListRequestBase.page_size'
+        - &a2
+          $ref: '#/components/parameters/ListRequestBase.page_token'
       responses:
         '200':
           description: The request has succeeded.
@@ -55,7 +57,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/shelf_name/books/{name}:
+  '/v1/shelves/shelf_name/books/{name}':
     get:
       tags:
         - LibraryService
@@ -85,16 +87,15 @@ paths:
         - $ref: '#/components/parameters/DeleteBookRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:
+  '/v1/shelves/{name}':
     get:
       tags:
         - LibraryService
@@ -124,16 +125,15 @@ paths:
         - $ref: '#/components/parameters/DeleteShelfRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}/books:
+  '/v1/shelves/{name}/books':
     post:
       tags:
         - LibraryService
@@ -174,8 +174,8 @@ paths:
         Returns NOT_FOUND if the shelf does not exist.
       parameters:
         - $ref: '#/components/parameters/ListBooksRequest.name'
-        - $ref: '#/components/parameters/ListRequestBase.page_size'
-        - $ref: '#/components/parameters/ListRequestBase.page_token'
+        - *a1
+        - *a2
       responses:
         '200':
           description: The request has succeeded.
@@ -189,7 +189,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:merge:
+  '/v1/shelves/{name}:merge':
     post:
       tags:
         - LibraryService
@@ -201,8 +201,7 @@ paths:
 
         `other_shelf_name`. Returns the updated shelf.
 
-        The book ids of the moved books may not be the same as the original
-        books.
+        The book ids of the moved books may not be the same as the original books.
 
         Returns NOT_FOUND if either shelf does not exist.
 
@@ -365,8 +364,7 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
       description: Response message for LibraryService.ListBooks.
@@ -384,8 +382,7 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
     ListShelvesResponse:
@@ -405,8 +402,7 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
       description: Response message for LibraryService.ListShelves.

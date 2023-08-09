@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Pet Store Service
-  version: '2021-03-25'
+  version: 2021-03-25
 tags: []
 paths:
   /checkups:
@@ -22,12 +22,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /checkups/{checkupId}:
+  '/checkups/{checkupId}':
     patch:
       operationId: Checkups_createOrUpdate
       description: Creates or update an instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/CheckupKey'
+        - &a2
+          $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -100,12 +101,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /owners/{ownerId}:
+  '/owners/{ownerId}':
     get:
       operationId: Owners_get
       description: Gets an instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
+        - &a1
+          $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -123,7 +125,7 @@ paths:
       operationId: Owners_update
       description: Updates an existing instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
+        - *a1
       responses:
         '200':
           description: The request has succeeded.
@@ -147,7 +149,7 @@ paths:
       operationId: Owners_delete
       description: Deletes an existing instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
+        - *a1
       responses:
         '200':
           description: Resource deleted successfully.
@@ -157,12 +159,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /owners/{ownerId}/checkups:
+  '/owners/{ownerId}/checkups':
     get:
       operationId: OwnerCheckups_list
       description: Lists all instances of the extension resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
+        - *a1
       responses:
         '200':
           description: The request has succeeded.
@@ -176,13 +178,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /owners/{ownerId}/checkups/{checkupId}:
+  '/owners/{ownerId}/checkups/{checkupId}':
     patch:
       operationId: OwnerCheckups_createOrUpdate
       description: Creates or update an instance of the extension resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
-        - $ref: '#/components/parameters/CheckupKey'
+        - *a1
+        - *a2
       responses:
         '200':
           description: The request has succeeded.
@@ -208,12 +210,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
-  /owners/{ownerId}/insurance:
+  '/owners/{ownerId}/insurance':
     get:
       operationId: OwnerInsurance_get
       description: Gets the singleton resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
+        - *a1
       responses:
         '200':
           description: The request has succeeded.
@@ -231,7 +233,7 @@ paths:
       operationId: OwnerInsurance_update
       description: Updates the singleton resource.
       parameters:
-        - $ref: '#/components/parameters/OwnerKey'
+        - *a1
       responses:
         '200':
           description: The request has succeeded.
@@ -298,12 +300,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /pets/{petId}:
+  '/pets/{petId}':
     get:
       operationId: Pets_get
       description: Gets an instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
+        - &a3
+          $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -321,7 +324,7 @@ paths:
       operationId: Pets_update
       description: Updates an existing instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
+        - *a3
       responses:
         '200':
           description: The request has succeeded.
@@ -345,7 +348,7 @@ paths:
       operationId: Pets_delete
       description: Deletes an existing instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
+        - *a3
       responses:
         '200':
           description: Resource deleted successfully.
@@ -355,12 +358,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /pets/{petId}/checkups:
+  '/pets/{petId}/checkups':
     get:
       operationId: PetCheckups_list
       description: Lists all instances of the extension resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
+        - *a3
       responses:
         '200':
           description: The request has succeeded.
@@ -374,13 +377,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /pets/{petId}/checkups/{checkupId}:
+  '/pets/{petId}/checkups/{checkupId}':
     patch:
       operationId: PetCheckups_createOrUpdate
       description: Creates or update an instance of the extension resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
-        - $ref: '#/components/parameters/CheckupKey'
+        - *a3
+        - *a2
       responses:
         '200':
           description: The request has succeeded.
@@ -406,12 +409,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
-  /pets/{petId}/insurance:
+  '/pets/{petId}/insurance':
     get:
       operationId: PetInsurance_get
       description: Gets the singleton resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
+        - *a3
       responses:
         '200':
           description: The request has succeeded.
@@ -429,7 +432,7 @@ paths:
       operationId: PetInsurance_update
       description: Updates the singleton resource.
       parameters:
-        - $ref: '#/components/parameters/PetKey'
+        - *a3
       responses:
         '200':
           description: The request has succeeded.
@@ -449,7 +452,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InsuranceUpdate'
-  /pets/{petId}/toys:
+  '/pets/{petId}/toys':
     get:
       operationId: Toys_list
       parameters:
@@ -472,13 +475,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /pets/{petId}/toys/{toyId}:
+  '/pets/{petId}/toys/{toyId}':
     get:
       operationId: Toys_get
       description: Gets an instance of the resource.
       parameters:
-        - $ref: '#/components/parameters/ToyKey.petId'
-        - $ref: '#/components/parameters/ToyKey.toyId'
+        - &a4
+          $ref: '#/components/parameters/ToyKey.petId'
+        - &a5
+          $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.
@@ -492,13 +497,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  /pets/{petId}/toys/{toyId}/insurance:
+  '/pets/{petId}/toys/{toyId}/insurance':
     get:
       operationId: ToyInsurance_get
       description: Gets the singleton resource.
       parameters:
-        - $ref: '#/components/parameters/ToyKey.petId'
-        - $ref: '#/components/parameters/ToyKey.toyId'
+        - *a4
+        - *a5
       responses:
         '200':
           description: The request has succeeded.
@@ -516,8 +521,8 @@ paths:
       operationId: ToyInsurance_update
       description: Updates the singleton resource.
       parameters:
-        - $ref: '#/components/parameters/ToyKey.petId'
-        - $ref: '#/components/parameters/ToyKey.toyId'
+        - *a4
+        - *a5
       responses:
         '200':
           description: The request has succeeded.

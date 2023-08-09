@@ -8,7 +8,8 @@ paths:
     get:
       operationId: MyService_getPet
       parameters:
-        - $ref: '#/components/parameters/ApiVersionParam'
+        - &a1
+          $ref: '#/components/parameters/ApiVersionParam'
       responses:
         '200':
           description: The request has succeeded.
@@ -20,7 +21,7 @@ paths:
     post:
       operationId: MyService_walkCat
       parameters:
-        - $ref: '#/components/parameters/ApiVersionParam'
+        - *a1
       responses:
         '200':
           description: The request has succeeded.

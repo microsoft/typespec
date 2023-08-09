@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Tags sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: foo
   - name: tag1
@@ -26,7 +26,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Resp'
-  /bar/{id}:
+  '/bar/{id}':
     post:
       tags:
         - tag3
@@ -41,10 +41,9 @@ paths:
             format: int32
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
-  /foo/{id}:
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
+  '/foo/{id}':
     get:
       tags:
         - foo
@@ -60,9 +59,8 @@ paths:
             format: int32
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
     post:
       tags:
         - foo
@@ -79,10 +77,9 @@ paths:
             format: int32
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
-  /nested/{id}:
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
+  '/nested/{id}':
     post:
       tags:
         - outer
@@ -99,9 +96,8 @@ paths:
             format: int32
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
 components:
   schemas:
     Resp:
