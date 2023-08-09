@@ -65,17 +65,6 @@
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-<<<<<<< HEAD
-    "@typespec/compiler": "workspace:~0.46.0",
-    "@typespec/http": "workspace:~0.46.0",
-    "@typespec/rest": "workspace:~0.46.0",
-    "@typespec/openapi": "workspace:~0.46.0",
-    "@typespec/versioning": "workspace:~0.46.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.46.0",
-    "@typespec/library-linter": "workspace:~0.46.0",
-    "@typespec/eslint-plugin": "workspace:~0.46.0",
-=======
-    "@types/js-yaml": "~4.0.1",
     "@typespec/compiler": "workspace:~0.47.0",
     "@typespec/http": "workspace:~0.47.0",
     "@typespec/rest": "workspace:~0.47.0",
@@ -84,7 +73,6 @@
     "@typespec/eslint-config-typespec": "workspace:~0.47.0",
     "@typespec/library-linter": "workspace:~0.47.0",
     "@typespec/eslint-plugin": "workspace:~0.47.0",
->>>>>>> 2f512c77a1841f89ea0bf26b443d4eac902a1092
     "@typespec/tspd": "workspace:~0.46.0",
     "eslint": "^8.42.0",
     "mocha": "~10.2.0",

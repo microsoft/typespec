@@ -53,13 +53,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-<<<<<<< HEAD
-    "@typespec/compiler": "workspace:~0.46.0",
-    "yaml": "~2.3.1",
-=======
     "@typespec/compiler": "workspace:~0.47.0",
-    "js-yaml": "~4.1.0",
->>>>>>> 2f512c77a1841f89ea0bf26b443d4eac902a1092
+    "yaml": "~2.3.1",
     "prettier": "~3.0.1",
     "picocolors": "~1.0.0",
     "yargs": "~17.7.1"
