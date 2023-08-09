@@ -82,9 +82,9 @@ components:
   schemas:
     HasBytes:
       type: object
+      required:
+        - bytes
       properties:
         bytes:
           type: string
           format: byte
-      required:
-        - bytes
