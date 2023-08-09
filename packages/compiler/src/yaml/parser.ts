@@ -8,7 +8,9 @@ export function parseYaml(source: string | SourceFile): [YamlScript, readonly Di
 
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
 
-  const doc = parseDocument(file.text);
+  const doc = parseDocument(file.text, {
+    prettyErrors: false, // We are handling the error display ourself to be consistent in the style.
+  });
   for (const error of doc.errors) {
     diagnostics.add(convertYamlErrorToDiagnostic("error", error, file));
   }

@@ -5,8 +5,8 @@ import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js
 import { deepClone, deepFreeze, doIO, omitUndefined } from "../core/util.js";
 import { createSourceFile } from "../index.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
+import { parseYaml } from "../yaml/parser.js";
 import { YamlScript } from "../yaml/types.js";
-import { parseYaml } from "../yaml/yaml-parser.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
 import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
