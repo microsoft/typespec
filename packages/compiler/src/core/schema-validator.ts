@@ -1,5 +1,5 @@
 import Ajv, { DefinedError, Options } from "ajv";
-import { createYamlDiagnosticTarget } from "../yaml/diagnostics.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile } from "./types.js";
@@ -65,7 +65,7 @@ function ajvErrorToDiagnostic(
       target === NoTarget
         ? target
         : "kind" in target
-        ? createYamlDiagnosticTarget(target, getErrorPath(error), "key")
+        ? getLocationInYamlScript(target, getErrorPath(error), "key")
         : { file: target, pos: 0, end: 0 },
   };
 }
