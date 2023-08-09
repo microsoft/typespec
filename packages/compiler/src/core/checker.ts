@@ -139,7 +139,7 @@ import {
   VoidType,
 } from "./types.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
-let blah: any;
+
 export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
 
 export interface Checker {

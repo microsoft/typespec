@@ -367,7 +367,21 @@ describe.only("compiler: validate", () => {
       S: Scalar;
     };
 
-    // TODO: Validate
+    notStrictEqual(S.validates.get("chkv")?.logic, undefined);
+
+    const n1 = S.validates.get("chkv")!.logic;
+    strictEqual(n1.kind, "EqualityExpression");
+
+    const n2 = n1.left;
+    strictEqual(n2.kind, "ArithmeticExpression");
+    strictEqual(n2.op, "+");
+
+    const n3 = n2.left;
+    strictEqual(n3.kind, "ReferenceExpression");
+    strictEqual(n3.target.kind, "Identifier");
+    strictEqual(n3.target.name, "value");
+    strictEqual(n3.type.kind, "Scalar");
+    strictEqual(n3.type.name, "S");
   });
 
   it("produces union types for if statements", async () => {
