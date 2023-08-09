@@ -27,7 +27,7 @@ describe("openapi3: output file", () => {
     `openapi: 3.0.0`,
     `info:`,
     `  title: (title)`,
-    `  version: '0000-00-00'`,
+    `  version: 0000-00-00`,
     `tags: []`,
     `paths: {}`,
     `components: {}`,

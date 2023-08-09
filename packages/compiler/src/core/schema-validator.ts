@@ -48,7 +48,7 @@ function ajvErrorToDiagnostic(
   error: DefinedError,
   target: YamlScript | SourceFile | typeof NoTarget
 ): Diagnostic {
-  const messageLines = [`Schema violation: ${error.message} (${error.instancePath ?? "/"})`];
+  const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];
   for (const [name, value] of Object.entries(error.params).filter(
     ([name]) => !IGNORED_AJV_PARAMS.has(name)
   )) {
