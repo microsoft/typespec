@@ -17,13 +17,13 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       c8:
         specifier: ~8.0.0
@@ -68,7 +68,7 @@ importers:
         specifier: ~3.0.1
         version: 3.0.1(rollup@3.24.0)
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       rollup:
         specifier: ~3.24.0
@@ -81,7 +81,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       c8:
         specifier: ~8.0.0
@@ -175,10 +175,10 @@ importers:
         specifier: ~17.0.24
         version: 17.0.24
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       c8:
         specifier: ~8.0.0
@@ -211,7 +211,7 @@ importers:
         specifier: ~0.5.19
         version: 0.5.19
       tmlanguage-generator:
-        specifier: workspace:~0.4.2
+        specifier: workspace:~0.4.3
         version: link:../tmlanguage-generator
       typescript:
         specifier: ~5.1.3
@@ -272,7 +272,7 @@ importers:
         specifier: ^6.2.1
         version: 6.2.1(eslint@8.42.0)(typescript@5.1.3)
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       c8:
         specifier: ~8.0.0
@@ -330,10 +330,10 @@ importers:
         specifier: ~18.2.4
         version: 18.2.4
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       c8:
         specifier: ~8.0.0
@@ -366,16 +366,16 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/library-linter':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../library-linter
       '@typespec/tspd':
         specifier: workspace:~0.46.0
@@ -424,7 +424,7 @@ importers:
         specifier: ~17.0.24
         version: 17.0.24
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       c8:
         specifier: ~8.0.0
@@ -467,19 +467,19 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       '@typespec/library-linter':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../library-linter
       '@typespec/tspd':
         specifier: workspace:~0.46.0
@@ -521,10 +521,10 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       c8:
         specifier: ~8.0.0
@@ -557,13 +557,13 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       c8:
         specifier: ~8.0.0
@@ -590,7 +590,7 @@ importers:
   ../../packages/migrate:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/compiler-v0.37':
         specifier: npm:@cadl-lang/compiler@0.37.0
@@ -639,10 +639,10 @@ importers:
         specifier: ~17.0.24
         version: 17.0.24
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       c8:
         specifier: ~8.0.0
@@ -675,22 +675,22 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../library-linter
       '@typespec/rest':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../rest
       '@typespec/tspd':
         specifier: workspace:~0.46.0
@@ -733,31 +733,31 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../library-linter
       '@typespec/openapi':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi
       '@typespec/rest':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../rest
       '@typespec/tspd':
         specifier: workspace:~0.46.0
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../versioning
       c8:
         specifier: ~8.0.0
@@ -793,28 +793,28 @@ importers:
         specifier: ~2.0.190
         version: 2.0.190(react@18.2.0)
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/html-program-viewer':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/openapi':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../versioning
       debounce:
         specifier: ~1.2.1
@@ -878,7 +878,7 @@ importers:
         specifier: workspace:~0.1.0
         version: link:../bundler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@vitejs/plugin-react':
         specifier: ~4.0.0
@@ -920,34 +920,34 @@ importers:
         specifier: ^11.11.1
         version: 11.11.1(@types/react@18.2.9)(react@18.2.0)
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/html-program-viewer':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi3
       '@typespec/playground':
         specifier: workspace:~0.44.0
         version: link:../playground
       '@typespec/protobuf':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../versioning
       react:
         specifier: ~18.2.0
@@ -987,7 +987,7 @@ importers:
         specifier: workspace:~0.1.0
         version: link:../bundler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@vitejs/plugin-react':
         specifier: ~4.0.0
@@ -1042,10 +1042,10 @@ importers:
         specifier: ~5.0.2
         version: 5.0.2(rollup@3.24.0)
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       mocha:
         specifier: ~10.2.0
@@ -1075,13 +1075,13 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/tspd':
         specifier: workspace:~0.46.0
@@ -1114,19 +1114,19 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../library-linter
       '@typespec/tspd':
         specifier: workspace:~0.46.0
@@ -1159,25 +1159,25 @@ importers:
         specifier: workspace:~0.45.0
         version: link:../best-practices
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/html-program-viewer':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/openapi':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi3
       '@typespec/rest':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../versioning
     devDependencies:
       '@types/mocha':
@@ -1187,10 +1187,10 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       autorest:
         specifier: ~3.3.2
@@ -1217,7 +1217,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       ecmarkup:
         specifier: ~12.0.3
@@ -1239,7 +1239,7 @@ importers:
         specifier: ~3.0.2
         version: 3.0.2
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       eslint:
         specifier: ^8.42.0
@@ -1254,7 +1254,7 @@ importers:
   ../../packages/tspd:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       js-yaml:
         specifier: ~4.1.0
@@ -1282,10 +1282,10 @@ importers:
         specifier: ~17.0.24
         version: 17.0.24
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/prettier-plugin-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../prettier-plugin-typespec
       c8:
         specifier: ~8.0.0
@@ -1321,10 +1321,10 @@ importers:
   ../../packages/typespec-vs:
     devDependencies:
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       typespec-vscode:
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../typespec-vscode
 
   ../../packages/typespec-vscode:
@@ -1345,13 +1345,13 @@ importers:
         specifier: ~1.53.0
         version: 1.53.0
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../internal-build-utils
       '@vscode/vsce':
         specifier: ~2.15.0
@@ -1393,16 +1393,16 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-plugin-typespec
       '@typespec/library-linter':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../library-linter
       '@typespec/tspd':
         specifier: workspace:~0.46.0
@@ -1466,28 +1466,28 @@ importers:
         specifier: ~18.11.9
         version: 18.11.9
       '@typespec/compiler':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../eslint-config-typespec
       '@typespec/http':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../rest
       '@typespec/spec':
         specifier: workspace:*
@@ -1496,7 +1496,7 @@ importers:
         specifier: workspace:~0.46.0
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~0.46.0
+        specifier: workspace:~0.47.0
         version: link:../versioning
       dotenv:
         specifier: ~16.1.3
