@@ -8,6 +8,8 @@ toc_max_heading_level: 3
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+# Overview
+
 TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec
 
 ## Install
@@ -29,7 +31,7 @@ npm install --save-peer @typespec/json-schema
 </TabItem>
 </Tabs>
 
-### Emitter usage
+## Emitter usage
 
 [See documentation](./emitter.md)
 

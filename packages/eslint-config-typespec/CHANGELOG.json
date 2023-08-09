@@ -2,6 +2,18 @@
   "name": "@typespec/eslint-config-typespec",
   "entries": [
     {
+      "version": "0.47.0",
+      "tag": "@typespec/eslint-config-typespec_v0.47.0",
+      "date": "Tue, 08 Aug 2023 22:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependency on @typescript-eslint/parser"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.46.0",
       "tag": "@typespec/eslint-config-typespec_v0.46.0",
       "date": "Tue, 11 Jul 2023 22:06:00 GMT",

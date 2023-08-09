@@ -6,6 +6,13 @@ title: Operations
 
 ## Operation verb
 
+**Default behavior:**
+
+- If `@post` operation has a request body
+- `@get` otherwise
+
+**Configure:**
+
 You can use one of the [verb decorators](./reference/decorators.md): `@get`, `@put`, etc.
 
 ## Route
@@ -119,14 +126,25 @@ namespace Pets {
 
 ## Status codes
 
+**Default behavior:**
+
+- `4xx,5xx` if response is marked with `@error`
+- `200` otherwise
+
+**Configure:**
+
 Use the `@header` decorator on a property named `statusCode` to declare a status code for a response. Generally, setting this to just `int32` isn't particularly useful. Instead, use number literal types to create a discriminated union of response types. Let's add status codes to our responses, and add a 404 response to our read endpoint.
 
 ```typespec
 @route("/pets")
 namespace Pets {
+  @error
+  model Error {
+    code: string;
+  }
+
   op list(@query skip: int32, @query top: int32): {
-    @statusCode statusCode: 200;
-    @body pets: Pet[];
+    @body pets: Pet[]; // statusCode: 200 Implicit
   };
   op read(@path petId: int32, @header ifMatch?: string): {
     @statusCode statusCode: 200;
@@ -137,41 +155,15 @@ namespace Pets {
   };
   op create(@body pet: Pet): {
     @statusCode statusCode: 204;
-  };
-}
-```
-
-## Polymorphism with discriminators
-
-A pattern often used in REST APIs is to define a request or response body as having one of several different shapes, with a property called the
-"discriminator" indicating which actual shape is used for a particular instance.
-TypeSpec supports this pattern with the `@discriminator` decorator of the Rest library.
-
-The `@discriminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
-model for the request or response body. The different shapes are then defined by separate models that `extend` this request or response model.
-The discriminator property is defined in the "child" models with the value or values that indicate an instance that conforms to its shape.
-
-As an example, a `Pet` model that allows instances that are either a `Cat` or a `Dog` can be defined with
-
-```typespec
-@discriminator("kind")
-model Pet {
-  name: string;
-  weight?: float32;
-}
-model Cat extends Pet {
-  kind: "cat";
-  meow: int32;
-}
-model Dog extends Pet {
-  kind: "dog";
-  bark: string;
+  } | Error; //statusCode: 4xx,5xx as Error use `@error` decorator
 }
 ```
 
 ## Content type
 
-### Defaults
+[See content types docs](./content-types.md)
+
+### Default behavior
 
 Depending on the body of the operation http library will assume different content types:
 
@@ -179,7 +171,7 @@ Depending on the body of the operation http library will assume different conten
 - `string`: `text/plain`
 - an `object` or anything else: `application/json`
 
-Examples:
+**Examples:**
 
 ```typespec
 op download(): bytes; // response content type is application/octet-stream

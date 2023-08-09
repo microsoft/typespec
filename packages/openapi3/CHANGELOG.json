@@ -2,6 +2,33 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.47.0",
+      "tag": "@typespec/openapi3_v0.47.0",
+      "date": "Tue, 08 Aug 2023 22:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle general encodings for utcDateTime"
+          },
+          {
+            "comment": "Add support for  `@info` decorator providing the ability to specify the additional fields from openapi info object."
+          },
+          {
+            "comment": "Emit diagnostic for empty unions"
+          },
+          {
+            "comment": "Fix: Apply `@minItems` and `@maxItems` decorators on model array."
+          },
+          {
+            "comment": "Fix `@useRef` decorator serializing `$ref` as an object."
+          },
+          {
+            "comment": "Support collection formats: simple, form, ssv and pipes."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.46.0",
       "tag": "@typespec/openapi3_v0.46.0",
       "date": "Tue, 11 Jul 2023 22:06:00 GMT",

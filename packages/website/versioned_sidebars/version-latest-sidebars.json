@@ -6,6 +6,14 @@
       "items": [
         "introduction/introduction",
         "introduction/installation",
+        {
+          "type": "category",
+          "label": "Editor",
+          "items": [
+            "introduction/editor/vscode",
+            "introduction/editor/vs"
+          ]
+        },
         "introduction/usage",
         "introduction/style-guide",
         "introduction/formatter",
@@ -62,6 +70,7 @@
           "dirName": "standard-library/reference"
         },
         "standard-library/projected-names",
+        "standard-library/discriminated-types",
         {
           "type": "category",
           "label": "Http",
@@ -76,7 +85,9 @@
             },
             "standard-library/http/cheat-sheet",
             "standard-library/http/authentication",
-            "standard-library/http/operations"
+            "standard-library/http/operations",
+            "standard-library/http/content-types",
+            "standard-library/http/encoding"
           ]
         },
         {
