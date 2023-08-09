@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
+import { extractCursor } from "../../src/testing/test-server-host.js";
 import { parseYaml } from "../../src/yaml/parser.js";
 
 describe("compiler: yaml: parser", () => {
@@ -13,13 +14,15 @@ describe("compiler: yaml: parser", () => {
   });
 
   it("report errors as diagnostics", () => {
-    const [_, diagnostics] = parseYaml(`
-      foo: 123
-      foo: 456
-    `);
+    const { pos, source } = extractCursor(`
+    foo: 123
+    ┆foo: 456
+  `);
+    const [_, diagnostics] = parseYaml(source);
     expectDiagnostics(diagnostics, {
       code: "yaml-duplicate-key",
       message: "Map keys must be unique",
+      pos,
     });
   });
 });
