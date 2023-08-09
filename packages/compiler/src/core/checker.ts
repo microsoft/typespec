@@ -2507,18 +2507,32 @@ export function createChecker(program: Program): Checker {
     return finishType(type);
   }
 
+  /** Find the indexer that applies to this model. Either defined on itself or from a base model */
+  function findIndexer(model: Model): ModelIndexer | undefined {
+    let current: Model | undefined = model;
+
+    while (current) {
+      if (current.indexer) {
+        return current.indexer;
+      }
+      current = model.baseModel;
+    }
+    return undefined;
+  }
+
   function checkPropertyCompatibleWithIndexer(
     parentModel: Model,
     property: ModelProperty,
     diagnosticTarget: ModelPropertyNode | ModelSpreadPropertyNode
   ) {
-    if (parentModel.indexer === undefined) {
+    const indexer = findIndexer(parentModel);
+    if (indexer === undefined) {
       return;
     }
 
     const [valid, diagnostics] = isTypeAssignableTo(
       property.type,
-      parentModel.indexer.value!,
+      indexer.value,
       diagnosticTarget.kind === SyntaxKind.ModelSpreadProperty
         ? diagnosticTarget
         : diagnosticTarget.value
