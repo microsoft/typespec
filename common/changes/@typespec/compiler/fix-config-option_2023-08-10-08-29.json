@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Fix**: `--config` flag was being ignored.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
