@@ -5,6 +5,7 @@ import {
   DiagnosticTarget,
   Enum,
   formatDiagnostic,
+  getDoc,
   getEffectiveModelType,
   getTypeName,
   Interface,
@@ -204,6 +205,8 @@ function tspToProto(program: Program): ProtoFile[] {
 
       declarations: declarationMap.get(namespace),
       source: namespace,
+
+      doc: getDoc(program, namespace),
     } as ProtoFile;
   });
 
@@ -247,6 +250,7 @@ function tspToProto(program: Program): ProtoFile[] {
         name: iface.name,
         // The service's methods are just projections of the interface operations.
         operations: [...iface.operations.values()].map(toMethodFromOperation),
+        doc: getDoc(program, iface),
       });
     }
   }
@@ -276,6 +280,7 @@ function tspToProto(program: Program): ProtoFile[] {
         operation,
         operation.returnType as NamespaceTraversable
       ),
+      doc: getDoc(program, operation),
     };
   }
 
@@ -659,6 +664,7 @@ function tspToProto(program: Program): ProtoFile[] {
       name: model.name,
       reservations: program.stateMap(state.reserve).get(model),
       declarations: [...model.properties.values()].map((f) => toMessageBodyDeclaration(f, model)),
+      doc: getDoc(program, model),
     };
   }
 
@@ -754,6 +760,7 @@ function tspToProto(program: Program): ProtoFile[] {
         property.type as NamespaceTraversable
       ),
       index: program.stateMap(state.fieldIndex).get(property),
+      doc: getDoc(program, property),
     };
 
     // Determine if the property type is an array
@@ -776,6 +783,7 @@ function tspToProto(program: Program): ProtoFile[] {
       name: e.name,
       allowAlias: needsAlias,
       variants: [...e.members.values()].map(({ name, value }) => [name, value as number]),
+      doc: getDoc(program, e),
     };
   }
 

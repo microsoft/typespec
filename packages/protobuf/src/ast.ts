@@ -35,6 +35,11 @@ export interface ProtoFile {
    * The original namespace node from which this ProtoFile originated.
    */
   source: Namespace;
+
+  /**
+   * The package-level documentation comment, if any.
+   */
+  doc?: string | undefined;
 }
 
 /**
@@ -188,9 +193,19 @@ export function matchType<Result>(type: ProtoType, pattern: ProtoTypeMatchPatter
 }
 
 /**
+ * Elements common to all protobuf declarations.
+ */
+export interface ProtoDeclarationCommon {
+  /**
+   * Documentation comment text, if any.
+   */
+  doc?: string | undefined;
+}
+
+/**
  * A `service` declaration.
  */
-export interface ProtoServiceDeclaration {
+export interface ProtoServiceDeclaration extends ProtoDeclarationCommon {
   kind: "service";
   name: string;
   operations: ProtoMethodDeclaration[];
@@ -209,7 +224,7 @@ export const enum StreamingMode {
 /**
  * An `rfc` method declaration.
  */
-export interface ProtoMethodDeclaration {
+export interface ProtoMethodDeclaration extends ProtoDeclarationCommon {
   kind: "method";
   stream: StreamingMode;
   name: string;
@@ -229,7 +244,7 @@ export type ProtoMessageBodyDeclaration =
 /**
  * A `message` declaration.
  */
-export interface ProtoMessageDeclaration {
+export interface ProtoMessageDeclaration extends ProtoDeclarationCommon {
   kind: "message";
   name: string;
   declarations: Array<ProtoMessageBodyDeclaration>;
@@ -239,7 +254,7 @@ export interface ProtoMessageDeclaration {
 /**
  * A field declaration within a message.
  */
-export interface ProtoFieldDeclaration {
+export interface ProtoFieldDeclaration extends ProtoDeclarationCommon {
   kind: "field";
   name: string;
   /**
@@ -262,7 +277,7 @@ export interface DefaultFieldOptions {
 /**
  * A `one_of` declaration.
  */
-export interface ProtoOneOfDeclaration {
+export interface ProtoOneOfDeclaration extends ProtoDeclarationCommon {
   kind: "oneof";
   name: string;
   declarations: ProtoFieldDeclaration[];
@@ -271,7 +286,7 @@ export interface ProtoOneOfDeclaration {
 /**
  * An `enum` declaration.
  */
-export interface ProtoEnumDeclaration {
+export interface ProtoEnumDeclaration extends ProtoDeclarationCommon {
   kind: "enum";
   name: string;
   allowAlias?: boolean;
