@@ -1237,9 +1237,15 @@ export function $parameterVisibility(
   entity: Operation,
   ...visibilities: string[]
 ) {
+  validateDecoratorUniqueOnNode(context, entity, $parameterVisibility);
   context.program.stateMap(parameterVisibilityKey).set(entity, visibilities);
 }
 
+/**
+ * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
+ *
+ * @see $parameterVisibility
+ */
 export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
   return program.stateMap(parameterVisibilityKey).get(entity);
 }
@@ -1251,9 +1257,15 @@ export function $returnVisibility(
   entity: Operation,
   ...visibilities: string[]
 ) {
+  validateDecoratorUniqueOnNode(context, entity, $returnVisibility);
   context.program.stateMap(returnVisibilityKey).set(entity, visibilities);
 }
 
+/**
+ * Returns the visibilities of the return type of the given operation, if provided with `@returnVisibility`.
+ *
+ * @see $returnVisibility
+ */
 export function getReturnVisibility(program: Program, entity: Operation): string[] | undefined {
   return program.stateMap(returnVisibilityKey).get(entity);
 }
