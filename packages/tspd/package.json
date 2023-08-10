@@ -53,14 +53,14 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "js-yaml": "~4.1.0",
     "prettier": "~3.0.1",
     "picocolors": "~1.0.0",
     "yargs": "~17.7.1"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/eslint-config-typespec": "workspace:~0.47.0",
     "@typespec/prettier-plugin-typespec": "workspace:~0.47.0",
     "@types/mocha": "~10.0.1",

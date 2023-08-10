@@ -1,17 +1,20 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { dirname, join, resolve } from "path";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
 import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../src/config/index.js";
 import { createSourceFile } from "../../src/core/diagnostics.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
+import { resolvePath } from "../../src/index.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const scenarioRoot = resolvePath(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../../test/config/scenarios"
+);
 
 describe("compiler: config file loading", () => {
   describe("file discovery", () => {
-    const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (path: string, errorIfNotFound: boolean = true) => {
       const fullPath = join(scenarioRoot, path);
       const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
