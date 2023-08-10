@@ -1,19 +1,25 @@
-import { deepStrictEqual, strictEqual } from "assert";
-import { dirname, join, resolve } from "path";
+import { deepStrictEqual, fail, strictEqual } from "assert";
+import { dirname, join, normalize, resolve } from "path";
 import { fileURLToPath } from "url";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
-import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../src/config/index.js";
+import {
+  TypeSpecRawConfig,
+  loadTypeSpecConfigForPath,
+  resolveCompilerOptions,
+} from "../../src/config/index.js";
 import { createSourceFile } from "../../src/core/diagnostics.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __scenarioRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../../test/config/scenarios"
+);
 
 describe("compiler: config file loading", () => {
   describe("file discovery", () => {
-    const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (path: string, errorIfNotFound: boolean = true) => {
-      const fullPath = join(scenarioRoot, path);
+      const fullPath = join(__scenarioRoot, path);
       const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
@@ -145,6 +151,61 @@ describe("compiler: config file loading", () => {
 
     it("succeeds if config is valid", () => {
       deepStrictEqual(validate({ emitters: { openapi: {} } }), []);
+    });
+  });
+});
+
+describe("compiler: resolve compiler options", () => {
+  const tspOutputPath = normalize(`${process.cwd()}/tsp-output`);
+  describe("file discovery", () => {
+    const resolveOptions = async (path: string) => {
+      const fullPath = join(__scenarioRoot, path);
+      const [options, diagnostics] = await resolveCompilerOptions(NodeHost, {
+        entrypoint: fullPath, // not really used here
+        configPath: fullPath,
+      });
+      return { options, diagnostics };
+    };
+
+    it("resolves full path to custom config file", async () => {
+      const config = await resolveOptions("custom/myConfig.yaml");
+      config.options.config = normalize(config.options.config!);
+      config.options.outputDir = normalize(config.options.outputDir!);
+
+      deepStrictEqual(config, {
+        diagnostics: [],
+        options: {
+          config: join(__scenarioRoot, "custom/myConfig.yaml"),
+          emit: ["openapi"],
+          options: {},
+          outputDir: tspOutputPath,
+        },
+      });
+    });
+
+    it("throws error when config file not found", async () => {
+      try {
+        await resolveOptions("not-found.yaml");
+      } catch (error) {
+        return;
+      }
+      fail("should throw error");
+    });
+
+    it("resolves yaml config file", async () => {
+      const config = await resolveOptions("simple");
+      config.options.config = normalize(config.options.config!);
+      config.options.outputDir = normalize(config.options.outputDir!);
+
+      deepStrictEqual(config, {
+        diagnostics: [],
+        options: {
+          config: join(__scenarioRoot, "simple/tspconfig.yaml"),
+          emit: ["openapi"],
+          options: {},
+          outputDir: tspOutputPath,
+        },
+      });
     });
   });
 });

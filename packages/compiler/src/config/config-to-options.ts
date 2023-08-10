@@ -47,9 +47,8 @@ export async function resolveCompilerOptions(
 
   const entrypointStat = await host.stat(options.entrypoint);
   const configPath =
-    options.configPath ?? entrypointStat.isDirectory()
-      ? options.entrypoint
-      : getDirectoryPath(options.entrypoint);
+    options.configPath ??
+    (entrypointStat.isDirectory() ? options.entrypoint : getDirectoryPath(options.entrypoint));
   const config = await loadTypeSpecConfigForPath(host, configPath);
   config.diagnostics.forEach((x) => diagnostics.add(x));
 

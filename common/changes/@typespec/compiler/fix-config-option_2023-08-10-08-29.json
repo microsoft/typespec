@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "fix(config): --config is not adopted",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
