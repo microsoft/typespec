@@ -260,16 +260,23 @@ function tspToProto(program: Program): ProtoFile[] {
   function toMethodFromOperation(operation: Operation): ProtoMethodDeclaration {
     const streamingMode = program.stateMap(state.stream).get(operation) ?? StreamingMode.None;
 
+    const isEmptyParams =
+      operation.parameters.name === "" && operation.parameters.properties.size === 0;
+
+    const input = isEmptyParams
+      ? getCachedExternType(program, operation, "TypeSpec.Protobuf.WellKnown.Empty")
+      : addImportSourceForProtoIfNeeded(
+          program,
+          addInputParams(operation.parameters, operation),
+          operation,
+          operation.parameters
+        );
+
     return {
       kind: "method",
       stream: streamingMode,
       name: capitalize(operation.name),
-      input: addImportSourceForProtoIfNeeded(
-        program,
-        addInputParams(operation.parameters, operation),
-        operation,
-        operation.parameters
-      ),
+      input,
       returns: addImportSourceForProtoIfNeeded(
         program,
         addReturnType(operation.returnType, operation),
