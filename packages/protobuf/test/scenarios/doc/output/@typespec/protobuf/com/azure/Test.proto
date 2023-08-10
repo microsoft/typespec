@@ -19,8 +19,15 @@ message Output {
   string secondField = 2;
 }
 
+message BarRequest {
+  /// A test input field declared with 'param'.
+  string barInputField = 1;
+}
+
 /// A test service.
 service Service {
   /// A test method.
   rpc Foo(Input) returns (Output);
+  /// Another test method.
+  rpc Bar(BarRequest) returns (Output);
 }

@@ -17,6 +17,13 @@ interface Service {
    * A test method.
    */
   foo(...Input): Output;
+
+  /**
+   * Another test method.
+   *
+   * @param barInputField A test input field declared with 'param'.
+   */
+  bar(@field(1) barInputField: string): Output;
 }
 
 /**
