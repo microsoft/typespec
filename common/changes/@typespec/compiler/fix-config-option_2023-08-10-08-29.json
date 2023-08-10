@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "fix(config): --config is not adopted",
+      "comment": "**Fix**: `--config` flag was being ignored.",
       "type": "patch"
     }
   ],
