@@ -213,14 +213,10 @@ function* indent(it: Iterable<string>, depth: number = 2): Iterable<string> {
  * Writes a block comment from the given declaration.
  */
 function* writeBlockDocumentationComment(decl: ProtoDeclaration | ProtoFile): Iterable<string> {
-  if (decl.doc) {
-    yield "/**";
-    yield* decl.doc
-      .trim()
-      .split("\n")
-      .map((line) => ` * ${line}`);
-    yield " */";
-  }
+  yield* decl.doc
+    ?.trim()
+    .split("\n")
+    .map((line) => `// ${line}`) ?? [];
 }
 
 /**
