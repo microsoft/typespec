@@ -195,6 +195,10 @@ emitters:
 
 If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.
 
+#### `omit-unreachable-types`
+
+By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.
+
 [native-service]: ../built-in-decorators#service
 [protobuf-service]: reference/decorators#@TypeSpec.Protobuf.service
 [protobuf-package]: reference/decorators#@TypeSpec.Protobuf.package
