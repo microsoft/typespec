@@ -71,7 +71,8 @@ export type ProtoDeclaration =
   | ProtoFieldDeclaration
   | ProtoOneOfDeclaration
   | ProtoEnumDeclaration
-  | ProtoMethodDeclaration;
+  | ProtoMethodDeclaration
+  | ProtoEnumVariantDeclaration;
 
 /**
  * A Protobuf scalar type.
@@ -290,5 +291,14 @@ export interface ProtoEnumDeclaration extends ProtoDeclarationCommon {
   kind: "enum";
   name: string;
   allowAlias?: boolean;
-  variants: [string, number][];
+  variants: ProtoEnumVariantDeclaration[];
+}
+
+/**
+ * A variant within an `enum` declaration.
+ */
+export interface ProtoEnumVariantDeclaration extends ProtoDeclarationCommon {
+  kind: "variant";
+  name: string;
+  value: number;
 }

@@ -48,5 +48,19 @@ model Output {
   /**
    * A second test output field.
    */
-  @field(2) secondField: string;
+  @field(2) secondField: Qux;
+}
+
+/**
+ * A test enum.
+ */
+enum Qux {
+  /**
+   * A test enum value.
+   */
+  QUUX: 0,
+  /**
+   * Another test enum value.
+   */
+  CORGE: 1,
 }

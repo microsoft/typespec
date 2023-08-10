@@ -27,6 +27,7 @@ import {
   map,
   matchType,
   ProtoEnumDeclaration,
+  ProtoEnumVariantDeclaration,
   ProtoFieldDeclaration,
   ProtoFile,
   ProtoMap,
@@ -782,7 +783,14 @@ function tspToProto(program: Program): ProtoFile[] {
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map(({ name, value }) => [name, value as number]),
+      variants: [...e.members.values()].map(
+        (variant): ProtoEnumVariantDeclaration => ({
+          kind: "variant",
+          name: variant.name,
+          value: variant.value as number,
+          doc: getDoc(program, variant),
+        })
+      ),
       doc: getDoc(program, e),
     };
   }
