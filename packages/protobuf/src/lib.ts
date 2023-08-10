@@ -11,6 +11,15 @@ export interface ProtobufEmitterOptions {
    * Don't emit anything.
    */
   noEmit?: boolean;
+
+  /**
+   * Omit unreachable types.
+   *
+   * By default, types under a package namespace will be emitted if they are fully annotated with `@field` decorators.
+   * With this flag on, only types that are explicitly marked with `@message` or that are referenced by an operation
+   * in an interface decoarated with `@service` will be emitted.
+   */
+  "omit-unreachable-types"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
@@ -18,6 +27,7 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
   additionalProperties: false,
   properties: {
     noEmit: { type: "boolean", nullable: true },
+    "omit-unreachable-types": { type: "boolean", nullable: true },
   },
   required: [],
 };
