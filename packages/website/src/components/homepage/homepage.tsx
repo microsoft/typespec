@@ -1,16 +1,16 @@
 import { Button, Card, Subtitle1, Text, Title1, Title2 } from "@fluentui/react-components";
-import describeImg from "@site/static/img/fluent/0557-editor-d-standard-128x128.png";
 import guidelinesImg from "@site/static/img/fluent/0373-people-shield-d-standard-128x128.png";
 import generateImg from "@site/static/img/fluent/0377-firework-d-standard-128x128.png";
-
-import "./homepage.css";
+import describeImg from "@site/static/img/fluent/0557-editor-d-standard-128x128.png";
+import style from "./homepage.module.css";
 
 export const HomeContent = () => {
   return (
     <>
       <Intro />
-      <div className="sections">
+      <div className={style["sections"]}>
         <Overview />
+        <OpenAPISection />
       </div>
     </>
   );
@@ -19,17 +19,17 @@ export const HomeContent = () => {
 const Intro = () => {
   return (
     <>
-      <div className="intro-container">
-        <div className="intro-content">
+      <div className={style["intro-container"]}>
+        <div className={style["intro-content"]}>
           <Title1 align="center" block={true}>
             Describe APIs at scale
           </Title1>
-          <Text align="center" block={true} className="intro-subtitle">
+          <Text align="center" block={true} className={style["intro-subtitle"]}>
             Describe APIs at scale Meet TypeSpec, a language for describing APIs. Describe your data
             up front and generate schemas, API specifications, client / server code, docs, and more.
             Supports OpenAPI 3.0, JSON Schema 202-12, Protobuf, and JSON RPC
           </Text>
-          <div className="intro-buttons">
+          <div className={style["intro-buttons"]}>
             <Button as="a" appearance="primary" href="/docs">
               Docs
             </Button>
@@ -38,8 +38,8 @@ const Intro = () => {
             </Button>
           </div>
         </div>
-        <div className="intro-demo">
-          <div className="intro-demo-image"></div>
+        <div className={style["intro-demo"]}>
+          <div className={style["intro-demo-image"]}></div>
         </div>
       </div>
     </>
@@ -49,16 +49,16 @@ const Intro = () => {
 const Overview = () => {
   return (
     <>
-      <div className="overview">
-        <div className="overview-summary">
+      <div className={style["overview"]}>
+        <div className={style["overview-summary"]}>
           <Title2 block={true}>API-First for developers</Title2>
-          <Text block={true} className="overview-description">
+          <Text block={true} className={style["overview-description"]}>
             Don't let the nitty-gritty details of an API protocol get in the way of prioritizing
             your design. With TypeSpec, remove the handwritten files that slow you down, and
             generate standards-compliant API schemas in seconds.
           </Text>
         </div>
-        <div className="overview-points">
+        <div className={style["overview-points"]}>
           <Feature title="Describe complex APIs, fast" image={describeImg}>
             Reduce the time it takes to describe complex API shapes by using a minimal language
             that's easy for developers to use and love.
@@ -85,11 +85,18 @@ interface FeatureProps {
 const Feature = ({ title, image, children }: FeatureProps) => {
   return (
     <Card size="large">
-      <div className="feature">
+      <div className={style["feature"]}>
         <img src={image} />
         <Subtitle1>{title}</Subtitle1>
         <Text>{children}</Text>
       </div>
     </Card>
   );
+};
+
+const OpenAPISection = () => {
+  return <Section />;
+};
+const Section = () => {
+  return <div></div>;
 };
