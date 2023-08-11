@@ -59,7 +59,7 @@
 
 .sections {
   display: flex;
-  padding: 100px 0px 60px 0px;
+  padding: 100px 0px 0 0px;
   flex-direction: column;
   gap: 128px;
 }
