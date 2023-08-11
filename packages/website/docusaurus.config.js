@@ -82,7 +82,10 @@ const config = {
       }),
     ],
   ],
-  staticDirectories: ["static", resolve(__dirname, "./node_modules/@typespec/spec/dist")],
+  staticDirectories: [
+    resolve(__dirname, "static"),
+    resolve(__dirname, "./node_modules/@typespec/spec/dist"),
+  ],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */

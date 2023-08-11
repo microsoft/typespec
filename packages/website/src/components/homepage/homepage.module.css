@@ -1,3 +1,7 @@
+:global(html[data-theme="dark"]) .home-content {
+  background-color: #141414;
+}
+
 .intro-container {
   background-repeat: no-repeat;
   width: 100vw;
