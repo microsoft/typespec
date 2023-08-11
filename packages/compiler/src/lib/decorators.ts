@@ -1250,22 +1250,22 @@ export function getParameterVisibility(program: Program, entity: Operation): str
   return program.stateMap(parameterVisibilityKey).get(entity);
 }
 
-const returnVisibilityKey = createStateSymbol("returnVisibility");
+const returnTypeVisibilityKey = createStateSymbol("returnTypeVisibility");
 
-export function $returnVisibility(
+export function $returnTypeVisibility(
   context: DecoratorContext,
   entity: Operation,
   ...visibilities: string[]
 ) {
-  validateDecoratorUniqueOnNode(context, entity, $returnVisibility);
-  context.program.stateMap(returnVisibilityKey).set(entity, visibilities);
+  validateDecoratorUniqueOnNode(context, entity, $returnTypeVisibility);
+  context.program.stateMap(returnTypeVisibilityKey).set(entity, visibilities);
 }
 
 /**
- * Returns the visibilities of the return type of the given operation, if provided with `@returnVisibility`.
+ * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
  *
- * @see $returnVisibility
+ * @see $returnTypeVisibility
  */
-export function getReturnVisibility(program: Program, entity: Operation): string[] | undefined {
-  return program.stateMap(returnVisibilityKey).get(entity);
+export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
+  return program.stateMap(returnTypeVisibilityKey).get(entity);
 }

@@ -560,4 +560,4 @@ extern dec parameterVisibility(target: Operation, ...visibilities: valueof strin
  * Sets which visibilities apply to the return type for the given operation.
  * @param visibilities List of visibility strings which apply to this operation.
  */
-extern dec returnVisibility(target: Operation, ...visibilities: valueof string[]);
+extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);
