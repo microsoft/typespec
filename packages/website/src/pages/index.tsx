@@ -14,11 +14,6 @@ export default function Home() {
 
 const HomeWithFluent = () => {
   const { colorMode } = useColorMode();
-  // const [_, setInitialized] = useState(false);
-
-  // useEffect(() => {
-  //   setInitialized(true); // Doing this to force the theme to update.
-  // }, []);
   return (
     <BrowserOnly>
       {() => (
