@@ -1,8 +1,7 @@
 import { Button, Card, Subtitle1, Text, Title1, Title2 } from "@fluentui/react-components";
-import describeImg from "@site/static/img/describe.png";
-import generateImg from "@site/static/img/generate.png";
-import guidelinesImg from "@site/static/img/guidelines.png";
-import Curve from "./curve.svg";
+import describeImg from "@site/static/img/fluent/0557-editor-d-standard-128x128.png";
+import guidelinesImg from "@site/static/img/fluent/0373-people-shield-d-standard-128x128.png";
+import generateImg from "@site/static/img/fluent/0377-firework-d-standard-128x128.png";
 
 import "./homepage.css";
 
@@ -20,9 +19,6 @@ export const HomeContent = () => {
 const Intro = () => {
   return (
     <>
-      <div className="intro-bg">
-        <Curve />
-      </div>
       <div className="intro-container">
         <div className="intro-content">
           <Title1 align="center" block={true}>
