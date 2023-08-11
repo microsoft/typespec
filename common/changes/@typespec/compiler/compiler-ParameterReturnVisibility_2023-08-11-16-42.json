@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Added decorators `@parameterVisibility` and `@returnVisibility`. Added methods `getParameterVisibility` and `getReturnVisibility`. ",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

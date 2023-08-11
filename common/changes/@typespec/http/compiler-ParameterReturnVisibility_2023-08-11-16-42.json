@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "**BREAKING** Changed signature of `getRequestVisibility` to now require a `Program` and an `HttpOperation` since the visibility now involves more than simply the operation verb.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

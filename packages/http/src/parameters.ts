@@ -59,7 +59,7 @@ function getOperationParametersForVerb(
   knownPathParamNames: string[]
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = getRequestVisibility(verb);
+  const visibility = getRequestVisibility(program, operation, verb);
   const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
   const metadata = gatherMetadata(
     program,
