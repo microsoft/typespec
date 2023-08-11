@@ -6,11 +6,16 @@
 
 /* Fluent Colors for reference */
 :root {
-  --neutral-background-3-rest: #f5f5f5;
+  --colorNeutralBackground1: #ffffff;
+  --colorNeutralBackground2: #fafafa;
+  --colorNeutralBackground3: #f5f5f5;
 }
 
 [data-theme="dark"] {
-  --neutral-background-3-rest: #141414;
+  --colorNeutralBackground1: #292929;
+  --colorNeutralBackground2: #1f1f1f;
+  --colorNeutralBackground3: #141414;
+
 }
 
 /* You can override the default Infima variables here. */
@@ -28,7 +33,7 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
   /* Header color */
-  --ifm-navbar-background-color: var(--neutral-background-3-rest);
+  --ifm-navbar-background-color: var(--colorNeutralBackground3);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -68,5 +73,5 @@ html[data-theme="dark"] .header-github-link:before {
   border-radius: 4px !important;
 
   border: 1px solid var(--neutral-stroke-transparent-rest, rgba(255, 255, 255, 0)) !important;
-  background: var(--neutral-background-1-rest, #292929) !important;
+  background: var(--colorNeutralBackground1) !important;
 }
