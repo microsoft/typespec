@@ -1,11 +1,26 @@
-import { Button, Card, Subtitle1, Text, Title1, Title2 } from "@fluentui/react-components";
+import {
+  Button,
+  Card,
+  Subtitle1,
+  Text,
+  Title1,
+  Title2,
+  makeStyles,
+  tokens,
+} from "@fluentui/react-components";
 import { FluentImageName, FluentImg } from "../fluent-img";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
 
+const useFluentStyles = makeStyles({
+  bg: { backgroundColor: tokens.colorNeutralBackground3 },
+});
+
 export const HomeContent = () => {
+  const fluentStyles = useFluentStyles();
+
   return (
-    <div className={style["home-content"]}>
+    <div className={fluentStyles.bg}>
       <Intro />
       <div className={style["sections"]}>
         <Overview />
