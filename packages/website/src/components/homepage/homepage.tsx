@@ -1,3 +1,4 @@
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import {
   Button,
   Card,
@@ -14,6 +15,7 @@ import { Section } from "./section/section";
 
 const useFluentStyles = makeStyles({
   bg: { backgroundColor: tokens.colorNeutralBackground3 },
+  descriptionText: { color: tokens.colorNeutralForeground3 },
 });
 
 export const HomeContent = () => {
@@ -27,6 +29,7 @@ export const HomeContent = () => {
         <OpenAPISection />
         <EcoSystemSection />
         <FlexibilitySection />
+        <Closing />
       </div>
     </div>
   );
@@ -46,7 +49,7 @@ const Intro = () => {
             Supports OpenAPI 3.0, JSON Schema 202-12, Protobuf, and JSON RPC
           </Text>
           <div className={style["intro-buttons"]}>
-            <Button as="a" appearance="primary" href="/docs">
+            <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
               Docs
             </Button>
             <Button as="a" appearance="outline">
@@ -173,5 +176,22 @@ const FlexibilitySection = () => {
         },
       ]}
     />
+  );
+};
+
+const Closing = () => {
+  const fluentStyles = useFluentStyles();
+  return (
+    <div className={style["closing"]}>
+      <div className={style["closing-content"]}>
+        <Title2 block={true}>Ready to get started?</Title2>
+        <Text block={true} className={fluentStyles.descriptionText}>
+          Description
+        </Text>
+        <Button as="a" appearance="secondary" href="/docs">
+          Docs
+        </Button>
+      </div>
+    </div>
   );
 };
