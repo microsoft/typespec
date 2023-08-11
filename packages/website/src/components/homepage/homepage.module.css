@@ -55,13 +55,6 @@
 .intro-demo-image {
   width: 800px;
   height: 534px;
-  z-index: 100;
-  border-radius: 24px;
-  background: #292929;
-  /* Elevation/Dark/Shadow 64 */
-  box-shadow:
-    0px 0px 8px 0px rgba(0, 0, 0, 0.4),
-    0px 32px 64px 0px rgba(0, 0, 0, 0.48);
 }
 
 .sections {

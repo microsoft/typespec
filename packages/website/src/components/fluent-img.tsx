@@ -15,6 +15,9 @@ export type FluentImageName =
   | "firework"
   | "people-shield";
 
+/**
+ * Component for rendering a Fluent image.
+ */
 export const FluentImg = ({ name, ...props }: FluentImgProps) => {
   const { colorMode } = useColorMode();
   const colorKey = colorMode === "dark" ? "d" : "l";

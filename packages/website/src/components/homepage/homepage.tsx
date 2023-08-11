@@ -58,7 +58,7 @@ const Intro = () => {
           </div>
         </div>
         <div className={style["intro-demo"]}>
-          <div className={style["intro-demo-image"]}></div>
+          <Card className={style["intro-demo-image"]}></Card>
         </div>
       </div>
     </>
