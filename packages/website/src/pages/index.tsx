@@ -1,0 +1,23 @@
+import { useColorMode } from "@docusaurus/theme-common";
+import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
+import Layout from "@theme/Layout";
+
+import { HomeContent } from "../components/homepage/homepage";
+
+export default function Home() {
+  return (
+    <Layout>
+      <HomeWithFluent />
+    </Layout>
+  );
+}
+
+const HomeWithFluent = () => {
+  const { colorMode } = useColorMode();
+
+  return (
+    <FluentProvider theme={colorMode === "light" ? webLightTheme : webDarkTheme}>
+      <HomeContent />
+    </FluentProvider>
+  );
+};

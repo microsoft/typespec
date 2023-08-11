@@ -68,7 +68,6 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           path: "../../docs",
           versions: getVersionLabels(),
@@ -83,7 +82,7 @@ const config = {
       }),
     ],
   ],
-  staticDirectories: [resolve(__dirname, "./node_modules/@typespec/spec/dist")],
+  staticDirectories: ["static", resolve(__dirname, "./node_modules/@typespec/spec/dist")],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
