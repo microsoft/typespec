@@ -1,6 +1,14 @@
 # Change Log - @typespec/json-schema
 
-This log was last generated on Tue, 11 Jul 2023 22:06:00 GMT and should not be manually modified.
+This log was last generated on Tue, 08 Aug 2023 22:32:10 GMT and should not be manually modified.
+
+## 0.47.0
+Tue, 08 Aug 2023 22:32:10 GMT
+
+### Updates
+
+- Uptake breaking change to `emitSourceFile` returning a `Promise`
+- Fix: Crash when using interfaces inside a `@jsonSchema` namespace
 
 ## 0.46.0
 Tue, 11 Jul 2023 22:06:00 GMT

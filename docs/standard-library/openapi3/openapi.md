@@ -267,26 +267,26 @@ that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 When working with the `@encode` decorator the rule is as follow. Given the 3 values `encoding`, `encodeAs` and `realType` where `@encode(encoding, encodeAs) _: realType`:
 
-1. Is one of those special cases:
-
-   - `unixTimestamp` encoding will produce `type: integer, format: unixtime`
-   - encoding a `utcDateTime` or `offsetDateTime` will produce this format `date-time-<encoding>` (e.g. `date-time-rfc7231` for `rfc7231` encoding)
-
-2. When `encodeAs` is specified, it will be used to generate the corresponding schema (e.g. encoding as `int32` will produce an `type: integer, format: int32` )
-
-3. Otherwise use the `encoding` as the format
+1. If `realType` is `utcDateTime` or `offsetDateTime`:
+   - `encoding` of `rfc3339` will produce `type: string, format: date-time`
+   - `encoding` of `rfc7231` will produce `type: string, format: http-date`
+1. If `realType` is `utcDateTime` and `encoding` is `unixTimestamp`:
+   - `encodeAs` of any integer type will produce `type: integer, format: unixtime`
+1. If the schema of encodeAs produces a `format` use it (e.g. encoding as `int32` will produce an `type: integer, format: integer` )
+1. Otherwise use the `encoding` as the format
 
 **Summary table**
 
-| encoding                                         | Openapi3                                  | Swagger 2.0 (autorest)                    |
-| ------------------------------------------------ | ----------------------------------------- | ----------------------------------------- |
-| `@encode("seconds", int32) _: duration`          | `type: integer, format: int32`            | `type: integer, format: int32`            |
-| `@encode("seconds", float32) _: duration`        | `type: number, format: float32`           | `type: number, format: float32`           |
-| `@encode("ISO8601") _: duration`                 | `type: number, format: duration`          | `type: number, format: duration`          |
-| `@encode("unixTimestamp", int32) _: utcDateTime` | `type: integer, format: unixtime`         | `type: integer, format: unixtime`         |
-| `@encode("unixTimestamp", int64) _: utcDateTime` | `type: integer, format: unixtime`         | `type: integer, format: unixtime`         |
-| `@encode("rfc3339") _: utcDateTime`              | `type: string, format: date-time`         | `type: string, format: date-time`         |
-| `@encode("rfc7231") _: utcDateTime`              | `type: string, format: date-time-rfc7321` | `type: string, format: date-time-rfc7321` |
+| encoding                                         | Openapi3                          | Swagger 2.0 (autorest)            |
+| ------------------------------------------------ | --------------------------------- | --------------------------------- |
+| `@encode("seconds", int32) _: duration`          | `type: integer, format: int32`    | `type: integer, format: int32`    |
+| `@encode("seconds", float32) _: duration`        | `type: number, format: float32`   | `type: number, format: float32`   |
+| `@encode("ISO8601") _: duration`                 | `type: number, format: duration`  | `type: number, format: duration`  |
+| `@encode("unixTimestamp", int32) _: utcDateTime` | `type: integer, format: unixtime` | `type: integer, format: unixtime` |
+| `@encode("unixTimestamp", int64) _: utcDateTime` | `type: integer, format: unixtime` | `type: integer, format: unixtime` |
+| `@encode("rfc3339") _: utcDateTime`              | `type: string, format: date-time` | `type: string, format: date-time` |
+| `@encode("rfc7231") _: utcDateTime`              | `type: string, format: http-date` | `type: string, format: http-date` |
+| `@encode("http-date") _: utcDateTime`            | `type: string, format: http-date` | `type: string, format: http-date` |
 
 ## Security Definitions
 
