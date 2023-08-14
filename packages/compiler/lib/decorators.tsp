@@ -46,6 +46,7 @@ extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
  * op Action<T>(): T;
  * ```
  */
+#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
 extern dec deprecated(target: unknown, message: valueof string);
 
 /**
