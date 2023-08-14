@@ -32,7 +32,7 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/tspd": "workspace:~0.46.0",
     "@typespec/spec": "workspace:*",
     "@typespec/http": "workspace:~0.47.0",
