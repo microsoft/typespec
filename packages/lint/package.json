@@ -50,12 +50,12 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.47.0"
+    "@typespec/compiler": "workspace:~0.47.1"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/eslint-config-typespec": "workspace:~0.47.0",
     "@typespec/eslint-plugin": "workspace:~0.47.0",
     "eslint": "^8.42.0",

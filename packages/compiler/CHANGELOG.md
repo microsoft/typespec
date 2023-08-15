@@ -1,6 +1,13 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Tue, 08 Aug 2023 22:32:10 GMT and should not be manually modified.
+This log was last generated on Thu, 10 Aug 2023 20:18:00 GMT and should not be manually modified.
+
+## 0.47.1
+Thu, 10 Aug 2023 20:18:00 GMT
+
+### Patches
+
+- **Fix**: `--config` flag was being ignored.
 
 ## 0.47.0
 Tue, 08 Aug 2023 22:32:10 GMT

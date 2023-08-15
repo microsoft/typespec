@@ -43,7 +43,7 @@
   "dependencies": {
     "@typespec/playground": "workspace:~0.44.0",
     "@typespec/versioning": "workspace:~0.47.0",
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/http": "workspace:~0.47.0",
     "@typespec/rest": "workspace:~0.47.0",
     "@typespec/openapi3": "workspace:~0.47.0",

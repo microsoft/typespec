@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Added support for the 'omit-unreachable-types' option.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}
