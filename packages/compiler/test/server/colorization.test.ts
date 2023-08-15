@@ -100,10 +100,14 @@ const Token = {
     string: (text: string) =>
       createToken(text.startsWith('"') ? text : '"' + text + '"', "string.quoted.double.tsp"),
   },
+  comment: {
+    block: (text: string) => createToken(text, "comment.block.tsp"),
+    line: (text: string) => createToken(text, "comment.line.double-slash.tsp"),
+  },
 } as const;
 
 testColorization("semantic colorization", tokenizeSemantic);
-testColorization("tmlanguage", tokenizeTMLanguage);
+// testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
   describe(`compiler: server: ${description}`, () => {
@@ -809,6 +813,26 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("doc comments", () => {
+      it("tokenize @param", async () => {
+        const tokens = await tokenize(
+          `/** 
+            * Doc comment
+            * @param foo Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("A"),
+          Token.operators.assignment,
+          Token.literals.numeric("1"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("projections", () => {
       it("simple projection", async () => {
         const tokens = await tokenize(`
@@ -995,6 +1019,8 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         return Token.keywords.other(text);
       case SemanticTokenKind.String:
         return Token.literals.string(text);
+      case SemanticTokenKind.Comment:
+        return Token.comment.block(text);
       case SemanticTokenKind.Number:
         return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:

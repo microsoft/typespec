@@ -925,7 +925,9 @@ export function createServer(host: ServerHost): Server {
     const file = ast.file;
     const tokens = mapTokens();
     classifyNode(ast);
-    return Array.from(tokens.values()).filter((t) => t.kind !== undefined);
+    return Array.from(tokens.values())
+      .filter((t) => t.kind !== undefined)
+      .sort((a, b) => a.pos - b.pos);
 
     function mapTokens() {
       const tokens = new Map<number, SemanticToken>();
@@ -954,6 +956,7 @@ export function createServer(host: ServerHost): Server {
         case Token.NumericLiteral:
           return SemanticTokenKind.Number;
         case Token.MultiLineComment:
+          return ignore;
         case Token.SingleLineComment:
           return SemanticTokenKind.Comment;
         default:
@@ -1050,6 +1053,20 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.ProjectionMemberExpression:
           classifyReference(node.id);
           break;
+        // case SyntaxKind.Doc:
+        //   classifyReference(node.id);
+        // break;
+        case SyntaxKind.DocParamTag:
+        case SyntaxKind.DocTemplateTag:
+          classifyReference(node.tagName, SemanticTokenKind.Keyword);
+          classifyReference(node.paramName, SemanticTokenKind.Parameter);
+          break;
+        case SyntaxKind.DocReturnsTag:
+        case SyntaxKind.DocUnknownTag:
+          classifyReference(node.tagName, SemanticTokenKind.Keyword);
+          break;
+        default:
+          break;
       }
       visitChildren(node, classifyNode);
     }
@@ -1058,6 +1075,12 @@ export function createServer(host: ServerHost): Server {
       const token = tokens.get(node.pos);
       if (token && token.kind === undefined) {
         token.kind = kind;
+      } else if (token === undefined) {
+        tokens.set(node.pos, {
+          pos: node.pos,
+          end: node.end,
+          kind: kind,
+        });
       }
     }
 
