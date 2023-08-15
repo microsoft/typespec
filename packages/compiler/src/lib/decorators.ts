@@ -1244,7 +1244,7 @@ export function $parameterVisibility(
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
  *
- * @see $parameterVisibility
+ * @see {@link $parameterVisibility}
  */
 export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
   return program.stateMap(parameterVisibilityKey).get(entity);
@@ -1264,7 +1264,7 @@ export function $returnTypeVisibility(
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
  *
- * @see $returnTypeVisibility
+ * @see {@link $returnTypeVisibility}
  */
 export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
   return program.stateMap(returnTypeVisibilityKey).get(entity);
