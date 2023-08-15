@@ -1,0 +1,32 @@
+jobs:
+  - job: publish_artifacts
+    displayName: Publish Artifacts
+
+    variables:
+      TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+
+    steps:
+      - checkout: self
+        submodules: true
+
+      - template: ../templates/install.yml
+      - template: ../templates/build.yml
+
+      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
+        displayName: Bump version to prerelease targets
+
+      - script: npm run gen-manifest
+        displayName: Regen manifest for compiler
+        workingDirectory: ./packages/compiler
+
+      - script: npx @microsoft/rush publish --publish --pack --include-all
+        displayName: Pack packages
+
+      - publish: $(Build.SourcesDirectory)/common/temp/artifacts/packages
+        artifact: packages
+        displayName: Publish packages(.tgz) as pipeline artifacts
