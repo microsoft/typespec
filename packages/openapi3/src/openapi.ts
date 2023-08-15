@@ -682,7 +682,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
     // TODO: this is probably not a good assumption?
-    const visibility = http.getRequestVisibility(program, shared.operations[0], verb);
+    const visibility = http.resolveRequestVisibility(program, shared.operations[0], verb);
     emitEndpointParameters(shared.parameters.parameters, visibility);
     if (shared.bodies) {
       if (shared.bodies.length === 1) {
@@ -730,7 +730,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.getRequestVisibility(program, operation.operation, verb);
+    const visibility = http.resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);

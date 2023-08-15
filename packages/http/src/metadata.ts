@@ -173,12 +173,28 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
 }
 
 /**
+ * Determines the visibility to use for a request with the given verb.
+ *
+ * - GET | HEAD => Visibility.Query
+ * - POST => Visibility.Update
+ * - PUT => Visibility.Create | Update
+ * - DELETE => Visibility.Delete
+ * @param verb The HTTP verb for the operation.
+ * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb, `getDefaultVisibilityForVerb`.
+ * @returns The applicable parameter visibility or visibilities for the request.
+ */
+export function getRequestVisibility(verb: HttpVerb): Visibility {
+  return getDefaultVisibilityForVerb(verb);
+}
+
+/**
  * Returns the applicable parameter visibility or visibilities for the request if `@requestVisibility` was used.
  * Otherwise, returns the default visibility based on the HTTP verb for the operation.
+ * @param operation The TypeSpec Operation for the request.
  * @param verb The HTTP verb for the operation.
  * @returns The applicable parameter visibility or visibilities for the request.
  */
-export function getRequestVisibility(
+export function resolveRequestVisibility(
   program: Program,
   operation: Operation,
   verb: HttpVerb

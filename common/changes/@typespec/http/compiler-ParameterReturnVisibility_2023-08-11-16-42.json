@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/http",
-      "comment": "**BREAKING** Changed signature of `getRequestVisibility` to now require a `Program` and an `HttpOperation` since the visibility now involves more than simply the operation verb.",
+      "comment": "Deprecated `getRequestVisibility`. Added methods `getDefaultVisibilityForVerb` and `resolveRequestVisibility`. Use either depending on the situation.",
       "type": "none"
     }
   ],

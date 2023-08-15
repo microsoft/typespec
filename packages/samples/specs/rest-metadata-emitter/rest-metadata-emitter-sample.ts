@@ -15,11 +15,11 @@ import {
 import {
   createMetadataInfo,
   getHttpService,
-  getRequestVisibility,
   getVisibilitySuffix,
   HttpOperation,
   HttpOperationBody,
   HttpOperationResponse,
+  resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
 import { buildVersionProjections } from "@typespec/versioning";
@@ -113,7 +113,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
       }
 
       // Map the verb to a visibility for the request.
-      const visibility = getRequestVisibility(program, operation.operation, operation.verb);
+      const visibility = resolveRequestVisibility(program, operation.operation, operation.verb);
 
       writeLine("request:");
       indent();
