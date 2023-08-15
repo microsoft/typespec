@@ -1454,7 +1454,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "intersect-duplicate-property",
               format: { propName: prop.name },
-              target: node,
+              target: prop,
             })
           );
           continue;
