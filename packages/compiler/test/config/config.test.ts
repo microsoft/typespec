@@ -20,6 +20,7 @@ describe("compiler: config file loading", () => {
       const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
+        true,
         errorIfNotFound
       );
       return config;
@@ -32,6 +33,22 @@ describe("compiler: config file loading", () => {
         outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
       });
+    });
+
+    it("loads 'tspconfig.yaml' if --config {folder} is supplied", async () => {
+      const config = await loadTestConfig("custom");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        emit: ["openapi"],
+      });
+    });
+
+    it("emits diagnostic if --config {folder} is provided but 'tspconfig.yaml' is not found", async () => {
+      const config = await loadTestConfig("custom");
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-path-not-found");
+      strictEqual(config.diagnostics[0].severity, "error");
     });
 
     it("emits diagnostic for bad custom config file path", async () => {

@@ -61,6 +61,7 @@ export async function findTypeSpecConfigPath(
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
   path: string,
+  recurseDirectory: boolean,
   errorIfNotFound: boolean = false
 ): Promise<TypeSpecConfig> {
   const typespecConfigPath = await findTypeSpecConfigPath(host, path);
