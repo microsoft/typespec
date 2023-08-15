@@ -925,9 +925,7 @@ export function createServer(host: ServerHost): Server {
     const file = ast.file;
     const tokens = mapTokens();
     classifyNode(ast);
-    return Array.from(tokens.values())
-      .filter((t) => t.kind !== undefined)
-      .sort((a, b) => a.pos - b.pos);
+    return Array.from(tokens.values()).filter((t) => t.kind !== undefined);
 
     function mapTokens() {
       const tokens = new Map<number, SemanticToken>();

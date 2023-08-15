@@ -107,7 +107,7 @@ const Token = {
 } as const;
 
 testColorization("semantic colorization", tokenizeSemantic);
-// testColorization("tmlanguage", tokenizeTMLanguage);
+testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
   describe(`compiler: server: ${description}`, () => {
@@ -121,6 +121,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.type("string"),
         ]);
       });
+
       it("templated alias", async () => {
         const tokens = await tokenize("alias Foo<T> = T");
         deepStrictEqual(tokens, [
@@ -813,10 +814,14 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    /**
+     * Doc comment
+     * @param foo Foo desc
+     */
     describe("doc comments", () => {
       it("tokenize @param", async () => {
         const tokens = await tokenize(
-          `/** 
+          `/**
             * Doc comment
             * @param foo Foo desc
             */
@@ -824,6 +829,16 @@ function testColorization(description: string, tokenize: Tokenize) {
         );
 
         deepStrictEqual(tokens, [
+          Token.comment.block("/**"),
+          Token.comment.block("            * Doc comment"),
+          Token.comment.block("            * "),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("param"),
+          Token.comment.block(" "),
+          Token.identifiers.type("foo"),
+          Token.comment.block(" Foo desc"),
+          Token.comment.block("            "),
+          Token.comment.block("*/"),
           Token.keywords.alias,
           Token.identifiers.type("A"),
           Token.operators.assignment,

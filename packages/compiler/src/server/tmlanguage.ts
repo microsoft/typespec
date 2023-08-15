@@ -24,6 +24,7 @@ export type TypeSpecScope =
   | "string.quoted.double.tsp"
   | "string.quoted.triple.tsp"
   | "variable.name.tsp"
+  | "keyword.doc.tag.tspdoc"
   // Operators
   | "keyword.operator.type.annotation.tsp"
   | "keyword.operator.assignment.tsp"
@@ -160,12 +161,62 @@ const blockComment: BeginEndRule = {
   end: "\\*/",
 };
 
+const docCommentParam: MatchRule = {
+  key: "doc-comment-param",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:param|template))\\s+(${identifier})\\b`,
+  captures: {
+    "1": { scope: "keyword.doc.tag.tspdoc" },
+    "2": { scope: "keyword.doc.tag.tspdoc" },
+    "3": { scope: "variable.name.tsp" },
+  },
+};
+const docCommentReturn: MatchRule = {
+  key: "doc-comment-return-tag",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:returns))\\b`,
+  captures: {
+    "1": { scope: "keyword.doc.tag.tspdoc" },
+    "2": { scope: "keyword.doc.tag.tspdoc" },
+  },
+};
+const docCommentUnknownTag: MatchRule = {
+  key: "doc-comment-unknown-tag",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:${identifier}))\\b`,
+  captures: {
+    "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
+  },
+};
+
+const docCommentBlock: IncludeRule = {
+  key: "doc-comment-block",
+  patterns: [docCommentParam, docCommentReturn, docCommentUnknownTag],
+};
+
+const docComment: BeginEndRule = {
+  key: "doc-comment",
+  scope: "comment.block.tsp",
+  begin: "/\\**",
+  beginCaptures: {
+    "0": { scope: "comment.block.tsp" },
+  },
+  end: "\\*/",
+  endCaptures: {
+    "0": { scope: "comment.block.tsp" },
+  },
+  patterns: [docCommentBlock],
+};
+
 // Tokens that match standing alone in any context: literals and comments
 const token: IncludeRule = {
   key: "token",
   patterns: [
+    docComment,
     lineComment,
     blockComment,
+
     // `"""` must come before `"` or first two quotes of `"""` will match as
     // empty string
     tripleQuotedStringLiteral,
