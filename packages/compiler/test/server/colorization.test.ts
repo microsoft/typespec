@@ -69,6 +69,10 @@ const Token = {
     type: (name: string) => createToken(name, "entity.name.type.tsp"),
   },
 
+  tspdoc: {
+    tag: (name: string) => createToken(name, "keyword.doc.tag.tspdoc"),
+  },
+
   operators: {
     assignment: createToken("=", "keyword.operator.assignment.tsp"),
     optional: createToken("?", "keyword.operator.optional.tsp"),
@@ -832,10 +836,10 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.comment.block("/**"),
           Token.comment.block("            * Doc comment"),
           Token.comment.block("            * "),
-          Token.identifiers.tag("@"),
-          Token.identifiers.tag("param"),
+          Token.tspdoc.tag("@"),
+          Token.tspdoc.tag("param"),
           Token.comment.block(" "),
-          Token.identifiers.type("foo"),
+          Token.identifiers.variable("foo"),
           Token.comment.block(" Foo desc"),
           Token.comment.block("            "),
           Token.comment.block("*/"),
