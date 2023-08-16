@@ -2515,7 +2515,7 @@ export function createChecker(program: Program): Checker {
       if (current.indexer) {
         return current.indexer;
       }
-      current = model.baseModel;
+      current = current.baseModel;
     }
     return undefined;
   }
