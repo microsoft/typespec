@@ -56,12 +56,12 @@ function renderExternalErrorInfo(
     color(
       kind === "emitter"
         ? `Emitter "${metadata.name}" crashed! This is a bug.`
-        : `Library "${metadata.name}" $onValidate crashed!  This is a bug.`,
+        : `Library "${metadata.name}" $onValidate crashed! This is a bug.`,
       "red"
     ),
   ];
   if (metadata.bugs?.url) {
-    msg.push(`Pleas file an issue at ${color(metadata.bugs?.url, "cyan")}`);
+    msg.push(`Please file an issue at ${color(metadata.bugs?.url, "cyan")}`);
   } else {
     msg.push(`Please contact library author to report this issue.`);
   }
