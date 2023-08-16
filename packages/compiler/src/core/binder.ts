@@ -1,4 +1,5 @@
 import { compilerAssert } from "./diagnostics.js";
+import { FileLibraryMetadata, getLocationContext } from "./index.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -137,7 +138,12 @@ export function createBinder(program: Program): Binder {
           name = getFunctionName(key);
           kind = "decorator";
           if (name === "onValidate") {
-            program.onValidate(member as any);
+            const context = getLocationContext(program, sourceFile);
+            const metdata =
+              context.type === "library"
+                ? context.metadata
+                : ({ type: "file" } satisfies FileLibraryMetadata);
+            program.onValidate(member as any, metdata);
             continue;
           } else if (name === "onEmit") {
             // nothing to do here this is loaded as emitter.
