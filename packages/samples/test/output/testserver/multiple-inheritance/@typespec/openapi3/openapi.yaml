@@ -221,55 +221,55 @@ components:
   schemas:
     Cat:
       type: object
-      properties:
-        likesMilk:
-          type: boolean
       required:
         - likesMilk
       allOf:
         - $ref: '#/components/schemas/Feline'
+      properties:
+        likesMilk:
+          type: boolean
     ErrorResponse:
       type: object
-      properties:
-        body:
-          type: string
       description: Unexpected error
       required:
         - body
+      properties:
+        body:
+          type: string
     Feline:
       type: object
-      properties:
-        meows:
-          type: boolean
-        hisses:
-          type: boolean
       required:
         - meows
         - hisses
       allOf:
         - $ref: '#/components/schemas/Pet'
+      properties:
+        meows:
+          type: boolean
+        hisses:
+          type: boolean
     Horse:
       type: object
-      properties:
-        isAShowHorse:
-          type: boolean
       required:
         - isAShowHorse
       allOf:
         - $ref: '#/components/schemas/Pet'
+      properties:
+        isAShowHorse:
+          type: boolean
     Kitten:
       type: object
-      properties:
-        eatsMiceYet:
-          type: boolean
       required:
         - eatsMiceYet
       allOf:
         - $ref: '#/components/schemas/Cat'
+      properties:
+        eatsMiceYet:
+          type: boolean
     Pet:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
-      required:
-        - name
