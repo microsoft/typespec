@@ -15,13 +15,11 @@ import {
 import {
   createMetadataInfo,
   getHttpService,
-  getRequestVisibility,
   getVisibilitySuffix,
   HttpOperation,
   HttpOperationBody,
-  HttpOperationParameters,
   HttpOperationResponse,
-  HttpVerb,
+  resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
 import { buildVersionProjections } from "@typespec/versioning";
@@ -102,19 +100,20 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     function emitOperation(operation: HttpOperation) {
       writeLine(`op: ${operation.verb.toUpperCase()} ${operation.path}`);
       indent();
-      emitRequest(operation.parameters, operation.verb);
+      emitRequest(program, operation);
       emitResponses(operation.responses);
       unindent();
     }
 
-    function emitRequest(parameters: HttpOperationParameters, verb: HttpVerb) {
+    function emitRequest(program: Program, operation: HttpOperation) {
+      const parameters = operation.parameters;
       if (parameters.parameters.length === 0 && !parameters.body) {
         // no request data
         return;
       }
 
       // Map the verb to a visibility for the request.
-      const visibility = getRequestVisibility(verb);
+      const visibility = resolveRequestVisibility(program, operation.operation, operation.verb);
 
       writeLine("request:");
       indent();
