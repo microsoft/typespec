@@ -139,7 +139,7 @@ export function createBinder(program: Program): Binder {
           kind = "decorator";
           if (name === "onValidate") {
             const context = getLocationContext(program, sourceFile);
-            const metdata =
+            const metadata =
               context.type === "library"
                 ? context.metadata
                 : ({ type: "file" } satisfies FileLibraryMetadata);
