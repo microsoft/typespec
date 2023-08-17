@@ -62,6 +62,13 @@ describe("compiler: config file loading", () => {
       strictEqual(config.diagnostics[0].severity, "error");
     });
 
+    it("emits diagnostic for invalid path", async () => {
+      const config = await loadTestConfig("invalid", false, true);
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-path-not-found");
+      strictEqual(config.diagnostics[0].severity, "error");
+    });
+
     it("loads yaml config file", async () => {
       const config = await loadTestConfig("simple");
       deepStrictEqual(config, {
