@@ -19,8 +19,8 @@ components:
   schemas:
     Library.PetToy:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
-      required:
-        - name

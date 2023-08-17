@@ -331,7 +331,6 @@ describe("openapi3: return types", () => {
       "application/json": {
         schema: {
           type: "object",
-          properties: {},
         },
       },
     });
@@ -350,7 +349,6 @@ describe("openapi3: return types", () => {
       "application/json": {
         schema: {
           type: "object",
-          properties: {},
         },
       },
     });

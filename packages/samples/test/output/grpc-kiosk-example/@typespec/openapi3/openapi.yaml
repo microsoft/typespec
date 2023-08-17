@@ -253,21 +253,26 @@ components:
   schemas:
     GetSignIdForKioskIdRequest:
       type: object
+      required:
+        - kiosk_id
       properties:
         kiosk_id:
           type: integer
           format: int32
-      required:
-        - kiosk_id
     GetSignIdResponse:
       type: object
+      description: A successful response.
       properties:
         sign_id:
           type: integer
           format: int32
-      description: A successful response.
     Kiosk:
       type: object
+      description: Describes a hardware device that can display signs.
+      required:
+        - name
+        - size
+        - location
       properties:
         id:
           type: integer
@@ -286,20 +291,8 @@ components:
           description: kiosk location
         create_time:
           $ref: '#/components/schemas/Timestamp'
-      description: Describes a hardware device that can display signs.
-      required:
-        - name
-        - size
-        - location
     LatLng:
       type: object
-      properties:
-        latitude:
-          type: number
-          format: double
-        longitude:
-          type: number
-          format: double
       description: >-
         An object that represents a latitude/longitude pair. This is expressed
         as a
@@ -315,22 +308,29 @@ components:
       required:
         - latitude
         - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
     ListKiosksResponse:
       type: object
+      description: A successful response.
       properties:
         kiosks:
           type: array
           items:
             $ref: '#/components/schemas/Kiosk'
-      description: A successful response.
     ListSignsResponse:
       type: object
+      description: A successful response.
       properties:
         signs:
           type: array
           items:
             $ref: '#/components/schemas/Sign'
-      description: A successful response.
     ProtobufAny:
       type: object
       properties:
@@ -340,6 +340,7 @@ components:
           type: string
     RpcStatus:
       type: object
+      description: An unexpected error response.
       properties:
         code:
           type: integer
@@ -350,9 +351,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
-      description: An unexpected error response.
     ScreenSize:
       type: object
+      description: Represents the size of a screen in pixels.
+      required:
+        - width
+        - height
       properties:
         width:
           type: integer
@@ -360,12 +364,15 @@ components:
         height:
           type: integer
           format: int32
-      description: Represents the size of a screen in pixels.
-      required:
-        - width
-        - height
     Sign:
       type: object
+      description: |-
+        Describes a digital sign.
+        Signs can include text, images, or both.
+      required:
+        - name
+        - text
+        - image
       properties:
         id:
           type: integer
@@ -381,15 +388,12 @@ components:
           type: string
           format: byte
           description: image to display
-      description: |-
-        Describes a digital sign.
-        Signs can include text, images, or both.
-      required:
-        - name
-        - text
-        - image
     Timestamp:
       type: object
+      description: A timestamp
+      required:
+        - seconds
+        - nanos
       properties:
         seconds:
           type: integer
@@ -397,7 +401,3 @@ components:
         nanos:
           type: integer
           format: int32
-      description: A timestamp
-      required:
-        - seconds
-        - nanos
