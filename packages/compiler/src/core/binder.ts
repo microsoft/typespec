@@ -143,7 +143,7 @@ export function createBinder(program: Program): Binder {
               context.type === "library"
                 ? context.metadata
                 : ({ type: "file" } satisfies FileLibraryMetadata);
-            program.onValidate(member as any, metdata);
+            program.onValidate(member as any, metadata);
             continue;
           } else if (name === "onEmit") {
             // nothing to do here this is loaded as emitter.
