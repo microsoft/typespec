@@ -82,6 +82,17 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    it("cannot add property where parent model has incompatible indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo extends Record<int32> {
+          prop1: string;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'string' is not assignable to type 'int32'",
+      });
+    });
+
     it("can intersect 2 record", async () => {
       const { Bar } = (await runner.compile(`
         alias Foo = Record<{foo: string}> & Record<{bar: string}>;
