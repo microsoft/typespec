@@ -47,13 +47,13 @@ components:
   schemas:
     Error:
       type: object
+      description: Error
+      required:
+        - status
+        - message
       properties:
         status:
           type: integer
           format: int32
         message:
           type: string
-      description: Error
-      required:
-        - status
-        - message
