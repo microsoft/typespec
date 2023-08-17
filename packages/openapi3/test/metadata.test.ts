@@ -321,7 +321,6 @@ describe("openapi3: metadata", () => {
       },
       D: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/M",
@@ -330,7 +329,6 @@ describe("openapi3: metadata", () => {
       },
       DCreate: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MCreate",
@@ -339,7 +337,6 @@ describe("openapi3: metadata", () => {
       },
       DCreateOrUpdate: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MCreateOrUpdate",
@@ -348,7 +345,6 @@ describe("openapi3: metadata", () => {
       },
       DDelete: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MDelete",
@@ -357,7 +353,6 @@ describe("openapi3: metadata", () => {
       },
       DQuery: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MQuery",
@@ -366,7 +361,6 @@ describe("openapi3: metadata", () => {
       },
       DUpdate: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MUpdate",
