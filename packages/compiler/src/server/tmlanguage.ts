@@ -185,8 +185,8 @@ const docCommentUnknownTag: MatchRule = {
   scope: "comment.block.tsp",
   match: `(?x)((@)(?:${identifier}))\\b`,
   captures: {
-    "1": { scope: "entity.name.tag.tsp" },
-    "2": { scope: "entity.name.tag.tsp" },
+    "1": { scope: "entity.name.type.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
 };
 

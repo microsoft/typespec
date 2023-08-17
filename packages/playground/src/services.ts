@@ -333,6 +333,8 @@ export async function registerMonacoLanguage(host: BrowserHost) {
             case "property":
             case "enumMember":
               return "variable";
+            case "docCommentTag":
+              return "keyword";
             default:
               return entry;
           }

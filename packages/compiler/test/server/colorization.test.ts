@@ -823,8 +823,20 @@ function testColorization(description: string, tokenize: Tokenize) {
      * @param foo Foo desc
      */
     describe("doc comments", () => {
+      async function tokenizeDocComment(text: string) {
+        const tokens = await tokenize(text);
+        return tokens.filter((x) => !(x.scope === "comment.block.tsp"));
+      }
+
+      const common = [
+        Token.keywords.alias,
+        Token.identifiers.type("A"),
+        Token.operators.assignment,
+        Token.literals.numeric("1"),
+        Token.punctuation.semicolon,
+      ];
       it("tokenize @param", async () => {
-        const tokens = await tokenize(
+        const tokens = await tokenizeDocComment(
           `/**
             * Doc comment
             * @param foo Foo desc
@@ -833,21 +845,54 @@ function testColorization(description: string, tokenize: Tokenize) {
         );
 
         deepStrictEqual(tokens, [
-          Token.comment.block("/**"),
-          Token.comment.block("            * Doc comment"),
-          Token.comment.block("            * "),
           Token.tspdoc.tag("@"),
           Token.tspdoc.tag("param"),
-          Token.comment.block(" "),
           Token.identifiers.variable("foo"),
-          Token.comment.block(" Foo desc"),
-          Token.comment.block("            "),
-          Token.comment.block("*/"),
-          Token.keywords.alias,
-          Token.identifiers.type("A"),
-          Token.operators.assignment,
-          Token.literals.numeric("1"),
-          Token.punctuation.semicolon,
+          ...common,
+        ]);
+      });
+
+      it("tokenize @template", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @template foo Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.tspdoc.tag("@"),
+          Token.tspdoc.tag("template"),
+          Token.identifiers.variable("foo"),
+          ...common,
+        ]);
+      });
+
+      it("tokenize @returns", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @returns Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [Token.tspdoc.tag("@"), Token.tspdoc.tag("returns"), ...common]);
+      });
+      it("tokenize @custom", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @custom Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.identifiers.type("@"),
+          Token.identifiers.type("custom"),
+          ...common,
         ]);
       });
     });
@@ -1048,6 +1093,8 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         const punctuation = punctuationMap.get(text);
         ok(punctuation, `No tmlanguage equivalent for punctuation: "${text}".`);
         return punctuation;
+      case SemanticTokenKind.DocCommentTag:
+        return Token.tspdoc.tag(text);
       default:
         ok(false, "Unexpected SemanticTokenKind: " + SemanticTokenKind[token.kind]);
     }

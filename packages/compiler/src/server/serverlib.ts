@@ -70,6 +70,7 @@ import {
 import { Program, compile as compileProgram } from "../core/program.js";
 import {
   Token,
+  TokenFlags,
   createScanner,
   isKeyword,
   isPunctuation,
@@ -177,6 +178,8 @@ export enum SemanticTokenKind {
   Number,
   Regexp,
   Operator,
+
+  DocCommentTag,
 }
 
 export interface SemanticToken {
@@ -932,17 +935,37 @@ export function createServer(host: ServerHost): Server {
       const scanner = createScanner(file, () => {});
 
       while (scanner.scan() !== Token.EndOfFile) {
-        const kind = classifyToken(scanner.token);
-        if (kind === ignore) {
-          continue;
+        if (scanner.tokenFlags & TokenFlags.DocComment) {
+          classifyDocComment({ pos: scanner.tokenPosition, end: scanner.position });
+        } else {
+          const kind = classifyToken(scanner.token);
+          if (kind === ignore) {
+            continue;
+          }
+          tokens.set(scanner.tokenPosition, {
+            kind: kind === defer ? undefined! : kind,
+            pos: scanner.tokenPosition,
+            end: scanner.position,
+          });
         }
-        tokens.set(scanner.tokenPosition, {
-          kind: kind === defer ? undefined! : kind,
-          pos: scanner.tokenPosition,
-          end: scanner.position,
-        });
       }
       return tokens;
+
+      function classifyDocComment(range: TextRange) {
+        scanner.scanRange(range, () => {
+          while (scanner.scanDoc() !== Token.EndOfFile) {
+            const kind = classifyDocToken(scanner.token);
+            if (kind === ignore) {
+              continue;
+            }
+            tokens.set(scanner.tokenPosition, {
+              kind: kind === defer ? undefined! : kind,
+              pos: scanner.tokenPosition,
+              end: scanner.position,
+            });
+          }
+        });
+      }
     }
 
     function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
@@ -954,7 +977,6 @@ export function createServer(host: ServerHost): Server {
         case Token.NumericLiteral:
           return SemanticTokenKind.Number;
         case Token.MultiLineComment:
-          return ignore;
         case Token.SingleLineComment:
           return SemanticTokenKind.Comment;
         default:
@@ -964,6 +986,23 @@ export function createServer(host: ServerHost): Server {
           if (isPunctuation(token)) {
             return SemanticTokenKind.Operator;
           }
+          return ignore;
+      }
+    }
+
+    /** Classify tokens when scanning doc comment. */
+    function classifyDocToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
+      switch (token) {
+        case Token.NewLine:
+        case Token.Whitespace:
+          return ignore;
+        case Token.DocText:
+        case Token.Star:
+        case Token.Identifier:
+          return SemanticTokenKind.Comment;
+        case Token.At:
+          return defer;
+        default:
           return ignore;
       }
     }
@@ -1051,17 +1090,16 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.ProjectionMemberExpression:
           classifyReference(node.id);
           break;
-        // case SyntaxKind.Doc:
-        //   classifyReference(node.id);
-        // break;
         case SyntaxKind.DocParamTag:
         case SyntaxKind.DocTemplateTag:
-          classifyReference(node.tagName, SemanticTokenKind.Keyword);
-          classifyReference(node.paramName, SemanticTokenKind.Parameter);
+          classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
+          classifyOverride(node.paramName, SemanticTokenKind.Variable);
           break;
         case SyntaxKind.DocReturnsTag:
+          classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
+          break;
         case SyntaxKind.DocUnknownTag:
-          classifyReference(node.tagName, SemanticTokenKind.Keyword);
+          classifyDocTag(node.tagName, SemanticTokenKind.Type);
           break;
         default:
           break;
@@ -1069,16 +1107,24 @@ export function createServer(host: ServerHost): Server {
       visitChildren(node, classifyNode);
     }
 
+    function classifyDocTag(node: IdentifierNode, kind: SemanticTokenKind) {
+      classifyOverride(node, kind);
+      const token = tokens.get(node.pos - 1); // Get the `@` token
+      if (token) {
+        token.kind = kind;
+      }
+    }
+
     function classify(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
       const token = tokens.get(node.pos);
       if (token && token.kind === undefined) {
         token.kind = kind;
-      } else if (token === undefined) {
-        tokens.set(node.pos, {
-          pos: node.pos,
-          end: node.end,
-          kind: kind,
-        });
+      }
+    }
+    function classifyOverride(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
+      const token = tokens.get(node.pos);
+      if (token) {
+        token.kind = kind;
       }
     }
 
