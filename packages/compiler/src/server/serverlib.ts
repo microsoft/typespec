@@ -1099,7 +1099,7 @@ export function createServer(host: ServerHost): Server {
           classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
           break;
         case SyntaxKind.DocUnknownTag:
-          classifyDocTag(node.tagName, SemanticTokenKind.Type);
+          classifyDocTag(node.tagName, SemanticTokenKind.Macro);
           break;
         default:
           break;

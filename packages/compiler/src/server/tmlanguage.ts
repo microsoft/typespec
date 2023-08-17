@@ -11,20 +11,27 @@ type MatchRule = tm.MatchRule<TypeSpecScope>;
 type Grammar = tm.Grammar<TypeSpecScope>;
 
 export type TypeSpecScope =
+  // Comments
   | "comment.block.tsp"
   | "comment.line.double-slash.tsp"
+  // Constants
   | "constant.character.escape.tsp"
   | "constant.numeric.tsp"
   | "constant.language.tsp"
+  // Keywords
   | "keyword.directive.name.tsp"
+  | "keyword.other.tsp"
+  | "keyword.tag.tspdoc"
+  // Entities
   | "entity.name.type.tsp"
   | "entity.name.function.tsp"
   | "entity.name.tag.tsp"
-  | "keyword.other.tsp"
+  | "entity.name.function.macro.tsp"
+  // Strings
   | "string.quoted.double.tsp"
   | "string.quoted.triple.tsp"
+  // Variables
   | "variable.name.tsp"
-  | "keyword.doc.tag.tspdoc"
   // Operators
   | "keyword.operator.type.annotation.tsp"
   | "keyword.operator.assignment.tsp"
@@ -166,8 +173,8 @@ const docCommentParam: MatchRule = {
   scope: "comment.block.tsp",
   match: `(?x)((@)(?:param|template))\\s+(${identifier})\\b`,
   captures: {
-    "1": { scope: "keyword.doc.tag.tspdoc" },
-    "2": { scope: "keyword.doc.tag.tspdoc" },
+    "1": { scope: "keyword.tag.tspdoc" },
+    "2": { scope: "keyword.tag.tspdoc" },
     "3": { scope: "variable.name.tsp" },
   },
 };
@@ -176,8 +183,8 @@ const docCommentReturn: MatchRule = {
   scope: "comment.block.tsp",
   match: `(?x)((@)(?:returns))\\b`,
   captures: {
-    "1": { scope: "keyword.doc.tag.tspdoc" },
-    "2": { scope: "keyword.doc.tag.tspdoc" },
+    "1": { scope: "keyword.tag.tspdoc" },
+    "2": { scope: "keyword.tag.tspdoc" },
   },
 };
 const docCommentUnknownTag: MatchRule = {
@@ -185,8 +192,8 @@ const docCommentUnknownTag: MatchRule = {
   scope: "comment.block.tsp",
   match: `(?x)((@)(?:${identifier}))\\b`,
   captures: {
-    "1": { scope: "entity.name.type.tsp" },
-    "2": { scope: "entity.name.type.tsp" },
+    "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
 };
 
@@ -243,9 +250,10 @@ const parenthesizedExpression: BeginEndRule = {
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
-  begin: `(@${qualifiedIdentifier})`,
+  begin: `((@)${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
@@ -254,9 +262,10 @@ const decorator: BeginEndRule = {
 const augmentDecoratorStatement: BeginEndRule = {
   key: "augment-decorator-statement",
   scope: meta,
-  begin: `(@@${qualifiedIdentifier})`,
+  begin: `((@@)${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],

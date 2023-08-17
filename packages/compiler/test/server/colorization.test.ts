@@ -70,7 +70,7 @@ const Token = {
   },
 
   tspdoc: {
-    tag: (name: string) => createToken(name, "keyword.doc.tag.tspdoc"),
+    tag: (name: string) => createToken(name, "keyword.tag.tspdoc"),
   },
 
   operators: {
@@ -190,13 +190,13 @@ function testColorization(description: string, tokenize: Tokenize) {
     describe("decorators", () => {
       it("simple parameterless decorator", async () => {
         const tokens = await tokenize("@foo");
-        deepStrictEqual(tokens, [Token.identifiers.tag("@foo")]);
+        deepStrictEqual(tokens, [Token.identifiers.tag("@"), Token.identifiers.tag("foo")]);
       });
 
       it("fully qualified decorator name", async () => {
         const tokens = await tokenize("@Foo.bar");
         if (tokenize === tokenizeTMLanguage) {
-          deepStrictEqual(tokens, [Token.identifiers.tag("@Foo.bar")]);
+          deepStrictEqual(tokens, [Token.identifiers.tag("@"), Token.identifiers.tag("Foo.bar")]);
         } else {
           deepStrictEqual(tokens, [
             Token.identifiers.tag("@"),
@@ -210,7 +210,8 @@ function testColorization(description: string, tokenize: Tokenize) {
       it("decorator with parameters", async () => {
         const tokens = await tokenize(`@foo("param1", 123)`);
         deepStrictEqual(tokens, [
-          Token.identifiers.tag("@foo"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
           Token.punctuation.openParen,
           Token.literals.string("param1"),
           Token.punctuation.comma,
@@ -233,22 +234,22 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("decorator", async () => {
         const tokens = await tokenize(`@@foo(MyModel, "param1", 123)`);
-        if (tokenize === tokenizeTMLanguage) {
-          deepStrictEqual(tokens, [Token.identifiers.tag("@@foo"), ...params]);
-        } else {
-          deepStrictEqual(tokens, [
-            Token.identifiers.tag("@@"),
-            Token.identifiers.tag("foo"),
-            ...params,
-          ]);
-        }
+        deepStrictEqual(tokens, [
+          Token.identifiers.tag("@@"),
+          Token.identifiers.tag("foo"),
+          ...params,
+        ]);
       });
 
       it("fully qualified decorator name", async () => {
         const tokens = await tokenize(`@@Foo.bar(MyModel, "param1", 123)`);
 
         if (tokenize === tokenizeTMLanguage) {
-          deepStrictEqual(tokens, [Token.identifiers.tag("@@Foo.bar"), ...params]);
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.tag("Foo.bar"),
+            ...params,
+          ]);
         } else {
           deepStrictEqual(tokens, [
             Token.identifiers.tag("@@"),
@@ -730,13 +731,15 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.functionName("foo"),
           Token.punctuation.openParen,
 
-          Token.identifiers.tag("@path"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("path"),
           Token.identifiers.variable("param1"),
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.punctuation.comma,
 
-          Token.identifiers.tag("@query"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("query"),
           Token.identifiers.variable("param2"),
           Token.operators.optional,
           Token.operators.typeAnnotation,
@@ -890,8 +893,8 @@ function testColorization(description: string, tokenize: Tokenize) {
         );
 
         deepStrictEqual(tokens, [
-          Token.identifiers.type("@"),
-          Token.identifiers.type("custom"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("custom"),
           ...common,
         ]);
       });
@@ -1047,17 +1050,6 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
     }
   }
 
-  // Make @myDec one token to match tmlanguage
-  for (let i = 0; i < tokens.length - 1; i++) {
-    if (
-      tokens[i].scope === "entity.name.tag.tsp" &&
-      tokens[i].text === "@" &&
-      tokens[i + 1].scope === "entity.name.tag.tsp"
-    ) {
-      tokens[i].text = "@" + tokens[i + 1].text;
-      tokens.splice(i + 1, 1);
-    }
-  }
   return tokens;
 
   function convertSemanticToken(token: SemanticToken, text: string): Token | undefined {
