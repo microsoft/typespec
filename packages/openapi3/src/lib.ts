@@ -124,6 +124,12 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
 export const libDef = {
   name: "@typespec/openapi3",
   diagnostics: {
+    "inconsistent-shared-route-request-visibility": {
+      severity: "error",
+      messages: {
+        default: "All operations with `@sharedRoutes` must have the same `@requestVisibility`.",
+      },
+    },
     "invalid-server-variable": {
       severity: "error",
       messages: {
