@@ -2052,6 +2052,7 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
         },
         {
           singleQuote: true,
+          aliasDuplicateObjects: false,
         }
       );
   }

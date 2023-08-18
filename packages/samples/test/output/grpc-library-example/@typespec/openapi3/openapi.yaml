@@ -40,10 +40,8 @@ paths:
         Lists shelves. The order is unspecified but deterministic. Newly created
         shelves will not necessarily be added to the end of this list.
       parameters:
-        - &a1
-          $ref: '#/components/parameters/ListRequestBase.page_size'
-        - &a2
-          $ref: '#/components/parameters/ListRequestBase.page_token'
+        - $ref: '#/components/parameters/ListRequestBase.page_size'
+        - $ref: '#/components/parameters/ListRequestBase.page_token'
       responses:
         '200':
           description: The request has succeeded.
@@ -174,8 +172,8 @@ paths:
         Returns NOT_FOUND if the shelf does not exist.
       parameters:
         - $ref: '#/components/parameters/ListBooksRequest.name'
-        - *a1
-        - *a2
+        - $ref: '#/components/parameters/ListRequestBase.page_size'
+        - $ref: '#/components/parameters/ListRequestBase.page_token'
       responses:
         '200':
           description: The request has succeeded.

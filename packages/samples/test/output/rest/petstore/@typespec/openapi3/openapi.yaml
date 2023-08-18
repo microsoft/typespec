@@ -27,8 +27,7 @@ paths:
       operationId: Checkups_createOrUpdate
       description: Creates or update an instance of the resource.
       parameters:
-        - &a2
-          $ref: '#/components/parameters/CheckupKey'
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -106,8 +105,7 @@ paths:
       operationId: Owners_get
       description: Gets an instance of the resource.
       parameters:
-        - &a1
-          $ref: '#/components/parameters/OwnerKey'
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -125,7 +123,7 @@ paths:
       operationId: Owners_update
       description: Updates an existing instance of the resource.
       parameters:
-        - *a1
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -149,7 +147,7 @@ paths:
       operationId: Owners_delete
       description: Deletes an existing instance of the resource.
       parameters:
-        - *a1
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: Resource deleted successfully.
@@ -164,7 +162,7 @@ paths:
       operationId: OwnerCheckups_list
       description: Lists all instances of the extension resource.
       parameters:
-        - *a1
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -183,8 +181,8 @@ paths:
       operationId: OwnerCheckups_createOrUpdate
       description: Creates or update an instance of the extension resource.
       parameters:
-        - *a1
-        - *a2
+        - $ref: '#/components/parameters/OwnerKey'
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -215,7 +213,7 @@ paths:
       operationId: OwnerInsurance_get
       description: Gets the singleton resource.
       parameters:
-        - *a1
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -233,7 +231,7 @@ paths:
       operationId: OwnerInsurance_update
       description: Updates the singleton resource.
       parameters:
-        - *a1
+        - $ref: '#/components/parameters/OwnerKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -305,8 +303,7 @@ paths:
       operationId: Pets_get
       description: Gets an instance of the resource.
       parameters:
-        - &a3
-          $ref: '#/components/parameters/PetKey'
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -324,7 +321,7 @@ paths:
       operationId: Pets_update
       description: Updates an existing instance of the resource.
       parameters:
-        - *a3
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -348,7 +345,7 @@ paths:
       operationId: Pets_delete
       description: Deletes an existing instance of the resource.
       parameters:
-        - *a3
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: Resource deleted successfully.
@@ -363,7 +360,7 @@ paths:
       operationId: PetCheckups_list
       description: Lists all instances of the extension resource.
       parameters:
-        - *a3
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -382,8 +379,8 @@ paths:
       operationId: PetCheckups_createOrUpdate
       description: Creates or update an instance of the extension resource.
       parameters:
-        - *a3
-        - *a2
+        - $ref: '#/components/parameters/PetKey'
+        - $ref: '#/components/parameters/CheckupKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -414,7 +411,7 @@ paths:
       operationId: PetInsurance_get
       description: Gets the singleton resource.
       parameters:
-        - *a3
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -432,7 +429,7 @@ paths:
       operationId: PetInsurance_update
       description: Updates the singleton resource.
       parameters:
-        - *a3
+        - $ref: '#/components/parameters/PetKey'
       responses:
         '200':
           description: The request has succeeded.
@@ -480,10 +477,8 @@ paths:
       operationId: Toys_get
       description: Gets an instance of the resource.
       parameters:
-        - &a4
-          $ref: '#/components/parameters/ToyKey.petId'
-        - &a5
-          $ref: '#/components/parameters/ToyKey.toyId'
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.
@@ -502,8 +497,8 @@ paths:
       operationId: ToyInsurance_get
       description: Gets the singleton resource.
       parameters:
-        - *a4
-        - *a5
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.
@@ -521,8 +516,8 @@ paths:
       operationId: ToyInsurance_update
       description: Updates the singleton resource.
       parameters:
-        - *a4
-        - *a5
+        - $ref: '#/components/parameters/ToyKey.petId'
+        - $ref: '#/components/parameters/ToyKey.toyId'
       responses:
         '200':
           description: The request has succeeded.

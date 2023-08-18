@@ -58,8 +58,7 @@ paths:
       operationId: Pets_delete
       description: Delete a pet.
       parameters:
-        - &a1
-          $ref: '#/components/parameters/PetId'
+        - $ref: '#/components/parameters/PetId'
       responses:
         '200':
           description: The request has succeeded.
@@ -73,7 +72,7 @@ paths:
       operationId: Pets_read
       description: Returns a pet. Supports eTags.
       parameters:
-        - *a1
+        - $ref: '#/components/parameters/PetId'
       responses:
         '200':
           description: The request has succeeded.
