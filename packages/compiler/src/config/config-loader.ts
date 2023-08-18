@@ -21,8 +21,7 @@ export const defaultConfig = deepFreeze({
  */
 export async function findTypeSpecConfigPath(
   host: CompilerHost,
-  path: string,
-  lookup: boolean
+  path: string
 ): Promise<string | undefined> {
   // if the path is a file, return immediately
   const stats = await doIO(
@@ -37,9 +36,7 @@ export async function findTypeSpecConfigPath(
     return path;
   }
   let current = path;
-  if (!lookup) {
-    return undefined;
-  }
+
   // only recurse if the path is a directory and the flag was set to true (only for default case)
   while (true) {
     let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
@@ -66,10 +63,9 @@ export async function findTypeSpecConfigPath(
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
   path: string,
-  lookup: boolean,
   errorIfNotFound: boolean = false
 ): Promise<TypeSpecConfig> {
-  const typespecConfigPath = await findTypeSpecConfigPath(host, path, lookup);
+  const typespecConfigPath = await findTypeSpecConfigPath(host, path);
   if (typespecConfigPath === undefined) {
     const projectRoot = getDirectoryPath(path);
     const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };

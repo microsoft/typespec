@@ -10,7 +10,7 @@ export async function printInfoAction(host: CompilerHost): Promise<readonly Diag
   const cwd = process.cwd();
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
-  const config = await loadTypeSpecConfigForPath(host, cwd, true);
+  const config = await loadTypeSpecConfigForPath(host, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
   const replacer = (emitter: string, value: any) =>

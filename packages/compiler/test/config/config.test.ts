@@ -37,7 +37,6 @@ describe("compiler: config file loading", () => {
       const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
-        lookup,
         errorIfNotFound
       );
       return config;

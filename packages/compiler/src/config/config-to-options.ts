@@ -52,7 +52,7 @@ export async function resolveCompilerOptions(
   const config = await loadTypeSpecConfigForPath(
     host,
     configPath,
-    options.configPath === undefined
+    options.configPath !== undefined
   );
   config.diagnostics.forEach((x) => diagnostics.add(x));
 
