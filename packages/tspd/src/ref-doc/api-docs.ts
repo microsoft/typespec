@@ -42,7 +42,6 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     return;
   }
 
-  console.log("Gen docs here", libraryPath, outputDir);
   await app.generateDocs(project, outputDir);
 
   await writeFile(
