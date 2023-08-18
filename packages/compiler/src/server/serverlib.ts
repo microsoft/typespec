@@ -577,7 +577,7 @@ export function createServer(host: ServerHost): Server {
     for (const each of program.diagnostics) {
       let document: TextDocument | undefined;
 
-      const location = getSourceLocation(each.target);
+      const location = getSourceLocation(each.target, { locateId: true });
       if (location?.file) {
         document = (location.file as ServerSourceFile).document;
       } else {
