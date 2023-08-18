@@ -16,7 +16,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     typeDeclarationFormat: "table",
     hidePageTitle: true,
     hideBreadcrumbs: true,
-    hideKindPrefix: true,
+    titleTemplate: "{name}",
     hideInPageTOC: true,
     hidePageHeader: true,
 
@@ -42,6 +42,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     return;
   }
 
+  console.log("Gen docs here", libraryPath, outputDir);
   await app.generateDocs(project, outputDir);
 
   await writeFile(
@@ -71,6 +72,7 @@ function createFrontMatter(model: DeclarationReflection) {
 
 function createFrontMatterData(model: DeclarationReflection) {
   const kind = ReflectionKind.singularString(model.kind)[0];
+
   return {
     jsApi: true,
     title: `[${kind}] ${model.name}`,
