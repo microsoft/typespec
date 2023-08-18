@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix issue where --config would search the folder hierachy looking for `tspconfig.yaml`.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
