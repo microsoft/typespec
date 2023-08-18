@@ -2,9 +2,11 @@ import {
   compilerAssert,
   DiagnosticCollector,
   getEffectiveModelType,
+  getParameterVisibility,
   isVisible as isVisibleCore,
   Model,
   ModelProperty,
+  Operation,
   Program,
   Queue,
   TwoLevelMap,
@@ -41,12 +43,19 @@ export enum Visibility {
    * and therefore no metadata is applicable.
    */
   Item = 1 << 20,
+
+  /**
+   * Additional flag to indicate when the verb is path and therefore
+   * will have fields made optional if request visibility includes update.
+   */
+  Patch = 1 << 21,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
 function visibilityToArray(visibility: Visibility): readonly string[] {
-  // Item flag is not a real visibility.
+  // Item and Patch flags are not real visibilities.
   visibility &= ~Visibility.Item;
+  visibility &= ~Visibility.Patch;
 
   let result = visibilityToArrayMap.get(visibility);
   if (!result) {
@@ -74,6 +83,34 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
 
   return result;
 }
+function arrayToVisibility(array: readonly string[] | undefined): Visibility | undefined {
+  if (!array) {
+    return undefined;
+  }
+  let value = Visibility.None;
+  for (const item of array) {
+    switch (item) {
+      case "read":
+        value |= Visibility.Read;
+        break;
+      case "create":
+        value |= Visibility.Create;
+        break;
+      case "update":
+        value |= Visibility.Update;
+        break;
+      case "delete":
+        value |= Visibility.Delete;
+        break;
+      case "query":
+        value |= Visibility.Query;
+        break;
+      default:
+        return undefined;
+    }
+  }
+  return value;
+}
 
 /**
  * Provides a naming suffix to create a unique name for a type with this
@@ -96,7 +133,7 @@ export function getVisibilitySuffix(
 ) {
   let suffix = "";
 
-  if ((visibility & ~Visibility.Item) !== canonicalVisibility) {
+  if ((visibility & ~Visibility.Item & ~Visibility.Patch) !== canonicalVisibility) {
     const visibilities = visibilityToArray(visibility);
     suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
   }
@@ -116,7 +153,7 @@ export function getVisibilitySuffix(
  * - PUT => Visibility.Create | Update
  * - DELETE => Visibility.Delete
  */
-export function getRequestVisibility(verb: HttpVerb): Visibility {
+function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
   switch (verb) {
     case "get":
     case "head":
@@ -133,6 +170,44 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
       const _assertNever: never = verb;
       compilerAssert(false, "unreachable");
   }
+}
+
+/**
+ * Determines the visibility to use for a request with the given verb.
+ *
+ * - GET | HEAD => Visibility.Query
+ * - POST => Visibility.Update
+ * - PUT => Visibility.Create | Update
+ * - DELETE => Visibility.Delete
+ * @param verb The HTTP verb for the operation.
+ * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb, `getDefaultVisibilityForVerb`.
+ * @returns The applicable parameter visibility or visibilities for the request.
+ */
+export function getRequestVisibility(verb: HttpVerb): Visibility {
+  return getDefaultVisibilityForVerb(verb);
+}
+
+/**
+ * Returns the applicable parameter visibility or visibilities for the request if `@requestVisibility` was used.
+ * Otherwise, returns the default visibility based on the HTTP verb for the operation.
+ * @param operation The TypeSpec Operation for the request.
+ * @param verb The HTTP verb for the operation.
+ * @returns The applicable parameter visibility or visibilities for the request.
+ */
+export function resolveRequestVisibility(
+  program: Program,
+  operation: Operation,
+  verb: HttpVerb
+): Visibility {
+  const parameterVisibility = arrayToVisibility(getParameterVisibility(program, operation));
+  const defaultVisibility = getDefaultVisibilityForVerb(verb);
+  let visibility = parameterVisibility ?? defaultVisibility;
+  // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
+  // later processes to properly apply it
+  if (verb === "patch") {
+    visibility |= Visibility.Patch;
+  }
+  return visibility;
 }
 
 /**
@@ -465,8 +540,13 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   }
 
   function isOptional(property: ModelProperty, visibility: Visibility): boolean {
-    // Properties are only made optional for update visibility
-    return property.optional || visibility === Visibility.Update;
+    // Properties are made optional for patch requests if the visibility includes
+    // update, but not for array elements with the item flag since you must provide
+    // all array elements with required properties, even in a patch.
+    const hasUpdate = (visibility & Visibility.Update) !== 0;
+    const isPatch = (visibility & Visibility.Patch) !== 0;
+    const isItem = (visibility & Visibility.Item) !== 0;
+    return property.optional || (hasUpdate && isPatch && !isItem);
   }
 
   function isPayloadProperty(
