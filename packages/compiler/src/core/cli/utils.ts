@@ -1,14 +1,15 @@
 // NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
 
 import { SpawnSyncOptionsWithStringEncoding, spawnSync } from "child_process";
+import pc from "picocolors";
 import { inspect } from "util";
 import { logDiagnostics } from "../diagnostics.js";
+import { Colors, ExternalError } from "../external-error.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
 import { Diagnostic } from "../types.js";
-import { ExternalError } from "../util.js";
 import { CliCompilerHost } from "./types.js";
 
 // ENOENT checking and handles spaces poorly in some cases.
@@ -142,7 +143,7 @@ export function handleInternalCompilerError(error: unknown): never {
   /* eslint-disable no-console */
   if (error instanceof ExternalError) {
     // ExternalError should already have all the relevant information needed when thrown.
-    console.error(error);
+    console.error(error.render(color));
   } else {
     console.error("Internal compiler error!");
     console.error("File issue at https://github.com/microsoft/typespec");
@@ -152,4 +153,8 @@ export function handleInternalCompilerError(error: unknown): never {
   /* eslint-enable no-console */
 
   process.exit(1);
+}
+
+function color(text: string, color: Colors) {
+  return pc[color](text);
 }
