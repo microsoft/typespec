@@ -549,3 +549,15 @@ extern dec inspectType(target: unknown, text: valueof string);
  * @param text Custom text to log
  */
 extern dec inspectTypeName(target: unknown, text: valueof string);
+
+/**
+ * Sets which visibilities apply to parameters for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec parameterVisibility(target: Operation, ...visibilities: valueof string[]);
+
+/**
+ * Sets which visibilities apply to the return type for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);

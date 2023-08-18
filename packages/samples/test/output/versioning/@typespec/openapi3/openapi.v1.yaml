@@ -38,6 +38,12 @@ components:
   schemas:
     Dog:
       type: object
+      required:
+        - type
+        - nextWalkTime
+        - walkerName
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
       properties:
         type:
           type: string
@@ -48,21 +54,22 @@ components:
           format: date-time
         walkerName:
           type: string
-      required:
-        - type
-        - nextWalkTime
-        - walkerName
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
     Library.PetToy:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
-      required:
-        - name
     PetBase:
       type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          dog: '#/components/schemas/Dog'
+      required:
+        - name
+        - favoriteToys
       properties:
         type:
           type: string
@@ -73,13 +80,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Library.PetToy'
-      discriminator:
-        propertyName: type
-        mapping:
-          dog: '#/components/schemas/Dog'
-      required:
-        - name
-        - favoriteToys
     Versions:
       type: string
       enum:
