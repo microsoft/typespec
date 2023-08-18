@@ -680,7 +680,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.description = shared.description;
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.getRequestVisibility(verb);
+    // Error out if shared routes do not have consistent `@parameterVisibility`. We can
+    // lift this restriction in the future if a use case develops.
+    const visibilities = shared.operations.map((op) => {
+      return http.resolveRequestVisibility(program, op, verb);
+    });
+    if (visibilities.some((v) => v !== visibilities[0])) {
+      reportDiagnostic(program, {
+        code: "inconsistent-shared-route-request-visibility",
+        target: ops[0],
+      });
+    }
+    const visibility = http.resolveRequestVisibility(program, shared.operations[0], verb);
     emitEndpointParameters(shared.parameters.parameters, visibility);
     if (shared.bodies) {
       if (shared.bodies.length === 1) {
@@ -728,7 +739,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.getRequestVisibility(verb);
+    const visibility = http.resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
