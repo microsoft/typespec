@@ -24,8 +24,6 @@ import {
 export { typespecVersion } from "../manifest.js";
 export { NodeHost } from "./node-host.js";
 
-export class ExternalError extends Error {}
-
 /**
  * Recursively calls Object.freeze such that all objects and arrays
  * referenced are frozen.
