@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix typo in error message",
+      "comment": "Fix typo in 'format' error message",
       "type": "none"
     }
   ],
