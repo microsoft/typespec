@@ -1,5 +1,4 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { promises as fs } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
@@ -21,23 +20,12 @@ describe("compiler: config file loading", () => {
       lookup: boolean = true,
       errorIfNotFound: boolean = true
     ) => {
-      let fullPath = join(scenarioRoot, path);
-      try {
-        const stats = await fs.stat(fullPath);
-        const isDirectory = stats.isDirectory();
-
-        if (lookup === false && isDirectory) {
-          fullPath = join(fullPath, "tspconfig.yaml");
-        }
-      } catch (error: NodeJS.ErrnoException | any) {
-        if (error.code !== "ENOENT") {
-          throw error;
-        }
-      }
+      const fullPath = join(scenarioRoot, path);
       const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
-        errorIfNotFound
+        errorIfNotFound,
+        lookup
       );
       return config;
     };
