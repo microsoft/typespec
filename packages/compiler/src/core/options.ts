@@ -38,6 +38,11 @@ export interface CompilerOptions {
    */
   emitters?: Record<string, EmitterOptions>;
 
+  /**
+   * Suppress all `deprecated` warnings.
+   */
+  ignoreDeprecated?: boolean;
+
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];

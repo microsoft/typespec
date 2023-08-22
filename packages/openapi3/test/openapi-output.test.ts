@@ -157,10 +157,10 @@ describe("openapi3: operations", () => {
     strictEqual(getThing.parameters[1].schema.maximum, 10);
   });
 
-  it("deprecate operations with @deprecated", async () => {
+  it("deprecate operations with #deprecated", async () => {
     const res = await openApiFor(
       `
-      @deprecated("use something else")
+      #deprecated "use something else"
       op read(@query query: string): string;
       `
     );

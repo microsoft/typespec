@@ -209,15 +209,11 @@ describe("compiler: parser", () => {
       "@myDec union A { @myDec a: string }",
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
+      `union A { string, int32 }`,
+      `union A { B<T>, C<T> }`,
+      `union A { "hi", \`bye\` }`,
     ]);
-
-    parseErrorEach([
-      [
-        'union A { @myDec "x" x: number, y: string }',
-        [/':' expected/],
-        (n) => assert(!n.printable, "should not be printable"),
-      ],
-    ]);
+    parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
   describe("valueof expressions", () => {
@@ -569,6 +565,7 @@ describe("compiler: parser", () => {
         [
           ["#suppress foo;\nmodel Foo {}", [/Unexpected token Semicolon/]],
           ["#suppress foo 123\nmodel Foo {}", [/Unexpected token NumericLiteral/]],
+          ["#deprecated 321\nop doFoo(): string;", [/Unexpected token NumericLiteral/]],
         ],
         { strict: true }
       );

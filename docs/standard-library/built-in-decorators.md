@@ -5,10 +5,11 @@ toc_max_heading_level: 3
 ---
 # Built-in Decorators
 ## TypeSpec
-
 ### `@deprecated` {#@deprecated}
 
-Mark this type as deprecated
+Mark this type as deprecated.
+
+NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
 
 ```typespec
 @deprecated(message: valueof string)
@@ -25,8 +26,10 @@ Mark this type as deprecated
 
 #### Examples
 
+Use the `#deprecated` directive instead:
+
 ```typespec
-@deprecated("Use ActionV2")
+#deprecated "Use ActionV2"
 op Action<T>(): T;
 ```
 
@@ -554,6 +557,25 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 ```
 
 
+### `@parameterVisibility` {#@parameterVisibility}
+
+Sets which visibilities apply to parameters for the given operation.
+
+```typespec
+@parameterVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+
+
+
 ### `@pattern` {#@pattern}
 
 Specify the the pattern this string should respect using simple regular expression syntax.
@@ -607,6 +629,25 @@ model Certificate {
 expireAt: int32;
 }
 ```
+
+
+### `@returnTypeVisibility` {#@returnTypeVisibility}
+
+Sets which visibilities apply to the return type for the given operation.
+
+```typespec
+@returnTypeVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+
 
 
 ### `@secret` {#@secret}
@@ -901,5 +942,4 @@ model DogRead {
 ...Dog;
 }
 ```
-
 

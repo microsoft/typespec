@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "fs/promises";
 import { globby } from "globby";
-import prettier from "prettier";
+import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
 import { normalizePath } from "./path-utils.js";
@@ -26,7 +26,7 @@ export async function formatTypeSpecFiles(
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
         // eslint-disable-next-line no-console
-        console.error(`File '${file}' failed to fromat. ${details}`);
+        console.error(`File '${file}' failed to format. ${details}`);
       } else {
         throw e;
       }
@@ -53,7 +53,7 @@ export async function findUnformattedTypeSpecFiles(
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
         // eslint-disable-next-line no-console
-        console.error(`File '${file}' failed to fromat. ${details}`);
+        console.error(`File '${file}' failed to format. ${details}`);
         unformatted.push(file);
       } else {
         throw e;
@@ -65,8 +65,8 @@ export async function findUnformattedTypeSpecFiles(
 
 export async function formatTypeSpecFile(filename: string) {
   const content = await readFile(filename, "utf-8");
-  const prettierConfig = await prettier.resolveConfig(filename);
-  const formattedContent = formatTypeSpec(content, prettierConfig ?? {});
+  const prettierConfig = await resolveConfig(filename);
+  const formattedContent = await formatTypeSpec(content, prettierConfig ?? {});
   await writeFile(filename, formattedContent);
 }
 
@@ -76,7 +76,7 @@ export async function formatTypeSpecFile(filename: string) {
  */
 export async function checkFormatTypeSpecFile(filename: string): Promise<boolean> {
   const content = await readFile(filename, "utf-8");
-  const prettierConfig = await prettier.resolveConfig(filename);
+  const prettierConfig = await resolveConfig(filename);
   return await checkFormatTypeSpec(content, prettierConfig ?? {});
 }
 

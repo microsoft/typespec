@@ -1,4 +1,4 @@
-import { ModelProperty, Namespace } from "@typespec/compiler";
+import { ModelProperty, Namespace, Operation } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -21,6 +21,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/decorators.js";
+import { Visibility, getRequestVisibility, resolveRequestVisibility } from "../src/metadata.js";
 import { createHttpTestRunner } from "./test-host.js";
 
 describe("http: decorators", () => {
@@ -211,7 +212,7 @@ describe("http: decorators", () => {
     });
 
     describe("change format for array value", () => {
-      ["csv", "tsv", "ssv", "pipes"].forEach((format) => {
+      ["csv", "tsv", "ssv", "simple", "form", "pipes"].forEach((format) => {
         it(`set query format to "${format}"`, async () => {
           const { selects } = await runner.compile(`
             op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
@@ -835,6 +836,34 @@ describe("http: decorators", () => {
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
         true
+      );
+    });
+  });
+
+  describe("@parameterVisibility", () => {
+    it("ensures getRequestVisibility and resolveRequestVisibility return the same value for default PATCH operations", async () => {
+      const { testPatch } = await runner.compile(`
+      @patch
+      @test op testPatch(): void;
+      `);
+      deepStrictEqual(
+        // eslint-disable-next-line deprecation/deprecation
+        getRequestVisibility("patch"),
+        resolveRequestVisibility(runner.program, testPatch as Operation, "patch")
+      );
+    });
+
+    it("ensures getRequestVisibility and resolveRequestVisibility return expected values for customized PATCH operations", async () => {
+      const { testPatch } = await runner.compile(`
+      @parameterVisibility("create", "update")
+      @patch
+      @test op testPatch(): void;
+      `);
+      // eslint-disable-next-line deprecation/deprecation
+      deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
+      deepStrictEqual(
+        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
+        Visibility.Update | Visibility.Create | Visibility.Patch
       );
     });
   });

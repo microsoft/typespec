@@ -256,9 +256,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Using must refer to a namespace",
-      decorator: "Can't use a decorator",
-      function: "Can't use a function",
-      projection: "Can't use a projection",
     },
   },
   "invalid-type-ref": {
@@ -323,6 +320,7 @@ const diagnostics = {
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
       underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
+      metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
   },
@@ -478,6 +476,18 @@ const diagnostics = {
     severity: "warning",
     messages: {
       default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+    },
+  },
+  "invalid-deprecation-argument": {
+    severity: "error",
+    messages: {
+      default: "Invalid deprecation argument",
+    },
+  },
+  "duplicate-deprecation": {
+    severity: "warning",
+    messages: {
+      default: "The #deprecated directive cannot be used more than once on the same declaration.",
     },
   },
 

@@ -4,6 +4,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
+import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
   StdTypeName,
   StringLiteral,
@@ -1022,17 +1023,7 @@ export function $withDefaultKeyVisibility(
  * ```
  */
 export function $deprecated(context: DecoratorContext, target: Type, message: string) {
-  return context.program.stateMap(deprecatedKey).set(target, message);
-}
-const deprecatedKey = createStateSymbol("deprecated");
-
-/**
- * Check if the given type is deprecated
- * @param program Program
- * @param type Type
- */
-export function isDeprecated(program: Program, type: Type): boolean {
-  return program.stateMap(deprecatedKey).has(type);
+  markDeprecated(context.program, target, { message });
 }
 
 /**
@@ -1041,7 +1032,7 @@ export function isDeprecated(program: Program, type: Type): boolean {
  * @param type Type
  */
 export function getDeprecated(program: Program, type: Type): string | undefined {
-  return program.stateMap(deprecatedKey).get(type);
+  return getDeprecationDetails(program, type)?.message;
 }
 
 const overloadedByKey = createStateSymbol("overloadedByKey");
@@ -1237,4 +1228,44 @@ export function getDiscriminator(program: Program, entity: Type): Discriminator 
 
 export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
   return [...program.stateMap(discriminatorKey).entries()] as any;
+}
+
+const parameterVisibilityKey = createStateSymbol("parameterVisibility");
+
+export function $parameterVisibility(
+  context: DecoratorContext,
+  entity: Operation,
+  ...visibilities: string[]
+) {
+  validateDecoratorUniqueOnNode(context, entity, $parameterVisibility);
+  context.program.stateMap(parameterVisibilityKey).set(entity, visibilities);
+}
+
+/**
+ * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
+ *
+ * @see {@link $parameterVisibility}
+ */
+export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
+  return program.stateMap(parameterVisibilityKey).get(entity);
+}
+
+const returnTypeVisibilityKey = createStateSymbol("returnTypeVisibility");
+
+export function $returnTypeVisibility(
+  context: DecoratorContext,
+  entity: Operation,
+  ...visibilities: string[]
+) {
+  validateDecoratorUniqueOnNode(context, entity, $returnTypeVisibility);
+  context.program.stateMap(returnTypeVisibilityKey).set(entity, visibilities);
+}
+
+/**
+ * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
+ *
+ * @see {@link $returnTypeVisibility}
+ */
+export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
+  return program.stateMap(returnTypeVisibilityKey).get(entity);
 }

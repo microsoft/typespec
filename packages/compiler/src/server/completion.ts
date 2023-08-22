@@ -7,6 +7,7 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
+import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   IdentifierNode,
   Node,
@@ -26,7 +27,6 @@ import {
 } from "../core/path-utils.js";
 import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
 import { printId } from "../formatter/print/printer.js";
-import { isDeprecated } from "../lib/decorators.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {
@@ -92,7 +92,7 @@ const keywords = [
   ["extends", { model: true }],
   ["is", { model: true }],
 
-  // On identifier`
+  // On identifier
   ["true", { identifier: true }],
   ["false", { identifier: true }],
   ["unknown", { identifier: true }],
@@ -224,9 +224,12 @@ function addIdentifierCompletion(
       sym.declarations[0].kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
+    } else if (sym.declarations[0]?.kind === SyntaxKind.AliasStatement) {
+      kind = CompletionItemKind.Variable;
+      deprecated = getDeprecationDetails(program, sym.declarations[0]) !== undefined;
     } else {
       kind = getCompletionItemKind(program, type);
-      deprecated = isDeprecated(program, type);
+      deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
     const item: CompletionItem = {

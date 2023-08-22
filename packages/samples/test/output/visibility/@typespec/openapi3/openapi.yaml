@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: Visibility sample
+  version: '0000-00-00'
+tags: []
+paths:
+  /hello:
+    post:
+      operationId: Hello_create
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadablePerson'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WritablePerson'
+    put:
+      operationId: Hello_update
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadablePerson'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteableOptionalPerson'
+    get:
+      operationId: Hello_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Person'
+    patch:
+      operationId: Hello_updateRest
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadablePerson'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonUpdate'
+  /hello/{id}:
+    get:
+      operationId: Hello_read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fieldMask
+          in: query
+          style: form
+          explode: true
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadablePerson'
+components:
+  schemas:
+    OptionalPerson:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelative'
+    Person:
+      type: object
+      required:
+        - id
+        - name
+        - test
+        - other
+        - relatives
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelative'
+    PersonCreateItem:
+      type: object
+      required:
+        - secret
+        - name
+        - test
+        - relatives
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
+    PersonCreateOrUpdateItem:
+      type: object
+      required:
+        - secret
+        - name
+        - test
+        - other
+        - relatives
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
+    PersonRelative:
+      type: object
+      required:
+        - person
+        - relationship
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        relationship:
+          type: string
+    PersonRelativeCreateItem:
+      type: object
+      required:
+        - person
+        - relationship
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonCreateItem'
+        relationship:
+          type: string
+    PersonRelativeCreateOrUpdateItem:
+      type: object
+      required:
+        - person
+        - relationship
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonCreateOrUpdateItem'
+        relationship:
+          type: string
+    PersonRelativeUpdateItem:
+      type: object
+      required:
+        - person
+        - relationship
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonUpdateItem'
+        relationship:
+          type: string
+    PersonUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeUpdateItem'
+    PersonUpdateItem:
+      type: object
+      required:
+        - name
+        - other
+        - relatives
+      properties:
+        name:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeUpdateItem'
+    ReadablePerson:
+      type: object
+      required:
+        - id
+        - name
+        - test
+        - other
+        - relatives
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelative'
+    WritablePerson:
+      type: object
+      required:
+        - secret
+        - name
+        - test
+        - relatives
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateItem'
+    WriteableOptionalPerson:
+      type: object
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'

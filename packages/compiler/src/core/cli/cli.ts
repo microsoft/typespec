@@ -106,17 +106,20 @@ async function main() {
           .option("config", {
             type: "string",
             describe:
-              "The path to a TypeSpec config YAML file. If a folder is specified, the CLI will attempt to search for 'tspconfig.yaml' by moving up the folder hierarchy. Defaults to {cwd}.",
+              "The path to a TypeSpec config YAML file or a folder that contains a 'tspconfig.yaml' file.",
           })
           .option("warn-as-error", {
             type: "boolean",
-            default: false,
             describe: "Treat warnings as errors and return non-zero exit code if there are any.",
           })
           .option("no-emit", {
             type: "boolean",
-            default: false,
             describe: "Run emitters but do not emit any output.",
+          })
+          .option("ignore-deprecated", {
+            type: "boolean",
+            default: false,
+            describe: "Suppresses all `deprecated` diagnostics.",
           })
           .option("arg", {
             type: "array",

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.46.0",
+  "version": "0.47.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -12,15 +12,16 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~2.8.7"
+    "prettier": "~3.0.1"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.46.0",
-    "@typespec/internal-build-utils": "workspace:~0.46.0",
+    "prettier_2": "npm:prettier@2.8.7",
+    "@typespec/compiler": "workspace:~0.47.1",
+    "@typespec/internal-build-utils": "workspace:~0.47.0",
     "@rollup/plugin-commonjs": "~25.0.0",
     "@rollup/plugin-json": "~6.0.0",
     "@rollup/plugin-node-resolve": "~15.1.0",
-    "@rollup/plugin-replace": "~4.0.0",
+    "@rollup/plugin-replace": "~5.0.2",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.0",
     "mocha-multi-reporters": "~1.5.1",

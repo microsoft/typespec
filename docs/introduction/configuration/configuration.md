@@ -62,20 +62,12 @@ options:
     some-other-option: This is a title
 ```
 
-in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter1` using the options specified in the parent `tspconfig.yaml
+in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter1` using the options specified in the parent `tspconfig.yaml`
 
 ```yaml
 extends: ../tspconfig.yaml
 emit:
   - emitter1
-```
-
-in `<my-pkg>/tspconfig.yaml`, enable `emitter2` using the options specified in the parent `tspconfig.yaml
-
-```yaml
-extends: ../tspconfig.yaml
-emit:
-  - emitter2
 ```
 
 ### Variable interpolation
@@ -245,6 +237,14 @@ or via the cli
 tsp compile . --warn-as-error
 ```
 
+### `--ignore-deprecated`
+
+Suppress all `deprecated` diagnostics that are raised when declarations are marked with the `#deprecated` directive.
+
+```yaml
+tsp compile . --ignore-deprecated
+```
+
 ### `imports` - Configure additional imports
 
 ```yaml
@@ -339,6 +339,14 @@ tsp compile . --no-emit
 
 ## Other Command line flags
 
+### `--config`
+
+Specify a different config file
+
+```bash
+tsp compile . --config ./tspconfig.alt.yaml
+```
+
 ### `--watch`
 
 Start the tsp compiler in watch mode: watch for file changes and compile on save.
@@ -346,6 +354,10 @@ Start the tsp compiler in watch mode: watch for file changes and compile on save
 ```bash
 tsp compile . --watch
 ```
+
+:::caution
+Known issue: the watch mode does not pickup changes in JS files that are indirectly included(Only imported via another JS file.)
+:::
 
 ### `--nostdlib`
 

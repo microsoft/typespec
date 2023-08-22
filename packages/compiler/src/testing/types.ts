@@ -56,7 +56,10 @@ export interface TestHostConfig {
 }
 
 export class TestHostError extends Error {
-  constructor(message: string, public code: "ENOENT" | "ERR_MODULE_NOT_FOUND") {
+  constructor(
+    message: string,
+    public code: "ENOENT" | "ERR_MODULE_NOT_FOUND"
+  ) {
     super(message);
   }
 }

@@ -58,7 +58,7 @@ export function createProtobufEmitter(
 ): (outDir: string, options: ProtobufEmitterOptions) => Promise<void> {
   return async function doEmit(outDir, options) {
     // Convert the program to a set of proto files.
-    const files = tspToProto(program);
+    const files = tspToProto(program, options);
 
     if (!program.compilerOptions.noEmit && !options?.noEmit && !program.hasError()) {
       for (const file of files) {
@@ -85,12 +85,14 @@ export function createProtobufEmitter(
  *
  * This is the meat of the emitter.
  */
-function tspToProto(program: Program): ProtoFile[] {
+function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): ProtoFile[] {
   const packages = new Set<Namespace>(
     program.stateMap(state.package).keys() as Iterable<Namespace>
   );
 
   const serviceInterfaces = [...(program.stateSet(state.service) as Set<Interface>)];
+
+  const declaredMessages = [...(program.stateSet(state.message) as Set<Model>)];
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
     [...packages].map((p) => [p, []])
@@ -218,11 +220,23 @@ function tspToProto(program: Program): ProtoFile[] {
    * @returns an array of declarations
    */
   function addDeclarationsOfPackage(namespace: Namespace) {
-    const models = [...namespace.models.values()];
+    const eagerModels = new Set([
+      ...declaredMessages.filter((m) => isDeclaredInNamespace(m, namespace)),
+    ]);
 
-    // Eagerly visit all models in the namespace.
-    for (const model of models) {
-      // Don't eagerly visit externs
+    if (!emitterOptions["omit-unreachable-types"]) {
+      // Add all models in the namespace that have `@field` on every property.
+      for (const model of namespace.models.values()) {
+        if (
+          [...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+          program.stateSet(state.message).has(model)
+        ) {
+          eagerModels.add(model);
+        }
+      }
+    }
+
+    for (const model of eagerModels) {
       if (
         // Don't eagerly visit externs
         !program.stateMap(state.externRef).has(model) &&
@@ -260,16 +274,23 @@ function tspToProto(program: Program): ProtoFile[] {
   function toMethodFromOperation(operation: Operation): ProtoMethodDeclaration {
     const streamingMode = program.stateMap(state.stream).get(operation) ?? StreamingMode.None;
 
+    const isEmptyParams =
+      operation.parameters.name === "" && operation.parameters.properties.size === 0;
+
+    const input = isEmptyParams
+      ? getCachedExternType(program, operation, "TypeSpec.Protobuf.WellKnown.Empty")
+      : addImportSourceForProtoIfNeeded(
+          program,
+          addInputParams(operation.parameters, operation),
+          operation,
+          operation.parameters
+        );
+
     return {
       kind: "method",
       stream: streamingMode,
       name: capitalize(operation.name),
-      input: addImportSourceForProtoIfNeeded(
-        program,
-        addInputParams(operation.parameters, operation),
-        operation,
-        operation.parameters
-      ),
+      input,
       returns: addImportSourceForProtoIfNeeded(
         program,
         addReturnType(operation.returnType, operation),

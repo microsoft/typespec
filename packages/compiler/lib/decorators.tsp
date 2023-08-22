@@ -30,16 +30,23 @@ extern dec summary(target: unknown, summary: valueof string);
 extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
- * Mark this type as deprecated
+ * Mark this type as deprecated.
+ *
+ * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
+ *
+ * @deprecated Use the `#deprecated` directive instead.
  * @param message Deprecation message.
  *
  * @example
  *
+ * Use the `#deprecated` directive instead:
+ *
  * ```typespec
- * @deprecated("Use ActionV2")
+ * #deprecated "Use ActionV2"
  * op Action<T>(): T;
  * ```
  */
+#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
 extern dec deprecated(target: unknown, message: valueof string);
 
 /**
@@ -543,3 +550,15 @@ extern dec inspectType(target: unknown, text: valueof string);
  * @param text Custom text to log
  */
 extern dec inspectTypeName(target: unknown, text: valueof string);
+
+/**
+ * Sets which visibilities apply to parameters for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec parameterVisibility(target: Operation, ...visibilities: valueof string[]);
+
+/**
+ * Sets which visibilities apply to the return type for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);

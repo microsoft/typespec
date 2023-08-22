@@ -1,11 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import {
-  createOpenAPITestRunner,
-  diagnoseOpenApiFor,
-  oapiForModel,
-  openApiFor,
-} from "./test-host.js";
+import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: models", () => {
   it("defines models", async () => {
@@ -140,7 +135,6 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
@@ -305,8 +299,13 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: { y: { type: "integer", format: "int32" } },
-      required: ["y"],
+      allOf: [
+        {
+          type: "object",
+          properties: { y: { type: "integer", format: "int32" } },
+          required: ["y"],
+        },
+      ],
     });
   });
 
@@ -384,13 +383,11 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
-      properties: {},
     });
   });
 
@@ -409,13 +406,11 @@ describe("openapi3: models", () => {
     ok(res.schemas.Baz, "expected definition named Baz");
     deepStrictEqual(res.schemas.Baz, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Bar" }],
     });
 
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
@@ -526,23 +521,6 @@ describe("openapi3: models", () => {
         },
       },
       required: ["name"],
-    });
-  });
-
-  it("throws diagnostics for empty enum definitions", async () => {
-    const runner = await createOpenAPITestRunner();
-
-    const diagnostics = await runner.diagnose(`
-      enum PetType {
-      }
-      model Pet { type: PetType };
-      op read(): Pet;
-      `);
-
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/union-unsupported",
-      message:
-        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
   });
 

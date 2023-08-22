@@ -7,34 +7,34 @@ using TypeSpec.Reflection;
  */
 model HeaderOptions {
   /**
-   * Name of the header when sent over http.
+   * Name of the header when sent over HTTP.
    */
   name?: string;
 
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "csv";
+  format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
 }
 
 /**
- * Specify this property is to be sent or received as an http header.
+ * Specify this property is to be sent or received as an HTTP header.
  *
- * @param headerNameOrOptions Optional name of the header when sent over http or header options.
- *  By default the header name will be the property name converted from camelCase to camel-case. (e.g. `eTag` -> `e-tag`)
+ * @param headerNameOrOptions Optional name of the header when sent over HTTP or header options.
+ *  By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`)
  *
  * @example
  *
  * ```typespec
- * op read(@header accept: string): {@header("E-Tag") eTag: string};
+ * op read(@header accept: string): {@header("ETag") eTag: string};
  * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
  * ```
  *
  * @example Implicit header name
  *
  * ```typespec
- * op read(): {@header eTag: string}; // headerName: e-tag
  * op read(): {@header contentType: string}; // headerName: content-type
+ * op update(@header ifMatch: string): void; // headerName: if-match
  * ```
  */
 extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
@@ -51,7 +51,7 @@ model QueryOptions {
   /**
    * Determines the format of the array if type array is used.
    */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes";
+  format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 /**
@@ -107,7 +107,7 @@ extern dec body(target: ModelProperty);
 extern dec statusCode(target: ModelProperty);
 
 /**
- * Specify the http verb for the target operation to be `GET`.
+ * Specify the HTTP verb for the target operation to be `GET`.
  *
  * @example
  *
@@ -118,7 +118,7 @@ extern dec statusCode(target: ModelProperty);
 extern dec get(target: Operation);
 
 /**
- * Specify the http verb for the target operation to be `PUT`.
+ * Specify the HTTP verb for the target operation to be `PUT`.
  *
  * @example
  *
@@ -129,7 +129,7 @@ extern dec get(target: Operation);
 extern dec put(target: Operation);
 
 /**
- * Specify the http verb for the target operation to be `POST`.
+ * Specify the HTTP verb for the target operation to be `POST`.
  *
  * @example
  *
@@ -140,7 +140,7 @@ extern dec put(target: Operation);
 extern dec post(target: Operation);
 
 /**
- * Specify the http verb for the target operation to be `PATCH`.
+ * Specify the HTTP verb for the target operation to be `PATCH`.
  *
  * @example
  *
@@ -151,7 +151,7 @@ extern dec post(target: Operation);
 extern dec patch(target: Operation);
 
 /**
- * Specify the http verb for the target operation to be `DELETE`.
+ * Specify the HTTP verb for the target operation to be `DELETE`.
  *
  * @example
  *
@@ -162,7 +162,7 @@ extern dec patch(target: Operation);
 extern dec delete(target: Operation);
 
 /**
- * Specify the http verb for the target operation to be `HEAD`.
+ * Specify the HTTP verb for the target operation to be `HEAD`.
  * @example
  *
  * ```typespec

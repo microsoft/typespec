@@ -489,6 +489,22 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
+  interfaceDeclarationOperationsContext(iface: Interface): Context {
+    return {};
+  }
+
+  interfaceDeclarationOperationsReferenceContext(iface: Interface): Context {
+    return {};
+  }
+
+  interfaceOperationDeclarationContext(operation: Operation, name: string): Context {
+    return {};
+  }
+
+  interfaceOperationDeclarationReferenceContext(operation: Operation, name: string): Context {
+    return {};
+  }
+
   operationParameters(operation: Operation, parameters: Model): EmitterOutput<T> {
     return this.emitter.result.none();
   }
@@ -538,14 +554,6 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     this.emitter.emitOperationReturnType(operation);
 
     return this.emitter.result.none();
-  }
-
-  interfaceOperationDeclarationContext(operation: Operation, name: string): Context {
-    return {};
-  }
-
-  interfaceOperationDeclarationReferenceContext(operation: Operation, name: string): Context {
-    return {};
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<T> {
@@ -662,7 +670,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
-  sourceFile(sourceFile: SourceFile<T>): EmittedSourceFile {
+  sourceFile(sourceFile: SourceFile<T>): Promise<EmittedSourceFile> | EmittedSourceFile {
     const emittedSourceFile: EmittedSourceFile = {
       path: sourceFile.path,
       contents: "",
@@ -677,7 +685,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
 
   async writeOutput(sourceFiles: SourceFile<T>[]) {
     for (const file of sourceFiles) {
-      const outputFile = this.emitter.emitSourceFile(file);
+      const outputFile = await this.emitter.emitSourceFile(file);
       await emitFile(this.emitter.getProgram(), {
         path: outputFile.path,
         content: outputFile.contents,
@@ -781,14 +789,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
       );
     }
     return builder.reduce();
-  }
-
-  interfaceDeclarationOperationsContext(iface: Interface): Context {
-    return {};
-  }
-
-  interfaceDeclarationOperationsReferenceContext(iface: Interface): Context {
-    return {};
   }
 
   enumMembers(en: Enum): EmitterOutput<string> {

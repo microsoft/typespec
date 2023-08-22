@@ -536,7 +536,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const toEmit: EmittedSourceFile[] = [];
 
     for (const sf of sourceFiles) {
-      const emittedSf = this.emitter.emitSourceFile(sf);
+      const emittedSf = await this.emitter.emitSourceFile(sf);
 
       if (sf.meta.shouldEmit) {
         toEmit.push(emittedSf);
@@ -563,10 +563,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       content = {
         $schema: "https://json-schema.org/draft/2020-12/schema",
         $id: id,
-        $defs: decls.reduce((prev, decl) => {
-          prev[decl.name] = decl.value;
-          return prev;
-        }, {} as Record<string, any>),
+        $defs: decls.reduce(
+          (prev, decl) => {
+            prev[decl.name] = decl.value;
+            return prev;
+          },
+          {} as Record<string, any>
+        ),
       };
     } else {
       if (decls.length > 1) {

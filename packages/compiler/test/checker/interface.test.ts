@@ -1,6 +1,7 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../src/core/types.js";
+import { getDoc } from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -437,5 +438,22 @@ describe("compiler: interfaces", () => {
         message: `Can't pass template arguments to non-templated type`,
       });
     });
+  });
+
+  it("can decorate extended operations independently", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test interface Base {@doc("base doc") one(): void}
+      @test interface Extending extends Base {}
+      @@doc(Extending.one, "override for spread")
+      `
+    );
+    const { Base, Extending } = (await testHost.compile("main.tsp")) as {
+      Base: Interface;
+      Extending: Interface;
+    };
+    strictEqual(getDoc(testHost.program, Extending.operations.get("one")!), "override for spread");
+    strictEqual(getDoc(testHost.program, Base.operations.get("one")!), "base doc");
   });
 });
