@@ -18,6 +18,8 @@ describe("emitting built-in types", () => {
     ["uint32", { type: "integer", minimum: 0, maximum: 4294967295 }],
     ["uint64", { type: "string" }],
     ["safeint", { type: "integer" }],
+    ["decimal", { type: "string" }],
+    ["decimal128", { type: "string" }],
 
     // date types
     ["plainDate", { type: "string", format: "date" }],
