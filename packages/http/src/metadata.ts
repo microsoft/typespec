@@ -176,7 +176,8 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
  * Determines the visibility to use for a request with the given verb.
  *
  * - GET | HEAD => Visibility.Query
- * - POST => Visibility.Update
+ * - POST => Visibility.Create
+ * - PATCH => Visibility.Update
  * - PUT => Visibility.Create | Update
  * - DELETE => Visibility.Delete
  * @param verb The HTTP verb for the operation.
@@ -184,7 +185,13 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
  * @returns The applicable parameter visibility or visibilities for the request.
  */
 export function getRequestVisibility(verb: HttpVerb): Visibility {
-  return getDefaultVisibilityForVerb(verb);
+  let visibility = getDefaultVisibilityForVerb(verb);
+  // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
+  // later processes to properly apply it
+  if (verb === "patch") {
+    visibility |= Visibility.Patch;
+  }
+  return visibility;
 }
 
 /**
