@@ -5,7 +5,7 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
   "rushVersion": "5.100.1",
-  "pnpmVersion": "8.6.2",
+  "pnpmVersion": "8.6.12",
   "ensureConsistentVersions": true,
   /**
    * Options that are only used when the PNPM package manager is selected
