@@ -1,7 +1,7 @@
 import { createDiagnosticCollector, getDirectoryPath, normalizePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, omitUndefined } from "../core/util.js";
+import { deepClone, doIO, omitUndefined } from "../core/util.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import { EmitterOptions, TypeSpecConfig } from "./types.js";
@@ -45,12 +45,21 @@ export async function resolveCompilerOptions(
   const cwd = normalizePath(options.cwd ?? process.cwd());
   const diagnostics = createDiagnosticCollector();
 
-  const entrypointStat = await host.stat(options.entrypoint);
+  const entrypointStat = await doIO(
+    host.stat,
+    options.entrypoint,
+    (diag) => diagnostics.add(diag),
+    { allowFileNotFound: true }
+  );
   const configPath =
-    options.configPath ?? entrypointStat.isDirectory()
-      ? options.entrypoint
-      : getDirectoryPath(options.entrypoint);
-  const config = await loadTypeSpecConfigForPath(host, configPath);
+    options.configPath ??
+    (entrypointStat?.isDirectory() ? options.entrypoint : getDirectoryPath(options.entrypoint));
+  const config = await loadTypeSpecConfigForPath(
+    host,
+    configPath,
+    options.configPath !== undefined,
+    options.configPath === undefined
+  );
   config.diagnostics.forEach((x) => diagnostics.add(x));
 
   const configWithOverrides: TypeSpecConfig = {

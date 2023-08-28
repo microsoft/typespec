@@ -24,6 +24,11 @@ components:
   schemas:
     WithProjectedNames:
       type: object
+      required:
+        - nbf
+        - exp
+        - created
+        - updated
       properties:
         nbf:
           type: integer
@@ -37,8 +42,3 @@ components:
         updated:
           type: integer
           format: int32
-      required:
-        - nbf
-        - exp
-        - created
-        - updated

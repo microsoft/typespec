@@ -187,7 +187,7 @@ model OmitDefaults<T> {
 }
 
 /**
- * Applies a visiblity setting to a collection of properties.
+ * Applies a visibility setting to a collection of properties.
  * @template T An object whose properties are spread.
  * @template Visibility The visibility to apply to all properties.
  */

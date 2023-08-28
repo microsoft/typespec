@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "Upgrade dependency \"plist\" to latest",
+      "type": "patch"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}
