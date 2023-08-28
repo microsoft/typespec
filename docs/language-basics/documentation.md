@@ -7,26 +7,11 @@ title: Documentation
 
 Documentation is crucial to any API. TypeSpec provides a number of ways to document your API using TSDoc doc comments and decorators.
 
-# Comments
-
-TypeSpec supports both single-line and multi-line comments. Single-line comments start with `//` and continue until the end of the line. Multi-line comments start with `/*` and continue until the closing `*/` is encountered.
-
-```typespec
-// This is a single-line comment
-model Dog {
-  /* This is a multi-line comment
-  that spans multiple lines */
-  name: string;
-}
-```
-
-Comments are ignored by the compiler and are not included in the generated output. They are intended to be used to document your spec internally and are not suitable for generating external documentation.
-
 # Documenting APIs
 
 ## `@doc` Decorator
 
-The `@doc` decorator can be used to attach documentation to any TypeSpec declaration. It most-commonly accepts a string argument that will be used as the documentation for the declaration.
+The `@doc` decorator can be used to attach documentation to most TypeSpec declarations. It most-commonly accepts a string argument that will be used as the documentation for the declaration.
 
 ```typespec
 @doc("This is a sample model")
@@ -72,3 +57,18 @@ op @get create(
 ```
 
 The benefit to using TSDoc doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
+
+# Comments
+
+TypeSpec supports both single-line and multi-line comments. Single-line comments start with `//` and continue until the end of the line. Multi-line comments start with `/*` and continue until the closing `*/` is encountered.
+
+```typespec
+// This is a single-line comment
+model Dog {
+  /* This is a multi-line comment
+  that spans multiple lines */
+  name: string;
+}
+```
+
+Comments are ignored by the compiler and are not included in the generated output. They are intended to be used to document your spec internally and are not suitable for generating external documentation.
