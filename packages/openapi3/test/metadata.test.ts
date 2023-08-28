@@ -517,6 +517,7 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
+            description: "The body type of the operation request or response.",
             required: true,
             content: {
               "application/json": {
