@@ -61,6 +61,12 @@ const libDefinition = {
         default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
       },
     },
+    "operation-reference-container-route": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Operation ${"opName"} references an operation which has a @route prefix on its namespace or interface: "${"routePrefix"}".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.`,
+      },
+    },
     "status-code-invalid": {
       severity: "error",
       messages: {
