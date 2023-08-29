@@ -381,6 +381,27 @@ describe("versioning: logic", () => {
       ok(v2.properties.get("b")!.optional === true);
     });
 
+    it("can still change type", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `
+        model Original {}
+
+        @added(Versions.v2)
+        model Updated {}
+
+        model Foo {
+          @typeChangedFrom(Versions.v2, Original)
+          prop: Updated;
+        }
+        `
+      );
+
+      let test = "best";
+    });
+
     it("can change type", async () => {
       const {
         projections: [v1, v2, v3],
