@@ -577,6 +577,30 @@ describe("http: decorators", () => {
       });
     });
 
+    it("emit diagnostic when OAuth2 flow is not a valid model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @useAuth(OAuth2Auth<["foo"]>)
+        namespace Foo {}
+
+        model Flow { noscopes: "boom"; };
+        @useAuth(OAuth2Auth<[Flow]>)
+        namespace Bar {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unassignable",
+          message:
+            "Type 'foo' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+        },
+        {
+          code: "unassignable",
+          message:
+            "Type 'Flow' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+        },
+      ]);
+    });
+
     it("can specify BasicAuth", async () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth)

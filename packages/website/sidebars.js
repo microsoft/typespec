@@ -65,6 +65,7 @@ const sidebars = {
         "language-basics/imports",
         "language-basics/namespaces",
         "language-basics/decorators",
+        "language-basics/documentation",
         "language-basics/scalars",
         "language-basics/models",
         "language-basics/operations",
