@@ -564,8 +564,7 @@ components:
       type: object
       required:
         - field1
-        - >-
-          field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
+        - field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
       properties:
         field1:
           type: number
@@ -573,12 +572,6 @@ components:
         field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose:
           type: number
           format: double
-<<<<<<< HEAD
-      required:
-        - field1
-        - field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
-=======
->>>>>>> c42321c71cca3d33a488a04b0d10d7560e9676cc
     DurationWrapper:
       type: object
       required:
