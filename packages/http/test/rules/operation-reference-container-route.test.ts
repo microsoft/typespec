@@ -14,6 +14,7 @@ describe("operation reference route container rule", () => {
   });
 
   it("emit a diagnostic when referenced op has a route prefix on its parent container", async () => {
+    // cspell:ignore IFoo
     await ruleTester
       .expect(
         `
