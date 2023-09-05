@@ -48,6 +48,7 @@ import {
   InterfaceStatementNode,
   IntersectionExpressionNode,
   IntrinsicScalarName,
+  JsNamespaceDeclarationNode,
   JsSourceFileNode,
   LiteralNode,
   LiteralType,
@@ -632,6 +633,7 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.UnionVariant:
         return checkUnionVariant(node, mapper);
       case SyntaxKind.NamespaceStatement:
+      case SyntaxKind.JsNamespaceDeclaration:
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
         return checkOperation(node, mapper);
@@ -1479,23 +1481,25 @@ export function createChecker(program: Program): Checker {
     return getOrInstantiateTemplate(arrayNode, [param], [elementType], undefined) as Model;
   }
 
-  function checkNamespace(node: NamespaceStatementNode) {
+  function checkNamespace(node: NamespaceStatementNode | JsNamespaceDeclarationNode) {
     const links = getSymbolLinks(getMergedSymbol(node.symbol));
     let type = links.type as Namespace;
     if (!type) {
       type = initializeTypeForNamespace(node);
     }
 
-    if (isArray(node.statements)) {
-      node.statements.forEach((x) => getTypeForNode(x));
-    } else if (node.statements) {
-      const subNs = checkNamespace(node.statements);
-      type.namespaces.set(subNs.name, subNs);
+    if (node.kind === SyntaxKind.NamespaceStatement) {
+      if (isArray(node.statements)) {
+        node.statements.forEach((x) => getTypeForNode(x));
+      } else if (node.statements) {
+        const subNs = checkNamespace(node.statements);
+        type.namespaces.set(subNs.name, subNs);
+      }
     }
     return type;
   }
 
-  function initializeTypeForNamespace(node: NamespaceStatementNode) {
+  function initializeTypeForNamespace(node: NamespaceStatementNode | JsNamespaceDeclarationNode) {
     compilerAssert(node.symbol, "Namespace is unbound.", node);
     const mergedSymbol = getMergedSymbol(node.symbol)!;
     const symbolLinks = getSymbolLinks(mergedSymbol);
@@ -1507,7 +1511,7 @@ export function createChecker(program: Program): Checker {
         kind: "Namespace",
         name,
         namespace,
-        node,
+        node: node,
         models: new Map(),
         scalars: new Map(),
         operations: new Map(),
@@ -1539,6 +1543,7 @@ export function createChecker(program: Program): Checker {
       | ModelStatementNode
       | ScalarStatementNode
       | NamespaceStatementNode
+      | JsNamespaceDeclarationNode
       | OperationStatementNode
       | EnumStatementNode
       | InterfaceStatementNode
@@ -2294,7 +2299,7 @@ export function createChecker(program: Program): Checker {
       default:
         // get the symbol from the node aliased type's node, or just return the base
         // if it doesn't have a symbol (which will likely result in an error later on)
-        return aliasType.node!.symbol ?? aliasSymbol;
+        return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
     }
   }
   function checkStringLiteral(str: StringLiteralNode): StringLiteral {
@@ -3944,7 +3949,6 @@ export function createChecker(program: Program): Checker {
         if (targetBinding.flags & SymbolFlags.Namespace) {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding.declarations).push(...sourceBinding.declarations);
-          mutate(targetBinding.declarations).sort((a, b) => b.kind - a.kind); // Makes sure that Namespace Node are before JsSourceFile declarations.
           mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
         } else {
           // this will set a duplicate error
