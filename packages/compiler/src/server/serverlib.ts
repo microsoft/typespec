@@ -447,7 +447,7 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getConfig(mainFile: string, path: string): Promise<TypeSpecConfig> {
+  async function getConfig(mainFile: string): Promise<TypeSpecConfig> {
     const entrypointStat = await host.compilerHost.stat(mainFile);
 
     const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
