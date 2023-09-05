@@ -47,13 +47,13 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - items
                 properties:
                   items:
                     type: array
                     items:
                       $ref: '#/components/schemas/Person'
-                required:
-                  - items
     patch:
       operationId: Hello_updateRest
       parameters: []
@@ -115,6 +115,12 @@ components:
             $ref: '#/components/schemas/PersonRelative'
     Person:
       type: object
+      required:
+        - id
+        - name
+        - test
+        - other
+        - relatives
       properties:
         id:
           type: string
@@ -129,14 +135,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-      required:
-        - id
-        - name
-        - test
-        - other
-        - relatives
     PersonCreateItem:
       type: object
+      required:
+        - secret
+        - name
+        - test
+        - relatives
       properties:
         secret:
           type: string
@@ -148,13 +153,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateItem'
+    PersonCreateOrUpdateItem:
+      type: object
       required:
         - secret
         - name
         - test
+        - other
         - relatives
-    PersonCreateOrUpdateItem:
-      type: object
       properties:
         secret:
           type: string
@@ -168,52 +174,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
-      required:
-        - secret
-        - name
-        - test
-        - other
-        - relatives
     PersonRelative:
       type: object
+      required:
+        - person
+        - relationship
       properties:
         person:
           $ref: '#/components/schemas/Person'
         relationship:
           type: string
+    PersonRelativeCreateItem:
+      type: object
       required:
         - person
         - relationship
-    PersonRelativeCreateItem:
-      type: object
       properties:
         person:
           $ref: '#/components/schemas/PersonCreateItem'
         relationship:
           type: string
+    PersonRelativeCreateOrUpdateItem:
+      type: object
       required:
         - person
         - relationship
-    PersonRelativeCreateOrUpdateItem:
-      type: object
       properties:
         person:
           $ref: '#/components/schemas/PersonCreateOrUpdateItem'
         relationship:
           type: string
+    PersonRelativeUpdateItem:
+      type: object
       required:
         - person
         - relationship
-    PersonRelativeUpdateItem:
-      type: object
       properties:
         person:
           $ref: '#/components/schemas/PersonUpdateItem'
         relationship:
           type: string
-      required:
-        - person
-        - relationship
     PersonUpdate:
       type: object
       properties:
@@ -227,6 +227,10 @@ components:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
     PersonUpdateItem:
       type: object
+      required:
+        - name
+        - other
+        - relatives
       properties:
         name:
           type: string
@@ -236,12 +240,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeUpdateItem'
-      required:
-        - name
-        - other
-        - relatives
     ReadablePerson:
       type: object
+      required:
+        - id
+        - name
+        - test
+        - other
+        - relatives
       properties:
         id:
           type: string
@@ -256,14 +262,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelative'
-      required:
-        - id
-        - name
-        - test
-        - other
-        - relatives
     WritablePerson:
       type: object
+      required:
+        - secret
+        - name
+        - test
+        - relatives
       properties:
         secret:
           type: string
@@ -275,11 +280,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateItem'
-      required:
-        - secret
-        - name
-        - test
-        - relatives
     WriteableOptionalPerson:
       type: object
       properties:

@@ -489,15 +489,19 @@ components:
   schemas:
     ArrayWrapper:
       type: object
+      required:
+        - field
       properties:
         field:
           type: array
           items:
             type: string
-      required:
-        - field
     Basic:
       type: object
+      required:
+        - id
+        - name
+        - color
       properties:
         id:
           type: integer
@@ -510,28 +514,24 @@ components:
             single line and a line break.
         color:
           $ref: '#/components/schemas/CMYKColors'
-      required:
-        - id
-        - name
-        - color
     BooleanWrapper:
       type: object
+      required:
+        - field_true
+        - field_false
       properties:
         field_true:
           type: boolean
         field_false:
           type: boolean
-      required:
-        - field_true
-        - field_false
     BytesWrapper:
       type: object
+      required:
+        - field
       properties:
         field:
           type: string
           format: byte
-      required:
-        - field
     CMYKColors:
       type: string
       enum:
@@ -541,6 +541,9 @@ components:
         - blacK
     DateTimeWrapper:
       type: object
+      required:
+        - field
+        - now
       properties:
         field:
           type: string
@@ -548,20 +551,21 @@ components:
         now:
           type: string
           format: date-time
-      required:
-        - field
-        - now
     DictionaryWrapper:
       type: object
+      required:
+        - field
       properties:
         field:
           type: object
           additionalProperties:
             type: string
-      required:
-        - field
     DoubleWrapper:
       type: object
+      required:
+        - field1
+        - >-
+          field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
       properties:
         field1:
           type: number
@@ -569,27 +573,33 @@ components:
         field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose:
           type: number
           format: double
+<<<<<<< HEAD
       required:
         - field1
         - field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose
+=======
+>>>>>>> c42321c71cca3d33a488a04b0d10d7560e9676cc
     DurationWrapper:
       type: object
+      required:
+        - field
       properties:
         field:
           type: string
           format: duration
-      required:
-        - field
     Error:
       type: object
-      properties:
-        message:
-          type: string
       description: Error
       required:
         - message
+      properties:
+        message:
+          type: string
     FloatWrapper:
       type: object
+      required:
+        - field1
+        - field2
       properties:
         field1:
           type: number
@@ -597,11 +607,11 @@ components:
         field2:
           type: number
           format: float
-      required:
-        - field1
-        - field2
     IntWrapper:
       type: object
+      required:
+        - field1
+        - field2
       properties:
         field1:
           type: integer
@@ -609,11 +619,11 @@ components:
         field2:
           type: integer
           format: int32
-      required:
-        - field1
-        - field2
     LongWrapper:
       type: object
+      required:
+        - field1
+        - field2
       properties:
         field1:
           type: integer
@@ -621,22 +631,22 @@ components:
         field2:
           type: integer
           format: int64
-      required:
-        - field1
-        - field2
     Pet:
       type: object
+      required:
+        - id
+        - name
       properties:
         id:
           type: integer
           format: int32
         name:
           type: string
-      required:
-        - id
-        - name
     PlainDateWrapper:
       type: object
+      required:
+        - field
+        - leap
       properties:
         field:
           type: string
@@ -644,11 +654,11 @@ components:
         leap:
           type: string
           format: date
-      required:
-        - field
-        - leap
     ReadonlyObj:
       type: object
+      required:
+        - id
+        - size
       properties:
         id:
           type: integer
@@ -658,11 +668,12 @@ components:
           type: integer
           format: int32
           readOnly: true
-      required:
-        - id
-        - size
     StringWrapper:
       type: object
+      required:
+        - field
+        - empty
+        - 'null'
       properties:
         field:
           type: string
@@ -671,7 +682,3 @@ components:
         'null':
           type: string
           nullable: true
-      required:
-        - field
-        - empty
-        - 'null'

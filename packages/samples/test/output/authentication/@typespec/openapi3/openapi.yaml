@@ -26,6 +26,11 @@ components:
   schemas:
     MyFlow:
       type: object
+      required:
+        - type
+        - authorizationUrl
+        - refreshUrl
+        - scopes
       properties:
         type:
           type: string
@@ -42,11 +47,6 @@ components:
         scopes:
           type: array
           items: {}
-      required:
-        - type
-        - authorizationUrl
-        - refreshUrl
-        - scopes
   securitySchemes:
     BearerAuth:
       type: http

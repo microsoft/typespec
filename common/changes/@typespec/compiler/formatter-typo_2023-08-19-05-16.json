@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix typo in 'format' error message",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

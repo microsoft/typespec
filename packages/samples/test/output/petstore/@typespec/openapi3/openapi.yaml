@@ -132,18 +132,21 @@ components:
   schemas:
     Error:
       type: object
+      description: Error
+      required:
+        - code
+        - message
       properties:
         code:
           type: integer
           format: int32
         message:
           type: string
-      description: Error
-      required:
-        - code
-        - message
     Pet:
       type: object
+      required:
+        - name
+        - age
       properties:
         name:
           type: string
@@ -154,11 +157,10 @@ components:
           format: int32
           minimum: 0
           maximum: 20
-      required:
-        - name
-        - age
     PetListResults:
       type: object
+      required:
+        - items
       properties:
         items:
           type: array
@@ -166,10 +168,12 @@ components:
             $ref: '#/components/schemas/Pet'
         nextLink:
           type: string
-      required:
-        - items
     Toy:
       type: object
+      required:
+        - id
+        - petId
+        - name
       properties:
         id:
           type: integer
@@ -179,12 +183,10 @@ components:
           format: int64
         name:
           type: string
-      required:
-        - id
-        - petId
-        - name
     ToyListResults:
       type: object
+      required:
+        - items
       properties:
         items:
           type: array
@@ -192,5 +194,3 @@ components:
             $ref: '#/components/schemas/Toy'
         nextLink:
           type: string
-      required:
-        - items

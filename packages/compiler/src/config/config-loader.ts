@@ -24,7 +24,8 @@ export const defaultConfig = deepFreeze({
  */
 export async function findTypeSpecConfigPath(
   host: CompilerHost,
-  path: string
+  path: string,
+  lookup: boolean = true
 ): Promise<string | undefined> {
   // if the path is a file, return immediately
   const stats = await doIO(
@@ -39,20 +40,37 @@ export async function findTypeSpecConfigPath(
     return path;
   }
   let current = path;
-  while (true) {
-    let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
-    if (pkgPath === undefined) {
-      pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+
+  // only recurse if the path is a directory and the flag was set to true (only for default case)
+  // otherwise, look in the specific directory for tspconfig.yaml ONLY (not cadl-project.yaml)
+  if (!lookup) {
+    current = `${path}/tspconfig.yaml`;
+    const stats = await doIO(
+      () => host.stat(current),
+      current,
+      () => {},
+      { allowFileNotFound: true }
+    );
+    if (stats?.isFile()) {
+      return current;
     }
-    // if found either file in current folder, return it
-    if (pkgPath !== undefined) {
-      return pkgPath;
+    return undefined;
+  } else {
+    while (true) {
+      let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
+      if (pkgPath === undefined) {
+        pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+      }
+      // if found either file in current folder, return it
+      if (pkgPath !== undefined) {
+        return pkgPath;
+      }
+      const parent = getDirectoryPath(current);
+      if (parent === current) {
+        return undefined;
+      }
+      current = parent;
     }
-    const parent = getDirectoryPath(current);
-    if (parent === current) {
-      return undefined;
-    }
-    current = parent;
   }
 }
 
@@ -64,9 +82,10 @@ export async function findTypeSpecConfigPath(
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
   path: string,
-  errorIfNotFound: boolean = false
+  errorIfNotFound: boolean = false,
+  lookup: boolean = true
 ): Promise<TypeSpecConfig> {
-  const typespecConfigPath = await findTypeSpecConfigPath(host, path);
+  const typespecConfigPath = await findTypeSpecConfigPath(host, path, lookup);
   if (typespecConfigPath === undefined) {
     const projectRoot = getDirectoryPath(path);
     const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };
@@ -83,6 +102,7 @@ export async function loadTypeSpecConfigForPath(
     }
     return tsConfig;
   }
+
   const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
   // Add diagnostics if still using cadl-project.yaml
   if (typespecConfigPath.endsWith(OldTypeSpecConfigFilename)) {

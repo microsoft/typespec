@@ -102,27 +102,27 @@ components:
   schemas:
     AccountProfile:
       type: object
+      required:
+        - value
       properties:
         value:
           type: integer
           format: int32
-      required:
-        - value
     CodeSignAccount:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
-      required:
-        - name
     ErrorDetails:
       type: object
+      required:
+        - code
+        - message
       properties:
         code:
           type: integer
           format: int32
         message:
           type: string
-      required:
-        - code
-        - message

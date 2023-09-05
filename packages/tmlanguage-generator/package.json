@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "onigasm": "~2.2.5",
-    "plist": "~3.0.2"
+    "plist": "~3.1.0"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",

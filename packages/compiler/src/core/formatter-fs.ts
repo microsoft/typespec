@@ -26,7 +26,7 @@ export async function formatTypeSpecFiles(
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
         // eslint-disable-next-line no-console
-        console.error(`File '${file}' failed to fromat. ${details}`);
+        console.error(`File '${file}' failed to format. ${details}`);
       } else {
         throw e;
       }
@@ -53,7 +53,7 @@ export async function findUnformattedTypeSpecFiles(
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
         // eslint-disable-next-line no-console
-        console.error(`File '${file}' failed to fromat. ${details}`);
+        console.error(`File '${file}' failed to format. ${details}`);
         unformatted.push(file);
       } else {
         throw e;

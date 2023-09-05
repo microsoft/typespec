@@ -73,11 +73,11 @@ describe("emitting models", () => {
     const { "Foo.json": Foo } = await emitSchema(`
       @doc("a")
       @summary("a")
-      @deprecated("bad api")
+      #deprecated "bad api"
       model Foo {
         @doc("b")
         @summary("b")
-        @deprecated("bad api")
+        #deprecated "bad api"
         b: string;
       }
     `);

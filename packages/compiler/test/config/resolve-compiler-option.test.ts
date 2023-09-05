@@ -37,8 +37,7 @@ describe("compiler: resolve compiler options", () => {
     it("emit diagnostics", async () => {
       const [_, diagnostics] = await resolveOptions("not-found.yaml");
       expectDiagnostics(diagnostics, {
-        code: "file-not-found",
-        message: `File ${resolvePath(scenarioRoot, "not-found.yaml")} not found.`,
+        code: "config-path-not-found",
       });
     });
   });

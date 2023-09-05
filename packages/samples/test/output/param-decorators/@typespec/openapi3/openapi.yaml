@@ -61,12 +61,12 @@ components:
   schemas:
     Thing:
       type: object
+      required:
+        - name
+        - id
       properties:
         name:
           type: string
         id:
           type: string
           format: UUID
-      required:
-        - name
-        - id

@@ -1693,6 +1693,9 @@ interface LibraryMetadataBase {
   /** Library homepage. */
   homepage?: string;
 
+  /** Library version */
+  version?: string;
+
   bugs?: {
     /** Url where to file bugs for this library. */
     url?: string;

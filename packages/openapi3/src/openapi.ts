@@ -38,13 +38,12 @@ import {
   isNeverType,
   isNullType,
   isNumericType,
+  isRecordModelType,
   isSecret,
   isStringType,
   isTemplateDeclaration,
-  isTemplateDeclarationOrInstance,
   listServices,
   Model,
-  ModelIndexer,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
@@ -681,7 +680,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.description = shared.description;
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.getRequestVisibility(verb);
+    // Error out if shared routes do not have consistent `@parameterVisibility`. We can
+    // lift this restriction in the future if a use case develops.
+    const visibilities = shared.operations.map((op) => {
+      return http.resolveRequestVisibility(program, op, verb);
+    });
+    if (visibilities.some((v) => v !== visibilities[0])) {
+      reportDiagnostic(program, {
+        code: "inconsistent-shared-route-request-visibility",
+        target: ops[0],
+      });
+    }
+    const visibility = http.resolveRequestVisibility(program, shared.operations[0], verb);
     emitEndpointParameters(shared.parameters.parameters, visibility);
     if (shared.bodies) {
       if (shared.bodies.length === 1) {
@@ -729,7 +739,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.getRequestVisibility(verb);
+    const visibility = http.resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
@@ -1538,16 +1548,20 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getSchemaForModel(model: Model, visibility: Visibility) {
-    const arrayOrRecord = mapTypeSpecIntrinsicModelToOpenAPI(model, visibility);
-    if (arrayOrRecord) {
-      return applyIntrinsicDecorators(model, arrayOrRecord);
+    const array = getArrayType(model, visibility);
+    if (array) {
+      return array;
     }
 
-    let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
+    const modelSchema: OpenAPI3Schema = {
       type: "object",
-      properties: {},
       description: getDoc(program, model),
     };
+    const properties: OpenAPI3Schema["properties"] = {};
+
+    if (isRecordModelType(program, model)) {
+      modelSchema.additionalProperties = getSchemaOrRef(model.indexer.value, visibility);
+    }
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
@@ -1565,7 +1579,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
 
       modelSchema.discriminator = openApiDiscriminator;
-      modelSchema.properties[discriminator.propertyName] = {
+      properties[discriminator.propertyName] = {
         type: "string",
         description: `Discriminator property for ${model.name}.`,
       };
@@ -1590,35 +1604,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         modelSchema.required.push(name);
       }
 
-      modelSchema.properties[name] = resolveProperty(prop, visibility);
+      properties[name] = resolveProperty(prop, visibility);
     }
 
-    // Special case: if a model type extends a single *templated* base type and
-    // has no properties of its own, absorb the definition of the base model
-    // into this schema definition.  The assumption here is that any model type
-    // defined like this is just meant to rename the underlying instance of a
-    // templated type.
-    if (
-      model.baseModel &&
-      isTemplateDeclarationOrInstance(model.baseModel) &&
-      Object.keys(modelSchema.properties).length === 0
-    ) {
-      // Take the base model schema but carry across the documentation property
-      // that we set before
-      const baseSchema = getSchemaForType(model.baseModel, visibility);
-      modelSchema = {
-        ...(baseSchema as any),
-        description: modelSchema.description,
-      };
-    } else if (model.baseModel) {
+    if (model.baseModel) {
       const baseSchema = getSchemaOrRef(model.baseModel, visibility);
       modelSchema.allOf = [baseSchema];
-      modelSchema.additionalProperties = baseSchema.additionalProperties;
-      if (modelSchema.additionalProperties) {
-        validateAdditionalProperties(model);
-      }
     }
 
+    if (Object.keys(properties).length > 0) {
+      modelSchema.properties = properties;
+    }
     // Attach any OpenAPI extensions
     attachExtensions(program, model, modelSchema);
     return modelSchema;
@@ -1834,74 +1830,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getIndexer(model: Model): ModelIndexer | undefined {
-    const indexer = model.indexer;
-    if (indexer) {
-      return indexer;
-    } else if (model.baseModel) {
-      return getIndexer(model.baseModel);
-    }
-    return undefined;
-  }
-
-  function validateAdditionalProperties(model: Model) {
-    const propType = getIndexer(model)?.value;
-    if (!propType) {
-      return;
-    }
-    for (const [_, prop] of model.properties) {
-      // ensure that the record type is compatible with any listed properties
-      const [_, diagnostics] = program.checker.isTypeAssignableTo(prop.type, propType, prop);
-      for (const diag of diagnostics) {
-        program.reportDiagnostic(diag);
-      }
-    }
-  }
-
-  /**
-   * Returns appropriate additional properties for Record types.
-   */
-  function processAdditionalProperties(model: Model, visibility: Visibility): object | undefined {
-    const propType = getIndexer(model)?.value;
-    if (!propType) {
-      return undefined;
-    }
-    switch (propType.kind) {
-      case "Intrinsic":
-        if (propType.name === "unknown") {
-          return {};
-        }
-        break;
-      case "Scalar":
-      case "Model":
-        return getSchemaOrRef(propType, visibility);
-    }
-    return undefined;
-  }
-
   /**
    * Map TypeSpec intrinsic models to open api definitions
    */
-  function mapTypeSpecIntrinsicModelToOpenAPI(
-    typespecType: Model,
-    visibility: Visibility
-  ): OpenAPI3Schema | undefined {
-    if (typespecType.indexer) {
-      if (isNeverType(typespecType.indexer.key)) {
-      } else {
-        const name = typespecType.indexer.key.name;
-        if (name === "string") {
-          return {
-            type: "object",
-            additionalProperties: processAdditionalProperties(typespecType, visibility),
-          };
-        } else if (name === "integer") {
-          return {
-            type: "array",
-            items: getSchemaOrRef(typespecType.indexer.value!, visibility | Visibility.Item),
-          };
-        }
-      }
+  function getArrayType(typespecType: Model, visibility: Visibility): OpenAPI3Schema | undefined {
+    if (isArrayModelType(program, typespecType)) {
+      const array: OpenAPI3Schema = {
+        type: "array",
+        items: getSchemaOrRef(typespecType.indexer.value!, visibility | Visibility.Item),
+      };
+      return applyIntrinsicDecorators(typespecType, array);
     }
     return undefined;
   }

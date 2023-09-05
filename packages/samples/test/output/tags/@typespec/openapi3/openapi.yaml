@@ -102,8 +102,8 @@ components:
   schemas:
     Resp:
       type: object
+      required:
+        - out
       properties:
         out:
           type: string
-      required:
-        - out

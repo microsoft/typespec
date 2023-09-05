@@ -10,7 +10,7 @@ export async function printInfoAction(host: CompilerHost): Promise<readonly Diag
   const cwd = process.cwd();
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
-  const config = await loadTypeSpecConfigForPath(host, cwd);
+  const config = await loadTypeSpecConfigForPath(host, cwd, true, true);
   const { diagnostics, filename, ...restOfConfig } = config;
 
   console.log(`User Config: ${config.filename ?? "No config file found"}`);

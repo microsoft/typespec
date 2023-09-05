@@ -394,4 +394,37 @@ describe("openapi3: shared routes", () => {
       },
     });
   });
+
+  it("should warn if shared routes differ by `@parameterVisibility`", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+        model Resource {
+          @visibility("read")
+          @key
+          id: string;
+
+          @visibility("create", "update")
+          name: string;
+        }
+
+        @sharedRoute
+        @route("/foo")
+        @parameterVisibility("read")
+        op op1Foo(...Resource): Resource[];
+
+        @sharedRoute
+        @route("/foo")
+        @parameterVisibility("create")
+        op op2Foo(...Resource): Resource[];
+      }
+      `
+    );
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/inconsistent-shared-route-request-visibility",
+      },
+    ]);
+  });
 });

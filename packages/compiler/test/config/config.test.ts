@@ -15,18 +15,24 @@ const scenarioRoot = resolvePath(
 
 describe("compiler: config file loading", () => {
   describe("file discovery", () => {
-    const loadTestConfig = async (path: string, errorIfNotFound: boolean = true) => {
+    const loadTestConfig = async (
+      path: string,
+      lookup: boolean = true,
+      errorIfNotFound: boolean = true
+    ) => {
       const fullPath = join(scenarioRoot, path);
       const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
-        errorIfNotFound
+        errorIfNotFound,
+        lookup
       );
       return config;
     };
 
     it("loads full path to custom config file", async () => {
-      const config = await loadTestConfig("custom/myConfig.yaml");
+      const lookup = false;
+      const config = await loadTestConfig("custom/myConfig.yaml", lookup, true);
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/tsp-output",
@@ -34,8 +40,35 @@ describe("compiler: config file loading", () => {
       });
     });
 
+    it("loads 'tspconfig.yaml' if --config {folder} is supplied and tspconfig.yaml is present", async () => {
+      const lookup = false;
+      const config = await loadTestConfig("custom", lookup, true);
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        emit: ["openapi"],
+      });
+    });
+
+    it("emits diagnostic if --config {folder} is provided but 'tspconfig.yaml' is not found", async () => {
+      const lookup = false;
+      const config = await loadTestConfig("custom/otherfolder", lookup, true);
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-path-not-found");
+      strictEqual(config.diagnostics[0].severity, "error");
+    });
+
     it("emits diagnostic for bad custom config file path", async () => {
-      const config = await loadTestConfig("custom/myConfigY.yaml");
+      const lookup = true;
+      const config = await loadTestConfig("custom/myConfigY.yaml", lookup, true);
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-path-not-found");
+      strictEqual(config.diagnostics[0].severity, "error");
+    });
+
+    it("emits diagnostic for invalid path", async () => {
+      const lookup = false;
+      const config = await loadTestConfig("invalid", lookup, true);
       strictEqual(config.diagnostics.length, 1);
       strictEqual(config.diagnostics[0].code, "config-path-not-found");
       strictEqual(config.diagnostics[0].severity, "error");
@@ -87,7 +120,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("loads empty config if it can't find any config files", async () => {
-      const config = await loadTestConfig("empty", false);
+      const config = await loadTestConfig("empty", false, false);
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/tsp-output",
@@ -95,8 +128,8 @@ describe("compiler: config file loading", () => {
     });
 
     it("deep clones defaults when not found", async () => {
-      let config = await loadTestConfig("empty", false);
-      config = await loadTestConfig("empty", false);
+      let config = await loadTestConfig("empty", false, false);
+      config = await loadTestConfig("empty", false, false);
       deepStrictEqual(config, {
         diagnostics: [],
         outputDir: "{cwd}/tsp-output",
@@ -104,7 +137,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("deep clones defaults when found", async () => {
-      let config = await loadTestConfig("simple");
+      let config = await loadTestConfig("simple", false, false);
 
       config = await loadTestConfig("simple");
       deepStrictEqual(config, {
