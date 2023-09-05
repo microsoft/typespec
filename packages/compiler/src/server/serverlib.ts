@@ -451,7 +451,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getConfig(mainFile: string, path: string): Promise<TypeSpecConfig> {
-    const configPath = await findTypeSpecConfigPath(compilerHost, mainFile);
+    const configPath = await findTypeSpecConfigPath(compilerHost, mainFile, true);
     if (!configPath) {
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
@@ -580,7 +580,7 @@ export function createServer(host: ServerHost): Server {
     for (const each of program.diagnostics) {
       let document: TextDocument | undefined;
 
-      const location = getSourceLocation(each.target);
+      const location = getSourceLocation(each.target, { locateId: true });
       if (location?.file) {
         document = (location.file as ServerSourceFile).document;
       } else {

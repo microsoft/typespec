@@ -402,7 +402,7 @@ op create(): {@statusCode: 201 | 202}
 
 ### `@useAuth` {#@TypeSpec.Http.useAuth}
 
-Specify this service authentication. See the [documentation in the Http library][https://microsoft.github.io/typespec/standard-library/rest/authentication] for full details.
+Specify this service authentication. See the [documentation in the Http library](https://microsoft.github.io/typespec/standard-library/http/authentication) for full details.
 
 ```typespec
 @TypeSpec.Http.useAuth(auth: {} | Union | {}[])

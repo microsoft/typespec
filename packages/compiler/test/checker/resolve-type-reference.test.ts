@@ -41,7 +41,9 @@ describe("compiler: resolveTypeReference", () => {
 
   it("resolve a deprecated type", async () => {
     const { target } = await runner.compile(`
-    @test("target") @deprecated("Test deprecated item") model MyModel {}
+    #deprecated "Test deprecated item"
+    @test("target") 
+    model MyModel {}
   `);
     if (target === undefined) {
       throw new Error(`Must have @test("target") on type that should be referenced`);

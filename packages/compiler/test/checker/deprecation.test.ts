@@ -1,3 +1,4 @@
+import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -325,13 +326,25 @@ describe("compiler: checker: deprecation", () => {
   });
 
   describe("@deprecated decorator", () => {
+    function omitDeprecatedDecoratorDeprecatedDiag(
+      diagnostics: readonly Diagnostic[]
+    ): readonly Diagnostic[] {
+      return diagnostics.filter(
+        (x) =>
+          !(
+            x.code === "deprecated" &&
+            x.message ===
+              "Deprecated: @deprecated decorator is deprecated. Use the `#deprecated` directive instead."
+          )
+      );
+    }
     it("doesn't emit warning until it is used", async () => {
       const diagnostics = await runner.diagnose(`
         @deprecated("Foo is deprecated use Bar")
         model Foo { }
         model Test  { }
       `);
-      expectDiagnosticEmpty(diagnostics);
+      expectDiagnosticEmpty(omitDeprecatedDecoratorDeprecatedDiag(diagnostics));
     });
 
     it("emit warning diagnostic when used via is", async () => {
@@ -341,7 +354,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test is Foo { }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
@@ -355,7 +368,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test extends Foo { }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
@@ -369,7 +382,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test { foo: Foo }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
@@ -383,7 +396,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test { ...Foo }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
