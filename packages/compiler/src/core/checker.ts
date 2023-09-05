@@ -3944,6 +3944,7 @@ export function createChecker(program: Program): Checker {
         if (targetBinding.flags & SymbolFlags.Namespace) {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+          mutate(targetBinding.declarations).sort((a, b) => b.kind - a.kind); // Makes sure that Namespace Node are before JsSourceFile declarations.
           mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
         } else {
           // this will set a duplicate error
