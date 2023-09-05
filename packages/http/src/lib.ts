@@ -1,6 +1,7 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
+import { operationReferenceContainerRouteRule } from "./rules/operation-reference-container-route.js";
 
-const libDefinition = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
   diagnostics: {
     "http-verb-duplicate": {
@@ -59,12 +60,6 @@ const libDefinition = {
       severity: "error",
       messages: {
         default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
-      },
-    },
-    "operation-reference-container-route": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Operation ${"opName"} references an operation which has a @route prefix on its namespace or interface: "${"routePrefix"}".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.`,
       },
     },
     "status-code-invalid": {
@@ -131,9 +126,16 @@ const libDefinition = {
       },
     },
   },
-} as const;
+  linter: {
+    rules: [operationReferenceContainerRouteRule],
+    ruleSets: {
+      all: {
+        enable: {
+          [`@typespec/http/${operationReferenceContainerRouteRule.name}`]: true,
+        },
+      },
+    },
+  },
+});
 
-const httpLib = createTypeSpecLibrary(libDefinition);
-const { reportDiagnostic, createDiagnostic, createStateSymbol } = httpLib;
-
-export { createDiagnostic, createStateSymbol, httpLib, reportDiagnostic };
+export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;

@@ -1,3 +1,5 @@
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
+
 import {
   createDiagnosticCollector,
   DecoratorContext,
@@ -25,7 +27,6 @@ import {
   RouteProducerResult,
   setRouteProducer,
 } from "@typespec/http";
-import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
 // ----------------- @autoRoute -----------------
