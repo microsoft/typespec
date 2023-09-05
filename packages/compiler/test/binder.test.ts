@@ -390,11 +390,11 @@ describe("compiler: binder", () => {
     assertBindings("jsFile", sourceFile.symbol.exports!, {
       Foo: {
         flags: SymbolFlags.Namespace,
-        declarations: [SyntaxKind.JsSourceFile],
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
         exports: {
           Bar: {
             flags: SymbolFlags.Namespace,
-            declarations: [SyntaxKind.JsSourceFile],
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
             exports: {
               "@myDec2": {
                 flags: SymbolFlags.Decorator | SymbolFlags.Implementation,

@@ -1607,7 +1607,8 @@ export function createChecker(program: Program): Checker {
       // refers to a model in another namespace. In this case, we need to evaluate
       // the namespace here.
       const namespaceNode = mergedSymbol.declarations.find(
-        (x): x is NamespaceStatementNode => x.kind === SyntaxKind.NamespaceStatement
+        (x): x is NamespaceStatementNode =>
+          x.kind === SyntaxKind.NamespaceStatement || x.kind === SyntaxKind.JsNamespaceDeclaration
       );
       compilerAssert(namespaceNode, "Can't find namespace declaration node.", node);
       symbolLinks.type = initializeTypeForNamespace(namespaceNode);
