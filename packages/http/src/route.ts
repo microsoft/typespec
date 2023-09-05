@@ -1,6 +1,5 @@
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 
-import { HttpStateKeys } from "./state.js";
 import {
   createDiagnosticCollector,
   DecoratorContext,
@@ -13,6 +12,7 @@ import {
   validateDecoratorTarget,
 } from "@typespec/compiler";
 import { getOperationParameters } from "./parameters.js";
+import { HttpStateKeys } from "./state.js";
 import {
   HttpOperation,
   HttpOperationParameters,

@@ -1,6 +1,5 @@
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 
-import { HttpStateKeys } from "./state.js";
 import {
   DecoratorContext,
   Diagnostic,
@@ -24,6 +23,7 @@ import {
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { setRoute, setSharedRoute } from "./route.js";
+import { HttpStateKeys } from "./state.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
