@@ -624,7 +624,7 @@ describe("openapi3: return types", () => {
           content: {
             "application/json": {
               schema: {
-                oneOf: [
+                anyOf: [
                   {
                     $ref: "#/components/schemas/A",
                   },
@@ -653,7 +653,7 @@ describe("openapi3: return types", () => {
           content: {
             "application/json": {
               schema: {
-                oneOf: [
+                anyOf: [
                   {
                     $ref: "#/components/schemas/A",
                   },
@@ -692,7 +692,7 @@ describe("openapi3: return types", () => {
           content: {
             "application/json": {
               schema: {
-                oneOf: [
+                anyOf: [
                   {
                     $ref: "#/components/schemas/A",
                   },

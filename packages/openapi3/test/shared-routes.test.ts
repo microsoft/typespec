@@ -209,7 +209,7 @@ describe("openapi3: shared routes", () => {
         content: {
           "application/json": {
             schema: {
-              oneOf: [
+              anyOf: [
                 {
                   type: "integer",
                   format: "int32",
@@ -255,7 +255,7 @@ describe("openapi3: shared routes", () => {
       content: {
         "application/json": {
           schema: {
-            oneOf: [
+            anyOf: [
               {
                 type: "integer",
                 format: "int32",
@@ -273,7 +273,7 @@ describe("openapi3: shared routes", () => {
       content: {
         "application/json": {
           schema: {
-            oneOf: [
+            anyOf: [
               {
                 type: "integer",
                 format: "int32",
@@ -315,7 +315,7 @@ describe("openapi3: shared routes", () => {
       content: {
         "application/json": {
           schema: {
-            oneOf: [
+            anyOf: [
               {
                 properties: {
                   a: { $ref: "#/components/schemas/A" },
@@ -358,7 +358,7 @@ describe("openapi3: shared routes", () => {
       content: {
         "application/json": {
           schema: {
-            oneOf: [
+            anyOf: [
               {
                 type: "integer",
                 format: "int32",
@@ -377,7 +377,7 @@ describe("openapi3: shared routes", () => {
         content: {
           "application/json": {
             schema: {
-              oneOf: [
+              anyOf: [
                 {
                   type: "integer",
                   format: "int32",
