@@ -1188,6 +1188,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         ...finishNode(pos),
       };
     }
+
+    parseExpected(Token.Semicolon);
+
     return {
       kind: SyntaxKind.AugmentDecoratorStatement,
       target,
@@ -3145,6 +3148,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ExternKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
+    case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.DocText:
       return;
 
