@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/openapi3",
-      "comment": "Fix: `exclusiveMinimum` and `exclusiveMaxiumum` properties are booleans in openapi3",
+      "comment": "Fix: `exclusiveMinimum` and `exclusiveMaximum` properties are booleans in openapi3",
       "type": "none"
     }
   ],
