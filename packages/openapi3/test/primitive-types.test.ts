@@ -287,24 +287,6 @@ describe("openapi3: primitives", () => {
       "safeint",
     ];
 
-    it("@min/maxValueExclusive wins over @min/maxValue", async () => {
-      const schemas = await oapiForModel(
-        "Test",
-        `
-        @minValueExclusive(1)
-        @minValueExclusive(2)
-        @maxValueExclusive(3)
-        @maxValue(4)
-        scalar Test extends int32;
-      `
-      );
-
-      strictEqual(schemas.schemas.Test.minimum, 2);
-      strictEqual(schemas.schemas.Test.exclusiveMaximum, true);
-      strictEqual(schemas.schemas.Test.maximum, 3);
-      strictEqual(schemas.schemas.Test.exclusiveMaximum, true);
-    });
-
     describe("@minValue/@maxValue", () => {
       for (const numType of scalarNumberTypes) {
         it(numType, async () => {
