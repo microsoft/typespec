@@ -3111,12 +3111,12 @@ export function createChecker(program: Program): Checker {
       );
       type.type = errorType;
     } else {
-      if (links) {
-        linkType(links, type, mapper);
-      }
       pendingResolutions.start(symId, ResolutionKind.Type);
       type.type = getTypeForNode(prop.value, mapper);
       type.default = prop.default && checkDefault(prop.default, type.type);
+      if (links) {
+        linkType(links, type, mapper);
+      }
     }
 
     type.decorators = checkDecorators(type, prop, mapper);
