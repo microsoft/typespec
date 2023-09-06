@@ -45,7 +45,7 @@
   "dependencies": {
     "@typespec/versioning": "workspace:~0.47.0",
     "@typespec/best-practices": "workspace:~0.45.0",
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/http": "workspace:~0.47.0",
     "@typespec/rest": "workspace:~0.47.0",
     "@typespec/openapi": "workspace:~0.47.0",

@@ -390,7 +390,7 @@ export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: Namespace;
-  node: NamespaceStatementNode;
+  node: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
   /**
    * The models in the namespace.
@@ -783,6 +783,7 @@ export enum SyntaxKind {
   ProjectionStatement,
   ProjectionDecoratorReferenceExpression,
   Return,
+  JsNamespaceDeclaration,
 }
 
 export const enum NodeFlags {
@@ -838,6 +839,7 @@ export interface TemplateDeclarationNode {
 export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
+  | JsNamespaceDeclarationNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -1616,6 +1618,10 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly namespaceSymbols: Sym[];
 }
 
+export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {
+  readonly kind: SyntaxKind.JsNamespaceDeclaration;
+}
+
 export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
 
 export interface SourceFile {
@@ -1691,6 +1697,9 @@ export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
 interface LibraryMetadataBase {
   /** Library homepage. */
   homepage?: string;
+
+  /** Library version */
+  version?: string;
 
   bugs?: {
     /** Url where to file bugs for this library. */

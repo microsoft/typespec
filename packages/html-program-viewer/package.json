@@ -51,7 +51,7 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.47.0"
+    "@typespec/compiler": "workspace:~0.47.1"
   },
   "dependencies": {
     "prettier": "~3.0.1",
@@ -65,7 +65,7 @@
     "@types/node": "~18.11.9",
     "@types/react": "~18.2.9",
     "@types/react-dom": "~18.2.4",
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/eslint-config-typespec": "workspace:~0.47.0",
     "@babel/core": "^7.0.0",
     "eslint": "^8.42.0",

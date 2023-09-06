@@ -164,7 +164,7 @@ describe("compiler: enums", () => {
       @test enum Base {@doc("base doc") one}
       @test enum Spread {...Base}
 
-      @@doc(Spread.one, "override for spread")
+      @@doc(Spread.one, "override for spread");
       `
     );
     const { Base, Spread } = (await testHost.compile("main.tsp")) as {

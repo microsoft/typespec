@@ -551,12 +551,19 @@ function extractHttpAuthentication(
 }
 
 function extractOAuth2Auth(data: any): HttpAuth {
+  // Validation of OAuth2Flow models in this function is minimal because the
+  // type system already validates whether the model represents a flow
+  // configuration.  This code merely avoids runtime errors.
+  const flows =
+    Array.isArray(data.flows) && data.flows.every((x: any) => typeof x === "object")
+      ? data.flows
+      : [];
   return {
     ...data,
-    flows: data.flows.map((flow: any) => {
+    flows: flows.map((flow: any) => {
       return {
         ...flow,
-        scopes: flow.scopes.map((x: string) => ({ value: x })),
+        scopes: (flow.scopes || []).map((x: string) => ({ value: x })),
       };
     }),
   };

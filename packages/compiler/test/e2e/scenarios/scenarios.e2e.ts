@@ -71,7 +71,7 @@ describe("compiler: entrypoints", () => {
       });
     });
 
-    it("emit diagnostic if emitter fail unexpectedly", async () => {
+    it("report error if emitter fail unexpectedly", async () => {
       await rejects(
         () =>
           compileScenario("emitter-throw-error", {
@@ -79,8 +79,22 @@ describe("compiler: entrypoints", () => {
           }),
         new RegExp(
           [
-            `Emitter "@typespec/my-emitter" failed!`,
-            `File issue at https://github.com/microsoft/my-emitter/issues`,
+            `Emitter "@typespec/my-emitter" crashed! This is a bug.`,
+            `Please file an issue at https://github.com/microsoft/my-emitter/issues`,
+            ``,
+            `Error: This is bad`,
+          ].join("\n")
+        )
+      );
+    });
+
+    it("report error if onValidate fail unexpectedly", async () => {
+      await rejects(
+        () => compileScenario("validator-throw-error"),
+        new RegExp(
+          [
+            `Library "@typespec/my-validator" \\$onValidate crashed! This is a bug.`,
+            `Please file an issue at https://github.com/microsoft/my-validator/issues`,
             ``,
             `Error: This is bad`,
           ].join("\n")

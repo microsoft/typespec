@@ -2,6 +2,18 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.47.1",
+      "tag": "@typespec/compiler_v0.47.1",
+      "date": "Thu, 10 Aug 2023 20:18:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix**: `--config` flag was being ignored."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/compiler_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

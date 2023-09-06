@@ -106,7 +106,7 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       level: diagnostic.severity,
       message: diagnostic.message,
       code: diagnostic.code,
-      sourceLocation: getSourceLocation(diagnostic.target),
+      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     });
   }
 }
@@ -117,7 +117,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       code: diagnostic.code,
       level: diagnostic.severity,
       message: diagnostic.message,
-      sourceLocation: getSourceLocation(diagnostic.target),
+      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     },
     { pretty: false }
   );
@@ -159,13 +159,28 @@ export function createSourceFile(text: string, path: string): SourceFile {
   }
 }
 
-export function getSourceLocation(target: DiagnosticTarget): SourceLocation;
-export function getSourceLocation(target: typeof NoTarget | undefined): undefined;
+export interface SourceLocationOptions {
+  /**
+   * If trying to resolve the location of a type with an ID, show the location of the ID node instead of the entire type.
+   * This makes sure that the location range is not too large and hard to read.
+   */
+  locateId?: boolean;
+}
 export function getSourceLocation(
-  target: DiagnosticTarget | typeof NoTarget | undefined
+  target: DiagnosticTarget,
+  options?: SourceLocationOptions
+): SourceLocation;
+export function getSourceLocation(
+  target: typeof NoTarget | undefined,
+  options?: SourceLocationOptions
+): undefined;
+export function getSourceLocation(
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+  options?: SourceLocationOptions
 ): SourceLocation | undefined;
 export function getSourceLocation(
-  target: DiagnosticTarget | typeof NoTarget | undefined
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+  options: SourceLocationOptions = {}
 ): SourceLocation | undefined {
   if (target === NoTarget || target === undefined) {
     return undefined;
@@ -185,16 +200,16 @@ export function getSourceLocation(
       return createSyntheticSourceLocation();
     }
 
-    return getSourceLocationOfNode(target.declarations[0]);
+    return getSourceLocationOfNode(target.declarations[0], options);
   } else if (typeof target.kind === "number") {
     // node
-    return getSourceLocationOfNode(target as Node);
+    return getSourceLocationOfNode(target as Node, options);
   } else {
     // type
     const targetNode = (target as Type).node;
 
     if (targetNode) {
-      return getSourceLocationOfNode(targetNode);
+      return getSourceLocationOfNode(targetNode, options);
     }
 
     return createSyntheticSourceLocation();
@@ -210,7 +225,7 @@ function createSyntheticSourceLocation(loc = "<unknown location>") {
   };
 }
 
-function getSourceLocationOfNode(node: Node): SourceLocation {
+function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): SourceLocation {
   let root = node;
 
   while (root.parent !== undefined) {
@@ -223,6 +238,10 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
         ? undefined
         : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/typespec>"
     );
+  }
+
+  if (options.locateId && "id" in node && node.id !== undefined) {
+    node = node.id;
   }
 
   return {
