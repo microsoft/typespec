@@ -675,7 +675,10 @@ describe("compiler: server: completion", () => {
           label: "Inner",
           insertText: "Inner",
           kind: CompletionItemKind.Module,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```typespec\nnamespace Outer.Inner\n```",
+          },
         },
         {
           label: "outerDecorator",

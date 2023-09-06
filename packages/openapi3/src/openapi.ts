@@ -870,7 +870,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           obj.content[contentType] = { schema: schema[0] };
         } else {
           obj.content[contentType] = {
-            schema: { oneOf: schema },
+            schema: { anyOf: schema },
           };
         }
       }
@@ -1056,7 +1056,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         content[contentType] = { schema: schemaArray[0] };
       } else {
         content[contentType] = {
-          schema: { oneOf: schemaArray },
+          schema: { anyOf: schemaArray },
         };
       }
     }
@@ -1713,7 +1713,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const minValueExclusive = getMinValueExclusive(program, typespecType);
     if (isNumeric && minValueExclusive !== undefined) {
-      newTarget.exclusiveMinimum = minValueExclusive;
+      newTarget.minimum = minValueExclusive;
+      newTarget.exclusiveMinimum = true;
     }
 
     const maxValue = getMaxValue(program, typespecType);
@@ -1723,7 +1724,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const maxValueExclusive = getMaxValueExclusive(program, typespecType);
     if (isNumeric && maxValueExclusive !== undefined) {
-      newTarget.exclusiveMaximum = maxValueExclusive;
+      newTarget.maximum = maxValueExclusive;
+      newTarget.exclusiveMaximum = true;
     }
 
     const minItems = getMinItems(program, typespecType);

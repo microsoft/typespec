@@ -391,7 +391,7 @@ export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: Namespace;
-  node: NamespaceStatementNode;
+  node: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
   /**
    * The models in the namespace.
@@ -784,6 +784,7 @@ export enum SyntaxKind {
   ProjectionStatement,
   ProjectionDecoratorReferenceExpression,
   Return,
+  JsNamespaceDeclaration,
 }
 
 export const enum NodeFlags {
@@ -839,6 +840,7 @@ export interface TemplateDeclarationNode {
 export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
+  | JsNamespaceDeclarationNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -1615,6 +1617,10 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 
   /* Any namespaces declared by decorators. */
   readonly namespaceSymbols: Sym[];
+}
+
+export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {
+  readonly kind: SyntaxKind.JsNamespaceDeclaration;
 }
 
 export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
