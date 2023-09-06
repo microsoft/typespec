@@ -357,6 +357,7 @@ export function printNode(
     case SyntaxKind.EmptyStatement:
       return "";
     case SyntaxKind.JsSourceFile:
+    case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.InvalidStatement:
       return getRawText(node, options);
     default:
