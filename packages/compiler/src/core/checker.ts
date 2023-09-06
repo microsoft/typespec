@@ -3072,12 +3072,30 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
+    const symId = getSymbolId(getSymbolForMember(prop)!);
     const links = getSymbolLinksForMember(prop);
+
     if (links && links.declaredType && mapper === undefined) {
       return links.declaredType as ModelProperty;
     }
-
     const name = prop.id.sv;
+
+    if (pendingResolutions.has(symId)) {
+      if (mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: name },
+            target: prop,
+          })
+        );
+      }
+      if (links) {
+        links.declaredType = errorType;
+      }
+      return errorType as any;
+    }
+    pendingResolutions.add(symId);
 
     const valueType = getTypeForNode(prop.value, mapper);
     const defaultValue = prop.default && checkDefault(prop.default, valueType);
@@ -3114,6 +3132,8 @@ export function createChecker(program: Program): Checker {
       }
       finishType(type);
     }
+
+    pendingResolutions.delete(symId);
 
     return type;
   }
