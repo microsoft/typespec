@@ -633,6 +633,35 @@ describe("compiler: checker: type relations", () => {
         }
       );
     });
+
+    describe("recursive models", () => {
+      it("compare recursive models", async () => {
+        await expectTypeAssignable({
+          source: "A",
+          target: "B",
+          commonCode: `
+          model A { a: A }
+          model B { a: B }
+        `,
+        });
+      });
+
+      it("emit diagnostic if they don't match", async () => {
+        const { related, diagnostics } = await checkTypeAssignable({
+          source: "A",
+          target: "B",
+          commonCode: `
+        model A { a: A }
+        model B { a: B, b: B }
+      `,
+        });
+        ok(!related);
+        expectDiagnostics(diagnostics, {
+          code: "missing-property",
+          message: "Property 'b' is missing on type 'A' but required in 'B'",
+        });
+      });
+    });
   });
 
   describe("Array target", () => {
