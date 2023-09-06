@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Crash with when comparing relation between recursive types",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
