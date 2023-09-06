@@ -3101,24 +3101,22 @@ export function createChecker(program: Program): Checker {
       decorators: [],
     });
 
-    if (pendingResolutions.has(symId, ResolutionKind.Type)) {
-      if (mapper === undefined) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "circular-prop",
-            format: { propName: name },
-            target: prop,
-          })
-        );
-      }
+    if (pendingResolutions.has(symId, ResolutionKind.Type) && mapper === undefined) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "circular-prop",
+          format: { propName: name },
+          target: prop,
+        })
+      );
       type.type = errorType;
     } else {
+      if (links) {
+        linkType(links, type, mapper);
+      }
       pendingResolutions.start(symId, ResolutionKind.Type);
       type.type = getTypeForNode(prop.value, mapper);
       type.default = prop.default && checkDefault(prop.default, type.type);
-    }
-    if (links) {
-      linkType(links, type, mapper);
     }
 
     type.decorators = checkDecorators(type, prop, mapper);
