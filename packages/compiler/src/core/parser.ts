@@ -1188,6 +1188,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         ...finishNode(pos),
       };
     }
+
+    parseExpected(Token.Semicolon);
+
     return {
       kind: SyntaxKind.AugmentDecoratorStatement,
       target,

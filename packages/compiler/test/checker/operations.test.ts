@@ -64,7 +64,7 @@ describe("compiler: operations", () => {
       @test op a(@doc("base doc") one: string): void;
       @test op b is a;
 
-      @@doc(b::parameters.one, "override for b")
+      @@doc(b::parameters.one, "override for b");
       `
     );
     const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
@@ -80,7 +80,7 @@ describe("compiler: operations", () => {
       @test op b is a<string>;
       @test op c is a<string>;
 
-      @@doc(b::parameters.one, "override for b")
+      @@doc(b::parameters.one, "override for b");
       `
     );
     const { b, c } = (await testHost.compile("main.tsp")) as { b: Operation; c: Operation };

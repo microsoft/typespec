@@ -404,7 +404,7 @@ describe("compiler: models", () => {
         @test model Base {@doc("base doc") one: string}
         @test model Spread {...Base}
 
-        @@doc(Spread.one, "override for spread")
+        @@doc(Spread.one, "override for spread");
         `
       );
       const { Base, Spread } = (await testHost.compile("main.tsp")) as {
