@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix: Crash with when comparing relation between recursive types",
+      "comment": "Fix: Crash with when relating recursive types",
       "type": "none"
     }
   ],
