@@ -24,7 +24,7 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
     libraries: config.libraries,
     defaultContent: initialState.content,
     defaultEmitter: initialState.emitter ?? config.defaultEmitter,
-    defaultEmitterOptions: initialState.options,
+    defaultCompilerOptions: initialState.options,
     defaultSampleName: initialState.sampleName,
     onSave: (value) => {
       stateStorage.save(value);

@@ -1,3 +1,4 @@
+import { CompilerOptions } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
@@ -13,7 +14,7 @@ import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
 import { useAsyncMemo, useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
-import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
+import { CompilationState, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
 export interface PlaygroundProps {
@@ -33,11 +34,11 @@ export interface PlaygroundProps {
   onEmitterChange?: (emitter: string) => void;
 
   /** Emitter options */
-  emitterOptions?: EmitterOptions;
+  compilerOptions?: CompilerOptions;
   /** Default emitter options if leaving this unmanaged. */
-  defaultEmitterOptions?: EmitterOptions;
+  defaultCompilerOptions?: CompilerOptions;
   /** Callback when emitter options change */
-  onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
+  onCompilerOptionsChange?: (emitter: CompilerOptions) => void;
 
   /** Samples available */
   samples?: Record<string, PlaygroundSample>;
@@ -66,7 +67,7 @@ export interface PlaygroundSaveData {
   emitter: string;
 
   /** Emitter options. */
-  options?: EmitterOptions;
+  options?: CompilerOptions;
 
   /** If a sample is selected and the content hasn't changed since. */
   sampleName?: string;
@@ -86,10 +87,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultEmitter,
     props.onEmitterChange
   );
-  const [emitterOptions, onEmitterOptionsChange] = useControllableValue(
-    props.emitterOptions,
-    props.defaultEmitterOptions ?? {},
-    props.onEmitterOptionsChange
+  const [compilerOptions, onCompilerOptionsChange] = useControllableValue(
+    props.compilerOptions,
+    props.defaultCompilerOptions ?? {},
+    props.onCompilerOptionsChange
   );
   const [selectedSampleName, onSelectedSampleNameChange] = useControllableValue(
     props.sampleName,
@@ -108,7 +109,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setContent(content);
     const typespecCompiler = await importTypeSpecCompiler();
 
-    const state = await compile(host, content, selectedEmitter, emitterOptions);
+    const state = await compile(host, content, selectedEmitter, compilerOptions);
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
@@ -122,7 +123,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, emitterOptions, typespecModel, setContent]);
+  }, [host, selectedEmitter, compilerOptions, typespecModel, setContent]);
 
   const updateTypeSpec = useCallback(
     (value: string) => {
@@ -166,7 +167,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       onSave({
         content: typespecModel.getValue(),
         emitter: selectedEmitter,
-        options: emitterOptions,
+        options: compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
       });
     }
@@ -174,7 +175,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     typespecModel,
     onSave,
     selectedEmitter,
-    emitterOptions,
+    compilerOptions,
     selectedSampleName,
     isSampleUntouched,
   ]);
@@ -218,8 +219,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           libraries={libraries}
           selectedEmitter={selectedEmitter}
           onSelectedEmitterChange={onSelectedEmitterChange}
-          emitterOptions={emitterOptions}
-          onEmitterOptionsChange={onEmitterOptionsChange}
+          compilerOptions={compilerOptions}
+          onCompilerOptionsChange={onCompilerOptionsChange}
           samples={props.samples}
           selectedSampleName={selectedSampleName}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
@@ -254,22 +255,16 @@ async function compile(
   host: BrowserHost,
   content: string,
   selectedEmitter: string,
-  emittersOptions: Record<string, Record<string, unknown>>
+  options: CompilerOptions
 ): Promise<CompilationState> {
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
     const typespecCompiler = await importTypeSpecCompiler();
     const program = await typespecCompiler.compile(host, "main.tsp", {
+      ...options,
       outputDir: "tsp-output",
       emit: [selectedEmitter],
-      options: {
-        ...emittersOptions,
-        [selectedEmitter]: {
-          ...emittersOptions[selectedEmitter],
-          "emitter-output-dir": "tsp-output",
-        },
-      },
     });
     const outputFiles = await findOutputFiles(host);
     return { program, outputFiles };

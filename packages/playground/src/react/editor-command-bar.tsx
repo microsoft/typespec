@@ -10,12 +10,13 @@ import {
   Tooltip,
 } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
+import { CompilerOptions } from "@typespec/compiler";
 import { FunctionComponent } from "react";
 import { PlaygroundSample } from "../types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 import { CompilerSettings } from "./settings/compiler-settings.js";
-import { EmitterOptions, PlaygroundTspLibrary } from "./types.js";
+import { PlaygroundTspLibrary } from "./types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
@@ -24,8 +25,8 @@ export interface EditorCommandBarProps {
   libraries: PlaygroundTspLibrary[];
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
-  emitterOptions: EmitterOptions;
-  onEmitterOptionsChange: (options: EmitterOptions) => void;
+  compilerOptions: CompilerOptions;
+  onCompilerOptionsChange: (options: CompilerOptions) => void;
 
   samples?: Record<string, PlaygroundSample>;
   selectedSampleName: string;
@@ -38,8 +39,8 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   libraries,
   selectedEmitter,
   onSelectedEmitterChange,
-  emitterOptions,
-  onEmitterOptionsChange,
+  compilerOptions: emitterOptions,
+  onCompilerOptionsChange,
   samples,
   selectedSampleName,
   onSelectedSampleNameChange,
@@ -87,7 +88,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
                 libraries={libraries}
                 selectedEmitter={selectedEmitter}
                 options={emitterOptions}
-                optionsChanged={onEmitterOptionsChange}
+                onOptionsChanged={onCompilerOptionsChange}
               />
             </DialogBody>
           </DialogSurface>
