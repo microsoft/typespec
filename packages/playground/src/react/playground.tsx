@@ -7,10 +7,11 @@ import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
 import { getMarkerLocation } from "../services.js";
 import { PlaygroundSample } from "../types.js";
+import { resolveLibraries } from "../utils.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
-import { useControllableValue } from "./hooks.js";
+import { useAsyncMemo, useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
@@ -21,8 +22,8 @@ export interface PlaygroundProps {
   /** Default emitter if leaving this unmanaged. */
   defaultContent?: string;
 
-  /** List of available emitters */
-  emitters: string[];
+  /** List of available libraries */
+  libraries: string[];
 
   /** Emitter to use */
   emitter?: string;
@@ -193,6 +194,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [saveCode]
   );
 
+  const libraries = useAsyncMemo(
+    async () => resolveLibraries(props.libraries),
+    [],
+    [props.libraries]
+  );
+
   return (
     <div
       css={{
@@ -208,7 +215,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     >
       <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
         <EditorCommandBar
-          emitters={props.emitters}
+          libraries={libraries}
           selectedEmitter={selectedEmitter}
           onSelectedEmitterChange={onSelectedEmitterChange}
           emitterOptions={emitterOptions}
