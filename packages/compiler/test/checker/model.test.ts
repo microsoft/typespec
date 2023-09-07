@@ -815,4 +815,51 @@ describe("compiler: models", () => {
       strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
     });
   });
+
+  describe("property circular references", () => {
+    it("emit diagnostics if property reference itself", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: A.a }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+
+    it("emit diagnostics if property reference itself via another prop", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: B.a }
+        model B { a: A.a }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+
+    it("emit diagnostics if property reference itself via alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: B.a }
+        model B { a: C }
+        alias C = A.a;
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+  });
 });

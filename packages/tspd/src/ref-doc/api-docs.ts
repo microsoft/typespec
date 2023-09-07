@@ -32,7 +32,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     githubPages: false,
     readme: "none",
     hideGenerator: true,
-    disableSources: false,
+    disableSources: true,
     ...markdownPluginOptions,
   });
   const project = app.convert();
