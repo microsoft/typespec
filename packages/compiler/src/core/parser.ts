@@ -2596,6 +2596,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     const items: T[] = [];
     while (true) {
+      const startingPos = tokenPos();
       const { pos, docs, directives, decorators } = parseAnnotations({
         skipParsingDocNodes: Boolean(kind.invalidAnnotationTarget),
       });
@@ -2670,7 +2671,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         parseExpected(kind.delimiter);
       }
 
-      if (pos === tokenPos()) {
+      if (startingPos === tokenPos()) {
         // Error recovery: we've inserted everything during this loop iteration
         // and haven't made any progress. Assume that the current token is a bad
         // representation of the end of the the list that we're trying to get
@@ -3148,6 +3149,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ExternKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
+    case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.DocText:
       return;
 
