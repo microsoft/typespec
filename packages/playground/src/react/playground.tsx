@@ -145,6 +145,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         if (config.preferredEmitter) {
           onSelectedEmitterChange(config.preferredEmitter);
         }
+        if(config.compilerOptions)  {
+          onCompilerOptionsChange(config.compilerOptions)
+        }
       }
     }
   }, [updateTypeSpec, selectedSampleName]);
