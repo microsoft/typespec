@@ -53,7 +53,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
       <LinterForm
         libraries={libraries}
         linterRuleSet={linterRuleSet}
-        linterRuleSetChanged={linterRuleSetChanged}
+        onLinterRuleSetChanged={linterRuleSetChanged}
       />
     </div>
   );

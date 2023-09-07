@@ -10,7 +10,7 @@ export async function resolveLibraries(names: string[]): Promise<PlaygroundTspLi
   return await Promise.all(
     names.map(async (x) => {
       const lib: any = await importLibrary(x);
-      return { name: x, isEmitter: lib.$lib?.emitter };
+      return { name: x, isEmitter: lib.$lib?.emitter, definition: lib.$lib };
     })
   );
 }

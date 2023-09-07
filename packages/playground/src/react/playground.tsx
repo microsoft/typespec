@@ -260,6 +260,7 @@ async function compile(
   selectedEmitter: string,
   options: CompilerOptions
 ): Promise<CompilationState> {
+  console.log("OP", options)
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
