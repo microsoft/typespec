@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /mediatypes/analyze:
@@ -38,9 +38,8 @@ paths:
   /mediatypes/contentTypeWithEncoding:
     post:
       operationId: contentTypeWithEncoding
-      description: >-
-        Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for
-        input does not matter
+      description: Pass in contentType 'text/plain; encoding=UTF-8' to pass test.
+        Value for input does not matter
       parameters: []
       responses:
         '200':
