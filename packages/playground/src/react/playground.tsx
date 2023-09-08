@@ -145,8 +145,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         if (config.preferredEmitter) {
           onSelectedEmitterChange(config.preferredEmitter);
         }
-        if(config.compilerOptions)  {
-          onCompilerOptionsChange(config.compilerOptions)
+        if (config.compilerOptions) {
+          onCompilerOptionsChange(config.compilerOptions);
         }
       }
     }
@@ -260,13 +260,19 @@ async function compile(
   selectedEmitter: string,
   options: CompilerOptions
 ): Promise<CompilationState> {
-  console.log("OP", options)
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
     const typespecCompiler = await importTypeSpecCompiler();
     const program = await typespecCompiler.compile(host, "main.tsp", {
       ...options,
+      options: {
+        ...options.options,
+        [selectedEmitter]: {
+          ...options.options?.[selectedEmitter],
+          "emitter-output-dir": "tsp-output",
+        },
+      },
       outputDir: "tsp-output",
       emit: [selectedEmitter],
     });
