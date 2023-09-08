@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
   title: Parameter Decorators
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
-  /thing/{name}:
+  '/thing/{name}':
     get:
       operationId: Operations_getThing
       parameters:
