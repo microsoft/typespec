@@ -227,7 +227,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when model property type using @typeChangedFrom does not yet exist", async () => {
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist", async () => {
       const diagnostics = await runner.diagnose(`        
         @test
         model Original {}
@@ -247,6 +247,30 @@ describe("versioning: validate incompatible references", () => {
         severity: "error",
         message:
           "'TestService.Test.prop' is referencing type 'TestService.Updated' which does not exist in version 'v2'.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a base parameter that does not yet exist", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v3)
+        model Updated {}
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v3, Original)
+          prop: Updated;
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
       });
     });
 
