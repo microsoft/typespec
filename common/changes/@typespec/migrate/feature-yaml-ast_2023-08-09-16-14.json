@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Changed yaml parser from `js-yaml` to `yaml`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}

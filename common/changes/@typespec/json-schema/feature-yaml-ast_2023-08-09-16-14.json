@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Changed yaml parser from `js-yaml` to `yaml`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}

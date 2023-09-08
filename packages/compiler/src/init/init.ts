@@ -1,8 +1,8 @@
 import { readdir } from "fs/promises";
-import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
 import * as semver from "semver";
+import { stringify } from "yaml";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { createDiagnostic } from "../core/messages.js";
@@ -429,7 +429,7 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
   if (!config.config) {
     return;
   }
-  const content = jsyaml.dump(config.config);
+  const content = stringify(config.config);
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 

@@ -1,5 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { dump } from "js-yaml";
+import { stringify } from "yaml";
 import { TypeSpecRawConfig } from "../src/config/types.js";
 import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
 import { CompilerOptions } from "../src/core/options.js";
@@ -55,7 +55,7 @@ describe("compiler: cli", () => {
       beforeEach(() => {
         host.addTypeSpecFile(
           "ws/tspconfig.yaml",
-          dump({
+          stringify({
             parameters: {
               "custom-arg": {
                 default: "/default-arg-value",
@@ -156,7 +156,7 @@ describe("compiler: cli", () => {
       it("emit diagnostic if using relative path in config paths", async () => {
         host.addTypeSpecFile(
           "ws/tspconfig.yaml",
-          dump({
+          stringify({
             "output-dir": "./my-output",
           })
         );
@@ -182,7 +182,7 @@ describe("compiler: cli", () => {
       args?: CompileCliArgs;
       config?: TypeSpecRawConfig;
     }) {
-      host.addTypeSpecFile("ws/tspconfig.yaml", dump(config ?? {}));
+      host.addTypeSpecFile("ws/tspconfig.yaml", stringify(config ?? {}));
       return (await resolveCompilerOptions(args ?? {})) ?? {};
     }
 
