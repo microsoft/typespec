@@ -1,4 +1,6 @@
-import Ajv, { ErrorObject } from "ajv";
+import Ajv, { DefinedError, Options } from "ajv";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile } from "./types.js";
 
@@ -14,11 +16,15 @@ export function createJSONSchemaValidator<T>(
   const ajv = new (Ajv as any)({
     strict: options.strict,
     coerceTypes: options.coerceTypes,
-  });
+    allErrors: true,
+  } satisfies Options);
 
   return { validate };
 
-  function validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[] {
+  function validate(
+    config: unknown,
+    target: YamlScript | SourceFile | typeof NoTarget
+  ): Diagnostic[] {
     const validate = ajv.compile(schema);
     const valid = validate(config);
     compilerAssert(
@@ -39,8 +45,8 @@ export function createJSONSchemaValidator<T>(
 const IGNORED_AJV_PARAMS = new Set(["type", "errors"]);
 
 function ajvErrorToDiagnostic(
-  error: ErrorObject,
-  target: SourceFile | typeof NoTarget
+  error: DefinedError,
+  target: YamlScript | SourceFile | typeof NoTarget
 ): Diagnostic {
   const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];
   for (const [name, value] of Object.entries(error.params).filter(
@@ -55,6 +61,44 @@ function ajvErrorToDiagnostic(
     code: "invalid-schema",
     message,
     severity: "error",
-    target: target === NoTarget ? target : { file: target, pos: 0, end: 0 },
+    target:
+      target === NoTarget
+        ? target
+        : "kind" in target
+        ? getLocationInYamlScript(target, getErrorPath(error), "key")
+        : { file: target, pos: 0, end: 0 },
   };
+}
+
+function getErrorPath(error: DefinedError): string[] {
+  const instancePath = parseJsonPointer(error.instancePath);
+  switch (error.keyword) {
+    case "additionalProperties":
+      return [...instancePath, error.params.additionalProperty];
+    default:
+      return instancePath;
+  }
+}
+
+/**
+ * Converts a json pointer into a array of reference tokens
+ */
+export function parseJsonPointer(pointer: string): string[] {
+  if (pointer === "") {
+    return [];
+  }
+  if (pointer.charAt(0) !== "/") {
+    compilerAssert(false, `Invalid JSON pointer: "${pointer}"`);
+  }
+  return pointer.substring(1).split(/\//).map(unescape);
+}
+
+/**
+ * Unescape a reference token
+ *
+ * @param str
+ * @returns {string}
+ */
+function unescape(str: string): string {
+  return str.replace(/~1/g, "/").replace(/~0/g, "~");
 }

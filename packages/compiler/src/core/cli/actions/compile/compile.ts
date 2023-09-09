@@ -48,7 +48,7 @@ async function getCompilerOptionsOrExit(
   if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);
   }
-  if (options === undefined) {
+  if (options === undefined || diagnostics.length > 0) {
     logDiagnosticCount(diagnostics);
     process.exit(1);
   }

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Visibility sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /hello:
@@ -70,7 +70,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PersonUpdate'
-  /hello/{id}:
+  '/hello/{id}':
     get:
       operationId: Hello_read
       parameters:

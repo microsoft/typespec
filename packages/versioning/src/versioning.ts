@@ -695,10 +695,18 @@ export function getAvailabilityMap(
 
   const added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
+  const typeChanged = getTypeChangedFrom(program, type);
+  const returnTypeChanged = getReturnTypeChangedFrom(program, type);
   // if there's absolutely no versioning information, return undefined
   // contextually, this might mean it inherits its versioning info from a parent
   // or that it is treated as unversioned
-  if (!added.length && !removed.length) return undefined;
+  if (
+    !added.length &&
+    !removed.length &&
+    typeChanged === undefined &&
+    returnTypeChanged === undefined
+  )
+    return undefined;
 
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified
@@ -735,10 +743,18 @@ export function getAvailabilityMapInTimeline(
 
   const added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
+  const typeChanged = getTypeChangedFrom(program, type);
+  const returnTypeChanged = getReturnTypeChangedFrom(program, type);
   // if there's absolutely no versioning information, return undefined
   // contextually, this might mean it inherits its versioning info from a parent
   // or that it is treated as unversioned
-  if (!added.length && !removed.length) return undefined;
+  if (
+    !added.length &&
+    !removed.length &&
+    typeChanged === undefined &&
+    returnTypeChanged === undefined
+  )
+    return undefined;
 
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified

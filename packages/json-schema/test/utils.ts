@@ -1,6 +1,6 @@
 import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost } from "@typespec/compiler/testing";
-import yaml from "js-yaml";
+import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import { JSONSchemaEmitterOptions } from "../src/lib.js";
 import { JsonSchemaTestLibrary } from "../src/testing/index.js";
@@ -52,7 +52,7 @@ export async function emitSchema(
   for (const file of files) {
     const sf = await emitter.getProgram().host.readFile(`./cadl-output/${file}`);
     if (options?.["file-type"] === "yaml") {
-      schemas[file] = yaml.load(sf.text);
+      schemas[file] = parse(sf.text);
     } else {
       schemas[file] = JSON.parse(sf.text);
     }
