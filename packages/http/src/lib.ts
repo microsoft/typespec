@@ -1,6 +1,7 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
+import { opReferenceContainerRouteRule } from "./rules/op-reference-container-route.js";
 
-const libDefinition = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
   diagnostics: {
     "http-verb-duplicate": {
@@ -125,9 +126,16 @@ const libDefinition = {
       },
     },
   },
-} as const;
+  linter: {
+    rules: [opReferenceContainerRouteRule],
+    ruleSets: {
+      all: {
+        enable: {
+          [`@typespec/http/${opReferenceContainerRouteRule.name}`]: true,
+        },
+      },
+    },
+  },
+});
 
-const httpLib = createTypeSpecLibrary(libDefinition);
-const { reportDiagnostic, createDiagnostic, createStateSymbol } = httpLib;
-
-export { createDiagnostic, createStateSymbol, httpLib, reportDiagnostic };
+export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;
