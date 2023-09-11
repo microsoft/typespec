@@ -10,22 +10,23 @@ import {
   Tooltip,
 } from "@fluentui/react-components";
 import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
+import { CompilerOptions } from "@typespec/compiler";
 import { FunctionComponent } from "react";
 import { PlaygroundSample } from "../types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
-import { OutputSettings } from "./output-settings.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
-import { EmitterOptions } from "./types.js";
+import { CompilerSettings } from "./settings/compiler-settings.js";
+import { PlaygroundTspLibrary } from "./types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   newIssue?: () => Promise<void> | void;
-  emitters: string[];
+  libraries: PlaygroundTspLibrary[];
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
-  emitterOptions: EmitterOptions;
-  onEmitterOptionsChange: (options: EmitterOptions) => void;
+  compilerOptions: CompilerOptions;
+  onCompilerOptionsChange: (options: CompilerOptions) => void;
 
   samples?: Record<string, PlaygroundSample>;
   selectedSampleName: string;
@@ -35,11 +36,11 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
   newIssue,
-  emitters,
+  libraries,
   selectedEmitter,
   onSelectedEmitterChange,
-  emitterOptions,
-  onEmitterOptionsChange,
+  compilerOptions: emitterOptions,
+  onCompilerOptionsChange,
   samples,
   selectedSampleName,
   onSelectedSampleNameChange,
@@ -73,7 +74,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         )}
         <EmitterDropdown
-          emitters={emitters}
+          emitters={libraries.filter((x) => x.isEmitter).map((x) => x.name)}
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
         />
@@ -83,10 +84,11 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           </DialogTrigger>
           <DialogSurface>
             <DialogBody>
-              <OutputSettings
+              <CompilerSettings
+                libraries={libraries}
                 selectedEmitter={selectedEmitter}
                 options={emitterOptions}
-                optionsChanged={onEmitterOptionsChange}
+                onOptionsChanged={onCompilerOptionsChange}
               />
             </DialogBody>
           </DialogSurface>

@@ -80,7 +80,13 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
                 preferredEmitter: ${
                   config.preferredEmitter ? JSON.stringify(config.preferredEmitter) : "undefined"
                 },
-                content: s${index}
+                content: s${index},
+                ${
+                  config.compilerOptions
+                    ? `compilerOptions: ${JSON.stringify(config.compilerOptions)},`
+                    : ""
+                }
+
               }, `
           ),
           "}",
