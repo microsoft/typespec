@@ -1,5 +1,5 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { operationReferenceContainerRouteRule } from "./rules/operation-reference-container-route.js";
+import { opReferenceContainerRouteRule } from "./rules/op-reference-container-route.js";
 
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
@@ -127,11 +127,11 @@ export const $lib = createTypeSpecLibrary({
     },
   },
   linter: {
-    rules: [operationReferenceContainerRouteRule],
+    rules: [opReferenceContainerRouteRule],
     ruleSets: {
       all: {
         enable: {
-          [`@typespec/http/${operationReferenceContainerRouteRule.name}`]: true,
+          [`@typespec/http/${opReferenceContainerRouteRule.name}`]: true,
         },
       },
     },

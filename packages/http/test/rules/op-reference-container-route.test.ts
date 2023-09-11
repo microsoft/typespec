@@ -1,16 +1,12 @@
 import { LinterRuleTester, createLinterRuleTester } from "@typespec/compiler/testing";
-import { operationReferenceContainerRouteRule } from "../../src/rules/operation-reference-container-route.js";
+import { opReferenceContainerRouteRule } from "../../src/rules/op-reference-container-route.js";
 import { createHttpTestRunner } from "../test-host.js";
 
 describe("operation reference route container rule", () => {
   let ruleTester: LinterRuleTester;
   beforeEach(async () => {
     const runner = await createHttpTestRunner();
-    ruleTester = createLinterRuleTester(
-      runner,
-      operationReferenceContainerRouteRule,
-      "@typespec/http"
-    );
+    ruleTester = createLinterRuleTester(runner, opReferenceContainerRouteRule, "@typespec/http");
   });
 
   it("emit a diagnostic when referenced op has a route prefix on its parent container", async () => {
@@ -46,22 +42,22 @@ describe("operation reference route container rule", () => {
       )
       .toEmitDiagnostics([
         {
-          code: "@typespec/http/operation-reference-container-route",
+          code: "@typespec/http/op-reference-container-route",
           message:
             'Operation get1 references an operation which has a @route prefix on its namespace or interface: "/foo".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.',
         },
         {
-          code: "@typespec/http/operation-reference-container-route",
+          code: "@typespec/http/op-reference-container-route",
           message:
             'Operation get2 references an operation which has a @route prefix on its namespace or interface: "/ifoo".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.',
         },
         {
-          code: "@typespec/http/operation-reference-container-route",
+          code: "@typespec/http/op-reference-container-route",
           message:
             'Operation get3 references an operation which has a @route prefix on its namespace or interface: "/bar".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.',
         },
         {
-          code: "@typespec/http/operation-reference-container-route",
+          code: "@typespec/http/op-reference-container-route",
           message:
             'Operation get4 references an operation which has a @route prefix on its namespace or interface: "/bar".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.',
         },
@@ -89,7 +85,7 @@ describe("operation reference route container rule", () => {
       )
       .toEmitDiagnostics([
         {
-          code: "@typespec/http/operation-reference-container-route",
+          code: "@typespec/http/op-reference-container-route",
           message:
             'Operation get1 references an operation which has a @route prefix on its namespace or interface: "/foo".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.',
         },

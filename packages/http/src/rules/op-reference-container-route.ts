@@ -2,8 +2,8 @@ import { Operation, createRule, paramMessage } from "@typespec/compiler";
 import { getRoutePath } from "../route.js";
 import { OperationContainer } from "../types.js";
 
-export const operationReferenceContainerRouteRule = createRule({
-  name: "operation-reference-container-route",
+export const opReferenceContainerRouteRule = createRule({
+  name: "op-reference-container-route",
   description:
     "Check for referenced (`op is`) operations which have a @route on one of their containers.",
   severity: "warning",
