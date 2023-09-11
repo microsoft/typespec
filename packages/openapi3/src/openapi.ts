@@ -96,7 +96,7 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
-import yaml from "js-yaml";
+import { stringify } from "yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
@@ -870,7 +870,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           obj.content[contentType] = { schema: schema[0] };
         } else {
           obj.content[contentType] = {
-            schema: { oneOf: schema },
+            schema: { anyOf: schema },
           };
         }
       }
@@ -1056,7 +1056,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         content[contentType] = { schema: schemaArray[0] };
       } else {
         content[contentType] = {
-          schema: { oneOf: schemaArray },
+          schema: { anyOf: schemaArray },
         };
       }
     }
@@ -1713,7 +1713,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const minValueExclusive = getMinValueExclusive(program, typespecType);
     if (isNumeric && minValueExclusive !== undefined) {
-      newTarget.exclusiveMinimum = minValueExclusive;
+      newTarget.minimum = minValueExclusive;
+      newTarget.exclusiveMinimum = true;
     }
 
     const maxValue = getMaxValue(program, typespecType);
@@ -1723,7 +1724,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const maxValueExclusive = getMaxValueExclusive(program, typespecType);
     if (isNumeric && maxValueExclusive !== undefined) {
-      newTarget.exclusiveMaximum = maxValueExclusive;
+      newTarget.maximum = maxValueExclusive;
+      newTarget.exclusiveMaximum = true;
     }
 
     const minItems = getMinItems(program, typespecType);
@@ -1983,12 +1985,16 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return yaml.dump(root, {
-        noRefs: true,
-        replacer: function (key, value) {
+      return stringify(
+        root,
+        (key, value) => {
           return value instanceof Ref ? value.toJSON() : value;
         },
-      });
+        {
+          singleQuote: true,
+          aliasDuplicateObjects: false,
+        }
+      );
   }
 }
 

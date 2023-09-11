@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**Fix** Stackoverflow when model property reference itself",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

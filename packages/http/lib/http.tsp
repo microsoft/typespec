@@ -29,6 +29,7 @@ model Response<Status> {
 @doc("")
 model Body<T> {
   @body
+  @doc("The body type of the operation request or response.")
   body: T;
 }
 

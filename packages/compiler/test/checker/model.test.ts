@@ -404,7 +404,7 @@ describe("compiler: models", () => {
         @test model Base {@doc("base doc") one: string}
         @test model Spread {...Base}
 
-        @@doc(Spread.one, "override for spread")
+        @@doc(Spread.one, "override for spread");
         `
       );
       const { Base, Spread } = (await testHost.compile("main.tsp")) as {
@@ -813,6 +813,53 @@ describe("compiler: models", () => {
       strictEqual((C as Model).properties.size, 2);
       strictEqual(((C as Model).properties.get("c")?.type as any).name, "int32");
       strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
+    });
+  });
+
+  describe("property circular references", () => {
+    it("emit diagnostics if property reference itself", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: A.a }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+
+    it("emit diagnostics if property reference itself via another prop", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: B.a }
+        model B { a: A.a }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+
+    it("emit diagnostics if property reference itself via alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: B.a }
+        model B { a: C }
+        alias C = A.a;
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
     });
   });
 });

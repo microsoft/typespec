@@ -107,7 +107,7 @@ export function getHttpService(
 }
 
 /**
- * @deprecated use `getAllHttpServices` or `resolveHttpOperations` manually
+ * @deprecated use `getAllHttpServices` instead
  */
 export function getAllRoutes(
   program: Program,

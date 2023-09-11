@@ -44,7 +44,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import yaml from "js-yaml";
+import { stringify } from "yaml";
 import {
   findBaseUri,
   getContains,
@@ -596,7 +596,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions()["file-type"] === "json") {
       serializedContent = JSON.stringify(content, null, 4);
     } else {
-      serializedContent = yaml.dump(content);
+      serializedContent = stringify(content);
     }
 
     return {
