@@ -96,7 +96,7 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
-import yaml from "js-yaml";
+import { stringify } from "yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
@@ -1985,12 +1985,16 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return yaml.dump(root, {
-        noRefs: true,
-        replacer: function (key, value) {
+      return stringify(
+        root,
+        (key, value) => {
           return value instanceof Ref ? value.toJSON() : value;
         },
-      });
+        {
+          singleQuote: true,
+          aliasDuplicateObjects: false,
+        }
+      );
   }
 }
 

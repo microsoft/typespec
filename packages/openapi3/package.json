@@ -53,7 +53,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "js-yaml": "~4.1.0"
+    "yaml": "~2.3.1"
   },
   "peerDependencies": {
     "@typespec/versioning": "workspace:~0.47.0",
@@ -65,7 +65,6 @@
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@types/js-yaml": "~4.0.1",
     "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/http": "workspace:~0.47.0",
     "@typespec/rest": "workspace:~0.47.0",

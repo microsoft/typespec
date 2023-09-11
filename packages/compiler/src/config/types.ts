@@ -1,4 +1,5 @@
 import { Diagnostic, RuleRef } from "../core/index.js";
+import { YamlScript } from "../yaml/types.js";
 
 /**
  * Represent the normalized user configuration.
@@ -8,6 +9,9 @@ export interface TypeSpecConfig {
    * Project root.
    */
   projectRoot: string;
+
+  /** Yaml file used in this configuration. */
+  file?: YamlScript;
 
   /**
    * Path to the config file used to create this configuration.

@@ -21,7 +21,7 @@ describe("compiler: config file loading", () => {
       errorIfNotFound: boolean = true
     ) => {
       const fullPath = join(scenarioRoot, path);
-      const { filename, projectRoot, ...config } = await loadTypeSpecConfigForPath(
+      const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
         errorIfNotFound,
