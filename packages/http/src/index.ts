@@ -1,4 +1,4 @@
-export const namespace = "TypeSpec.Http";
+export { $lib } from "./lib.js";
 
 export * from "./content-types.js";
 export * from "./decorators.js";

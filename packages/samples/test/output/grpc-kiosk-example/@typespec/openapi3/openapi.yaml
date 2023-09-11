@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Grpc Kiosk sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: Display
 paths:
@@ -50,7 +50,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/kiosks/{id}:
+  '/v1/kiosks/{id}':
     get:
       tags:
         - Display
@@ -90,16 +90,15 @@ paths:
             format: int32
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/kiosks/{kiosk_id}/sign:
+  '/v1/kiosks/{kiosk_id}/sign':
     get:
       tags:
         - Display
@@ -164,7 +163,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListSignsResponse'
-  /v1/signs/{id}:
+  '/v1/signs/{id}':
     get:
       tags:
         - Display
@@ -204,16 +203,15 @@ paths:
             format: int32
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/signs/{sign_id}:
+  '/v1/signs/{sign_id}':
     post:
       tags:
         - Display
@@ -223,9 +221,8 @@ paths:
         - $ref: '#/components/parameters/SetSignIdForKioskIdsRequest.sign_id'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
@@ -297,8 +294,7 @@ components:
         An object that represents a latitude/longitude pair. This is expressed
         as a
 
-        pair of doubles to represent degrees latitude and degrees longitude.
-        Unless
+        pair of doubles to represent degrees latitude and degrees longitude. Unless
 
         specified otherwise, this must conform to the
 

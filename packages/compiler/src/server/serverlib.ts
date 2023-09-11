@@ -385,7 +385,7 @@ export function createServer(host: ServerHost): Server {
   ): Promise<T | Program | undefined> {
     const path = await getPath(document);
     const mainFile = await getMainFileForDocument(path);
-    const config = await getConfig(mainFile, path);
+    const config = await getConfig(mainFile);
 
     const options = {
       ...serverOptions,
@@ -447,8 +447,11 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getConfig(mainFile: string, path: string): Promise<TypeSpecConfig> {
-    const configPath = await findTypeSpecConfigPath(compilerHost, mainFile, true);
+  async function getConfig(mainFile: string): Promise<TypeSpecConfig> {
+    const entrypointStat = await host.compilerHost.stat(mainFile);
+
+    const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
+    const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
     if (!configPath) {
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
