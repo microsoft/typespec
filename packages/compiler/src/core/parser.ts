@@ -2433,9 +2433,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       // The TSDoc spec expects a hyphen in the `@param` case, but it does
       // not require it in practice. Thus, TypeSpec should handle both cases.
       while (parseOptional(Token.Whitespace));
-      if (token() === Token.Hyphen) {
+      if (parseOptional(Token.Hyphen)) {
         // The doc content starts with a hyphen, so skip it and subsequent whitespace
-        nextToken();
         while (parseOptional(Token.Whitespace));
       }
     }
