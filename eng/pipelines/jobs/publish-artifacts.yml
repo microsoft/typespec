@@ -16,7 +16,7 @@ jobs:
 
       - template: ../templates/install.yml
         parameters:
-          nodeVersion: "20.5"
+          nodeVersion: "20.x"
       - template: ../templates/build.yml
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)

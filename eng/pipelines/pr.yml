@@ -40,12 +40,12 @@ jobs:
         "Linux - Node 20.x":
           pool: azsdk-pool-mms-ubuntu-2004-general
           imageName: ubuntu-20.04
-          nodeVersion: "20.5"
+          nodeVersion: "20.x"
 
         "Windows - Node 20.x":
           pool: azsdk-pool-mms-win-2022-general
           imageName: windows-2022
-          nodeVersion: "20.5"
+          nodeVersion: "20.x"
 
     pool:
       name: $(pool)
