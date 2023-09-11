@@ -10,61 +10,15 @@ import {
   useId,
 } from "@fluentui/react-components";
 import { TypeSpecLibrary } from "@typespec/compiler";
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { EmitterOptions } from "./types.js";
+import { FunctionComponent, useCallback, useMemo } from "react";
+import { EmitterOptions } from "../types.js";
 
-export type OutputSettingsProps = {
-  selectedEmitter: string;
-  options: EmitterOptions;
-  optionsChanged: (options: EmitterOptions) => void;
-};
-
-export const OutputSettings: FunctionComponent<OutputSettingsProps> = ({
-  selectedEmitter,
-  options,
-  optionsChanged,
-}) => {
-  const library = useTypeSpecLibrary(selectedEmitter);
-  return (
-    <div css={{ padding: 10 }}>
-      <h2>Settings</h2>
-      <>Emitter: {selectedEmitter}</>
-      <h3>Options</h3>
-      {library && (
-        <EmitterOptionsForm library={library} options={options} optionsChanged={optionsChanged} />
-      )}
-    </div>
-  );
-};
-
-function useTypeSpecLibrary(name: string): TypeSpecLibrary<any> | undefined {
-  const [lib, setLib] = useState<TypeSpecLibrary<any>>();
-
-  useEffect(() => {
-    setLib(undefined);
-    import(/* @vite-ignore */ name)
-      .then((module) => {
-        if (module.$lib === undefined) {
-          // eslint-disable-next-line no-console
-          console.error(`Couldn't load library ${name} missing $lib export`);
-        }
-        setLib(module.$lib);
-      })
-      .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.error("Failed to load library", name);
-      });
-  }, [name]);
-  return lib;
-}
-
-type EmitterOptionsFormProps = {
+export interface EmitterOptionsFormProps {
   library: TypeSpecLibrary<any>;
   options: EmitterOptions;
   optionsChanged: (options: EmitterOptions) => void;
-};
-
-const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
+}
+export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
   library,
   options,
   optionsChanged,

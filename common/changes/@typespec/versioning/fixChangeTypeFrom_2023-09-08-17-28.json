@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Fixed issue with `@typeChangedFrom` complaining about incorrect versioned references.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
