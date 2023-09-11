@@ -2,6 +2,121 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+      @parameterVisibility("create", "update")
+      @route("/") @patch op createOrUpdate(...M): M; 
+    `);
+
+    const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
+    const request = res.paths["/"].patch.requestBody.content["application/json"].schema;
+
+    deepStrictEqual(response, { $ref: "#/components/schemas/M" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/MCreateOrUpdate" });
+    deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
+      },
+      MCreateOrUpdate: {
+        type: "object",
+        properties: {
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+      },
+    });
+  });
+
+  it("will expose create visibility properties on PUT model", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+      @route("/") @put op createOrUpdate(...M): M; 
+    `);
+
+    const response = res.paths["/"].put.responses["200"].content["application/json"].schema;
+    const request = res.paths["/"].put.requestBody.content["application/json"].schema;
+
+    deepStrictEqual(response, { $ref: "#/components/schemas/M" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/M" });
+    deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
+      },
+    });
+  });
+
+  it("ensures properties are required for array updates", async () => {
+    const res = await openApiFor(`
+      model Person {
+        @visibility("read") id: string;
+        @visibility("create") secret: string;
+        name: string;
+      
+        @visibility("read", "create")
+        test: string;
+      
+        @visibility("other", "read", "update")
+        other: string;
+      
+        @visibility("read", "create", "update")
+        relatives: PersonRelative[];
+      }
+      
+      model PersonRelative {
+        person: Person;
+        relationship: string;
+      }
+      @route("/") @patch op update(...Person): Person; 
+    `);
+
+    const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
+    const request = res.paths["/"].patch.requestBody.content["application/json"].schema;
+
+    deepStrictEqual(response, { $ref: "#/components/schemas/Person" });
+    deepStrictEqual(request, { $ref: "#/components/schemas/PersonUpdate" });
+    deepStrictEqual(res.components.schemas.PersonUpdateItem, {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        other: { type: "string" },
+        relatives: {
+          type: "array",
+          items: { $ref: "#/components/schemas/PersonRelativeUpdateItem" },
+        },
+      },
+      required: ["name", "other", "relatives"],
+    });
+    deepStrictEqual(res.components.schemas.PersonRelativeUpdateItem, {
+      type: "object",
+      properties: {
+        person: { $ref: "#/components/schemas/PersonUpdateItem" },
+        relationship: { type: "string" },
+      },
+      required: ["person", "relationship"],
+    });
+  });
+
   it("can make properties optional", async () => {
     const res = await openApiFor(`
       model Widget { 
@@ -206,7 +321,6 @@ describe("openapi3: metadata", () => {
       },
       D: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/M",
@@ -215,7 +329,6 @@ describe("openapi3: metadata", () => {
       },
       DCreate: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MCreate",
@@ -224,7 +337,6 @@ describe("openapi3: metadata", () => {
       },
       DCreateOrUpdate: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MCreateOrUpdate",
@@ -233,7 +345,6 @@ describe("openapi3: metadata", () => {
       },
       DDelete: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MDelete",
@@ -242,7 +353,6 @@ describe("openapi3: metadata", () => {
       },
       DQuery: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MQuery",
@@ -251,7 +361,6 @@ describe("openapi3: metadata", () => {
       },
       DUpdate: {
         type: "object",
-        properties: {},
         allOf: [
           {
             $ref: "#/components/schemas/MUpdate",
@@ -408,6 +517,7 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
+            description: "The body type of the operation request or response.",
             required: true,
             content: {
               "application/json": {

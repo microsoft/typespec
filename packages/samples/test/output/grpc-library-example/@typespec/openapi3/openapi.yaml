@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Grpc Library sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: LibraryService
 paths:
@@ -55,7 +55,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/shelf_name/books/{name}:
+  '/v1/shelves/shelf_name/books/{name}':
     get:
       tags:
         - LibraryService
@@ -85,16 +85,15 @@ paths:
         - $ref: '#/components/parameters/DeleteBookRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:
+  '/v1/shelves/{name}':
     get:
       tags:
         - LibraryService
@@ -124,16 +123,15 @@ paths:
         - $ref: '#/components/parameters/DeleteShelfRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}/books:
+  '/v1/shelves/{name}/books':
     post:
       tags:
         - LibraryService
@@ -189,7 +187,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:merge:
+  '/v1/shelves/{name}:merge':
     post:
       tags:
         - LibraryService
@@ -201,8 +199,7 @@ paths:
 
         `other_shelf_name`. Returns the updated shelf.
 
-        The book ids of the moved books may not be the same as the original
-        books.
+        The book ids of the moved books may not be the same as the original books.
 
         Returns NOT_FOUND if either shelf does not exist.
 
@@ -314,6 +311,9 @@ components:
   schemas:
     Book:
       type: object
+      description: A single book in the library.
+      required:
+        - name
       properties:
         name:
           allOf:
@@ -331,25 +331,24 @@ components:
         read:
           type: boolean
           description: Value indicating whether the book has been read.
-      description: A single book in the library.
-      required:
-        - name
     CreateShelfRequest:
       type: object
+      description: Request message for LibraryService.CreateShelf.
+      required:
+        - body
       properties:
         body:
           allOf:
             - $ref: '#/components/schemas/Shelf'
           description: The shelf to create.
-      description: Request message for LibraryService.CreateShelf.
-      required:
-        - body
     Empty:
       type: object
-      properties: {}
       description: No body returned
     ListBooksResponse:
       type: object
+      description: Response message for LibraryService.ListBooks.
+      required:
+        - books
       properties:
         books:
           type: array
@@ -365,13 +364,9 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
-      description: Response message for LibraryService.ListBooks.
-      required:
-        - books
     ListResponseBase:
       type: object
       properties:
@@ -384,12 +379,14 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
     ListShelvesResponse:
       type: object
+      description: Response message for LibraryService.ListShelves.
+      required:
+        - shelves
       properties:
         shelves:
           type: array
@@ -405,15 +402,17 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
-      description: Response message for LibraryService.ListShelves.
-      required:
-        - shelves
     MoveBookRequest:
       type: object
+      description: |-
+        Describes what book to move (name) and what shelf we're moving it
+        to (other_shelf_name).
+      required:
+        - name
+        - other_shelf_name
       properties:
         name:
           allOf:
@@ -423,12 +422,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/shelf_name'
           description: The name of the destination shelf.
-      description: |-
-        Describes what book to move (name) and what shelf we're moving it
-        to (other_shelf_name).
-      required:
-        - name
-        - other_shelf_name
     ProtobufAny:
       type: object
       properties:
@@ -438,6 +431,7 @@ components:
           type: string
     RpcStatus:
       type: object
+      description: An unexpected error response.
       properties:
         code:
           type: integer
@@ -448,9 +442,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
-      description: An unexpected error response.
     Shelf:
       type: object
+      description: A Shelf contains a collection of books with a theme.
+      required:
+        - name
       properties:
         name:
           allOf:
@@ -462,11 +458,12 @@ components:
         theme:
           type: string
           description: The theme of the shelf
-      description: A Shelf contains a collection of books with a theme.
-      required:
-        - name
     UpdateBookRequest:
       type: object
+      description: Request message for LibraryService.UpdateBook.
+      required:
+        - name
+        - book
       properties:
         name:
           allOf:
@@ -476,10 +473,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/Book'
           description: The book to update with. The name must match or be empty.
-      description: Request message for LibraryService.UpdateBook.
-      required:
-        - name
-        - book
     book_name:
       type: string
       description: |-

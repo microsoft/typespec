@@ -1,9 +1,12 @@
-import jsyaml from "js-yaml";
 import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, loadFile, omitUndefined } from "../core/util.js";
+import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { deepClone, deepFreeze, doIO, omitUndefined } from "../core/util.js";
+import { createSourceFile } from "../index.js";
+import { getLocationInYamlScript } from "../yaml/index.js";
+import { parseYaml } from "../yaml/parser.js";
+import { YamlScript } from "../yaml/types.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
 import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
@@ -21,7 +24,8 @@ export const defaultConfig = deepFreeze({
  */
 export async function findTypeSpecConfigPath(
   host: CompilerHost,
-  path: string
+  path: string,
+  lookup: boolean = true
 ): Promise<string | undefined> {
   // if the path is a file, return immediately
   const stats = await doIO(
@@ -36,20 +40,37 @@ export async function findTypeSpecConfigPath(
     return path;
   }
   let current = path;
-  while (true) {
-    let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
-    if (pkgPath === undefined) {
-      pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+
+  // only recurse if the path is a directory and the flag was set to true (only for default case)
+  // otherwise, look in the specific directory for tspconfig.yaml ONLY (not cadl-project.yaml)
+  if (!lookup) {
+    current = `${path}/tspconfig.yaml`;
+    const stats = await doIO(
+      () => host.stat(current),
+      current,
+      () => {},
+      { allowFileNotFound: true }
+    );
+    if (stats?.isFile()) {
+      return current;
     }
-    // if found either file in current folder, return it
-    if (pkgPath !== undefined) {
-      return pkgPath;
+    return undefined;
+  } else {
+    while (true) {
+      let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
+      if (pkgPath === undefined) {
+        pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
+      }
+      // if found either file in current folder, return it
+      if (pkgPath !== undefined) {
+        return pkgPath;
+      }
+      const parent = getDirectoryPath(current);
+      if (parent === current) {
+        return undefined;
+      }
+      current = parent;
     }
-    const parent = getDirectoryPath(current);
-    if (parent === current) {
-      return undefined;
-    }
-    current = parent;
   }
 }
 
@@ -61,9 +82,10 @@ export async function findTypeSpecConfigPath(
 export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
   path: string,
-  errorIfNotFound: boolean = false
+  errorIfNotFound: boolean = false,
+  lookup: boolean = true
 ): Promise<TypeSpecConfig> {
-  const typespecConfigPath = await findTypeSpecConfigPath(host, path);
+  const typespecConfigPath = await findTypeSpecConfigPath(host, path, lookup);
   if (typespecConfigPath === undefined) {
     const projectRoot = getDirectoryPath(path);
     const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };
@@ -80,6 +102,7 @@ export async function loadTypeSpecConfigForPath(
     }
     return tsConfig;
   }
+
   const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
   // Add diagnostics if still using cadl-project.yaml
   if (typespecConfigPath.endsWith(OldTypeSpecConfigFilename)) {
@@ -103,7 +126,7 @@ export async function loadTypeSpecConfigFile(
   host: CompilerHost,
   filePath: string
 ): Promise<TypeSpecConfig> {
-  const config = await loadConfigFile(host, filePath, jsyaml.load);
+  const config = await loadConfigFile(host, filePath, parseYaml);
   if (config.diagnostics.length === 0 && config.extends) {
     const extendPath = resolvePath(getDirectoryPath(filePath), config.extends);
     const parent = await loadTypeSpecConfigFile(host, extendPath);
@@ -160,15 +183,19 @@ async function searchConfigFile(
 async function loadConfigFile(
   host: CompilerHost,
   filename: string,
-  loadData: (content: string) => any
+  loadData: (content: SourceFile) => [YamlScript, readonly Diagnostic[]]
 ): Promise<TypeSpecConfig> {
   let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
+  const file =
+    (await doIO(host.readFile, filename, reportDiagnostic)) ?? createSourceFile("", filename);
+  const [yamlScript, yamlDiagnostics] = loadData(file);
+  yamlDiagnostics.forEach((d) => reportDiagnostic(d));
 
-  let [data, file] = await loadFile<TypeSpecRawConfig>(host, filename, loadData, reportDiagnostic);
+  let data: any = yamlScript.value;
 
   if (data) {
-    diagnostics = diagnostics.concat(configValidator.validate(data, file));
+    diagnostics = diagnostics.concat(configValidator.validate(data, yamlScript));
   }
 
   if (!data || diagnostics.length > 0) {
@@ -183,6 +210,7 @@ async function loadConfigFile(
 
   return omitUndefined({
     projectRoot: getDirectoryPath(filename),
+    file: yamlScript,
     filename,
     diagnostics,
     extends: data.extends,
@@ -201,29 +229,35 @@ async function loadConfigFile(
 export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
-  function checkPath(value: string | undefined) {
+  function checkPath(value: string | undefined, path: string[]) {
     if (value === undefined) {
       return;
     }
-    const diagnostic = validatePathAbsolute(value);
+    const diagnostic = validatePathAbsolute(
+      value,
+      config.file ? { file: config.file, path } : NoTarget
+    );
     if (diagnostic) {
       diagnostics.push(diagnostic);
     }
   }
 
-  checkPath(config.outputDir);
-  for (const emitterOptions of Object.values(config.options ?? {})) {
-    checkPath(emitterOptions["emitter-output-dir"]);
+  checkPath(config.outputDir, ["output-dir"]);
+  for (const [emitterName, emitterOptions] of Object.entries(config.options ?? {})) {
+    checkPath(emitterOptions["emitter-output-dir"], ["options", emitterName, "emitter-output-dir"]);
   }
   return diagnostics;
 }
 
-function validatePathAbsolute(path: string): Diagnostic | undefined {
+function validatePathAbsolute(
+  path: string,
+  target: { file: YamlScript; path: string[] } | typeof NoTarget
+): Diagnostic | undefined {
   if (path.startsWith(".") || !isPathAbsolute(path)) {
     return createDiagnostic({
       code: "config-path-absolute",
       format: { path },
-      target: NoTarget,
+      target: target === NoTarget ? target : getLocationInYamlScript(target.file, target.path),
     });
   }
 

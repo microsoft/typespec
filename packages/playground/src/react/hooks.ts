@@ -50,3 +50,18 @@ export function useControllableValue<TValue>(
 
   return [currentValue, setValueOrCallOnChange] as any;
 }
+
+export function useAsyncMemo<T>(
+  callback: () => Promise<T>,
+  defaultValue: T,
+  deps?: React.DependencyList
+): T {
+  const [value, setValue] = useState<T>(defaultValue);
+  useEffect(() => {
+    callback()
+      .then(setValue)
+      // eslint-disable-next-line no-console
+      .catch(() => console.error("Failed to load async memo"));
+  }, deps);
+  return value;
+}

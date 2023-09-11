@@ -82,6 +82,17 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    it("cannot add property where parent model has incompatible indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo extends Record<int32> {
+          prop1: string;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'string' is not assignable to type 'int32'",
+      });
+    });
+
     it("can intersect 2 record", async () => {
       const { Bar } = (await runner.compile(`
         alias Foo = Record<{foo: string}> & Record<{bar: string}>;
@@ -621,6 +632,35 @@ describe("compiler: checker: type relations", () => {
           message: "Type 'string[] | int32[]' is not assignable to type '{}'",
         }
       );
+    });
+
+    describe("recursive models", () => {
+      it("compare recursive models", async () => {
+        await expectTypeAssignable({
+          source: "A",
+          target: "B",
+          commonCode: `
+          model A { a: A }
+          model B { a: B }
+        `,
+        });
+      });
+
+      it("emit diagnostic if they don't match", async () => {
+        const { related, diagnostics } = await checkTypeAssignable({
+          source: "A",
+          target: "B",
+          commonCode: `
+        model A { a: A }
+        model B { a: B, b: B }
+      `,
+        });
+        ok(!related);
+        expectDiagnostics(diagnostics, {
+          code: "missing-property",
+          message: "Property 'b' is missing on type 'A' but required in 'B'",
+        });
+      });
     });
   });
 

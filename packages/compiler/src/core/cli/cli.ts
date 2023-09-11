@@ -106,7 +106,7 @@ async function main() {
           .option("config", {
             type: "string",
             describe:
-              "The path to a TypeSpec config YAML file. If a folder is specified, the CLI will attempt to search for 'tspconfig.yaml' by moving up the folder hierarchy. Defaults to {cwd}.",
+              "The path to a TypeSpec config YAML file or a folder that contains a 'tspconfig.yaml' file.",
           })
           .option("warn-as-error", {
             type: "boolean",

@@ -217,3 +217,44 @@ async function isDirectory(path: string) {
     throw e;
   }
 }
+
+export async function bumpVersionsForPR(
+  workspaceRoot: string,
+  prNumber: number,
+  buildNumber: string
+) {
+  const packages = await getPackages(workspaceRoot);
+  console.log("Packages", packages);
+
+  // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
+
+  const updatedManifests: Record<string, BumpManifest> = {};
+  for (const [packageName, packageInfo] of Object.entries(packages)) {
+    const packageJsonPath = join(packageInfo.path, "package.json");
+    const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
+    const newVersion = getPrVersion(packageInfo.version, prNumber, buildNumber);
+
+    console.log(`Setting version for ${packageName} to '${newVersion}'`);
+    updatedManifests[packageName] = {
+      packageJsonPath,
+      oldVersion: packageJsonContent.version,
+      nextVersion: getNextVersion(packageInfo.version),
+      newVersion,
+      manifest: {
+        ...packageJsonContent,
+        version: newVersion,
+      },
+    };
+  }
+
+  for (const { packageJsonPath, manifest } of Object.values(updatedManifests)) {
+    await writeFile(packageJsonPath, JSON.stringify(manifest, null, 2));
+  }
+}
+
+function getPrVersion(version: string, prNumber: number, buildNumber: string) {
+  const nextVersion = getNextVersion(version);
+  const devVersion = `${nextVersion}-pr-${prNumber}.${buildNumber}`;
+  console.log(`Bumping version ${version} to ${devVersion}`);
+  return devVersion;
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Report library information when crash happen in $onValidate",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

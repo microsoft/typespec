@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Sample showcasing projected names
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /:
@@ -24,6 +24,11 @@ components:
   schemas:
     WithProjectedNames:
       type: object
+      required:
+        - nbf
+        - exp
+        - created
+        - updated
       properties:
         nbf:
           type: integer
@@ -37,8 +42,3 @@ components:
         updated:
           type: integer
           format: int32
-      required:
-        - nbf
-        - exp
-        - created
-        - updated

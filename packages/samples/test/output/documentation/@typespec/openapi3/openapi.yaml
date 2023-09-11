@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Documentaion sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /foo/DefaultDescriptions:
@@ -88,50 +88,50 @@ components:
   schemas:
     Error:
       type: object
-      properties:
-        code:
-          type: integer
-          format: int32
       required:
         - code
-    ErrorWithDocs:
-      type: object
       properties:
         code:
           type: integer
           format: int32
+    ErrorWithDocs:
+      type: object
       description: Error from @doc
       required:
         - code
+      properties:
+        code:
+          type: integer
+          format: int32
     NotFoundResp:
       type: object
-      properties:
-        details:
-          type: string
       required:
         - details
-    NotFoundWithDocsResp:
-      type: object
       properties:
         details:
           type: string
+    NotFoundWithDocsResp:
+      type: object
       description: Not found
       required:
         - details
+      properties:
+        details:
+          type: string
     Resp:
       type: object
-      properties:
-        value:
-          type: integer
-          format: int32
       required:
         - value
-    RespWithDocs:
-      type: object
       properties:
         value:
           type: integer
           format: int32
+    RespWithDocs:
+      type: object
       description: Response from @doc
       required:
         - value
+      properties:
+        value:
+          type: integer
+          format: int32

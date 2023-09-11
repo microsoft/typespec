@@ -1,8 +1,8 @@
 import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
-import { dump } from "js-yaml";
 import { Application, DeclarationReflection, PageEvent, ReflectionKind } from "typedoc";
 import { PluginOptions, load } from "typedoc-plugin-markdown";
+import { stringify } from "yaml";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
   const app = new Application();
 
@@ -16,7 +16,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     typeDeclarationFormat: "table",
     hidePageTitle: true,
     hideBreadcrumbs: true,
-    hideKindPrefix: true,
+    titleTemplate: "{name}",
     hideInPageTOC: true,
     hidePageHeader: true,
 
@@ -32,7 +32,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     githubPages: false,
     readme: "none",
     hideGenerator: true,
-    disableSources: false,
+    disableSources: true,
     ...markdownPluginOptions,
   });
   const project = app.convert();
@@ -66,11 +66,12 @@ export function loadRenderer(app: Application) {
 }
 
 function createFrontMatter(model: DeclarationReflection) {
-  return ["---", dump(createFrontMatterData(model)), "---", ""].join("\n");
+  return ["---", stringify(createFrontMatterData(model)), "---", ""].join("\n");
 }
 
 function createFrontMatterData(model: DeclarationReflection) {
   const kind = ReflectionKind.singularString(model.kind)[0];
+
   return {
     jsApi: true,
     title: `[${kind}] ${model.name}`,

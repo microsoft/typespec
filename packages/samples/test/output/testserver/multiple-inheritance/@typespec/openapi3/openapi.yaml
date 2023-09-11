@@ -1,15 +1,13 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /multipleInheritance/cat:
     get:
       operationId: MultipleInheritance_getCat
-      description: >-
-        Get a cat with name 'Whiskers' where likesMilk, meows, and hisses is
-        true
+      description: Get a cat with name 'Whiskers' where likesMilk, meows, and hisses is true
       parameters: []
       responses:
         '200':
@@ -26,9 +24,8 @@ paths:
                 type: string
     put:
       operationId: MultipleInheritance_putCat
-      description: >-
-        Put a cat with name 'Boots' where likesMilk and hisses is false, meows
-        is true
+      description: Put a cat with name 'Boots' where likesMilk and hisses is false,
+        meows is true
       parameters: []
       responses:
         '200':
@@ -134,9 +131,8 @@ paths:
   /multipleInheritance/kitten:
     get:
       operationId: MultipleInheritance_getKitten
-      description: >-
-        Get a kitten with name 'Gatito' where likesMilk and meows is true, and
-        hisses and eatsMiceYet is false
+      description: Get a kitten with name 'Gatito' where likesMilk and meows is true,
+        and hisses and eatsMiceYet is false
       parameters: []
       responses:
         '200':
@@ -153,8 +149,7 @@ paths:
                 type: string
     put:
       operationId: MultipleInheritance_putKitten
-      description: >-
-        Put a kitten with name 'Kitty' where likesMilk and hisses is false,
+      description: Put a kitten with name 'Kitty' where likesMilk and hisses is false,
         meows and eatsMiceYet is true
       parameters: []
       responses:
@@ -221,55 +216,55 @@ components:
   schemas:
     Cat:
       type: object
-      properties:
-        likesMilk:
-          type: boolean
       required:
         - likesMilk
       allOf:
         - $ref: '#/components/schemas/Feline'
+      properties:
+        likesMilk:
+          type: boolean
     ErrorResponse:
       type: object
-      properties:
-        body:
-          type: string
       description: Unexpected error
       required:
         - body
+      properties:
+        body:
+          type: string
     Feline:
       type: object
-      properties:
-        meows:
-          type: boolean
-        hisses:
-          type: boolean
       required:
         - meows
         - hisses
       allOf:
         - $ref: '#/components/schemas/Pet'
+      properties:
+        meows:
+          type: boolean
+        hisses:
+          type: boolean
     Horse:
       type: object
-      properties:
-        isAShowHorse:
-          type: boolean
       required:
         - isAShowHorse
       allOf:
         - $ref: '#/components/schemas/Pet'
+      properties:
+        isAShowHorse:
+          type: boolean
     Kitten:
       type: object
-      properties:
-        eatsMiceYet:
-          type: boolean
       required:
         - eatsMiceYet
       allOf:
         - $ref: '#/components/schemas/Cat'
+      properties:
+        eatsMiceYet:
+          type: boolean
     Pet:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
-      required:
-        - name

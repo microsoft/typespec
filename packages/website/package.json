@@ -17,7 +17,7 @@
     "lint": "eslint . --ext .ts,.js --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts,.js",
     "regen-docs": "node ./.scripts/regen-compiler-docs.mjs",
-    "regen-all-packages-docs": "node ../../eng/scripts/npm-run-for-deps.js regen-docs"
+    "regen-all-packages-docs": "npm run regen-docs && node ../../eng/scripts/npm-run-for-deps.js regen-docs"
   },
   "keywords": [],
   "author": "",
@@ -34,7 +34,7 @@
     "@fluentui/react-components": "~9.28.0"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.47.0",
+    "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/tspd": "workspace:~0.46.0",
     "@typespec/spec": "workspace:*",
     "@typespec/http": "workspace:~0.47.0",

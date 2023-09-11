@@ -18,6 +18,7 @@ export {
 } from "./library.js";
 export * from "./module-resolver.js";
 export * from "./node-host.js";
+export * from "./options.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
 export * from "./program.js";
