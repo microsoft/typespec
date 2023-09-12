@@ -1,11 +1,11 @@
 ---
 jsApi: true
 title: "[I] RouteProducerResult"
----
 
+---
 ## Properties
 
-| Property     | Type                                                              |
-| :----------- | :---------------------------------------------------------------- |
+| Property | Type |
+| :------ | :------ |
 | `parameters` | [`HttpOperationParameters`](Interface.HttpOperationParameters.md) |
-| `segments`   | `string`[]                                                        |
+| `segments` | `string`[] |

@@ -150,7 +150,7 @@ TypeSpec libraries are defined using `peerDependencies` so we don't end-up with 
 ```jsonc
 {
   "dependencies": {
-    "js-yaml": "~4.1.0" // This is a regular package this library/emitter will use
+    "yaml": "~2.3.1" // This is a regular package this library/emitter will use
   },
   "peerDependencies": {
     // Those are all TypeSpec libraries this library/emitter depend on

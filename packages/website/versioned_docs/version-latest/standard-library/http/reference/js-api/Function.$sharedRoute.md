@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] $sharedRoute"
----
 
+---
 ```ts
 $sharedRoute(context, entity): void
 ```
@@ -16,15 +16,11 @@ route path as long as those operations are also marked with `@sharedRoute`.
 
 ## Parameters
 
-| Parameter | Type               |
-| :-------- | :----------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity`  | `Operation`        |
+| `entity` | `Operation` |
 
 ## Returns
 
 `void`
-
-## Source
-
-[decorators.ts:614](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/decorators.ts#L614)

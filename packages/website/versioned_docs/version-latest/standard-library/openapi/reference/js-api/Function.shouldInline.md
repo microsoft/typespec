@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] shouldInline"
----
 
+---
 ```ts
 shouldInline(program, type): boolean
 ```
@@ -19,15 +19,11 @@ decorator, or chosen by default in simple cases.
 
 ## Parameters
 
-| Parameter | Type      |
-| :-------- | :-------- |
+| Parameter | Type |
+| :------ | :------ |
 | `program` | `Program` |
-| `type`    | `Type`    |
+| `type` | `Type` |
 
 ## Returns
 
 `boolean`
-
-## Source
-
-[helpers.ts:28](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/openapi/src/helpers.ts#L28)

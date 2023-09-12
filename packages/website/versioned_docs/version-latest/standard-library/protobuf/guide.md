@@ -167,34 +167,6 @@ The Protobuf emitter supports declaring the streaming mode of an operation using
 
   Example: `rpc Example(stream In) returns (stream Out);`
 
-## Emitter options
-
-Emitter options can be provided to the CLI with
-
-```bash
---option "@typespec/protobuf.<optionName>=<value>"
-
-# For example
---option "@typespec/protobuf.noEmit=true"
-```
-
-or configured through the `typespec-project.yaml` project configuration:
-
-```yaml
-emitters:
-  '@typespec/protobuf':
-    <optionName>: <value>
-
-# For example
-emitters:
-  '@typespec/protobuf':
-    noEmit: true
-```
-
-#### `noEmit`
-
-If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.
-
 [native-service]: ../built-in-decorators#service
 [protobuf-service]: reference/decorators#@TypeSpec.Protobuf.service
 [protobuf-package]: reference/decorators#@TypeSpec.Protobuf.package
