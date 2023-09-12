@@ -2421,6 +2421,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
   }
 
+  /**
+   * Handles param-like documentation comment tags: `@param` and
+   * `@typeParam` (or `@template`).
+   *
+   * @see <a href="https://tsdoc.org/pages/tags/param/">@param</a>
+   * @see <a href="https://tsdoc.org/pages/tags/typeparam/">@typeParam</a>
+   */
   function parseDocParamLikeTag(
     pos: number,
     tagName: IdentifierNode,
@@ -2428,17 +2435,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
   ): ParamLikeTag {
     const name = parseDocIdentifier(messageId);
-
-    if (messageId === "param") {
-      // The TSDoc spec expects a hyphen in the `@param` case, but it does
-      // not require it in practice. Thus, TypeSpec should handle both cases.
-      while (parseOptional(Token.Whitespace));
-      if (parseOptional(Token.Hyphen)) {
-        // The doc content starts with a hyphen, so skip it and subsequent whitespace
-        while (parseOptional(Token.Whitespace));
-      }
-    }
-
+    parseParamLikeHyphen();
     const content = parseDocContent();
 
     return {
@@ -2448,6 +2445,21 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       content,
       ...finishNode(pos),
     };
+  }
+
+  /**
+   * Handles the optional hyphen in param-like comment tags.
+   *
+   * The TSDoc spec expects a hyphen in the `@param` case, but it does not
+   * require it in practice. Thus, TypeSpec should handle both cases.
+   */
+  function parseParamLikeHyphen() {
+    while (parseOptional(Token.Whitespace)); // Skip whitespace
+    if (parseOptional(Token.Hyphen)) {
+      // The doc content started with a hyphen, so skip subsequent whitespace
+      // (The if statement already advanced past the hyphen itself.)
+      while (parseOptional(Token.Whitespace));
+    }
   }
 
   function parseDocSimpleTag(
