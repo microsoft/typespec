@@ -305,13 +305,13 @@ async function findOutputFiles(host: BrowserHost): Promise<string[]> {
 async function emptyOutputDir(host: BrowserHost) {
   // empty output directory
   const dirs = await host.readDir("./tsp-output");
-  for (const file of dirs) {
+  await Promise.all((file) => {
     const path = "./tsp-output/" + file;
     const uri = Uri.parse(host.pathToFileURL(path));
     const model = editor.getModel(uri);
     if (model) {
       model.dispose();
     }
-    await host.rm(path, { recursive: true });
-  }
+    return host.rm(path, { recursive: true });
+  })
 }

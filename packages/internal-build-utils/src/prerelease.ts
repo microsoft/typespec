@@ -161,10 +161,10 @@ async function addPrereleaseNumber(
     };
   }
 
-  for (const { packageJsonPath, manifest } of Object.values(updatedManifests)) {
+  await Promise.all(Object.values(updatedManifests).map(({ packageJsonPath, manifest }) => {
     const newManifest = updateDependencyVersions(manifest, updatedManifests);
-    await writeFile(packageJsonPath, JSON.stringify(newManifest, null, 2));
-  }
+    return writeFile(packageJsonPath, JSON.stringify(newManifest, null, 2));
+  }))
 }
 
 export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
@@ -247,9 +247,9 @@ export async function bumpVersionsForPR(
     };
   }
 
-  for (const { packageJsonPath, manifest } of Object.values(updatedManifests)) {
-    await writeFile(packageJsonPath, JSON.stringify(manifest, null, 2));
-  }
+  await Promise.all(Object.values(updatedManifests).map(({ packageJsonPath, manifest }) => {
+    return writeFile(packageJsonPath, JSON.stringify(manifest, null, 2));
+  }))
 }
 
 function getPrVersion(version: string, prNumber: number, buildNumber: string) {

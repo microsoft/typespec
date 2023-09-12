@@ -113,8 +113,7 @@ export async function migratePackageVersion(
 
 /** This is used by test code to migrate single file content */
 export async function migrateTypeSpecContent(content: string, migration: AstContentMigration<any>) {
-  const fromCompiler = await loadCompiler(migration.from);
-  const toCompiler = await loadCompiler(migration.to);
+  const [fromCompiler, toCompiler] = await Promise.all([loadCompiler(migration.from), loadCompiler(migration.to)])
   return migrateTypeSpecContentInternal(fromCompiler, toCompiler, content, migration);
 }
 

@@ -97,9 +97,9 @@ export async function watchTypeSpecBundle(
 export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: string) {
   const bundle = await createTypeSpecBundle(libraryPath);
   await mkdir(outputDir, { recursive: true });
-  for (const file of bundle.files) {
-    await writeFile(joinPaths(outputDir, file.filename), file.content);
-  }
+  await Promise.all(bundle.files.map((file) => {
+    return writeFile(joinPaths(outputDir, file.filename), file.content);
+  }))
 }
 
 async function resolveTypeSpecBundleDefinition(

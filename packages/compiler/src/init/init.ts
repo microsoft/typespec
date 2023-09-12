@@ -153,8 +153,10 @@ export async function initTypeSpecProject(
     },
   ]);
 
-  const libraries = await selectLibraries(template);
-  const parameters = await promptCustomParameters(template);
+  const [libraries, parameters] = await Promise.all([
+    selectLibraries(template),
+    promptCustomParameters(template),
+  ]);
   const scaffoldingConfig = makeScaffoldingConfig({
     ...template,
     templateUri: url?.finalUrl ?? ".",
@@ -453,11 +455,11 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
   if (!config.files) {
     return;
   }
-  for (const file of config.files) {
+  await Promise.all(config.files.map((file) => {
     if (file.skipGeneration !== true) {
-      await writeFile(host, config, file);
+      return writeFile(host, config, file);
     }
-  }
+  }))
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
