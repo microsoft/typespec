@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vscode",
+      "comment": "Add colors definition for `param`",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vscode"
+}

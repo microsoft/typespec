@@ -97,6 +97,9 @@
           ],
           "macro": [
             "entity.name.tag.tsp"
+          ],
+          "docCommentTag": [
+            "keyword.other.tsp"
           ]
         }
       }
