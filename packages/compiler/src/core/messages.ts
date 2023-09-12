@@ -481,7 +481,8 @@ const diagnostics = {
   "invalid-deprecation-argument": {
     severity: "error",
     messages: {
-      default: "Invalid deprecation argument",
+      default: paramMessage`#deprecation directive is expecting a string literal as the message but got a "${"kind"}"`,
+      missing: "#deprecation directive is expecting a message argument but none was provided.",
     },
   },
   "duplicate-deprecation": {

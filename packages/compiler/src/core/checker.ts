@@ -3879,15 +3879,31 @@ export function createChecker(program: Program): Checker {
 
   function checkDirectives(node: Node, type: Type): void {
     let hasDeprecation: boolean = false;
-    (node.directives ?? []).forEach((directive) => {
+    for (const directive of node.directives ?? []) {
       if (directive.target.sv === "deprecated") {
-        if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
+        const message = directive.arguments[0];
+        if (message === undefined) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-deprecation-argument",
+              messageId: "missing",
+              target: directive,
+            })
+          );
+          continue;
+        }
+        let messageStr;
+        if (message.kind !== SyntaxKind.StringLiteral) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-deprecation-argument",
+              format: { kind: SyntaxKind[message.kind] },
               target: directive.arguments[0],
             })
           );
+          messageStr = "<missing message>";
+        } else {
+          messageStr = message.value;
         }
 
         if (hasDeprecation === true) {
@@ -3897,11 +3913,11 @@ export function createChecker(program: Program): Checker {
         } else {
           hasDeprecation = true;
           markDeprecated(program, type, {
-            message: (directive.arguments[0] as StringLiteralNode).value,
+            message: messageStr,
           });
         }
       }
-    });
+    }
   }
 
   // the types here aren't ideal and could probably be refactored.
