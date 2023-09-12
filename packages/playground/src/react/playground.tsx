@@ -305,7 +305,7 @@ async function findOutputFiles(host: BrowserHost): Promise<string[]> {
 async function emptyOutputDir(host: BrowserHost) {
   // empty output directory
   const dirs = await host.readDir("./tsp-output");
-  await Promise.all(bundle.files.map((file) => {
+  await Promise.all(dirs.map((file) => {
     const path = "./tsp-output/" + file;
     const uri = Uri.parse(host.pathToFileURL(path));
     const model = editor.getModel(uri);
