@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] $segment"
----
 
+---
 ```ts
 $segment(
   context,
@@ -19,16 +19,12 @@ path parameter's name field.
 
 ## Parameters
 
-| Parameter | Type                                      |
-| :-------- | :---------------------------------------- |
-| `context` | `DecoratorContext`                        |
-| `entity`  | `Model` \| `ModelProperty` \| `Operation` |
-| `name`    | `string`                                  |
+| Parameter | Type |
+| :------ | :------ |
+| `context` | `DecoratorContext` |
+| `entity` | `Model` \| `ModelProperty` \| `Operation` |
+| `name` | `string` |
 
 ## Returns
 
 `void`
-
-## Source
-
-[rest.ts:198](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/rest/src/rest.ts#L198)

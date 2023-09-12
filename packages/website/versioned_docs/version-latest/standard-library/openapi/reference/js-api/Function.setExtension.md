@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] setExtension"
----
 
+---
 ```ts
 setExtension(
   program,
@@ -13,17 +13,13 @@ setExtension(
 
 ## Parameters
 
-| Parameter       | Type             |
-| :-------------- | :--------------- |
-| `program`       | `Program`        |
-| `entity`        | `Type`           |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `entity` | `Type` |
 | `extensionName` | \`x-$\{string}\` |
-| `data`          | `unknown`        |
+| `data` | `unknown` |
 
 ## Returns
 
 `void`
-
-## Source
-
-[decorators.ts:58](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/openapi/src/decorators.ts#L58)

@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] validateRouteUnique"
----
 
+---
 ```ts
 validateRouteUnique(
   program,
@@ -12,16 +12,12 @@ validateRouteUnique(
 
 ## Parameters
 
-| Parameter     | Type                                            |
-| :------------ | :---------------------------------------------- |
-| `program`     | `Program`                                       |
-| `diagnostics` | `DiagnosticCollector`                           |
-| `operations`  | [`HttpOperation`](Interface.HttpOperation.md)[] |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `diagnostics` | `DiagnosticCollector` |
+| `operations` | [`HttpOperation`](Interface.HttpOperation.md)[] |
 
 ## Returns
 
 `void`
-
-## Source
-
-[operations.ts:129](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/operations.ts#L129)

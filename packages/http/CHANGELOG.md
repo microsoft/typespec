@@ -1,6 +1,15 @@
 # Change Log - @typespec/http
 
-This log was last generated on Tue, 08 Aug 2023 22:32:10 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Sep 2023 21:47:11 GMT and should not be manually modified.
+
+## 0.48.0
+Tue, 12 Sep 2023 21:47:11 GMT
+
+### Updates
+
+- Deprecated `getRequestVisibility`. Added methods `getDefaultVisibilityForVerb` and `resolveRequestVisibility`. Use either depending on the situation.
+- Add validation step to check whether any operation references another operation with a route prefix defined on a parent container.  This helps avoid unexpected route changes when using operation references.
+- Avoid runtime errors when `OAuth2Auth` is given invalid `OAuth2Flow` arguments
 
 ## 0.47.0
 Tue, 08 Aug 2023 22:32:10 GMT
