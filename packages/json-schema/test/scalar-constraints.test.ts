@@ -35,7 +35,7 @@ describe("emitting scalars with constraints", () => {
   });
 
   describe("number property constraints", () => {
-    for (const numType of scalarNumberTypes) {
+    for (const numType of [...scalarNumberTypes, "int32 | null"]) {
       it(`handles ${numType} properties`, async () => {
         const schemas = await emitSchema(`
           model Test {
