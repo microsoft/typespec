@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "**IDE** Add coloring for doc comment",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
