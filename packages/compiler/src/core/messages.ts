@@ -811,6 +811,12 @@ const diagnostics = {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
+  "circular-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' recursively references itself.`,
+    },
+  },
   "conflict-marker": {
     severity: "error",
     messages: {

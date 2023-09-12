@@ -22,8 +22,16 @@ const config = definePlaygroundViteConfig({
       filename: "samples/unions.tsp",
       preferredEmitter: "@typespec/openapi3",
     },
-    "HTTP service": { filename: "samples/http.tsp", preferredEmitter: "@typespec/openapi3" },
-    "REST framework": { filename: "samples/rest.tsp", preferredEmitter: "@typespec/openapi3" },
+    "HTTP service": {
+      filename: "samples/http.tsp",
+      preferredEmitter: "@typespec/openapi3",
+      compilerOptions: { linterRuleSet: { extends: ["@typespec/http/all"] } },
+    },
+    "REST framework": {
+      filename: "samples/rest.tsp",
+      preferredEmitter: "@typespec/openapi3",
+      compilerOptions: { linterRuleSet: { extends: ["@typespec/http/all"] } },
+    },
     "Protobuf Kiosk": {
       filename: "samples/kiosk.tsp",
       preferredEmitter: "@typespec/protobuf",

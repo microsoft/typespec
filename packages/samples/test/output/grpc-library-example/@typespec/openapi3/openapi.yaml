@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Grpc Library sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: LibraryService
 paths:
@@ -55,7 +55,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/shelf_name/books/{name}:
+  '/v1/shelves/shelf_name/books/{name}':
     get:
       tags:
         - LibraryService
@@ -85,16 +85,15 @@ paths:
         - $ref: '#/components/parameters/DeleteBookRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:
+  '/v1/shelves/{name}':
     get:
       tags:
         - LibraryService
@@ -124,16 +123,15 @@ paths:
         - $ref: '#/components/parameters/DeleteShelfRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may
+            be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}/books:
+  '/v1/shelves/{name}/books':
     post:
       tags:
         - LibraryService
@@ -189,7 +187,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:merge:
+  '/v1/shelves/{name}:merge':
     post:
       tags:
         - LibraryService
@@ -201,8 +199,7 @@ paths:
 
         `other_shelf_name`. Returns the updated shelf.
 
-        The book ids of the moved books may not be the same as the original
-        books.
+        The book ids of the moved books may not be the same as the original books.
 
         Returns NOT_FOUND if either shelf does not exist.
 
@@ -367,8 +364,7 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
     ListResponseBase:
@@ -383,8 +379,7 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
     ListShelvesResponse:
@@ -407,8 +402,7 @@ components:
 
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
+            field in the subsequent call to `ListShelves` method to retrieve the next
 
             page of results.
     MoveBookRequest:

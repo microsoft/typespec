@@ -323,6 +323,7 @@ describe("compiler: parser", () => {
   describe("recovery", () => {
     parseErrorEach([
       [`model M { ]`, [/Property expected/]],
+      [`model M { /** */ */ prop: string }`, [/Property expected/]],
       [
         `
         @dec1 @dec2 import "foo";

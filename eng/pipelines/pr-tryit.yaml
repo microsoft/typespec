@@ -46,7 +46,7 @@ jobs:
           inlineScript: |
             az storage blob upload-batch \
               --destination \$web \
-              --account-name "cadlwebsite" \
+              --account-name "tspwebsitepr" \
               --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/website/build/" \
               --overwrite
