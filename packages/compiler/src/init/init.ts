@@ -458,6 +458,8 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
   await Promise.all(config.files.map((file) => {
     if (file.skipGeneration !== true) {
       return writeFile(host, config, file);
+    }else {
+      return Promise.resolve(null);
     }
   }))
 }
