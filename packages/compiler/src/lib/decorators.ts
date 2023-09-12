@@ -11,6 +11,7 @@ import {
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
+  isNullType,
   reportDeprecated,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
@@ -164,17 +165,30 @@ export function getIndexer(program: Program, target: Type): ModelIndexer | undef
 export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("string");
   const stringType = target.projector ? target.projector.projectType(coreType) : coreType;
-  return (
-    target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, stringType, target)[0]
-  );
+  return isOrUnionOfOrNull(target, (type) => {
+    return type.kind === "Scalar" && program.checker.isTypeAssignableTo(type, stringType, type)[0];
+  });
 }
 
-export function isNumericType(program: Program | ProjectedProgram, target: Type): target is Scalar {
+export function isNumericType(program: Program | ProjectedProgram, target: Type): boolean {
   const coreType = program.checker.getStdType("numeric");
   const numericType = target.projector ? target.projector.projectType(coreType) : coreType;
-  return (
-    target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, numericType, target)[0]
-  );
+  return isOrUnionOfOrNull(target, (type) => {
+    return type.kind === "Scalar" && program.checker.isTypeAssignableTo(type, numericType, type)[0];
+  });
+}
+
+/**
+ * Check the given type is matching the given condition or is a union of null and types matching the condition.
+ * @param type Type to test
+ * @param condition Condition
+ * @returns Boolean
+ */
+function isOrUnionOfOrNull(type: Type, condition: (type: Type) => boolean): boolean {
+  if (type.kind === "Union") {
+    return [...type.variants.values()].every((v) => isNullType(v.type) || condition(v.type));
+  }
+  return condition(type);
 }
 
 /**
