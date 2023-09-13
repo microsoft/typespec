@@ -2,6 +2,24 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.48.0",
+      "tag": "@typespec/http_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Deprecated `getRequestVisibility`. Added methods `getDefaultVisibilityForVerb` and `resolveRequestVisibility`. Use either depending on the situation."
+          },
+          {
+            "comment": "Add validation step to check whether any operation references another operation with a route prefix defined on a parent container.  This helps avoid unexpected route changes when using operation references."
+          },
+          {
+            "comment": "Avoid runtime errors when `OAuth2Auth` is given invalid `OAuth2Flow` arguments"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/http_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

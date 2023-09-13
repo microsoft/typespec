@@ -1,11 +1,11 @@
 ---
 jsApi: true
 title: "[C] VersionMap"
----
 
+---
 ## Constructors
 
-### constructor()
+### new VersionMap
 
 ```ts
 new VersionMap(namespace, enumType): VersionMap
@@ -13,23 +13,19 @@ new VersionMap(namespace, enumType): VersionMap
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `namespace` | `Namespace` |
-| `enumType`  | `Enum`      |
+| `enumType` | `Enum` |
 
 #### Returns
 
 [`VersionMap`](Class.VersionMap.md)
 
-#### Source
-
-[versioning/src/versioning.ts:266](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/versioning/src/versioning.ts#L266)
-
 ## Properties
 
-| Property        | Type                                                      |
-| :-------------- | :-------------------------------------------------------- |
+| Property | Type |
+| :------ | :------ |
 | `private` `map` | `Map`< `EnumMember`, [`Version`](Interface.Version.md) \> |
 
 ## Accessors
@@ -40,13 +36,9 @@ new VersionMap(namespace, enumType): VersionMap
 get size(): number
 ```
 
-#### Source
-
-[versioning/src/versioning.ts:288](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/versioning/src/versioning.ts#L288)
-
 ## Methods
 
-### getVersionForEnumMember()
+### getVersionForEnumMember
 
 ```ts
 getVersionForEnumMember(member): undefined | Version
@@ -54,21 +46,17 @@ getVersionForEnumMember(member): undefined | Version
 
 #### Parameters
 
-| Parameter | Type         |
-| :-------- | :----------- |
-| `member`  | `EnumMember` |
+| Parameter | Type |
+| :------ | :------ |
+| `member` | `EnumMember` |
 
 #### Returns
 
 `undefined` \| [`Version`](Interface.Version.md)
 
-#### Source
+***
 
-[versioning/src/versioning.ts:280](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/versioning/src/versioning.ts#L280)
-
----
-
-### getVersions()
+### getVersions
 
 ```ts
 getVersions(): Version[]
@@ -77,7 +65,3 @@ getVersions(): Version[]
 #### Returns
 
 [`Version`](Interface.Version.md)[]
-
-#### Source
-
-[versioning/src/versioning.ts:284](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/versioning/src/versioning.ts#L284)

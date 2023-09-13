@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] getUseDependencies"
----
 
+---
 ```ts
 getUseDependencies(
   program,
@@ -12,16 +12,12 @@ getUseDependencies(
 
 ## Parameters
 
-| Parameter    | Type                  | Default value |
-| :----------- | :-------------------- | :------------ |
-| `program`    | `Program`             | `undefined`   |
-| `target`     | `Enum` \| `Namespace` | `undefined`   |
-| `searchEnum` | `boolean`             | `true`        |
+| Parameter | Type | Default value |
+| :------ | :------ | :------ |
+| `program` | `Program` | `undefined` |
+| `target` | `Enum` \| `Namespace` | `undefined` |
+| `searchEnum` | `boolean` | `true` |
 
 ## Returns
 
 `Map`< `Namespace`, `Map`< [`Version`](Interface.Version.md), [`Version`](Interface.Version.md) \> \| [`Version`](Interface.Version.md) \> \| `undefined`
-
-## Source
-
-[versioning/src/versioning.ts:359](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/versioning/src/versioning.ts#L359)

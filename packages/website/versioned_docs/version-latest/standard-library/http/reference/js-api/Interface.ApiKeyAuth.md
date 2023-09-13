@@ -1,10 +1,9 @@
 ---
 jsApi: true
 title: "[I] ApiKeyAuth"
+
 ---
-
 An API key is a token that a client provides when making API calls. The key can be sent in the query string:
-
 ```
 GET /something?api_key=abcdef12345
 ```
@@ -29,17 +28,17 @@ Cookie: X-API-KEY=abcdef12345
 
 ## Type parameters
 
-| Parameter                              |
-| :------------------------------------- |
-| `TLocation` _extends_ `ApiKeyLocation` |
-| `TName` _extends_ `string`             |
+| Parameter |
+| :------ |
+| `TLocation` *extends* `ApiKeyLocation` |
+| `TName` *extends* `string` |
 
 ## Properties
 
-| Property       | Type        | Description                      |
-| :------------- | :---------- | :------------------------------- |
-| `description`? | `string`    | Optional description.            |
-| `id`           | `string`    | Id of the authentication scheme. |
-| `in`           | `TLocation` | -                                |
-| `name`         | `TName`     | -                                |
-| `type`         | `"apiKey"`  | -                                |
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `description`? | `string` | Optional description. |
+| `id` | `string` | Id of the authentication scheme. |
+| `in` | `TLocation` | - |
+| `name` | `TName` | - |
+| `type` | `"apiKey"` | - |
