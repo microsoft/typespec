@@ -43,18 +43,18 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/versioning": "workspace:~0.47.0",
+    "@typespec/versioning": "workspace:~0.48.0",
     "@typespec/best-practices": "workspace:~0.45.0",
-    "@typespec/compiler": "workspace:~0.47.1",
-    "@typespec/http": "workspace:~0.47.0",
-    "@typespec/rest": "workspace:~0.47.0",
-    "@typespec/openapi": "workspace:~0.47.0",
-    "@typespec/openapi3": "workspace:~0.47.0",
-    "@typespec/html-program-viewer": "workspace:~0.47.0"
+    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/http": "workspace:~0.48.0",
+    "@typespec/rest": "workspace:~0.48.0",
+    "@typespec/openapi": "workspace:~0.48.0",
+    "@typespec/openapi3": "workspace:~0.48.0",
+    "@typespec/html-program-viewer": "workspace:~0.48.0"
   },
   "devDependencies": {
-    "@typespec/internal-build-utils": "workspace:~0.47.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.47.0",
+    "@typespec/internal-build-utils": "workspace:~0.48.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.48.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "cross-env": "~7.0.3",

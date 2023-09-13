@@ -1,11 +1,11 @@
 ---
 jsApi: true
 title: "[I] ExternalDocs"
----
 
+---
 ## Properties
 
-| Property       | Type     |
-| :------------- | :------- |
+| Property | Type |
+| :------ | :------ |
 | `description`? | `string` |
-| `url`          | `string` |
+| `url` | `string` |
