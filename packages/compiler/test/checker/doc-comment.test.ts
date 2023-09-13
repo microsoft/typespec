@@ -252,4 +252,28 @@ describe("compiler: checker: doc comments", () => {
       "This is the age param doc."
     );
   });
+
+  ([`@typeParam`, `@template`] as const).forEach((templateParam) => {
+    ([true, false] as const).forEach((useHyphen) => {
+      context(`${templateParam} and ${useHyphen ? "yes" : "no"} hyphen`, () => {
+        it("using it in doc comment of operation applies doc on the parameters", async () => {
+          const { Foo } = (await runner.compile(`
+
+        /**
+         * This is the model doc.
+         *
+         * ${templateParam} T${useHyphen ? " - " : " "}This is the template param doc.
+         */
+        model Foo<T> { bar: T }
+        `)) as { Foo: Model };
+
+          strictEqual(getDoc(runner.program, Foo), "This is the model doc.");
+          strictEqual(
+            getDoc(runner.program, Foo.properties.get("T")!),
+            "This is the template param doc."
+          );
+        });
+      });
+    });
+  });
 });
