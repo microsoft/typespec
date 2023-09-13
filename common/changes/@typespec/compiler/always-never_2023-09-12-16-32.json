@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "The `never` type is now assignable to all types",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

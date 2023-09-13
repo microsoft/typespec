@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] isReadonlyProperty"
----
 
+---
 ```ts
 isReadonlyProperty(program, property): boolean
 ```
@@ -16,15 +16,11 @@ designate a read-only property.
 
 ## Parameters
 
-| Parameter  | Type            |
-| :--------- | :-------------- |
-| `program`  | `Program`       |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
 | `property` | `ModelProperty` |
 
 ## Returns
 
 `boolean`
-
-## Source
-
-[helpers.ts:154](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/openapi/src/helpers.ts#L154)

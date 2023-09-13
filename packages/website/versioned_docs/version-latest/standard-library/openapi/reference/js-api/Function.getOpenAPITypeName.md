@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] getOpenAPITypeName"
----
 
+---
 ```ts
 getOpenAPITypeName(
   program,
@@ -22,17 +22,13 @@ namespace using the provided `TypeNameOptions`.
 
 ## Parameters
 
-| Parameter   | Type                         |
-| :---------- | :--------------------------- |
-| `program`   | `Program`                    |
-| `type`      | `Type`                       |
-| `options`   | `TypeNameOptions`            |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `type` | `Type` |
+| `options` | `TypeNameOptions` |
 | `existing`? | `Record`< `string`, `any` \> |
 
 ## Returns
 
 `string`
-
-## Source
-
-[helpers.ts:55](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/openapi/src/helpers.ts#L55)

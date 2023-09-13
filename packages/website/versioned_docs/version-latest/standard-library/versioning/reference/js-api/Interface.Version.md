@@ -1,14 +1,14 @@
 ---
 jsApi: true
 title: "[I] Version"
----
 
+---
 ## Properties
 
-| Property     | Type         |
-| :----------- | :----------- |
+| Property | Type |
+| :------ | :------ |
 | `enumMember` | `EnumMember` |
-| `index`      | `number`     |
-| `name`       | `string`     |
-| `namespace`  | `Namespace`  |
-| `value`      | `string`     |
+| `index` | `number` |
+| `name` | `string` |
+| `namespace` | `Namespace` |
+| `value` | `string` |
