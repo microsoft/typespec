@@ -5474,7 +5474,7 @@ const numericRanges: Record<
   uint8: [0, 255, { int: true }],
   safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
   float32: [-3.4e38, 3.4e38, { int: false }],
-  float64: [Number.MIN_VALUE, Number.MAX_VALUE, { int: false }],
+  float64: [-Number.MAX_VALUE, Number.MAX_VALUE, { int: false }],
 };
 
 /**
