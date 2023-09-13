@@ -35,9 +35,10 @@ jobs:
         run: node common/scripts/install-run-rush.js update
 
       - name: Build
-        run: node common/scripts/install-run-rush.js build --to @typespec/website
+        run: node common/scripts/install-run-rush.js build --to @typespec/website -v
         env:
           TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
+          NODE_OPTIONS: "--max_old_space_size=4096"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
