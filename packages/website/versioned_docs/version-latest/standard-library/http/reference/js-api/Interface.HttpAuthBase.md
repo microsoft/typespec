@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[I] HttpAuthBase"
----
 
+---
 ## Extended By
 
 - [`BasicAuth`](Interface.BasicAuth.md)
@@ -12,7 +12,7 @@ title: "[I] HttpAuthBase"
 
 ## Properties
 
-| Property       | Type     | Description                      |
-| :------------- | :------- | :------------------------------- |
-| `description`? | `string` | Optional description.            |
-| `id`           | `string` | Id of the authentication scheme. |
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `description`? | `string` | Optional description. |
+| `id` | `string` | Id of the authentication scheme. |

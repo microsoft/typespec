@@ -2,6 +2,12 @@
   "name": "@typespec/lint",
   "entries": [
     {
+      "version": "0.48.0",
+      "tag": "@typespec/lint_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {}
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/lint_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

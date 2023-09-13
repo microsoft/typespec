@@ -1,6 +1,28 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Thu, 10 Aug 2023 20:18:00 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Sep 2023 21:47:11 GMT and should not be manually modified.
+
+## 0.48.0
+Tue, 12 Sep 2023 21:47:11 GMT
+
+### Updates
+
+- **Breaking Change** A semicolon is now required after augment decorator  statements.
+- Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`. 
+- Fix issue where --config would search the folder hierarchy looking for `tspconfig.yaml`.
+- **Deprecation** `@deprecated` decorator has been marked as deprecated. Use `#deprecated` directive instead.
+- **IDE** Add coloring for doc comment
+- Changed yaml parser from `js-yaml` to `yaml`
+- Parsing and validation of the tspconfig.yaml will not report the error location.
+- **Fix** Stackoverflow when model property reference itself
+- **Fix** Compiler crash when using alias of namespace that has decorators
+- Fix: Compiler freeze when using invalid token between doc comment and type
+- **Added** validation making sure properties of model are compatible with a base model indexer (using `extends`)
+- Fix: Crash with when relating recursive types
+- Fix typo in 'format' error message
+- Expose `CompilerOptions` TypeScript type
+- Report library information when crash happen in $onValidate
+- Diagnostics reported on nodes with an `id` will see the diagnostic highlight the id instead of the whole node. For example it will show the error on the model name instead of highlighting the entire model.
 
 ## 0.47.1
 Thu, 10 Aug 2023 20:18:00 GMT
