@@ -124,7 +124,7 @@ const OpenAPISection = () => {
           title: "TypeSpec for OpenAPI developers",
           description: "Description todo",
           image: "design",
-          link: "todo",
+          link: "/openapi",
         },
         {
           title: "Title",
@@ -148,7 +148,7 @@ const EcoSystemSection = () => {
           title: "TypeSpec for JSON RPC developer",
           description: "Description todo",
           image: "design",
-          link: "todo",
+          link: "/json-rpc",
         },
       ]}
     />
@@ -166,7 +166,7 @@ const FlexibilitySection = () => {
           title: "Title todo",
           description: "Description todo",
           image: "design",
-          link: "todo",
+          link: "/data-validation",
         },
         {
           title: "Title todo",

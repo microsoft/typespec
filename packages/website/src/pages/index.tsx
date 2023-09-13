@@ -1,26 +1,10 @@
-import BrowserOnly from "@docusaurus/BrowserOnly";
-import { useColorMode } from "@docusaurus/theme-common";
-import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
-import Layout from "@theme/Layout";
+import { FluentLayout } from "../components/fluent-layout";
 import { HomeContent } from "../components/homepage/homepage";
 
 export default function Home() {
   return (
-    <Layout>
-      <HomeWithFluent />
-    </Layout>
+    <FluentLayout>
+      <HomeContent />
+    </FluentLayout>
   );
 }
-
-const HomeWithFluent = () => {
-  const { colorMode } = useColorMode();
-  return (
-    <BrowserOnly>
-      {() => (
-        <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
-          <HomeContent />
-        </FluentProvider>
-      )}
-    </BrowserOnly>
-  );
-};

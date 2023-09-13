@@ -44,12 +44,7 @@ export const Section = ({ header, title, description, items }: SectionProps) => 
             </Caption1>
             <Title2 block={true}>{title}</Title2>
           </div>
-          <div
-            className={mergeClasses(
-              fluentStyles.descriptionText,
-              style["info-description"]
-            )}
-          >
+          <div className={mergeClasses(fluentStyles.descriptionText, style["info-description"])}>
             {description}
           </div>
         </div>
