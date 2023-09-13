@@ -3,6 +3,7 @@ trigger:
 pr:
   - main
   - release/*
+  - feature/website-design
 
 jobs:
   - job: Build_And_Test
