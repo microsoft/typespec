@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] getRequestVisibility"
----
 
+---
 ```ts
 getRequestVisibility(verb): Visibility
 ```
@@ -10,20 +10,23 @@ getRequestVisibility(verb): Visibility
 Determines the visibility to use for a request with the given verb.
 
 - GET | HEAD => Visibility.Query
-- POST => Visibility.Update
+- POST => Visibility.Create
+- PATCH => Visibility.Update
 - PUT => Visibility.Create | Update
 - DELETE => Visibility.Delete
 
 ## Parameters
 
-| Parameter | Type                           |
-| :-------- | :----------------------------- |
-| `verb`    | [`HttpVerb`](Type.HttpVerb.md) |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `verb` | [`HttpVerb`](Type.HttpVerb.md) | The HTTP verb for the operation. |
 
 ## Returns
 
 [`Visibility`](Enumeration.Visibility.md)
 
-## Source
+The applicable parameter visibility or visibilities for the request.
 
-[metadata.ts:119](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L119)
+## Deprecated
+
+Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb, `getDefaultVisibilityForVerb`.

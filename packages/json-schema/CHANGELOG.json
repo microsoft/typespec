@@ -2,6 +2,21 @@
   "name": "@typespec/json-schema",
   "entries": [
     {
+      "version": "0.48.0",
+      "tag": "@typespec/json-schema_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Support decimal scalar types."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/json-schema_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

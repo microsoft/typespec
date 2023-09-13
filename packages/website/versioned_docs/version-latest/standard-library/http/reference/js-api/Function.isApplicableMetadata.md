@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] isApplicableMetadata"
----
 
+---
 ```ts
 isApplicableMetadata(
   program,
@@ -22,17 +22,13 @@ given visibility.
 
 ## Parameters
 
-| Parameter            | Type                                      | Default value |
-| :------------------- | :---------------------------------------- | :------------ |
-| `program`            | `Program`                                 | `undefined`   |
-| `property`           | `ModelProperty`                           | `undefined`   |
-| `visibility`         | [`Visibility`](Enumeration.Visibility.md) | `undefined`   |
-| `isMetadataCallback` | (`program`, `property`) => `boolean`      | `isMetadata`  |
+| Parameter | Type | Default value |
+| :------ | :------ | :------ |
+| `program` | `Program` | `undefined` |
+| `property` | `ModelProperty` | `undefined` |
+| `visibility` | [`Visibility`](Enumeration.Visibility.md) | `undefined` |
+| `isMetadataCallback` | (`program`, `property`) => `boolean` | `isMetadata` |
 
 ## Returns
 
 `boolean`
-
-## Source
-
-[metadata.ts:231](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L231)

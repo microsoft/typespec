@@ -172,6 +172,34 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
+  describe("never source", () => {
+    [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "decimal",
+      "decimal128",
+      "string",
+      "numeric",
+      "float",
+      "Record<string>",
+      "bytes",
+      "duration",
+      "plainDate",
+    ].forEach((x) => {
+      it(`can assign to ${x}`, async () => {
+        await expectTypeAssignable({ source: "never", target: x });
+      });
+    });
+  });
+
   describe("string target", () => {
     it("can assign string", async () => {
       await expectTypeAssignable({ source: "string", target: "string" });
@@ -417,6 +445,43 @@ describe("compiler: checker: type relations", () => {
           message: "Type 'boolean' is not assignable to type 'float'",
         }
       );
+    });
+  });
+
+  describe("float32 target", () => {
+    it("can assign float32", async () => {
+      await expectTypeAssignable({ source: "float32", target: "float32" });
+    });
+
+    it("can assign numeric literal between -3.4e38, 3.4e38", async () => {
+      await expectTypeAssignable({ source: "-123456789.123456789", target: "float32" });
+      await expectTypeAssignable({ source: "123456789.123456789", target: "float32" });
+      await expectTypeAssignable({ source: "0.0", target: "float32" });
+    });
+
+    it("emit diagnostic when numeric literal is out of range large", async () => {
+      await expectTypeNotAssignable(
+        { source: `3.4e40`, target: "float32" },
+        {
+          code: "unassignable",
+          message: "Type '3.4e+40' is not assignable to type 'float32'",
+        }
+      );
+    });
+  });
+
+  describe("float64 target", () => {
+    it("can assign float32", async () => {
+      await expectTypeAssignable({ source: "float32", target: "float64" });
+    });
+    it("can assign float64", async () => {
+      await expectTypeAssignable({ source: "float64", target: "float64" });
+    });
+
+    it("can assign numeric literal between -1.79E+308 and 1.79E+308", async () => {
+      await expectTypeAssignable({ source: "-123456789.123456789", target: "float64" });
+      await expectTypeAssignable({ source: "123456789.123456789", target: "float64" });
+      await expectTypeAssignable({ source: "0.0", target: "float64" });
     });
   });
 

@@ -1,17 +1,17 @@
 ---
 jsApi: true
 title: "[I] MetadataInfoOptions"
----
 
+---
 ## Properties
 
-| Property               | Type                                      | Description                                                                                                                                                                                                                                                                                                                                                                             |
-| :--------------------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Property | Type | Description |
+| :------ | :------ | :------ |
 | `canonicalVisibility`? | [`Visibility`](Enumeration.Visibility.md) | The visibility to be used as the baseline against which<br />[isEmptied](Interface.MetadataInfo.md#isemptied) and [isTransformed](Interface.MetadataInfo.md#istransformed)<br />are computed. If not specified, [None](Enumeration.Visibility.md#none) is used, which<br />will consider that any model that has fields that are only visible to<br />some visibilities as transformed. |
 
 ## Methods
 
-### canShareProperty()
+### canShareProperty
 
 ```ts
 optional canShareProperty(property): boolean
@@ -26,14 +26,10 @@ creating a separate schema schema for [Read](Enumeration.Visibility.md#read).
 
 #### Parameters
 
-| Parameter  | Type            |
-| :--------- | :-------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `property` | `ModelProperty` |
 
 #### Returns
 
 `boolean`
-
-#### Source
-
-[metadata.ts:347](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L347)

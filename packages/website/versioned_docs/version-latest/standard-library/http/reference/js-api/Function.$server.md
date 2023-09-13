@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] $server"
----
 
+---
 ```ts
 $server(
   context,
@@ -14,24 +14,20 @@ $server(
 
 Configure the server url for the service.
 
-## Optional
-
-Parameters to interpolate in the server url.
-
 ## Parameters
 
-| Parameter     | Type               | Description                           |
-| :------------ | :----------------- | :------------------------------------ |
-| `context`     | `DecoratorContext` | Decorator context                     |
-| `target`      | `Namespace`        | Decorator target(Must be a namespace) |
-| `url`         | `string`           | -                                     |
-| `description` | `string`           | Description for this server.          |
-| `parameters`? | `Model`            |                                       |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `context` | `DecoratorContext` | Decorator context |
+| `target` | `Namespace` | Decorator target(Must be a namespace) |
+| `url` | `string` | - |
+| `description` | `string` | Description for this server. |
+| `parameters`? | `Model` |  |
 
 ## Returns
 
 `void`
 
-## Source
+## Optional
 
-[decorators.ts:358](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/decorators.ts#L358)
+Parameters to interpolate in the server url.

@@ -2,6 +2,21 @@
   "name": "@typespec/protobuf",
   "entries": [
     {
+      "version": "0.48.0",
+      "tag": "@typespec/protobuf_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Added support for the 'omit-unreachable-types' option."
+          },
+          {
+            "comment": "Automatically convert empty operation parameters into a reference to 'google.protobuf.Empty' instead of synthesizing an empty model."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/protobuf_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",
