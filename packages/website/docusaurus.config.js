@@ -68,7 +68,6 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           path: "../../docs",
           versions: getVersionLabels(),
@@ -83,7 +82,10 @@ const config = {
       }),
     ],
   ],
-  staticDirectories: [resolve(__dirname, "./node_modules/@typespec/spec/dist")],
+  staticDirectories: [
+    resolve(__dirname, "static"),
+    resolve(__dirname, "./node_modules/@typespec/spec/dist"),
+  ],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -92,17 +94,38 @@ const config = {
         title: "TypeSpec",
         items: [
           {
+            type: "dropdown",
+            label: "Use cases",
+            items: [
+              {
+                label: "OpenAPI",
+                to: "/openapi",
+              },
+              {
+                label: "JSON RPC",
+                to: "/json-rpc",
+              },
+              {
+                label: "Data validation and type consistency",
+                to: "/data-validation",
+              },
+            ],
+          },
+          {
             type: "doc",
             docId: "introduction/introduction",
             position: "left",
             label: "Docs",
           },
-          {
-            to: "/specification",
-            position: "left",
-            label: "Specification",
-          },
           { to: "/playground", label: "Playground", position: "left" },
+          {
+            label: "Community",
+            to: "/community",
+          },
+          {
+            label: "Getting started",
+            to: "/docs/introduction/installation",
+          },
           {
             type: "docsVersionDropdown",
             position: "right",

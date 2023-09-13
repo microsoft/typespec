@@ -49,7 +49,7 @@
   ],
   "dependencies": {
     "@emotion/react": "^11.11.1",
-    "@fluentui/react-components": "~9.21.0",
+    "@fluentui/react-components": "~9.28.0",
     "@fluentui/react-icons": "~2.0.190",
     "@typespec/compiler": "workspace:~0.47.1",
     "@typespec/html-program-viewer": "workspace:~0.47.0",
