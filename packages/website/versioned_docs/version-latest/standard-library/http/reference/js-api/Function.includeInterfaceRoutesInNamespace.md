@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] includeInterfaceRoutesInNamespace"
----
 
+---
 ```ts
 includeInterfaceRoutesInNamespace(
   program,
@@ -10,22 +10,18 @@ includeInterfaceRoutesInNamespace(
   sourceInterface): void
 ```
 
-## Deprecated
-
-DO NOT USE. For internal use only as a workaround.
-
 ## Parameters
 
-| Parameter         | Type        | Description                                     |
-| :---------------- | :---------- | :---------------------------------------------- |
-| `program`         | `Program`   | Program                                         |
-| `target`          | `Namespace` | Target namespace                                |
-| `sourceInterface` | `string`    | Interface that should be included in namespace. |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `program` | `Program` | Program |
+| `target` | `Namespace` | Target namespace |
+| `sourceInterface` | `string` | Interface that should be included in namespace. |
 
 ## Returns
 
 `void`
 
-## Source
+## Deprecated
 
-[route.ts:139](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/route.ts#L139)
+DO NOT USE. For internal use only as a workaround.
