@@ -172,6 +172,34 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
+  describe("never source", () => {
+    [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "decimal",
+      "decimal128",
+      "string",
+      "numeric",
+      "float",
+      "Record<string>",
+      "bytes",
+      "duration",
+      "plainDate",
+    ].forEach((x) => {
+      it(`can assign to ${x}`, async () => {
+        await expectTypeAssignable({ source: "never", target: x });
+      });
+    });
+  });
+
   describe("string target", () => {
     it("can assign string", async () => {
       await expectTypeAssignable({ source: "string", target: "string" });

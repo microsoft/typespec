@@ -5172,7 +5172,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
-    if (isVoidType(target) || isNeverType(target)) return false;
+    if (isNeverType(source)) return true;
+    if (isVoidType(target)) return false;
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
       return source.kind === ReflectionNameToKind[target.name];
