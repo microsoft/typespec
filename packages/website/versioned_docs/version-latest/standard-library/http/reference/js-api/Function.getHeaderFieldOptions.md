@@ -1,23 +1,19 @@
 ---
 jsApi: true
 title: "[F] getHeaderFieldOptions"
----
 
+---
 ```ts
 getHeaderFieldOptions(program, entity): HeaderFieldOptions
 ```
 
 ## Parameters
 
-| Parameter | Type      |
-| :-------- | :-------- |
+| Parameter | Type |
+| :------ | :------ |
 | `program` | `Program` |
-| `entity`  | `Type`    |
+| `entity` | `Type` |
 
 ## Returns
 
 [`HeaderFieldOptions`](Interface.HeaderFieldOptions.md)
-
-## Source
-
-[decorators.ts:86](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/decorators.ts#L86)

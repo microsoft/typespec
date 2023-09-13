@@ -1,6 +1,13 @@
 # Change Log - tmlanguage-generator
 
-This log was last generated on Tue, 08 Aug 2023 22:32:10 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Sep 2023 21:47:11 GMT and should not be manually modified.
+
+## 0.4.4
+Tue, 12 Sep 2023 21:47:11 GMT
+
+### Patches
+
+- Upgrade dependency "plist" to latest
 
 ## 0.4.3
 Tue, 08 Aug 2023 22:32:10 GMT

@@ -42,18 +42,17 @@ Built in types are related to each other according to the rules described in [ty
 
 ## Other core types
 
-| Type        | Description                                                                                |
-| ----------- | ------------------------------------------------------------------------------------------ |
-| `bytes`     | A sequence of bytes                                                                        |
-| `string`    | A sequence of textual characters                                                           |
-| `boolean`   | Boolean with `true` and `false` values                                                     |
-| `null`      | Null value                                                                                 |
-| `object`    | Represent any structured model.(With properties)                                           |
-| `Array<T>`  | Array model type, equivalent to `T[]`                                                      |
-| `Record<T>` | Model with string properties where all the properties have type `T`                        |
-| `unknown`   | A top type in TypeSpec that all types can be assigned to.                                  |
-| `void`      | A function/operation return type indicating the function/operation doesn't return a value. |
-| `never`     | The never type indicates the values that will never occur.                                 |
+| Type        | Description                                                                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `bytes`     | A sequence of bytes                                                                                                                                    |
+| `string`    | A sequence of textual characters                                                                                                                       |
+| `boolean`   | Boolean with `true` and `false` values                                                                                                                 |
+| `null`      | Null value                                                                                                                                             |
+| `Array<T>`  | Array model type, equivalent to `T[]`                                                                                                                  |
+| `Record<T>` | Model with string keys where all the values have type `T` (similar to `Map<string, T>` in TypeScript or `Dictionary<string, T>` in .Net)               |
+| `unknown`   | A top type in TypeSpec that all types can be assigned to. Values that can have any type should be assigned this value (similar to `any` in JavaScript) |
+| `void`      | A function/operation return type indicating the function/operation doesn't return a value.                                                             |
+| `never`     | The never type indicates the values that will never occur.                                                                                             |
 
 ## String types
 

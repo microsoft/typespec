@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] includeInapplicableMetadataInPayload"
----
 
+---
 ```ts
 includeInapplicableMetadataInPayload(program, property): boolean
 ```
@@ -10,22 +10,18 @@ includeInapplicableMetadataInPayload(program, property): boolean
 Determines if the given model property should be included in the payload if it is
 inapplicable metadata.
 
-## See
-
-- isApplicableMetadata
-- $includeInapplicableMetadataInPayload
-
 ## Parameters
 
-| Parameter  | Type            |
-| :--------- | :-------------- |
-| `program`  | `Program`       |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
 | `property` | `ModelProperty` |
 
 ## Returns
 
 `boolean`
 
-## Source
+## See
 
-[decorators.ts:662](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/decorators.ts#L662)
+ - isApplicableMetadata
+ - $includeInapplicableMetadataInPayload

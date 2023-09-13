@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] gatherMetadata"
----
 
+---
 ```ts
 gatherMetadata(
   program,
@@ -18,19 +18,15 @@ properties recursively.
 
 ## Parameters
 
-| Parameter            | Type                                       | Default value | Description                                                                                              |
-| :------------------- | :----------------------------------------- | :------------ | :------------------------------------------------------------------------------------------------------- |
-| `program`            | `Program`                                  | `undefined`   | -                                                                                                        |
-| `diagnostics`        | `DiagnosticCollector`                      | `undefined`   | -                                                                                                        |
-| `type`               | `Type`                                     | `undefined`   | -                                                                                                        |
-| `visibility`         | [`Visibility`](Enumeration.Visibility.md)  | `undefined`   | -                                                                                                        |
-| `isMetadataCallback` | (`program`, `property`) => `boolean`       | `isMetadata`  | -                                                                                                        |
-| `rootMapOut`?        | `Map`< `ModelProperty`, `ModelProperty` \> | `undefined`   | If provided, the map will be populated to link<br />nested metadata properties to their root properties. |
+| Parameter | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `program` | `Program` | `undefined` | - |
+| `diagnostics` | `DiagnosticCollector` | `undefined` | - |
+| `type` | `Type` | `undefined` | - |
+| `visibility` | [`Visibility`](Enumeration.Visibility.md) | `undefined` | - |
+| `isMetadataCallback` | (`program`, `property`) => `boolean` | `isMetadata` | - |
+| `rootMapOut`? | `Map`< `ModelProperty`, `ModelProperty` \> | `undefined` | If provided, the map will be populated to link<br />nested metadata properties to their root properties. |
 
 ## Returns
 
 `Set`< `ModelProperty` \>
-
-## Source
-
-[metadata.ts:145](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L145)
