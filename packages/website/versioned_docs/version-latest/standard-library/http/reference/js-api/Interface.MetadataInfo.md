@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[I] MetadataInfo"
----
 
+---
 Provides information about changes that happen to a data type's payload
 when inapplicable metadata is added or invisible properties are removed.
 
@@ -10,7 +10,7 @@ Results are computed on demand and expensive computations are memoized.
 
 ## Methods
 
-### getEffectivePayloadType()
+### getEffectivePayloadType
 
 ```ts
 getEffectivePayloadType(type, visibility): Type
@@ -21,22 +21,18 @@ same set of properties when non-payload properties are excluded.
 
 #### Parameters
 
-| Parameter    | Type                                      |
-| :----------- | :---------------------------------------- |
-| `type`       | `Type`                                    |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | `Type` |
 | `visibility` | [`Visibility`](Enumeration.Visibility.md) |
 
 #### Returns
 
 `Type`
 
-#### Source
+***
 
-[metadata.ts:326](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L326)
-
----
-
-### isEmptied()
+### isEmptied
 
 ```ts
 isEmptied(type, visibility): boolean
@@ -53,22 +49,18 @@ itself is also removed.
 
 #### Parameters
 
-| Parameter    | Type                                      |
-| :----------- | :---------------------------------------- |
-| `type`       | `undefined` \| `Type`                     |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | `undefined` \| `Type` |
 | `visibility` | [`Visibility`](Enumeration.Visibility.md) |
 
 #### Returns
 
 `boolean`
 
-#### Source
+***
 
-[metadata.ts:300](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L300)
-
----
-
-### isOptional()
+### isOptional
 
 ```ts
 isOptional(property, visibility): boolean
@@ -79,22 +71,18 @@ response payload for the given visibility.
 
 #### Parameters
 
-| Parameter    | Type                                      |
-| :----------- | :---------------------------------------- |
-| `property`   | `ModelProperty`                           |
+| Parameter | Type |
+| :------ | :------ |
+| `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](Enumeration.Visibility.md) |
 
 #### Returns
 
 `boolean`
 
-#### Source
+***
 
-[metadata.ts:320](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L320)
-
----
-
-### isPayloadProperty()
+### isPayloadProperty
 
 ```ts
 isPayloadProperty(property, visibility): boolean
@@ -106,22 +94,18 @@ filtered out by the given visibility.
 
 #### Parameters
 
-| Parameter    | Type                                      |
-| :----------- | :---------------------------------------- |
-| `property`   | `ModelProperty`                           |
+| Parameter | Type |
+| :------ | :------ |
+| `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](Enumeration.Visibility.md) |
 
 #### Returns
 
 `boolean`
 
-#### Source
+***
 
-[metadata.ts:314](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L314)
-
----
-
-### isTransformed()
+### isTransformed
 
 ```ts
 isTransformed(type, visibility): boolean
@@ -133,15 +117,11 @@ metadata properties.
 
 #### Parameters
 
-| Parameter    | Type                                      |
-| :----------- | :---------------------------------------- |
-| `type`       | `undefined` \| `Type`                     |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | `undefined` \| `Type` |
 | `visibility` | [`Visibility`](Enumeration.Visibility.md) |
 
 #### Returns
 
 `boolean`
-
-#### Source
-
-[metadata.ts:307](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L307)

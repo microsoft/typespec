@@ -16,7 +16,7 @@ jobs:
     steps:
       - template: ./templates/install.yml
         parameters:
-          nodeVersion: "20.5"
+          nodeVersion: "20.x"
       - template: ./templates/build.yml
 
       - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
@@ -51,7 +51,7 @@ jobs:
     steps:
       - template: ./templates/install.yml
         parameters:
-          nodeVersion: "20.5"
+          nodeVersion: "20.x"
       - template: ./templates/build.yml
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .

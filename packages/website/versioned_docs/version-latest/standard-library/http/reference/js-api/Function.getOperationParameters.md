@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] getOperationParameters"
----
 
+---
 ```ts
 getOperationParameters(
   program,
@@ -14,18 +14,14 @@ getOperationParameters(
 
 ## Parameters
 
-| Parameter              | Type                                                                  | Default value |
-| :--------------------- | :-------------------------------------------------------------------- | :------------ |
-| `program`              | `Program`                                                             | `undefined`   |
-| `operation`            | `Operation`                                                           | `undefined`   |
-| `overloadBase`?        | [`HttpOperation`](Interface.HttpOperation.md)                         | `undefined`   |
-| `knownPathParamNames`? | `string`[]                                                            | `[]`          |
-| `options`?             | [`OperationParameterOptions`](Interface.OperationParameterOptions.md) | `{}`          |
+| Parameter | Type | Default value |
+| :------ | :------ | :------ |
+| `program` | `Program` | `undefined` |
+| `operation` | `Operation` | `undefined` |
+| `overloadBase`? | [`HttpOperation`](Interface.HttpOperation.md) | `undefined` |
+| `knownPathParamNames`? | `string`[] | `[]` |
+| `options`? | [`OperationParameterOptions`](Interface.OperationParameterOptions.md) | `{}` |
 
 ## Returns
 
 [[`HttpOperationParameters`](Interface.HttpOperationParameters.md), *readonly* `Diagnostic`[]]
-
-## Source
-
-[parameters.ts:29](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/parameters.ts#L29)

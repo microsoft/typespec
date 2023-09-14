@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] getParameterKey"
----
 
+---
 ```ts
 getParameterKey(
   program,
@@ -16,18 +16,14 @@ Gets the key that is used to define a parameter in OpenAPI.
 
 ## Parameters
 
-| Parameter        | Type                             |
-| :--------------- | :------------------------------- |
-| `program`        | `Program`                        |
-| `property`       | `ModelProperty`                  |
-| `newParam`       | `unknown`                        |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `property` | `ModelProperty` |
+| `newParam` | `unknown` |
 | `existingParams` | `Record`< `string`, `unknown` \> |
-| `options`        | `TypeNameOptions`                |
+| `options` | `TypeNameOptions` |
 
 ## Returns
 
 `string`
-
-## Source
-
-[helpers.ts:87](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/openapi/src/helpers.ts#L87)
