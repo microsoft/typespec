@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[P] JS Api"
----
 
+---
 ## Index
 
 ### Interfaces
@@ -16,7 +16,7 @@ title: "[P] JS Api"
 ### Variables
 
 - [$lib](Variable.$lib.md)
-- [PROTO_FULL_IDENT](Variable.PROTO_FULL_IDENT.md)
+- [PROTO\_FULL\_IDENT](Variable.PROTO_FULL_IDENT.md)
 - [namespace](Variable.namespace.md)
 
 ### Functions

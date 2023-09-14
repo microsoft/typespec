@@ -557,6 +557,25 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 ```
 
 
+### `@parameterVisibility` {#@parameterVisibility}
+
+Sets which visibilities apply to parameters for the given operation.
+
+```typespec
+@parameterVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+
+
+
 ### `@pattern` {#@pattern}
 
 Specify the the pattern this string should respect using simple regular expression syntax.
@@ -610,6 +629,25 @@ model Certificate {
 expireAt: int32;
 }
 ```
+
+
+### `@returnTypeVisibility` {#@returnTypeVisibility}
+
+Sets which visibilities apply to the return type for the given operation.
+
+```typespec
+@returnTypeVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+
 
 
 ### `@secret` {#@secret}
