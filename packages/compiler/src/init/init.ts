@@ -155,7 +155,6 @@ export async function initTypeSpecProject(
 
   const libraries = await selectLibraries(template);
   const parameters = await promptCustomParameters(template);
-  
   const scaffoldingConfig = makeScaffoldingConfig({
     ...template,
     templateUri: url?.finalUrl ?? ".",
