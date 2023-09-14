@@ -208,6 +208,10 @@ function validateTargetingANumeric(
   }
   return valid;
 }
+
+/**
+ * Validate the given target is a string type or a union containing at least a string type.
+ */
 function validateTargetingAString(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -215,7 +219,7 @@ function validateTargetingAString(
 ) {
   const valid = isTypeIn(getPropertyType(target), (x) => isStringType(context.program, x));
   if (!valid) {
-    createDiagnostic({
+    reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
         decorator: decoratorName,

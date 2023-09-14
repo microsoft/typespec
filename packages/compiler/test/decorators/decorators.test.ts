@@ -881,7 +881,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @secret decorator to type it is not one of: string",
+        message: "Cannot apply @secret decorator to type it is not a string",
       });
     });
   });
