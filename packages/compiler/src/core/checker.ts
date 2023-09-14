@@ -3145,6 +3145,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function isValueType(type: Type): boolean {
+    if (type === nullType) {
+      return true;
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }
@@ -5172,7 +5175,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
-    if (isVoidType(target) || isNeverType(target)) return false;
+    if (isNeverType(source)) return true;
+    if (isVoidType(target)) return false;
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
       return source.kind === ReflectionNameToKind[target.name];
@@ -5473,7 +5477,7 @@ const numericRanges: Record<
   uint8: [0, 255, { int: true }],
   safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
   float32: [-3.4e38, 3.4e38, { int: false }],
-  float64: [Number.MIN_VALUE, Number.MAX_VALUE, { int: false }],
+  float64: [-Number.MAX_VALUE, Number.MAX_VALUE, { int: false }],
 };
 
 /**
