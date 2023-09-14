@@ -455,13 +455,15 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
   if (!config.files) {
     return;
   }
-  await Promise.all(config.files.map((file) => {
-    if (file.skipGeneration !== true) {
-      return writeFile(host, config, file);
-    }else {
-      return Promise.resolve(null);
-    }
-  }))
+  await Promise.all(
+    config.files.map((file) => {
+      if (file.skipGeneration !== true) {
+        return writeFile(host, config, file);
+      } else {
+        return Promise.resolve(null);
+      }
+    })
+  );
 }
 
 async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {

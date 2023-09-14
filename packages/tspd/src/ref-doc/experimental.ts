@@ -28,10 +28,12 @@ export async function generateLibraryDocs(
   const files = renderToDocusaurusMarkdown(refDoc);
   await mkdir(outputDir, { recursive: true });
   const config = await prettier.resolveConfig(libraryPath);
-  await Promise.all(Object.entries(files).map(async ([name, content]) => {
-    const formatted = await formatMarkdown(name, content, config);
-    return writeFile(joinPaths(outputDir, name), formatted);
-  }));
+  await Promise.all(
+    Object.entries(files).map(async ([name, content]) => {
+      const formatted = await formatMarkdown(name, content, config);
+      return writeFile(joinPaths(outputDir, name), formatted);
+    })
+  );
   const readme = await formatMarkdown(
     joinPaths(libraryPath, "README.md"),
     await renderReadme(refDoc, libraryPath),
