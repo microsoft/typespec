@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Allow `null` to be assigned as a default value",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

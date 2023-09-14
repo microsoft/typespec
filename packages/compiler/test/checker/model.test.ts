@@ -108,6 +108,7 @@ describe("compiler: models", () => {
       ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
       ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
       ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
+      ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
     ];
 
     for (const [type, defaultValue, expectedValue] of testCases) {
