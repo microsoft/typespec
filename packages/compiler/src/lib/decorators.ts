@@ -2,7 +2,6 @@ import {
   isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
-  validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
@@ -11,7 +10,6 @@ import {
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
-  isNullType,
   reportDeprecated,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
@@ -165,17 +163,17 @@ export function getIndexer(program: Program, target: Type): ModelIndexer | undef
 export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("string");
   const stringType = target.projector ? target.projector.projectType(coreType) : coreType;
-  return isOrUnionOfOrNull(target, (type) => {
-    return type.kind === "Scalar" && program.checker.isTypeAssignableTo(type, stringType, type)[0];
-  });
+  return (
+    target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, stringType, target)[0]
+  );
 }
 
-export function isNumericType(program: Program | ProjectedProgram, target: Type): boolean {
+export function isNumericType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("numeric");
   const numericType = target.projector ? target.projector.projectType(coreType) : coreType;
-  return isOrUnionOfOrNull(target, (type) => {
-    return type.kind === "Scalar" && program.checker.isTypeAssignableTo(type, numericType, type)[0];
-  });
+  return (
+    target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, numericType, target)[0]
+  );
 }
 
 /**
@@ -184,15 +182,52 @@ export function isNumericType(program: Program | ProjectedProgram, target: Type)
  * @param condition Condition
  * @returns Boolean
  */
-function isOrUnionOfOrNull(type: Type, condition: (type: Type) => boolean): boolean {
+function isTypeIn(type: Type, condition: (type: Type) => boolean): boolean {
   if (type.kind === "Union") {
-    return [...type.variants.values()].every((v) => isNullType(v.type) || condition(v.type));
+    return [...type.variants.values()].some((v) => condition(v.type));
   }
+
   return condition(type);
 }
 
+function validateTargetingANumeric(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  decoratorName: string
+) {
+  const valid = isTypeIn(getPropertyType(target), (x) => isNumericType(context.program, x));
+  if (!valid) {
+    createDiagnostic({
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `type it is not a numeric`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+function validateTargetingAString(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  decoratorName: string
+) {
+  const valid = isTypeIn(getPropertyType(target), (x) => isStringType(context.program, x));
+  if (!valid) {
+    createDiagnostic({
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `type it is not a string`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
 /**
- * Check if a model is an array type.
  * @param type Model type
  */
 export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
@@ -256,7 +291,7 @@ const formatValuesKey = createStateSymbol("formatValues");
 export function $format(context: DecoratorContext, target: Scalar | ModelProperty, format: string) {
   validateDecoratorUniqueOnNode(context, target, $format);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
+  if (!validateTargetingAString(context, target, "@format")) {
     return;
   }
   const targetType = getPropertyType(target);
@@ -286,7 +321,7 @@ export function $pattern(
 ) {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", ["string"])) {
+  if (!validateTargetingAString(context, target, "@pattern")) {
     return;
   }
 
@@ -309,7 +344,7 @@ export function $minLength(
   validateDecoratorUniqueOnNode(context, target, $minLength);
 
   if (
-    !validateDecoratorTargetIntrinsic(context, target, "@minLength", ["string"]) ||
+    !validateTargetingAString(context, target, "@minLength") ||
     !validateRange(context, minLength, getMaxLength(context.program, target))
   ) {
     return;
@@ -334,7 +369,7 @@ export function $maxLength(
   validateDecoratorUniqueOnNode(context, target, $maxLength);
 
   if (
-    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", ["string"]) ||
+    !validateTargetingAString(context, target, "@maxLength") ||
     !validateRange(context, getMinLength(context.program, target), maxLength)
   ) {
     return;
@@ -425,14 +460,7 @@ export function $minValue(
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minValue", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@minValue")) {
     return;
   }
 
@@ -464,14 +492,7 @@ export function $maxValue(
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxValue", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@maxValue")) {
     return;
   }
 
@@ -582,7 +603,7 @@ const secretTypesKey = createStateSymbol("secretTypes");
 export function $secret(context: DecoratorContext, target: Scalar | ModelProperty) {
   validateDecoratorUniqueOnNode(context, target, $secret);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@secret", ["string"])) {
+  if (!validateTargetingAString(context, target, "@secret")) {
     return;
   }
   context.program.stateMap(secretTypesKey).set(target, true);
@@ -911,17 +932,15 @@ export function $knownValues(
   target: Scalar | ModelProperty,
   knownValues: Enum
 ) {
-  if (
-    !validateDecoratorTargetIntrinsic(context, target, "@knownValues", [
-      "string",
-      "int8",
-      "int16",
-      "int32",
-      "int64",
-      "float32",
-      "float64",
-    ])
-  ) {
+  const type = getPropertyType(target);
+  if (!isStringType(context.program, type) && !isNumericType(context.program, type)) {
+    context.program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@knownValues", to: "type, it is  not a string or numeric" },
+        target,
+      })
+    );
     return;
   }
 

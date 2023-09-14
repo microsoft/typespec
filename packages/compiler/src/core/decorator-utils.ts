@@ -3,7 +3,6 @@ import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
-import { isNullType } from "./type-utils.js";
 import {
   DecoratorContext,
   DecoratorFunction,
@@ -79,6 +78,9 @@ export function isIntrinsicType(
   );
 }
 
+/**
+ * @deprecated this function is deprecated use decorator definition in typespec instead or check assignability directly.
+ */
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -88,9 +90,9 @@ export function validateDecoratorTargetIntrinsic(
   const expectedTypeStrs = typeof expectedType === "string" ? [expectedType] : expectedType;
   const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
   const type = getPropertyType(target);
-  const isCorrect = isOrUnionOfOrNull(type.projectionBase ?? type, (type) => {
-    return expectedTypes.some((x) => context.program.checker.isTypeAssignableTo(type, x, type)[0]);
-  });
+  const isCorrect = expectedTypes.some(
+    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0]
+  );
   if (!isCorrect) {
     context.program.reportDiagnostic(
       createDiagnostic({
@@ -105,19 +107,6 @@ export function validateDecoratorTargetIntrinsic(
     return false;
   }
   return true;
-}
-
-/**
- * Check the given type is matching the given condition or is a union of null and types matching the condition.
- * @param type Type to test
- * @param condition Condition
- * @returns Boolean
- */
-function isOrUnionOfOrNull(type: Type, condition: (type: Type) => boolean): boolean {
-  if (type.kind === "Union") {
-    return [...type.variants.values()].every((v) => isNullType(v.type) || condition(v.type));
-  }
-  return condition(type);
 }
 
 /** @deprecated use isTypeSpecValueTypeOf */
