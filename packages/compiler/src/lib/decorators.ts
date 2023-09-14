@@ -529,14 +529,7 @@ export function $minValueExclusive(
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
   const { program } = context;
 
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minValueExclusive", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@minValueExclusive")) {
     return;
   }
 
@@ -568,14 +561,7 @@ export function $maxValueExclusive(
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxValue", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@maxValueExclusive")) {
     return;
   }
 

@@ -24,7 +24,6 @@ import {
   getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
-  getPropertyType,
   getService,
   getSummary,
   ignoreDiagnostics,
@@ -37,10 +36,8 @@ import {
   isGlobalNamespace,
   isNeverType,
   isNullType,
-  isNumericType,
   isRecordModelType,
   isSecret,
-  isStringType,
   isTemplateDeclaration,
   listServices,
   Model,
@@ -1475,7 +1472,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
 
-    return schema;
+    return applyIntrinsicDecorators(union, schema);
   }
 
   function getSchemaForUnionVariant(variant: UnionVariant, visibility: Visibility) {
@@ -1672,58 +1669,51 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return mapping;
   }
 
-  function applyIntrinsicDecorators(
-    typespecType: Model | Scalar | ModelProperty,
-    target: OpenAPI3Schema
-  ): OpenAPI3Schema {
+  function applyIntrinsicDecorators(typespecType: Type, target: OpenAPI3Schema): OpenAPI3Schema {
     const newTarget = { ...target };
     const docStr = getDoc(program, typespecType);
-    const isString =
-      typespecType.kind !== "Model" && isStringType(program, getPropertyType(typespecType));
-    const isNumeric =
-      typespecType.kind !== "Model" && isNumericType(program, getPropertyType(typespecType));
 
     if (docStr) {
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, typespecType);
-    if (isString && formatStr) {
+    if (formatStr) {
       newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, typespecType);
-    if (isString && pattern) {
+    if (pattern) {
       newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, typespecType);
-    if (isString && minLength !== undefined) {
+    if (minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, typespecType);
-    if (isString && maxLength !== undefined) {
+    if (maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
     const minValue = getMinValue(program, typespecType);
-    if (isNumeric && minValue !== undefined) {
+    if (minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
     const minValueExclusive = getMinValueExclusive(program, typespecType);
-    if (isNumeric && minValueExclusive !== undefined) {
+    if (minValueExclusive !== undefined) {
       newTarget.minimum = minValueExclusive;
       newTarget.exclusiveMinimum = true;
     }
 
     const maxValue = getMaxValue(program, typespecType);
-    if (isNumeric && maxValue !== undefined) {
+    if (maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
     const maxValueExclusive = getMaxValueExclusive(program, typespecType);
-    if (isNumeric && maxValueExclusive !== undefined) {
+    if (maxValueExclusive !== undefined) {
       newTarget.maximum = maxValueExclusive;
       newTarget.exclusiveMaximum = true;
     }
@@ -1742,13 +1732,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.format = "password";
     }
 
-    if (isString) {
-      const values = getKnownValues(program, typespecType);
-      if (values) {
-        return {
-          oneOf: [newTarget, getSchemaForEnum(values)],
-        };
-      }
+    const values = getKnownValues(program, typespecType as any);
+    if (values) {
+      return {
+        oneOf: [newTarget, getSchemaForEnum(values)],
+      };
     }
 
     attachExtensions(program, typespecType, newTarget);
