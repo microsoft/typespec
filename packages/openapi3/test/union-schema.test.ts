@@ -298,7 +298,7 @@ describe("openapi3: union type", () => {
     ok(res.schemas.X.properties.prop.nullable);
   });
 
-  it("handles discriminated union mapping with multiple visibilites", async () => {
+  it("handles discriminated union mapping with multiple visibilities", async () => {
     const res = await openApiFor(`
       model A {
         type: "ay";
