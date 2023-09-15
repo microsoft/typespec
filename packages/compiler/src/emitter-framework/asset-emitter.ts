@@ -106,7 +106,17 @@ export function createAssetEmitter<T, TOptions extends object>(
     referenceContext: {},
   };
   let programContext: ContextState | null = null;
+
+  // Incoming reference context is reference context that comes from emitting a
+  // type reference. Incoming reference context is only set on the
+  // incomingReferenceContextTarget and types lexically contained within it. For
+  // example, when referencing a model with reference context set, we may need
+  // to get context from the referenced model's namespaces, and such namespaces
+  // will not see the reference context. However, the reference context will be
+  // available for the model, its properties, and any types nested within it
+  // (e.g. anonymous models).
   let incomingReferenceContext: Record<string, string> | null = null;
+  let incomingReferenceContextTarget: Type | null = null;
   const stateInterner = createInterner();
   const stackEntryInterner = createInterner();
 
@@ -189,9 +199,16 @@ export function createAssetEmitter<T, TOptions extends object>(
         return invokeTypeEmitter("enumMemberReference", target);
       }
 
+      const oldIncomingReferenceContext = incomingReferenceContext;
+      const oldIncomingReferenceContextTarget = incomingReferenceContextTarget;
+
       incomingReferenceContext = context.referenceContext ?? null;
+      incomingReferenceContextTarget = incomingReferenceContext ? target : null;
 
       const entity = this.emitType(target);
+
+      incomingReferenceContext = oldIncomingReferenceContext;
+      incomingReferenceContextTarget = oldIncomingReferenceContextTarget;
 
       let placeholder: Placeholder<T> | null = null;
 
@@ -568,9 +585,8 @@ export function createAssetEmitter<T, TOptions extends object>(
     context = programContext;
 
     for (const entry of lexicalTypeStack) {
-      // when we're at the top of the lexical context stack (i.e. we are back
-      // to the type we passed in), bring in any incoming reference context.
-      if (entry.args[0] === type && incomingReferenceContext) {
+      if (incomingReferenceContext && entry.args[0] === incomingReferenceContextTarget) {
+        // bring in any reference context so it is available for any types nested beneath this type.
         context = stateInterner.intern({
           lexicalContext: context.lexicalContext,
           referenceContext: stateInterner.intern({
@@ -578,7 +594,6 @@ export function createAssetEmitter<T, TOptions extends object>(
             ...incomingReferenceContext,
           }),
         });
-        incomingReferenceContext = null;
       }
 
       const seenContext = knownContexts.get([entry, context]);
