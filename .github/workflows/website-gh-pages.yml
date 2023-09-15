@@ -32,7 +32,7 @@ jobs:
           node-version: 18.x
 
       - name: Install dependencies
-        run: node common/scripts/install-run-rush.js update --max-install-attempts 3
+        run: node common/scripts/install-run-rush.js install --max-install-attempts 3
 
       - name: Build
         run: node common/scripts/install-run-rush.js build --to @typespec/website -v
