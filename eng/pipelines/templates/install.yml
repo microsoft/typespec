@@ -23,7 +23,7 @@ steps:
       dotnet --version
     displayName: "Log tool versions used"
 
-  - script: node common/scripts/install-run-rush.js install
+  - script: node common/scripts/install-run-rush.js install --max-install-attempts 3
     displayName: Install JavaScript Dependencies
 
   - script: dotnet restore
