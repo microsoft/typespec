@@ -6,4 +6,6 @@ options:
     azure-resource-provider-folder: "resource-manager"
     output-file: "{azure-resource-provider-folder}/{service-name}/{version-status}/{version}/openapi.json"
     examples-directory: "{project-root}/examples"
-
+linter:
+  extends:
+    - "@azure-tools/typespec-azure-resource-manager/all"
