@@ -3145,6 +3145,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function isValueType(type: Type): boolean {
+    if (type === nullType) {
+      return true;
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }
