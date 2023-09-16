@@ -36,9 +36,11 @@ steps:
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
-  - script: node common/scripts/install-run-rush.js purge
+
+  # Append "|| cd ." to command to ignore errors (works on both Windows and Linux) as a workaround
+  # for microsoft/rushstack#4334.
+  - script: node common/scripts/install-run-rush.js purge || cd .
     displayName: "Purge dependencies"
-    continueOnError: true # Some issue with deleting common/temp/rush-recycler folder on linux. This doesn't matter for the next steps.
     condition: always()
 
   # It's important for performance to pass "packages" as "searchFolder" to avoid looking under root "node_modules".
