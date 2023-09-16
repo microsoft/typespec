@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add typesVersions metadata for the emitter framework to package.json",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
