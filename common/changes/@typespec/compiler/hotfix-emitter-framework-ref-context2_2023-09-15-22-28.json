@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix emitter framework issue causing reference context to be lost in certain cases.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
