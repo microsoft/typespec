@@ -40,6 +40,9 @@
       ],
       "module-resolver": [
         "./dist/src/core/module-resolver.d.ts"
+      ],
+      "emitter-framework": [
+        "./dist/src/emitter-framework/index.d.ts"
       ]
     }
   },
