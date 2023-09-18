@@ -20,7 +20,7 @@ jobs:
           versionSpec: 16.x
         displayName: Install Node.js
 
-      - script: node common/scripts/install-run-rush.js install
+      - script: node common/scripts/install-run-rush.js install --max-install-attempts 3
         displayName: Install JavaScript Dependencies
 
       - template: ./templates/build.yml
