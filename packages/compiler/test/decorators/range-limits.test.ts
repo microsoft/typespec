@@ -83,7 +83,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minValue decorator to non-numeric type",
+        message: "Cannot apply @minValue decorator to type it is not a numeric",
       });
     });
 
@@ -96,7 +96,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxValue decorator to non-numeric type",
+        message: "Cannot apply @maxValue decorator to type it is not a numeric",
       });
     });
 
@@ -153,7 +153,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minLength decorator to type it is not one of: string",
+        message: "Cannot apply @minLength decorator to type it is not a string",
       });
     });
 
@@ -166,7 +166,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxLength decorator to type it is not one of: string",
+        message: "Cannot apply @maxLength decorator to type it is not a string",
       });
     });
 

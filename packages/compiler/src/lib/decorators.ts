@@ -197,7 +197,7 @@ function validateTargetingANumeric(
 ) {
   const valid = isTypeIn(getPropertyType(target), (x) => isNumericType(context.program, x));
   if (!valid) {
-    createDiagnostic({
+    reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
         decorator: decoratorName,
