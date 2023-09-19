@@ -347,6 +347,7 @@ export function printNode(
     case SyntaxKind.DocParamTag:
     case SyntaxKind.DocTemplateTag:
     case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocErrorsTag:
     case SyntaxKind.DocUnknownTag:
       // https://github.com/microsoft/typespec/issues/1319 Tracks pretty-printing doc comments.
       compilerAssert(

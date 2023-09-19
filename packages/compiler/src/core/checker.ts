@@ -3399,6 +3399,15 @@ export function createChecker(program: Program): Checker {
     if (docComment) {
       decorators.unshift(createDocFromCommentDecorator("self", docComment));
     }
+    if (targetType.kind === "Operation") {
+      const returnTypesDocs = extractReturnsDocs(targetType);
+      if (returnTypesDocs.returns) {
+        decorators.unshift(createDocFromCommentDecorator("returns", returnTypesDocs.returns));
+      }
+      if (returnTypesDocs.errors) {
+        decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
+      }
+    }
     return decorators;
   }
 
@@ -5780,6 +5789,30 @@ function extractMainDoc(type: Type): string | undefined {
   }
   const trimmed = mainDoc.trim();
   return trimmed === "" ? undefined : trimmed;
+}
+
+function extractReturnsDocs(type: Type): {
+  returns: string | undefined;
+  errors: string | undefined;
+} {
+  const result: { returns: string | undefined; errors: string | undefined } = {
+    returns: undefined,
+    errors: undefined,
+  };
+  if (type.node?.docs === undefined) {
+    return result;
+  }
+  for (const doc of type.node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocReturnsTag) {
+        result.returns = getDocContent(tag.content);
+      }
+      if (tag.kind === SyntaxKind.DocErrorsTag) {
+        result.errors = getDocContent(tag.content);
+      }
+    }
+  }
+  return result;
 }
 
 function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
