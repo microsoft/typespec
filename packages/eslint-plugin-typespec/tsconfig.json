@@ -9,8 +9,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"],
-    "module": "CommonJS"
+    "types": ["node", "mocha"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }
