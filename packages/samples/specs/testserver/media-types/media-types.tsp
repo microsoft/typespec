@@ -2,7 +2,7 @@ import "@typespec/rest";
 import "@typespec/openapi";
 
 using TypeSpec.Http;
-using OpenAPI;
+using TypeSpec.OpenAPI;
 
 @service({
   title: "sample",
