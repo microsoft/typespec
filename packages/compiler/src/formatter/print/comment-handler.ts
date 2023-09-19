@@ -16,7 +16,7 @@ export const commentHandler: Printer<Node>["handleComments"] = {
     [
       addEmptyInterfaceComment,
       addEmptyModelComment,
-      addStatementDecoratorComment,
+      addCommentBetweenAnnotationsAndNode,
       handleOnlyComments,
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
 };
@@ -37,7 +37,7 @@ interface CommentContext {
  *   // My comment
  * }
  */
-function addEmptyInterfaceComment({ comment }: CommentContext) {
+function addEmptyInterfaceComment({ comment, ast }: CommentContext) {
   const { precedingNode, enclosingNode } = comment;
 
   if (
@@ -54,7 +54,7 @@ function addEmptyInterfaceComment({ comment }: CommentContext) {
 }
 
 /**
- * When a comment is in between decorators.
+ * When a comment is in between a node and its annotations(Decorator, directives, doc comments).
  *
  * @example
  *
@@ -64,12 +64,14 @@ function addEmptyInterfaceComment({ comment }: CommentContext) {
  * model Foo {
  * }
  */
-function addStatementDecoratorComment({ comment }: CommentContext) {
+function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
   const { enclosingNode, precedingNode } = comment;
 
   if (
     precedingNode &&
-    precedingNode.kind === SyntaxKind.DecoratorExpression &&
+    (precedingNode.kind === SyntaxKind.DecoratorExpression ||
+      precedingNode.kind === SyntaxKind.DirectiveExpression ||
+      precedingNode.kind === SyntaxKind.Doc) &&
     enclosingNode &&
     (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelStatement ||

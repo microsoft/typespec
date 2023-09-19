@@ -422,7 +422,6 @@ export function canAttachComment(node: Node): boolean {
       kind !== SyntaxKind.LineComment &&
       kind !== SyntaxKind.BlockComment &&
       kind !== SyntaxKind.EmptyStatement &&
-      kind !== SyntaxKind.Doc &&
       kind !== SyntaxKind.DocParamTag &&
       kind !== SyntaxKind.DocReturnsTag &&
       kind !== SyntaxKind.DocTemplateTag &&
