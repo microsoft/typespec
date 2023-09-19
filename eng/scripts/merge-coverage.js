@@ -16,16 +16,18 @@ forEachProject((name, location, project) => {
 });
 
 run(
-  "npx",
+  "npm",
   [
+    "exec",
     "--no",
-    "--prefix packages/compiler",
+    "--prefix",
+    "packages/compiler",
     "c8",
     "report",
     "--reporter=cobertura",
     "--reporter=text"
   ],
   {
-    cwd: repoRoot,
+    cwd: repoRoot
   }
 );
