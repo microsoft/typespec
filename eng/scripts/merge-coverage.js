@@ -23,6 +23,7 @@ run(
     "--prefix",
     "packages/compiler",
     "c8",
+    "--",
     "report",
     "--reporter=cobertura",
     "--reporter=text",
