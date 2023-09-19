@@ -2,6 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
+#suppress "@azure-tools/typespec-autorest/unsupported-http-auth-scheme" "BearerAuth is not supported by typespec-autorest"
 @service({
   title: "Authenticated service",
 })
