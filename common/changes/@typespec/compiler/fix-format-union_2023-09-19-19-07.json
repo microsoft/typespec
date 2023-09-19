@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Union with anonymous variant were formatted with an extra leading `:`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
