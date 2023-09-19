@@ -45,11 +45,11 @@
   "dependencies": {
     "@typespec/versioning": "workspace:~0.48.0",
     "@typespec/best-practices": "workspace:~0.45.0",
-    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.48.1",
     "@typespec/http": "workspace:~0.48.0",
     "@typespec/rest": "workspace:~0.48.0",
     "@typespec/openapi": "workspace:~0.48.0",
-    "@typespec/openapi3": "workspace:~0.48.0",
+    "@typespec/openapi3": "workspace:~0.48.1",
     "@typespec/html-program-viewer": "workspace:~0.48.0"
   },
   "devDependencies": {

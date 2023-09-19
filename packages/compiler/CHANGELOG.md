@@ -1,6 +1,17 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Tue, 12 Sep 2023 21:47:11 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Sep 2023 19:28:32 GMT and should not be manually modified.
+
+## 0.48.1
+Tue, 19 Sep 2023 19:28:32 GMT
+
+### Patches
+
+- Fix emitter framework issue causing reference context to be lost in certain cases.
+
+### Updates
+
+- Add typesVersions metadata for the emitter framework to package.json
 
 ## 0.48.0
 Tue, 12 Sep 2023 21:47:11 GMT

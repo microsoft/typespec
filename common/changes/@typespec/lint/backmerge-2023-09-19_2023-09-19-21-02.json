@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/lint",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/lint"
+}

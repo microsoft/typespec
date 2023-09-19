@@ -38,7 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.48.1",
     "@typespec/compiler-v0.37": "npm:@cadl-lang/compiler@0.37.0",
     "@typespec/compiler-v0.38": "npm:@cadl-lang/compiler@0.38.5",
     "@typespec/compiler-v0.40": "npm:@cadl-lang/compiler@0.40.0",
@@ -55,7 +55,7 @@
     "@types/node": "~18.11.9",
     "@types/semver": "^7.5.2",
     "@types/yargs": "~17.0.24",
-    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.48.1",
     "@typespec/eslint-config-typespec": "workspace:~0.48.0",
     "@typespec/eslint-plugin": "workspace:~0.48.0",
     "c8": "~8.0.1",
