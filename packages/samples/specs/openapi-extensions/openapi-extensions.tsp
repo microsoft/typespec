@@ -1,7 +1,7 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-using OpenAPI;
+using TypeSpec.OpenAPI;
 
 model MyConfig {
   name: "Foo";

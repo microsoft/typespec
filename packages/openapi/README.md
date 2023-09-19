@@ -10,7 +10,7 @@ npm install @typespec/openapi
 
 ## Decorators
 
-### OpenAPI
+### TypeSpec.OpenAPI
 
 - [`@defaultResponse`](#@defaultresponse)
 - [`@extension`](#@extension)
@@ -24,7 +24,7 @@ Specify that this model is to be treated as the OpenAPI `default` response.
 This differs from the compiler built-in `@error` decorator as this does not necessarily represent an error.
 
 ```typespec
-@OpenAPI.defaultResponse
+@TypeSpec.OpenAPI.defaultResponse
 ```
 
 ##### Target
@@ -49,7 +49,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@OpenAPI.extension(key: valueof string, value: unknown)
+@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown)
 ```
 
 ##### Target
@@ -81,7 +81,7 @@ op read(): string;
 Specify the OpenAPI `externalDocs` property for this type.
 
 ```typespec
-@OpenAPI.externalDocs(url: valueof string, description?: valueof string)
+@TypeSpec.OpenAPI.externalDocs(url: valueof string, description?: valueof string)
 ```
 
 ##### Target
@@ -111,7 +111,7 @@ Specify OpenAPI additional information.
 The service `title` and `version` are already specified using `@service`.
 
 ```typespec
-@OpenAPI.info(additionalInfo: OpenAPI.AdditionalInfo)
+@TypeSpec.OpenAPI.info(additionalInfo: TypeSpec.OpenAPI.AdditionalInfo)
 ```
 
 ##### Target
@@ -120,16 +120,16 @@ The service `title` and `version` are already specified using `@service`.
 
 ##### Parameters
 
-| Name           | Type                           | Description            |
-| -------------- | ------------------------------ | ---------------------- |
-| additionalInfo | `model OpenAPI.AdditionalInfo` | Additional information |
+| Name           | Type                                    | Description            |
+| -------------- | --------------------------------------- | ---------------------- |
+| additionalInfo | `model TypeSpec.OpenAPI.AdditionalInfo` | Additional information |
 
 #### `@operationId`
 
 Specify the OpenAPI `operationId` property for this operation.
 
 ```typespec
-@OpenAPI.operationId(operationId: valueof string)
+@TypeSpec.OpenAPI.operationId(operationId: valueof string)
 ```
 
 ##### Target

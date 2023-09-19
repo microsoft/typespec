@@ -169,7 +169,8 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'OpenAPI.AdditionalInfo'",
+        message:
+          "Argument '123' is not assignable to parameter of type 'TypeSpec.OpenAPI.AdditionalInfo'",
       });
     });
 

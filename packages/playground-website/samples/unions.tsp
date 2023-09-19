@@ -8,7 +8,7 @@ import "@typespec/openapi3";
 namespace DemoService;
 using TypeSpec.Rest;
 using TypeSpec.Http;
-using OpenAPI;
+using TypeSpec.OpenAPI;
 
 model WidgetBase {
   @key id: string;
