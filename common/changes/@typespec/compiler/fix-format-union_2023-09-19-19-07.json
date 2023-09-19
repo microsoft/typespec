@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix: Union with anonymous variant were formatted with an extra leading `:`",
+      "comment": "Fix: Anonymous union variants were formatted with an extra leading `:`",
       "type": "none"
     }
   ],
