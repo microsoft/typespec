@@ -596,7 +596,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions()["file-type"] === "json") {
       serializedContent = JSON.stringify(content, null, 4);
     } else {
-      serializedContent = stringify(content);
+      serializedContent = stringify(content, {
+        aliasDuplicateObjects: false,
+        lineWidth: 0,
+      });
     }
 
     return {
