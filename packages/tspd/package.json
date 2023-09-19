@@ -73,8 +73,8 @@
     "mocha": "~10.2.0",
     "source-map-support": "~0.5.19",
     "rimraf": "~5.0.1",
-    "typedoc-plugin-markdown": "~4.0.0-next.20",
-    "typedoc": "~0.25.1",
+    "typedoc-plugin-markdown": "4.0.0-next.20",
+    "typedoc": "0.25.1",
     "typescript": "~5.1.3"
   }
 }
