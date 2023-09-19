@@ -2,9 +2,11 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { join } from "path";
 import { forEachProject, repoRoot, run } from "./helpers.js";
 
+// Create folder to collect all coverage files
 const rootCoverageTmp = join(repoRoot, "coverage", "tmp");
 mkdirSync(rootCoverageTmp, { recursive: true });
 
+// Copy coverage files from each project to common folder
 forEachProject((name, location, project) => {
   const coverageTmp = join(location, "coverage", "tmp");
   if (existsSync(coverageTmp)) {
@@ -15,6 +17,7 @@ forEachProject((name, location, project) => {
   }
 });
 
+// Generate merged report
 run(
   "npm",
   [
