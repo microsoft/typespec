@@ -3,11 +3,13 @@ import { Model, Operation, Scalar, getVisibility, isSecret } from "../../src/ind
 import {
   getDoc,
   getEncode,
+  getErrorsDoc,
   getFriendlyName,
   getKeyName,
   getKnownValues,
   getOverloadedOperation,
   getOverloads,
+  getReturnsDoc,
   isErrorModel,
 } from "../../src/lib/decorators.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
@@ -130,6 +132,60 @@ describe("compiler: built-in decorators", () => {
       const diagnostics = await runner.diagnose(`
         @doc(123)
         model A { }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+      });
+    });
+  });
+
+  describe("@returnsDoc", () => {
+    it("applies @returnsDoc on operation", async () => {
+      const { test } = (await runner.compile(
+        `
+        @test
+        @returnsDoc("A string")
+        op test(): string;
+        `
+      )) as { test: Operation };
+
+      strictEqual(getReturnsDoc(runner.program, test), "A string");
+    });
+
+    it("emit diagnostic if doc is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        @test
+        @returnsDoc(123)
+        op test(): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+      });
+    });
+  });
+
+  describe("@errorsDoc", () => {
+    it("applies @errorsDoc on operation", async () => {
+      const { test } = (await runner.compile(
+        `
+        @test
+        @errorsDoc("An error")
+        op test(): string;
+        `
+      )) as { test: Operation };
+
+      strictEqual(getErrorsDoc(runner.program, test), "An error");
+    });
+
+    it("emit diagnostic if doc is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        @test
+        @errorsDoc(123)
+        op test(): string;
       `);
 
       expectDiagnostics(diagnostics, {

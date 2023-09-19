@@ -3130,10 +3130,7 @@ export function createChecker(program: Program): Checker {
       ) {
         const doc = extractParamDoc(prop.parent.parent.parent, type.name);
         if (doc) {
-          type.decorators.unshift({
-            decorator: $docFromComment,
-            args: [{ value: createLiteralType(doc), jsValue: doc }],
-          });
+          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
         }
       }
       finishType(type);
@@ -3142,6 +3139,16 @@ export function createChecker(program: Program): Checker {
     pendingResolutions.finish(symId, ResolutionKind.Type);
 
     return type;
+  }
+
+  function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
+    return {
+      decorator: $docFromComment,
+      args: [
+        { value: createLiteralType(key), jsValue: key },
+        { value: createLiteralType(doc), jsValue: doc },
+      ],
+    };
   }
 
   function isValueType(type: Type): boolean {
@@ -3390,10 +3397,7 @@ export function createChecker(program: Program): Checker {
     // Doc comment should always be the first decorator in case an explicit @doc must override it.
     const docComment = extractMainDoc(targetType);
     if (docComment) {
-      decorators.unshift({
-        decorator: $docFromComment,
-        args: [{ value: createLiteralType(docComment), jsValue: docComment }],
-      });
+      decorators.unshift(createDocFromCommentDecorator("self", docComment));
     }
     return decorators;
   }

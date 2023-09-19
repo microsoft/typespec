@@ -65,7 +65,7 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   const type = symbol.type ?? program.checker.getTypeForNode(symbol.declarations[0]);
   const apiDocs = getDocData(program, type);
   // The doc comment is already included above we don't want to duplicate
-  if (apiDocs && apiDocs.source === "@doc") {
+  if (apiDocs && apiDocs.source === "comment") {
     docs.push(apiDocs.value);
   }
 

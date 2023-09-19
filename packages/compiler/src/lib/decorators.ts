@@ -78,6 +78,10 @@ export function getSummary(program: Program, type: Type): string | undefined {
 }
 
 const docsKey = createStateSymbol("docs");
+const returnsDocsKey = createStateSymbol("returnsDocs");
+const errorsDocsKey = createStateSymbol("errorDocs");
+type DocTarget = "self" | "returns" | "errors";
+
 export interface DocData {
   /**
    * Doc value.
@@ -89,7 +93,7 @@ export interface DocData {
    * - `@doc` means the `@doc` decorator was used
    * - `comment` means it was set from a `/** comment * /`
    */
-  source: "@doc" | "comment";
+  source: "decorator" | "comment";
 }
 /**
  * @doc attaches a documentation string. Works great with multi-line string literals.
@@ -104,19 +108,50 @@ export function $doc(context: DecoratorContext, target: Type, text: string, sour
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
-  setDocData(context.program, target, { value: text, source: "@doc" });
+  setDocData(context.program, target, "self", { value: text, source: "decorator" });
 }
 
 /**
  * @internal to be used to set the `@doc` from doc comment.
  */
-export function $docFromComment(context: DecoratorContext, target: Type, text: string) {
-  setDocData(context.program, target, { value: text, source: "comment" });
+export function $docFromComment(
+  context: DecoratorContext,
+  target: Type,
+  key: DocTarget,
+  text: string
+) {
+  setDocData(context.program, target, key, { value: text, source: "comment" });
 }
 
-function setDocData(program: Program, target: Type, data: DocData) {
-  program.stateMap(docsKey).set(target, data);
+function getDocKey(target: DocTarget): symbol {
+  switch (target) {
+    case "self":
+      return docsKey;
+    case "returns":
+      return returnsDocsKey;
+    case "errors":
+      return errorsDocsKey;
+  }
 }
+
+function setDocData(program: Program, target: Type, key: DocTarget, data: DocData) {
+  program.stateMap(getDocKey(key)).set(target, data);
+}
+
+/**
+ * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getDocDataInternal(
+  program: Program,
+  target: Type,
+  key: DocTarget
+): DocData | undefined {
+  return program.stateMap(getDocKey(key)).get(target);
+}
+
 /**
  * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
  * @param program Program
@@ -124,7 +159,7 @@ function setDocData(program: Program, target: Type, data: DocData) {
  * @returns Doc data with source information.
  */
 export function getDocData(program: Program, target: Type): DocData | undefined {
-  return program.stateMap(docsKey).get(target);
+  return getDocDataInternal(program, target, "self");
 }
 
 /**
@@ -134,7 +169,57 @@ export function getDocData(program: Program, target: Type): DocData | undefined 
  * @returns Documentation value
  */
 export function getDoc(program: Program, target: Type): string | undefined {
-  return getDocData(program, target)?.value;
+  return getDocDataInternal(program, target, "self")?.value;
+}
+
+export function $returnsDoc(context: DecoratorContext, target: Operation, text: string) {
+  validateDecoratorUniqueOnNode(context, target, $doc);
+  setDocData(context.program, target, "returns", { value: text, source: "decorator" });
+}
+
+/**
+ * Get the documentation information for the return success types of an operation. In most cases you probably just want to use {@link getReturnsDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getReturnsDocData(program: Program, target: Operation): DocData | undefined {
+  return getDocDataInternal(program, target, "returns");
+}
+
+/**
+ * Get the documentation string for the return success types of an operation.
+ * @param program Program
+ * @param target Type
+ * @returns Documentation value
+ */
+export function getReturnsDoc(program: Program, target: Operation): string | undefined {
+  return getDocDataInternal(program, target, "returns")?.value;
+}
+
+export function $errorsDoc(context: DecoratorContext, target: Operation, text: string) {
+  validateDecoratorUniqueOnNode(context, target, $doc);
+  setDocData(context.program, target, "errors", { value: text, source: "decorator" });
+}
+
+/**
+ * Get the documentation information for the return errors types of an operation. In most cases you probably just want to use {@link getErrorsDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getErrorsDocData(program: Program, target: Operation): DocData | undefined {
+  return getDocDataInternal(program, target, "errors");
+}
+
+/**
+ * Get the documentation string for the return errors types of an operation.
+ * @param program Program
+ * @param target Type
+ * @returns Documentation value
+ */
+export function getErrorsDoc(program: Program, target: Operation): string | undefined {
+  return getDocDataInternal(program, target, "errors")?.value;
 }
 
 export function $inspectType(program: Program, target: Type, text: string) {
