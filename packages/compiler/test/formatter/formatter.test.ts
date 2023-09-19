@@ -1602,7 +1602,7 @@ union Bar {
         expected: `
 enum Foo {
   a: A,
-  a: B,
+  b: B,
 }
 
 `,
