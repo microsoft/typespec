@@ -41,8 +41,7 @@ paths:
             format: int32
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
   '/foo/{id}':
     get:
       tags:
@@ -59,8 +58,7 @@ paths:
             format: int32
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
     post:
       tags:
         - foo
@@ -77,8 +75,7 @@ paths:
             format: int32
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
   '/nested/{id}':
     post:
       tags:
@@ -96,8 +93,7 @@ paths:
             format: int32
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
 components:
   schemas:
     Resp:

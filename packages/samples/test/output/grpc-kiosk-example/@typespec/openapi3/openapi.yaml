@@ -90,8 +90,7 @@ paths:
             format: int32
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
@@ -203,8 +202,7 @@ paths:
             format: int32
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
@@ -221,8 +219,7 @@ paths:
         - $ref: '#/components/parameters/SetSignIdForKioskIdsRequest.sign_id'
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
@@ -290,16 +287,11 @@ components:
           $ref: '#/components/schemas/Timestamp'
     LatLng:
       type: object
-      description: >-
-        An object that represents a latitude/longitude pair. This is expressed
-        as a
-
+      description: |-
+        An object that represents a latitude/longitude pair. This is expressed as a
         pair of doubles to represent degrees latitude and degrees longitude. Unless
-
         specified otherwise, this must conform to the
-
         <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
-
         standard</a>. Values must be within normalized ranges.
       required:
         - latitude
