@@ -2,6 +2,23 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.48.1",
+      "tag": "@typespec/compiler_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix emitter framework issue causing reference context to be lost in certain cases."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Add typesVersions metadata for the emitter framework to package.json"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.48.0",
       "tag": "@typespec/compiler_v0.48.0",
       "date": "Tue, 12 Sep 2023 21:47:11 GMT",
