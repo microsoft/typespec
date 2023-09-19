@@ -1297,11 +1297,11 @@ importers:
         specifier: ~0.5.19
         version: 0.5.19
       typedoc:
-        specifier: ~0.24.8
-        version: 0.24.8(typescript@5.1.3)
+        specifier: ~0.25.1
+        version: 0.25.1(typescript@5.1.3)
       typedoc-plugin-markdown:
-        specifier: ~4.0.0-next.18
-        version: 4.0.0-next.18(typedoc@0.24.8)
+        specifier: ~4.0.0-next.20
+        version: 4.0.0-next.20(typedoc@0.25.1)
       typescript:
         specifier: ~5.1.3
         version: 5.1.3
@@ -11672,6 +11672,13 @@ packages:
       brace-expansion: 2.0.1
     dev: true
 
+  /minimatch@9.0.3:
+    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: true
+
   /minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
@@ -14847,24 +14854,24 @@ packages:
       is-typedarray: 1.0.0
     dev: false
 
-  /typedoc-plugin-markdown@4.0.0-next.18(typedoc@0.24.8):
-    resolution: {integrity: sha512-Qf4tUrAsZLcJ1TzCJc5NWP+ulPsQh7v1cxNCeJqeIQovnbpMOkZPQogEhZBUvMjHxABS64EQ9PkpDFJuE0IpGw==}
+  /typedoc-plugin-markdown@4.0.0-next.20(typedoc@0.25.1):
+    resolution: {integrity: sha512-mQoLUSk6KLPMv1zpcTk43h8+8aD+T65qPh99/umSsczd1yTOyZiA0h0kAlsrZrAM8SWoJEn/fZWgV3JMR3Bb4Q==}
     peerDependencies:
       typedoc: '>=0.24.0'
     dependencies:
-      typedoc: 0.24.8(typescript@5.1.3)
+      typedoc: 0.25.1(typescript@5.1.3)
     dev: true
 
-  /typedoc@0.24.8(typescript@5.1.3):
-    resolution: {integrity: sha512-ahJ6Cpcvxwaxfu4KtjA8qZNqS43wYt6JL27wYiIgl1vd38WW/KWX11YuAeZhuz9v+ttrutSsgK+XO1CjL1kA3w==}
-    engines: {node: '>= 14.14'}
+  /typedoc@0.25.1(typescript@5.1.3):
+    resolution: {integrity: sha512-c2ye3YUtGIadxN2O6YwPEXgrZcvhlZ6HlhWZ8jQRNzwLPn2ylhdGqdR8HbyDRyALP8J6lmSANILCkkIdNPFxqA==}
+    engines: {node: '>= 16'}
     hasBin: true
     peerDependencies:
-      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x
+      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x
     dependencies:
       lunr: 2.3.9
       marked: 4.3.0
-      minimatch: 9.0.1
+      minimatch: 9.0.3
       shiki: 0.14.2
       typescript: 5.1.3
     dev: true

@@ -39,7 +39,7 @@ export async function generateLibraryDocs(
   );
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
-    await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+    await generateJsApiDocs(joinPaths(libraryPath, "src/index.ts"), joinPaths(outputDir, "js-api"));
   }
   return diagnostics.diagnostics;
 }
