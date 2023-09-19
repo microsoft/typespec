@@ -766,8 +766,8 @@ export function printUnionVariant(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const id = path.call(print, "id");
-  const value = [": ", path.call(print, "value")];
+  const id = path.node.id === undefined ? "" : [path.call(print, "id"), ": "];
+  const value = [id, path.call(print, "value")];
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
