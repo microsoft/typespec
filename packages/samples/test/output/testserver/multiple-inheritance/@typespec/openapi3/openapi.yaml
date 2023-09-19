@@ -24,8 +24,7 @@ paths:
                 type: string
     put:
       operationId: MultipleInheritance_putCat
-      description: Put a cat with name 'Boots' where likesMilk and hisses is false,
-        meows is true
+      description: Put a cat with name 'Boots' where likesMilk and hisses is false, meows is true
       parameters: []
       responses:
         '200':
@@ -131,8 +130,7 @@ paths:
   /multipleInheritance/kitten:
     get:
       operationId: MultipleInheritance_getKitten
-      description: Get a kitten with name 'Gatito' where likesMilk and meows is true,
-        and hisses and eatsMiceYet is false
+      description: Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false
       parameters: []
       responses:
         '200':
@@ -149,8 +147,7 @@ paths:
                 type: string
     put:
       operationId: MultipleInheritance_putKitten
-      description: Put a kitten with name 'Kitty' where likesMilk and hisses is false,
-        meows and eatsMiceYet is true
+      description: Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true
       parameters: []
       responses:
         '200':

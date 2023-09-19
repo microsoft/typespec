@@ -38,8 +38,7 @@ paths:
   /mediatypes/contentTypeWithEncoding:
     post:
       operationId: contentTypeWithEncoding
-      description: Pass in contentType 'text/plain; encoding=UTF-8' to pass test.
-        Value for input does not matter
+      description: Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter
       parameters: []
       responses:
         '200':
