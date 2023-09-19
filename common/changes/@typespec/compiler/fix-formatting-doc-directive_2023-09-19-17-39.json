@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Formatting of comments between a directive or doc and its node",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
