@@ -54,8 +54,7 @@
   ],
   "peerDependencies": {
     "@typespec/compiler": "workspace:~0.48.0",
-    "@typespec/http": "workspace:~0.48.0",
-    "@typespec/rest": "workspace:~0.48.0"
+    "@typespec/http": "workspace:~0.48.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
