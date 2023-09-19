@@ -59,7 +59,6 @@
     "@typespec/versioning": "workspace:~0.48.0",
     "@typespec/compiler": "workspace:~0.48.0",
     "@typespec/http": "workspace:~0.48.0",
-    "@typespec/rest": "workspace:~0.48.0",
     "@typespec/openapi": "workspace:~0.48.0"
   },
   "devDependencies": {
