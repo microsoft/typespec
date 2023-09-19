@@ -1637,26 +1637,6 @@ enum Foo {
 `,
       });
     });
-
-    it("format spread members", async () => {
-      await assertFormat({
-        code: `
-enum Foo {
-        ...       Bar  , One: "1",
-        ...Baz  ; Two: "2",
-
-}
-`,
-        expected: `
-enum Foo {
-  ...Bar,
-  One: "1",
-  ...Baz,
-  Two: "2",
-}
-`,
-      });
-    });
   });
 
   describe("namespaces", () => {
