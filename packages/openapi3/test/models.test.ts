@@ -189,6 +189,7 @@ describe("openapi3: models", () => {
       properties: {
         optional: {
           type: "string",
+          nullable: true,
           default: null,
         },
       },
