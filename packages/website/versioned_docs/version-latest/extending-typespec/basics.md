@@ -105,6 +105,7 @@ Diagnostics are used for linters and decorators which are covered in subsequent 
 
 Open `./src/index.ts` and import your library definition:
 
+<!-- prettier-ignore -->
 ```typescript
 import { myLibrary } from "./lib.js";
 ```

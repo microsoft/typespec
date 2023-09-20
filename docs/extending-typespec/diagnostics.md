@@ -110,7 +110,7 @@ function getRoutes(): [Route, readonly Diagnostic] {
 or manually
 
 ```ts
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
+import { Diagnostic } from "@typespec/compiler";
 
 function getRoutes(): [Route, readonly Diagnostic] {
   const diagnostics = [];
