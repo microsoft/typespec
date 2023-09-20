@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix issue where response schemas would sometimes appear as \"anyOf\" with duplicate identical references when they should just be a single schema reference.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}

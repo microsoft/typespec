@@ -167,6 +167,28 @@ describe("openapi3: operations", () => {
 
     strictEqual(res.paths["/"].get.deprecated, true);
   });
+
+  it("define operation response structure", async () => {
+    const res = await openApiFor(
+      `      
+      model CustomUnauthorizedResponse {
+        @statusCode _: 401;
+        @body body: UnauthorizedResponse;
+      }
+      
+      op list(): CustomUnauthorizedResponse;
+      `
+    );
+    const responses = res.paths["/"].get.responses;
+    ok(responses);
+    ok(responses["401"]);
+    ok(responses["401"].content);
+    ok(responses["401"].content["application/json"]);
+    ok(responses["401"].content["application/json"].schema);
+    deepStrictEqual(responses["401"].content["application/json"].schema, {
+      $ref: "#/components/schemas/TypeSpec.Http.UnauthorizedResponse",
+    });
+  });
 });
 
 describe("openapi3: request", () => {

@@ -143,7 +143,8 @@ function getResponseStatusCodes(
     }
   }
 
-  return codes;
+  // eliminate duplicate status codes
+  return [...new Set(codes)];
 }
 
 /**
