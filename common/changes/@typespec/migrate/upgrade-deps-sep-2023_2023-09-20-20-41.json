@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/migrate",
+      "comment": "Update dependencies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/migrate"
+}
