@@ -1600,7 +1600,7 @@ union Bar {
         union      Foo       {    a: A,        b:       B}
 `,
         expected: `
-enum Foo {
+union Foo {
   a: A,
   b: B,
 }
@@ -1624,7 +1624,7 @@ union      Foo       {
 
 `,
         expected: `
-enum Foo {
+union Foo {
   @doc("foo")
   a: A,
 
