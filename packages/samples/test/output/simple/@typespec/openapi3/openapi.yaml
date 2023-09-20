@@ -4,7 +4,7 @@ info:
   version: 0000-00-00
 tags: []
 paths:
-  '/alpha/{id}':
+  /alpha/{id}:
     get:
       operationId: doAlpha
       parameters:
@@ -20,7 +20,7 @@ paths:
             application/json:
               schema:
                 type: string
-  '/beta/{id}':
+  /beta/{id}:
     get:
       operationId: doBeta
       parameters:
