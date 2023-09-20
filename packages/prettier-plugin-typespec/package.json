@@ -18,14 +18,14 @@
     "prettier_2": "npm:prettier@2.8.7",
     "@typespec/compiler": "workspace:~0.48.1",
     "@typespec/internal-build-utils": "workspace:~0.48.0",
-    "@rollup/plugin-commonjs": "~25.0.0",
+    "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.0.0",
-    "@rollup/plugin-node-resolve": "~15.1.0",
+    "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-replace": "~5.0.2",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",
-    "rollup": "~3.24.0"
+    "rollup": "~3.29.2"
   },
   "files": [
     "dist/**/*",
