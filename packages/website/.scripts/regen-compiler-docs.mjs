@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-check
-import { NodeHost, logDiagnostics } from "@typespec/compiler";
+import { NodeHost, joinPaths, logDiagnostics } from "@typespec/compiler";
 import { generateJsApiDocs, resolveLibraryRefDocsBase } from "@typespec/tspd/ref-doc";
 import {
   DocusaurusRenderer,
@@ -45,6 +45,6 @@ async function generateCompilerDocs() {
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
 
-  await generateJsApiDocs(compilerPath, join(outputDir, "reference/js-api"));
+  await generateJsApiDocs(joinPaths(compilerPath), join(outputDir, "reference/js-api"));
   return diagnostics;
 }
