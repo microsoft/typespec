@@ -265,16 +265,19 @@ enum StreamMode {
    * other until the connections are closed.
    */
   Duplex,
+
   /**
    * The input of the operation is streaming. The client will send a stream of events; and, once the stream is closed,
    * the service will respond with a message.
    */
   In,
+
   /**
    * The output of the operation is streaming. The client will send a message to the service, and the service will send
    * a stream of events back to the client.
    */
   Out,
+
   /**
    * Neither the input nor the output are streaming. This is the default mode of an operation without the `@stream`
    * decorator.
