@@ -1162,7 +1162,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     ph.in = parameter.type;
     if (parameter.type === "query" || parameter.type === "header") {
       if (parameter.format === "csv" || parameter.format === "simple") {
-        ph.style = "simple";
+        if (parameter.type === "query") {
+          ph.style = "form";
+          ph.explode = false;
+        } else {
+          ph.style = "simple";
+        }
       } else if (parameter.format === "multi" || parameter.format === "form") {
         if (parameter.type === "header") {
           reportDiagnostic(program, {
