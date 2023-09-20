@@ -866,7 +866,7 @@ importers:
         specifier: ^4.11.0
         version: 4.11.0
       '@typespec/bundler':
-        specifier: workspace:~0.1.0
+        specifier: workspace:~0.1.0-alpha.0
         version: link:../bundler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.48.0
@@ -929,7 +929,7 @@ importers:
         specifier: workspace:~0.48.1
         version: link:../openapi3
       '@typespec/playground':
-        specifier: workspace:~0.44.0
+        specifier: workspace:~0.1.0-alpha.0
         version: link:../playground
       '@typespec/protobuf':
         specifier: workspace:~0.48.0
@@ -974,9 +974,6 @@ importers:
       '@types/swagger-ui-react':
         specifier: ^4.11.0
         version: 4.11.0
-      '@typespec/bundler':
-        specifier: workspace:~0.1.0
-        version: link:../bundler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.48.0
         version: link:../eslint-config-typespec

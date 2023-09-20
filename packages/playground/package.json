@@ -1,7 +1,6 @@
 {
   "name": "@typespec/playground",
-  "private": true,
-  "version": "0.44.0",
+  "version": "0.1.0-alpha.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -80,7 +79,7 @@
     "@types/react": "~18.2.9",
     "@types/swagger-ui-react": "^4.11.0",
     "@types/swagger-ui": "~3.52.0",
-    "@typespec/bundler": "workspace:~0.1.0",
+    "@typespec/bundler": "workspace:~0.1.0-alpha.0",
     "@typespec/eslint-config-typespec": "workspace:~0.48.0",
     "@vitejs/plugin-react": "~4.0.0",
     "c8": "~8.0.0",
