@@ -173,6 +173,27 @@ describe("openapi3: models", () => {
       },
     });
   });
+  it("specify default value on nullable property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optional?: string | null = null;
+      };
+      `
+    );
+
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optional: {
+          type: "string",
+          default: null,
+        },
+      },
+    });
+  });
 
   it("emits models extended from models when parent is emitted", async () => {
     const res = await openApiFor(

@@ -1511,6 +1511,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           );
         }
 
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
       case "EnumMember":
         return defaultType.value ?? defaultType.name;
       default:
