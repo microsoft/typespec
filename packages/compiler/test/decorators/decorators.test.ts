@@ -426,7 +426,7 @@ describe("compiler: built-in decorators", () => {
           "unixTimestamp",
           "string",
           "invalid-encode",
-          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'.`,
+          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'. Set '@encode' 2nd parameter to be an integer. e.g. '@encode("unixTimestamp", int32)'`,
         ],
         [
           "duration",

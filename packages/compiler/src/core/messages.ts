@@ -736,6 +736,7 @@ const diagnostics = {
       default: "Invalid encoding",
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
+      wrongUnixTimestampEncoding: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be an integer. e.g. '@encode("unixTimestamp", int32)'`,
     },
   },
 
