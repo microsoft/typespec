@@ -4,11 +4,6 @@ import { Application, DeclarationReflection, PageEvent, ReflectionKind } from "t
 import { PluginOptions, load } from "typedoc-plugin-markdown";
 import { stringify } from "yaml";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
-  const app = new Application();
-
-  loadRenderer(app);
-  load(app);
-
   const markdownPluginOptions: Partial<PluginOptions> = {
     entryFileName: "index.md",
     propertiesFormat: "table",
@@ -25,17 +20,25 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     identifiersAsCodeBlocks: true,
   };
 
-  app.bootstrap({
+  const app = await Application.bootstrapWithPlugins({
+    entryPoints: [joinPaths(libraryPath, "src/index.ts")],
+    tsconfig: joinPaths(libraryPath, "tsconfig.json"),
+    entryPointStrategy: "resolve",
+  });
+
+  loadRenderer(app);
+  load(app);
+
+  setOptions(app, {
     name: "JS Api",
-    entryPoints: [libraryPath],
-    entryPointStrategy: "legacy-packages",
     githubPages: false,
     readme: "none",
     hideGenerator: true,
     disableSources: true,
     ...markdownPluginOptions,
   });
-  const project = app.convert();
+
+  const project = await app.convert();
 
   // if project is undefined typedoc has a problem - error logging will be supplied by typedoc.
   if (!project) {
@@ -54,6 +57,12 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
       },
     })
   );
+}
+
+function setOptions(app: Application, options: any, reportErrors = true) {
+  for (const [key, val] of Object.entries(options)) {
+    app.options.setValue(key as never, val as never);
+  }
 }
 
 export function loadRenderer(app: Application) {
