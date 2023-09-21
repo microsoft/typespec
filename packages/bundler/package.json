@@ -38,26 +38,26 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.48.1",
     "@rollup/plugin-virtual": "~3.0.1",
-    "@rollup/plugin-commonjs": "~25.0.0",
+    "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.0.0",
-    "@rollup/plugin-node-resolve": "~15.1.0",
+    "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-multi-entry": "~6.0.0",
-    "rollup": "~3.24.0",
+    "rollup": "~3.29.2",
     "@rollup/plugin-alias": "~5.0.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@typespec/eslint-config-typespec": "workspace:~0.48.0",
-    "eslint": "^8.42.0",
+    "eslint": "^8.49.0",
     "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.0",
+    "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",
-    "c8": "~8.0.0",
+    "c8": "~8.0.1",
     "rimraf": "~5.0.1",
-    "typescript": "~5.1.3",
-    "vite": "^4.2.1"
+    "typescript": "~5.2.2",
+    "vite": "^4.4.9"
   }
 }

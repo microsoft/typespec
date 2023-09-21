@@ -1,7 +1,12 @@
 import assert from "assert";
 import { Model, ModelProperty, Namespace, Program } from "../../src/core/index.js";
-import { CodeTypeEmitter, Context, EmitterOutput } from "../../src/emitter-framework/index.js";
-import { emitTypeSpec } from "./host.js";
+import {
+  CodeTypeEmitter,
+  Context,
+  EmitterOutput,
+  createAssetEmitter,
+} from "../../src/emitter-framework/index.js";
+import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 
 describe("emitter-framework: emitter context", () => {
   describe("program context", () => {
@@ -211,6 +216,7 @@ describe("emitter-framework: emitter context", () => {
   describe("reference context", () => {
     it("propagates reference context", async () => {
       const seenContexts: Set<boolean> = new Set();
+      const propSeenContexts: Set<boolean> = new Set();
 
       class TestEmitter extends CodeTypeEmitter {
         namespaceReferenceContext(namespace: Namespace): Context {
@@ -227,6 +233,14 @@ describe("emitter-framework: emitter context", () => {
           }
           return super.modelDeclaration(model, name);
         }
+
+        modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+          const context = this.emitter.getContext();
+          if (property.name === "test") {
+            propSeenContexts.add(context.refFromNs ?? false);
+          }
+          return super.modelPropertyLiteral(property);
+        }
       }
 
       await emitTypeSpec(
@@ -236,17 +250,68 @@ describe("emitter-framework: emitter context", () => {
           model M { x: Bar.N }
         }
         namespace Bar {
-          model N {}
+          model N {
+            test: string;
+          }
         }
       `,
         {
-          namespaceReferenceContext: 2,
+          namespaceReferenceContext: 3,
           modelDeclaration: 3,
+          modelPropertyLiteral: 3,
         }
       );
 
       assert(seenContexts.has(true), "N has ref context");
       assert(seenContexts.has(false), "N doesn't ref context also");
+    });
+
+    it("propagates reference context across multiple references", async () => {
+      let seenContext: Context;
+      class TestEmitter extends CodeTypeEmitter {
+        namespaceReferenceContext(namespace: Namespace): Context {
+          if (namespace.name === "Foo") {
+            return { refFromFoo: true };
+          } else if (namespace.name === "Bar") {
+            return { refFromBar: true };
+          }
+
+          return {};
+        }
+
+        modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+          const context = this.emitter.getContext();
+          if (property.name === "prop") {
+            seenContext = context;
+          }
+          return super.modelPropertyLiteral(property);
+        }
+      }
+      const code = `
+        namespace Foo {
+          model M { x: Bar.N }
+        }
+        namespace Bar {
+          model N {
+            test: Baz.O;
+          }
+        }
+        namespace Baz {
+          model O {
+            prop: string;
+          }
+        }
+      `;
+
+      const host = await getHostForTypeSpecFile(code);
+      const emitter = createAssetEmitter(host.program, TestEmitter, {
+        emitterOutputDir: "tsp-output",
+        options: {},
+      } as any);
+
+      await emitter.emitType(host.program.resolveTypeReference("Foo")[0]!);
+
+      assert.deepStrictEqual(seenContext!, { refFromFoo: true, refFromBar: true });
     });
 
     it("doesn't emit model multiple times when reference context is the same", async () => {

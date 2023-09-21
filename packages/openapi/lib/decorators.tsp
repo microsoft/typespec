@@ -1,6 +1,6 @@
 using TypeSpec.Reflection;
 
-namespace OpenAPI;
+namespace TypeSpec.OpenAPI;
 
 /**
  * Specify the OpenAPI `operationId` property for this operation.

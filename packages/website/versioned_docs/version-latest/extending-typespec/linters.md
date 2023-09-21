@@ -134,7 +134,7 @@ First you'll want to create an instance of the rule tester using `createLinterRu
 You can then provide different test checking the rule pass or fails.
 
 ```ts
-import { createLinterRuleTester, RuleTester, createTestRunner } from "@typespec/compiler/testing";
+import { RuleTester, createLinterRuleTester, createTestRunner } from "@typespec/compiler/testing";
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
 describe("required-doc rule", () => {

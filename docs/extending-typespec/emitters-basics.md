@@ -41,7 +41,7 @@ To pass your emitter custom options, the options must be registered with the com
 The following example extends the hello world emitter to be configured with a name:
 
 ```typescript
-import { Program, createTypeSpecLibrary, EmitOptionsFor, JSONSchemaType } from "@typespec/compiler";
+import { JSONSchemaType, createTypeSpecLibrary } from "@typespec/compiler";
 import Path from "path";
 
 export interface EmitterOptions {
@@ -120,12 +120,7 @@ The following example will emit models with the `@emitThis` decorator and also a
 [See creating decorator documentation for more details](./create-decorators.md)
 
 ```typescript
-import {
-  DecoratorContext,
-  Model,
-  createStateSymbol,
-  createDecoratorDefinition,
-} from "@typespec/compiler";
+import { DecoratorContext, Model, createStateSymbol } from "@typespec/compiler";
 
 // Decorator Setup Code
 

@@ -1,6 +1,7 @@
 jobs:
   - job: publish_artifacts
     displayName: Publish Artifacts
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
     variables:
       TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
