@@ -22,7 +22,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/checkups/{checkupId}':
+  /checkups/{checkupId}:
     patch:
       operationId: Checkups_createOrUpdate
       description: Creates or update an instance of the resource.
@@ -100,7 +100,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/owners/{ownerId}':
+  /owners/{ownerId}:
     get:
       operationId: Owners_get
       description: Gets an instance of the resource.
@@ -157,7 +157,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/owners/{ownerId}/checkups':
+  /owners/{ownerId}/checkups:
     get:
       operationId: OwnerCheckups_list
       description: Lists all instances of the extension resource.
@@ -176,7 +176,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/owners/{ownerId}/checkups/{checkupId}':
+  /owners/{ownerId}/checkups/{checkupId}:
     patch:
       operationId: OwnerCheckups_createOrUpdate
       description: Creates or update an instance of the extension resource.
@@ -208,7 +208,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
-  '/owners/{ownerId}/insurance':
+  /owners/{ownerId}/insurance:
     get:
       operationId: OwnerInsurance_get
       description: Gets the singleton resource.
@@ -298,7 +298,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/pets/{petId}':
+  /pets/{petId}:
     get:
       operationId: Pets_get
       description: Gets an instance of the resource.
@@ -355,7 +355,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/pets/{petId}/checkups':
+  /pets/{petId}/checkups:
     get:
       operationId: PetCheckups_list
       description: Lists all instances of the extension resource.
@@ -374,7 +374,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/pets/{petId}/checkups/{checkupId}':
+  /pets/{petId}/checkups/{checkupId}:
     patch:
       operationId: PetCheckups_createOrUpdate
       description: Creates or update an instance of the extension resource.
@@ -406,7 +406,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckupUpdate'
-  '/pets/{petId}/insurance':
+  /pets/{petId}/insurance:
     get:
       operationId: PetInsurance_get
       description: Gets the singleton resource.
@@ -449,7 +449,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InsuranceUpdate'
-  '/pets/{petId}/toys':
+  /pets/{petId}/toys:
     get:
       operationId: Toys_list
       parameters:
@@ -472,7 +472,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/pets/{petId}/toys/{toyId}':
+  /pets/{petId}/toys/{toyId}:
     get:
       operationId: Toys_get
       description: Gets an instance of the resource.
@@ -492,7 +492,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PetStoreError'
-  '/pets/{petId}/toys/{toyId}/insurance':
+  /pets/{petId}/toys/{toyId}/insurance:
     get:
       operationId: ToyInsurance_get
       description: Gets the singleton resource.

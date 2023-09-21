@@ -12,7 +12,7 @@ granted herein, whether by implication, estoppel or otherwise.
 2. brace-expansion version 2.0.1 (https://github.com/juliangruber/brace-expansion)
 3. lru-cache version 6.0.0 (https://github.com/isaacs/node-lru-cache)
 4. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
-5. semver version 7.3.8 (https://github.com/npm/node-semver)
+5. semver version 7.5.4 (https://github.com/npm/node-semver)
 6. yallist version 4.0.0 (https://github.com/isaacs/yallist)
 
 
