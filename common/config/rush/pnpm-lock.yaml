@@ -1420,17 +1420,17 @@ importers:
   ../../packages/website:
     dependencies:
       '@docusaurus/core':
-        specifier: ^2.4.3
+        specifier: ^2.2.0
         version: 2.4.3(@docusaurus/types@2.4.3)(eslint@8.49.0)(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)
       '@docusaurus/preset-classic':
-        specifier: ^2.4.3
+        specifier: ^2.2.0
         version: 2.4.3(@algolia/client-search@4.20.0)(eslint@8.49.0)(react-dom@17.0.2)(react@17.0.2)(search-insights@2.8.2)(typescript@5.2.2)
       '@docusaurus/theme-mermaid':
-        specifier: ^2.4.3
+        specifier: ^2.2.0
         version: 2.4.3(eslint@8.49.0)(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)
       '@mdx-js/react':
-        specifier: ^2.3.0
-        version: 2.3.0(react@17.0.2)
+        specifier: ^1.6.22
+        version: 1.6.22(react@17.0.2)
       prism-react-renderer:
         specifier: ^2.0.6
         version: 2.0.6(react@17.0.2)
@@ -2005,7 +2005,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.12.9
-      '@babel/helper-plugin-utils': 7.10.4
+      '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.12.9)
       '@babel/plugin-transform-parameters': 7.22.15(@babel/core@7.12.9)
     dev: false
@@ -5949,16 +5949,6 @@ packages:
       react: 17.0.2
     dev: false
 
-  /@mdx-js/react@2.3.0(react@17.0.2):
-    resolution: {integrity: sha512-zQH//gdOmuu7nt2oJR29vFhDv88oGPmVw6BggmrHeMI+xgEkp1B2dX9/bMBSYtK0dyLX/aOmesKS09g222K1/g==}
-    peerDependencies:
-      react: '>=16'
-    dependencies:
-      '@types/mdx': 2.0.7
-      '@types/react': 18.2.22
-      react: 17.0.2
-    dev: false
-
   /@mdx-js/util@1.6.22:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: false
@@ -6529,10 +6519,6 @@ packages:
     resolution: {integrity: sha512-DT+iNIRNX884cx0/Q1ja7NyUPpZuv0KPyL5rGNxm1WC1OtHstl7n4Jb7nk+xacNShQMbczJjt8uFzznpp6kYBg==}
     dependencies:
       '@types/unist': 2.0.8
-
-  /@types/mdx@2.0.7:
-    resolution: {integrity: sha512-BG4tyr+4amr3WsSEmHn/fXPqaCba/AYZ7dsaQTiavihQunHSIxk+uAtqsjvicNpyHN6cm+B9RVrUOtW9VzIKHw==}
-    dev: false
 
   /@types/micromatch@4.0.2:
     resolution: {integrity: sha512-oqXqVb0ci19GtH0vOA/U2TmHTcRY9kuZl4mqUxe0QmJAlIW13kzhuK5pi1i9+ngav8FjpSb9FVS/GE00GLX1VA==}
@@ -12115,6 +12101,7 @@ packages:
 
   /micromark-factory-destination@1.1.0:
     resolution: {integrity: sha512-XaNDROBgx9SgSChd69pjiGKbV+nfHGDPVYFs5dOoDd7ZnMAE+Cuu91BCpsY8RT2NP9vo/B8pds2VQNCLiu0zhg==}
+    requiresBuild: true
     dependencies:
       micromark-util-character: 1.2.0
       micromark-util-symbol: 1.1.0
@@ -12123,6 +12110,7 @@ packages:
 
   /micromark-factory-label@1.1.0:
     resolution: {integrity: sha512-OLtyez4vZo/1NjxGhcpDSbHQ+m0IIGnT8BoPamh+7jVlzLJBH98zzuCoUeMxvM6WsNeh8wx8cKvqLiPHEACn0w==}
+    requiresBuild: true
     dependencies:
       micromark-util-character: 1.2.0
       micromark-util-symbol: 1.1.0
@@ -12154,6 +12142,7 @@ packages:
 
   /micromark-factory-title@1.1.0:
     resolution: {integrity: sha512-J7n9R3vMmgjDOCY8NPw55jiyaQnH5kBdV2/UXCtZIpnHH3P6nHUKaH7XXEYuWwx/xUJcawa8plLBEjMPU24HzQ==}
+    requiresBuild: true
     dependencies:
       micromark-factory-space: 1.1.0
       micromark-util-character: 1.2.0
@@ -12163,6 +12152,7 @@ packages:
 
   /micromark-factory-whitespace@1.1.0:
     resolution: {integrity: sha512-v2WlmiymVSp5oMg+1Q0N1Lxmt6pMhIHD457whWM7/GUlEks1hI9xj5w3zbc4uuMKXGisksZk8DzP2UyGbGqNsQ==}
+    requiresBuild: true
     dependencies:
       micromark-factory-space: 1.1.0
       micromark-util-character: 1.2.0
@@ -12185,6 +12175,7 @@ packages:
 
   /micromark-util-classify-character@1.1.0:
     resolution: {integrity: sha512-SL0wLxtKSnklKSUplok1WQFoGhUdWYKggKUiqhX+Swala+BtptGCu5iPRc+xvzJ4PXE/hwM3FNXsfEVgoZsWbw==}
+    requiresBuild: true
     dependencies:
       micromark-util-character: 1.2.0
       micromark-util-symbol: 1.1.0
@@ -12234,6 +12225,7 @@ packages:
 
   /micromark-util-html-tag-name@1.2.0:
     resolution: {integrity: sha512-VTQzcuQgFUD7yYztuQFKXT49KghjtETQ+Wv/zUjGSGBioZnkA4P1XXZPT1FHeJA6RwRXSF47yvJ1tsJdoxwO+Q==}
+    requiresBuild: true
     dev: true
 
   /micromark-util-normalize-identifier@1.1.0:

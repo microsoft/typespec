@@ -23,10 +23,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@docusaurus/core": "^2.4.3",
-    "@docusaurus/preset-classic": "^2.4.3",
-    "@docusaurus/theme-mermaid": "^2.4.3",
-    "@mdx-js/react": "^2.3.0",
+    "@docusaurus/core": "^2.2.0",
+    "@docusaurus/preset-classic": "^2.2.0",
+    "@docusaurus/theme-mermaid": "^2.2.0",
+    "@mdx-js/react": "^1.6.22",
     "prism-react-renderer": "^2.0.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
