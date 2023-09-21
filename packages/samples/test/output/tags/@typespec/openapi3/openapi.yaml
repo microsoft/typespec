@@ -26,7 +26,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Resp'
-  '/bar/{id}':
+  /bar/{id}:
     post:
       tags:
         - tag3
@@ -42,7 +42,7 @@ paths:
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
-  '/foo/{id}':
+  /foo/{id}:
     get:
       tags:
         - foo
@@ -76,7 +76,7 @@ paths:
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
-  '/nested/{id}':
+  /nested/{id}:
     post:
       tags:
         - outer

@@ -50,7 +50,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Pet'
-  '/pets/{petId}':
+  /pets/{petId}:
     delete:
       operationId: Pets_delete
       description: Delete a pet.
@@ -89,7 +89,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/pets/{petId}/toys':
+  /pets/{petId}/toys:
     get:
       operationId: ListPetToysResponse_list
       parameters:
