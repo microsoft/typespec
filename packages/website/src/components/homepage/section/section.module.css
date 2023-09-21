@@ -1,9 +1,21 @@
 .section {
   display: flex;
-  justify-content: space-between;
+  gap: 170px;
   align-items: center;
   align-content: center;
-  padding-left: 80px;
+  flex-direction: column;
+}
+
+@media only screen and (min-width: 1200px) {
+  .section {
+    flex-direction: row;
+  }
+}
+
+.info-container {
+  width: 50vw;
+  display: flex;
+  justify-content: center;
 }
 
 .info {
@@ -38,8 +50,15 @@
 }
 
 .illustration {
-  width: 710px;
-  height: 600px;
+  width: 80vw;
+  height: 70vw;
+}
+
+@media only screen and (min-width: 1200px) {
+  .illustration {
+    width: 50vw;
+    height: 40vw;
+  }
 }
 
 .item-card {
@@ -49,4 +68,11 @@
   width: 52px;
   height: 52px;
   max-width: 52px;
+}
+
+.item-content {
+  display: flex;
+  margin-top: 5px;
+  flex-direction: column;
+  gap: 5px;
 }

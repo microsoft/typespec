@@ -1,8 +1,8 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Button, Card, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
-import { FeatureGroup, Feature } from "./feature/feature";
 
 const useFluentStyles = makeStyles({
   bg: { backgroundColor: tokens.colorNeutralBackground3 },

@@ -38,7 +38,7 @@
 
 .intro-subtitle {
   font-size: 20px;
-  width: 420px;
+  max-width: 420px;
   text-align: center;
 }
 
@@ -50,6 +50,12 @@
   gap: 10px;
   flex: 1 0 0;
   align-self: stretch;
+}
+
+@media only screen and (max-width: 728px) {
+  .intro-demo {
+    display: none;
+  }
 }
 
 .intro-demo-image {
@@ -79,10 +85,9 @@
 }
 
 .overview-description {
-  width: 620px;
+  max-width: 620px;
   text-align: center;
 }
-
 
 :global(html[data-theme="dark"]) .closing {
   background-image: url(/img/bg-bottom-dark.svg);
@@ -100,5 +105,4 @@
   gap: 16px;
   flex: 1 0 0;
   margin: auto;
-  width: 1280px;
 }

@@ -1,10 +1,17 @@
 .feature-group {
   display: flex;
-  padding: 0px 120px;
-  align-items: center;
+  align-items: stretch;
   align-self: center;
-  gap: 88px;
   flex-direction: column;
+  gap: 40px;
+  padding: 80px;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
 .feature {
@@ -12,6 +19,7 @@
   flex-direction: column;
   align-items: center;
   gap: 24px;
+
 }
 
 .content {
@@ -21,17 +29,21 @@
   gap: 24px;
 }
 
-@media only screen and (min-width: 1025px) {
+@media only screen and (min-width: 1200px) {
   .feature-group {
     flex-direction: row;
+    width: 1200px;
+    justify-content: space-between;
+    padding: 0;
   }
 
-  .feature {
-    width: 320px;
+
+  .feature-card {
+    width: 350px;
   }
 }
 
-@media only screen and (min-width: 600px) and (max-width: 1024px) {
+@media only screen and (min-width: 600px) and (max-width: 1200px) {
   .feature {
     flex-direction: row;
   }

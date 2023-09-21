@@ -9,7 +9,7 @@ export interface FeatureProps {
 }
 export const Feature = ({ title, image, children }: FeatureProps) => {
   return (
-    <Card size="large">
+    <Card size="large" className={style["feature-card"]}>
       <div className={style["feature"]}>
         <FluentImg name={image} />
         <div className={style["content"]}>
