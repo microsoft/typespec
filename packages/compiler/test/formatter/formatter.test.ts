@@ -1015,6 +1015,50 @@ model Foo {
       });
     });
 
+    it("format single line comments after doc comment", async () => {
+      await assertFormat({
+        code: `
+model A {
+  /**
+   * block
+   */
+    // one line
+  s: string;
+}
+        
+`,
+        expected: `
+model A {
+  /**
+   * block
+   */
+  // one line
+  s: string;
+}
+`,
+      });
+    });
+
+    it("format single line comments after directive", async () => {
+      await assertFormat({
+        code: `
+model A {
+  #suppress "foo"
+    // one line
+  s: string;
+}
+        
+`,
+        expected: `
+model A {
+  #suppress "foo"
+  // one line
+  s: string;
+}
+`,
+      });
+    });
+
     it("format empty interface with comment inside", async () => {
       await assertFormat({
         code: `
@@ -1051,19 +1095,21 @@ interface Foo {
       });
     });
 
-    describe("format comment between decorator and statement", () => {
-      [
-        ["blockless namespace", "namespace Bar;"],
-        ["flattened blockless namespace", "namespace Foo.Bar;"],
-        ["block namespace", "namespace Bar {\n\n}"],
-        ["flattened block namespace", "namespace Foo.Bar {\n\n}"],
-        ["model", "model Bar {}"],
-        ["op", "op test(foo: string): void;"],
-        ["scalar", "scalar foo;"],
-        ["interface", "interface Foo {}"],
-        ["union", "union Foo {}"],
-        ["enum", "enum Foo {}"],
-      ].forEach(([name, code]) => {
+    const types = [
+      ["blockless namespace", "namespace Bar;"],
+      ["flattened blockless namespace", "namespace Foo.Bar;"],
+      ["block namespace", "namespace Bar {\n\n}"],
+      ["flattened block namespace", "namespace Foo.Bar {\n\n}"],
+      ["model", "model Bar {}"],
+      ["op", "op test(foo: string): void;"],
+      ["scalar", "scalar foo;"],
+      ["interface", "interface Foo {}"],
+      ["union", "union Foo {}"],
+      ["enum", "enum Foo {}"],
+    ];
+
+    describe("format comment between decorator and node", () => {
+      types.forEach(([name, code]) => {
         it(name, async () => {
           await assertFormat({
             code: `
@@ -1073,6 +1119,44 @@ ${code}
 `,
             expected: `
 @foo
+// comment
+${code}
+`,
+          });
+        });
+      });
+    });
+
+    describe("format comment between directive and node", () => {
+      types.forEach(([name, code]) => {
+        it(name, async () => {
+          await assertFormat({
+            code: `
+#suppress "foo"
+    // comment
+${code}
+`,
+            expected: `
+#suppress "foo"
+// comment
+${code}
+`,
+          });
+        });
+      });
+    });
+
+    describe("format comment between doc comment and node", () => {
+      types.forEach(([name, code]) => {
+        it(name, async () => {
+          await assertFormat({
+            code: `
+/** doc */
+    // comment
+${code}
+`,
+            expected: `
+/** doc */
 // comment
 ${code}
 `,
@@ -1482,6 +1566,73 @@ enum Foo {
   One: "1",
   ...Baz,
   Two: "2",
+}
+`,
+      });
+    });
+  });
+
+  describe("union", () => {
+    it("format simple union", async () => {
+      await assertFormat({
+        code: `
+union      Foo       {    A,        B}
+union      Bar       
+      {    A,    
+            B}
+`,
+        expected: `
+union Foo {
+  A,
+  B,
+}
+union Bar {
+  A,
+  B,
+}
+`,
+      });
+    });
+
+    it("format named union", async () => {
+      await assertFormat({
+        code: `
+        union      Foo       {    a: A,        b:       B}
+`,
+        expected: `
+union Foo {
+  a: A,
+  b: B,
+}
+
+`,
+      });
+    });
+
+    it("separate members if there is decorators", async () => {
+      await assertFormat({
+        code: `
+union      Foo       {   
+  @doc("foo") 
+        a: A,    @doc("bar") 
+           b    : B, 
+
+
+
+      @doc("third")   
+       c    : C}
+
+`,
+        expected: `
+union Foo {
+  @doc("foo")
+  a: A,
+
+  @doc("bar")
+  b: B,
+
+  @doc("third")
+  c: C,
 }
 `,
       });

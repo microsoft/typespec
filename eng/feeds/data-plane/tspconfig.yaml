@@ -31,3 +31,6 @@ options:
   "@azure-tools/typespec-java":
     package-dir: "{{#normalizePackageName}}{{parameters.ServiceNamespace}}{{/normalizePackageName}}"
     namespace: com.{{#toLowerCase}}{{parameters.ServiceNamespace}}{{/toLowerCase}}
+linter:
+  extends:
+    - "@azure-tools/typespec-azure-core/all"

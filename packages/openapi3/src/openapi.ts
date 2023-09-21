@@ -1162,7 +1162,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     ph.in = parameter.type;
     if (parameter.type === "query" || parameter.type === "header") {
       if (parameter.format === "csv" || parameter.format === "simple") {
-        ph.style = "simple";
+        if (parameter.type === "query") {
+          ph.style = "form";
+          ph.explode = false;
+        } else {
+          ph.style = "simple";
+        }
       } else if (parameter.format === "multi" || parameter.format === "form") {
         if (parameter.type === "header") {
           reportDiagnostic(program, {
@@ -1467,7 +1472,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (discriminator) {
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
-      schema.discriminator = discriminator;
+      schema.discriminator = { ...discriminator };
       // Diagnostic already reported in compiler for unions
       const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
       if (discriminatedUnion.variants.size > 0) {
@@ -1492,10 +1497,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "String":
         return defaultType.value;
       case "Number":
-        compilerAssert(type.kind === "Scalar", "setting scalar default to non-scalar value");
-        const base = getStdBaseScalar(type);
-        compilerAssert(base, "not allowed to assign default to custom scalars");
-
         return defaultType.value;
       case "Boolean":
         return defaultType.value;
@@ -1515,6 +1516,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           );
         }
 
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
       case "EnumMember":
         return defaultType.value ?? defaultType.name;
       default:
@@ -1523,18 +1532,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           format: { type: defaultType.kind },
           target: defaultType,
         });
-    }
-
-    function getStdBaseScalar(scalar: Scalar): Scalar | null {
-      let current: Scalar | undefined = scalar;
-      while (current) {
-        if (program.checker.isStdType(current)) {
-          return current;
-        }
-        current = current.baseScalar;
-      }
-
-      return null;
     }
   }
 
@@ -1993,6 +1990,7 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
         {
           singleQuote: true,
           aliasDuplicateObjects: false,
+          lineWidth: 0,
         }
       );
   }

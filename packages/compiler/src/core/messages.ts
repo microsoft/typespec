@@ -481,7 +481,8 @@ const diagnostics = {
   "invalid-deprecation-argument": {
     severity: "error",
     messages: {
-      default: "Invalid deprecation argument",
+      default: paramMessage`#deprecation directive is expecting a string literal as the message but got a "${"kind"}"`,
+      missing: "#deprecation directive is expecting a message argument but none was provided.",
     },
   },
   "duplicate-deprecation": {
@@ -735,6 +736,7 @@ const diagnostics = {
       default: "Invalid encoding",
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
+      wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
     },
   },
 

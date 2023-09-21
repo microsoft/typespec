@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "prettier_2": "npm:prettier@2.8.7",
-    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.48.1",
     "@typespec/internal-build-utils": "workspace:~0.48.0",
     "@rollup/plugin-commonjs": "~25.0.0",
     "@rollup/plugin-json": "~6.0.0",

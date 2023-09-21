@@ -123,7 +123,7 @@
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.53.0",
-    "@typespec/compiler": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.48.1",
     "@typespec/eslint-config-typespec": "workspace:~0.48.0",
     "@typespec/internal-build-utils": "workspace:~0.48.0",
     "eslint": "^8.42.0",

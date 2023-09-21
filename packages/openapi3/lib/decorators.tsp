@@ -1,6 +1,6 @@
 import "../dist/src/index.js";
 
-namespace OpenAPI;
+namespace TypeSpec.OpenAPI;
 
 using TypeSpec.Reflection;
 

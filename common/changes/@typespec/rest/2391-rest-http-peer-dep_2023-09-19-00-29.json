@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Correct rest → http peer dependency. Fixes #2391",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}
