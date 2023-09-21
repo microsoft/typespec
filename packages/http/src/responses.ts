@@ -85,6 +85,14 @@ function processResponseType(
     } else {
       statusCodes.push("200");
     }
+  } else if (statusCodes.length > 1) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "multiple-status-codes",
+        message: "Multiple status codes are not supported",
+        target: responseType,
+      })
+    );
   }
 
   // If there is a body but no explicit content types, use application/json
@@ -133,7 +141,8 @@ function getResponseStatusCodes(
 
   for (const prop of metadata) {
     if (isStatusCode(program, prop)) {
-      codes.push(...getStatusCodes(program, prop));
+      const propCodes = getStatusCodes(program, prop);
+      codes.push(...propCodes);
     }
   }
 
@@ -143,8 +152,7 @@ function getResponseStatusCodes(
     }
   }
 
-  // eliminate duplicate status codes
-  return [...new Set(codes)];
+  return codes;
 }
 
 /**

@@ -175,8 +175,17 @@ describe("openapi3: operations", () => {
         @statusCode _: 401;
         @body body: UnauthorizedResponse;
       }
+
+      model Pet {
+        name: string;
+      }
       
-      op list(): CustomUnauthorizedResponse;
+      model PetList {
+        @statusCode _: 200;
+        @body body: Pet[];
+      }
+      
+      op list(): PetList | CustomUnauthorizedResponse;
       `
     );
     const responses = res.paths["/"].get.responses;

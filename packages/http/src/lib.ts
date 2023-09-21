@@ -62,6 +62,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
       },
     },
+    "multiple-status-codes": {
+      severity: "error",
+      messages: {
+        default: "Multiple status codes defined for this operation.",
+      },
+    },
     "status-code-invalid": {
       severity: "error",
       messages: {
