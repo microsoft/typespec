@@ -216,6 +216,13 @@
       "projectFolder": "packages/best-practices",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@typespec/service-generator-csharp",
+      "projectFolder": "packages/service-generator-csharp",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec",
+      "shouldPublish": false
     }
   ]
 }
