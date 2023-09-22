@@ -700,6 +700,7 @@ describe("openapi3: models", () => {
           oneOf: [{ type: "string" }, { type: "integer", format: "int32" }],
         },
       },
+      required: ["bar"],
     });
   });
 
