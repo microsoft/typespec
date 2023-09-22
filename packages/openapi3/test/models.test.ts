@@ -693,11 +693,11 @@ describe("openapi3: models", () => {
         }
       `);
     ok(openApi.components.schemas.Foo, "expected definition named Foo");
-    deepStrictEqual(openApi.components.schemas.Pet, {
+    deepStrictEqual(openApi.components.schemas.Foo, {
       type: "object",
       properties: {
         bar: {
-          oneOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
+          oneOf: [{ type: "string" }, { type: "integer", format: "int32" }],
         },
       },
     });
