@@ -172,7 +172,6 @@
     // "request": "*"
   },
 
-
   /**
    * (THIS FIELD IS MACHINE GENERATED)  The "globalPatchedDependencies" field is updated automatically
    * by the `rush-pnpm patch-commit` command.  It is a dictionary, where the key is an NPM package name
@@ -180,7 +179,7 @@
    *
    * PNPM documentation: https://pnpm.io/package_json#pnpmpatcheddependencies
    */
-  "globalPatchedDependencies": { },
+  "globalPatchedDependencies": {},
 
   /**
    * (USE AT YOUR OWN RISK)  This is a free-form property bag that will be copied into
