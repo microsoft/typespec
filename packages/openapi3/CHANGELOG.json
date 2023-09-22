@@ -2,6 +2,26 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.48.1",
+      "tag": "@typespec/openapi3_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Correctly generate discriminated union mapping property with multiple visibilities involved"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.48.0",
       "tag": "@typespec/openapi3_v0.48.0",
       "date": "Tue, 12 Sep 2023 21:47:11 GMT",

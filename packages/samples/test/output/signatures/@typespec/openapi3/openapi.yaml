@@ -28,7 +28,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AccountProfile'
-  '/accountProfiles/{name}':
+  /accountProfiles/{name}:
     get:
       operationId: AccountProfiles_get
       description: Reads an instance of the AccountProfile resource.
@@ -75,7 +75,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CodeSignAccount'
-  '/codeSignAccounts/{name}':
+  /codeSignAccounts/{name}:
     get:
       operationId: CodeSignAccounts_get
       description: Reads an instance of the CodeSignAccount resource.

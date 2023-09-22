@@ -36,7 +36,7 @@ export async function createOpenAPITestRunner({
   ${withVersioning ? `import "@typespec/versioning"` : ""};
   using TypeSpec.Rest;
   using TypeSpec.Http;
-  using OpenAPI;
+  using TypeSpec.OpenAPI;
   ${withVersioning ? "using TypeSpec.Versioning;" : ""}
 `;
   return createTestWrapper(host, {
@@ -67,7 +67,7 @@ export async function openApiFor(
     "./main.tsp",
     `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3"; ${
       versions ? `import "@typespec/versioning"; using TypeSpec.Versioning;` : ""
-    }using TypeSpec.Rest;using TypeSpec.Http;using OpenAPI;${code}`
+    }using TypeSpec.Rest;using TypeSpec.Http;using TypeSpec.OpenAPI;${code}`
   );
   const diagnostics = await host.diagnose("./main.tsp", {
     noEmit: false,

@@ -54,7 +54,8 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[1], {
       in: "query",
       name: "$csv",
-      style: "simple",
+      style: "form",
+      explode: false,
       schema: {
         type: "array",
         items: {

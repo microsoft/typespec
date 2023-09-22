@@ -55,7 +55,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/shelf_name/books/{name}':
+  /v1/shelves/shelf_name/books/{name}:
     get:
       tags:
         - LibraryService
@@ -85,15 +85,14 @@ paths:
         - $ref: '#/components/parameters/DeleteBookRequest'
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/{name}':
+  /v1/shelves/{name}:
     get:
       tags:
         - LibraryService
@@ -123,15 +122,14 @@ paths:
         - $ref: '#/components/parameters/DeleteShelfRequest'
       responses:
         '204':
-          description: 'There is no content to send for this request, but the headers may
-            be useful. '
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/{name}/books':
+  /v1/shelves/{name}/books:
     post:
       tags:
         - LibraryService
@@ -163,12 +161,9 @@ paths:
       tags:
         - LibraryService
       operationId: LibraryService_listBooks
-      description: >-
-        Lists books in a shelf. The order is unspecified but deterministic.
-        Newly
-
+      description: |-
+        Lists books in a shelf. The order is unspecified but deterministic. Newly
         created books will not necessarily be added to the end of this list.
-
         Returns NOT_FOUND if the shelf does not exist.
       parameters:
         - $ref: '#/components/parameters/ListBooksRequest.name'
@@ -187,22 +182,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/{name}:merge':
+  /v1/shelves/{name}:merge:
     post:
       tags:
         - LibraryService
       operationId: LibraryService_mergeShelves
-      description: >-
+      description: |-
         Merges two shelves by adding all books from the shelf named
-
         `other_shelf_name` to shelf `name`, and deletes
-
         `other_shelf_name`. Returns the updated shelf.
-
         The book ids of the moved books may not be the same as the original books.
-
         Returns NOT_FOUND if either shelf does not exist.
-
         This call is a no-op if the specified shelves are the same.
       parameters:
         - $ref: '#/components/parameters/MergeShelvesRequest.name'
@@ -290,13 +280,10 @@ components:
       name: page_token
       in: query
       required: false
-      description: >-
+      description: |-
         A token identifying a page of results the server should return.
-
         Typically, this is the value of
-
         [ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]
-
         returned from the previous call to `ListShelves` method.
       schema:
         type: string
@@ -357,30 +344,22 @@ components:
           description: The list of books.
         next_page_token:
           type: string
-          description: >-
+          description: |-
             A token to retrieve next page of results.
-
             Pass this value in the
-
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-
             field in the subsequent call to `ListShelves` method to retrieve the next
-
             page of results.
     ListResponseBase:
       type: object
       properties:
         next_page_token:
           type: string
-          description: >-
+          description: |-
             A token to retrieve next page of results.
-
             Pass this value in the
-
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-
             field in the subsequent call to `ListShelves` method to retrieve the next
-
             page of results.
     ListShelvesResponse:
       type: object
@@ -395,15 +374,11 @@ components:
           description: The list of shelves.
         next_page_token:
           type: string
-          description: >-
+          description: |-
             A token to retrieve next page of results.
-
             Pass this value in the
-
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-
             field in the subsequent call to `ListShelves` method to retrieve the next
-
             page of results.
     MoveBookRequest:
       type: object

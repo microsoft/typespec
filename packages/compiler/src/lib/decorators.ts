@@ -671,7 +671,9 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
       const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
-        messageId: "wrongEncodingType",
+        messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding)
+          ? "wrongNumericEncodingType"
+          : "wrongEncodingType",
         format: {
           encoding: encodeData.encoding,
           type: getTypeName(target),

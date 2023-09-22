@@ -70,7 +70,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PersonUpdate'
-  '/hello/{id}':
+  /hello/{id}:
     get:
       operationId: Hello_read
       parameters:

@@ -1159,7 +1159,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     ph.in = parameter.type;
     if (parameter.type === "query" || parameter.type === "header") {
       if (parameter.format === "csv" || parameter.format === "simple") {
-        ph.style = "simple";
+        if (parameter.type === "query") {
+          ph.style = "form";
+          ph.explode = false;
+        } else {
+          ph.style = "simple";
+        }
       } else if (parameter.format === "multi" || parameter.format === "form") {
         if (parameter.type === "header") {
           reportDiagnostic(program, {
@@ -1508,6 +1513,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           );
         }
 
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
       case "EnumMember":
         return defaultType.value ?? defaultType.name;
       default:
@@ -1965,6 +1978,7 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
         {
           singleQuote: true,
           aliasDuplicateObjects: false,
+          lineWidth: 0,
         }
       );
   }
