@@ -245,11 +245,12 @@ export function getStatusCodes(program: Program, entity: ModelProperty): HttpSta
 }
 
 // Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange) {
+export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange | string) {
   if (typeof statusCode === "object") {
     return undefined;
   }
-  switch (statusCode) {
+  const statusCodeNumber = typeof statusCode === "string" ? parseInt(statusCode, 10) : statusCode;
+  switch (statusCodeNumber) {
     case 200:
       return "The request has succeeded.";
     case 201:

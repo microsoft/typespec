@@ -354,4 +354,5 @@ export interface HttpStatusCodeRange {
   end: number;
 }
 
-export type HttpStatusCodes = (HttpStatusCodeRange | number | "*")[];
+export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
+export type HttpStatusCodes = HttpStatusCodesEntry[];
