@@ -1,5 +1,6 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Card, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Card } from "../card/card";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
@@ -10,10 +11,8 @@ const useFluentStyles = makeStyles({
 });
 
 export const HomeContent = () => {
-  const fluentStyles = useFluentStyles();
-
   return (
-    <div className={fluentStyles.bg}>
+    <>
       <Intro />
       <div className={style["sections"]}>
         <Overview />
@@ -22,7 +21,7 @@ export const HomeContent = () => {
         <FlexibilitySection />
         <Closing />
       </div>
-    </div>
+    </>
   );
 };
 
