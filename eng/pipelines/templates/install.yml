@@ -24,13 +24,9 @@ steps:
       dotnet --version
     displayName: "Log tool versions used"
 
-  # TODO: Purge before install, to ensure a clean state between retries.
-  # Append "|| cd ." to "rush purge" to ignore errors (works on both Windows and Linux) as a workaround
-  # for microsoft/rushstack#4334.
-  # node common/scripts/install-run-rush.js purge || cd .
-
+  # purge before install to ensure a clean state between retries
   - script: |
-      node common/scripts/install-run-rush.js install
+      node common/scripts/install-run-rush.js install --purge
     displayName: Install JavaScript Dependencies
     retryCountOnTaskFailure: 3
 
