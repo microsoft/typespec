@@ -63,13 +63,6 @@
   height: 534px;
 }
 
-.sections {
-  display: flex;
-  padding: 100px 0px 0 0px;
-  flex-direction: column;
-  gap: 128px;
-}
-
 .overview {
   display: flex;
   flex-direction: column;

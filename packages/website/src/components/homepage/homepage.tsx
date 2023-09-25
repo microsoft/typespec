@@ -1,6 +1,7 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
 import { Card } from "../card/card";
+import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
@@ -14,13 +15,13 @@ export const HomeContent = () => {
   return (
     <>
       <Intro />
-      <div className={style["sections"]}>
+      <SectionedLayout>
         <Overview />
         <OpenAPISection />
         <EcoSystemSection />
         <FlexibilitySection />
-        <Closing />
-      </div>
+      </SectionedLayout>
+      <Closing />
     </>
   );
 };
