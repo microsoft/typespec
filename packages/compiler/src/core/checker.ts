@@ -903,6 +903,7 @@ export function createChecker(program: Program): Checker {
         return checkDeprecatedNode(node);
       case SyntaxKind.IntersectionExpression:
       case SyntaxKind.UnionExpression:
+      case SyntaxKind.ModelProperty:
       case SyntaxKind.OperationSignatureDeclaration:
       case SyntaxKind.OperationSignatureReference:
         return isTypeReferenceContextDeprecated(node.parent!);

@@ -342,8 +342,14 @@ describe("compiler: checker: deprecation", () => {
             #deprecated "OldBlah is deprecated"
             model OldBlah extends OldFoo {}
 
+            #deprecated "OldFooReference is deprecated"
             model OldFooReference {
               foo: OldFoo.foo;
+            }
+
+            #deprecated "OldFooProperty is deprecated"
+            model OldFooProperty {
+              foo: OldFoo;
             }
 
             #deprecated "OldBaz is deprecated"
