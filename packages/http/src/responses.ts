@@ -50,7 +50,7 @@ export function getResponsesForOperation(
     processResponseType(program, diagnostics, operation, responses, responseType);
   }
 
-  return diagnostics.wrap(Object.values(responses));
+  return diagnostics.wrap(responses.values());
 }
 
 /**
@@ -77,6 +77,10 @@ class ResponseIndex {
     } else {
       this.#ranges.set(this.#rangeKey(statusCode), response);
     }
+  }
+
+  public values(): HttpOperationResponse[] {
+    return [...this.#individual.values(), ...this.#ranges.values()];
   }
 
   #rangeKey(range: HttpStatusCodeRange) {

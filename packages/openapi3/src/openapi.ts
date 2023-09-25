@@ -546,7 +546,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     for (const group of groups) {
       const groupStart = group * 100;
-      if (start >= groupStart && end >= groupStart + 99) {
+      const groupEnd = groupStart + 99;
+      if (start >= groupStart && start <= groupEnd && end >= groupEnd) {
         codes.push(`${group}XX`);
         if (start !== groupStart) {
           reportInvalid();
