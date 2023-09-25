@@ -7,8 +7,10 @@ steps:
       versionSpec: "16.x"
     displayName: Install Node.js
 
-  - script: node common/scripts/install-run-rush.js install --max-install-attempts 3
+  # purge before install to ensure a clean state between retries
+  - script: node common/scripts/install-run-rush.js install --purge
     displayName: Install JavaScript Dependencies
+    retryCountOnTaskFailure: 3
 
   - script: node common/scripts/install-run-rush.js change -v
     condition: and(succeeded(), not(or(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), startsWith(variables['System.PullRequest.SourceBranch'], 'backmerge/'))))
