@@ -124,6 +124,13 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
 export const libDef = {
   name: "@typespec/openapi3",
   diagnostics: {
+    "oneof-union": {
+      severity: "error",
+      messages: {
+        default:
+          "@oneOf decorator can only be used on a union or a model property which type is a union.",
+      },
+    },
     "inconsistent-shared-route-request-visibility": {
       severity: "error",
       messages: {
