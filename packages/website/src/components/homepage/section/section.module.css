@@ -4,16 +4,13 @@
   align-items: center;
   align-content: center;
   flex-direction: column;
-
 }
-
-
 
 @media only screen and (min-width: 1200px) {
   .text-left {
     flex-direction: row;
   }
-  
+
   .text-right {
     flex-direction: row-reverse;
   }

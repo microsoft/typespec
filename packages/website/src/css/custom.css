@@ -74,5 +74,3 @@ html[data-theme="dark"] .header-github-link:before {
   border: 1px solid var(--neutral-stroke-transparent-rest, rgba(255, 255, 255, 0)) !important;
   background: var(--colorNeutralBackground1) !important;
 }
-
-

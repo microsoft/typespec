@@ -1,10 +1,10 @@
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
+import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import {
   UseCaseFeature,
   UseCaseFeatureGroup,
 } from "../components/use-case-feature/use-case-feature";
-import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
 
 export default function Home() {
