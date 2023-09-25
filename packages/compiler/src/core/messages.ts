@@ -653,6 +653,16 @@ const diagnostics = {
   },
 
   /**
+   * Formatter
+   */
+  "format-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`File '${"file"}' failed to format. ${"details"}`,
+    },
+  },
+
+  /**
    * Decorator
    */
   "decorator-wrong-target": {

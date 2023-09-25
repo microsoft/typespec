@@ -1,4 +1,5 @@
 import { findUnformattedTypeSpecFiles, formatTypeSpecFiles } from "../../formatter-fs.js";
+import { logDiagnostics } from "../../index.js";
 import { CliCompilerHost } from "../types.js";
 
 export interface FormatArgs {
@@ -23,9 +24,13 @@ export async function formatAction(host: CliCompilerHost, args: FormatArgs) {
       process.exit(1);
     }
   } else {
-    await formatTypeSpecFiles(args["include"], {
+    const [_, diagnostics] = await formatTypeSpecFiles(args["include"], {
       exclude: args["exclude"],
       debug: args.debug,
     });
+    if (diagnostics.length > 0) {
+      logDiagnostics(diagnostics, host.logSink);
+      process.exit(1);
+    }
   }
 }
