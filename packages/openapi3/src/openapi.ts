@@ -1634,6 +1634,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     // Attach any additional OpenAPI extensions
     attachExtensions(program, prop, additionalProps);
+
     if (schema && "$ref" in schema) {
       if (Object.keys(additionalProps).length === 0) {
         return schema;
@@ -1644,6 +1645,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         };
       }
     } else {
+      if (getOneOf(program, prop) && schema.anyOf) {
+        schema.oneOf = schema.anyOf;
+        delete schema.anyOf;
+      }
+
       return { ...schema, ...additionalProps };
     }
   }
