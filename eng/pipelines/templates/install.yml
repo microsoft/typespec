@@ -9,6 +9,7 @@ steps:
     inputs:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
+    retryCountOnTaskFailure: 3
 
   - task: UseDotNet@2
     inputs:
@@ -23,8 +24,15 @@ steps:
       dotnet --version
     displayName: "Log tool versions used"
 
-  - script: node common/scripts/install-run-rush.js install --max-install-attempts 3
+  # TODO: Purge before install, to ensure a clean state between retries.
+  # Append "|| cd ." to "rush purge" to ignore errors (works on both Windows and Linux) as a workaround
+  # for microsoft/rushstack#4334.
+  # node common/scripts/install-run-rush.js purge || cd .
+
+  - script: |
+      node common/scripts/install-run-rush.js install
     displayName: Install JavaScript Dependencies
+    retryCountOnTaskFailure: 3
 
   - script: dotnet restore
     displayName: Restore .NET Dependencies
