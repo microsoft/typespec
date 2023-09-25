@@ -1,4 +1,5 @@
 .card {
   background-color: var(--colorNeutralBackground1);
   border-radius: 22px;
+  padding: 20px;
 }

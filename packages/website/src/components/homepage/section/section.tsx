@@ -1,6 +1,5 @@
 import {
   Caption1,
-  Card,
   CardHeader,
   Divider,
   Link,
@@ -12,6 +11,7 @@ import {
 } from "@fluentui/react-components";
 import { FluentImageName, FluentImg } from "../../fluent-img";
 
+import { Card } from "../../card/card";
 import style from "./section.module.css";
 
 interface SectionItem {

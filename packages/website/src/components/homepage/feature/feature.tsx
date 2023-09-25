@@ -1,4 +1,5 @@
-import { Card, Subtitle1, Text } from "@fluentui/react-components";
+import { Subtitle1, Text } from "@fluentui/react-components";
+import { Card } from "../../card/card";
 import { FluentImageName, FluentImg } from "../../fluent-img";
 import style from "./feature.module.css";
 
@@ -9,7 +10,7 @@ export interface FeatureProps {
 }
 export const Feature = ({ title, image, children }: FeatureProps) => {
   return (
-    <Card size="large" className={style["feature-card"]}>
+    <Card className={style["feature-card"]}>
       <div className={style["feature"]}>
         <FluentImg name={image} />
         <div className={style["content"]}>
