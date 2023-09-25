@@ -15,15 +15,9 @@ jobs:
       - checkout: self
         persistCredentials: true
 
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 16.x
-        displayName: Install Node.js
-
-      # purge before install to ensure a clean state between retries
-      - script: node common/scripts/install-run-rush.js install --purge
-        displayName: Install JavaScript Dependencies
-        retryCountOnTaskFailure: 3
+      - template: ../templates/install.yml
+        parameters:
+          nodeVersion: "16.x"
 
       - template: ./templates/build.yml
 
