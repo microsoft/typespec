@@ -10,12 +10,12 @@ import { UseCaseOverview } from "../components/use-case-overview/use-case-overvi
 export default function Home() {
   return (
     <FluentLayout>
-      <OpenApiContent />
+      <DataValidationContent />
     </FluentLayout>
   );
 }
 
-const OpenApiContent = () => {
+const DataValidationContent = () => {
   return (
     <div>
       <UseCaseOverview
