@@ -50,7 +50,3 @@ jobs:
               --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/website/build/" \
               --overwrite
-
-      - script: node eng/scripts/create-tryit-comment.js
-        displayName: Check already commented
-        continueOnError: true # Setting this in case this starts working again

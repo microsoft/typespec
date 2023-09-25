@@ -103,7 +103,7 @@ Specify that `oneOf` should be used instead of `anyOf` for that union.
 
 ##### Target
 
-`Union`
+`union Union | ModelProperty`
 
 ##### Parameters
 
