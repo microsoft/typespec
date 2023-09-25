@@ -13,6 +13,9 @@ export interface TypeSpecFormatOptions {
 }
 
 export interface TypeSpecFormatResult {
+  /**
+   * The list of files which were formatted successfully, the paths of which are either relative or absolute based on the original file path patterns.
+   */
   formattedFiles: string[];
 }
 
