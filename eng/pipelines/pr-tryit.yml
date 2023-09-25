@@ -15,7 +15,7 @@ jobs:
       - checkout: self
         persistCredentials: true
 
-      - template: ../templates/install.yml
+      - template: ./templates/install.yml
         parameters:
           nodeVersion: "16.x"
 
