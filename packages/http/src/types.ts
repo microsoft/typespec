@@ -354,5 +354,10 @@ export interface HttpStatusCodeRange {
   end: number;
 }
 
+/**
+ * @deprecated Use `HttpStatusCodesEntry` instead.
+ */
+export type StatusCode = `${number}` | "*";
+
 export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
 export type HttpStatusCodes = HttpStatusCodesEntry[];
