@@ -16,8 +16,6 @@ jobs:
         persistCredentials: true
 
       - template: ./templates/install.yml
-        parameters:
-          nodeVersion: "16.x"
 
       - template: ./templates/build.yml
 

@@ -3,8 +3,6 @@ steps:
     submodules: true
 
   - template: ../templates/install.yml
-    parameters:
-      nodeVersion: "16.x"
 
   - script: node common/scripts/install-run-rush.js change -v
     condition: and(succeeded(), not(or(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), startsWith(variables['System.PullRequest.SourceBranch'], 'backmerge/'))))
