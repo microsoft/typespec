@@ -1,5 +1,9 @@
 import { FluentLayout } from "../components/fluent-layout";
-import { UseCaseFeature, UseCaseFeatureGroup } from "../components/use-case-feature/use-case-feature";
+import { Section } from "../components/homepage/section/section";
+import {
+  UseCaseFeature,
+  UseCaseFeatureGroup,
+} from "../components/use-case-feature/use-case-feature";
 import { UseCaseLayout } from "../components/use-case-layout/use-case-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
 
@@ -40,6 +44,35 @@ const OpenApiContent = () => {
             link=""
           />
         </UseCaseFeatureGroup>
+
+        <Section
+          header="Ecosystem"
+          title="Test API endpoints as you code"
+          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          items={[
+            {
+              title: "TypeSpec for JSON RPC developer",
+              description: "Description todo",
+              image: "design",
+              link: "/json-rpc",
+            },
+          ]}
+        />
+
+        <Section
+          layout="text-right"
+          header="Ecosystem"
+          title="Test API endpoints as you code"
+          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          items={[
+            {
+              title: "TypeSpec for JSON RPC developer",
+              description: "Description todo",
+              image: "design",
+              link: "/json-rpc",
+            },
+          ]}
+        />
       </UseCaseLayout>
     </div>
   );

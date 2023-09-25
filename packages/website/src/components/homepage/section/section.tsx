@@ -20,11 +20,13 @@ interface SectionItem {
   image: FluentImageName;
   link: string;
 }
+
 interface SectionProps {
   header: string;
   title: string;
   description: string;
   items: SectionItem[];
+  layout?: "text-left" | "text-right";
 }
 
 const useFluentStyles = makeStyles({
@@ -32,10 +34,15 @@ const useFluentStyles = makeStyles({
   descriptionText: { color: tokens.colorNeutralForeground3 },
 });
 
-export const Section = ({ header, title, description, items }: SectionProps) => {
+export const Section = ({ header, title, description, items, layout }: SectionProps) => {
   const fluentStyles = useFluentStyles();
   return (
-    <div className={style["section"]}>
+    <div
+      className={mergeClasses(
+        style["section"],
+        style[layout === "text-right" ? "text-right" : "text-left"]
+      )}
+    >
       <div className={style["info-container"]}>
         <div className={style["info"]}>
           <div className={style["info-heading"]}>

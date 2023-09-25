@@ -1,6 +1,6 @@
 .layout {
   display: flex;
-  padding-bottom: 60px;
+  padding: 48px 0px 60px 0px;
   margin: auto;
   max-width: 1464px;
   flex-direction: column;
