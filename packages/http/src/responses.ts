@@ -7,7 +7,6 @@ import {
   isErrorModel,
   isNullType,
   isVoidType,
-  Model,
   ModelProperty,
   Operation,
   Program,
@@ -18,14 +17,14 @@ import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
-  getStatusCodes,
+  getStatusCodesWithDiagnostics,
   isBody,
   isHeader,
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { HttpOperationResponse } from "./types.js";
+import { HttpOperationResponse, HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
 
 /**
  * Get the responses for a given operation.
@@ -36,7 +35,7 @@ export function getResponsesForOperation(
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
-  const responses: Record<string | symbol, HttpOperationResponse> = {};
+  const responses = new ResponseIndex();
   if (responseType.kind === "Union") {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
@@ -52,16 +51,49 @@ export function getResponsesForOperation(
   return diagnostics.wrap(Object.values(responses));
 }
 
+/**
+ * Class keeping an index of all the response by status code
+ */
+class ResponseIndex {
+  readonly #individual = new Map<number | "*", HttpOperationResponse>();
+  readonly #ranges = new Map<string, HttpOperationResponse>();
+
+  public get(statusCode: HttpStatusCodeRange | number | "*"): HttpOperationResponse | undefined {
+    if (typeof statusCode === "number" || statusCode === "*") {
+      return this.#individual.get(statusCode);
+    } else {
+      return this.#ranges.get(this.#rangeKey(statusCode));
+    }
+  }
+
+  public set(
+    statusCode: HttpStatusCodeRange | number | "*",
+    response: HttpOperationResponse
+  ): void {
+    if (typeof statusCode === "number" || statusCode === "*") {
+      this.#individual.set(statusCode, response);
+    } else {
+      this.#ranges.set(this.#rangeKey(statusCode), response);
+    }
+  }
+
+  #rangeKey(range: HttpStatusCodeRange) {
+    return `${range.start}-${range.end}`;
+  }
+}
+
 function processResponseType(
   program: Program,
   diagnostics: DiagnosticCollector,
-  responses: Record<string, HttpOperationResponse>,
+  responses: ResponseIndex,
   responseType: Type
 ) {
   const metadata = gatherMetadata(program, diagnostics, responseType, Visibility.Read);
 
   // Get explicity defined status codes
-  const statusCodes: Array<string> = getResponseStatusCodes(program, responseType, metadata);
+  const statusCodes: HttpStatusCodes = diagnostics.pipe(
+    getResponseStatusCodes(program, responseType, metadata)
+  );
 
   // Get explicitly defined content types
   const contentTypes = getResponseContentTypes(program, diagnostics, metadata);
@@ -76,11 +108,11 @@ function processResponseType(
   if (statusCodes.length === 0) {
     if (bodyType === undefined || isVoidType(bodyType)) {
       bodyType = undefined;
-      statusCodes.push("204");
+      statusCodes.push(204);
     } else if (isErrorModel(program, responseType)) {
       statusCodes.push("*");
     } else {
-      statusCodes.push("200");
+      statusCodes.push(200);
     }
   }
 
@@ -93,7 +125,7 @@ function processResponseType(
   for (const statusCode of statusCodes) {
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
-    const response: HttpOperationResponse = responses[statusCode] ?? {
+    const response: HttpOperationResponse = responses.get(statusCode) ?? {
       statusCode,
       type: responseType,
       description: getResponseDescription(program, responseType, statusCode, bodyType),
@@ -112,7 +144,7 @@ function processResponseType(
     } else {
       response.responses.push({ headers });
     }
-    responses[statusCode] = response;
+    responses.set(statusCode, response);
   }
 }
 
@@ -125,22 +157,24 @@ function getResponseStatusCodes(
   program: Program,
   responseType: Type,
   metadata: Set<ModelProperty>
-): string[] {
-  const codes: string[] = [];
+): [HttpStatusCodes, readonly Diagnostic[]] {
+  const codes: HttpStatusCodes = [];
+  const diagnostics = createDiagnosticCollector();
 
   for (const prop of metadata) {
     if (isStatusCode(program, prop)) {
-      codes.push(...getStatusCodes(program, prop));
+      codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop)));
     }
   }
 
-  if (responseType.kind === "Model") {
-    for (let t: Model | undefined = responseType; t; t = t.baseModel) {
-      codes.push(...getStatusCodes(program, t));
-    }
-  }
+  // TODO is this needed/make sense?
+  // if (responseType.kind === "Model") {
+  //   for (let t: Model | undefined = responseType; t; t = t.baseModel) {
+  //     codes.push(...getStatusCodes(program, t));
+  //   }
+  // }
 
-  return codes;
+  return diagnostics.wrap(codes);
 }
 
 /**
@@ -224,7 +258,7 @@ function getResponseBody(
 function getResponseDescription(
   program: Program,
   responseType: Type,
-  statusCode: string,
+  statusCode: HttpStatusCodes[number],
   bodyType: Type | undefined
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body

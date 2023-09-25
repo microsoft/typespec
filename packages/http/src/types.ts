@@ -325,9 +325,8 @@ export interface RoutePath {
   shared: boolean;
 }
 
-export type StatusCode = `${number}` | "*";
 export interface HttpOperationResponse {
-  statusCode: StatusCode;
+  statusCode: HttpStatusCodeRange | number | "*";
   type: Type;
   description?: string;
   responses: HttpOperationResponseContent[];
@@ -349,3 +348,10 @@ export interface HttpOperationBody {
    */
   type: Type;
 }
+
+export interface HttpStatusCodeRange {
+  start: number;
+  end: number;
+}
+
+export type HttpStatusCodes = (HttpStatusCodeRange | number | "*")[];

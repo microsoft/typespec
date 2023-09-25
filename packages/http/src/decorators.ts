@@ -15,6 +15,7 @@ import {
   Union,
   createDiagnosticCollector,
   getDoc,
+  ignoreDiagnostics,
   isArrayModelType,
   reportDeprecated,
   setTypeSpecNamespace,
@@ -24,10 +25,13 @@ import {
 } from "@typespec/compiler";
 import { setRoute, setSharedRoute } from "./route.js";
 import { HttpStateKeys } from "./state.js";
+import { getStatusCodesFromType } from "./status-codes.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
   HttpAuth,
+  HttpStatusCodeRange,
+  HttpStatusCodes,
   HttpVerb,
   PathParameterOptions,
   QueryParameterOptions,
@@ -175,6 +179,15 @@ export function isBody(program: Program, entity: Type): boolean {
 export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
   context.program.stateSet(HttpStateKeys.statusCodeKey).add(entity);
 
+  // eslint-disable-next-line deprecation/deprecation
+  setLegacyStatusCodeState(context, entity);
+}
+
+/**
+ * To not break we keep the legacy behavior of resolving the discrete status code in the decorator and saving them in the state.
+ * @deprecated To remove. Added in October 2023 sprint.
+ */
+function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProperty) {
   const codes: string[] = [];
   if (entity.type.kind === "String") {
     if (validStatusCode(context.program, entity.type.value, entity)) {
@@ -210,78 +223,71 @@ export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
       target: entity,
     });
   }
-  setStatusCode(context.program, entity, codes);
-}
 
-export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
-  program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
-}
-
-// Check status code value: 3 digits with first digit in [1-5]
-// Issue a diagnostic if not valid
-function validStatusCode(program: Program, code: string, entity: Type): boolean {
-  const statusCodePatten = /[1-5][0-9][0-9]/;
-  if (code.match(statusCodePatten)) {
-    return true;
+  // Check status code value: 3 digits with first digit in [1-5]
+  // Issue a diagnostic if not valid
+  function validStatusCode(program: Program, code: string, entity: Type): boolean {
+    const statusCodePatten = /[1-5][0-9][0-9]/;
+    if (code.match(statusCodePatten)) {
+      return true;
+    }
+    reportDiagnostic(program, {
+      code: "status-code-invalid",
+      target: entity,
+      messageId: "value",
+    });
+    return false;
   }
-  reportDiagnostic(program, {
-    code: "status-code-invalid",
-    target: entity,
-    messageId: "value",
-  });
-  return false;
+  context.program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
 }
 
 export function isStatusCode(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.statusCodeKey).has(entity);
 }
 
-export function getStatusCodes(program: Program, entity: Type): string[] {
-  return program.stateMap(HttpStateKeys.statusCodeKey).get(entity) ?? [];
+export function getStatusCodesWithDiagnostics(
+  program: Program,
+  type: ModelProperty
+): [HttpStatusCodes, readonly Diagnostic[]] {
+  return getStatusCodesFromType(program, type, type);
+}
+
+export function getStatusCodes(program: Program, entity: ModelProperty): HttpStatusCodes {
+  return ignoreDiagnostics(getStatusCodesWithDiagnostics(program, entity));
 }
 
 // Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-export function getStatusCodeDescription(statusCode: string) {
-  switch (statusCode) {
-    case "200":
-      return "The request has succeeded.";
-    case "201":
-      return "The request has succeeded and a new resource has been created as a result.";
-    case "202":
-      return "The request has been accepted for processing, but processing has not yet completed.";
-    case "204":
-      return "There is no content to send for this request, but the headers may be useful. ";
-    case "301":
-      return "The URL of the requested resource has been changed permanently. The new URL is given in the response.";
-    case "304":
-      return "The client has made a conditional request and the resource has not been modified.";
-    case "400":
-      return "The server could not understand the request due to invalid syntax.";
-    case "401":
-      return "Access is unauthorized.";
-    case "403":
-      return "Access is forbidden";
-    case "404":
-      return "The server cannot find the requested resource.";
-    case "409":
-      return "The request conflicts with the current state of the server.";
-    case "412":
-      return "Precondition failed.";
-    case "503":
-      return "Service unavailable.";
+export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange) {
+  if (typeof statusCode === "object") {
+    return undefined;
   }
-
-  switch (statusCode.charAt(0)) {
-    case "1":
-      return "Informational";
-    case "2":
-      return "Successful";
-    case "3":
-      return "Redirection";
-    case "4":
-      return "Client Error";
-    case "5":
-      return "Server Error";
+  switch (statusCode) {
+    case 200:
+      return "The request has succeeded.";
+    case 201:
+      return "The request has succeeded and a new resource has been created as a result.";
+    case 202:
+      return "The request has been accepted for processing, but processing has not yet completed.";
+    case 204:
+      return "There is no content to send for this request, but the headers may be useful. ";
+    case 301:
+      return "The URL of the requested resource has been changed permanently. The new URL is given in the response.";
+    case 304:
+      return "The client has made a conditional request and the resource has not been modified.";
+    case 400:
+      return "The server could not understand the request due to invalid syntax.";
+    case 401:
+      return "Access is unauthorized.";
+    case 403:
+      return "Access is forbidden";
+    case 404:
+      return "The server cannot find the requested resource.";
+    case 409:
+      return "The request conflicts with the current state of the server.";
+    case 412:
+      return "Precondition failed.";
+    case 503:
+      return "Service unavailable.";
   }
 
   // Any valid HTTP status code is covered above.
