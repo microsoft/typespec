@@ -208,20 +208,8 @@ function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProper
         if (validStatusCode(context.program, String(option.value), option)) {
           codes.push(String(option.value));
         }
-      } else {
-        reportDiagnostic(context.program, {
-          code: "status-code-invalid",
-          target: entity,
-        });
       }
     }
-  } else if (entity.type.kind === "TemplateParameter") {
-    // Ignore template parameters
-  } else {
-    reportDiagnostic(context.program, {
-      code: "status-code-invalid",
-      target: entity,
-    });
   }
 
   // Check status code value: 3 digits with first digit in [1-5]

@@ -3,6 +3,8 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getDoc,
+  getErrorsDoc,
+  getReturnsDoc,
   isArrayModelType,
   isErrorModel,
   isNullType,
@@ -42,10 +44,10 @@ export function getResponsesForOperation(
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
         continue;
       }
-      processResponseType(program, diagnostics, responses, option.type);
+      processResponseType(program, diagnostics, operation, responses, option.type);
     }
   } else {
-    processResponseType(program, diagnostics, responses, responseType);
+    processResponseType(program, diagnostics, operation, responses, responseType);
   }
 
   return diagnostics.wrap(Object.values(responses));
@@ -85,6 +87,7 @@ class ResponseIndex {
 function processResponseType(
   program: Program,
   diagnostics: DiagnosticCollector,
+  operation: Operation,
   responses: ResponseIndex,
   responseType: Type
 ) {
@@ -128,7 +131,7 @@ function processResponseType(
     const response: HttpOperationResponse = responses.get(statusCode) ?? {
       statusCode,
       type: responseType,
-      description: getResponseDescription(program, responseType, statusCode, bodyType),
+      description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
       responses: [],
     };
 
@@ -257,6 +260,7 @@ function getResponseBody(
 
 function getResponseDescription(
   program: Program,
+  operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
   bodyType: Type | undefined
@@ -273,6 +277,13 @@ function getResponseDescription(
     if (desc) {
       return desc;
     }
+  }
+
+  const desc = isErrorModel(program, responseType)
+    ? getErrorsDoc(program, operation)
+    : getReturnsDoc(program, operation);
+  if (desc) {
+    return desc;
   }
 
   return getStatusCodeDescription(statusCode);
