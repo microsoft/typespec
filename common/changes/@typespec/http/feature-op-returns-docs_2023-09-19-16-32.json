@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Add support for `@returns` and `@errors` doc comment tags.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
