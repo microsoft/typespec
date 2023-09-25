@@ -3,6 +3,8 @@ import { globby } from "globby";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
+import { Diagnostic, NoTarget } from "./index.js";
+import { createDiagnostic } from "./messages.js";
 import { normalizePath } from "./path-utils.js";
 
 export interface TypeSpecFormatOptions {
@@ -10,28 +12,46 @@ export interface TypeSpecFormatOptions {
   debug?: boolean;
 }
 
+export interface TypeSpecFormatResult {
+  /**
+   * The list of files which were formatted successfully, the paths of which are either relative or absolute based on the original file path patterns.
+   */
+  formattedFiles: string[];
+}
+
 /**
  * Format all the TypeSpec files.
  * @param patterns List of wildcard pattern searching for TypeSpec files.
+ * @returns list of files which failed to format.
  */
 export async function formatTypeSpecFiles(
   patterns: string[],
   { exclude, debug }: TypeSpecFormatOptions
-) {
+): Promise<[TypeSpecFormatResult, readonly Diagnostic[]]> {
   const files = await findFiles(patterns, exclude);
+  const diagnostics: Diagnostic[] = [];
+  const formattedFiles: string[] = [];
   for (const file of files) {
     try {
       await formatTypeSpecFile(file);
+      formattedFiles.push(file);
     } catch (e) {
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
-        // eslint-disable-next-line no-console
-        console.error(`File '${file}' failed to format. ${details}`);
+        diagnostics.push(
+          createDiagnostic({
+            code: "format-failed",
+            format: { file, details },
+            target: NoTarget,
+          })
+        );
       } else {
         throw e;
       }
     }
   }
+
+  return [{ formattedFiles }, diagnostics];
 }
 
 /**

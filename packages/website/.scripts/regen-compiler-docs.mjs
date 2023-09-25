@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // @ts-check
-import { NodeHost, logDiagnostics } from "@typespec/compiler";
+import { NodeHost, joinPaths, logDiagnostics } from "@typespec/compiler";
 import { generateJsApiDocs, resolveLibraryRefDocsBase } from "@typespec/tspd/ref-doc";
 import {
   DocusaurusRenderer,
+  renderDataTypes,
   renderDecoratorFile,
 } from "@typespec/tspd/ref-doc/emitters/docusaurus";
 
@@ -44,7 +45,10 @@ async function generateCompilerDocs() {
   const decoratorContent = renderDecoratorFile(renderer, refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
+  const dataTypeContent = renderDataTypes(renderer, refDoc, { title: "Built-in Data types" });
+  assert(dataTypeContent, "Unexpected data type file shouldn't be empty for compiler.");
+  await writeFile(join(outputDir, "built-in-data-types.md"), dataTypeContent);
 
-  await generateJsApiDocs(compilerPath, join(outputDir, "reference/js-api"));
+  await generateJsApiDocs(joinPaths(compilerPath), join(outputDir, "reference/js-api"));
   return diagnostics;
 }

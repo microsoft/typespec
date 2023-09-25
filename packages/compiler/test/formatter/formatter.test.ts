@@ -1572,6 +1572,73 @@ enum Foo {
     });
   });
 
+  describe("union", () => {
+    it("format simple union", async () => {
+      await assertFormat({
+        code: `
+union      Foo       {    A,        B}
+union      Bar       
+      {    A,    
+            B}
+`,
+        expected: `
+union Foo {
+  A,
+  B,
+}
+union Bar {
+  A,
+  B,
+}
+`,
+      });
+    });
+
+    it("format named union", async () => {
+      await assertFormat({
+        code: `
+        union      Foo       {    a: A,        b:       B}
+`,
+        expected: `
+union Foo {
+  a: A,
+  b: B,
+}
+
+`,
+      });
+    });
+
+    it("separate members if there is decorators", async () => {
+      await assertFormat({
+        code: `
+union      Foo       {   
+  @doc("foo") 
+        a: A,    @doc("bar") 
+           b    : B, 
+
+
+
+      @doc("third")   
+       c    : C}
+
+`,
+        expected: `
+union Foo {
+  @doc("foo")
+  a: A,
+
+  @doc("bar")
+  b: B,
+
+  @doc("third")
+  c: C,
+}
+`,
+      });
+    });
+  });
+
   describe("namespaces", () => {
     it("format global namespace", async () => {
       await assertFormat({

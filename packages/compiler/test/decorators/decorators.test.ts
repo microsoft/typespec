@@ -426,14 +426,14 @@ describe("compiler: built-in decorators", () => {
           "unixTimestamp",
           "string",
           "invalid-encode",
-          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'.`,
+          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'. Set '@encode' 2nd parameter to be of type integer. e.g. '@encode("unixTimestamp", int32)'`,
         ],
         [
           "duration",
           "seconds",
           undefined,
           "invalid-encode",
-          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'. Set '@encode' 2nd parameter to be of type numeric. e.g. '@encode("seconds", int32)'`,
         ],
         [
           "duration",
@@ -881,7 +881,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @secret decorator to type it is not one of: string",
+        message: "Cannot apply @secret decorator to type it is not a string",
       });
     });
   });
