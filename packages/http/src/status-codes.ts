@@ -36,7 +36,7 @@ export function validateStatusCode(
   if (isNaN(codeAsNumber)) {
     return error(diagnosticTarget);
   }
-  if (!Number.isInteger(code)) {
+  if (!Number.isInteger(codeAsNumber)) {
     return error(diagnosticTarget);
   }
   if (codeAsNumber < 100 || codeAsNumber > 599) {

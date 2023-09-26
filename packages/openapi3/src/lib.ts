@@ -228,7 +228,7 @@ export const libDef = {
     "unsupported-status-code-range": {
       severity: "error",
       messages: {
-        default: paramMessage`Status code range '${"start"} to '${"end"}' is invalid. OpenAPI3 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX."`,
+        default: paramMessage`Status code range '${"start"} to '${"end"}' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX.`,
       },
     },
   },

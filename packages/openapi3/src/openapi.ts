@@ -95,6 +95,7 @@ import {
   getInfo,
   getOpenAPITypeName,
   getParameterKey,
+  isDefaultResponse,
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
@@ -507,14 +508,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getOpenAPI3StatusCodes(
     statusCodes: HttpStatusCodesEntry,
-    diagnosticTarget: DiagnosticTarget
+    response: Type
   ): OpenAPI3StatusCode[] {
-    if (statusCodes === "*") {
+    if (isDefaultResponse(program, response) || statusCodes === "*") {
       return ["default"];
     } else if (typeof statusCodes === "number") {
       return [String(statusCodes)];
     } else {
-      return rangeToOpenAPI(statusCodes, diagnosticTarget);
+      return rangeToOpenAPI(statusCodes, response);
     }
   }
 
@@ -545,13 +546,17 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const groups = [1, 2, 3, 4, 5];
 
     for (const group of groups) {
+      if (start > end) {
+        break;
+      }
       const groupStart = group * 100;
       const groupEnd = groupStart + 99;
-      if (start >= groupStart && start <= groupEnd && end >= groupEnd) {
+      if (start >= groupStart && start <= groupEnd) {
         codes.push(`${group}XX`);
-        if (start !== groupStart) {
+        if (start !== groupStart || end < groupEnd) {
           reportInvalid();
         }
+
         start = groupStart + 100;
       }
     }
