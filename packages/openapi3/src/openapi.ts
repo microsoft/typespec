@@ -414,16 +414,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonResponses(
-    ops: HttpOperation[],
-    statusCode: string
-  ): HttpOperationResponse[] {
+  function validateCommonResponses(ops: HttpOperation[]): HttpOperationResponse[] {
     const statusCodeResponses: HttpOperationResponse[] = [];
     for (const op of ops) {
       for (const response of op.responses) {
-        if (response.statusCode === statusCode) {
-          statusCodeResponses.push(response);
-        }
+        statusCodeResponses.push(response);
       }
     }
     const ref = statusCodeResponses[0];
@@ -612,7 +607,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     shared.bodies = validateCommonBodies(operations);
     for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(ops, statusCode));
+      shared.responses.set(statusCode, validateCommonResponses(ops));
     }
     results.push(shared);
     return results;
