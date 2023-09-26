@@ -166,7 +166,7 @@
       "packageName": "@typespec/playground",
       "projectFolder": "packages/playground",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "versionPolicyName": "playground"
     },
     {
       "packageName": "@typespec/playground-website",
@@ -184,7 +184,7 @@
       "packageName": "@typespec/bundler",
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "versionPolicyName": "playground"
     },
     {
       "packageName": "@typespec/protobuf",
