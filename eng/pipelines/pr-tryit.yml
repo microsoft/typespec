@@ -2,6 +2,7 @@ trigger: none
 pr:
   - main
   - release/*
+  - feature/website-design
 
 jobs:
   - job: publish_playground

@@ -38,7 +38,7 @@
 
 .intro-subtitle {
   font-size: 20px;
-  width: 420px;
+  max-width: 420px;
   text-align: center;
 }
 
@@ -52,16 +52,15 @@
   align-self: stretch;
 }
 
+@media only screen and (max-width: 728px) {
+  .intro-demo {
+    display: none;
+  }
+}
+
 .intro-demo-image {
   width: 800px;
   height: 534px;
-}
-
-.sections {
-  display: flex;
-  padding: 100px 0px 0 0px;
-  flex-direction: column;
-  gap: 128px;
 }
 
 .overview {
@@ -79,29 +78,8 @@
 }
 
 .overview-description {
-  width: 620px;
+  max-width: 620px;
   text-align: center;
-}
-
-.overview-points {
-  display: flex;
-  padding: 0px 120px;
-  justify-content: space-between;
-  align-items: center;
-  align-self: stretch;
-  gap: 88px;
-}
-
-.feature {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
-
-.feature > img {
-  width: 128px;
-  height: 128px;
 }
 
 :global(html[data-theme="dark"]) .closing {
@@ -120,5 +98,4 @@
   gap: 16px;
   flex: 1 0 0;
   margin: auto;
-  width: 1280px;
 }

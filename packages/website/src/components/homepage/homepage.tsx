@@ -1,15 +1,8 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import {
-  Button,
-  Card,
-  Subtitle1,
-  Text,
-  Title1,
-  Title2,
-  makeStyles,
-  tokens,
-} from "@fluentui/react-components";
-import { FluentImageName, FluentImg } from "../fluent-img";
+import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Card } from "../card/card";
+import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
+import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
 
@@ -19,19 +12,17 @@ const useFluentStyles = makeStyles({
 });
 
 export const HomeContent = () => {
-  const fluentStyles = useFluentStyles();
-
   return (
-    <div className={fluentStyles.bg}>
+    <>
       <Intro />
-      <div className={style["sections"]}>
+      <SectionedLayout>
         <Overview />
         <OpenAPISection />
         <EcoSystemSection />
         <FlexibilitySection />
-        <Closing />
-      </div>
-    </div>
+      </SectionedLayout>
+      <Closing />
+    </>
   );
 };
 
@@ -77,7 +68,7 @@ const Overview = () => {
             generate standards-compliant API schemas in seconds.
           </Text>
         </div>
-        <div className={style["overview-points"]}>
+        <FeatureGroup>
           <Feature title="Describe complex APIs, fast" image="editor">
             Reduce the time it takes to describe complex API shapes by using a minimal language
             that's easy for developers to use and love.
@@ -90,26 +81,9 @@ const Overview = () => {
             With a single line of code, generate a multitude of API assets in your preferred format
             or protocol - even all at the same time.
           </Feature>
-        </div>
+        </FeatureGroup>
       </div>
     </>
-  );
-};
-
-interface FeatureProps {
-  title: string;
-  image: FluentImageName;
-  children: React.ReactNode;
-}
-const Feature = ({ title, image, children }: FeatureProps) => {
-  return (
-    <Card size="large">
-      <div className={style["feature"]}>
-        <FluentImg name={image} />
-        <Subtitle1>{title}</Subtitle1>
-        <Text>{children}</Text>
-      </div>
-    </Card>
   );
 };
 

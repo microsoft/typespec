@@ -1,6 +1,12 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import { useColorMode } from "@docusaurus/theme-common";
-import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
+import {
+  FluentProvider,
+  makeStyles,
+  tokens,
+  webDarkTheme,
+  webLightTheme,
+} from "@fluentui/react-components";
 import Layout from "@theme/Layout";
 
 export const FluentLayout = ({ children }) => {
@@ -18,9 +24,18 @@ const FluentWrapper = ({ children }) => {
     <BrowserOnly>
       {() => (
         <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
-          {children}
+          <FluentContainer>{children}</FluentContainer>
         </FluentProvider>
       )}
     </BrowserOnly>
   );
+};
+
+const useFluentStyles = makeStyles({
+  bg: { backgroundColor: tokens.colorNeutralBackground3 },
+});
+
+const FluentContainer = ({ children }) => {
+  const fluentStyles = useFluentStyles();
+  return <div className={fluentStyles.bg}> {children}</div>;
 };
