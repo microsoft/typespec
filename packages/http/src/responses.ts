@@ -9,6 +9,7 @@ import {
   isErrorModel,
   isNullType,
   isVoidType,
+  Model,
   ModelProperty,
   Operation,
   Program,
@@ -26,7 +27,8 @@ import {
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { HttpOperationResponse, HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
+import { HttpStateKeys } from "./state.js";
+import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
  * Get the responses for a given operation.
@@ -57,34 +59,26 @@ export function getResponsesForOperation(
  * Class keeping an index of all the response by status code
  */
 class ResponseIndex {
-  readonly #individual = new Map<number | "*", HttpOperationResponse>();
-  readonly #ranges = new Map<string, HttpOperationResponse>();
+  readonly #index = new Map<string, HttpOperationResponse>();
 
-  public get(statusCode: HttpStatusCodeRange | number | "*"): HttpOperationResponse | undefined {
-    if (typeof statusCode === "number" || statusCode === "*") {
-      return this.#individual.get(statusCode);
-    } else {
-      return this.#ranges.get(this.#rangeKey(statusCode));
-    }
+  public get(statusCode: HttpStatusCodesEntry): HttpOperationResponse | undefined {
+    return this.#index.get(this.#indexKey(statusCode));
   }
 
-  public set(
-    statusCode: HttpStatusCodeRange | number | "*",
-    response: HttpOperationResponse
-  ): void {
-    if (typeof statusCode === "number" || statusCode === "*") {
-      this.#individual.set(statusCode, response);
-    } else {
-      this.#ranges.set(this.#rangeKey(statusCode), response);
-    }
+  public set(statusCode: HttpStatusCodesEntry, response: HttpOperationResponse): void {
+    this.#index.set(this.#indexKey(statusCode), response);
   }
 
   public values(): HttpOperationResponse[] {
-    return [...this.#individual.values(), ...this.#ranges.values()];
+    return [...this.#index.values()];
   }
 
-  #rangeKey(range: HttpStatusCodeRange) {
-    return `${range.start}-${range.end}`;
+  #indexKey(statusCode: HttpStatusCodesEntry) {
+    if (typeof statusCode === "number" || statusCode === "*") {
+      return String(statusCode);
+    } else {
+      return `${statusCode.start}-${statusCode.end}`;
+    }
   }
 }
 
@@ -133,7 +127,8 @@ function processResponseType(
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
     const response: HttpOperationResponse = responses.get(statusCode) ?? {
-      statusCode,
+      statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
+      statusCodes: statusCode,
       type: responseType,
       description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
       responses: [],
@@ -174,14 +169,19 @@ function getResponseStatusCodes(
     }
   }
 
-  // TODO is this needed/make sense?
-  // if (responseType.kind === "Model") {
-  //   for (let t: Model | undefined = responseType; t; t = t.baseModel) {
-  //     codes.push(...getStatusCodes(program, t));
-  //   }
-  // }
+  // This is only needed to retrieve the * status code set by @defaultResponse.
+  // https://github.com/microsoft/typespec/issues/2485
+  if (responseType.kind === "Model") {
+    for (let t: Model | undefined = responseType; t; t = t.baseModel) {
+      codes.push(...getExplicitSetStatusCode(program, t));
+    }
+  }
 
   return diagnostics.wrap(codes);
+}
+
+function getExplicitSetStatusCode(program: Program, entity: Model | ModelProperty): "*"[] {
+  return program.stateMap(HttpStateKeys.statusCodeKey).get(entity) ?? [];
 }
 
 /**

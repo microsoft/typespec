@@ -580,7 +580,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
       // determine which responses are shared by shared route operations
       for (const response of op.responses) {
-        const statusCodes = getOpenAPI3StatusCodes(response.statusCode, op.operation);
+        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
         for (const statusCode of statusCodes) {
           if (responseMap.has(statusCode)) {
             responseMap.get(statusCode)!.push(op);
@@ -828,7 +828,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function emitResponses(responses: HttpOperationResponse[]) {
     for (const response of responses) {
-      for (const statusCode of getOpenAPI3StatusCodes(response.statusCode, response.type)) {
+      for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
         emitResponseObject(statusCode, response);
       }
     }

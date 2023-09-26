@@ -326,9 +326,28 @@ export interface RoutePath {
 }
 
 export interface HttpOperationResponse {
-  statusCode: HttpStatusCodeRange | number | "*";
+  /** @deprecated use {@link statusCodes} */
+  // eslint-disable-next-line deprecation/deprecation
+  statusCode: StatusCode;
+
+  /**
+   * Status code or range of status code for the response.
+   */
+  statusCodes: HttpStatusCodeRange | number | "*";
+
+  /**
+   * Response typespec type.
+   */
   type: Type;
+
+  /**
+   * Response description.
+   */
   description?: string;
+
+  /**
+   * Responses contents.
+   */
   responses: HttpOperationResponseContent[];
 }
 

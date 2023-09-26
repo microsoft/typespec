@@ -215,8 +215,8 @@ function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProper
   // Check status code value: 3 digits with first digit in [1-5]
   // Issue a diagnostic if not valid
   function validStatusCode(program: Program, code: string, entity: Type): boolean {
-    const statusCodePatten = /[1-5][0-9][0-9]/;
-    if (code.match(statusCodePatten)) {
+    const statusCodePattern = /[1-5][0-9][0-9]/;
+    if (code.match(statusCodePattern)) {
       return true;
     }
     reportDiagnostic(program, {
@@ -227,6 +227,13 @@ function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProper
     return false;
   }
   context.program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
+}
+
+/**
+ * @deprecated DO NOT USE, for internal use only.
+ */
+export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
+  program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
 }
 
 export function isStatusCode(program: Program, entity: Type) {
