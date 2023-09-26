@@ -220,13 +220,13 @@ export const MyTestLibrary = createTestLibrary({
   // ...
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
-  },
-  "typesVersions": {
-    "*": {
-      "*": ["./dist/src/index.d.ts"],
-      "testing": ["./dist/src/testing/index.d.ts"]
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./testing": {
+      "default": "./dist/src/testing/index.js",
+      "types": "./dist/src/testing/index.d.ts"
     }
   }
 }
