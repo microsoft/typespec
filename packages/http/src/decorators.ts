@@ -254,6 +254,17 @@ export function getStatusCodes(program: Program, entity: ModelProperty): HttpSta
 // Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange | string) {
   if (typeof statusCode === "object") {
+    if (statusCode.start === 100 && statusCode.end === 199) {
+      return "Informational";
+    } else if (statusCode.start === 200 && statusCode.end === 299) {
+      return "Successful";
+    } else if (statusCode.start === 300 && statusCode.end === 399) {
+      return "Redirection";
+    } else if (statusCode.start === 400 && statusCode.end === 499) {
+      return "Client error";
+    } else if (statusCode.start === 500 && statusCode.end === 599) {
+      return "Server error";
+    }
     return undefined;
   }
   const statusCodeNumber = typeof statusCode === "string" ? parseInt(statusCode, 10) : statusCode;

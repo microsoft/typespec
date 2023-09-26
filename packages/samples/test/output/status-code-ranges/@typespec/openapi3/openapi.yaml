@@ -16,9 +16,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Pet'
         4XX:
-          description: unknown
+          description: Client error
         5XX:
-          description: unknown
+          description: Server error
 components:
   schemas:
     Pet:
