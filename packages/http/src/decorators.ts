@@ -254,18 +254,7 @@ export function getStatusCodes(program: Program, entity: ModelProperty): HttpSta
 // Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange | string) {
   if (typeof statusCode === "object") {
-    if (statusCode.start === 100 && statusCode.end === 199) {
-      return "Informational";
-    } else if (statusCode.start === 200 && statusCode.end === 299) {
-      return "Successful";
-    } else if (statusCode.start === 300 && statusCode.end === 399) {
-      return "Redirection";
-    } else if (statusCode.start === 400 && statusCode.end === 499) {
-      return "Client error";
-    } else if (statusCode.start === 500 && statusCode.end === 599) {
-      return "Server error";
-    }
-    return undefined;
+    return rangeDescription(statusCode.start, statusCode.end);
   }
   const statusCodeNumber = typeof statusCode === "string" ? parseInt(statusCode, 10) : statusCode;
   switch (statusCodeNumber) {
@@ -297,7 +286,21 @@ export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCo
       return "Service unavailable.";
   }
 
-  // Any valid HTTP status code is covered above.
+  return rangeDescription(statusCodeNumber, statusCodeNumber);
+}
+
+function rangeDescription(start: number, end: number) {
+  if (start >= 100 && end <= 199) {
+    return "Informational";
+  } else if (start >= 200 && end <= 299) {
+    return "Successful";
+  } else if (start >= 300 && end <= 399) {
+    return "Redirection";
+  } else if (start >= 400 && end <= 499) {
+    return "Client error";
+  } else if (start >= 500 && end <= 599) {
+    return "Server error";
+  }
   return undefined;
 }
 
