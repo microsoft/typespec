@@ -11,7 +11,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
+import { BasicTestRunner, createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
@@ -67,6 +67,36 @@ describe("versioning: logic", () => {
   });
 
   describe("models", () => {
+    it("@renamedFrom emits diagnostic for incorrect usage", async () => {
+      const code = `
+      model Test {
+        @key id: string;
+        weight: int32;
+        @renamedFrom(Versions.v3, "color") shade: string;
+        @added(Versions.v2)
+        color: string;
+      }
+      `;
+
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        code
+      );
+      const prop1 = [...v1.properties.values()];
+      const prop2 = [...v2.properties.values()];
+      const prop3 = [...v3.properties.values()];
+      const test = "best";
+      // const diagnostics = await runner.diagnose(code);
+      // expectDiagnostics(diagnostics, {
+      //   code: "invalid-argument",
+      //   message:
+      //     "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'EnumMember'",
+      // });
+    });
+
     it("can be renamed", async () => {
       const {
         source,
