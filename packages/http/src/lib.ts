@@ -65,7 +65,7 @@ export const $lib = createTypeSpecLibrary({
     "multiple-status-codes": {
       severity: "error",
       messages: {
-        default: "Multiple `@statusCode` decorators defined for this operation.",
+        default: "Multiple `@statusCode` decorators defined for this operation response.",
       },
     },
     "status-code-invalid": {

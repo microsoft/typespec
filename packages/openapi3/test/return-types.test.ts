@@ -175,9 +175,7 @@ describe("openapi3: return types", () => {
       @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
       `
     );
-    expectDiagnostics(diagnostics, [
-      { code: "@typespec/http/multiple-status-codes" }
-    ]);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
   });
 
   it("emits error if multiple `@statusCode` decorators are composed together", async () => {
@@ -200,11 +198,8 @@ describe("openapi3: return types", () => {
       op list(): PetList | CustomUnauthorizedResponse;
       `
     );
-    expectDiagnostics(diagnostics, [
-      { code: "@typespec/http/multiple-status-codes" }
-    ]);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
   });
-
 
   it("defines separate responses for each variant of a union return type", async () => {
     const res = await openApiFor(

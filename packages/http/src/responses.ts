@@ -137,7 +137,7 @@ function getResponseStatusCodes(
       if (statusFound) {
         reportDiagnostic(program, {
           code: "multiple-status-codes",
-          target: prop,
+          target: responseType,
         });
       }
       statusFound = true;
