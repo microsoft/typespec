@@ -1,5 +1,5 @@
 import { DecoratorContext, Model, ModelProperty, Program, Type, Union } from "@typespec/compiler";
-import { createStateSymbol } from "./lib.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 const refTargetsKey = createStateSymbol("refs");
 export function $useRef(
@@ -15,7 +15,13 @@ export function getRef(program: Program, entity: Type): string | undefined {
 }
 
 const oneOfKey = createStateSymbol("oneOf");
-export function $oneOf(context: DecoratorContext, entity: Union) {
+export function $oneOf(context: DecoratorContext, entity: Union | ModelProperty) {
+  if (entity.kind === "ModelProperty" && entity.type.kind !== "Union") {
+    reportDiagnostic(context.program, {
+      code: "oneof-union",
+      target: context.decoratorTarget,
+    });
+  }
   context.program.stateMap(oneOfKey).set(entity, true);
 }
 

@@ -1,6 +1,6 @@
 import { getPropertyType } from "../lib/decorators.js";
+import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
-import { compilerAssert, ignoreDiagnostics, Interface, Model, SyntaxKind } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -8,9 +8,12 @@ import {
   DecoratorFunction,
   Diagnostic,
   DiagnosticTarget,
+  Interface,
   IntrinsicScalarName,
+  Model,
   ModelProperty,
   Scalar,
+  SyntaxKind,
   Type,
 } from "./types.js";
 
@@ -75,6 +78,9 @@ export function isIntrinsicType(
   );
 }
 
+/**
+ * @deprecated this function is deprecated use decorator definition in typespec instead or check assignability directly.
+ */
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -85,7 +91,7 @@ export function validateDecoratorTargetIntrinsic(
   const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
   const type = getPropertyType(target);
   const isCorrect = expectedTypes.some(
-    (x) => context.program.checker.isTypeAssignableTo(type.projectionBase ?? type, x, type)[0]
+    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0]
   );
   if (!isCorrect) {
     context.program.reportDiagnostic(

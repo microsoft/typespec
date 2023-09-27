@@ -55,7 +55,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/shelf_name/books/{name}':
+  /v1/shelves/shelf_name/books/{name}:
     get:
       tags:
         - LibraryService
@@ -92,7 +92,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/{name}':
+  /v1/shelves/{name}:
     get:
       tags:
         - LibraryService
@@ -129,7 +129,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/{name}/books':
+  /v1/shelves/{name}/books:
     post:
       tags:
         - LibraryService
@@ -182,7 +182,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/shelves/{name}:merge':
+  /v1/shelves/{name}:merge:
     post:
       tags:
         - LibraryService

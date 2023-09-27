@@ -50,7 +50,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/kiosks/{id}':
+  /v1/kiosks/{id}:
     get:
       tags:
         - Display
@@ -97,7 +97,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/kiosks/{kiosk_id}/sign':
+  /v1/kiosks/{kiosk_id}/sign:
     get:
       tags:
         - Display
@@ -162,7 +162,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListSignsResponse'
-  '/v1/signs/{id}':
+  /v1/signs/{id}:
     get:
       tags:
         - Display
@@ -209,7 +209,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  '/v1/signs/{sign_id}':
+  /v1/signs/{sign_id}:
     post:
       tags:
         - Display

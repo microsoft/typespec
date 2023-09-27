@@ -87,6 +87,7 @@
     "rush.json": "jsonc",
     "common-versions.json": "jsonc",
     "command-line.json": "jsonc",
+    "pnpm-config.json": "jsonc",
     "version-policies.json": "jsonc"
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",

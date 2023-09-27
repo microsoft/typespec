@@ -821,6 +821,63 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    if (tokenize === tokenizeTMLanguage) {
+      describe("comments", () => {
+        it("tokenize empty line comment", async () => {
+          const tokens = await tokenize(`
+        //
+        `);
+          deepStrictEqual(tokens, [Token.comment.line("//")]);
+        });
+        it("tokenize line comment", async () => {
+          const tokens = await tokenize(`
+        // This is a line comment
+        `);
+          deepStrictEqual(tokens, [Token.comment.line("// This is a line comment")]);
+        });
+        it("tokenize line comment before statement", async () => {
+          const tokens = await tokenize(`
+        // Comment
+        model Foo {}
+        `);
+          deepStrictEqual(tokens, [
+            Token.comment.line("// Comment"),
+            Token.keywords.model,
+            Token.identifiers.type("Foo"),
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
+          ]);
+        });
+
+        it("tokenize single line block comment", async () => {
+          const tokens = await tokenize(`
+          /* Comment */
+          `);
+          deepStrictEqual(tokens, [
+            Token.comment.block("/*"),
+            Token.comment.block(" Comment "),
+            Token.comment.block("*/"),
+          ]);
+        });
+
+        it("tokenize multi line block comment", async () => {
+          const tokens = await tokenize(`
+          /*
+            Comment
+            on multi line
+          */
+          `);
+          deepStrictEqual(tokens, [
+            Token.comment.block("/*"),
+            Token.comment.block("            Comment"),
+            Token.comment.block("            on multi line"),
+            Token.comment.block("          "),
+            Token.comment.block("*/"),
+          ]);
+        });
+      });
+    }
+
     /**
      * Doc comment
      * @param foo Foo desc
