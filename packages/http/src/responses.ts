@@ -25,7 +25,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
 import { HttpOperationResponse } from "./types.js";
 
@@ -131,9 +131,18 @@ function getResponseStatusCodes(
 ): string[] {
   const codes: string[] = [];
 
+  let statusFound = false;
   for (const prop of metadata) {
     if (isStatusCode(program, prop)) {
-      codes.push(...getStatusCodes(program, prop));
+      if (statusFound) {
+        reportDiagnostic(program, {
+          code: "multiple-status-codes",
+          target: responseType,
+        });
+      }
+      statusFound = true;
+      const propCodes = getStatusCodes(program, prop);
+      codes.push(...propCodes);
     }
   }
 
