@@ -3,10 +3,13 @@ import {
   getService,
   getTypeName,
   isTemplateInstance,
+  Model,
+  ModelProperty,
   Namespace,
   navigateProgram,
   NoTarget,
   Program,
+  RekeyableMap,
   Type,
 } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
@@ -16,6 +19,7 @@ import {
   findVersionedNamespace,
   getAvailabilityMap,
   getMadeOptionalOn,
+  getRenamedFrom,
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
   getUseDependencies,
@@ -65,6 +69,7 @@ export function $onValidate(program: Program) {
           // Validate model property type is correct when madeOptional
           validateMadeOptional(program, prop);
         }
+        validateVersionedPropertyNames(program, model);
       },
       union: (union) => {
         // If this is an instantiated type we don't want to keep the mapping.
@@ -205,6 +210,65 @@ function validateMultiTypeReference(program: Program, source: Type) {
   }
 }
 
+
+/**
+ * Constructs a map of version to name for the the source.
+ */
+function getVersionedNameMap(
+  program: Program,
+  source: Type
+): Map<Version, string | undefined> | undefined {
+  const allVersions = getAllVersions(program, source);
+  if (allVersions === undefined) return undefined;
+
+  const map: Map<Version, string | undefined> = new Map(allVersions.map((v) => [v, undefined]));
+  const availMap = getAvailabilityMap(program, source);
+  const alwaysAvail = availMap === undefined;
+
+  // Populate the map with any RenamedFrom data, which may have holes.
+  // We will fill these holes in a later pass.
+  const renamedFrom = getRenamedFrom(program, source);
+  if (renamedFrom !== undefined) {
+    for (const rename of renamedFrom) {
+      const version = rename.version;
+      const oldName = rename.oldName;
+      const versionIndex = allVersions.indexOf(version);
+      if (versionIndex !== -1) {
+        map.set(allVersions[versionIndex - 1], oldName);
+      }
+    }
+  }
+  let lastName: string | undefined = undefined;
+  switch (source.kind) {
+    case "ModelProperty":
+      lastName = source.name;
+      break;
+    default:
+      throw new Error(`Not implemented '${source.kind}'.`);
+  }
+  for (const version of allVersions.reverse()) {
+    const isAvail =
+      alwaysAvail ||
+      [Availability.Added, Availability.Available].includes(availMap.get(version.name)!);
+
+    // If property is unavailable in this version, it can't have a type
+    if (!isAvail) {
+      map.set(version, undefined);
+      continue;
+    }
+
+    // Working backwards, we fill in any holes from the last type we encountered. Since we expect
+    // to encounter a hole at the start, we use the raw property type
+    const mapType = map.get(version);
+    if (mapType !== undefined) {
+      lastName = mapType;
+    } else {
+      map.set(version, lastName);
+    }
+  }
+  return map;
+}
+
 /**
  * Constructs a map of version to type for the the source.
  */
@@ -298,6 +362,48 @@ function validateVersionedNamespaceUsage(
             targetNs: getNamespaceFullName(target),
           },
           target: source ?? NoTarget,
+        });
+      }
+    }
+  }
+}
+
+function validateVersionedPropertyNames(program: Program, source: Model) {
+  const allVersions = getAllVersions(program, source);
+  if (allVersions === undefined) return;
+
+  const versionedNameMap = new Map<Version, string[]>(
+    allVersions.map((v) => [v, []])
+  );
+
+  for (const property of source.properties.values()) {
+    const nameMap = getVersionedNameMap(program, property);
+    if (nameMap === undefined) continue;
+    for (const [version, name] of nameMap) {
+      if (name === undefined) continue;
+      versionedNameMap.get(version)?.push(name);
+    }
+  }
+  
+  // for each version, ensure there are no duplicate property names
+  for (const [version, names] of versionedNameMap.entries()) {
+    // create a map with names to count of occurrences
+    const nameCounts = new Map<string, number>();
+    for (const name of names) {
+      const count = nameCounts.get(name) ?? 0;
+      nameCounts.set(name, count + 1);
+    }
+    // emit diagnostic for each duplicate name
+    for (const [name, count] of nameCounts.entries()) {
+      if (name === undefined) continue;
+      if (count > 1) {
+        reportDiagnostic(program, {
+          code: "renamed-duplicate-property",
+          format: {
+            name: name,
+            version: prettyVersion(version),
+          },
+          target: source,
         });
       }
     }

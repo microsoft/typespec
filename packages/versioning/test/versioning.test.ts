@@ -67,8 +67,20 @@ describe("versioning: logic", () => {
   });
 
   describe("models", () => {
-    it("@renamedFrom emits diagnostic for incorrect usage", async () => {
+    it("@renamedFrom emits diagnostic when duplicate properties result", async () => {
       const code = `
+      @versioned(Versions)
+      @service({
+        title: "Widget Service",
+      })
+      namespace DemoService;
+
+      enum Versions {
+        "v1",
+        "v2",
+        "v3",
+      }
+      
       model Test {
         @key id: string;
         weight: int32;
@@ -77,24 +89,12 @@ describe("versioning: logic", () => {
         color: string;
       }
       `;
-
-      const {
-        source,
-        projections: [v1, v2, v3],
-      } = await versionedModel(
-        ["v1", "v2", "v3"],
-        code
-      );
-      const prop1 = [...v1.properties.values()];
-      const prop2 = [...v2.properties.values()];
-      const prop3 = [...v3.properties.values()];
-      const test = "best";
-      // const diagnostics = await runner.diagnose(code);
-      // expectDiagnostics(diagnostics, {
-      //   code: "invalid-argument",
-      //   message:
-      //     "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'EnumMember'",
-      // });
+      const diagnostics = await runner.diagnose(code);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/renamed-duplicate-property",
+        message:
+          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v2.",
+      });
     });
 
     it("can be renamed", async () => {
