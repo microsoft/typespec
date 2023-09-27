@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/http",
-      "comment": "",
+      "comment": "Emit error when multiple properties on a response model have the `@statusCode` decorator.",
       "type": "none"
     }
   ],

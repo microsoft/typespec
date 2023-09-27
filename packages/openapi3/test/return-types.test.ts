@@ -159,8 +159,8 @@ describe("openapi3: return types", () => {
     );
   });
 
-  it("defines separate responses for each status code property in return type", async () => {
-    const res = await openApiFor(
+  it("emits error if multiple properties are decorated with `@statusCode` in return type", async () => {
+    const diagnostics = await checkFor(
       `
       model CreatedOrUpdatedResponse {
         @statusCode ok: "200";
@@ -175,18 +175,36 @@ describe("openapi3: return types", () => {
       @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
       `
     );
-    ok(res.paths["/"].put.responses["200"]);
-    ok(res.paths["/"].put.responses["201"]);
-    // Note: 200 and 201 response should be equal except for description
-    deepStrictEqual(
-      res.paths["/"].put.responses["200"].headers,
-      res.paths["/"].put.responses["201"].headers
-    );
-    deepStrictEqual(
-      res.paths["/"].put.responses["200"].content,
-      res.paths["/"].put.responses["201"].content
-    );
+    expectDiagnostics(diagnostics, [
+      { code: "@typespec/http/multiple-status-codes" }
+    ]);
   });
+
+  it("emits error if multiple `@statusCode` decorators are composed together", async () => {
+    const diagnostics = await checkFor(
+      `      
+      model CustomUnauthorizedResponse {
+        @statusCode _: 401;
+        @body body: UnauthorizedResponse;
+      }
+
+      model Pet {
+        name: string;
+      }
+      
+      model PetList {
+        @statusCode _: 200;
+        @body body: Pet[];
+      }
+      
+      op list(): PetList | CustomUnauthorizedResponse;
+      `
+    );
+    expectDiagnostics(diagnostics, [
+      { code: "@typespec/http/multiple-status-codes" }
+    ]);
+  });
+
 
   it("defines separate responses for each variant of a union return type", async () => {
     const res = await openApiFor(

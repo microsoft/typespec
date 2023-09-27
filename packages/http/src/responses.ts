@@ -25,7 +25,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
 import { HttpOperationResponse } from "./types.js";
 
@@ -85,14 +85,6 @@ function processResponseType(
     } else {
       statusCodes.push("200");
     }
-  } else if (statusCodes.length > 1) {
-    diagnostics.add(
-      createDiagnostic({
-        code: "multiple-status-codes",
-        message: "Multiple status codes are not supported",
-        target: responseType,
-      })
-    );
   }
 
   // If there is a body but no explicit content types, use application/json
@@ -139,8 +131,16 @@ function getResponseStatusCodes(
 ): string[] {
   const codes: string[] = [];
 
+  let statusFound = false;
   for (const prop of metadata) {
     if (isStatusCode(program, prop)) {
+      if (statusFound) {
+        reportDiagnostic(program, {
+          code: "multiple-status-codes",
+          target: prop,
+        });
+      }
+      statusFound = true;
       const propCodes = getStatusCodes(program, prop);
       codes.push(...propCodes);
     }
