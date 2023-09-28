@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Remove `decorators` export, import decorators indivudually",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
