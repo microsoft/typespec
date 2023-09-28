@@ -245,8 +245,6 @@ function getVersionedNameMap(
     case "UnionVariant":
       if (typeof source.name === "string") {
         lastName = source.name;
-      } else if (typeof source.name === "symbol") {
-        lastName = source.name.description;
       }
       break;
     case "EnumMember":
