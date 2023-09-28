@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Remove `decorators` export, import decorators indivudually",
+      "comment": "Remove `decorators` export, import decorators individually",
       "type": "none"
     }
   ],
