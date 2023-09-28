@@ -68,6 +68,7 @@ import {
   getHttpService,
   getStatusCodeDescription,
   getVisibilitySuffix,
+  HeaderFieldOptions,
   HttpAuth,
   HttpOperation,
   HttpOperationParameter,
@@ -77,6 +78,7 @@ import {
   isContentTypeHeader,
   isOverloadSameEndpoint,
   MetadataInfo,
+  QueryParameterOptions,
   reportIfNoRoutes,
   ServiceAuthentication,
   Visibility,
@@ -1154,58 +1156,89 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     parameter: HttpOperationParameter,
     visibility: Visibility
   ) {
-    let defaultToString = false;
     ph.name = parameter.name;
     ph.in = parameter.type;
-    if (parameter.type === "query" || parameter.type === "header") {
-      if (parameter.format === "csv" || parameter.format === "simple") {
-        if (parameter.type === "query") {
-          ph.style = "form";
-          ph.explode = false;
-        } else {
-          ph.style = "simple";
-        }
-      } else if (parameter.format === "multi" || parameter.format === "form") {
-        if (parameter.type === "header") {
-          reportDiagnostic(program, {
-            code: "invalid-format",
-            messageId: "formHeader",
-            format: {
-              value: parameter.format,
-            },
-            target: parameter.param,
-          });
-          defaultToString = true;
-        }
-        ph.style = "form";
-        ph.explode = true;
-      } else if (parameter.format === "ssv") {
-        ph.style = "spaceDelimited";
-        ph.explode = false;
-      } else if (parameter.format === "tsv") {
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          messageId: "tsv",
-          target: parameter.param,
-        });
-        defaultToString = true;
-      } else if (parameter.format === "pipes") {
-        ph.style = "pipeDelimited";
-        ph.explode = false;
-      }
-    }
+
     const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
     if (paramBase) {
       ph = mergeOpenApiParameters(ph, paramBase);
     }
 
-    // Revert unsupported formats to just string schema type
-    if (defaultToString) {
+    const format = mapParameterFormat(parameter);
+    if (format === undefined) {
       ph.schema = {
         type: "string",
       };
-      delete ph.style;
-      delete ph.explode;
+    } else {
+      Object.assign(ph, format);
+    }
+  }
+
+  function mapParameterFormat(
+    parameter: HttpOperationParameter
+  ): { style?: string; explode?: boolean } | undefined {
+    switch (parameter.type) {
+      case "header":
+        return mapHeaderParameterFormat(parameter);
+      case "query":
+        return mapQueryParameterFormat(parameter);
+      case "path":
+        return {};
+    }
+  }
+
+  function mapHeaderParameterFormat(
+    parameter: HeaderFieldOptions & {
+      param: ModelProperty;
+    }
+  ): { style?: string; explode?: boolean } | undefined {
+    switch (parameter.format) {
+      case undefined:
+        return {};
+      case "csv":
+      case "simple":
+        return { style: "simple" };
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-format",
+          format: {
+            paramType: "header",
+            value: parameter.format,
+          },
+          target: parameter.param,
+        });
+        return undefined;
+    }
+  }
+  function mapQueryParameterFormat(
+    parameter: QueryParameterOptions & {
+      param: ModelProperty;
+    }
+  ): { style?: string; explode?: boolean } | undefined {
+    switch (parameter.format) {
+      case undefined:
+        return {};
+      case "csv":
+      case "simple":
+        return { style: "form", explode: false };
+      case "multi":
+      case "form":
+        return { style: "form", explode: true };
+      case "ssv":
+        return { style: "spaceDelimited", explode: false };
+      case "pipes":
+        return { style: "pipeDelimited", explode: false };
+
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-format",
+          format: {
+            paramType: "query",
+            value: parameter.format,
+          },
+          target: parameter.param,
+        });
+        return undefined;
     }
   }
 
