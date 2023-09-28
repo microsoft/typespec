@@ -63,9 +63,7 @@
     "monaco-editor": "~0.43.0",
     "react-dom": "~18.2.0",
     "react": "~18.2.0",
-    "swagger-client": "~3.18.5",
-    "swagger-ui-react": "~4.15.5",
-    "swagger-ui": "~4.15.5",
+    "swagger-ui-react": "~5.7.2",
     "vscode-languageserver-textdocument": "~1.0.8",
     "vscode-languageserver": "~9.0.0"
   },
