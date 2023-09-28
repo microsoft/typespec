@@ -111,6 +111,7 @@ export function makeScaffoldingConfig(config: Partial<ScaffoldingConfig>): Scaff
     skipCompilerPackage: config.skipCompilerPackage ?? false,
     folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
+    config: config.config,
     normalizeVersion: config.normalizeVersion ?? normalizeVersion,
     toLowerCase: config.toLowerCase ?? toLowerCase,
     normalizePackageName: config.normalizePackageName ?? normalizePackageName,
@@ -168,6 +169,7 @@ export async function initTypeSpecProject(
     toLowerCase,
     normalizePackageName,
   });
+
   await scaffoldNewProject(host, scaffoldingConfig);
 
   // eslint-disable-next-line no-console
@@ -223,7 +225,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
     compilerVersion: MANIFEST.version,
-    libraries: ["@typespec/rest", "@typespec/openapi3"],
+    libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi3"],
     config: {
       emit: ["@typespec/openapi3"],
     },
@@ -422,14 +424,29 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   );
 }
 
+const placeholderConfig = `
+# extends: ../tspconfig.yaml                    # Extend another config file
+# emit:                                         # Emitter name
+#   - "<emitter-name"
+# options:                                      # Emitter options
+#   <emitter-name>:
+#    "<option-name>": "<option-value>"
+# environment-variables:                        # Environment variables which can be used to interpolate emitter options
+#   <variable-name>:
+#     default: "<variable-default>"
+# parameters:                                   # Parameters which can be used to interpolate emitter options
+#   <param-name>:
+#     default: "<param-default>"
+# trace:                                        # Trace areas to enable tracing
+#  - "<trace-name>"
+# warn-as-error: true                           # Treat warnings as errors
+# output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
+`.trim();
 async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.files ?? [])) {
     return;
   }
-  if (!config.config) {
-    return;
-  }
-  const content = stringify(config.config);
+  const content = config.config ? stringify(config.config) : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
