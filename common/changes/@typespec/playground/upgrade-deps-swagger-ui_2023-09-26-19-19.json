@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Upgrade swagger-ui",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
