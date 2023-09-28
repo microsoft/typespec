@@ -685,6 +685,25 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("defines oneOf schema for property of a union with @oneOf decorator", async () => {
+    const openApi = await openApiFor(`
+        model Foo {
+          @oneOf
+          bar: string | int32;
+        }
+      `);
+    ok(openApi.components.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(openApi.components.schemas.Foo, {
+      type: "object",
+      properties: {
+        bar: {
+          oneOf: [{ type: "string" }, { type: "integer", format: "int32" }],
+        },
+      },
+      required: ["bar"],
+    });
+  });
+
   it("defines oneOf schema for unions with @oneOf decorator", async () => {
     const openApi = await openApiFor(`
       model Cat {

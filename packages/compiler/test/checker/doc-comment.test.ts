@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Model, Operation } from "../../src/core/index.js";
-import { getDoc } from "../../src/lib/decorators.js";
+import { getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("compiler: checker: doc comments", () => {
@@ -139,6 +139,94 @@ describe("compiler: checker: doc comments", () => {
     `)) as { foo: Operation };
 
       strictEqual(getDoc(runner.program, foo), "Override comment");
+    });
+  });
+
+  describe("@returns", () => {
+    it("set the returnsDoc on an operation", async () => {
+      const { test } = (await runner.compile(`
+      
+      /**
+       * @returns A string
+       */
+      @test op test(): string;
+      `)) as { test: Operation };
+
+      strictEqual(getReturnsDoc(runner.program, test), "A string");
+    });
+
+    it("@returnsDoc decorator override the doc comment", async () => {
+      const { test } = (await runner.compile(`
+      
+      /**
+       * @returns A string
+       */
+      @returnsDoc("Another string")
+      @test op test(): string;
+      `)) as { test: Operation };
+
+      strictEqual(getReturnsDoc(runner.program, test), "Another string");
+    });
+
+    it("doc comment on op is override the base comment", async () => {
+      const { test } = (await runner.compile(`
+      
+      /**
+       * @returns A string
+       */
+      op base(): string;
+
+      /**
+       * @returns Another string
+       */
+      @test op test(): string;
+      `)) as { test: Operation };
+
+      strictEqual(getReturnsDoc(runner.program, test), "Another string");
+    });
+  });
+
+  describe("@errors", () => {
+    it("set the errorsDoc on an operation", async () => {
+      const { test } = (await runner.compile(`
+      
+      /**
+       * @errors A string
+       */
+      @test op test(): string;
+      `)) as { test: Operation };
+
+      strictEqual(getErrorsDoc(runner.program, test), "A string");
+    });
+
+    it("@errorsDoc decorator override the doc comment", async () => {
+      const { test } = (await runner.compile(`
+      
+      /**
+       * @errors A string
+       */
+      @errorsDoc("Another string")
+      @test op test(): string;
+      `)) as { test: Operation };
+
+      strictEqual(getErrorsDoc(runner.program, test), "Another string");
+    });
+
+    it("doc comment on op is override the base comment", async () => {
+      const { test } = (await runner.compile(`
+      
+      /**
+       * @errors A string
+       */
+      op base(): string;
+
+      /**
+       * @errors Another string
+       */
+      @test op test(): string;
+      `)) as { test: Operation };
+
+      strictEqual(getErrorsDoc(runner.program, test), "Another string");
     });
   });
 

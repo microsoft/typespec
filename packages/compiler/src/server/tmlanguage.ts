@@ -205,7 +205,7 @@ const docCommentBlock: IncludeRule = {
 const docComment: BeginEndRule = {
   key: "doc-comment",
   scope: "comment.block.tsp",
-  begin: "/\\**",
+  begin: "/\\*\\*",
   beginCaptures: {
     "0": { scope: "comment.block.tsp" },
   },

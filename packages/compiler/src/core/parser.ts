@@ -27,6 +27,7 @@ import {
   DirectiveArgument,
   DirectiveExpressionNode,
   DocContent,
+  DocErrorsTagNode,
   DocNode,
   DocParamTagNode,
   DocReturnsTagNode,
@@ -2399,7 +2400,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   type ParamLikeTag = DocTemplateTagNode | DocParamTagNode;
-  type SimpleTag = DocReturnsTagNode | DocUnknownTagNode;
+  type SimpleTag = DocReturnsTagNode | DocErrorsTagNode | DocUnknownTagNode;
 
   function parseDocTag(): DocTag {
     const pos = tokenPos();
@@ -2413,6 +2414,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       case "return":
       case "returns":
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocReturnsTag);
+      case "errors":
+        return parseDocSimpleTag(pos, tagName, SyntaxKind.DocErrorsTag);
       default:
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocUnknownTag);
     }
@@ -3127,6 +3130,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.tagName) || visitNode(cb, node.paramName) || visitEach(cb, node.content)
       );
     case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocErrorsTag:
     case SyntaxKind.DocUnknownTag:
       return visitNode(cb, node.tagName) || visitEach(cb, node.content);
 
