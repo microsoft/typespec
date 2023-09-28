@@ -18,7 +18,7 @@ Make sure to have installed the [editor extension](../introduction/editor/) to g
 :::
 
 1. Make a new folder somewhere
-2. Run `tsp init` and select the `Generic Rest API` template
+2. Run `npx --package=@typespec/compiler tsp init` and select the `Generic Rest API` template
 3. Run `npm install` to install dependencies
 4. Run `npx tsp compile .` to compile the initial file
    You can either run `npx tsp compile . --watch` to automatically compile change on save or keep running the command manually after that.
