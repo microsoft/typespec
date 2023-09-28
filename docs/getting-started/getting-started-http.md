@@ -163,7 +163,7 @@ Model properties and parameters which should be passed as path and query paramet
 ```typespec
 @route("/pets")
 namespace Pets {
-  op list(@query skip: int32, @query top: int32): Pet[];
+  op list(@query skip?: int32, @query top?: int32): Pet[];
   op read(@path petId: int32): Pet;
 }
 ```
