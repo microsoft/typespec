@@ -73,7 +73,8 @@ The `server` keyword can take a third parameter with parameters as necessary:
 
 ## Resources & routes
 
-Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
+Resource is a general term for anything that can be identified by a URL and manipulated by HTTP methods.
+In TypeSpec, the operations for a resource are typically grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
 
 ```typespec
 @route("/pets")
