@@ -158,7 +158,7 @@ This will result in the following route for both operations
 
 ## Path and query parameters
 
-Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` parameters respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:
+Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` decorators respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:
 
 ```typespec
 @route("/pets")
