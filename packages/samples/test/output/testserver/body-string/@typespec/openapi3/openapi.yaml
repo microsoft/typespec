@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: String Operations
 paths:
@@ -180,9 +180,7 @@ paths:
       tags:
         - String Operations
       operationId: String_getMbcs
-      description: >-
-        Get mbcs string value
-        '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
+      description: Get mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
       parameters: []
       responses:
         '200':
@@ -192,8 +190,7 @@ paths:
               schema:
                 type: string
                 enum:
-                  - >-
-                    啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+                  - 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
         default:
           description: An unexpected error response.
           content:
@@ -204,9 +201,7 @@ paths:
       tags:
         - String Operations
       operationId: String_putMbCs
-      description: >-
-        Put mbcs string value
-        '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
+      description: Put mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
       parameters: []
       responses:
         '200':
@@ -224,8 +219,7 @@ paths:
             schema:
               type: string
               enum:
-                - >-
-                  啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+                - 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
   /string/null:
     get:
       tags:
@@ -274,10 +268,7 @@ paths:
       tags:
         - String Operations
       operationId: String_getWhitespace
-      description: >-
-        Get string value with leading and trailing whitespace
-        '<tab><space><space>Now is the time for all good men to come to the aid
-        of their country<tab><space><space>'
+      description: Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
       parameters: []
       responses:
         '200':
@@ -298,10 +289,7 @@ paths:
       tags:
         - String Operations
       operationId: String_putWhitespace
-      description: >-
-        Get string value with leading and trailing whitespace
-        '<tab><space><space>Now is the time for all good men to come to the aid
-        of their country<tab><space><space>'
+      description: Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
       parameters: []
       responses:
         '200':

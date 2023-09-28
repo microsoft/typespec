@@ -2,13 +2,7 @@ steps:
   - checkout: self
     submodules: true
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "16.x"
-    displayName: Install Node.js
-
-  - script: node common/scripts/install-run-rush.js install
-    displayName: Install JavaScript Dependencies
+  - template: ../templates/install.yml
 
   - script: node common/scripts/install-run-rush.js change -v
     condition: and(succeeded(), not(or(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), startsWith(variables['System.PullRequest.SourceBranch'], 'backmerge/'))))

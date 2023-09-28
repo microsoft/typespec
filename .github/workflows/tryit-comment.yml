@@ -30,7 +30,7 @@ jobs:
                 `Changes in this PR will be published to the following url to try(check status of TypeSpec Pull Request Try It pipeline for publish status):`,
                 `Playground: https://cadlplayground.z22.web.core.windows.net/prs/${prNumber}/`,
                 "",
-                `Website: https://cadlwebsite.z1.web.core.windows.net/prs/${prNumber}/`,
+                `Website: https://tspwebsitepr.z22.web.core.windows.net/prs/${prNumber}/`,
 
               ].join("\n")
             })

@@ -3,6 +3,8 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getDoc,
+  getErrorsDoc,
+  getReturnsDoc,
   isArrayModelType,
   isErrorModel,
   isNullType,
@@ -23,7 +25,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
 import { HttpOperationResponse } from "./types.js";
 
@@ -43,10 +45,10 @@ export function getResponsesForOperation(
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
         continue;
       }
-      processResponseType(program, diagnostics, responses, option.type);
+      processResponseType(program, diagnostics, operation, responses, option.type);
     }
   } else {
-    processResponseType(program, diagnostics, responses, responseType);
+    processResponseType(program, diagnostics, operation, responses, responseType);
   }
 
   return diagnostics.wrap(Object.values(responses));
@@ -55,6 +57,7 @@ export function getResponsesForOperation(
 function processResponseType(
   program: Program,
   diagnostics: DiagnosticCollector,
+  operation: Operation,
   responses: Record<string, HttpOperationResponse>,
   responseType: Type
 ) {
@@ -96,7 +99,7 @@ function processResponseType(
     const response: HttpOperationResponse = responses[statusCode] ?? {
       statusCode,
       type: responseType,
-      description: getResponseDescription(program, responseType, statusCode, bodyType),
+      description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
       responses: [],
     };
 
@@ -128,9 +131,18 @@ function getResponseStatusCodes(
 ): string[] {
   const codes: string[] = [];
 
+  let statusFound = false;
   for (const prop of metadata) {
     if (isStatusCode(program, prop)) {
-      codes.push(...getStatusCodes(program, prop));
+      if (statusFound) {
+        reportDiagnostic(program, {
+          code: "multiple-status-codes",
+          target: responseType,
+        });
+      }
+      statusFound = true;
+      const propCodes = getStatusCodes(program, prop);
+      codes.push(...propCodes);
     }
   }
 
@@ -223,6 +235,7 @@ function getResponseBody(
 
 function getResponseDescription(
   program: Program,
+  operation: Operation,
   responseType: Type,
   statusCode: string,
   bodyType: Type | undefined
@@ -239,6 +252,13 @@ function getResponseDescription(
     if (desc) {
       return desc;
     }
+  }
+
+  const desc = isErrorModel(program, responseType)
+    ? getErrorsDoc(program, operation)
+    : getReturnsDoc(program, operation);
+  if (desc) {
+    return desc;
   }
 
   return getStatusCodeDescription(statusCode);

@@ -11,18 +11,26 @@ type MatchRule = tm.MatchRule<TypeSpecScope>;
 type Grammar = tm.Grammar<TypeSpecScope>;
 
 export type TypeSpecScope =
+  // Comments
   | "comment.block.tsp"
   | "comment.line.double-slash.tsp"
+  // Constants
   | "constant.character.escape.tsp"
   | "constant.numeric.tsp"
   | "constant.language.tsp"
+  // Keywords
   | "keyword.directive.name.tsp"
+  | "keyword.other.tsp"
+  | "keyword.tag.tspdoc"
+  // Entities
   | "entity.name.type.tsp"
   | "entity.name.function.tsp"
   | "entity.name.tag.tsp"
-  | "keyword.other.tsp"
+  | "entity.name.function.macro.tsp"
+  // Strings
   | "string.quoted.double.tsp"
   | "string.quoted.triple.tsp"
+  // Variables
   | "variable.name.tsp"
   // Operators
   | "keyword.operator.type.annotation.tsp"
@@ -160,12 +168,62 @@ const blockComment: BeginEndRule = {
   end: "\\*/",
 };
 
+const docCommentParam: MatchRule = {
+  key: "doc-comment-param",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:param|template))\\s+(${identifier})\\b`,
+  captures: {
+    "1": { scope: "keyword.tag.tspdoc" },
+    "2": { scope: "keyword.tag.tspdoc" },
+    "3": { scope: "variable.name.tsp" },
+  },
+};
+const docCommentReturn: MatchRule = {
+  key: "doc-comment-return-tag",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:returns))\\b`,
+  captures: {
+    "1": { scope: "keyword.tag.tspdoc" },
+    "2": { scope: "keyword.tag.tspdoc" },
+  },
+};
+const docCommentUnknownTag: MatchRule = {
+  key: "doc-comment-unknown-tag",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:${identifier}))\\b`,
+  captures: {
+    "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
+  },
+};
+
+const docCommentBlock: IncludeRule = {
+  key: "doc-comment-block",
+  patterns: [docCommentParam, docCommentReturn, docCommentUnknownTag],
+};
+
+const docComment: BeginEndRule = {
+  key: "doc-comment",
+  scope: "comment.block.tsp",
+  begin: "/\\*\\*",
+  beginCaptures: {
+    "0": { scope: "comment.block.tsp" },
+  },
+  end: "\\*/",
+  endCaptures: {
+    "0": { scope: "comment.block.tsp" },
+  },
+  patterns: [docCommentBlock],
+};
+
 // Tokens that match standing alone in any context: literals and comments
 const token: IncludeRule = {
   key: "token",
   patterns: [
+    docComment,
     lineComment,
     blockComment,
+
     // `"""` must come before `"` or first two quotes of `"""` will match as
     // empty string
     tripleQuotedStringLiteral,
@@ -192,9 +250,10 @@ const parenthesizedExpression: BeginEndRule = {
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
-  begin: `(@${qualifiedIdentifier})`,
+  begin: `((@)${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
@@ -203,9 +262,10 @@ const decorator: BeginEndRule = {
 const augmentDecoratorStatement: BeginEndRule = {
   key: "augment-decorator-statement",
   scope: meta,
-  begin: `(@@${qualifiedIdentifier})`,
+  begin: `((@@)${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],

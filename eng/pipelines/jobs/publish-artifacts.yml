@@ -1,6 +1,7 @@
 jobs:
   - job: publish_artifacts
     displayName: Publish Artifacts
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
     variables:
       TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
@@ -15,6 +16,8 @@ jobs:
         submodules: true
 
       - template: ../templates/install.yml
+        parameters:
+          nodeVersion: "20.x"
       - template: ../templates/build.yml
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
@@ -24,7 +27,7 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: npx @microsoft/rush publish --publish --pack --include-all
+      - script: node common/scripts/install-run-rush.js publish --publish --pack --include-all
         displayName: Pack packages
 
       - publish: $(Build.SourcesDirectory)/common/temp/artifacts/packages

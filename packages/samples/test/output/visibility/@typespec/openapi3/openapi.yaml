@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Visibility sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /hello:
@@ -81,13 +81,13 @@ paths:
             type: string
         - name: fieldMask
           in: query
-          style: form
-          explode: true
           required: true
           schema:
             type: array
             items:
               type: string
+          style: form
+          explode: true
       responses:
         '200':
           description: The request has succeeded.

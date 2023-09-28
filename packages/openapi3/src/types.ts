@@ -322,42 +322,42 @@ export type OpenAPI3Schema = Extensions & {
   /**
    * Must be strictly greater than 0.
    * A numeric instance is valid only if division by this keyword's value results in an integer.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.1
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.1
    */
   multipleOf?: number;
 
   /**
    * Representing an inclusive upper limit for a numeric instance.
    * This keyword validates only if the instance is less than or exactly equal to "maximum".
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.2
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.2
    */
   maximum?: number;
 
   /**
    * Representing an exclusive upper limit for a numeric instance.
    * This keyword validates only if the instance is strictly less than (not equal to) to "exclusiveMaximum".
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.3
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.3
    */
-  exclusiveMaximum?: number;
+  exclusiveMaximum?: boolean;
 
   /**
    * Representing an inclusive lower limit for a numeric instance.
    * This keyword validates only if the instance is greater than or exactly equal to "minimum".
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.4
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.4
    */
   minimum?: number;
 
   /**
    * Representing an exclusive lower limit for a numeric instance.
    * This keyword validates only if the instance is strictly greater than (not equal to) to "exclusiveMinimum".
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.5
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.5
    */
-  exclusiveMinimum?: number;
+  exclusiveMinimum?: boolean;
 
   /**
    * Must be a non-negative integer.
    * A string instance is valid against this keyword if its length is less than, or equal to, the value of this keyword.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.6
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.6
    */
   maxLength?: number;
 
@@ -365,19 +365,19 @@ export type OpenAPI3Schema = Extensions & {
    * Must be a non-negative integer.
    * A string instance is valid against this keyword if its length is greater than, or equal to, the value of this keyword.
    * Omitting this keyword has the same behavior as a value of 0.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.7
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.7
    */
   minLength?: number;
 
   /**
    * Should be a valid regular expression, according to the ECMA 262 regular expression dialect.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.8
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.8
    */
   pattern?: string;
   /**
    * Must be a non-negative integer.
    * An array instance is valid against "maxItems" if its size is less than, or equal to, the value of this keyword.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.11
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.11
    */
   maxItems?: number;
 
@@ -385,7 +385,7 @@ export type OpenAPI3Schema = Extensions & {
    * Must be a non-negative integer.
    * An array instance is valid against "maxItems" if its size is greater than, or equal to, the value of this keyword.
    * Omitting this keyword has the same behavior as a value of 0.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.12
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.12
    */
   minItems?: number;
 
@@ -393,14 +393,14 @@ export type OpenAPI3Schema = Extensions & {
    * If this keyword has boolean value false, the instance validates successfully.
    * If it has boolean value true, the instance validates successfully if all of its elements are unique.
    * Omitting this keyword has the same behavior as a value of false.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.13
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.13
    */
   uniqueItems?: boolean;
 
   /**
    * Must be a non-negative integer.
    * An object instance is valid against "maxProperties" if its number of properties is less than, or equal to, the value of this keyword.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.15
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.15
    */
   maxProperties?: number;
 
@@ -409,7 +409,7 @@ export type OpenAPI3Schema = Extensions & {
    * An object instance is valid against "maxProperties" if its number of properties is greater than,
    * or equal to, the value of this keyword.
    * Omitting this keyword has the same behavior as a value of 0.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.16
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.16
    */
   minProperties?: number;
 
@@ -418,7 +418,7 @@ export type OpenAPI3Schema = Extensions & {
    * An object instance is valid against this keyword if every item in the array is the name of a property in the instance.
    * Omitting this keyword has the same behavior as an empty array.
    *
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.17
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.17
    */
   required?: Array<string>;
 
@@ -429,7 +429,7 @@ export type OpenAPI3Schema = Extensions & {
    * this attribute is defined, the instance value MUST be one of the
    * values in the array in order for the schema to be valid.
    *
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.23
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.23
    */
   enum?: (string | number | boolean)[];
 
@@ -447,7 +447,7 @@ export type OpenAPI3Schema = Extensions & {
    *
    * An instance validates successfully against this keyword if it validates successfully against all schemas defined by this keyword's value.
    *
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.26
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.26
    */
   allOf?: Refable<OpenAPI3Schema>[];
 
@@ -456,7 +456,7 @@ export type OpenAPI3Schema = Extensions & {
    *
    * An instance validates successfully against this keyword if it validates successfully against at least one schema defined by this keyword's value.
    *
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.27
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.27
    */
   anyOf?: Refable<OpenAPI3Schema>[];
 
@@ -465,13 +465,13 @@ export type OpenAPI3Schema = Extensions & {
    *
    * An instance validates successfully against this keyword if it validates successfully against exactly one schema defined by this keyword's value.
    *
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.28
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.28
    */
   oneOf?: Refable<OpenAPI3Schema>[];
 
   /**
    *  An instance is valid against this keyword if it fails to validate successfully against the schema defined by this keyword.
-   * @see https://tools.ietf.org/html/draft-wright-json-schema-validation-01#section-6.29
+   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.29
    */
   not?: Refable<OpenAPI3Schema>;
 

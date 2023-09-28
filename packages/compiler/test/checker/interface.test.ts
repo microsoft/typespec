@@ -446,7 +446,7 @@ describe("compiler: interfaces", () => {
       `
       @test interface Base {@doc("base doc") one(): void}
       @test interface Extending extends Base {}
-      @@doc(Extending.one, "override for spread")
+      @@doc(Extending.one, "override for spread");
       `
     );
     const { Base, Extending } = (await testHost.compile("main.tsp")) as {

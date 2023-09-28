@@ -424,6 +424,48 @@ describe("http: decorators", () => {
       ]);
     });
 
+    it("emits error if multiple properties are decorated with `@statusCode` in return type", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        model CreatedOrUpdatedResponse {
+          @statusCode ok: "200";
+          @statusCode created: "201";
+        }
+        model DateHeader {
+          @header date: utcDateTime;
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    });
+
+    it("emits error if multiple `@statusCode` decorators are composed together", async () => {
+      const diagnostics = await runner.diagnose(
+        `      
+        model CustomUnauthorizedResponse {
+          @statusCode _: 401;
+          @body body: UnauthorizedResponse;
+        }
+  
+        model Pet {
+          name: string;
+        }
+        
+        model PetList {
+          @statusCode _: 200;
+          @body body: Pet[];
+        }
+        
+        op list(): PetList | CustomUnauthorizedResponse;
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    });
+
     it("set the statusCode with @statusCode", async () => {
       const { code } = await runner.compile(`
           op test(): {
@@ -575,6 +617,30 @@ describe("http: decorators", () => {
         code: "invalid-argument",
         message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
+    });
+
+    it("emit diagnostic when OAuth2 flow is not a valid model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @useAuth(OAuth2Auth<["foo"]>)
+        namespace Foo {}
+
+        model Flow { noscopes: "boom"; };
+        @useAuth(OAuth2Auth<[Flow]>)
+        namespace Bar {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unassignable",
+          message:
+            "Type 'foo' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+        },
+        {
+          code: "unassignable",
+          message:
+            "Type 'Flow' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+        },
+      ]);
     });
 
     it("can specify BasicAuth", async () => {

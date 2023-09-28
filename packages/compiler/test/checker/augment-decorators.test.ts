@@ -153,7 +153,7 @@ describe("compiler: checker: augment decorators", () => {
 
     it("namespace", () => expectTarget(`@test("target") namespace Foo {}`, "Foo"));
 
-    it("global namespace", () => expectTarget(`@@test(global, "target")`, "global"));
+    it("global namespace", () => expectTarget(`@@test(global, "target");`, "global"));
 
     it("model", () => expectTarget(`@test("target") model Foo {}`, "Foo"));
     it("model property", () =>
@@ -288,7 +288,7 @@ describe("compiler: checker: augment decorators", () => {
         }
 
         namespace MyService {
-          @@customName(Lib.Foo, "FooCustom")
+          @@customName(Lib.Foo, "FooCustom");
         }
       `);
       });
@@ -298,12 +298,12 @@ describe("compiler: checker: augment decorators", () => {
 
         await expectAugmentTarget(`
         import "./lib.tsp";
-        @@customName(Foo, "FooCustom")
+        @@customName(Foo, "FooCustom");
       `);
       });
 
       it("augment type in another file checked after", async () => {
-        testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom") `);
+        testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom"); `);
 
         await expectAugmentTarget(`
         import "./lib.tsp";
@@ -345,7 +345,7 @@ describe("compiler: checker: augment decorators", () => {
           @test("target") 
           @customName("Foo")
           model Foo {}
-          @@customName(Foo, "FooCustom")
+          @@customName(Foo, "FooCustom");
       `);
       });
 
@@ -354,8 +354,8 @@ describe("compiler: checker: augment decorators", () => {
           @test("target") 
           @customName("Foo")
           model Foo {}
-          @@customName(Foo, "NonCustom")
-          @@customName(Foo, "FooCustom")
+          @@customName(Foo, "NonCustom");
+          @@customName(Foo, "FooCustom");
       `);
       });
     });

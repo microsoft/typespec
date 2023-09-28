@@ -20,7 +20,6 @@ See built-in linter [documentation](https://microsoft.github.io/typespec/extendi
 
 ```ts
 import { createRule } from "@typespec/lint";
-import { paramMessage } from "@typespec/compiler";
 
 export const casingRule = createRule({
   name: "casing",
@@ -44,7 +43,7 @@ export const casingRule = createRule({
 **After**
 
 ```ts
-import { createLinterRule, paramMessage } from "@typespec/compiler";
+import { paramMessage } from "@typespec/compiler";
 
 export const casingRule = createRule({
   name: "casing",

@@ -173,6 +173,28 @@ describe("openapi3: models", () => {
       },
     });
   });
+  it("specify default value on nullable property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optional?: string | null = null;
+      };
+      `
+    );
+
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optional: {
+          type: "string",
+          nullable: true,
+          default: null,
+        },
+      },
+    });
+  });
 
   it("emits models extended from models when parent is emitted", async () => {
     const res = await openApiFor(
@@ -660,6 +682,25 @@ describe("openapi3: models", () => {
     });
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
       $ref: "#/components/schemas/Pet",
+    });
+  });
+
+  it("defines oneOf schema for property of a union with @oneOf decorator", async () => {
+    const openApi = await openApiFor(`
+        model Foo {
+          @oneOf
+          bar: string | int32;
+        }
+      `);
+    ok(openApi.components.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(openApi.components.schemas.Foo, {
+      type: "object",
+      properties: {
+        bar: {
+          oneOf: [{ type: "string" }, { type: "integer", format: "int32" }],
+        },
+      },
+      required: ["bar"],
     });
   });
 

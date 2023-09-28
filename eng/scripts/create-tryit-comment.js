@@ -44,7 +44,7 @@ async function main() {
     `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
     `You can try these changes at https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
     "",
-    `Check the website changes at https://cadlwebsite.z1.web.core.windows.net${folderName}/prs/${prNumber}/`,
+    `Check the website changes at https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
   ].join("\n");
   await writeComment(repo, prNumber, comment, ghAuth);
 }

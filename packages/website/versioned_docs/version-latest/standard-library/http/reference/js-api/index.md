@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[P] JS Api"
----
 
+---
 ## Index
 
 ### Enumerations
@@ -57,6 +57,7 @@ title: "[P] JS Api"
 
 ### Variables
 
+- [$lib](Variable.$lib.md)
 - [namespace](Variable.namespace.md)
 
 ### Functions
@@ -122,6 +123,7 @@ title: "[P] JS Api"
 - [listHttpOperationsIn](Function.listHttpOperationsIn.md)
 - [reportIfNoRoutes](Function.reportIfNoRoutes.md)
 - [resolvePathAndParameters](Function.resolvePathAndParameters.md)
+- [resolveRequestVisibility](Function.resolveRequestVisibility.md)
 - [setAuthentication](Function.setAuthentication.md)
 - [setRoute](Function.setRoute.md)
 - [setRouteOptionsForNamespace](Function.setRouteOptionsForNamespace.md)

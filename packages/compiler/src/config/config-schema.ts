@@ -89,6 +89,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       type: "object",
       nullable: true,
       required: [],
+      additionalProperties: false,
       properties: {
         extends: {
           type: "array",

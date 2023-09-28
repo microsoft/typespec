@@ -16,6 +16,7 @@ export default function Playground() {
           <iframe
             title="TypeSpec Playground"
             src="https://cadlplayground.z22.web.core.windows.net"
+            allow="clipboard-write"
             style={{
               height: "100%",
               width: "100%",

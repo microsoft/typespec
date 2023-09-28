@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] isVisible"
----
 
+---
 ```ts
 isVisible(
   program,
@@ -14,16 +14,12 @@ Determines if the given property is visible with the given visibility.
 
 ## Parameters
 
-| Parameter    | Type                                      |
-| :----------- | :---------------------------------------- |
-| `program`    | `Program`                                 |
-| `property`   | `ModelProperty`                           |
+| Parameter | Type |
+| :------ | :------ |
+| `program` | `Program` |
+| `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](Enumeration.Visibility.md) |
 
 ## Returns
 
 `boolean`
-
-## Source
-
-[metadata.ts:217](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/metadata.ts#L217)

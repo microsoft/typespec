@@ -1,6 +1,11 @@
 import { ok, strictEqual } from "assert";
 import { Model, Type, Union } from "../../src/core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
+import {
+  TestHost,
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../../src/testing/index.js";
 
 describe("compiler: aliases", () => {
   let testHost: TestHost;
@@ -230,5 +235,26 @@ describe("compiler: aliases", () => {
       code: "circular-alias-type",
       message: "Alias type 'A' recursively references itself.",
     });
+  });
+
+  // REGRESSION TEST: https://github.com/Azure/typespec-azure/issues/3365
+  it("alias an namespace in JS file shouldn't crash", async () => {
+    testHost.addJsFile("lib.js", {
+      namespace: "Foo.Bar",
+      $foo: () => {},
+    });
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./lib.js";
+      namespace Foo.Bar { op abc(): void;}
+
+      alias Aliased = Foo.Bar;
+      op getSmurf is Aliased.abc;
+
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
   });
 });

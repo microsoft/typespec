@@ -24,7 +24,6 @@ import {
   getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
-  getPropertyType,
   getService,
   getSummary,
   ignoreDiagnostics,
@@ -37,10 +36,8 @@ import {
   isGlobalNamespace,
   isNeverType,
   isNullType,
-  isNumericType,
   isRecordModelType,
   isSecret,
-  isStringType,
   isTemplateDeclaration,
   listServices,
   Model,
@@ -71,6 +68,7 @@ import {
   getHttpService,
   getStatusCodeDescription,
   getVisibilitySuffix,
+  HeaderFieldOptions,
   HttpAuth,
   HttpOperation,
   HttpOperationParameter,
@@ -80,6 +78,7 @@ import {
   isContentTypeHeader,
   isOverloadSameEndpoint,
   MetadataInfo,
+  QueryParameterOptions,
   reportIfNoRoutes,
   ServiceAuthentication,
   Visibility,
@@ -96,7 +95,7 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
-import yaml from "js-yaml";
+import { stringify } from "yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
@@ -870,7 +869,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           obj.content[contentType] = { schema: schema[0] };
         } else {
           obj.content[contentType] = {
-            schema: { oneOf: schema },
+            schema: { anyOf: schema },
           };
         }
       }
@@ -1056,7 +1055,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         content[contentType] = { schema: schemaArray[0] };
       } else {
         content[contentType] = {
-          schema: { oneOf: schemaArray },
+          schema: { anyOf: schemaArray },
         };
       }
     }
@@ -1157,53 +1156,89 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     parameter: HttpOperationParameter,
     visibility: Visibility
   ) {
-    let defaultToString = false;
     ph.name = parameter.name;
     ph.in = parameter.type;
-    if (parameter.type === "query" || parameter.type === "header") {
-      if (parameter.format === "csv" || parameter.format === "simple") {
-        ph.style = "simple";
-      } else if (parameter.format === "multi" || parameter.format === "form") {
-        if (parameter.type === "header") {
-          reportDiagnostic(program, {
-            code: "invalid-format",
-            messageId: "formHeader",
-            format: {
-              value: parameter.format,
-            },
-            target: parameter.param,
-          });
-          defaultToString = true;
-        }
-        ph.style = "form";
-        ph.explode = true;
-      } else if (parameter.format === "ssv") {
-        ph.style = "spaceDelimited";
-        ph.explode = false;
-      } else if (parameter.format === "tsv") {
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          messageId: "tsv",
-          target: parameter.param,
-        });
-        defaultToString = true;
-      } else if (parameter.format === "pipes") {
-        ph.style = "pipeDelimited";
-        ph.explode = false;
-      }
-    }
+
     const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
     if (paramBase) {
       ph = mergeOpenApiParameters(ph, paramBase);
     }
 
-    // Revert unsupported formats to just string schema type
-    if (defaultToString) {
+    const format = mapParameterFormat(parameter);
+    if (format === undefined) {
       ph.schema = {
         type: "string",
       };
-      delete ph.style;
-      delete ph.explode;
+    } else {
+      Object.assign(ph, format);
+    }
+  }
+
+  function mapParameterFormat(
+    parameter: HttpOperationParameter
+  ): { style?: string; explode?: boolean } | undefined {
+    switch (parameter.type) {
+      case "header":
+        return mapHeaderParameterFormat(parameter);
+      case "query":
+        return mapQueryParameterFormat(parameter);
+      case "path":
+        return {};
+    }
+  }
+
+  function mapHeaderParameterFormat(
+    parameter: HeaderFieldOptions & {
+      param: ModelProperty;
+    }
+  ): { style?: string; explode?: boolean } | undefined {
+    switch (parameter.format) {
+      case undefined:
+        return {};
+      case "csv":
+      case "simple":
+        return { style: "simple" };
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-format",
+          format: {
+            paramType: "header",
+            value: parameter.format,
+          },
+          target: parameter.param,
+        });
+        return undefined;
+    }
+  }
+  function mapQueryParameterFormat(
+    parameter: QueryParameterOptions & {
+      param: ModelProperty;
+    }
+  ): { style?: string; explode?: boolean } | undefined {
+    switch (parameter.format) {
+      case undefined:
+        return {};
+      case "csv":
+      case "simple":
+        return { style: "form", explode: false };
+      case "multi":
+      case "form":
+        return { style: "form", explode: true };
+      case "ssv":
+        return { style: "spaceDelimited", explode: false };
+      case "pipes":
+        return { style: "pipeDelimited", explode: false };
+
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-format",
+          format: {
+            paramType: "query",
+            value: parameter.format,
+          },
+          target: parameter.param,
+        });
+        return undefined;
     }
   }
 
@@ -1467,7 +1502,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (discriminator) {
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
-      schema.discriminator = discriminator;
+      schema.discriminator = { ...discriminator };
       // Diagnostic already reported in compiler for unions
       const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
       if (discriminatedUnion.variants.size > 0) {
@@ -1475,7 +1510,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
 
-    return schema;
+    return applyIntrinsicDecorators(union, schema);
   }
 
   function getSchemaForUnionVariant(variant: UnionVariant, visibility: Visibility) {
@@ -1492,10 +1527,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "String":
         return defaultType.value;
       case "Number":
-        compilerAssert(type.kind === "Scalar", "setting scalar default to non-scalar value");
-        const base = getStdBaseScalar(type);
-        compilerAssert(base, "not allowed to assign default to custom scalars");
-
         return defaultType.value;
       case "Boolean":
         return defaultType.value;
@@ -1515,6 +1546,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           );
         }
 
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
       case "EnumMember":
         return defaultType.value ?? defaultType.name;
       default:
@@ -1523,18 +1562,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           format: { type: defaultType.kind },
           target: defaultType,
         });
-    }
-
-    function getStdBaseScalar(scalar: Scalar): Scalar | null {
-      let current: Scalar | undefined = scalar;
-      while (current) {
-        if (program.checker.isStdType(current)) {
-          return current;
-        }
-        current = current.baseScalar;
-      }
-
-      return null;
     }
   }
 
@@ -1640,6 +1667,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     // Attach any additional OpenAPI extensions
     attachExtensions(program, prop, additionalProps);
+
     if (schema && "$ref" in schema) {
       if (Object.keys(additionalProps).length === 0) {
         return schema;
@@ -1650,6 +1678,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         };
       }
     } else {
+      if (getOneOf(program, prop) && schema.anyOf) {
+        schema.oneOf = schema.anyOf;
+        delete schema.anyOf;
+      }
+
       return { ...schema, ...additionalProps };
     }
   }
@@ -1672,58 +1705,53 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return mapping;
   }
 
-  function applyIntrinsicDecorators(
-    typespecType: Model | Scalar | ModelProperty,
-    target: OpenAPI3Schema
-  ): OpenAPI3Schema {
+  function applyIntrinsicDecorators(typespecType: Type, target: OpenAPI3Schema): OpenAPI3Schema {
     const newTarget = { ...target };
     const docStr = getDoc(program, typespecType);
-    const isString =
-      typespecType.kind !== "Model" && isStringType(program, getPropertyType(typespecType));
-    const isNumeric =
-      typespecType.kind !== "Model" && isNumericType(program, getPropertyType(typespecType));
 
     if (docStr) {
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, typespecType);
-    if (isString && formatStr) {
+    if (formatStr) {
       newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, typespecType);
-    if (isString && pattern) {
+    if (pattern) {
       newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, typespecType);
-    if (isString && minLength !== undefined) {
+    if (minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, typespecType);
-    if (isString && maxLength !== undefined) {
+    if (maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
     const minValue = getMinValue(program, typespecType);
-    if (isNumeric && minValue !== undefined) {
+    if (minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
     const minValueExclusive = getMinValueExclusive(program, typespecType);
-    if (isNumeric && minValueExclusive !== undefined) {
-      newTarget.exclusiveMinimum = minValueExclusive;
+    if (minValueExclusive !== undefined) {
+      newTarget.minimum = minValueExclusive;
+      newTarget.exclusiveMinimum = true;
     }
 
     const maxValue = getMaxValue(program, typespecType);
-    if (isNumeric && maxValue !== undefined) {
+    if (maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
     const maxValueExclusive = getMaxValueExclusive(program, typespecType);
-    if (isNumeric && maxValueExclusive !== undefined) {
-      newTarget.exclusiveMaximum = maxValueExclusive;
+    if (maxValueExclusive !== undefined) {
+      newTarget.maximum = maxValueExclusive;
+      newTarget.exclusiveMaximum = true;
     }
 
     const minItems = getMinItems(program, typespecType);
@@ -1740,13 +1768,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       newTarget.format = "password";
     }
 
-    if (isString) {
-      const values = getKnownValues(program, typespecType);
-      if (values) {
-        return {
-          oneOf: [newTarget, getSchemaForEnum(values)],
-        };
-      }
+    const values = getKnownValues(program, typespecType as any);
+    if (values) {
+      return {
+        oneOf: [newTarget, getSchemaForEnum(values)],
+      };
     }
 
     attachExtensions(program, typespecType, newTarget);
@@ -1983,12 +2009,17 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return yaml.dump(root, {
-        noRefs: true,
-        replacer: function (key, value) {
+      return stringify(
+        root,
+        (key, value) => {
           return value instanceof Ref ? value.toJSON() : value;
         },
-      });
+        {
+          singleQuote: true,
+          aliasDuplicateObjects: false,
+          lineWidth: 0,
+        }
+      );
   }
 }
 

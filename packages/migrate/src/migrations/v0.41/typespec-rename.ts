@@ -1,8 +1,8 @@
 import type { Node, TypeSpecScriptNode } from "@typespec/compiler";
 import { NodePackage, getAnyExtensionFromPath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
-import * as yaml from "js-yaml";
 import * as path from "path";
+import * as yaml from "yaml";
 import type { TypeSpecCompilerV0_40 } from "../../migration-config.js";
 import {
   AstContentMigrateAction,
@@ -221,7 +221,7 @@ export const migrateTspConfigFile = createFileContentMigration({
         // load data & convert to new format if needed to
         let tspConfig: any;
         try {
-          tspConfig = yaml.load(content);
+          tspConfig = yaml.parse(content);
           // if config has older deprecated emitters format, convert to new format
           if (tspConfig?.emitters !== undefined) {
             (tspConfig as { emit: Array<string> }).emit = [];
@@ -239,7 +239,7 @@ export const migrateTspConfigFile = createFileContentMigration({
             tspConfig.emitters = undefined;
             if (tspConfig.options.length === 0) tspConfig.options = undefined;
 
-            content = yaml.dump(tspConfig);
+            content = yaml.stringify(tspConfig);
           }
         } catch (err) {
           console.warn(

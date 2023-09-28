@@ -1,8 +1,8 @@
 ---
 jsApi: true
 title: "[F] $route"
----
 
+---
 ```ts
 $route(
   context,
@@ -21,17 +21,13 @@ it will be used as a prefix to the route URI of the operation.
 
 ## Parameters
 
-| Parameter     | Type               |
-| :------------ | :----------------- |
-| `context`     | `DecoratorContext` |
-| `entity`      | `Type`             |
-| `path`        | `string`           |
-| `parameters`? | `Model`            |
+| Parameter | Type |
+| :------ | :------ |
+| `context` | `DecoratorContext` |
+| `entity` | `Type` |
+| `path` | `string` |
+| `parameters`? | `Model` |
 
 ## Returns
 
 `void`
-
-## Source
-
-[decorators.ts:581](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/http/src/decorators.ts#L581)

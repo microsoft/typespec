@@ -1,18 +1,20 @@
+import { CompilerOptions } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import "swagger-ui/dist/swagger-ui.css";
+import "swagger-ui-react/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { BrowserHost } from "../browser-host.js";
 import { importTypeSpecCompiler } from "../core.js";
 import { getMarkerLocation } from "../services.js";
 import { PlaygroundSample } from "../types.js";
+import { resolveLibraries } from "../utils.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
-import { useControllableValue } from "./hooks.js";
+import { useAsyncMemo, useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
-import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
+import { CompilationState, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
 export interface PlaygroundProps {
@@ -21,8 +23,8 @@ export interface PlaygroundProps {
   /** Default emitter if leaving this unmanaged. */
   defaultContent?: string;
 
-  /** List of available emitters */
-  emitters: string[];
+  /** List of available libraries */
+  libraries: string[];
 
   /** Emitter to use */
   emitter?: string;
@@ -32,11 +34,11 @@ export interface PlaygroundProps {
   onEmitterChange?: (emitter: string) => void;
 
   /** Emitter options */
-  emitterOptions?: EmitterOptions;
+  compilerOptions?: CompilerOptions;
   /** Default emitter options if leaving this unmanaged. */
-  defaultEmitterOptions?: EmitterOptions;
+  defaultCompilerOptions?: CompilerOptions;
   /** Callback when emitter options change */
-  onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
+  onCompilerOptionsChange?: (emitter: CompilerOptions) => void;
 
   /** Samples available */
   samples?: Record<string, PlaygroundSample>;
@@ -65,7 +67,7 @@ export interface PlaygroundSaveData {
   emitter: string;
 
   /** Emitter options. */
-  options?: EmitterOptions;
+  options?: CompilerOptions;
 
   /** If a sample is selected and the content hasn't changed since. */
   sampleName?: string;
@@ -85,10 +87,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     props.defaultEmitter,
     props.onEmitterChange
   );
-  const [emitterOptions, onEmitterOptionsChange] = useControllableValue(
-    props.emitterOptions,
-    props.defaultEmitterOptions ?? {},
-    props.onEmitterOptionsChange
+  const [compilerOptions, onCompilerOptionsChange] = useControllableValue(
+    props.compilerOptions,
+    props.defaultCompilerOptions ?? {},
+    props.onCompilerOptionsChange
   );
   const [selectedSampleName, onSelectedSampleNameChange] = useControllableValue(
     props.sampleName,
@@ -107,7 +109,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setContent(content);
     const typespecCompiler = await importTypeSpecCompiler();
 
-    const state = await compile(host, content, selectedEmitter, emitterOptions);
+    const state = await compile(host, content, selectedEmitter, compilerOptions);
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
@@ -121,7 +123,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, emitterOptions, typespecModel, setContent]);
+  }, [host, selectedEmitter, compilerOptions, typespecModel, setContent]);
 
   const updateTypeSpec = useCallback(
     (value: string) => {
@@ -142,6 +144,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         updateTypeSpec(config.content);
         if (config.preferredEmitter) {
           onSelectedEmitterChange(config.preferredEmitter);
+        }
+        if (config.compilerOptions) {
+          onCompilerOptionsChange(config.compilerOptions);
         }
       }
     }
@@ -165,7 +170,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       onSave({
         content: typespecModel.getValue(),
         emitter: selectedEmitter,
-        options: emitterOptions,
+        options: compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
       });
     }
@@ -173,7 +178,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     typespecModel,
     onSave,
     selectedEmitter,
-    emitterOptions,
+    compilerOptions,
     selectedSampleName,
     isSampleUntouched,
   ]);
@@ -193,6 +198,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [saveCode]
   );
 
+  const libraries = useAsyncMemo(
+    async () => resolveLibraries(props.libraries),
+    [],
+    [props.libraries]
+  );
+
   return (
     <div
       css={{
@@ -208,11 +219,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     >
       <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
         <EditorCommandBar
-          emitters={props.emitters}
+          libraries={libraries}
           selectedEmitter={selectedEmitter}
           onSelectedEmitterChange={onSelectedEmitterChange}
-          emitterOptions={emitterOptions}
-          onEmitterOptionsChange={onEmitterOptionsChange}
+          compilerOptions={compilerOptions}
+          onCompilerOptionsChange={onCompilerOptionsChange}
           samples={props.samples}
           selectedSampleName={selectedSampleName}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
@@ -247,22 +258,23 @@ async function compile(
   host: BrowserHost,
   content: string,
   selectedEmitter: string,
-  emittersOptions: Record<string, Record<string, unknown>>
+  options: CompilerOptions
 ): Promise<CompilationState> {
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
     const typespecCompiler = await importTypeSpecCompiler();
     const program = await typespecCompiler.compile(host, "main.tsp", {
-      outputDir: "tsp-output",
-      emit: [selectedEmitter],
+      ...options,
       options: {
-        ...emittersOptions,
+        ...options.options,
         [selectedEmitter]: {
-          ...emittersOptions[selectedEmitter],
+          ...options.options?.[selectedEmitter],
           "emitter-output-dir": "tsp-output",
         },
       },
+      outputDir: "tsp-output",
+      emit: [selectedEmitter],
     });
     const outputFiles = await findOutputFiles(host);
     return { program, outputFiles };

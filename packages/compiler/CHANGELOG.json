@@ -2,6 +2,85 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.48.1",
+      "tag": "@typespec/compiler_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix emitter framework issue causing reference context to be lost in certain cases."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Add typesVersions metadata for the emitter framework to package.json"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/compiler_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**Breaking Change** A semicolon is now required after augment decorator  statements."
+          },
+          {
+            "comment": "Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`. "
+          },
+          {
+            "comment": "Fix issue where --config would search the folder hierarchy looking for `tspconfig.yaml`."
+          },
+          {
+            "comment": "**Deprecation** `@deprecated` decorator has been marked as deprecated. Use `#deprecated` directive instead."
+          },
+          {
+            "comment": "**IDE** Add coloring for doc comment"
+          },
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Parsing and validation of the tspconfig.yaml will not report the error location."
+          },
+          {
+            "comment": "**Fix** Stackoverflow when model property reference itself"
+          },
+          {
+            "comment": "**Fix** Compiler crash when using alias of namespace that has decorators"
+          },
+          {
+            "comment": "Fix: Compiler freeze when using invalid token between doc comment and type"
+          },
+          {
+            "comment": "**Added** validation making sure properties of model are compatible with a base model indexer (using `extends`)"
+          },
+          {
+            "comment": "Fix: Crash with when relating recursive types"
+          },
+          {
+            "comment": "Fix typo in 'format' error message"
+          },
+          {
+            "comment": "Expose `CompilerOptions` TypeScript type"
+          },
+          {
+            "comment": "Report library information when crash happen in $onValidate"
+          },
+          {
+            "comment": "Diagnostics reported on nodes with an `id` will see the diagnostic highlight the id instead of the whole node. For example it will show the error on the model name instead of highlighting the entire model."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.3` to `~0.4.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.1",
       "tag": "@typespec/compiler_v0.47.1",
       "date": "Thu, 10 Aug 2023 20:18:00 GMT",

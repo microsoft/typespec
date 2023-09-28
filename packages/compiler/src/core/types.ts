@@ -1,6 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
+import { YamlScript } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
 
@@ -390,7 +391,7 @@ export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: Namespace;
-  node: NamespaceStatementNode;
+  node: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
   /**
    * The models in the namespace.
@@ -751,6 +752,7 @@ export enum SyntaxKind {
   DocText,
   DocParamTag,
   DocReturnsTag,
+  DocErrorsTag,
   DocTemplateTag,
   DocUnknownTag,
   Projection,
@@ -783,6 +785,7 @@ export enum SyntaxKind {
   ProjectionStatement,
   ProjectionDecoratorReferenceExpression,
   Return,
+  JsNamespaceDeclaration,
 }
 
 export const enum NodeFlags {
@@ -838,6 +841,7 @@ export interface TemplateDeclarationNode {
 export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
+  | JsNamespaceDeclarationNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -1555,7 +1559,12 @@ export interface DocTagBaseNode extends BaseNode {
   readonly content: readonly DocContent[];
 }
 
-export type DocTag = DocReturnsTagNode | DocParamTagNode | DocTemplateTagNode | DocUnknownTagNode;
+export type DocTag =
+  | DocReturnsTagNode
+  | DocErrorsTagNode
+  | DocParamTagNode
+  | DocTemplateTagNode
+  | DocUnknownTagNode;
 export type DocContent = DocTextNode;
 
 export interface DocTextNode extends BaseNode {
@@ -1565,6 +1574,10 @@ export interface DocTextNode extends BaseNode {
 
 export interface DocReturnsTagNode extends DocTagBaseNode {
   readonly kind: SyntaxKind.DocReturnsTag;
+}
+
+export interface DocErrorsTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocErrorsTag;
 }
 
 export interface DocParamTagNode extends DocTagBaseNode {
@@ -1614,6 +1627,10 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 
   /* Any namespaces declared by decorators. */
   readonly namespaceSymbols: Sym[];
+}
+
+export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {
+  readonly kind: SyntaxKind.JsNamespaceDeclaration;
 }
 
 export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
@@ -1735,9 +1752,12 @@ export interface SourceLocation extends TextRange {
   isSynthetic?: boolean;
 }
 
+/** Used to explicitly specify that a diagnostic has no target. */
 export const NoTarget = Symbol.for("NoTarget");
 
-export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
+/** Diagnostic target that can be used when working with TypeSpec types.  */
+export type TypeSpecDiagnosticTarget = Node | Type | Sym;
+export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";
 
@@ -1951,7 +1971,7 @@ export interface JSONSchemaValidator {
    * @param target Source file target to use for diagnostics.
    * @returns Diagnostics produced by schema validation of the configuration.
    */
-  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+  validate(config: unknown, target: YamlScript | SourceFile | typeof NoTarget): Diagnostic[];
 }
 
 /** @deprecated Use TypeSpecLibraryDef */
