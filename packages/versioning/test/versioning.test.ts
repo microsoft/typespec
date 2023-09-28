@@ -720,7 +720,7 @@ describe("versioning: logic", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/renamed-duplicate-property",
         message:
-          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v2.",
+          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v1.",
       });
     });
 
@@ -1676,7 +1676,7 @@ describe("versioning: logic", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/renamed-duplicate-property",
         message:
-          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v2.",
+          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v1.",
       });
     });
 

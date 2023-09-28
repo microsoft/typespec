@@ -3,13 +3,10 @@ import {
   getService,
   getTypeName,
   isTemplateInstance,
-  Model,
-  ModelProperty,
   Namespace,
   navigateProgram,
   NoTarget,
   Program,
-  RekeyableMap,
   Type,
 } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
@@ -82,6 +79,7 @@ export function $onValidate(program: Program) {
         for (const variant of union.variants.values()) {
           addDependency(union.namespace, variant.type);
         }
+        validateVersionedPropertyNames(program, union);
       },
       operation: (op) => {
         // If this is an instantiated type we don't want to keep the mapping.
@@ -153,6 +151,8 @@ export function $onValidate(program: Program) {
         }
       },
       enum: (en) => {
+        validateVersionedPropertyNames(program, en);
+
         // construct the list of tuples in the old format if version
         // information is placed in the Version enum members
         const useDependencies = getUseDependencies(program, en);
@@ -210,7 +210,6 @@ function validateMultiTypeReference(program: Program, source: Type) {
   }
 }
 
-
 /**
  * Constructs a map of version to name for the the source.
  */
@@ -241,6 +240,16 @@ function getVersionedNameMap(
   let lastName: string | undefined = undefined;
   switch (source.kind) {
     case "ModelProperty":
+      lastName = source.name;
+      break;
+    case "UnionVariant":
+      if (typeof source.name === "string") {
+        lastName = source.name;
+      } else if (typeof source.name === "symbol") {
+        lastName = source.name.description;
+      }
+      break;
+    case "EnumMember":
       lastName = source.name;
       break;
     default:
@@ -368,23 +377,29 @@ function validateVersionedNamespaceUsage(
   }
 }
 
-function validateVersionedPropertyNames(program: Program, source: Model) {
+function validateVersionedPropertyNames(program: Program, source: Type) {
   const allVersions = getAllVersions(program, source);
   if (allVersions === undefined) return;
 
-  const versionedNameMap = new Map<Version, string[]>(
-    allVersions.map((v) => [v, []])
-  );
+  const versionedNameMap = new Map<Version, string[]>(allVersions.map((v) => [v, []]));
 
-  for (const property of source.properties.values()) {
-    const nameMap = getVersionedNameMap(program, property);
+  let values: Iterable<Type> = [];
+  if (source.kind === "Model") {
+    values = source.properties.values();
+  } else if (source.kind === "Enum") {
+    values = source.members.values();
+  } else if (source.kind === "Union") {
+    values = source.variants.values();
+  }
+  for (const value of values) {
+    const nameMap = getVersionedNameMap(program, value);
     if (nameMap === undefined) continue;
     for (const [version, name] of nameMap) {
       if (name === undefined) continue;
       versionedNameMap.get(version)?.push(name);
     }
   }
-  
+
   // for each version, ensure there are no duplicate property names
   for (const [version, names] of versionedNameMap.entries()) {
     // create a map with names to count of occurrences
