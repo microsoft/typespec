@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Using `TypeSpec.Xyz` namespace shouldn't require the `TypeSpec Prefix`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
