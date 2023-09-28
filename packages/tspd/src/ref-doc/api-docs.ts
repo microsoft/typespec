@@ -7,6 +7,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   const markdownPluginOptions: Partial<PluginOptions> = {
     entryFileName: "index.md",
     propertiesFormat: "table",
+    parametersFormat: "table",
     enumMembersFormat: "table",
     typeDeclarationFormat: "table",
     hidePageTitle: true,
@@ -14,10 +15,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     titleTemplate: "{name}",
     hideInPageTOC: true,
     hidePageHeader: true,
-
-    tocFormat: "list",
-    flattenOutputFiles: true,
-    identifiersAsCodeBlocks: true,
+    useCodeBlocks: true,
   };
 
   const app = await Application.bootstrapWithPlugins({

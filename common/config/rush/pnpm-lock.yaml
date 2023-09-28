@@ -1300,8 +1300,8 @@ importers:
         specifier: ~0.25.1
         version: 0.25.1(typescript@5.2.2)
       typedoc-plugin-markdown:
-        specifier: ~4.0.0-next.20
-        version: 4.0.0-next.20(typedoc@0.25.1)
+        specifier: ~4.0.0-next.22
+        version: 4.0.0-next.22(typedoc@0.25.1)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -6413,6 +6413,7 @@ packages:
 
   /@swagger-api/apidom-ns-json-schema-draft-4@0.76.2:
     resolution: {integrity: sha512-0Y32CQE6tIt4IPsoCzWAUskZSyGkfw87IIsH5Bcm3D1qIlAhPAokQbe1212MmZoLVUvqrXDqZHXnOxxMaHZvYw==}
+    requiresBuild: true
     dependencies:
       '@babel/runtime-corejs3': 7.22.15
       '@swagger-api/apidom-ast': 0.76.2
@@ -16104,10 +16105,10 @@ packages:
       is-typedarray: 1.0.0
     dev: false
 
-  /typedoc-plugin-markdown@4.0.0-next.20(typedoc@0.25.1):
-    resolution: {integrity: sha512-mQoLUSk6KLPMv1zpcTk43h8+8aD+T65qPh99/umSsczd1yTOyZiA0h0kAlsrZrAM8SWoJEn/fZWgV3JMR3Bb4Q==}
+  /typedoc-plugin-markdown@4.0.0-next.22(typedoc@0.25.1):
+    resolution: {integrity: sha512-OguaCi7gW/2kofSF+V2E/XGLfOtYXLEc/tq83g+5Hn6J1i5V0sUsCMs8VFjx9fP4e8TRDvZDpfkiZ55RTOQH/w==}
     peerDependencies:
-      typedoc: '>=0.24.0'
+      typedoc: '>=0.25.0'
     dependencies:
       typedoc: 0.25.1(typescript@5.2.2)
     dev: true
