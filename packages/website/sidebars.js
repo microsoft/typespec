@@ -54,7 +54,11 @@ const sidebars = {
     {
       type: "category",
       label: "Getting Started",
-      items: ["getting-started/getting-started", "getting-started/typespec-for-openapi-dev"],
+      items: [
+        "getting-started/getting-started",
+        "getting-started/getting-started-http",
+        "getting-started/typespec-for-openapi-dev",
+      ],
     },
     {
       type: "category",
