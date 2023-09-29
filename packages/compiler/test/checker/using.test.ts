@@ -333,7 +333,10 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
-      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      {
+        code: "ambiguous-symbol",
+        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+      },
       { code: "unknown-decorator" },
     ]);
   });
@@ -357,7 +360,10 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
-      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      {
+        code: "ambiguous-symbol",
+        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+      },
       { code: "unknown-decorator" },
       { code: "missing-implementation" },
     ]);
