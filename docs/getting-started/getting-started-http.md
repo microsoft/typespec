@@ -14,7 +14,7 @@ References:
 ## Setup
 
 :::note
-Make sure to have installed the [editor extension](../introduction/editor/) to get syntax highlighting and intellisense.
+Make sure to have installed the [editor extension](../introduction/installation.md#install-the-vs-and-vscode-extensions) to get syntax highlighting and intellisense.
 :::
 
 1. Make a new folder somewhere
